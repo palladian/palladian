@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
@@ -108,11 +110,13 @@ public final class BibsonomyBookmarks extends BaseRankingService implements Rank
             String encUrl = UrlHelper.encodeParameter(url);
             // authenticate via HTTP Auth and send GET request
             String pass = getLogin() + ":" + getApiKey();
-            Map<String, String> headerParams = new HashMap<String, String>();
-            headerParams.put("Authorization", "Basic " + StringHelper.encodeBase64(pass));
-            HttpResult getResult = retriever.httpGet(
+
+            HttpRequest getRequest = new HttpRequest(HttpMethod.GET,
                     "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=999999&search="
-                            + encUrl, headerParams);
+                            + encUrl);
+            getRequest.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(pass));
+
+            HttpResult getResult = retriever.execute(getRequest);
             String response = HttpHelper.getStringContent(getResult);
 
             // create JSON-Object from response
@@ -150,13 +154,12 @@ public final class BibsonomyBookmarks extends BaseRankingService implements Rank
                 throw new IllegalStateException("login or api key is missing.");
             }
             String pass = getLogin() + ":" + getApiKey();
-            Map<String, String> headerParams = new HashMap<String, String>();
-            headerParams.put("Authorization", "Basic " + StringHelper.encodeBase64(pass));
-            HttpResult getResult;
-            getResult = retriever
-                    .httpGet(
-                            "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=999999&search=http://www.google.com/",
-                            headerParams);
+
+            HttpRequest getRequest = new HttpRequest(HttpMethod.GET,
+                    "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=999999&search=http://www.google.com/");
+            getRequest.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(pass));
+
+            HttpResult getResult = retriever.execute(getRequest);
             status = getResult.getStatusCode();
         } catch (HttpException e) {
             LOGGER.error("HttpException " + e.getMessage());

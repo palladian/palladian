@@ -19,9 +19,11 @@ import ws.palladian.helper.math.MathHelper;
  * 
  * </p>
  * 
+ * @deprecated consider using the {@link ProgressMonitor instead}
  * @author David Urbansky
  * @author Philipp Katz
  */
+@Deprecated
 public final class ProgressHelper {
 
     private final static char PROGRESS_CHAR = '■';
@@ -105,7 +107,7 @@ public final class ProgressHelper {
                 double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
                 processString.append(createProgressBar(percent));
                 processString.append(" => ").append(percent).append("% (").append(totalCount - counter)
-                        .append(" items remaining");
+                .append(" items remaining");
                 if (stopWatch != null && percent > 0) {
                     long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
                     // if elapsed not possible (timer started long before progress helper used) =>

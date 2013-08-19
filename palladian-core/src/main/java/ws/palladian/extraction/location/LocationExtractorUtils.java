@@ -67,7 +67,7 @@ final class LocationExtractorUtils {
 
     public static <T> Set<T> filterConditionally(Collection<T> set, Filter<T> filter) {
         Set<T> temp = new HashSet<T>(set);
-        CollectionHelper.filter(temp, filter);
+        CollectionHelper.remove(temp, filter);
         return temp.size() > 0 ? temp : new HashSet<T>(set);
     }
 

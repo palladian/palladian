@@ -420,7 +420,7 @@ public class DatasetCreator {
 
             try {
 
-                String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
+                String escapedSeed = Pattern.quote(seedEntity);
                 String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
                         + "(?=(\\s|[.,!?]))";
 

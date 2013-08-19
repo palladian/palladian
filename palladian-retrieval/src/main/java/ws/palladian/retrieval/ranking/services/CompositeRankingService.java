@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,45 +29,6 @@ public final class CompositeRankingService extends BaseRankingService implements
     private static final Logger LOGGER = LoggerFactory.getLogger(CompositeRankingService.class);
 
     private final List<RankingService> rankingServices;
-
-    /**
-     * <p>
-     * Create a new {@link CompositeRankingService} with all available {@link RankingService}s.
-     * </p>
-     * 
-     * @param config The configuration for the rankers.
-     * @deprecated Prefer using the {@link #CompositeRankingService(Collection)} constructor and specify services
-     *             manually; this constructor will throw Exceptions in case the configuration for <i>any</i> of
-     *             the services is available.
-     */
-    @Deprecated
-    public CompositeRankingService(Configuration config) {
-        rankingServices = new ArrayList<RankingService>();
-        rankingServices.add(new AlexaRank());
-        rankingServices.add(new BibsonomyBookmarks(config));
-        rankingServices.add(new BitlyClicks(config));
-        rankingServices.add(new Compete(config));
-        rankingServices.add(new DeliciousBookmarks());
-        rankingServices.add(new DmozIndexed());
-        rankingServices.add(new FacebookLinkStats());
-        rankingServices.add(new FriendfeedAggregatedStats());
-        rankingServices.add(new FriendfeedStats());
-        rankingServices.add(new GoogleCachedPage());
-        rankingServices.add(new GooglePageRank());
-        rankingServices.add(new GooglePlusLikes());
-        rankingServices.add(new LinkedInShares());
-        rankingServices.add(new MajesticSeo(config));
-        rankingServices.add(new PinterestPins());
-        rankingServices.add(new PlurkPosts(config));
-        rankingServices.add(new RedditStats());
-        rankingServices.add(new SemRush());
-        rankingServices.add(new SharethisStats(config));
-        rankingServices.add(new StumbleUponViews());
-        rankingServices.add(new TwitterTweets());
-        rankingServices.add(new WebOfTrust());
-        rankingServices.add(new Webutation());
-        rankingServices.add(new YandexCitationIndex());
-    }
 
     /**
      * <p>

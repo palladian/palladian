@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.constants.TemperatureUnit;
@@ -264,6 +265,42 @@ public class UnitNormalizer {
 
     /**
      * <p>
+     * Return a collection of units that are of the same type, e.g. if "cm" is given, all other length units are
+     * returned.
+     * </p>
+     * 
+     * @param unit The input unit.
+     * @return A collection of units of the same type.
+     */
+    public static Set<String> getAllUnitsOfSameType(String unit) {
+
+        if (isDigitalUnit(unit)) {
+            return DIGITAL_UNITS;
+        }
+        if (isTimeUnit(unit)) {
+            return TIME_UNITS;
+        }
+        if (isFrequencyUnit(unit)) {
+            return FREQUENCY_UNITS;
+        }
+        if (isLengthUnit(unit)) {
+            return LENGTH_UNITS;
+        }
+        if (isWeightUnit(unit)) {
+            return WEIGHT_UNITS;
+        }
+        if (isVolumeUnit(unit)) {
+            return VOLUME_UNITS;
+        }
+        if (isTemperatureUnit(unit)) {
+            return TEMPERATURE_UNITS;
+        }
+
+        return CollectionHelper.newHashSet();
+    }
+
+    /**
+     * <p>
      * Returns true if unitB is bigger than units. e.g. hours > minutes and GB > MB
      * </p>
      * 
@@ -501,7 +538,11 @@ public class UnitNormalizer {
                 || unit.equals("megapixels") || unit.equals("mpix") || unit.equals("mpixel") || unit.equals("mp")
                 || unit.equals("mpx")) {
             multiplier = 1000000.0;
-        } else if (unit.equals("%")) {
+        }else if (unit.equals("kpix") || unit.equals("kilopixels") || unit.equals("kilopixel")
+                || unit.equals("kilo pixel")) {
+            multiplier = 1000.0;
+        }
+        else if (unit.equals("%")) {
             multiplier = 0.01;
         }
 
