@@ -3,16 +3,15 @@
  */
 package ws.palladian.classification;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hamcrest.Matchers;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isOneOf;
 import org.junit.Test;
 
 import weka.classifiers.bayes.NaiveBayes;
@@ -144,7 +143,7 @@ public class WekaPredictorTest {
         WekaPredictor classifier = new WekaPredictor(new Bagging());
         WekaModel model = classifier.train(trainSet);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, validationSet);
-        assertThat(evaluation.getF("false", 1.0),is(greaterThan(0.0)));
-        assertThat(evaluation.getAccuracy(),is(greaterThan(0.0)));
+        assertThat(evaluation.getF(1.0, "false"), is(greaterThan(0.0)));
+        assertThat(evaluation.getAccuracy(), is(greaterThan(0.0)));
     }
 }
