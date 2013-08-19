@@ -104,6 +104,7 @@ public class ImageHandler {
             url = url.trim();
             if (url.startsWith("http:") || url.startsWith("https:")) {
                 HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
+                url = url.replace(" ", "%20");
                 HttpResult httpResult = retriever.httpGet(url);
                 bufferedImage = ImageIO.read(new ByteArrayInputStream(httpResult.getContent()));
             } else {
@@ -286,7 +287,34 @@ public class ImageHandler {
         return image.getSubimage((int)xOffset, (int)yOffset, Math.min(boxWidth, iWidth), Math.min(boxHeight, iHeight));
     }
 
-    private static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight, boolean toFit) {
+    /**
+     * <p>
+     * Batch rescale images in a folder.
+     * </p>
+     * 
+     * @param imageFolder The folder with the images to rescale.
+     * @param imageWidth The target image width.
+     * @param imageHeight The target image height.
+     * @param fit Whether images should be fit to the box or cropped to match the imageWidth and imageHeight.
+     * @throws IOException
+     */
+    public static void rescaleAllImages(String imageFolder, int imageWidth, int imageHeight, boolean fit)
+            throws IOException {
+
+        File[] imageFiles = FileHelper.getFiles(imageFolder);
+        for (File file : imageFiles) {
+            BufferedImage image = load(file);
+            if (fit) {
+                image = boxFit(image, imageWidth, imageHeight);
+            } else {
+                image = boxCrop(image, imageWidth, imageHeight);
+            }
+            saveImage(image, FileHelper.getFileType(file.getAbsolutePath()), file.getAbsolutePath());
+        }
+
+    }
+
+    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight, boolean toFit) {
 
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
@@ -462,7 +490,10 @@ public class ImageHandler {
         return bufferedImage;
     }
 
-    public static void downloadAndSave(String url, String savePath) {
+    public static boolean downloadAndSave(String url, String savePath) {
+
+        boolean success = false;
+
         try {
 
             BufferedImage bi = load(url);
@@ -482,6 +513,7 @@ public class ImageHandler {
             FileHelper.createDirectoriesAndFile(savePath);
             ImageIO.write(bi, fileExtension, new File(savePath));
 
+            success = true;
         } catch (MalformedURLException e) {
             LOGGER.error(url, e);
         } catch (IOException e) {
@@ -491,6 +523,8 @@ public class ImageHandler {
         } catch (IllegalArgumentException e) {
             LOGGER.error(url, e);
         }
+
+        return success;
     }
 
     private static BufferedImage substractImages(BufferedImage image1, BufferedImage image2) {
@@ -690,6 +724,8 @@ public class ImageHandler {
                 } else if (quality < 1) {
                     LOGGER.warn("compression is not supported for " + fileType + " files, " + filePath);
                 }
+
+                FileHelper.createDirectoriesAndFile(filePath);
 
                 File outFile = new File(filePath);
                 FileImageOutputStream output = new FileImageOutputStream(outFile);

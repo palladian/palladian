@@ -70,8 +70,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      * </p>
      * 
      * @param configuration The configuration which must provide an account key for accessing Bing, which must be
-     *            provided
-     *            as string via key <tt>api.bing.key</tt> in the configuration.
+     *            provided as string via key <tt>api.bing.key</tt> in the configuration.
      */
     public BaseBingSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_ACCOUNT_KEY));

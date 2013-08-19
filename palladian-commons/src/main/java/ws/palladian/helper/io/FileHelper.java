@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
 /**
@@ -207,10 +206,12 @@ public final class FileHelper {
     }
 
     /**
-     * Gets the file type.
+     * <p>
+     * Gets the file type of a URI.
+     * </p>
      * 
-     * @param path the path
-     * @return the file type
+     * @param path The path of the file
+     * @return The file type without the period. E.g. abc.jpg => "jpg".
      */
     public static String getFileType(String path) {
         String fileType = "";
@@ -612,10 +613,11 @@ public final class FileHelper {
      * 
      * @param filePath The file path where the contents should be saved to.
      * @param string The string to save.
+     * @param encoding The encoding in which the file should be written.
      * @return <tt>False</tt> if any IOException occurred. It is likely that {@link string} has not been written to
      *         {@link filePath}. See error log for details (Exceptions).
      */
-    public static boolean writeToFile(String filePath, CharSequence string) {
+    public static boolean writeToFile(String filePath, CharSequence string, String encoding) {
 
         String fileType = getFileType(filePath);
         if (fileType.equalsIgnoreCase("gz") || fileType.equalsIgnoreCase("gzip")) {
@@ -631,7 +633,7 @@ public final class FileHelper {
         Writer writer = null;
 
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), DEFAULT_ENCODING));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
             writer.write(string.toString());
             success = true;
         } catch (IOException e) {
@@ -641,6 +643,10 @@ public final class FileHelper {
         }
 
         return success;
+    }
+
+    public static boolean writeToFile(String filePath, CharSequence string) {
+        return writeToFile(filePath, string, DEFAULT_ENCODING);
     }
 
     public static void writeToFile(InputStream inputStream, String fileTargetLocation) {
@@ -947,8 +953,7 @@ public final class FileHelper {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
-        String newPath = fullPath.replaceAll(StringHelper.escapeForRegularExpression(oldName) + "\\.",
-                StringHelper.escapeForRegularExpression(newName) + ".");
+        String newPath = fullPath.replaceAll(Pattern.quote(oldName) + "\\.", newName + ".");
 
         return newPath;
     }
@@ -1074,7 +1079,7 @@ public final class FileHelper {
         File f = new File(filename);
 
         if (!f.exists()) {
-            LOGGER.error("file can not be deleted because it does not exist");
+            LOGGER.warn("file can not be deleted because it does not exist");
             return false;
         }
 
@@ -1103,7 +1108,9 @@ public final class FileHelper {
     }
 
     /**
-     * Delete.
+     * <p>
+     * Delete a file.
+     * </p>
      * 
      * @param filename The filename.
      * @return <tt>True</tt> if the deletion was successful, <tt>false</tt> otherwise.
@@ -1545,7 +1552,9 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Creates the file and its directories if do not exist yet.
+     * </p>
      * 
      * @param filePath The file to create.
      * @return <code>true</code> if file and directories have been created, <code>false</code> otherwise or on every
@@ -1553,32 +1562,42 @@ public final class FileHelper {
      */
     public static boolean createDirectoriesAndFile(String filePath) {
         boolean success = false;
+
+        if (filePath.endsWith("/")) {
+            filePath += "del.del";
+        }
+
         File newFile = new File(filePath);
         if (!newFile.exists()) {
 
-            // FIXME fails with NPE if no parent directory is given (filePath = just the file name).
-            File directories = new File(newFile.getParent());
             boolean directoriesExists = false;
 
-            try {
-                if (directories.exists()) {
-                    directoriesExists = true;
-                } else {
-                    directoriesExists = directories.mkdirs();
-                }
+            String parent = newFile.getParent();
+            if (parent != null) {
+                File directories = new File(parent);
 
-                if (directoriesExists) {
-                    success = newFile.createNewFile();
-                } else {
-                    LOGGER.error("could not create the directories " + filePath);
+                try {
+                    if (directories.exists()) {
+                        directoriesExists = true;
+                    } else {
+                        directoriesExists = directories.mkdirs();
+                    }
+
+                    if (directoriesExists) {
+                        if (!filePath.endsWith("del.del")) {
+                            success = newFile.createNewFile();
+                        }
+                    } else {
+                        LOGGER.error("could not create the directories " + filePath);
+                        success = false;
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
+                    success = false;
+                } catch (SecurityException e) {
+                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
                     success = false;
                 }
-            } catch (IOException e) {
-                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                success = false;
-            } catch (SecurityException e) {
-                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                success = false;
             }
         }
         return success;

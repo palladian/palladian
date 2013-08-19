@@ -44,6 +44,9 @@ public final class StringHelper {
     private static final Pattern PATTERN_FIRST_WORD = Pattern.compile("^(\\w+)(?:\\s|$)");
     private static final Pattern PATTERN_STRING = Pattern.compile(RegExp.STRING);
     private static final Pattern PATTERN_NUMBER = Pattern.compile(RegExp.NUMBER);
+    private static final Pattern PATTERN_NUMBER_STRICT = Pattern
+            .compile("-?((\\d{1,3}(\\.\\d{3})+(,\\d{1,2})?)|(^\\d+$)|(\\d{1,3}(,\\d{3})+(\\.\\d{1,2})?)|(\\d+,\\d{1,20})|(\\d+\\.\\d{1,20}))");
+    private static final Pattern PATTERN_EXPONENTIAL_NUMBER = Pattern.compile("^-?\\d+\\.\\d+E\\d+$");
     private static final Pattern PATTERN_STARTS_WITH_NUMBER = Pattern.compile("^" + RegExp.NUMBER);
     private static final Pattern PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
     private static final Pattern PATTERN_NUMBERING2 = Pattern.compile("^\\s*#\\d+(\\.?\\d?)*\\s*");
@@ -70,6 +73,8 @@ public final class StringHelper {
         safeName = safeName.replace("`", "");
         safeName = safeName.replace("´", "");
         safeName = safeName.replace("%", "");
+        safeName = safeName.replace("@", "");
+        safeName = safeName.replace("~", "");
         safeName = safeName.replace("&", "-");
         safeName = safeName.replace("#", "-");
         safeName = safeName.replace("$", "-");
@@ -433,7 +438,7 @@ public final class StringHelper {
         String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
                 + allowedNeighbors + word + "$)|(^" + word + "$)";
 
-        word = escapeForRegularExpression(word);
+        word = Pattern.quote(word);
 
         Pattern pat = null;
         try {
@@ -691,26 +696,45 @@ public final class StringHelper {
     }
 
     /**
-     * Checks if is number.
+     * <p>
+     * Checks if the input string is a number.
+     * </p>
      * 
      * @param string The string to check.
      * @return true, if is number
      */
     public static boolean isNumber(String string) {
+
         if (string.length() == 0) {
             return false;
+        }
+
+        // consider negation
+        if (string.startsWith("-")) {
+            string = string.substring(1);
         }
 
         boolean isNumber = true;
         for (int i = 0, l = string.length(); i < l; ++i) {
             Character ch = string.charAt(i);
-            if (Character.getType(ch) != Character.DECIMAL_DIGIT_NUMBER && ch != '.') {
+            if (Character.getType(ch) != Character.DECIMAL_DIGIT_NUMBER && ch != '.' && ch != ',') {
                 isNumber = false;
             }
         }
 
         if (string.startsWith(".") || string.endsWith(".")) {
             return false;
+        }
+
+        // consider exponential format
+        boolean expMatch = false;
+        if (!isNumber && PATTERN_EXPONENTIAL_NUMBER.matcher(string).matches()) {
+            isNumber = true;
+            expMatch = true;
+        }
+
+        if (!expMatch && isNumber && !PATTERN_NUMBER_STRICT.matcher(string).matches()) {
+            isNumber = false;
         }
 
         return isNumber;
@@ -732,13 +756,15 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
      * Checks if is numeric expression.
+     * </p>
      * 
      * @param string the string
      * @return <code>true</code>, if is numeric expression, <code>false</code> otherwise.
      */
     public static boolean isNumericExpression(String string) {
-        if (string.length() == 0) {
+        if (string.isEmpty()) {
             return false;
         }
 
