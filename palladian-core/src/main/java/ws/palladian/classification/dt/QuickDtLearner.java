@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import quickdt.HashMapAttributes;
+import quickdt.Instance;
 import quickdt.PredictiveModel;
 import quickdt.PredictiveModelBuilder;
 import quickdt.TreeBuilder;
@@ -32,14 +33,6 @@ public class QuickDtLearner implements Learner<QuickDtModel> {
     private final PredictiveModelBuilder<? extends PredictiveModel> builder;
 
     // removed zero-arg constructor, because one might erroneously instantiate a single tree instead of a random forest
-//    /**
-//     * <p>
-//     * Create a new DecisionTreeClassifier with unlimited ({@link Integer#MAX_VALUE}) size and minimum probability of 1.
-//     * </p>
-//     */
-//    public QuickDtLearner() {
-//        this(new TreeBuilder());
-//    }
 
     /**
      * <p>
@@ -56,7 +49,7 @@ public class QuickDtLearner implements Learner<QuickDtModel> {
 
     @Override
     public QuickDtModel train(Iterable<? extends Trainable> trainables) {
-        Set<quickdt.Instance> trainingInstances = CollectionHelper.newHashSet();
+        Set<Instance> trainingInstances = CollectionHelper.newHashSet();
         Set<String> classes = CollectionHelper.newHashSet();
         for (Trainable instance : trainables) {
             Serializable[] input = getInput(instance);
