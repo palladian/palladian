@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.processing.PipelineProcessor;
@@ -45,20 +44,20 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * @since 0.1.7
  */
 public final class QuestionAnnotator extends TextDocumentPipelineProcessor implements FeatureProvider {
-    
+
     /**
      * The world wide unique identifier of the {@link Feature}s created by this annotator.
      */
     @Deprecated
     public final static String FEATURE_IDENTIFIER = "ws.palladian.features.question";
-    
+
     /**
      * <p>
      * The name used to identify the provided {@code Feature}.
      * </p>
      */
     private final String featureName;
-    
+
     /**
      * <p>
      * Creates a new {@code PalladianQuestionAnnotator} annotating questions in a document and saving those annotations
@@ -74,7 +73,7 @@ public final class QuestionAnnotator extends TextDocumentPipelineProcessor imple
 
         this.featureName = featureName;
     }
-    
+
     /**
      * <p>
      * The no argument constructor using a default {@code FeatureDescriptor} for the annotated questions.
@@ -90,8 +89,7 @@ public final class QuestionAnnotator extends TextDocumentPipelineProcessor imple
 
     @Override
     public void processDocument(TextDocument document) {
-        List<PositionAnnotation> sentences = document.get(ListFeature.class,
-                AbstractSentenceDetector.PROVIDED_FEATURE);
+        List<PositionAnnotation> sentences = document.get(ListFeature.class, AbstractSentenceDetector.PROVIDED_FEATURE);
         ListFeature<PositionAnnotation> questions = new ListFeature<PositionAnnotation>(getCreatedFeatureName());
         PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
         for (PositionAnnotation sentence : sentences) {
