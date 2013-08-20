@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.analysis;
+package ws.palladian.retrieval;
 
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -22,72 +22,76 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 
 /**
- * <p>Spell checks and auto-corrects text using the Google spell checker.</p>
- * @author David Urbansky
+ * <p>
+ * Spell checks and auto-corrects text using the Google spell checker.
+ * </p>
  * 
+ * @author David Urbansky
+ * @deprecated Google seems to have closed this service (temporarily?).
  */
+@Deprecated
 public class GoogleSpellChecker {
 
-	/**
-	 * <p>Check if a text contains errors.</p>
-	 * @param text The text to check for errors.
-	 * @return True if errors were found, false otherwise.
-	 */
-	public boolean containsErrors(String text) {
-		return !getCorrectionSuggestions(text).isEmpty();
-	}
-	
-	/**
-	 * <p>Automatically detect and correct spelling mistakes.</p>
-	 * @param text The text to check for errors.
-	 * @return The auto-corrected text.
-	 */
-	public String autoCorrect(String text) {
-		Map<String, String> correctionSuggestions = getCorrectionSuggestions(text);
-		for (Entry<String, String> suggestion : correctionSuggestions.entrySet()) {
-			text = text.replace(suggestion.getKey(), suggestion.getValue());
-		}
-		return text;
-	}
-	
-	/**
-	 * <p>Return suggestions for correction.</p>
-	 * @param text The text to check for errors.
-	 * @return The suggestions.
-	 */
-	public Map<String, String> getCorrectionSuggestions(String text) {
-		Map<String,String> correctionMap = new HashMap<String, String>();
-		
-		Document document = getDocument(text);
-		
-		Set<String> errorWords = new HashSet<String>();
+    /**
+     * <p>Check if a text contains errors.</p>
+     * @param text The text to check for errors.
+     * @return True if errors were found, false otherwise.
+     */
+    public boolean containsErrors(String text) {
+        return !getCorrectionSuggestions(text).isEmpty();
+    }
+
+    /**
+     * <p>Automatically detect and correct spelling mistakes.</p>
+     * @param text The text to check for errors.
+     * @return The auto-corrected text.
+     */
+    public String autoCorrect(String text) {
+        Map<String, String> correctionSuggestions = getCorrectionSuggestions(text);
+        for (Entry<String, String> suggestion : correctionSuggestions.entrySet()) {
+            text = text.replace(suggestion.getKey(), suggestion.getValue());
+        }
+        return text;
+    }
+
+    /**
+     * <p>Return suggestions for correction.</p>
+     * @param text The text to check for errors.
+     * @return The suggestions.
+     */
+    public Map<String, String> getCorrectionSuggestions(String text) {
+        Map<String,String> correctionMap = new HashMap<String, String>();
+
+        Document document = getDocument(text);
+
+        Set<String> errorWords = new HashSet<String>();
         List<Node> correctionNodes = XPathHelper.getNodes(document, "//c");
         for (Node node : correctionNodes) {
             double confidence = Double.parseDouble(node.getAttributes().getNamedItem("s").getTextContent());
             String correctionString = node.getTextContent();
             String bestCorrection = correctionString.split("\t")[0];
-			if (confidence > 0.99 && !errorWords.contains(correctionString)) {
+            if (confidence > 0.99 && !errorWords.contains(correctionString)) {
                 errorWords.add(correctionString);
-//                System.out.println(correctionString + " => " + node.getAttributes().getNamedItem("s").getTextContent());
+                //                System.out.println(correctionString + " => " + node.getAttributes().getNamedItem("s").getTextContent());
                 int offset = Integer.valueOf(node.getAttributes().getNamedItem("o").getTextContent());
                 int length = Integer.valueOf(node.getAttributes().getNamedItem("l").getTextContent());
-				String wrongWord = text.substring(offset, offset+length);
-//				System.out.println(wrongWord + " => " + bestCorrection);
-                
+                String wrongWord = text.substring(offset, offset+length);
+                //				System.out.println(wrongWord + " => " + bestCorrection);
+
                 correctionMap.put(wrongWord, bestCorrection);
             }
         }
-        
-//        CollectionHelper.print(correctionMap.entrySet());
-		
-		return correctionMap;
-	}
-	
-	
-	private Document getDocument(String text) {
-		Document document = null;
-		
-		OutputStreamWriter out = null;
+
+        //        CollectionHelper.print(correctionMap.entrySet());
+
+        return correctionMap;
+    }
+
+
+    private Document getDocument(String text) {
+        Document document = null;
+
+        OutputStreamWriter out = null;
         InputStream in = null;
         try {
             // don't do spell checking on uppercase words (mostly entities)
@@ -126,17 +130,17 @@ public class GoogleSpellChecker {
             }
 
         } catch (Exception e) {
-        	throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         } finally {
             FileHelper.close(in, out);
         }
-        
+
         return document;
-	}
-	
+    }
+
     public static void main(String[] args) {
-//    	System.out.println(new GoogleSpellChecker().autoCorrect("this is aobout a laamp with lightt and muchc mor"));
-//        System.out.println(new GoogleSpellChecker().autoCorrect("apocalypsexx"));
+        //    	System.out.println(new GoogleSpellChecker().autoCorrect("this is aobout a laamp with lightt and muchc mor"));
+        //        System.out.println(new GoogleSpellChecker().autoCorrect("apocalypsexx"));
         System.out.println(new GoogleSpellChecker().autoCorrect("Thas is hoow the etxt is sopossed to be"));
     }
 }
