@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.junit.Ignore;
 import org.junit.Test;
 
+@Deprecated
 public class GoogleSpellCheckerTest {
 
     @Ignore
