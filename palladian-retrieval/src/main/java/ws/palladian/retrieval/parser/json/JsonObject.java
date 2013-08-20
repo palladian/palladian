@@ -239,7 +239,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @return A JsonObject value, or <code>null</code> in case there is no value with specified key, or the value is no
      *         {@link JsonObject} .
      */
-    public JsonObject getJsonObject(String key) throws JsonException {
+    public JsonObject getJsonObject(String key) {
         return JsonUtil.parseJSONObject(this.get(key));
     }
 
@@ -252,7 +252,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @return The long value, or <code>null</code> in case there is no value with specified key, or the value cannot be
      *         parsed as Long.
      */
-    public Long getLong(String key) throws JsonException {
+    public Long getLong(String key) {
         return JsonUtil.parseLong(this.get(key));
     }
 
@@ -264,7 +264,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @param key A key string.
      * @return A string value, or <code>null</code> in case there is no value with specified key.
      */
-    public String getString(String key) throws JsonException {
+    public String getString(String key) {
         return JsonUtil.parseString(this.get(key));
     }
 
