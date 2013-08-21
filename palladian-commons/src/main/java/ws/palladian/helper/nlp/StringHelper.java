@@ -73,6 +73,8 @@ public final class StringHelper {
         safeName = safeName.replace("`", "");
         safeName = safeName.replace("´", "");
         safeName = safeName.replace("%", "");
+        safeName = safeName.replace("@", "");
+        safeName = safeName.replace("~", "");
         safeName = safeName.replace("&", "-");
         safeName = safeName.replace("#", "-");
         safeName = safeName.replace("$", "-");

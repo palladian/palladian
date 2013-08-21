@@ -3,16 +3,23 @@
  */
 package ws.palladian.classification;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.meta.Bagging;
+import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
@@ -71,7 +78,7 @@ public class WekaPredictorTest {
         testVector.add(testListFeature);
         CategoryEntries result = objectOfClassUnderTest.classify(testVector, model);
 
-        assertThat(result.getMostLikelyCategory(), Matchers.isOneOf("c1", "c2"));
+        assertThat(result.getMostLikelyCategory(), isOneOf("c1", "c2"));
     }
 
     @Test
@@ -117,6 +124,26 @@ public class WekaPredictorTest {
 
         CategoryEntries result = objectOfClassUnderTest.classify(instance1.getFeatureVector(), model);
 
-        assertThat(result.getMostLikelyCategory(), Matchers.is("c1"));
+        assertThat(result.getMostLikelyCategory(), is("c1"));
+    }
+
+    /**
+     * <p>
+     * Tests whether a {@link NominalFeature} is processed correctly even if some of its values do not occur in the
+     * training set, which results in an incomplete Weka schema.
+     * </p>
+     */
+    @Test
+    public void testNominalFeatureWithMissingValueInValidationSet() {
+        String pathToTrainSet = this.getClass().getResource("/wekadatasets/train_sample.csv").getFile();
+        String pathToValidationSet = this.getClass().getResource("/wekadatasets/validation_sample.csv").getFile();
+        List<Trainable> trainSet = ClassificationUtils.readCsv(pathToTrainSet, true);
+        List<Trainable> validationSet = ClassificationUtils.readCsv(pathToValidationSet, true);
+
+        WekaPredictor classifier = new WekaPredictor(new Bagging());
+        WekaModel model = classifier.train(trainSet);
+        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, validationSet);
+        assertThat(evaluation.getF(1.0, "false"), is(greaterThan(0.0)));
+        assertThat(evaluation.getAccuracy(),is(greaterThan(0.0)));
     }
 }

@@ -51,7 +51,7 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
 
     @Override
     protected int getDefaultFetchSize() {
-        return 25;
+        return 50;
     }
 
 }
