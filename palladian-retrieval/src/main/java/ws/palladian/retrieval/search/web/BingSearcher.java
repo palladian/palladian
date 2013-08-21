@@ -63,7 +63,7 @@ public final class BingSearcher extends BaseBingSearcher<WebResult> {
 
     @Override
     protected int getDefaultFetchSize() {
-        return 25;
+        return 50;
     }
 
 }

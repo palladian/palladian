@@ -14,14 +14,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
@@ -35,7 +33,6 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -215,7 +212,6 @@ public final class FeedDiscovery {
         // check for Atom/RSS
         for (Node feedNode : feedNodes) {
 
-            DiscoveredFeed feed = new DiscoveredFeed();
             NamedNodeMap attributes = feedNode.getAttributes();
 
             // ignore if href attribute is missing
@@ -255,22 +251,21 @@ public final class FeedDiscovery {
             // continue;
             // }
 
-            feed.setFeedLink(feedUrl);
-            feed.setPageLink(pageUrl);
-
             String type = attributes.getNamedItem("type").getNodeValue().toLowerCase();
+            DiscoveredFeed.Type feedType = null;
             if (type.contains("atom")) {
-                feed.setFeedType(Type.ATOM);
+                feedType = Type.ATOM;
             } else if (type.contains("rss")) {
-                feed.setFeedType(Type.RSS);
+                feedType = Type.RSS;
             }
 
             Node titleNode = attributes.getNamedItem("title");
+            String feedTitle = null;
             if (titleNode != null) {
-                feed.setFeedTitle(titleNode.getNodeValue());
+                feedTitle = titleNode.getNodeValue();
             }
 
-            result.add(feed);
+            result.add(new DiscoveredFeed(feedType, feedUrl, feedTitle, pageUrl));
 
         }
 
