@@ -18,6 +18,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 
 /**
  * <p>
@@ -68,9 +69,15 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
 
         List<Trainable> preparedData = prepare(dataset);
         InformationGainFormula formula = new InformationGainFormula();
+        // TODO This is evil since it assumes the first Trainable in the preparedData list contains all features. Again
+        // a schema would help.
         for (Feature<?> preparedFeature : preparedData.get(0).getFeatureVector()) {
-            double gain = formula.calculateGain(preparedData, preparedFeature.getName());
-            ret.put(preparedFeature, gain);
+            if (preparedFeature instanceof ListFeature) {
+                Map<Feature<?>, Double> gains = formula.calculateGains(dataset, preparedFeature.getName());
+            } else {
+                double gain = formula.calculateGain(preparedData, preparedFeature.getName());
+                ret.put(preparedFeature, gain);
+            }
         }
 
         // Map<String, Double> classPriors = calculateTargetClassPriors(dataset);
