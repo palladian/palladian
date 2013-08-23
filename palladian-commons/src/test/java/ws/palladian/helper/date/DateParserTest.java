@@ -520,7 +520,7 @@ public class DateParserTest {
     @Test
     @Ignore // make this faster!
     public void testExtractFromText() throws FileNotFoundException {
-        final int count = 100;
+        final int count = 25;
         final StopWatch stopWatch = new StopWatch();
         String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("/wikipedia_2011_Egyptian_revolution.txt"));
         for (int i = 0; i < count; i++) {
