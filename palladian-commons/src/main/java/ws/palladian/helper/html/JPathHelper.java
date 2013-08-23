@@ -18,7 +18,10 @@ import ws.palladian.helper.nlp.StringHelper;
  * </p>
  * 
  * @author David Urbansky
+ * @deprecated Integrated directly into the JSON classes in palladian-retrieval, package
+ *             <code>ws.palladian.retrieval.parser.json</code>.
  */
+@Deprecated
 public final class JPathHelper {
 
     /** The logger for this class. */
