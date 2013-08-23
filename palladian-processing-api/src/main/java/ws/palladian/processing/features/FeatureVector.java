@@ -32,6 +32,7 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureVector.class);
 
+    /** Flag to avoid spamming of log warning messages. */
     private static boolean showedWarning = false;
 
     /**
@@ -234,7 +235,7 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      * 
      * @param feature The {@link Feature} to remove.
      */
-    public synchronized void remove(Feature<?> feature) {
+    public void remove(Feature<?> feature) {
         features.remove(feature.getName());
     }
 
@@ -242,4 +243,5 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
     public FeatureVector getFeatureVector() {
         return this;
     }
+
 }
