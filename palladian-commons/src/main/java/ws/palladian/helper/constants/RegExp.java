@@ -2,14 +2,14 @@ package ws.palladian.helper.constants;
 
 /**
  * <p>
- * This class maps the data types (xsd) to regular expressions.
+ * The notorious Palladian RegExp collection.
  * </p>
  * 
  * @author David Urbansky
  * @author Martin Gregor
  * @author Philipp Katz
  */
-public class RegExp {
+public final class RegExp {
 
     // TODO: Warning (10/11/2010): changed regexp without further testing, was:
     // ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*))*
@@ -43,21 +43,15 @@ public class RegExp {
     private static final String SHOR_YEAR = "\\d{2}"; // 00-99
     private static final String MONTH_NUMBER_DOUBLE = "0[1-9]|1[0-2]"; // 01-12
     private static final String MONTH_NUMBER_NORMAL = "1[0-2]|0?[1-9]"; // (0)1-12
-    private static final String MONTH_NAME_SHORT_DT = "[Jj]an|[Ff]eb|[Mm]är|[Aa]pr|[Mm]ai|[Jj]un|[Jj]ul|[Aa]ug|[Ss]ep|[Oo]kt|[Nn]ov|[Dd]ez|JAN|FEB|MÄR|APR|MAI|JUN|JUL|AUG|SEP|OKT|NOV|DEZ";
     private static final String MONTH_NAME_SHORT_ENG = "[Jj]an|[Ff]eb|[Mm]ar|[Aa]pr|[Mm]ay|[Jj]un|[Jj]ul|[Aa]ug|[Ss]ep|[Ss]ept|[Oo]ct|[Nn]ov|[Dd]ec|JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|SEPT|OCT|NOV|DEC";
-    private static final String MONTH_NAME_SHORT = "(?:" + MONTH_NAME_SHORT_ENG + "|" + MONTH_NAME_SHORT_DT + ")\\.?";
-    // private static final String MONTH_NAME_SHORT2 = MONTH_NAME_SHORT_ENG + "|" + MONTH_NAME_SHORT_DT;
+    private static final String MONTH_NAME_SHORT = "(?:[Aa]pr|[Aa]ug|[Dd]e[cz]|[Ff]eb|[Jj]an|[Jj]u[ln]|[Mm]a[iry]|[Mm]är|[Nn]ov|[Oo][ck]t|[Ss]ept?|"
+            + "APR|AUG|DE[CZ]|FEB|JAN|JU[LN]|MA[IRY]|MÄR|NOV|O[CK]T|SEPT?)\\.?";
     private static final String MONTH_NAME_LONG_ENG = "[Jj]anuary|[Ff]ebruary|[Mm]arch|[Aa]pril|[Mm]ay|[Jj]une|[Jj]uly|[Aa]ugust|[Ss]eptember|[Oo]ctober|[Nn]ovember|[Dd]ecember|"
             + "JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER";
-    // private static final String MONTH_NAME_LONG_DT =
-    // "[Jj]anuar|[Ff]ebruar|[Mm]ärz|[Aa]pril|[Mm]ai|[Jj]uni|[Jj]uli|[Aa]ugust|[Ss]eptember|[Oo]ktober|[Nn]ovember|[Dd]ezember|"
-    // + "JANUAR|FEBRUAR|MÄRZ|APRIL|MAI|JUNI|JULY|AUGUST|SEPTEMBER|OKTOBER|NOVEMBER|DEZEMBER";
-    // private static final String MONTH_NAME_LONG = MONTH_NAME_LONG_ENG + "|" + MONTH_NAME_LONG_DT + "|" +
-    // MONTH_NAME_SHORT;
-    private static final String MONTH_NAME_LONG = "[Aa]pr(?:\\.|il)?|[Aa]ug(?:\\.|ust)?|[Dd]e[cz](?:\\.|ember)?|[Ff]eb(?:\\.|ruary?)?|[Jj]an(?:\\.|uary?)?|[Jj]ul[.iy]?|[Jj]un[.ei]?|[Mm]a(?:[iy]\\.?)?|[Mm]är[.z]?|[Mm]ar(?:\\.|ch)?|[Nn]ov(?:\\.|ember)?|[Oo][ck]t(?:\\.|ober)?|[Ss]ep(?:\\.|t(?:ember)?)?|APR(?:\\.|IL)?|AUG(?:\\.|UST)?|DE[CZ](?:\\.|EMBER)?|FEB(?:\\.|RUARY?)?|JAN(?:\\.|UARY?)?|JUL[.IY]?|JUN[.EI]?|MA(?:[IY]\\.?)?|MÄR[.Z]?|MAR(?:\\.|CH)?|NOV(?:\\.|EMBER)?|O[CK]T(?:\\.|OBER)?|SEP(?:\\.|T(?:EMBER)?)?";
-    // private static final String MONTH_NAME_LONG2 = MONTH_NAME_LONG_ENG + "|" + MONTH_NAME_LONG_DT + "|" +
-    // MONTH_NAME_SHORT2;
-    private static final String MONTH_NAME_LONG2 = "[Aa]pr(?:il)?|[Aa]ug(?:ust)?|[Dd]e[cz](?:ember)?|[Ff]eb(?:ruary?)?|[Jj]an(?:uary?)?|[Jj]ul[.iy]?|[Jj]un[.ei]?|[Mm]a[iy]?|[Mm]är[.z]?|[Mm]ar(?:ch)?|[Nn]ov(?:ember)?|[Oo][ck]t(?:ober)?|[Ss]ep(?:t(?:ember)?)?|APR(?:IL)?|AUG(?:UST)?|DE[CZ](?:EMBER)?|FEB(?:RUARY?)?|JAN(?:UARY?)?|JUL[.IY]?|JUN[.EI]?|MA[IY]?|MÄR[.Z]?|MAR(?:CH)?|NOV(?:EMBER)?|O[CK]T(?:OBER)?|SEP(?:T(?:EMBER)?)?";
+    private static final String MONTH_NAME_LONG = "[Aa]pr(?:\\.|il)?|[Aa]ug(?:\\.|ust)?|[Dd]e[cz](?:\\.|ember)?|[Ff]eb(?:\\.|ruary?)?|[Jj]an(?:\\.|uary?)?|[Jj]ul[.iy]?|[Jj]un[.ei]?|[Mm]a(?:[iy]\\.?)?|[Mm]är[.z]?|[Mm]ar(?:\\.|ch)?|[Nn]ov(?:\\.|ember)?|[Oo][ck]t(?:\\.|ober)?|[Ss]ep(?:\\.|t(?:ember)?)?|"
+            + "APR(?:\\.|IL)?|AUG(?:\\.|UST)?|DE[CZ](?:\\.|EMBER)?|FEB(?:\\.|RUARY?)?|JAN(?:\\.|UARY?)?|JUL[.IY]?|JUN[.EI]?|MA(?:[IY]\\.?)?|MÄR[.Z]?|MAR(?:\\.|CH)?|NOV(?:\\.|EMBER)?|O[CK]T(?:\\.|OBER)?|SEP(?:\\.|T(?:EMBER)?)?";
+    private static final String MONTH_NAME_LONG2 = "[Aa]pr(?:il)?|[Aa]ug(?:ust)?|[Dd]e[cz](?:ember)?|[Ff]eb(?:ruary?)?|[Jj]an(?:uary?)?|[Jj]ul[.iy]?|[Jj]un[.ei]?|[Mm]a[iy]?|[Mm]är[.z]?|[Mm]ar(?:ch)?|[Nn]ov(?:ember)?|[Oo][ck]t(?:ober)?|[Ss]ep(?:t(?:ember)?)?|"
+            + "APR(?:IL)?|AUG(?:UST)?|DE[CZ](?:EMBER)?|FEB(?:RUARY?)?|JAN(?:UARY?)?|JUL[.IY]?|JUN[.EI]?|MA[IY]?|MÄR[.Z]?|MAR(?:CH)?|NOV(?:EMBER)?|O[CK]T(?:OBER)?|SEP(?:T(?:EMBER)?)?";
     private static final String DAY_OF_YEAR = "[012][0-9][0-9]|3[0-5][0-9]|36[0-6]"; // 000-366
     private static final String DAY_OF_MONTH = "0[1-9]|[12][0-9]|3[01]"; // 01-31
     private static final String DAY_OF_MONTH_1 = "[1-9]|[12][0-9]|3[01]"; // 1-31 one or two digits
@@ -65,7 +59,7 @@ public class RegExp {
     private static final String DAY_OF_WEEK = "[1-7]"; // 1-7
     private static final String WEEK_OF_YEAR = "W(?:0[1-9]|[1-4][0-9]|5[0-3])"; // W01-W53
     private static final String WEEKDAY_NAME_SHORT = "Mon|Tue|Wed|Thu|Fri|Sat|Sun";
-    private static final String WEEKDAY_NAME_LONG = "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday";
+    private static final String WEEKDAY_NAME_LONG = "(?:Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day";
 
     private static final String HOUR = "1[0-9]|2[0-4]|0[0-9]";
     private static final String HOUR12 = "1[0-2]|0[0-9]";
@@ -93,7 +87,7 @@ public class RegExp {
 
     private static final String ST_ND_RD_TH_OPT = "(?:st|nd|rd|th)?";
     private static final String YEAR_SHORT_LONG = LONG_YEAR + "|(?:'?" + SHOR_YEAR + ")"; // YYYY|(')?YY
-    private static final String URL_SYM = "[/\\._-]"; // [/._-] - symbols in URLs
+    private static final String SEP_SYM = "[/._-]";
 
     // ISO8601
 
@@ -176,12 +170,12 @@ public class RegExp {
             + ")/(?:" + DAY_OF_MONTH + ")/", "YYYY_MMMM_DD_URL");
 
     /** Dates in URL: "YYYY_MM". "_" can also be "." or "-" or"/" */
-    public static final DateFormat DATE_URL = new DateFormat("(?:" + YEAR_SHORT_LONG + ")" + URL_SYM + "(?:"
+    public static final DateFormat DATE_URL = new DateFormat("(?:" + YEAR_SHORT_LONG + ")" + SEP_SYM + "(?:"
             + MONTH_NUMBER_DOUBLE + ")", "YYYY_MM");
 
     /** Date in URL, that can be split by folders between year an month. "YYYY\...\MM\DD" */
     public static final DateFormat DATE_URL_SPLIT = new DateFormat(LONG_YEAR + "/.+/(?:" + MONTH_NUMBER_DOUBLE + ")"
-            + URL_SYM + "(?:" + DAY_OF_MONTH + ")", "YYYY.x.MM.DD");
+            + SEP_SYM + "(?:" + DAY_OF_MONTH + ")", "YYYY.x.MM.DD");
 
     /** European dates also used worldwide. */
     private static final String DATE_EU_D_MM_Y_1 = "(?:" + DAY_OF_MONTH_1_2 + ")\\.(?:" + MONTH_NUMBER_NORMAL
@@ -200,7 +194,7 @@ public class RegExp {
     public static final DateFormat DATE_EU_D_MM_Y_T = new DateFormat("(?:" + DATE_EU_D_MM_Y.getRegex() + ")"
             + TIME_SEPARATOR + "(?:" + TIME + ")(" + DIFF_UTC + "|" + TIMEZONE + ")?", "DD.MM.YYYY HH:MM:SS +UTC");
     /** European date. MM.YYYY . */
-    public static final DateFormat DATE_EU_MM_Y = new DateFormat("(?:" + MONTH_NUMBER_NORMAL + ")" + URL_SYM + "(?:"
+    public static final DateFormat DATE_EU_MM_Y = new DateFormat("(?:" + MONTH_NUMBER_NORMAL + ")" + SEP_SYM + "(?:"
             + YEAR_SHORT_LONG + ")", "MM.YYYY");
     /** European date. DD.MM. . */
     public static final DateFormat DATE_EU_D_MM = new DateFormat("(?:" + DAY_OF_MONTH_1_2 + ")\\.(?:"
@@ -387,6 +381,10 @@ public class RegExp {
                 + THREE_PART_FORMATS.length, TWO_PART_FORMATS.length);
         System.arraycopy(ONE_PART_FORMATS, 0, ALL_DATE_FORMATS, RFC_FORMATS.length + TIME_FORMATS.length
                 + THREE_PART_FORMATS.length + TWO_PART_FORMATS.length, ONE_PART_FORMATS.length);
+    }
+
+    private RegExp() {
+        // thank you for not instantiating.
     }
 
 }
