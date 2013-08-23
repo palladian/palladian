@@ -3,6 +3,7 @@
  */
 package ws.palladian.classification.featureselection;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +12,11 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classified;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.ListFeature;
 
 /**
  * <p>
@@ -108,5 +111,112 @@ public final class InformationGainFormula {
      */
     private double ld(double arg) {
         return Math.log(arg) / Math.log(2);
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param dataset
+     * @param featureName
+     * @return
+     */
+    public Map<Feature<?>, Double> calculateGains(Collection<? extends Trainable> dataset, String featureName) {
+        Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
+
+        for (Trainable dataItem : dataset) {
+            Map<Pair<String,, Double> absoluteOccurrences = CollectionHelper.newHashMap();
+            Map<Pair<String, String>, Double> absoluteJointOccurrences = CollectionHelper.newHashMap();
+            
+            for (Feature<?> feature : ((ListFeature<Feature<?>>)dataItem.getFeatureVector().get(featureName))) {
+                feature.getName().toString()
+                absoluteOccurrences.get(key)
+            }
+        }
+        return ret;
+    }
+}
+
+final class SparseOccurrence<T> {
+    private String featureName;
+    private T featureValue;
+    private double counter;
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param featureName
+     * @param featureValue
+     * @param counter
+     */
+    public SparseOccurrence(String featureName, T featureValue, double counter) {
+        super();
+        this.featureName = featureName;
+        this.featureValue = featureValue;
+        this.counter = counter;
+    }
+
+    public final double getCounter() {
+        return counter;
+    }
+
+    public final void setCounter(double counter) {
+        this.counter = counter;
+    }
+
+    public final String getFeatureName() {
+        return featureName;
+    }
+
+    public final T getFeatureValue() {
+        return featureValue;
+    }
+}
+
+final class SparseJointOccurrence<T> {
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param featureName
+     * @param featureValue
+     * @param targetClassName
+     * @param counter
+     */
+    public SparseJointOccurrence(String featureName, T featureValue, String targetClassName, double counter) {
+        super();
+        this.featureName = featureName;
+        this.featureValue = featureValue;
+        this.targetClassName = targetClassName;
+        this.counter = counter;
+    }
+
+    private String featureName;
+    private T featureValue;
+    private String targetClassName;
+    private double counter;
+
+    public double getCounter() {
+        return counter;
+    }
+
+    public void setCounter(double counter) {
+        this.counter = counter;
+    }
+
+    public String getFeatureName() {
+        return featureName;
+    }
+
+    public T getFeatureValue() {
+        return featureValue;
+    }
+
+    public String getTargetClassName() {
+        return targetClassName;
     }
 }
