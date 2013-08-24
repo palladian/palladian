@@ -1203,6 +1203,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         int offsetChange = 0;
 
         for (String regExp : regExps) {
+            regExp = "(?:" + regExp + ")";
             int textLength = text.length();
 
             // for example "Apr John Hiatt"

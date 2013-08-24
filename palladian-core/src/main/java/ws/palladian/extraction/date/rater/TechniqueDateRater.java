@@ -54,7 +54,7 @@ public abstract class TechniqueDateRater<E extends ExtractedDate> {
 
         List<RatedDate<E>> ratedDates = rate(dates);
         if (ratedDates.size() > 0) {
-            Collections.sort(ratedDates, new RatedDateComparator());
+            Collections.sort(ratedDates, RatedDateComparator.INSTANCE);
             return ratedDates.get(0);
         }
         return null;

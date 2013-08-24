@@ -14,7 +14,9 @@ import ws.palladian.helper.html.JPathHelper;
  * </p>
  * 
  * @author David Urbansky
+ * @deprecated
  */
+@Deprecated
 public class JPathHelperTest {
 
     /**
