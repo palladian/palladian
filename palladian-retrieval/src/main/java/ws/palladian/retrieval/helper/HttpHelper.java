@@ -1,35 +1,22 @@
 package ws.palladian.retrieval.helper;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * <p>
@@ -136,6 +123,9 @@ public final class HttpHelper {
                 int index = contentTypeValue.indexOf("charset=");
                 if (index != -1) {
                     ret = contentTypeValue.substring(index + "charset=".length(), contentTypeValue.length());
+                    if (ret != null) {
+                        ret = ret.replace("\"", "");
+                    }
                     break;
                 }
             }
@@ -200,7 +190,7 @@ public final class HttpHelper {
         return result;
 
     }
-    
+
     /**
      * <p>
      * Load a HttpResult from a dataset file and return a {@link HttpResult}. If the file is gzipped (ending with
@@ -263,7 +253,7 @@ public final class HttpHelper {
 
         return httpResult;
     }
-    
+
     /**
      * <p>
      * Extract header information from the supplied string. The header data is put in the Map, the HTTP status code is
@@ -319,7 +309,6 @@ public final class HttpHelper {
         }
         return statusCode;
     }
-
 
     public static void main(String[] args) {
 
