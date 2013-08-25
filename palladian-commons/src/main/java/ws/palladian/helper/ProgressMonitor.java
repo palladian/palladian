@@ -115,9 +115,9 @@ public final class ProgressMonitor {
                     long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
                     // if elapsed not possible (timer started long before progress helper used) =>
                     // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
-                    processString.append(", elapsed time: ").append(stopWatch.getTotalElapsedTimeString());
-                    processString.append(", iteration time: ").append(stopWatch.getElapsedTimeString());
-                    processString.append(", ~remaining: ").append(
+                    processString.append(", elapsed: ").append(stopWatch.getTotalElapsedTimeString());
+                    processString.append(", iteration: ").append(stopWatch.getElapsedTimeString());
+                    processString.append(", remaining: ").append(
                             DateHelper.formatDuration(0, msRemaining, compactRemaining));
                     stopWatch.start();
                 }

@@ -18,7 +18,10 @@ import ws.palladian.helper.nlp.StringHelper;
  * </p>
  * 
  * @author David Urbansky
+ * @deprecated Integrated directly into the JSON classes in palladian-retrieval, package
+ *             <code>ws.palladian.retrieval.parser.json</code>.
  */
+@Deprecated
 public final class JPathHelper {
 
     /** The logger for this class. */
@@ -48,7 +51,7 @@ public final class JPathHelper {
         Validate.notNull(json, "json must not be null.");
         Validate.notEmpty(jPath, "jPath must not be empty.");
         Validate.notNull(targetClass, "targetClass must not be null");
-        
+
         if (jPath.startsWith("/")) {
             jPath = jPath.substring(1, jPath.length());
         }
@@ -103,13 +106,23 @@ public final class JPathHelper {
         return null;
     }
 
+    @Deprecated
     public static <T> T get(JSONObject json, String jPath, Class<T> targetClass) {
         return getWithObject(json, jPath, targetClass);
     }
 
+    @Deprecated
     public static <T> T get(JSONArray json, String jPath, Class<T> targetClass) {
         return getWithObject(json, jPath, targetClass);
     }
+
+    // public static <T> T get(JsonObject json, String jPath, Class<T> targetClass) {
+    // return getWithObject(json, jPath, targetClass);
+    // }
+    //
+    // public static <T> T get(JsonArray json, String jPath, Class<T> targetClass) {
+    // return getWithObject(json, jPath, targetClass);
+    // }
 
     public static <T> T get(String json, String jPath, Class<T> targetClass) {
         Validate.notNull(json, "json must not be null");

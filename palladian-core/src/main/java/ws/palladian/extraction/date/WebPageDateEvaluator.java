@@ -58,7 +58,7 @@ public final class WebPageDateEvaluator {
         List<ContentDate> dates = contentDateGetter.getDates(document);
 
         List<RatedDate<ExtractedDate>> ratedDates = rate(dates, type);
-        Collections.sort(ratedDates, new RatedDateComparator());
+        Collections.sort(ratedDates, RatedDateComparator.INSTANCE);
 
         return ratedDates;
     }

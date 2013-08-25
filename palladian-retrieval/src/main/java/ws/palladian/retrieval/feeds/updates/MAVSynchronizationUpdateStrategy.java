@@ -37,7 +37,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
      * interval than ttl. <br />
      * If set to 2, use it as checkInterval, and do not calculate interval from feed. <br />
      */
-    private static int rssTTLmode;
+    private final int rssTTLmode;
 
     /**
      * Create MAVSync strategy ignoring RSS ttl element.

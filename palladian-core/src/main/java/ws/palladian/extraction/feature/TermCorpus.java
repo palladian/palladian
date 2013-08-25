@@ -82,12 +82,12 @@ public final class TermCorpus {
      * </p>
      * 
      * @param term The term for which to retrieve the inverse document frequency.
+     * @param smoothing Use add-one smoothing to avoid division by zero.
      * @return The inverse document frequency for the specified term.
      */
-    public double getIdf(String term) {
-        // add 1; prevent division by zero
-        // return Math.log10((double)getNumDocs() / (getCount(term) + 1));
-        return (double)getNumDocs() / (getCount(term) + 1);
+    public double getIdf(String term, boolean smoothing) {
+        int s = smoothing ? 1 : 0;
+        return (double)(getNumDocs() + s) / (getCount(term) + s);
     }
 
     /**

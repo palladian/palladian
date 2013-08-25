@@ -1570,31 +1570,34 @@ public final class FileHelper {
         File newFile = new File(filePath);
         if (!newFile.exists()) {
 
-            // FIXME fails with NPE if no parent directory is given (filePath = just the file name).
-            File directories = new File(newFile.getParent());
             boolean directoriesExists = false;
 
-            try {
-                if (directories.exists()) {
-                    directoriesExists = true;
-                } else {
-                    directoriesExists = directories.mkdirs();
-                }
+            String parent = newFile.getParent();
+            if (parent != null) {
+                File directories = new File(parent);
 
-                if (directoriesExists) {
-                    if (!filePath.endsWith("del.del")) {
-                        success = newFile.createNewFile();
+                try {
+                    if (directories.exists()) {
+                        directoriesExists = true;
+                    } else {
+                        directoriesExists = directories.mkdirs();
                     }
-                } else {
-                    LOGGER.error("could not create the directories " + filePath);
+
+                    if (directoriesExists) {
+                        if (!filePath.endsWith("del.del")) {
+                            success = newFile.createNewFile();
+                        }
+                    } else {
+                        LOGGER.error("could not create the directories " + filePath);
+                        success = false;
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
+                    success = false;
+                } catch (SecurityException e) {
+                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
                     success = false;
                 }
-            } catch (IOException e) {
-                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                success = false;
-            } catch (SecurityException e) {
-                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                success = false;
             }
         }
         return success;

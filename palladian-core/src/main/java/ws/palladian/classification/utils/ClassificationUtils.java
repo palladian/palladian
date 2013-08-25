@@ -7,11 +7,15 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -26,8 +30,12 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Philipp Katz
  */
 public final class ClassificationUtils {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassificationUtils.class);
 
-    private static final String SEPARATOR = ";";
+    /** The default separator which is assumed for separating instance attributes when reading/writing to/from files. */
+    public static final String DEFAULT_SEPARATOR = ";";
 
     /**
      * <p>
@@ -51,7 +59,7 @@ public final class ClassificationUtils {
      *            (column names are generated automatically).
      */
     public static List<Instance> createInstances(String filePath, boolean readHeader) {
-        return createInstances(filePath, readHeader, SEPARATOR);
+        return createInstances(filePath, readHeader, DEFAULT_SEPARATOR);
     }
 
     /**
@@ -233,5 +241,112 @@ public final class ClassificationUtils {
         }
         return new ArrayList<T>(list.subList(0, count));
     }
+    
+    /**
+     * <p>
+     * Create instances from a file. The instances must be given in a CSV file in the following format:
+     * <code>feature1;..;featureN;NominalClass</code>. Each line is one training instance.
+     * </p>
+     * 
+     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+     *            path.
+     */
+    public static List<Trainable> readCsv(String filePath) {
+        return readCsv(filePath, true, DEFAULT_SEPARATOR);
+    }
 
+    /**
+     * <p>
+     * Create instances from a file. The instances must be given in a CSV file in the following format:
+     * <code>feature1;..;featureN;NominalClass</code>. Each line is one training instance.
+     * </p>
+     * 
+     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+     *            path.
+     * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
+     *            (column names are generated automatically).
+     */
+    public static List<Trainable> readCsv(String filePath, boolean readHeader) {
+        return readCsv(filePath, readHeader, DEFAULT_SEPARATOR);
+    }
+
+    /**
+     * <p>
+     * Create instances from a file. The instances must be given in a CSV file in the following format: feature1 ..
+     * featureN NominalClass. Each line is one training instance.
+     * </p>
+     * <p>
+     * Each field must be separated by {@code fieldSeparator} and each line must end with a line break.
+     * </p>
+     * 
+     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+     *            path.
+     * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
+     *            (column names are generated automatically).
+     * @param fieldSeparator The separator {@code String} for individual fields.
+     */
+    public static List<Trainable> readCsv(String filePath, final boolean readHeader, final String fieldSeparator) {
+        if (!new File(filePath).canRead()) {
+            throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
+        }
+
+        final StopWatch stopWatch = new StopWatch();
+        final List<Trainable> instances = CollectionHelper.newArrayList();
+
+        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+
+            String[] headNames;
+            int expectedColumns;
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] parts = line.split(fieldSeparator);
+
+                if (parts.length < 2) {
+                    throw new IllegalStateException("Separator '" + fieldSeparator
+                            + "'was not found, lines cannot be split ('" + line + "').");
+                }
+
+                if (lineNumber == 0) {
+                    expectedColumns = parts.length;
+                    if (readHeader) {
+                        headNames = parts;
+                        return;
+                    }
+                } else {
+                    if (expectedColumns != parts.length) {
+                        throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
+                                + parts.length + ", but should be " + expectedColumns + ")");
+                    }
+                }
+
+                FeatureVector featureVector = new FeatureVector();
+
+                for (int f = 0; f < parts.length - 1; f++) {
+                    String name = headNames == null ? String.valueOf(f) : headNames[f];
+                    String value = parts[f];
+                    // FIXME make better.
+                    if (value.equals("?")) {
+                        // missing value, TODO maybe rethink what to do here and how
+                        // to handle missing values in general.
+                        continue;
+                    }
+                    try {
+                        Double doubleValue = Double.valueOf(value);
+                        featureVector.add(new NumericFeature(name, doubleValue));
+                    } catch (NumberFormatException e) {
+                        featureVector.add(new NominalFeature(name, value));
+                    }
+                }
+                String targetClass = parts[parts.length - 1];
+                instances.add(new Instance(targetClass, featureVector));
+
+                if (lineNumber % 10000 == 0) {
+                    LOGGER.debug("Read {} lines", lineNumber);
+                }
+            }
+        });
+        LOGGER.info("Read {} instances from {} in {}", instances.size(), filePath, stopWatch);
+        return instances;
+    }
 }

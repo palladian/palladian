@@ -32,6 +32,9 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureVector.class);
 
+    /** Flag to avoid spamming of log warning messages. */
+    private static boolean showedWarning = false;
+
     /**
      * <p>
      * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
@@ -71,8 +74,9 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      *            The actual {@code Feature} instance containing the value.
      */
     public void add(Feature<?> feature) {
-        if (features.get(feature.getName())!=null) {
+        if (features.get(feature.getName()) != null && !showedWarning) {
             LOGGER.warn("Please use a ListFeature to add multiple features with the same name.");
+            showedWarning = true;
         }
         features.put(feature.getName(), feature);
     }
@@ -231,7 +235,7 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      * 
      * @param feature The {@link Feature} to remove.
      */
-    public synchronized void remove(Feature<?> feature) {
+    public void remove(Feature<?> feature) {
         features.remove(feature.getName());
     }
 
@@ -239,4 +243,5 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
     public FeatureVector getFeatureVector() {
         return this;
     }
+
 }

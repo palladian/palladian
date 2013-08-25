@@ -143,7 +143,7 @@ public class NerTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2218, annotations.size());
+        assertEquals(2217, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 

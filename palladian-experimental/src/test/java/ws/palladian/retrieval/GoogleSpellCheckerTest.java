@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.analysis;
+package ws.palladian.retrieval;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -10,9 +10,9 @@ import org.json.JSONException;
 import org.junit.Ignore;
 import org.junit.Test;
 
+@Deprecated
 public class GoogleSpellCheckerTest {
 
-    // FIXME what's up with these Google guys?
     @Ignore
     @Test
     public void testSpellCheck() throws FileNotFoundException, JSONException {
