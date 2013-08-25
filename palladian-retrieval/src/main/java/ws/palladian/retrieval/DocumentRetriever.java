@@ -224,6 +224,7 @@ public class DocumentRetriever {
      * 
      * @param url the URL pointing to the JSON string.
      * @return the JSON object, or <code>null</code> in case of any error.
+     *         FIXME this should return a Palladian JsonObject
      */
     public JSONObject getJsonObject(String url) {
         String json = getText(url);
@@ -264,6 +265,7 @@ public class DocumentRetriever {
      * 
      * @param url the URL pointing to the JSON string.
      * @return the JSON array, or <code>null</code> in case of any error.
+     *         FIXME this should return a Palladian JsonArray
      */
     public JSONArray getJsonArray(String url) {
         String json = getText(url);
@@ -562,6 +564,7 @@ public class DocumentRetriever {
         userAgents
         .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)");
     }
+
     public void switchAgent(){
         int index =  (int) (Math.random() * userAgents.size());
         String s = userAgents.get(index);

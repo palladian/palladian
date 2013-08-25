@@ -73,6 +73,8 @@ public final class StringHelper {
         safeName = safeName.replace("`", "");
         safeName = safeName.replace("´", "");
         safeName = safeName.replace("%", "");
+        safeName = safeName.replace("@", "");
+        safeName = safeName.replace("~", "");
         safeName = safeName.replace("&", "-");
         safeName = safeName.replace("#", "-");
         safeName = safeName.replace("$", "-");
@@ -702,6 +704,7 @@ public final class StringHelper {
      * @return true, if is number
      */
     public static boolean isNumber(String string) {
+
         if (string.length() == 0) {
             return false;
         }

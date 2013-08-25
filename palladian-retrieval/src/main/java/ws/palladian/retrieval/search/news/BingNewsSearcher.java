@@ -16,7 +16,6 @@ import ws.palladian.retrieval.search.web.WebResult;
  * </p>
  * 
  * @author Philipp Katz
- * 
  */
 public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
 
@@ -81,7 +80,7 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
      */
     @Override
     protected int getDefaultFetchSize() {
-        return 10;
+        return 15;
     }
 
 }

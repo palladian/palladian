@@ -53,7 +53,7 @@ public final class BingVideoSearcher extends BaseBingSearcher<WebVideoResult> {
 
     @Override
     protected int getDefaultFetchSize() {
-        return 10;
+        return 50;
     }
 
 }

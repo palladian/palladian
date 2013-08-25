@@ -104,13 +104,6 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
             postDistribution.put(minuteOfDay, postsChances);
         }
 
-        int t1 = 0, t2 = 0;
-        for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
-            t1 += a.getValue()[0];
-            t2 += a.getValue()[1];
-        }
-        // System.out.println(t1 + "," + t2);
-
         feed.setMeticulousPostDistribution(postDistribution);
 
         // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
