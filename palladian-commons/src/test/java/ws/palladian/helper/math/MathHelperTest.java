@@ -51,6 +51,20 @@ public class MathHelperTest {
     }
 
     @Test
+    public void testComputeAllCombinations() {
+
+        String[] items = new String[] {"a", "b", "c"};
+        Collection<List<Object>> allCombinations = MathHelper.computeAllCombinations(items);
+        CollectionHelper.print(allCombinations);
+        assertEquals(7, allCombinations.size());
+
+        items = new String[] {"a"};
+        allCombinations = MathHelper.computeAllCombinations(items);
+        CollectionHelper.print(allCombinations);
+        assertEquals(1, allCombinations.size());
+    }
+
+    @Test
     public void testComputeCosineSimilarity() {
         Double[] vector1 = {10.0, 50.0};
         Double[] vector2 = {8.0, 66.0};

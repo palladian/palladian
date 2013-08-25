@@ -270,6 +270,7 @@ public final class FileHelper {
         return readFileToString(file, DEFAULT_ENCODING);
     }
 
+    // FIXME return null on error
     public static String readFileToString(File file, String encoding) {
 
         StringBuilder contents = new StringBuilder();
