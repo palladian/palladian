@@ -10,11 +10,16 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.Model;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
@@ -348,5 +353,18 @@ public final class ClassificationUtils {
         });
         LOGGER.info("Read {} instances from {} in {}", instances.size(), filePath, stopWatch);
         return instances;
+    }
+
+    public static <M extends Model, T extends Classifiable> CategoryEntries classifyWithMultipleModels(
+            Classifier<M> classifier, T classifiable, M... models) {
+
+        // merge the results
+        CategoryEntries mergedCategoryEntries = new CategoryEntriesMap();
+        for (M model : models) {
+            CategoryEntries categoryEntries = classifier.classify(classifiable, model);
+            mergedCategoryEntries = CategoryEntriesMap.merge(categoryEntries, mergedCategoryEntries);
+        }
+
+        return mergedCategoryEntries;
     }
 }

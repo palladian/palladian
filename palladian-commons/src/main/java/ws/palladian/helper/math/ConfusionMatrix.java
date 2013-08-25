@@ -592,6 +592,7 @@ public class ConfusionMatrix {
         out.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
         out.append("# Documents:\t").append(getTotalDocuments()).append('\n');
         out.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
+        out.append("Accuracy:\t").append(getAccuracy()).append('\n');
 
         return out.toString();
 

@@ -69,7 +69,7 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource implements 
                 String concept = locationCandidate.getString("concept");
                 Double confidence = locationCandidate.getDouble("confidence");
                 if ((concept.equalsIgnoreCase("city") || concept.equalsIgnoreCase("country")) && confidence > 0.999) {
-                    JSONObject jsonObject = documentRetriever.getJsonObject("http://webknox.com/api/entities/"
+                    JSONObject jsonObject = documentRetriever.getJSONObject("http://webknox.com/api/entities/"
                             + locationCandidate.getString("id") + "?apiKey=" + apiKey);
                     JsonObjectWrapper json = new JsonObjectWrapper(jsonObject);
 

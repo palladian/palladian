@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -908,6 +909,72 @@ public final class MathHelper {
         }
 
         return fraction;
+    }
+
+    /**
+     * <p>
+     * Calculate all combinations for a given array of items.
+     * </p>
+     * <p>
+     * For example, the string "a b c" will return 7 combinations (2^3=8 but all empty is not allowed, hence 7):
+     * 
+     * <pre>
+     * a b c
+     * a b
+     * a c
+     * b c
+     * c
+     * b
+     * a
+     * </pre>
+     * 
+     * </p>
+     * 
+     * @param string A tokenized string to get the spans for.
+     * @return A collection of spans.
+     */
+    public static Collection<List<Object>> computeAllCombinations(Object[] items) {
+
+        // create bitvector (all bit combinations other than all zeros)
+        int bits = items.length;
+        List<List<Object>> combinations = new ArrayList<List<Object>>();
+
+        int max = (int)Math.pow(2, bits);
+        for (long i = 1; i < max; i++) {
+            List<Object> combination = new LinkedList<Object>();
+            if (computeCombinationRecursive(i, items, combination, 0)) {
+                combinations.add(combination);
+            }
+        }
+
+        return combinations;
+    }
+
+    /**
+     * <p>
+     * Recursive computation function for combinations.
+     * </p>
+     * 
+     * @param bitPattern The pattern describing the indices in the list of {@code items} to include in the resulting
+     *            combination.
+     * @param items The list of items to construct combinations from.
+     * @param combination The result combination will be constructed into this list.
+     * @param currentIndex The current index in the list of items. For this call the algorithm needs to decide whether
+     *            to include the item at that position in the combination or not based on whether the value in
+     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
+     * @return {@code true} if the computed combination was computed successfully.
+     */
+    private static Boolean computeCombinationRecursive(Long bitPattern, Object[] items, List<Object> combination,
+            Integer currentIndex) {
+        if (bitPattern % 2 != 0) {
+            combination.add(items[currentIndex]);
+        }
+        Long nextBitPattern = bitPattern / 2;
+        if (nextBitPattern < 1) {
+            return true;
+        } else {
+            return computeCombinationRecursive(nextBitPattern, items, combination, ++currentIndex);
+        }
     }
 
     /**
