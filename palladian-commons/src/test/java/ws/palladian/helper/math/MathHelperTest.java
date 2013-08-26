@@ -90,7 +90,6 @@ public class MathHelperTest {
         assertEquals(3948348538l, MathHelper.getMedian(new long[] {1l, 2l, 3948348538l, 3948348539l, 3948348540l}), 0);
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testGetMedianDifference() {
         assertEquals(5l, MathHelper.getMedianDifference(new long[] {1l, 2l, 4l, 9l, 16l, 24l}));
@@ -245,6 +244,21 @@ public class MathHelperTest {
         assertEquals(3.125, MathHelper.parseStringNumber("3 1/8 bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1½ bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1 ½ bla"), 0.001);
+    }
+
+    @Test
+    public void testGetOrderOfMagnitude() {
+        assertEquals(0, MathHelper.getOrderOfMagnitude(1));
+        assertEquals(1, MathHelper.getOrderOfMagnitude(10));
+        assertEquals(2, MathHelper.getOrderOfMagnitude(100));
+        // assertEquals(-1, MathHelper.getOrderOfMagnitude(0.1));
+        // assertEquals(-2, MathHelper.getOrderOfMagnitude(0.01));
+    }
+
+    @Test
+    public void testRound() {
+        assertEquals(0.333, MathHelper.round(1. / 3, 3), 0.);
+        assertTrue(Double.isNaN(MathHelper.round(Double.NaN, 2)));
     }
 
 }

@@ -7,28 +7,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.discretization.Binner;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CountMap;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
-import ws.palladian.processing.features.utils.FeatureDescriptor;
-import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>
- * Abstract base class for all {@link FeatureRanker}s. Implements common base functionallity.
+ * Abstract base class for all {@link FeatureRanker}s. Implements common base functionality.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -36,6 +36,9 @@ import ws.palladian.processing.features.utils.FeatureUtils;
  * @since 0.2.2
  */
 public abstract class AbstractFeatureRanker implements FeatureRanker {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureRanker.class);
 
     private final Map<String, Binner> binnerCache = CollectionHelper.newHashMap();
 
@@ -53,8 +56,14 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
      * @param featureVector The {@link FeatureVector} containing the dense {@link Feature} or sparse {@link Feature}s
      * @return the {@link Feature} or {@link Feature}s as a {@link Set}.
      */
-    protected Set<Feature<?>> convertToSet(final FeatureVector featureVector, final Collection<Instance> dataset) {
+    @SuppressWarnings("unchecked")
+    protected Set<Feature<?>> convertToSet(FeatureVector featureVector, Collection<? extends Trainable> dataset) {
         Set<Feature<?>> ret = CollectionHelper.newHashSet();
+        boolean firstRun = binnerCache.isEmpty();
+        if (firstRun) {
+            LOGGER.info("Converting {} features to set", featureVector.size());
+        }
+        ProgressMonitor progressMonitor = new ProgressMonitor(featureVector.size(), 1);
 
         for (final Feature<?> feature : featureVector) {
             if (feature instanceof ListFeature<?>) {
@@ -63,10 +72,13 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                     if (element instanceof NumericFeature) {
                         Binner binner = binnerCache.get(element.getName());
                         if (binner == null) {
-                            binner = discretize(element.getName(), dataset, new Comparator<Instance>() {
+                            if (firstRun) {
+                                progressMonitor.incrementAndPrintProgress();
+                            }
+                            binner = discretize(element.getName(), dataset, new Comparator<Trainable>() {
 
                                 @Override
-                                public int compare(Instance i1, Instance i2) {
+                                public int compare(Trainable i1, Trainable i2) {
                                     ListFeature<NumericFeature> i1ListFeature = i1.getFeatureVector().get(
                                             ListFeature.class, feature.getName());
                                     ListFeature<NumericFeature> i2ListFeature = i2.getFeatureVector().get(
@@ -89,10 +101,13 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
             } else if (feature instanceof NumericFeature) {
                 Binner binner = binnerCache.get(feature.getName());
                 if (binner == null) {
-                    binner = discretize(feature.getName(), dataset, new Comparator<Instance>() {
+                    if (firstRun) {
+                        progressMonitor.incrementAndPrintProgress();
+                    }
+                    binner = discretize(feature.getName(), dataset, new Comparator<Trainable>() {
 
                         @Override
-                        public int compare(Instance i1, Instance i2) {
+                        public int compare(Trainable i1, Trainable i2) {
                             NumericFeature i1Feature = i1.getFeatureVector().get(NumericFeature.class,
                                     feature.getName());
                             NumericFeature i2Feature = i2.getFeatureVector().get(NumericFeature.class,
@@ -104,13 +119,14 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                     });
                     binnerCache.put(feature.getName(), binner);
                 }
-
                 ret.add(binner.bin((NumericFeature)feature));
             } else {
                 ret.add(feature);
+                if (firstRun) {
+                    progressMonitor.incrementAndPrintProgress();
+                }
             }
         }
-
         return ret;
     }
 
@@ -126,17 +142,17 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
      * @return A {@link Binner} object capable of discretization of already encountered and unencountered values for the
      *         provided {@link NumericFeature}.
      */
-    public static Binner discretize(final String featureName, Collection<Instance> dataset,
-            Comparator<Instance> comparator) {
-        List<Instance> sortedInstances = CollectionHelper.newArrayList();
-        for (Instance instance : dataset) {
-
-            sortedInstances.add(instance);
-            Collections.sort(sortedInstances, comparator);
-        }
-
-        Binner binner = createBinner(sortedInstances, featureName);
-        return binner;
+    public static Binner discretize(final String featureName, Collection<? extends Trainable> dataset,
+            Comparator<Trainable> comparator) {
+//        List<Trainable> sortedInstances = CollectionHelper.newArrayList();
+//        for (Trainable instance : dataset) {
+//
+//            sortedInstances.add(instance);
+//            Collections.sort(sortedInstances, comparator);
+//        }
+        List<Trainable> sortedInstances = new ArrayList<Trainable>(dataset);
+        Collections.sort(sortedInstances, comparator);
+        return createBinner(sortedInstances, featureName);
     }
 
     /**
@@ -148,7 +164,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
      * @param featureName
      * @return
      */
-    private static Binner createBinner(List<Instance> dataset, final String featureName) {
+    private static Binner createBinner(List<Trainable> dataset, String featureName) {
         List<Integer> boundaryPoints = findBoundaryPoints(dataset);
 
         // StringBuilder nameBuilder = new StringBuilder();
@@ -157,7 +173,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
         // }
 
         List<NumericFeature> features = new ArrayList<NumericFeature>();
-        for (Instance instance : dataset) {
+        for (Trainable instance : dataset) {
             NumericFeature feature = instance.getFeatureVector().get(NumericFeature.class, featureName);
             features.add(feature);
         }
@@ -176,11 +192,12 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
      *         value and the previous index. So a value of 1 means there is a boundary point between the 0th and the 1st
      *         instance.
      */
-    private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {
+    private static List<Integer> findBoundaryPoints(List<Trainable> sortedDataset) {
         List<Integer> boundaryPoints = new ArrayList<Integer>();
         int N = sortedDataset.size();
-        List<Instance> s = sortedDataset;
+        List<Trainable> s = sortedDataset;
         for (int t = 1; t < sortedDataset.size(); t++) {
+//            if (!sortedDataset.get(t - 1).getTargetClass().equals(sortedDataset.get(t).getTargetClass())
             if (sortedDataset.get(t - 1).getTargetClass() != sortedDataset.get(t).getTargetClass()
                     && gain(t, s) > (Math.log(N - 1) / Math.log(2)) - N + delta(t, s) / N) {
                 boundaryPoints.add(t);
@@ -189,36 +206,42 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
         return boundaryPoints;
     }
 
-    private static double gain(int t, List<Instance> s) {
-        List<Instance> s1 = s.subList(0, t);
-        List<Instance> s2 = s.subList(t, s.size());
+    private static double gain(int t, List<Trainable> s) {
+        List<Trainable> s1 = s.subList(0, t);
+        List<Trainable> s2 = s.subList(t, s.size());
         return entropy(s) - (s1.size() * entropy(s1)) / s.size() - (s2.size() * entropy(s2)) / s.size();
     }
 
-    private static double delta(int t, List<Instance> s) {
+    private static double delta(int t, List<Trainable> s) {
         double k = calculateNumberOfClasses(s);
-        List<Instance> s1 = s.subList(0, t);
-        List<Instance> s2 = s.subList(t, s.size());
+        List<Trainable> s1 = s.subList(0, t);
+        List<Trainable> s2 = s.subList(t, s.size());
         double k1 = calculateNumberOfClasses(s1);
         double k2 = calculateNumberOfClasses(s2);
         return Math.log(Math.pow(3.0d, k) - 2) / Math.log(2.0d)
                 - (k * entropy(s) - k1 * entropy(s1) - k2 * entropy(s2));
     }
 
-    private static double entropy(List<Instance> dataset) {
+    private static double entropy(List<Trainable> dataset) {
         double entropy = 0.0d;
-        Map<String, Integer> absoluteOccurrences = new HashMap<String, Integer>();
-        Set<String> targetClasses = new HashSet<String>();
-        for (Instance instance : dataset) {
-            targetClasses.add(instance.getTargetClass());
-            Integer absoluteCount = absoluteOccurrences.get(instance.getTargetClass());
-            if (absoluteCount == null) {
-                absoluteCount = 0;
-            }
-            absoluteOccurrences.put(instance.getTargetClass(), ++absoluteCount);
+        // Map<String, Integer> absoluteOccurrences = new HashMap<String, Integer>();
+        // Set<String> targetClasses = new HashSet<String>();
+        CountMap<String> occurrences = CountMap.create();
+        for (Trainable instance : dataset) {
+//            targetClasses.add(instance.getTargetClass());
+//            Integer absoluteCount = absoluteOccurrences.get(instance.getTargetClass());
+//            if (absoluteCount == null) {
+//                absoluteCount = 0;
+//            }
+//            absoluteOccurrences.put(instance.getTargetClass(), ++absoluteCount);
+            occurrences.add(instance.getTargetClass());
         }
-        for (String targetClass : targetClasses) {
-            double probability = (double)absoluteOccurrences.get(targetClass) / dataset.size();
+//        for (String targetClass : targetClasses) {
+//            double probability = (double)absoluteOccurrences.get(targetClass) / dataset.size();
+//            entropy -= probability * Math.log(probability) / Math.log(2);
+//        }
+        for (String targetClass : occurrences.uniqueItems()) {
+            double probability = (double)occurrences.getCount(targetClass) / dataset.size();
             entropy -= probability * Math.log(probability) / Math.log(2);
         }
         return entropy;
@@ -232,9 +255,9 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
      * @param s The set of instances to calculate the target classes for.
      * @return the number of target classes the provided dataset contains.
      */
-    private static double calculateNumberOfClasses(List<Instance> s) {
+    private static double calculateNumberOfClasses(List<Trainable> s) {
         Set<String> possibleClasses = new HashSet<String>();
-        for (Instance instance : s) {
+        for (Trainable instance : s) {
             possibleClasses.add(instance.getTargetClass());
         }
         return possibleClasses.size();

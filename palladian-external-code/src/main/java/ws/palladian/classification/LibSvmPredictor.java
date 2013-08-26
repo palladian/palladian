@@ -42,7 +42,7 @@ import ws.palladian.processing.features.utils.FeatureUtils;
  * @version 1.0
  * @since 2.0
  */
-public final class LibSvmPredictor implements Learner, Classifier<LibSvmModel> {
+public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<LibSvmModel> {
     private final static Logger LOGGER = LoggerFactory.getLogger(LibSvmPredictor.class);
 
     // private final List<String> normalFeaturePaths;

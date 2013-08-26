@@ -11,7 +11,8 @@ import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -40,8 +41,8 @@ public class DateAndTimeTagger implements Tagger {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String text) {
-        List<Annotated> annotations = CollectionHelper.newArrayList();
+    public List<Annotation> getAnnotations(String text) {
+        List<Annotation> annotations = CollectionHelper.newArrayList();
 
         List<ExtractedDate> allDates = DateParser.findDates(text, dateFormats);
 
@@ -51,7 +52,7 @@ public class DateAndTimeTagger implements Tagger {
             List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(text, dateTime.getDateString());
 
             for (Integer index : occurrenceIndices) {
-                annotations.add(new Annotation(index, dateTime.getDateString(), DATETIME_TAG_NAME));
+                annotations.add(new ImmutableAnnotation(index, dateTime.getDateString(), DATETIME_TAG_NAME));
             }
         }
 

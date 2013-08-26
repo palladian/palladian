@@ -1,10 +1,7 @@
 package ws.palladian.classification;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import weka.classifiers.Classifier;
@@ -46,13 +43,6 @@ public final class WekaModel implements Model {
         return classifier;
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @return
-     */
     public Map<String, Attribute> getSchema() {
         return schema;
     }
@@ -63,4 +53,5 @@ public final class WekaModel implements Model {
     public Instances getDataset() {
         return dataset;
     }
+
 }

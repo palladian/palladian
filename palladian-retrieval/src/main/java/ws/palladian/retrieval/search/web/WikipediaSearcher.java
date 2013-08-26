@@ -98,10 +98,10 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         String baseUrl = getBaseUrl(language);
         JsonObject jsonResult = fetchJsonResponse(query, baseUrl, 0, 1);
-        Integer count = jsonResult.queryInt("/query/searchinfo/totalhits");
+        Long count = jsonResult.queryLong("/query/searchinfo/totalhits");
         if (count == null) {
             throw new SearcherException("Error while getting the result count.");
         }

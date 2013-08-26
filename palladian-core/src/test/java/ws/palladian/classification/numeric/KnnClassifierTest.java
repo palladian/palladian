@@ -13,6 +13,7 @@ import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -61,7 +62,7 @@ public class KnnClassifierTest {
     public void testKnnClassifierLoadFromFile() throws Exception {
         // create the KNN classifier and add the training instances
         KnnClassifier knn = new KnnClassifier(3);
-        List<Instance> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/wineData.txt"), false);
         KnnModel model = knn.train(instances);
 
@@ -96,7 +97,7 @@ public class KnnClassifierTest {
         // create the KNN classifier and add the training instances
         KnnClassifier knn = new KnnClassifier(3);
         String testDataPath = ResourceHelper.getResourcePath("/classifier/wineData.txt");
-        KnnModel model = knn.train(ClassificationUtils.createInstances(testDataPath, false));
+        KnnModel model = knn.train(ClassificationUtils.readCsv(testDataPath, false));
         model.normalize();
         String tempDir = System.getProperty("java.io.tmpdir");
         FileHelper.serialize(model, tempDir + "/testKNN.gz");

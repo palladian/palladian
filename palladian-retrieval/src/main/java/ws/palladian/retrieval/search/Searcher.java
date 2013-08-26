@@ -36,7 +36,7 @@ public interface Searcher<R extends SearchResult> {
      * @return
      * @throws SearcherException In case the search fails.
      */
-    int getTotalResultCount(String query) throws SearcherException;
+    long getTotalResultCount(String query) throws SearcherException;
 
     /**
      * <p>

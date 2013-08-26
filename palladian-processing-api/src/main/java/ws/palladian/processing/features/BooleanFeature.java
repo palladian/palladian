@@ -14,7 +14,7 @@ public class BooleanFeature extends AbstractFeature<Boolean> {
      * @param name
      * @param value
      */
-    public BooleanFeature(String name, Boolean value) {
+    public BooleanFeature(String name, boolean value) {
         super(name, value);
     }
 

@@ -16,7 +16,7 @@ import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import de.julielab.jnet.tagger.JNETException;
 import de.julielab.jnet.tagger.NETagger;
 import de.julielab.jnet.tagger.Sentence;
@@ -135,7 +135,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
 
         FileHelper.writeToFile("data/temp/julieInputText.txt", inputText);
         FileFormatParser.textToColumn("data/temp/julieInputText.txt", "data/temp/julieInputTextColumn.txt", " ");
@@ -179,7 +179,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
 
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
 
-        return Collections.<Annotated> unmodifiableList(annotations);
+        return Collections.<Annotation> unmodifiableList(annotations);
     }
 
     /**

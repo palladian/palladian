@@ -60,20 +60,4 @@ public abstract class TechniqueDateRater<E extends ExtractedDate> {
         return null;
     }
 
-//    /**
-//     * Returns best rated date of property "ratedDates". <br>
-//     * In case of more than one best date the first one will be returned. <br>
-//     * For other function override this method in subclasses.
-//     * 
-//     * @return
-//     */
-//    public T getBestDate() {
-//        T date = null;
-//        if (this.ratedDates.size() > 0) {
-//            double rate = DateArrayHelper.getHighestRate(this.ratedDates);
-//            date = DateArrayHelper.getRatedDates(this.ratedDates, rate).get(0);
-//        }
-//        return date;
-//    }
-
 }

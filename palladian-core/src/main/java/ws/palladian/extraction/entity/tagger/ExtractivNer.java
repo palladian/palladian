@@ -7,10 +7,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -42,14 +42,14 @@ public class ExtractivNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
 
         List<String> sentenceChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
         if (sentenceChunks.size() > 1) {
             LOGGER.warn("Truncated text into {} chunks.", sentenceChunks.size());
         }
 
-        List<Annotated> annotations = CollectionHelper.newArrayList();
+        List<Annotation> annotations = CollectionHelper.newArrayList();
         String response = null;
 
         try {
@@ -58,7 +58,7 @@ public class ExtractivNer extends NamedEntityRecognizer {
                 HttpResult httpResult = getHttpResult(textChunk.toString());
                 response = HttpHelper.getStringContent(httpResult);
 
-                List<Annotated> currentAnnotations = parse(response, inputText);
+                List<Annotation> currentAnnotations = parse(response, inputText);
                 annotations.addAll(currentAnnotations);
             }
 
@@ -80,11 +80,11 @@ public class ExtractivNer extends NamedEntityRecognizer {
      * 
      * @param response The JSON string.
      * @param inputText The original input text.
-     * @return List of {@link Annotated} objects.
+     * @return List of {@link Annotation} objects.
      * @throws JSONException in case JSON could not be parsed.
      */
-    static List<Annotated> parse(String response, String inputText) throws JSONException {
-        List<Annotated> annotations = CollectionHelper.newArrayList();
+    static List<Annotation> parse(String response, String inputText) throws JSONException {
+        List<Annotation> annotations = CollectionHelper.newArrayList();
 
         JSONObject jsonResponse = new JSONObject(response);
         JSONArray jsonEntities = jsonResponse.getJSONArray("entities");
@@ -94,7 +94,7 @@ public class ExtractivNer extends NamedEntityRecognizer {
             String type = jsonEntity.getString("type");
             String text = jsonEntity.getString("text");
             int offset = jsonEntity.getInt("offset");
-            annotations.add(new Annotation(offset, text, type));
+            annotations.add(new ImmutableAnnotation(offset, text, type));
         }
         return alignContentText(annotations, inputText);
     }
@@ -102,22 +102,22 @@ public class ExtractivNer extends NamedEntityRecognizer {
     /**
      * <p>
      * Perform an alignment of the annotations to the real input text. The NER drops some characters from the text,
-     * which leads to shifted annotation offsets. This method loops through all provided {@link Annotated} objects and
+     * which leads to shifted annotation offsets. This method loops through all provided {@link Annotation} objects and
      * shifts the offsets if necessary.
      * </p>
      * 
-     * @param annotations The {@link Annotated} objects to align.
+     * @param annotations The {@link Annotation} objects to align.
      * @param correctContent The originally supplied text.
-     * @return The correctly aligned {@link Annotated} objects.
+     * @return The correctly aligned {@link Annotation} objects.
      */
     // TODO move this to global NerHelper class; as this might be relevant for other NERs also.
-    private static List<Annotated> alignContentText(List<Annotated> annotations, String correctContent) {
-        List<Annotated> alignedAnnotations = CollectionHelper.newArrayList();
+    private static List<Annotation> alignContentText(List<Annotation> annotations, String correctContent) {
+        List<Annotation> alignedAnnotations = CollectionHelper.newArrayList();
 
         // the current offset, everything behind this has already been aligned.
         int currentOffset = 0;
 
-        for (Annotated annotation : annotations) {
+        for (Annotation annotation : annotations) {
 
             int annotationOffset = annotation.getStartPosition();
 
@@ -132,7 +132,8 @@ public class ExtractivNer extends NamedEntityRecognizer {
             } else if (annotationOffset != actualOffset) {
                 LOGGER.debug("Changing offset of {} from {} to {}.", new Object[] {annotation.getValue(),
                         annotationOffset, actualOffset});
-                Annotation correctAnnotation = new Annotation(actualOffset, annotation.getValue(), annotation.getTag());
+                Annotation correctAnnotation = new ImmutableAnnotation(actualOffset, annotation.getValue(),
+                        annotation.getTag());
                 alignedAnnotations.add(correctAnnotation);
             } else {
                 alignedAnnotations.add(annotation);

@@ -31,6 +31,17 @@ public final class AlternativeName {
         this.language = language;
     }
 
+    /**
+     * <p>
+     * Create a new AlternativeName without specified language.
+     * </p>
+     * 
+     * @param name The name, not <code>null</code> or empty.
+     */
+    public AlternativeName(String name) {
+        this(name, null);
+    }
+
     public String getName() {
         return name;
     }

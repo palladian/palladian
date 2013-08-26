@@ -13,7 +13,7 @@ import org.xml.sax.InputSource;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.parser.ParserException;
 
 public class WikimetaNerTest {
@@ -31,9 +31,9 @@ public class WikimetaNerTest {
     public void testParseApiResponse() throws FileNotFoundException, ParserException {
         WikimetaNer wikimetaNer = new WikimetaNer();
         InputSource inputSource = new InputSource(new FileInputStream(XML_FILE));
-        List<Annotated> annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
+        List<Annotation> annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
 
-        assertEquals(134, annotations.size());
+        assertEquals(133, annotations.size());
         assertEquals("eastern United States", annotations.get(2).getValue());
 
         assertEquals("LOC", annotations.get(2).getTag());
@@ -47,7 +47,7 @@ public class WikimetaNerTest {
     public void testTagging() throws FileNotFoundException, ParserException {
         WikimetaNer wikimetaNer = new WikimetaNer();
         InputSource inputSource = new InputSource(new FileInputStream(XML_FILE));
-        List<Annotated> annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
+        List<Annotation> annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
         // make sure this stupid alignment error doesn't show up, it should throw an exception though
         // (see NamedEntityRecognizer, line 282)
         wikimetaNer.tagText(ORIGINAL_TEXT, annotations);
