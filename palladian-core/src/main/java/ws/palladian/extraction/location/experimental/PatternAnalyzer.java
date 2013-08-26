@@ -6,8 +6,7 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.location.ContextClassifier;
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -23,13 +22,13 @@ public class PatternAnalyzer {
     static CountMatrix<String> getPatterns(File inputFile, final Direction direction, final int size) {
         final CountMatrix<String> countMatrix = CountMatrix.create();
         final int numLines = FileHelper.getNumberOfLines(inputFile);
-        final StopWatch stopWatch = new StopWatch();
+        final ProgressMonitor monitor = new ProgressMonitor(numLines, 1);
         FileHelper.performActionOnEveryLine(inputFile, new LineAction() {
             StringBuilder buffer = new StringBuilder();
 
             @Override
             public void performAction(String line, int lineNumber) {
-                ProgressHelper.printProgress(lineNumber, numLines, 1, stopWatch);
+                monitor.incrementAndPrintProgress();
                 if (line.startsWith("=-DOCSTART-")) {
                     String text = buffer.toString();
                     text = StringHelper.replaceProtectedSpace(text);

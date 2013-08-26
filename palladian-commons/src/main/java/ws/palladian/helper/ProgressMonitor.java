@@ -144,6 +144,10 @@ public final class ProgressMonitor {
         this.compactRemaining = compactRemaining;
     }
 
+    public String getTotalElapsedTimeString() {
+        return stopWatch.getTotalElapsedTimeString();
+    }
+
     public static void main(String[] args) {
         int totalCount = 10;
         ProgressMonitor pm = new ProgressMonitor(totalCount, .5, "My Progress");
