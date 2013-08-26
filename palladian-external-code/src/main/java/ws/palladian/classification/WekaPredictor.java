@@ -45,7 +45,7 @@ import ws.palladian.processing.features.SparseFeature;
  * @version 3.1
  * @since 0.1.7
  */
-public final class WekaPredictor implements Learner, Classifier<WekaModel> {
+public final class WekaPredictor implements Learner<WekaModel>, Classifier<WekaModel> {
 
     /**
      * <p>
@@ -70,7 +70,6 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
      */
     public WekaPredictor(weka.classifiers.Classifier classifier) {
         Validate.notNull(classifier, "classifier must not be null.");
-
         this.classifier = classifier;
     }
 
@@ -228,7 +227,6 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
                 data.insertAttributeAt(featureAttribute, data.numAttributes());
                 featureAttribute = data.attribute(effectiveFeatureName);
             }
-
             ret.put(featureAttribute.index(), 1.0);
         } else {
             Attribute featureAttribute = data.attribute(feature.getName());
@@ -237,7 +235,6 @@ public final class WekaPredictor implements Learner, Classifier<WekaModel> {
                 data.insertAttributeAt(featureAttribute, data.numAttributes());
                 featureAttribute = data.attribute(feature.getName());
             }
-
             Double featureValue = Double.valueOf(feature.getValue().toString());
             ret.put(featureAttribute.index(), featureValue);
         }

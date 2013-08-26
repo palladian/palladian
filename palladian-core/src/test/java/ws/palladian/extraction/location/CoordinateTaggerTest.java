@@ -9,15 +9,6 @@ import org.junit.Test;
 public class CoordinateTaggerTest {
 
     @Test
-    public void testDmsToDec() {
-        assertEquals(40, CoordinateTagger.dmsToDecimal("40°"), 0);
-        assertEquals(-73.94, CoordinateTagger.dmsToDecimal("73°56.4′W"), 0);
-        assertEquals(40.446195, CoordinateTagger.dmsToDecimal("40:26:46.302N"), 0.05);
-        assertEquals(40.446195, CoordinateTagger.dmsToDecimal("40d 26′ 47″ N"), 0.05);
-        assertEquals(40.446195, CoordinateTagger.dmsToDecimal("40°26′47″N"), 0.05);
-    }
-
-    @Test
     public void testLocationTagger() {
         CoordinateTagger tagger = new CoordinateTagger();
 

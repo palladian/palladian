@@ -8,14 +8,13 @@ import org.apache.commons.configuration.Configuration;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -28,26 +27,22 @@ import ws.palladian.retrieval.search.SearcherException;
  * set or not (as of June 30, 2012).
  * </p>
  * 
- * @see http://blekko.com
- * @see http://help.blekko.com/index.php/tag/api/
+ * @see <a href="http://blekko.com">blekko</a>
+ * @see <a href="http://help.blekko.com/index.php/tag/api/">API information</a>
  * @author Philipp Katz
  */
 public final class BlekkoSearcher extends WebSearcher<WebResult> {
 
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BlekkoSearcher.class);
-
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.blekko.key";
-    
+
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /** The time in milliseconds we wait between two requests. */
     private static final int THROTTLING_INTERVAL_MS = 1000;
 
-    /** The timestamp of the last request. */
-    private static Long lastRequestTimestamp;
+    /** Throttle the requests; this applies to all instances of the searcher. */
+    private static final RequestThrottle THROTTLE = new RequestThrottle(THROTTLING_INTERVAL_MS);
 
     private final String apiKey;
 
@@ -59,7 +54,6 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
      * @param apiKey The API key for accessing blekko.
      */
     public BlekkoSearcher(String apiKey) {
-        super();
         this.apiKey = apiKey;
     }
 
@@ -70,7 +64,6 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
      * 
      */
     public BlekkoSearcher() {
-        super();
         this.apiKey = null;
     }
 
@@ -91,24 +84,26 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
 
         List<WebResult> webResults = new ArrayList<WebResult>();
         int pageSize = Math.min(resultCount, 100);
-        int necessaryPages = (int) Math.ceil(resultCount / 100.);
+        int necessaryPages = (int)Math.ceil(resultCount / 100.);
+
+        String jsonString = null;
 
         try {
 
             for (int i = 0; i < necessaryPages; i++) {
 
                 String requestUrl = getRequestUrl(query, pageSize, i);
-                checkQueryThrottling();
+                THROTTLE.hold();
                 HttpResult httpResult = retriever.httpGet(requestUrl);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
-                String jsonString = HttpHelper.getStringContent(httpResult);
+                jsonString = HttpHelper.getStringContent(httpResult);
                 JSONObject jsonObject = new JSONObject(jsonString);
-                
+
                 if (!jsonObject.has("RESULT")) {
                     continue;
                 }
-                
+
                 JSONArray jsonResults = jsonObject.getJSONArray("RESULT");
 
                 for (int j = 0; j < jsonResults.length(); j++) {
@@ -133,7 +128,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
                     + e.getMessage(), e);
         } catch (JSONException e) {
             throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
-                    + getName() + ": " + e.getMessage(), e);
+                    + getName() + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
         }
 
         return webResults;
@@ -155,46 +150,26 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
         return urlBuilder.toString();
     }
 
-    /**
-     * <p>
-     * Make sure, we consider the one-second limit between successive requests. If we are below one second, this method
-     * blocks and waits.
-     * </p>
-     */
-    private static synchronized void checkQueryThrottling() {
-        if (lastRequestTimestamp != null) {
-            long millisSinceLastRequest = System.currentTimeMillis() - lastRequestTimestamp;
-            if (millisSinceLastRequest < THROTTLING_INTERVAL_MS) {
-                try {
-                    long millisToSleep = THROTTLING_INTERVAL_MS - millisSinceLastRequest;
-                    Thread.sleep(millisToSleep);
-                } catch (InterruptedException e) {
-                    LOGGER.warn("InterruptedException");
-                }
-            }
-        }
-        lastRequestTimestamp = System.currentTimeMillis();
-    }
-
     @Override
     public String getName() {
         return "Blekko";
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
-        int totalResults = 0;
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
+        long totalResults = 0;
 
         String requestUrl = getRequestUrl(query, 1, 0);
-        checkQueryThrottling();
+        THROTTLE.hold();
         HttpResult httpResult;
+        String jsonString = null;
         try {
             httpResult = retriever.httpGet(requestUrl);
             TOTAL_REQUEST_COUNT.incrementAndGet();
-    
-            String jsonString = HttpHelper.getStringContent(httpResult);
+
+            jsonString = HttpHelper.getStringContent(httpResult);
             JSONObject jsonObject = new JSONObject(jsonString);
-            
+
             // System.out.println(jsonObject.toString(2));
 
             if (jsonObject != null && jsonObject.has("universal_total_results")) {
@@ -202,20 +177,20 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
                 string = string.replace("K", "000");
                 string = string.replace("M", "000000");
                 try {
-                    totalResults = Integer.parseInt(string);
+                    totalResults = Long.parseLong(string);
                 } catch (Exception e) {
                     // ccl pattern in action
                 }
             }
-            
+
         } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching total result count for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
-        } catch (JSONException e) {
-            throw new SearcherException("Error parsing the JSON response while searching total result count for \"" + query + "\" with "
+            throw new SearcherException("HTTP error while searching total result count for \"" + query + "\" with "
                     + getName() + ": " + e.getMessage(), e);
+        } catch (JSONException e) {
+            throw new SearcherException("Error parsing the JSON response while searching total result count for \""
+                    + query + "\" with " + getName() + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\".", e);
         }
-        
+
         return totalResults;
     }
 

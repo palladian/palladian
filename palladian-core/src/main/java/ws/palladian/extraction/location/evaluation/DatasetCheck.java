@@ -3,7 +3,6 @@ package ws.palladian.extraction.location.evaluation;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +11,7 @@ import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -129,8 +129,8 @@ final class DatasetCheck {
                     System.out.println("[warn] '" + content + "' ends with white space in " + fileName);
                 }
 
-                valueTags.get(content.toLowerCase()).add(openingTag);
-                assignedTagCounts.get(openingTag).add(content.toLowerCase());
+                valueTags.get(content/* .toLowerCase() */).add(openingTag);
+                assignedTagCounts.get(openingTag).add(content/* .toLowerCase() */);
             }
 
             // check, whether all annotations with a specific value in the text have the same tag; if not, this is not
@@ -139,6 +139,23 @@ final class DatasetCheck {
                 if (valueTags.get(value).size() > 1) {
                     System.out.println("[warn] ambiguous annotations for " + value + ": " + valueTags.get(value)
                             + " in " + fileName);
+                }
+            }
+
+            // check for potentially missed annotations
+            for (String value : valueTags.keySet()) {
+                for (String tag : valueTags.get(value)) {
+                    Pattern pattern = Pattern.compile(String.format("(?<!<%s>)(?<=[\\s\"])%s(?!</%s>)(?=[\\s.,:;?!])",
+                            tag, Pattern.quote(value), tag));
+                    Matcher matcher2 = pattern.matcher(stringContent);
+                    while (matcher2.find()) {
+                        int start = matcher2.start();
+                        int end = matcher2.end();
+                        String context = stringContent.substring(Math.max(0, start - 15),
+                                Math.min(stringContent.length(), end + 15)).replace('\n', ' ');
+                        System.out.println("[warn] potentially missed annotation for '" + value + "' (context '"
+                                + context + "' in " + fileName);
+                    }
                 }
             }
 
@@ -174,8 +191,7 @@ final class DatasetCheck {
      */
     static void getNonDisambiguatedStatistics(File datasetPath) {
         File coordinatesFile = new File(datasetPath, "coordinates.csv");
-        Map<String, SortedMap<Integer, GeoCoordinate>> coordinates = LocationExtractionEvaluator
-                .readCoordinatesCsv(coordinatesFile);
+        Map<String, Map<Integer, GeoCoordinate>> coordinates = LocationExtractorUtils.readCoordinates(coordinatesFile);
         CountMap<String> totalTypeCounts = CountMap.create();
         CountMap<String> disambiguatedTypeCounts = CountMap.create();
 
@@ -208,8 +224,8 @@ final class DatasetCheck {
 
     public static void main(String[] args) {
         File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2");
-        getNonDisambiguatedStatistics(datasetPath);
-        // performCheck(datasetPath);
+        // getNonDisambiguatedStatistics(datasetPath);
+        performCheck(datasetPath);
     }
 
 }

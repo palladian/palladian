@@ -176,7 +176,7 @@ public class YahooLocationExtractor extends LocationExtractor {
                 continue;
             }
             Location location = new ImmutableLocation(woeId, actualName, alternatives, mappedType, lat, lng, null, null);
-            result.add(new LocationAnnotation(startOffset, endOffset, actualName, location));
+            result.add(new LocationAnnotation(startOffset, actualName, location));
         }
         return result;
     }

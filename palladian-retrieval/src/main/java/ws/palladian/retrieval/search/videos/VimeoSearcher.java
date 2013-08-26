@@ -171,7 +171,7 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         HttpRequest request = buildRequest(query, 0, 1);
         try {
             HttpResult result = retriever.execute(request);
@@ -182,8 +182,8 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
         }
     }
 
-    public static int parseResultCount(String jsonString) {
-        return JPathHelper.get(jsonString, "videos/total", Integer.class);
+    public static Long parseResultCount(String jsonString) {
+        return JPathHelper.get(jsonString, "videos/total", Long.class);
     }
 
     private static Date parseDate(String dateString) {

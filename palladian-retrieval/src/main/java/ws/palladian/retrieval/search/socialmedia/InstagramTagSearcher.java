@@ -119,7 +119,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
                     if (data.has("caption") && !data.getString("caption").equals("null")) {
                         title = data.getJSONObject("caption").getString("text");
                     }
-                    result.add(new WebImageResult(pageUrl, imageUrl, title, null, width, height, date, null));
+                    result.add(new WebImageResult(pageUrl, imageUrl, title, null, width, height, date));
 
                     if (result.size() == resultCount) {
                         break page;

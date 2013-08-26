@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public class ExtractivNerTest {
 
@@ -23,7 +23,7 @@ public class ExtractivNerTest {
         String sampleText = FileHelper.readFileToString(sampleTextFile);
         String jsonResponse = FileHelper.readFileToString(jsonResponseFile);
 
-        List<Annotated> annotations = ExtractivNer.parse(jsonResponse, sampleText);
+        List<Annotation> annotations = ExtractivNer.parse(jsonResponse, sampleText);
 
         assertEquals(133, annotations.size());
 

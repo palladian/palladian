@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.MinMaxNormalization;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
@@ -84,12 +83,12 @@ public final class KnnModel implements Model {
      * @return The training instances underlying this {@link KnnModel}. They are used by the {@code KnnClassifier} to
      *         make a classification decision.
      */
-    public List<Instance> getTrainingExamples() {
+    public List<Trainable> getTrainingExamples() {
         return convertTrainingInstances(trainingExamples);
     }
 
-    private List<Instance> convertTrainingInstances(List<TrainingExample> instances) {
-        List<Instance> nominalInstances = new ArrayList<Instance>(instances.size());
+    private List<Trainable> convertTrainingInstances(List<TrainingExample> instances) {
+        List<Trainable> nominalInstances = new ArrayList<Trainable>(instances.size());
 
         for (TrainingExample instance : trainingExamples) {
             FeatureVector featureVector = new FeatureVector();
@@ -109,8 +108,8 @@ public final class KnnModel implements Model {
      * </p>
      */
     public void normalize() {
-        List<Instance> nominalInstances = convertTrainingInstances(trainingExamples);
-        normalizationInformation = ClassificationUtils.calculateMinMaxNormalization(nominalInstances);
+        List<Trainable> nominalInstances = convertTrainingInstances(trainingExamples);
+        normalizationInformation = new MinMaxNormalization(nominalInstances);
         normalizationInformation.normalize(nominalInstances);
         trainingExamples = initTrainingInstances(nominalInstances);
         isNormalized = true;

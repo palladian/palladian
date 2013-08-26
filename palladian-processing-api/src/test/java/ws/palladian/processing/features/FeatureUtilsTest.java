@@ -27,8 +27,8 @@ public class FeatureUtilsTest {
     public void testFind() {
         FeatureVector fv = new FeatureVector();
         fv.add(new NominalFeature("test", "test"));
-        fv.add(new PositionAnnotation("ab", 0, 2));
+        fv.add(new PositionAnnotation("ab", 0));
         FeatureUtils.find(new NominalFeature("test", "test"), fv);
-        FeatureUtils.find(new PositionAnnotation("ab", 0, 2), fv);
+        FeatureUtils.find(new PositionAnnotation("ab", 0), fv);
     }
 }

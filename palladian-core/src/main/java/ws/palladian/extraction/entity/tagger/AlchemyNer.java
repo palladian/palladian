@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,13 +11,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -365,6 +365,26 @@ import ws.palladian.retrieval.helper.HttpHelper;
  */
 public class AlchemyNer extends NamedEntityRecognizer {
 
+    /**
+     * <p>
+     * Specific {@link Annotation}, which provides access to the sub types delivered from Alchemy.
+     * </p>
+     */
+    public static final class AlchemyAnnotation extends ImmutableAnnotation {
+
+        private final List<String> subtypes;
+
+        public AlchemyAnnotation(int startPosition, String value, String tag, List<String> subtypes) {
+            super(startPosition, value, tag);
+            this.subtypes = subtypes;
+        }
+
+        public List<String> getSubtypes() {
+            return Collections.unmodifiableList(subtypes);
+        }
+
+    }
+
     /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.alchemy.key";
 
@@ -409,9 +429,9 @@ public class AlchemyNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
+    public List<AlchemyAnnotation> getAnnotations(String inputText) {
 
-        Annotations<Annotated> annotations = new Annotations<Annotated>();
+        Annotations<AlchemyAnnotation> annotations = new Annotations<AlchemyAnnotation>();
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
@@ -419,10 +439,12 @@ public class AlchemyNer extends NamedEntityRecognizer {
         Set<String> checkedEntities = new HashSet<String>();
         for (String textChunk : textChunks) {
 
+            String response = null;
+
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = HttpHelper.getStringContent(httpResult);
+                response = HttpHelper.getStringContent(httpResult);
 
                 if (response.contains("daily-transaction-limit-exceeded")) {
                     LOGGER.warn("--- LIMIT EXCEEDED ---");
@@ -455,30 +477,17 @@ public class AlchemyNer extends NamedEntityRecognizer {
                     }
 
                     // get locations of named entity
-//                    String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
-//                    Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
-//                            + escapedEntity + "(?=\\s)", Pattern.DOTALL);
-//
-//                    Matcher matcher = pattern.matcher(inputText);
-//                    while (matcher.find()) {
-//                        int offset = matcher.start();
-//                        Annotation annotation = new Annotation(offset, entityName, entityType);
-//                        annotation.addSubTypes(subTypeList);
-//                        annotations.add(annotation);
-//                    }
-                    
                     List<Integer> entityOffsets = NerHelper.getEntityOffsets(inputText, entityName);
+
                     for (Integer offset : entityOffsets) {
-                        Annotation annotation = new Annotation(offset, entityName, entityType);
-                        annotation.addSubTypes(subTypeList);
-                        annotations.add(annotation);
+                        annotations.add(new AlchemyAnnotation(offset, entityName, entityType, subTypeList));
                     }
 
                 }
-            } catch (JSONException e) {
-                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
             } catch (HttpException e) {
                 LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.error(getName() + " could not parse JSON '" + response + "':" + e.getMessage());
             }
         }
 

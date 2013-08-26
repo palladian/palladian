@@ -10,10 +10,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -50,12 +50,12 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
         request.addParameter("text", inputText);
 
-        List<Annotated> annotations = CollectionHelper.newArrayList();
+        List<Annotation> annotations = CollectionHelper.newArrayList();
         String content;
         try {
             HttpResult httpResult = httpRetriever.execute(request);
@@ -72,7 +72,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
                     int offset = currentItem.getInt("offset");
                     String entity = currentItem.getString("entity");
                     String type = currentItem.getString("type");
-                    annotations.add(new Annotation(offset, entity, type));
+                    annotations.add(new ImmutableAnnotation(offset, entity, type));
                 } else {
                     LOGGER.debug("Ignore malformed entry in JSON response.");
                     /**

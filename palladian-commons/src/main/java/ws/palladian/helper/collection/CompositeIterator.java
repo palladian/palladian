@@ -1,11 +1,9 @@
-package de.philippkatz.helper;
+package ws.palladian.helper.collection;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import org.apache.commons.collections15.IteratorUtils;
 
 /**
  * <p>
@@ -15,9 +13,7 @@ import org.apache.commons.collections15.IteratorUtils;
  * 
  * @author Philipp Katz
  * @param <T>
- * @deprecated Use {@link IteratorUtils#chainedIterator(java.util.Collection)} instead.
  */
-@Deprecated
 public final class CompositeIterator<T> implements Iterator<T> {
 
     private final List<Iterator<T>> iterators;

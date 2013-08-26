@@ -9,6 +9,9 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -26,16 +29,61 @@ public class MinMaxNormalization implements Serializable {
 
     private static final long serialVersionUID = 7227377881428315427L;
 
+    /** Hold the max value of each feature <featureIndex, maxValue> */
     private final Map<String, Double> maxValues;
+
+    /** Hold the min value of each feature <featureName, minValue> */
     private final Map<String, Double> minValues;
 
     /**
-     * @param maxValues Map with maximum values for each numeric feature.
-     * @param minValues Map with minimum values for each numeric feature.
+     * <p>
+     * Calculate Min-Max normalization information over the numeric values of the given features (i.e. calculate the
+     * minimum and maximum values for each feature). The {@link MinMaxNormalization} instance can then be used to
+     * normalize numeric instances to an interval of [0,1].
+     * </p>
+     * 
+     * @param instances The {@code List} of {@link Instance}s to normalize, not <code>null</code>.
+     * @return A {@link MinMaxNormalization} instance carrying information to normalize {@link Instance}s based on the
+     *         calculated normalization information.
      */
-    MinMaxNormalization(Map<String, Double> maxValues, Map<String, Double> minValues) {
-        this.maxValues = maxValues;
-        this.minValues = minValues;
+    public MinMaxNormalization(Iterable<? extends Classifiable> instances) {
+        Validate.notNull(instances, "instances must not be null");
+
+        minValues = CollectionHelper.newHashMap();
+        maxValues = CollectionHelper.newHashMap();
+
+        // find the min and max values
+        for (Classifiable instance : instances) {
+
+            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
+
+            for (Feature<Double> feature : numericFeatures) {
+
+                String featureName = feature.getName();
+                double featureValue = feature.getValue();
+
+                // check min value
+                if (minValues.get(featureName) != null) {
+                    double currentMin = minValues.get(featureName);
+                    if (currentMin > featureValue) {
+                        minValues.put(featureName, featureValue);
+                    }
+                } else {
+                    minValues.put(featureName, featureValue);
+                }
+
+                // check max value
+                if (maxValues.get(featureName) != null) {
+                    double currentMax = maxValues.get(featureName);
+                    if (currentMax < featureValue) {
+                        maxValues.put(featureName, featureValue);
+                    }
+                } else {
+                    maxValues.put(featureName, featureValue);
+                }
+
+            }
+        }
     }
 
     /**
@@ -46,19 +94,14 @@ public class MinMaxNormalization implements Serializable {
      * 
      * @param instances The List of Instances, not <code>null</code>.
      */
-    public void normalize(List<Instance> instances) {
+    public void normalize(List<? extends Classifiable> instances) {
         Validate.notNull(instances, "instances must not be null");
-
-        for (Instance instance : instances) {
-            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
-
-            for (NumericFeature numericFeature : numericFeatures) {
-                normalize(numericFeature);
-            }
+        for (Classifiable instance : instances) {
+            normalize(instance);
         }
     }
 
-    private void normalize(NumericFeature numericFeature) {
+    private NumericFeature normalize(NumericFeature numericFeature) {
         String featureName = numericFeature.getName();
         double featureValue = numericFeature.getValue();
 
@@ -67,7 +110,7 @@ public class MinMaxNormalization implements Serializable {
         double maxMinDifference = maxValue - minValue;
         double normalizedValue = (featureValue - minValue) / maxMinDifference;
 
-        numericFeature.setValue(normalizedValue);
+        return new NumericFeature(featureName, normalizedValue);
     }
 
     /**
@@ -77,11 +120,17 @@ public class MinMaxNormalization implements Serializable {
      * </p>
      * 
      * @param featureVector The FeatureVector to normalize, not <code>null</code>.
+     * @return
      */
-    public void normalize(FeatureVector featureVector) {
-        Validate.notNull(featureVector, "featureVector must not be null");
-        for (NumericFeature feature : featureVector.getAll(NumericFeature.class)) {
-            normalize(feature);
+    public void normalize(Classifiable classifiable) {
+        Validate.notNull(classifiable, "classifiable must not be null");
+        FeatureVector featureVector = classifiable.getFeatureVector();
+        for (Feature<?> feature : featureVector) {
+            if (feature instanceof NumericFeature) {
+                NumericFeature numericFeature = (NumericFeature)feature;
+                // replace value.
+                featureVector.add(normalize(numericFeature));
+            }
         }
     }
 

@@ -227,7 +227,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Getting the total result count is not supported in the new Bing API.");
     }
 

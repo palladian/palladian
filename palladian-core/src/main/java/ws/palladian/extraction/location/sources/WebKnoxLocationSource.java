@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -21,7 +20,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 
-public class WebKnoxLocationSource extends SingleQueryLocationSource implements LocationSource {
+public class WebKnoxLocationSource extends SingleQueryLocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxLocationSource.class);

@@ -3,16 +3,15 @@
  */
 package ws.palladian.classification;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hamcrest.Matchers;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isOneOf;
 import org.junit.Test;
 
 import weka.classifiers.bayes.NaiveBayes;
@@ -85,8 +84,8 @@ public class WekaPredictorTest {
     @Test
     public void testWithPositionalData() {
         // Feature Vector 1
-        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0, 3);
-        PositionAnnotation annotation2 = new PositionAnnotation("de", 4, 6);
+        PositionAnnotation annotation1 = new PositionAnnotation("abc", 0);
+        PositionAnnotation annotation2 = new PositionAnnotation("de", 4);
         ListFeature<PositionAnnotation> annotationListFeature = new ListFeature<PositionAnnotation>("token");
         annotationListFeature.add(annotation1);
         annotationListFeature.add(annotation2);
@@ -106,7 +105,7 @@ public class WekaPredictorTest {
 
         // Feature Vector 2
         ListFeature<PositionAnnotation> annotationListFeature2 = new ListFeature<PositionAnnotation>("token");
-        annotationListFeature2.add(new PositionAnnotation("de", 0, 2));
+        annotationListFeature2.add(new PositionAnnotation("de", 0));
         ListFeature<SequentialPattern> pattern1ListFeature2 = new ListFeature<SequentialPattern>("tokendepattern");
         pattern1ListFeature2.add(new SequentialPattern(Arrays.asList(new String[] {"d"})));
 
@@ -144,7 +143,7 @@ public class WekaPredictorTest {
         WekaPredictor classifier = new WekaPredictor(new Bagging());
         WekaModel model = classifier.train(trainSet);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, validationSet);
-        assertThat(evaluation.getF("false", 1.0),is(greaterThan(0.0)));
+        assertThat(evaluation.getF(1.0, "false"), is(greaterThan(0.0)));
         assertThat(evaluation.getAccuracy(),is(greaterThan(0.0)));
     }
 }

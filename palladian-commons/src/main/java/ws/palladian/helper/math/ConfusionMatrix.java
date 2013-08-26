@@ -202,7 +202,7 @@ public class ConfusionMatrix {
         int correct = getCorrectlyClassifiedDocuments(category);
         int classified = getClassifiedDocuments(category);
         if (classified == 0) {
-            return -1;
+            return Double.NaN;
         }
         return (double)correct / classified;
     }
@@ -219,7 +219,7 @@ public class ConfusionMatrix {
         int correct = getCorrectlyClassifiedDocuments(category);
         int real = getRealDocuments(category);
         if (real == 0) {
-            return -1;
+            return 1;
         }
         return (double)correct / real;
     }
@@ -234,14 +234,13 @@ public class ConfusionMatrix {
      *            F2 score and 0.5 for F0.5 score and so on.
      * @return The F measure for a given category.
      */
-    public double getF(String category, double alpha) {
+    public double getF(double alpha, String category) {
         double precision = getPrecision(category);
         double recall = getRecall(category);
-        if (precision < 0 || recall < 0) {
-            return -1;
+        if (Double.isNaN(precision)||Double.isNaN(recall)){
+            return Double.NaN;
         }
         return (1. + alpha) * ((precision * recall) / (alpha * precision + recall));
-        // return 1.0 / (alpha * 1.0 / precision + (1.0 - alpha) * 1.0 / recall);
     }
 
     /**
@@ -259,7 +258,7 @@ public class ConfusionMatrix {
         int realPositives = getRealDocuments(category);
         int falseNegatives = realPositives - truePositives;
         if (truePositives + falseNegatives == 0) {
-            return -1.0;
+            return Double.NaN;
         }
         return (double)truePositives / (truePositives + falseNegatives);
     }
@@ -284,7 +283,7 @@ public class ConfusionMatrix {
         int trueNegatives = getTotalDocuments() - classifiedPositives - falseNegatives;
 
         if (trueNegatives + falsePositives == 0) {
-            return -1.0;
+            return Double.NaN;
         }
 
         return (double)trueNegatives / (trueNegatives + falsePositives);
@@ -308,7 +307,7 @@ public class ConfusionMatrix {
         int trueNegatives = getTotalDocuments() - classifiedPositives - falseNegatives;
 
         if (truePositives + trueNegatives + falsePositives + falseNegatives == 0) {
-            return -1.0;
+            return Double.NaN;
         }
 
         return (double)(truePositives + trueNegatives)
@@ -346,7 +345,7 @@ public class ConfusionMatrix {
         double precision = 0.0;
         for (String category : getCategories()) {
             double precisionForCategory = getPrecision(category);
-            if (precisionForCategory < 0) {
+            if (Double.isNaN(precisionForCategory)) {
                 continue;
             }
             double weight = weighted ? getPrior(category) : 1;
@@ -357,7 +356,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return -1.0;
+            return Double.NaN;
         }
         return precision / count;
     }
@@ -375,7 +374,7 @@ public class ConfusionMatrix {
         double recall = 0.0;
         for (String category : getCategories()) {
             double recallForCategory = getRecall(category);
-            if (recallForCategory < 0.0) {
+            if (Double.isNaN(recallForCategory)) {
                 continue;
             }
             double weight = weighted ? getPrior(category) : 1;
@@ -386,7 +385,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return -1.0;
+            return Double.NaN;
         }
         return recall / count;
     }
@@ -396,16 +395,17 @@ public class ConfusionMatrix {
      * Get the average F measure of all categories.
      * </p>
      * 
-     * @param beta To weight precision and recall (1.0 for F1 measure).
+     * @param alpha A value between 0 and 1 to weight precision and recall (1.0 for F1). Use values of 2.0 for
+     *            F2 score and 0.5 for F0.5 score and so on.
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
      *            each category equally.
      * @return The average F of all categories.
      */
-    public double getAverageF(double beta, boolean weighted) {
+    public double getAverageF(double alpha, boolean weighted) {
         double f = 0.0;
         for (String category : getCategories()) {
-            double fForCategory = getF(category, beta);
-            if (fForCategory < 0.0) {
+            double fForCategory = getF(alpha, category);
+            if (Double.isNaN(fForCategory)) {
                 continue;
             }
             double weight = weighted ? getPrior(category) : 1;
@@ -416,7 +416,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return -1.0;
+            return Double.NaN;
         }
         return f / count;
     }
@@ -434,7 +434,7 @@ public class ConfusionMatrix {
         double sensitivity = 0.0;
         for (String category : getCategories()) {
             double sensitivityForCategory = getSensitivity(category);
-            if (sensitivityForCategory < 0.0) {
+            if (Double.isNaN(sensitivityForCategory)) {
                 continue;
             }
             double weight = weighted ? getPrior(category) : 1;
@@ -445,7 +445,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return -1.0;
+            return Double.NaN;
         }
         return sensitivity / count;
     }
@@ -463,8 +463,8 @@ public class ConfusionMatrix {
         double specificity = 0.0;
         for (String category : getCategories()) {
             double specifityForCategory = getSpecificity(category);
-            if (specifityForCategory < 0) {
-                return -1.0;
+            if (Double.isNaN(specifityForCategory)) {
+                return Double.NaN;
             }
             double weight = weighted ? getPrior(category) : 1;
             specificity += specifityForCategory * weight;
@@ -474,7 +474,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return -1.0;
+            return Double.NaN;
         }
         return specificity / count;
     }
@@ -492,8 +492,8 @@ public class ConfusionMatrix {
         double accuracy = 0.0;
         for (String category : getCategories()) {
             double accuracyForCategory = getAccuracy(category);
-            if (accuracyForCategory < 0.0) {
-                return -1.0;
+            if (Double.isNaN(accuracyForCategory)) {
+                return Double.NaN;
             }
             double weight = weighted ? getPrior(category) : 1;
             accuracy += accuracyForCategory * weight;
@@ -503,7 +503,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return -1.0;
+            return Double.NaN;
         }
         return accuracy / count;
     }
@@ -557,7 +557,7 @@ public class ConfusionMatrix {
             double precision = MathHelper.round(getPrecision(clazz), 4);
             double recall = MathHelper.round(getRecall(clazz), 4);
             double accuracy = MathHelper.round(getAccuracy(clazz), 4);
-            double f1measure = MathHelper.round(getF(clazz, 1.0), 4);
+            double f1measure = MathHelper.round(getF(1.0, clazz), 4);
             out.append(prior);
             int precisionSpaces = "prior  ".length() - String.valueOf(prior).length();
             out.append(CharBuffer.allocate(Math.max(precisionSpaces, 0)).toString().replace('\0', ' ')).append(
