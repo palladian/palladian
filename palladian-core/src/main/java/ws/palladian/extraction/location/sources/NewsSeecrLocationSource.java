@@ -6,9 +6,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +18,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.html.JPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -29,6 +25,8 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -95,27 +93,27 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
         return resultString;
     }
 
-    private List<Location> parseResultArray(JSONArray resultArray) throws JSONException {
+    private List<Location> parseResultArray(JsonArray resultArray) {
         List<Location> locations = CollectionHelper.newArrayList();
-        for (int i = 0; i < resultArray.length(); i++) {
-            JSONObject resultObject = resultArray.getJSONObject(i);
+        for (int i = 0; i < resultArray.size(); i++) {
+            JsonObject resultObject = resultArray.getJsonObject(i);
             Location location = parseSingleResult(resultObject);
             locations.add(location);
         }
         return locations;
     }
 
-    private Location parseSingleResult(JSONObject resultObject) throws JSONException {
-        Integer id = JPathHelper.get(resultObject, "id", Integer.class);
-        Double latitude = JPathHelper.get(resultObject, "latitude", Double.class);
-        Double longitude = JPathHelper.get(resultObject, "longitude", Double.class);
-        String primaryName = JPathHelper.get(resultObject, "primaryName", String.class);
-        String typeString = JPathHelper.get(resultObject, "type", String.class);
-        Long population = JPathHelper.get(resultObject, "population", Long.class);
+    private Location parseSingleResult(JsonObject resultObject) {
+        Integer id = resultObject.getInt("id");
+        Double latitude = resultObject.getDouble("latitude");
+        Double longitude = resultObject.getDouble("longitude");
+        String primaryName = resultObject.getString("primaryName");
+        String typeString = resultObject.getString("type");
+        Long population = resultObject.getLong("population");
         List<AlternativeName> altNames = CollectionHelper.newArrayList();
-        JSONArray jsonArray = JPathHelper.get(resultObject, "alternativeNames", JSONArray.class);
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject altLanguageJson = jsonArray.getJSONObject(i);
+        JsonArray jsonArray = resultObject.getJsonArray("alternativeNames");
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject altLanguageJson = jsonArray.getJsonObject(i);
             String nameValue = altLanguageJson.getString("name");
             String langValue = altLanguageJson.getString("language");
             Language language = null;
@@ -126,8 +124,8 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
         }
         LocationType type = LocationType.valueOf(typeString);
         List<Integer> ancestors = CollectionHelper.newArrayList();
-        JSONArray ancestorIds = JPathHelper.get(resultObject, "ancestorIds", JSONArray.class);
-        for (int i = 0; i < ancestorIds.length(); i++) {
+        JsonArray ancestorIds = resultObject.getJsonArray("ancestorIds");
+        for (int i = 0; i < ancestorIds.size(); i++) {
             ancestors.add(ancestorIds.getInt(i));
         }
         return new ImmutableLocation(id, primaryName, altNames, type, latitude, longitude, population, ancestors);
@@ -138,9 +136,9 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
         HttpRequest request = new HttpRequest(HttpMethod.GET, BASE_URL + "/" + StringUtils.join(locationIds, '+'));
         String jsonString = retrieveResult(request);
         try {
-            JSONArray resultArray = new JSONObject(jsonString).getJSONArray("results");
+            JsonArray resultArray = new JsonObject(jsonString).getJsonArray("results");
             return parseResultArray(resultArray);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
                     + e.getMessage(), e);
         }
@@ -166,16 +164,16 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
 
         // parse the bulk response
         try {
-            JSONArray jsonResults = new JSONObject(jsonString).getJSONArray("results");
+            JsonArray jsonResults = new JsonObject(jsonString).getJsonArray("results");
             MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
-            for (int i = 0; i < jsonResults.length(); i++) {
-                JSONObject currentResult = jsonResults.getJSONObject(i);
+            for (int i = 0; i < jsonResults.size(); i++) {
+                JsonObject currentResult = jsonResults.getJsonObject(i);
                 String query = currentResult.getString("query");
-                List<Location> locations = parseResultArray(currentResult.getJSONArray("result"));
+                List<Location> locations = parseResultArray(currentResult.getJsonArray("result"));
                 result.put(query, locations);
             }
             return result;
-        } catch (JSONException e) {
+        } catch (Exception e) {
             throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
                     + e.getMessage(), e);
         }
