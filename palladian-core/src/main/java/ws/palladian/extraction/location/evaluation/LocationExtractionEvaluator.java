@@ -37,6 +37,7 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.disambiguation.CombinedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -375,8 +376,7 @@ public final class LocationExtractionEvaluator {
     }
 
     @SuppressWarnings("unused")
-    private static List<LocationExtractor> createForThresholdAnalysis(LocationDatabase database,
- QuickDtModel model) {
+    private static List<LocationExtractor> createForThresholdAnalysis(LocationDatabase database, QuickDtModel model) {
         List<LocationExtractor> extractors = CollectionHelper.newArrayList();
         for (int i = 0; i <= 10; i++) {
             double threshold = i / 10.;
@@ -403,8 +403,15 @@ public final class LocationExtractionEvaluator {
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_tud_train_1375884663191.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_lgl_train_1375884760443.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_clust_train_1375885091622.model");
-        QuickDtModel model = FileHelper.deserialize("data/temp/location_disambiguation_1375988805941_tud_train.model");
-        evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
+        QuickDtModel model = FileHelper.deserialize("data/temp/location_disambiguation_1377440795471.model");
+        // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
+        // model = FileHelper.deserialize("data/temp/location_disambiguation_1377440979286.model");
+        // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
+        // model = FileHelper.deserialize("data/temp/location_disambiguation_1377441648409.model");
+        // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
+        // model = FileHelper.deserialize("data/temp/location_disambiguation_1377442726898.model");
+        // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
+        evaluator.addExtractor(new PalladianLocationExtractor(database, new CombinedDisambiguation(model)));
 
         // perform threshold analysis ////////////////////////////////
         // List<LocationExtractor> extractors = createForThresholdAnalysis(database, model);
