@@ -3,52 +3,67 @@ package ws.palladian.helper.shingling;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 
 /**
- * Test for various ShinglesIndex implementations.
+ * <p>
+ * Test for various {@link ShinglesIndex} implementations.
+ * </p>
  * 
  * @author Philipp Katz
- * 
  */
+@RunWith(Parameterized.class)
 public class ShinglesIndexTest {
 
-    @Test
-    public void testShinglesIndexJava() {
-        testProcedure(new ShinglesIndexJava());
+    private final ShinglesIndex index;
+
+    @Parameters
+    public static Collection<Object[]> indices() {
+        List<Object[]> indices = CollectionHelper.newArrayList();
+        indices.add(new Object[] {new ShinglesIndexJava()});
+        indices.add(new Object[] {new ShinglesIndexH2()});
+        indices.add(new Object[] {new ShinglesIndexJDBM()});
+        indices.add(new Object[] {new ShinglesIndexWB()});
+        indices.add(new Object[] {new ShinglesIndexLucene()});
+        return indices;
+    }
+    
+    public ShinglesIndexTest(ShinglesIndex idx) {
+        this.index = idx;
     }
 
-    @Test
-    public void testShinglesIndexH2() {
-        testProcedure(new ShinglesIndexH2());
-    }
-
-    @Test
-    public void testShinglesIndexJDBM() {
-        testProcedure(new ShinglesIndexJDBM());
-    }
-
-    @Test
-    public void testShinglesIndexWB() {
-        testProcedure(new ShinglesIndexWB());
-    }
-
-    @Test
-    public void testShinglesIndexLucene() {
-        ShinglesIndexLucene shinglesIndexLucene = new ShinglesIndexLucene();
-        testProcedure(shinglesIndexLucene);
-        testProcedure(shinglesIndexLucene);
-    }
-
-    private void testProcedure(ShinglesIndex index) {
-
+    @Before
+    public void setUp() {
         index.openIndex();
+    }
+
+    @After
+    public void tearDown() {
+
+        // clean up
+        index.deleteIndex();
+
+        // XXX why is the following line necessary on Windows?
+        FileHelper.cleanDirectory(ShinglesIndexBaseImpl.INDEX_FILE_BASE_PATH);
+
+    }
+
+    @Test
+    public void testProcedure() {
 
 //        assertEquals("we need to start with an empty index", 0, index.getNumberOfDocuments());
 
@@ -83,11 +98,11 @@ public class ShinglesIndexTest {
 
         index.saveIndex();
 
-        // clean up
-        index.deleteIndex();
+    }
 
-        // XXX why is the following line necessary on Windows?
-        FileHelper.cleanDirectory(ShinglesIndexBaseImpl.INDEX_FILE_BASE_PATH);
+    @After
+    public void cleanup() {
+        index.deleteIndex();
     }
 
 }
