@@ -193,7 +193,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      */
     protected String buildRequestUrl(String query, String sourceType, Language language, int offset, int count) {
         StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append(BASE_SERVICE_URL);
+        queryBuilder.append(getBaseServiceUrl());
         queryBuilder.append(sourceType);
         queryBuilder.append("?Query=%27").append(UrlHelper.encodeParameter(query)).append("%27");
         queryBuilder.append("&$top=").append(count);
@@ -205,6 +205,13 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
             queryBuilder.append("&Market=%27").append(getLanguageString(language)).append("%27");
         }
         return queryBuilder.toString();
+    }
+
+    /**
+     * @return Get the base service URL.
+     */
+    protected String getBaseServiceUrl() {
+        return BASE_SERVICE_URL;
     }
 
     /**
