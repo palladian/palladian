@@ -87,7 +87,8 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
             List<Trainable> eliminatedTestData = ClassificationUtils.filterFeatures(validationSet, filter);
 
             M model = learner.train(eliminatedTrainData);
-            ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, model, eliminatedTestData);
+            @SuppressWarnings("unchecked")
+            ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, eliminatedTestData, model);
             Double score = scorer.compute(confusionMatrix);
             LOGGER.info("Finished testing with {}: {}", feature, score);
             progressMonitor.incrementAndPrintProgress();
@@ -97,8 +98,8 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
     }
 
     public static void main(String[] args) {
-        List<Trainable> trainSet = ClassificationUtils.readCsv("data/temp/location_disambiguation_1375654002988.csv", true);
-        List<Trainable> validationSet = ClassificationUtils.readCsv("data/temp/location_disambiguation_1375654945350.csv", true);
+        List<Trainable> trainSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv");
+        List<Trainable> validationSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv");
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread

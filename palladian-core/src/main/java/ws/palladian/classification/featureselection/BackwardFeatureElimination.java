@@ -97,7 +97,8 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
             Classifier<M> classifier = classifierFactory.create();
 
             M model = learner.train(eliminatedTrainData);
-            ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, model, eliminatedTestData);
+            @SuppressWarnings("unchecked")
+            ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, eliminatedTestData, model);
             Double score = scorer.compute(confusionMatrix);
 
             LOGGER.debug("Finished elimination for {}", eliminatedFeature);
