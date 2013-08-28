@@ -266,13 +266,13 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         if (anchorLocations.isEmpty()) {
             Location biggest = LocationExtractorUtils.getBiggest(locations.allValues());
             if (biggest != null) {
-                LOGGER.warn("No anchor found, took biggest location: {}", biggest);
+                LOGGER.debug("No anchor found, took biggest location: {}", biggest);
                 anchorLocations.add(biggest);
             }
         }
 
         if (anchorLocations.isEmpty()) {
-            LOGGER.warn("No anchor found.");
+            LOGGER.debug("No anchor found.");
         }
         return anchorLocations;
     }
