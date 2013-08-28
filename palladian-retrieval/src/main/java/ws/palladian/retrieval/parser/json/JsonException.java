@@ -1,5 +1,7 @@
 package ws.palladian.retrieval.parser.json;
 
+import ws.palladian.retrieval.parser.ParserException;
+
 /**
  * The JSONException is thrown by the JSON.org classes when things are amiss.
  * 
@@ -7,7 +9,7 @@ package ws.palladian.retrieval.parser.json;
  * @author Philipp Katz
  * @version 2013-02-10
  */
-public class JsonException extends Exception {
+public class JsonException extends ParserException {
     private static final long serialVersionUID = 0;
     private Throwable cause;
 
