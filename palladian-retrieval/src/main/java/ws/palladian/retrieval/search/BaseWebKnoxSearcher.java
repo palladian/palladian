@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -81,7 +80,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
             HttpResult httpResult = retriever.httpGet(requestUrl);
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             JSONObject jsonObject = new JSONObject(jsonString);
 
             if (!jsonObject.has("results")) {

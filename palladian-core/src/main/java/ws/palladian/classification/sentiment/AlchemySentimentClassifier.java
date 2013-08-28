@@ -10,7 +10,7 @@ import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 public class AlchemySentimentClassifier {
@@ -28,13 +28,13 @@ public class AlchemySentimentClassifier {
         this.apiKey = apiKey;
     }
 
-    public CategoryEntries classify(String text) throws HttpException {
+    public CategoryEntries classify(String text) throws HttpException, JsonException {
         CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, String.format(API_URL, apiKey));
         request.addParameter("text", text.trim());
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().execute(request);
-        JsonObject json = new JsonObject(HttpHelper.getStringContent(result));
+        JsonObject json = new JsonObject(result.getStringContent());
 
         if (json.getString("status").equalsIgnoreCase("ok")) {
 
@@ -60,7 +60,7 @@ public class AlchemySentimentClassifier {
         return categoryEntries;
     }
 
-    public static void main(String[] args) throws HttpException {
+    public static void main(String[] args) throws HttpException, JsonException {
         AlchemySentimentClassifier asc = new AlchemySentimentClassifier("TODO");
         CategoryEntries result = asc.classify("This really sucks!!!");
         System.out.println(result);

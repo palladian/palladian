@@ -20,7 +20,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -59,7 +58,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
         String content;
         try {
             HttpResult httpResult = httpRetriever.execute(request);
-            content = HttpHelper.getStringContent(httpResult);
+            content = httpResult.getStringContent();
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP error while accessing the service: " + e.getMessage(), e);
         }

@@ -31,7 +31,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaInfobox;
 import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaLink;
 
@@ -256,7 +255,7 @@ public final class WikipediaUtil {
             throw new IllegalStateException(e);
         }
 
-        String stringResult = HttpHelper.getStringContent(httpResult);
+        String stringResult = httpResult.getStringContent();
         try {
             JSONObject jsonResult = new JSONObject(stringResult);
             JSONObject queryJson = jsonResult.getJSONObject("query");

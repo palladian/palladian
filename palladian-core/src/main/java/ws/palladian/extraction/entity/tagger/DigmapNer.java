@@ -18,7 +18,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -106,9 +105,8 @@ public class DigmapNer extends NamedEntityRecognizer {
             } catch (HttpException e) {
                 throw new IllegalStateException("Error while performing HTTP request: " + e.getMessage(), e);
             } catch (ParserException e) {
-                String resultString = HttpHelper.getStringContent(httpResult);
                 throw new IllegalStateException("Error while parsing the result XML: " + e.getMessage()
-                        + ", XML content was: " + resultString, e);
+                        + ", XML content was: " + httpResult.getStringContent(), e);
             }
         }
 

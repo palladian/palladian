@@ -15,7 +15,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -105,7 +104,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
                         + searchUrl + "\": " + e.getMessage(), e);
             }
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             try {
                 results.addAll(parse(jsonString));
             } catch (JSONException e) {
@@ -167,7 +166,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
             throw new SearcherException("HTTP exception while accessing Google Custom Search with URL \"" + requestUrl
                     + "\": " + e.getMessage(), e);
         }
-        String jsonString = HttpHelper.getStringContent(httpResult);
+        String jsonString = httpResult.getStringContent();
         try {
             return parseResultCount(jsonString);
         } catch (JSONException e) {

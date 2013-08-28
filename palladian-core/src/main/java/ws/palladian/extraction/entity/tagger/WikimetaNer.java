@@ -22,7 +22,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -74,7 +73,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
         List<Annotation> annotations;
         try {
             HttpResult httpResult = performRequest(inputText);
-            String resultString = HttpHelper.getStringContent(httpResult);
+            String resultString = httpResult.getStringContent();
             if (resultString.contains("<error msg=")) {
                 throw new IllegalStateException("Error from the web service: " + resultString);
             }

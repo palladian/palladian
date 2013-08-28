@@ -14,7 +14,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -115,7 +114,7 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
             throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
                     + e.getMessage(), e);
         }
-        return HttpHelper.getStringContent(httpResult);
+        return httpResult.getStringContent();
     }
 
     /**
