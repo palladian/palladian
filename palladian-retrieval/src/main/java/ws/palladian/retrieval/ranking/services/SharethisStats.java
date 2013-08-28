@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -104,7 +103,7 @@ public final class SharethisStats extends BaseRankingService implements RankingS
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=" + encUrl);
-            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
+            JSONObject json = new JSONObject(httpResult.getStringContent());
             float total = json.getJSONObject("total").getInt("outbound");
             results.put(SHARES, total);
             LOGGER.trace("ShareThis stats for " + url + " : " + total);
@@ -124,7 +123,7 @@ public final class SharethisStats extends BaseRankingService implements RankingS
         try {
             HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=http://www.google.com/");
-            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
+            JSONObject json = new JSONObject(httpResult.getStringContent());
             if (json.has("statusMessage")) {
                 if (json.get("statusMessage").equals("LIMIT_REACHED")) {
                     error = true;

@@ -23,7 +23,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -175,8 +174,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
         HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, requestUrl);
         httpRequest.addHeader("Authorization", basicAuthentication);
         HttpResult httpResult = retriever.execute(httpRequest);
-        String jsonString = new String(HttpHelper.getStringContent(httpResult));
-        return jsonString;
+        return httpResult.getStringContent();
     }
 
     /**

@@ -8,7 +8,7 @@ import java.util.Map;
 
 class JsonUtil {
 
-    public static Boolean parseBoolean(Object object) {
+    public static boolean parseBoolean(Object object) throws JsonException {
         try {
             if (object.equals(Boolean.FALSE) || object instanceof String && ((String)object).equalsIgnoreCase("false")) {
                 return false;
@@ -16,57 +16,56 @@ class JsonUtil {
                     && ((String)object).equalsIgnoreCase("true")) {
                 return true;
             }
-            return null;
         } catch (Exception e) {
-            return null;
         }
+        throw new JsonException("Could not parse \"" + object + "\" to boolean.");
     }
 
-    public static Double parseDouble(Object object) {
+    public static double parseDouble(Object object) throws JsonException {
         try {
             return object instanceof Number ? ((Number)object).doubleValue() : Double.parseDouble((String)object);
         } catch (Exception e) {
-            return null;
+            throw new JsonException("Could not parse \"" + object + "\" to double.");
         }
     }
 
-    public static Integer parseInt(Object object) {
+    public static int parseInt(Object object) throws JsonException {
         try {
             return object instanceof Number ? ((Number)object).intValue() : Integer.parseInt((String)object);
         } catch (Exception e) {
-            return null;
+            throw new JsonException("Could not parse \"" + object + "\" to int.");
         }
     }
 
-    public static JsonArray parseJSONArray(Object object) {
+    public static JsonArray parseJSONArray(Object object) throws JsonException {
         try {
             return object instanceof JsonArray ? (JsonArray)object : null;
         } catch (Exception e) {
-            return null;
+            throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
         }
     }
 
-    public static JsonObject parseJSONObject(Object object) {
+    public static JsonObject parseJSONObject(Object object) throws JsonException {
         try {
             return object instanceof JsonObject ? (JsonObject)object : null;
         } catch (Exception e) {
-            return null;
+            throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
         }
     }
 
-    public static Long parseLong(Object object) {
+    public static Long parseLong(Object object) throws JsonException {
         try {
             return object instanceof Number ? ((Number)object).longValue() : Long.parseLong((String)object);
         } catch (Exception e) {
-            return null;
+            throw new JsonException("Could not parse \"" + object + "\" to long.");
         }
     }
 
-    public static String parseString(Object object) {
+    public static String parseString(Object object) throws JsonException {
         try {
             return object instanceof String ? (String)object : null;
         } catch (Exception e) {
-            return null;
+            throw new JsonException("Could not parse \"" + object + "\" to string.");
         }
     }
 
@@ -144,8 +143,7 @@ class JsonUtil {
         return string;
     }
 
-    static final Writer writeValue(Writer writer, Object value, int indentFactor, int indent) throws JsonException,
-            IOException {
+    static final Writer writeValue(Writer writer, Object value, int indentFactor, int indent) throws IOException {
         if (value == null || value.equals(null)) {
             writer.write("null");
         } else if (value instanceof JsonObject) {
@@ -183,11 +181,15 @@ class JsonUtil {
      * @throws JsonException
      *             If n is a non-finite number.
      */
-    static String numberToString(Number number) throws JsonException {
+    static String numberToString(Number number) {
         if (number == null) {
-            throw new JsonException("Null pointer");
+            throw new IllegalArgumentException("Null pointer");
         }
-        JsonUtil.testValidity(number);
+        try {
+            JsonUtil.testValidity(number);
+        } catch (JsonException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
 
         // Shave off trailing zeros and decimal point, if possible.
 

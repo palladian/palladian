@@ -17,7 +17,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.JsonHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -84,7 +83,7 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
             } catch (HttpException e) {
                 throw new SearcherException("Encountered HTTP exception while accessing \"" + requestUrl + "\"", e);
             }
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             // LOGGER.debug(jsonString);
 
             try {

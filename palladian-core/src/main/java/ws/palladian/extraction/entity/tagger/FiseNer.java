@@ -16,7 +16,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -60,15 +59,13 @@ public class FiseNer extends NamedEntityRecognizer {
             HttpResult httpResult = null;
             try {
                 httpResult = getHttpResult(textChunk.toString());
-                String response = HttpHelper.getStringContent(httpResult);
-                List<Annotation> annotationsChunk = parseJson(inputText, response);
+                List<Annotation> annotationsChunk = parseJson(inputText, httpResult.getStringContent());
                 annotations.addAll(annotationsChunk);
             } catch (HttpException e) {
                 throw new IllegalStateException("Error while performing HTTP request: " + e.getMessage(), e);
             } catch (JSONException e) {
-                String resultString = HttpHelper.getStringContent(httpResult);
                 throw new IllegalStateException("Error while parsing the result JSON: " + e.getMessage()
-                        + ", JSON content was: " + resultString, e);
+                        + ", JSON content was: " + httpResult.getStringContent(), e);
             }
         }
         annotations.sort();

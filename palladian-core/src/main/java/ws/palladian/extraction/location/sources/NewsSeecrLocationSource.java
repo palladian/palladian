@@ -24,8 +24,8 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
@@ -84,16 +84,15 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
             throw new IllegalStateException("Encountered HTTP error when executing the request: " + request + ": "
                     + e.getMessage(), e);
         }
-        String resultString = HttpHelper.getStringContent(result);
         if (result.getStatusCode() != 200) {
             // TODO get message
             throw new IllegalStateException("Encountered HTTP status " + result.getStatusCode()
-                    + " when executing the request: " + request + ", result: " + resultString);
+                    + " when executing the request: " + request + ", result: " + result.getStringContent());
         }
-        return resultString;
+        return result.getStringContent();
     }
 
-    private List<Location> parseResultArray(JsonArray resultArray) {
+    private List<Location> parseResultArray(JsonArray resultArray) throws JsonException {
         List<Location> locations = CollectionHelper.newArrayList();
         for (int i = 0; i < resultArray.size(); i++) {
             JsonObject resultObject = resultArray.getJsonObject(i);
@@ -103,7 +102,7 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
         return locations;
     }
 
-    private Location parseSingleResult(JsonObject resultObject) {
+    private Location parseSingleResult(JsonObject resultObject) throws JsonException {
         Integer id = resultObject.getInt("id");
         Double latitude = resultObject.getDouble("latitude");
         Double longitude = resultObject.getDouble("longitude");
@@ -138,7 +137,7 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
         try {
             JsonArray resultArray = new JsonObject(jsonString).getJsonArray("results");
             return parseResultArray(resultArray);
-        } catch (Exception e) {
+        } catch (JsonException e) {
             throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
                     + e.getMessage(), e);
         }
@@ -173,7 +172,7 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
                 result.put(query, locations);
             }
             return result;
-        } catch (Exception e) {
+        } catch (JsonException e) {
             throw new IllegalStateException("Error while parsing the JSON response '" + jsonString + "': "
                     + e.getMessage(), e);
         }

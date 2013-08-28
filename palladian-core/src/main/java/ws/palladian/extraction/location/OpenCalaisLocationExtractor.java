@@ -22,7 +22,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -85,7 +84,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                response = HttpHelper.getStringContent(httpResult);
+                response = httpResult.getStringContent();
 
                 JSONObject json = new JSONObject(response);
 

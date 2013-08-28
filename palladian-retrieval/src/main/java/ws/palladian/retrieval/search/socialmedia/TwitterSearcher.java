@@ -25,7 +25,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -132,7 +131,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                 HttpRequest request = buildRequest(query, resultsPerPage, language, page, resultType);
                 HttpResult httpResult = performHttpRequest(request);
 
-                responseString = HttpHelper.getStringContent(httpResult);
+                responseString = httpResult.getStringContent();
                 LOGGER.debug("Response for {}: {}", request, responseString);
 
                 JSONObject jsonObject = new JSONObject(responseString);
@@ -212,8 +211,8 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
             throw new SearcherException("Twitter is currently blocked due to rate limit");
         }
         if (statusCode >= 400) {
-            String content = HttpHelper.getStringContent(httpResult);
-            throw new SearcherException("HTTP error " + statusCode + " for request " + request + ": " + content);
+            throw new SearcherException("HTTP error " + statusCode + " for request " + request + ": "
+                    + httpResult.getStringContent());
         }
         return httpResult;
     }

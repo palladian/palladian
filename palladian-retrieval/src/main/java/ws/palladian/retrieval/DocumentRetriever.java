@@ -29,6 +29,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
@@ -224,9 +225,10 @@ public class DocumentRetriever {
      * </p>
      * 
      * @param url the URL pointing to the JSON string.
-     * @return the JSON object, or <code>null</code> in case of any error.
+     * @return the JSON object.
+     * @throws JsonException In case the JSON object could not be parsed.
      */
-    public JsonObject getJsonObject(String url) {
+    public JsonObject getJsonObject(String url) throws JsonException {
         String json = getText(url);
 
         if (json != null) {

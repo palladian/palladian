@@ -2,11 +2,12 @@ package ws.palladian.retrieval.parser.json;
 
 /**
  * The JSONException is thrown by the JSON.org classes when things are amiss.
- *
+ * 
  * @author JSON.org
+ * @author Philipp Katz
  * @version 2013-02-10
  */
-public class JsonException extends RuntimeException {
+public class JsonException extends Exception {
     private static final long serialVersionUID = 0;
     private Throwable cause;
 
@@ -35,6 +36,7 @@ public class JsonException extends RuntimeException {
      * @returns the cause of this exception or null if the cause is nonexistent
      *          or unknown.
      */
+    @Override
     public Throwable getCause() {
         return this.cause;
     }

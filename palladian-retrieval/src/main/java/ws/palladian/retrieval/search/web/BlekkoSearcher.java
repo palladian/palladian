@@ -13,7 +13,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -97,7 +96,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
                 HttpResult httpResult = retriever.httpGet(requestUrl);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
-                jsonString = HttpHelper.getStringContent(httpResult);
+                jsonString = httpResult.getStringContent();
                 JSONObject jsonObject = new JSONObject(jsonString);
 
                 if (!jsonObject.has("RESULT")) {
@@ -167,7 +166,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
             httpResult = retriever.httpGet(requestUrl);
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
-            jsonString = HttpHelper.getStringContent(httpResult);
+            jsonString = httpResult.getStringContent();
             JSONObject jsonObject = new JSONObject(jsonString);
 
             // System.out.println(jsonObject.toString(2));

@@ -23,7 +23,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * 
@@ -444,7 +443,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                response = HttpHelper.getStringContent(httpResult);
+                response = httpResult.getStringContent();
 
                 if (response.contains("daily-transaction-limit-exceeded")) {
                     LOGGER.warn("--- LIMIT EXCEEDED ---");

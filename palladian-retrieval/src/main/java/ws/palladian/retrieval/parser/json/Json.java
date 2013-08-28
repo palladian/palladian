@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.parser.json;
 
+import java.io.IOException;
 import java.io.Writer;
 
 /**
@@ -30,9 +31,9 @@ public interface Json {
      * </p>
      * 
      * @return The writer.
-     * @throws JsonException
+     * @throws IOException As thrown by the {@link Writer}.
      */
-    Writer write(Writer writer);
+    Writer write(Writer writer) throws IOException;
 
     /**
      * <p>
@@ -42,7 +43,6 @@ public interface Json {
      * 
      * @param indentFactor The number of spaces to add to each level of indentation.
      * @return a printable, displayable, transmittable representation of the object.
-     * @throws JsonException
      */
     String toString(int indentFactor);
 
@@ -53,42 +53,46 @@ public interface Json {
      * </p>
      * 
      * @param jPath The JPath.
-     * @return The retrieved object, or <code>null</code> in case no object could be retrieved with the given path.
+     * @return The retrieved object.
+     * @throws JsonException In case no object could be retrieved with the given path.
      */
-    Object query(String jPath);
+    Object query(String jPath) throws JsonException;
 
     /**
      * <p>
-     * Perform a "JPath" query and return a {@link Boolean}.
+     * Perform a "JPath" query and return a boolean value.
      * </p>
      * 
      * @param jPath The JPath.
-     * @return The retrieved object, or <code>null</code> in case no object could be retrieved with the given path, or
-     *         the object at the given path could not be parsed as boolean.
+     * @return The retrieved boolean.
+     * @throws JsonException In case no object could be retrieved with the given path, or the object at the given path
+     *             could not be parsed as boolean.
      */
-    Boolean queryBoolean(String jPath);
+    boolean queryBoolean(String jPath) throws JsonException;
 
     /**
      * <p>
-     * Perform a "JPath" query and return a {@link Double}.
+     * Perform a "JPath" query and return a double value.
      * </p>
      * 
      * @param jPath The JPath.
-     * @return The retrieved object, or <code>null</code> in case no object could be retrieved with the given path, or
-     *         the object at the given path could not be parsed as double.
+     * @return The retrieved double.
+     * @throws JsonException In case no object could be retrieved with the given path, or the object at the given path
+     *             could not be parsed as double.
      */
-    Double queryDouble(String jPath);
+    double queryDouble(String jPath) throws JsonException;
 
     /**
      * <p>
-     * Perform a "JPath" query and return an {@link Integer}.
+     * Perform a "JPath" query and return an int value.
      * </p>
      * 
      * @param jPath The JPath.
-     * @return The retrieved object, or <code>null</code> in case no object could be retrieved with the given path, or
-     *         the object at the given path could not be parsed as integer.
+     * @return The retrieved int.
+     * @throws JsonException In case no object could be retrieved with the given path, or the object at the given path
+     *             could not be parsed as integer.
      */
-    Integer queryInt(String jPath);
+    int queryInt(String jPath) throws JsonException;
 
     /**
      * <p>
@@ -96,10 +100,10 @@ public interface Json {
      * </p>
      * 
      * @param jPath The JPath.
-     * @return The retrieved JsonArray, or <code>null</code> in case no JsonArray object could be retrieved at the given
-     *         path.
+     * @return The retrieved JsonArray.
+     * @throws JsonException In case no JsonArray object could be retrieved at the given path.
      */
-    JsonArray queryJsonArray(String jPath);
+    JsonArray queryJsonArray(String jPath) throws JsonException;
 
     /**
      * <p>
@@ -107,21 +111,22 @@ public interface Json {
      * </p>
      * 
      * @param jPath The JPath.
-     * @return The retrieved JsonObject, or <code>null</code> in case no JsonArray object could be retrieved at the
-     *         given path.
+     * @return The retrieved JsonObject.
+     * @throws JsonException In case no JsonArray object could be retrieved at the given path.
      */
-    JsonObject queryJsonObject(String jPath);
+    JsonObject queryJsonObject(String jPath) throws JsonException;
 
     /**
      * <p>
-     * Perform a "JPath" query and return a {@link Long}.
+     * Perform a "JPath" query and return a long.
      * </p>
      * 
      * @param jPath The JPath.
-     * @return The retrieved object, or <code>null</code> in case no object could be retrieved with the given path, or
-     *         the object at the given path could not be parsed as long.
+     * @return The retrieved long.
+     * @throws JsonException in case no object could be retrieved with the given path, or the object at the given path
+     *             could not be parsed as long.
      */
-    Long queryLong(String jPath);
+    long queryLong(String jPath) throws JsonException;
 
     /**
      * <p>
@@ -129,14 +134,17 @@ public interface Json {
      * </p>
      * 
      * @param jPath The JPath.
-     * @return The retrieved object, or <code>null</code> in case no object could be retrieved with the given path, or
-     *         the object at the given path is no string.
+     * @return The retrieved string.
+     * @throws JsonException In case no object could be retrieved with the given path, or the object at the given path
+     *             is no string.
      */
-    String queryString(String jPath);
+    String queryString(String jPath) throws JsonException;
 
     /**
      * @return The number of entries in the {@link Json} object.
      */
     int size();
+
+    // XXX do we also need tryQuery...?
 
 }
