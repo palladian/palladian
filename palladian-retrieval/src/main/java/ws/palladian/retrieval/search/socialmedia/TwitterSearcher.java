@@ -61,7 +61,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     /** The identifier for the {@link Configuration} key with the OAuth access token secret. */
     public static final String CONFIG_ACCESS_TOKEN_SECRET = "api.twitter.accessTokenSecret";
 
-    private static final String DATE_PATTERN = "E, dd MMM yyyy HH:mm:ss Z";
+    private static final String DATE_PATTERN = "E MMM dd HH:mm:ss Z yyyy";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
