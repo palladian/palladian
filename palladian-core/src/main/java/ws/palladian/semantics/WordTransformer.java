@@ -305,12 +305,11 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToPluralEnglish(singular);
         } else if (language.equals(Language.GERMAN)) {
-            // return wordToPluralGerman(singular);
-            // TODO
-            throw new IllegalStateException("nix gut (needs to be restructured because of model paths).");
+            // return wordToPluralGerman(singular); XXX
+            throw new IllegalArgumentException("Language must be 'en'.");
         }
 
-        throw new IllegalArgumentException("Language must be 'en' or 'de'.");
+        throw new IllegalArgumentException("Language must be 'en'.");
     }
 
     /**
@@ -398,26 +397,42 @@ public class WordTransformer {
         return prefix + singular + "s";
     }
 
-    // /**
-    // * <p>
-    // * Transform a German singular word to its plural form using the wiktionary DB.
-    // * </p>
-    // *
-    // * @param singularForm The singular form of the word.
-    // * @return The plural form of the word.
-    // */
-    // public static String wordToPluralGerman(String singularForm) {
-    // PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-    // String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
+    /**
+     * <p>
+     * Transform a German singular word to its plural form using simple rules. These are only an approximation, German
+     * is difficult and doesn't seem to like rules.
+     * </p>
+     * 
+     * @param singular The singular form of the word.
+     * @see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
+     * @return The plural form of the word.
+     */
+    // public static String wordToPluralGerman(String singular) {
     //
-    // WordDB wordDB = new WordDB(path);
-    // Word word = wordDB.getWord(singularForm);
+    // if (singular == null) {
+    // return "";
+    // }
+    // String singularLc = singular.toLowerCase();
     //
-    // if (word != null && !word.getPlural().isEmpty()) {
-    // return word.getPlural();
+    // String plural = "";
+    //
+    // // no ending but umlauts
+    // if (singularLc.endsWith("er") || singularLc.endsWith("en") || singularLc.endsWith("el")
+    // || singularLc.endsWith("chen") || singularLc.endsWith("lein")) {
+    // plural = singular.replace("o", "ö");
+    // plural = plural.replace("a", "ä");
+    // plural = plural.replace("u", "ü");
+    // } else
+    //
+    // // add "n" ending and umlauts
+    // if (singularLc.endsWith("e")) {
+    // plural = singular.replace("o", "ö");
+    // plural = plural.replace("a", "ä");
+    // plural = plural.replace("u", "ü");
+    // plural += "n";
     // }
     //
-    // return singularForm;
+    // return plural;
     // }
 
     public static String stemGermanWords(String words) {
