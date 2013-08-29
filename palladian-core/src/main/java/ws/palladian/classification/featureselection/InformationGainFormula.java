@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,10 +32,12 @@ import ws.palladian.processing.features.ListFeature;
 public final class InformationGainFormula {
 
     public double calculateGain(List<Trainable> dataset, String featureName) {
-        return entropy(dataset) - conditionalEntropy(dataset, featureName);
+        Map<String, Double> classOccurrences = countClassOccurrences(dataset);
+
+        return entropy(dataset, classOccurrences.values()) - conditionalEntropy(dataset, featureName);
     }
 
-    private double entropy(List<Trainable> dataset) {
+    private Map<String, Double> countClassOccurrences(List<Trainable> dataset) {
         Map<String, Double> absoluteOccurrences = new HashMap<String, Double>();
         for (Classified dataItem : dataset) {
             Double absoluteOccurrence = absoluteOccurrences.get(dataItem.getTargetClass());
@@ -45,15 +48,10 @@ public final class InformationGainFormula {
             absoluteOccurrences.put(dataItem.getTargetClass(), absoluteOccurrence);
         }
 
-        double entropy = .0;
-        for (Entry<String, Double> absoluteOccurrence : absoluteOccurrences.entrySet()) {
-            Double probability = absoluteOccurrence.getValue() / dataset.size();
-            entropy += (probability * ld(probability));
-        }
-        return -entropy;
+        return absoluteOccurrences;
     }
 
-    private double entropy(List<Trainable> dataset, String featureName) {
+    private Map<String, Double> countFeatureOccurrences(List<Trainable> dataset, String featureName) {
         Map<String, Double> absoluteOccurrences = new HashMap<String, Double>();
         for (Trainable dataItem : dataset) {
             Feature<?> feature = dataItem.getFeatureVector().get(featureName);
@@ -65,16 +63,10 @@ public final class InformationGainFormula {
             absoluteOccurrences.put(feature.getValue().toString(), absoluteOccurrence);
         }
 
-        // TODO is always the same --> move to one method.
-        double entropy = .0;
-        for (Entry<String, Double> absoluteOccurrence : absoluteOccurrences.entrySet()) {
-            Double probability = absoluteOccurrence.getValue() / dataset.size();
-            entropy += (probability * ld(probability));
-        }
-        return -entropy;
+        return absoluteOccurrences;
     }
 
-    private double jointEntropy(List<Trainable> dataset, String featureName) {
+    private Map<Pair<String, String>, Double> countJointOccurrences(List<Trainable> dataset, String featureName) {
         Map<Pair<String, String>, Double> jointAbsoluteOccurrences = new HashMap<Pair<String, String>, Double>();
         for (Trainable dataItem : dataset) {
             Feature<?> feature = dataItem.getFeatureVector().get(featureName);
@@ -89,16 +81,31 @@ public final class InformationGainFormula {
             jointAbsoluteOccurrences.put(key, jointAbsoluteOccurrence);
         }
 
+        return jointAbsoluteOccurrences;
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param dataset
+     * @param absoluteOccurrences
+     * @return
+     */
+    private double entropy(List<Trainable> dataset, Collection<Double> absoluteOccurrences) {
         double jointEntropy = .0d;
-        for (Entry<Pair<String, String>, Double> jointAbsoluteOccurrence : jointAbsoluteOccurrences.entrySet()) {
-            Double probability = jointAbsoluteOccurrence.getValue() / dataset.size();
+        for (Double jointAbsoluteOccurrence : absoluteOccurrences) {
+            Double probability = jointAbsoluteOccurrence / dataset.size();
             jointEntropy += (probability * ld(probability));
         }
         return -jointEntropy;
     }
 
     private double conditionalEntropy(List<Trainable> dataset, String featureName) {
-        return jointEntropy(dataset, featureName) - entropy(dataset, featureName);
+        Map<Pair<String, String>, Double> jointOccurrences = countJointOccurrences(dataset, featureName);
+        Map<String, Double> featureOccurrences = countFeatureOccurrences(dataset, featureName);
+        return entropy(dataset, jointOccurrences.values()) - entropy(dataset, featureOccurrences.values());
     }
 
     /**
@@ -122,101 +129,54 @@ public final class InformationGainFormula {
      * @param featureName
      * @return
      */
-    public Map<Feature<?>, Double> calculateGains(Collection<? extends Trainable> dataset, String featureName) {
-        Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
+    public Map<String, Double> calculateGains(List<Trainable> dataset, String featureName) {
+        Map<String, Double> ret = CollectionHelper.newHashMap();
+
+        double classEntropy = entropy(dataset, countClassOccurrences(dataset).values());
+
+        Map<String, Double> absoluteOccurrences = CollectionHelper.newHashMap();
+        Map<Pair<String, String>, Double> absoluteJointOccurrences = CollectionHelper.newHashMap();
 
         for (Trainable dataItem : dataset) {
-            Map<Pair<String,, Double> absoluteOccurrences = CollectionHelper.newHashMap();
-            Map<Pair<String, String>, Double> absoluteJointOccurrences = CollectionHelper.newHashMap();
-            
+
             for (Feature<?> feature : ((ListFeature<Feature<?>>)dataItem.getFeatureVector().get(featureName))) {
-                feature.getName().toString()
-                absoluteOccurrences.get(key)
+
+                String value = feature.getValue().toString();
+                Double counter = absoluteOccurrences.get(value);
+                if (counter == null) {
+                    counter = .0;
+                }
+                counter += 1.0;
+                absoluteOccurrences.put(value, counter);
+
+                Pair<String, String> jointOccurrencesKey = new ImmutablePair<String, String>(value,
+                        dataItem.getTargetClass());
+                Double jointCounter = absoluteJointOccurrences.get(jointOccurrencesKey);
+                if (jointCounter == null) {
+                    jointCounter = .0;
+                }
+                jointCounter += 1.0;
+                absoluteJointOccurrences.put(jointOccurrencesKey, jointCounter);
             }
         }
+
+        for (Entry<String, Double> absoluteOccurrence : absoluteOccurrences.entrySet()) {
+            List<Double> occurrences = CollectionHelper.newArrayList();
+            occurrences.add(absoluteOccurrence.getValue());
+            occurrences.add(dataset.size() - absoluteOccurrence.getValue());
+
+            List<Double> jointOccurrences = CollectionHelper.newArrayList();
+            for(Entry<Pair<String, String>, Double> jointOccurrence:absoluteJointOccurrences.entrySet()) {
+                if(jointOccurrence.getKey().getKey()==absoluteOccurrence.getKey()) {
+                    jointOccurrences.add(jointOccurrence.getValue());
+                    jointOccurrences.add(dataset.size()-jointOccurrence.getValue());
+                }
+            }
+            
+            double gain = classEntropy - entropy(dataset, jointOccurrences) - entropy(dataset, occurrences);
+            ret.put(absoluteOccurrence.getKey(), gain);
+        }
+
         return ret;
-    }
-}
-
-final class SparseOccurrence<T> {
-    private String featureName;
-    private T featureValue;
-    private double counter;
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param featureName
-     * @param featureValue
-     * @param counter
-     */
-    public SparseOccurrence(String featureName, T featureValue, double counter) {
-        super();
-        this.featureName = featureName;
-        this.featureValue = featureValue;
-        this.counter = counter;
-    }
-
-    public final double getCounter() {
-        return counter;
-    }
-
-    public final void setCounter(double counter) {
-        this.counter = counter;
-    }
-
-    public final String getFeatureName() {
-        return featureName;
-    }
-
-    public final T getFeatureValue() {
-        return featureValue;
-    }
-}
-
-final class SparseJointOccurrence<T> {
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param featureName
-     * @param featureValue
-     * @param targetClassName
-     * @param counter
-     */
-    public SparseJointOccurrence(String featureName, T featureValue, String targetClassName, double counter) {
-        super();
-        this.featureName = featureName;
-        this.featureValue = featureValue;
-        this.targetClassName = targetClassName;
-        this.counter = counter;
-    }
-
-    private String featureName;
-    private T featureValue;
-    private String targetClassName;
-    private double counter;
-
-    public double getCounter() {
-        return counter;
-    }
-
-    public void setCounter(double counter) {
-        this.counter = counter;
-    }
-
-    public String getFeatureName() {
-        return featureName;
-    }
-
-    public T getFeatureValue() {
-        return featureValue;
-    }
-
-    public String getTargetClassName() {
-        return targetClassName;
     }
 }
