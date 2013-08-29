@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +28,35 @@ import ws.palladian.retrieval.search.web.WebSearcher;
 public abstract class BaseFarooSearcher extends WebSearcher<WebResult> {
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+
+    /** Key of the {@link Configuration} key for the account key. */
+    public static final String CONFIG_ACCOUNT_KEY = "api.faroo.key";
+
+    protected final String key;
+
+    /**
+     * <p>
+     * Creates a new Faroo searcher.
+     * </p>
+     * 
+     * @param accountKey The account key for accessing Faroo.
+     */
+    public BaseFarooSearcher(String key) {
+        Validate.notEmpty(key, "key must not be empty");
+        this.key = key;
+    }
+
+    /**
+     * <p>
+     * Creates a new Faroo searcher.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide an account key for accessing Faroo, which must be
+     *            provided as string via key <tt>api.faroo.key</tt> in the configuration.
+     */
+    public BaseFarooSearcher(Configuration configuration) {
+        this(configuration.getString(CONFIG_ACCOUNT_KEY));
+    }
 
     /**
      * <p>
