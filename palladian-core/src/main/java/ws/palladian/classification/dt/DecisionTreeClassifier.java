@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import quickdt.Attributes;
+import quickdt.HashMapAttributes;
 import quickdt.Leaf;
-import quickdt.Node;
+import quickdt.Tree;
 import quickdt.TreeBuilder;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
@@ -24,8 +24,10 @@ import ws.palladian.processing.features.Feature;
  * </p>
  * 
  * @author Philipp Katz
+ * @deprecated Use {@link QuickDtClassifier} instead.
  */
-public final class DecisionTreeClassifier implements Learner, Classifier<DecisionTreeModel> {
+@Deprecated
+public final class DecisionTreeClassifier implements Learner<DecisionTreeModel>, Classifier<DecisionTreeModel> {
 
     private final int maxDepth;
 
@@ -56,12 +58,15 @@ public final class DecisionTreeClassifier implements Learner, Classifier<Decisio
     @Override
     public DecisionTreeModel train(Iterable<? extends Trainable> trainables) {
         Set<quickdt.Instance> trainingInstances = CollectionHelper.newHashSet();
+        Set<String> classes = CollectionHelper.newHashSet();
         for (Trainable instance : trainables) {
             Serializable[] input = getInput(instance.getFeatureVector());
-            trainingInstances.add(Attributes.create(input).classification(instance.getTargetClass()));
+            trainingInstances.add(HashMapAttributes.create(input).classification(instance.getTargetClass()));
+            classes.add(instance.getTargetClass());
         }
-        Node tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
-        return new DecisionTreeModel(tree);
+        Tree tree = new TreeBuilder().maxDepth(maxDepth).minProbability(minProbability)
+                .buildPredictiveModel(trainingInstances);
+        return new DecisionTreeModel(tree, classes);
     }
 
     private Serializable[] getInput(Classifiable classifiable) {
@@ -77,9 +82,12 @@ public final class DecisionTreeClassifier implements Learner, Classifier<Decisio
 
     @Override
     public CategoryEntries classify(Classifiable classifiable, DecisionTreeModel decisionTreeModel) {
-        Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(classifiable)));
+        Leaf leaf = decisionTreeModel.getTree().node.getLeaf(HashMapAttributes.create(getInput(classifiable)));
         CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
-        categoryEntries.set((String)leaf.classification, leaf.probability);
+        for (String targetClass : decisionTreeModel.getClasses()) {
+            categoryEntries.set(targetClass, leaf.getProbability(targetClass));
+        }
+        categoryEntries.sort();
         return categoryEntries;
     }
 

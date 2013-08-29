@@ -91,7 +91,9 @@ public final class HttpHelper {
      * @see <a href="http://www.w3.org/International/O-HTTP-charset.en.php">Setting the HTTP charset parameter</a>.
      * @param httpResult The HttpResult for which to get the content as string, not <code>null</code>.
      * @return The string value of the supplied HttpResult.
+     * @deprecated Use {@link HttpResult#getStringContent()} instead.
      */
+    @Deprecated
     public static String getStringContent(HttpResult httpResult) {
         Validate.notNull(httpResult, "httpResult must not be null");
 
@@ -112,7 +114,9 @@ public final class HttpHelper {
      * 
      * @param httpResult The HttpResult for which to determine the encoding, not <code>null</code>.
      * @return The encoding of the HttpResult, nor <code>null</code> if no encoding was specified explicitly.
+     * @deprecated Use {@link HttpResult#getCharset()} instead.
      */
+    @Deprecated
     public static String getCharset(HttpResult httpResult) {
         Validate.notNull(httpResult, "httpResult must not be null");
 

@@ -17,6 +17,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -91,7 +92,7 @@ public class NaiveBayesClassifierTest {
 
     @Test
     public void testNaiveBayesWithAdultIncomeData() throws FileNotFoundException {
-        List<Instance> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/adultData.txt"), false);
         double accuracy = testWithSplit(instances);
         assertTrue(accuracy > 0.77);
@@ -99,15 +100,15 @@ public class NaiveBayesClassifierTest {
 
     @Test
     public void testNaiveBayesWithDiabetesData() throws FileNotFoundException {
-        List<Instance> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/diabetesData.txt"), false);
         double accuracy = testWithSplit(instances);
         assertTrue(accuracy > 0.77);
     }
 
-    private double testWithSplit(List<Instance> instances) {
-        List<Instance> train = instances.subList(0, instances.size() / 2);
-        List<Instance> test = instances.subList(instances.size() / 2, instances.size() - 1);
+    private double testWithSplit(List<Trainable> instances) {
+        List<Trainable> train = instances.subList(0, instances.size() / 2);
+        List<Trainable> test = instances.subList(instances.size() / 2, instances.size() - 1);
 
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
         NaiveBayesModel bayesModel = bayesClassifier.train(train);

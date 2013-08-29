@@ -20,7 +20,7 @@ import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import LBJ2.classify.Classifier;
 
 import com.ibm.icu.util.StringTokenizer;
@@ -189,7 +189,7 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
 
         String inputTextPath = "data/temp/illinoisInputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);
@@ -219,7 +219,7 @@ public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
 
         FileHelper.writeToFile("data/test/ner/illinoisOutput.txt", tagText(inputText, annotations));
 
-        return Collections.<Annotated> unmodifiableList(annotations);
+        return Collections.<Annotation> unmodifiableList(annotations);
     }
 
     /**

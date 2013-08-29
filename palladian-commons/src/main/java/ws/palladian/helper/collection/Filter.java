@@ -18,7 +18,7 @@ public interface Filter<T> {
      * 
      * @see CollectionHelper#removeNulls(Iterable)
      */
-    public static Filter<Object> NULL_FILTER = new Filter<Object>() {
+    public static final Filter<Object> NULL_FILTER = new Filter<Object>() {
         @Override
         public boolean accept(Object item) {
             return item != null;

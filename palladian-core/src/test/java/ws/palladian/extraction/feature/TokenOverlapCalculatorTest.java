@@ -31,16 +31,16 @@ public class TokenOverlapCalculatorTest {
 
         TextDocument firstDocument = new TextDocument("a b c");
         ListFeature<PositionAnnotation> firstAnnotations = new ListFeature<PositionAnnotation>("firstDocument");
-        firstAnnotations.add(new PositionAnnotation("a", 0, 1));
-        firstAnnotations.add(new PositionAnnotation("b", 2, 3));
-        firstAnnotations.add(new PositionAnnotation("c", 4, 5));
+        firstAnnotations.add(new PositionAnnotation("a", 0));
+        firstAnnotations.add(new PositionAnnotation("b", 2));
+        firstAnnotations.add(new PositionAnnotation("c", 4));
         firstDocument.add(firstAnnotations);
 
         TextDocument secondDocument = new TextDocument("b c d");
         ListFeature<PositionAnnotation> secondAnnotations = new ListFeature<PositionAnnotation>("secondDocument");
-        secondAnnotations.add(new PositionAnnotation("b", 0, 1));
-        secondAnnotations.add(new PositionAnnotation("c", 2, 3));
-        secondAnnotations.add(new PositionAnnotation("d", 4, 5));
+        secondAnnotations.add(new PositionAnnotation("b", 0));
+        secondAnnotations.add(new PositionAnnotation("c", 2));
+        secondAnnotations.add(new PositionAnnotation("d", 4));
         secondDocument.add(secondAnnotations);
 
         objectOfClassUnderTest.getInputPorts().get(0).put(firstDocument);

@@ -1,11 +1,15 @@
-package ws.palladian.extraction.location;
+package ws.palladian.extraction.location.disambiguation;
 
 import java.util.Collection;
 import java.util.List;
 
+import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -17,11 +21,11 @@ import ws.palladian.processing.features.Annotated;
 public class BaselineDisambiguation implements LocationDisambiguation {
 
     @Override
-    public List<LocationAnnotation> disambiguate(List<Annotated> annotations, MultiMap<String, Location> locations) {
+    public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
 
-        for (Annotated annotation : annotations) {
-            Collection<Location> currentLocations = locations.get(annotation.getValue());
+        for (Annotation annotation : locations.keySet()) {
+            Collection<Location> currentLocations = locations.get(annotation);
             Location selectedLocation = null;
             long maxPopulation = 0;
             for (Location location : currentLocations) {
@@ -39,6 +43,11 @@ public class BaselineDisambiguation implements LocationDisambiguation {
             }
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "BaselineDisambiguation";
     }
 
 }

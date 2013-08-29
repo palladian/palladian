@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 public class StringTaggerTest {
 
     @Test
@@ -182,6 +184,23 @@ public class StringTaggerTest {
         annotations = StringTagger.getTaggedEntities(text);
         assertEquals(1, annotations.size());
         assertEquals("Yaoundé", annotations.get(0).getValue());
+
+        // see https://bitbucket.org/palladian/palladian/issue/205/stringtagger-and-initials
+        text = "Mayor Bobby E. Horton called the Special Council Meeting of the West Columbia Council to order on Monday, March 16, 2009 at 6 pm.";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
+
+        text = "ST. PARIS, Ohio";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
+
+        text = "McDonald's, McDonald’s, Kentucky Fried Chicken and a Pizza Hut!";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
+
+        text = "3 Ind. fugitives transferred to another Neb. jail.";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
 
     }
 

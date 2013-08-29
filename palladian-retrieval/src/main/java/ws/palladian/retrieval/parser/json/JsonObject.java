@@ -186,9 +186,18 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @param key A key string.
      * @return The boolean value, or <code>null</code> in case there is no value with specified key, or the value cannot
      *         be parsed as boolean.
+     * @throws JsonException
      */
-    public Boolean getBoolean(String key) {
+    public boolean getBoolean(String key) throws JsonException {
         return JsonUtil.parseBoolean(this.get(key));
+    }
+
+    public Boolean tryGetBoolean(String key) {
+        try {
+            return getBoolean(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -199,9 +208,18 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @param key A key string.
      * @return The double value, or <code>null</code> in case there is no value with specified key, or the value cannot
      *         be parsed as Double.
+     * @throws JsonException
      */
-    public Double getDouble(String key) {
+    public double getDouble(String key) throws JsonException {
         return JsonUtil.parseDouble(this.get(key));
+    }
+
+    public Double tryGetDouble(String key) {
+        try {
+            return getDouble(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -212,9 +230,18 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @param key A key string.
      * @return The integer value, or <code>null</code> in case there is no value with specified key, or the value cannot
      *         be parsed as Integer.
+     * @throws JsonException
      */
-    public Integer getInt(String key) {
+    public int getInt(String key) throws JsonException {
         return JsonUtil.parseInt(this.get(key));
+    }
+
+    public Integer tryGetInt(String key) {
+        try {
+            return getInt(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -225,9 +252,18 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @param key A key string.
      * @return A JsonArray value, or <code>null</code> in case there is no value with specified key, or the value is no
      *         {@link JsonArray}.
+     * @throws JsonException
      */
-    public JsonArray getJsonArray(String key) {
+    public JsonArray getJsonArray(String key) throws JsonException {
         return JsonUtil.parseJSONArray(this.get(key));
+    }
+
+    public JsonArray tryGetJsonArray(String key) {
+        try {
+            return getJsonArray(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -238,9 +274,18 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @param key A key string.
      * @return A JsonObject value, or <code>null</code> in case there is no value with specified key, or the value is no
      *         {@link JsonObject} .
+     * @throws JsonException
      */
-    public JsonObject getJsonObject(String key) {
+    public JsonObject getJsonObject(String key) throws JsonException {
         return JsonUtil.parseJSONObject(this.get(key));
+    }
+
+    public JsonObject tryGetJsonObject(String key) {
+        try {
+            return getJsonObject(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -251,9 +296,18 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @param key A key string.
      * @return The long value, or <code>null</code> in case there is no value with specified key, or the value cannot be
      *         parsed as Long.
+     * @throws JsonException
      */
-    public Long getLong(String key) {
+    public long getLong(String key) throws JsonException {
         return JsonUtil.parseLong(this.get(key));
+    }
+
+    public Long tryGetLong(String key) {
+        try {
+            return getLong(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -263,9 +317,18 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * 
      * @param key A key string.
      * @return A string value, or <code>null</code> in case there is no value with specified key.
+     * @throws JsonException
      */
-    public String getString(String key) {
+    public String getString(String key) throws JsonException {
         return JsonUtil.parseString(this.get(key));
+    }
+
+    public String tryGetString(String key) {
+        try {
+            return getString(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -273,7 +336,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
         if (key == null) {
             throw new NullPointerException("Null key.");
         }
-        JsonUtil.testValidity(value);
+        try {
+            JsonUtil.testValidity(value);
+        } catch (JsonException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
         return map.put(key, value);
     }
 
@@ -298,60 +365,59 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
     }
 
     @Override
-    public String toString(int indentFactor) throws JsonException {
-        StringWriter w = new StringWriter();
-        return this.write(w, indentFactor, 0).toString();
+    public String toString(int indentFactor) {
+        try {
+            return this.write(new StringWriter(), indentFactor, 0).toString();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
-    public Writer write(Writer writer) throws JsonException {
+    public Writer write(Writer writer) throws IOException {
         return this.write(writer, 0, 0);
     }
 
-    Writer write(Writer writer, int indentFactor, int indent) throws JsonException {
-        try {
-            boolean commanate = false;
-            final int length = this.size();
-            Iterator<String> keys = this.keySet().iterator();
-            writer.write('{');
+    Writer write(Writer writer, int indentFactor, int indent) throws IOException {
+        boolean commanate = false;
+        final int length = this.size();
+        Iterator<String> keys = this.keySet().iterator();
+        writer.write('{');
 
-            if (length == 1) {
+        if (length == 1) {
+            Object key = keys.next();
+            writer.write(JsonUtil.quote(key.toString()));
+            writer.write(':');
+            if (indentFactor > 0) {
+                writer.write(' ');
+            }
+            JsonUtil.writeValue(writer, map.get(key), indentFactor, indent);
+        } else if (length != 0) {
+            final int newindent = indent + indentFactor;
+            while (keys.hasNext()) {
                 Object key = keys.next();
+                if (commanate) {
+                    writer.write(',');
+                }
+                if (indentFactor > 0) {
+                    writer.write('\n');
+                }
+                JsonUtil.indent(writer, newindent);
                 writer.write(JsonUtil.quote(key.toString()));
                 writer.write(':');
                 if (indentFactor > 0) {
                     writer.write(' ');
                 }
-                JsonUtil.writeValue(writer, map.get(key), indentFactor, indent);
-            } else if (length != 0) {
-                final int newindent = indent + indentFactor;
-                while (keys.hasNext()) {
-                    Object key = keys.next();
-                    if (commanate) {
-                        writer.write(',');
-                    }
-                    if (indentFactor > 0) {
-                        writer.write('\n');
-                    }
-                    JsonUtil.indent(writer, newindent);
-                    writer.write(JsonUtil.quote(key.toString()));
-                    writer.write(':');
-                    if (indentFactor > 0) {
-                        writer.write(' ');
-                    }
-                    JsonUtil.writeValue(writer, map.get(key), indentFactor, newindent);
-                    commanate = true;
-                }
-                if (indentFactor > 0) {
-                    writer.write('\n');
-                }
-                JsonUtil.indent(writer, indent);
+                JsonUtil.writeValue(writer, map.get(key), indentFactor, newindent);
+                commanate = true;
             }
-            writer.write('}');
-            return writer;
-        } catch (IOException exception) {
-            throw new JsonException(exception);
+            if (indentFactor > 0) {
+                writer.write('\n');
+            }
+            JsonUtil.indent(writer, indent);
         }
+        writer.write('}');
+        return writer;
     }
 
     @Override
@@ -360,12 +426,16 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
     }
 
     @Override
-    public Object query(String jPath) {
+    public Object query(String jPath) throws JsonException {
         if (jPath.isEmpty()) {
             return this;
         }
         String[] pathSplit = JsonUtil.splitJPath(jPath);
-        Object value = get(pathSplit[0]);
+        String key = pathSplit[0];
+        if (!containsKey(key)) {
+            throw new JsonException("No key: " + key);
+        }
+        Object value = get(key);
         String remainingPath = pathSplit[1];
         if (value instanceof Json) {
             Json child = (Json)value;
@@ -373,42 +443,42 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
         } else if (remainingPath.isEmpty()) {
             return value;
         } else {
-            return null;
+            throw new JsonException("No value/item for query.");
         }
     }
 
     @Override
-    public Boolean queryBoolean(String jPath) {
+    public boolean queryBoolean(String jPath) throws JsonException {
         return JsonUtil.parseBoolean(query(jPath));
     }
 
     @Override
-    public Double queryDouble(String jPath) {
+    public double queryDouble(String jPath) throws JsonException {
         return JsonUtil.parseDouble(query(jPath));
     }
 
     @Override
-    public Integer queryInt(String jPath) {
+    public int queryInt(String jPath) throws JsonException {
         return JsonUtil.parseInt(query(jPath));
     }
 
     @Override
-    public JsonArray queryJsonArray(String jPath) {
+    public JsonArray queryJsonArray(String jPath) throws JsonException {
         return JsonUtil.parseJSONArray(query(jPath));
     }
 
     @Override
-    public JsonObject queryJsonObject(String jPath) {
+    public JsonObject queryJsonObject(String jPath) throws JsonException {
         return JsonUtil.parseJSONObject(query(jPath));
     }
 
     @Override
-    public Long queryLong(String jPath) {
+    public long queryLong(String jPath) throws JsonException {
         return JsonUtil.parseLong(query(jPath));
     }
 
     @Override
-    public String queryString(String jPath) {
+    public String queryString(String jPath) throws JsonException {
         return JsonUtil.parseString(query(jPath));
     }
 

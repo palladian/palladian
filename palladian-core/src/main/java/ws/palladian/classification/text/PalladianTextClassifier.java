@@ -1,6 +1,5 @@
 package ws.palladian.classification.text;
 
-import java.util.List;
 import java.util.Map;
 
 import ws.palladian.classification.CategoryEntries;
@@ -19,14 +18,15 @@ import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
- * This classifier builds a weighed term look up table for the categories to
- * classify new documents. XXX add second dictionary: p(at|the), p(the|at) to
- * counter the problem of sparse categories
+ * <p>
+ * This classifier builds a weighed term look up table for the categories to classify new documents. XXX add second
+ * dictionary: p(at|the), p(the|at) to counter the problem of sparse categories.
+ * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class PalladianTextClassifier implements Learner, Classifier<DictionaryModel> {
+public class PalladianTextClassifier implements Learner<DictionaryModel>, Classifier<DictionaryModel> {
 
     private final ProcessingPipeline pipeline;
 

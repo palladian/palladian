@@ -16,7 +16,6 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -58,7 +57,7 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
                         + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
             }
-            String content = HttpHelper.getStringContent(httpResult);
+            String content = httpResult.getStringContent();
             int indexOf = content.indexOf("[{\"a\":");
             if (indexOf < 0) {
                 throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()

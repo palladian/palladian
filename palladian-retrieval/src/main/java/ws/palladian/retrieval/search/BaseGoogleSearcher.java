@@ -14,7 +14,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -34,15 +33,6 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseGoogleSearcher.class);
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
-
-    /**
-     * <p>
-     * Creates a new Google searcher.
-     * </p>
-     */
-    public BaseGoogleSearcher() {
-        super();
-    }
 
     @Override
     public List<R> search(String query, int resultCount, Language language) throws SearcherException {
@@ -124,7 +114,7 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
             throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
                     + e.getMessage(), e);
         }
-        return HttpHelper.getStringContent(httpResult);
+        return httpResult.getStringContent();
     }
 
     /**
@@ -173,15 +163,15 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
     protected abstract R parseResult(JSONObject resultData) throws JSONException;
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
-        int hitCount = 0;
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
+        long hitCount = 0;
         String responseData = getResponseData(query, null, 0);
         try {
             JSONObject responseJson = new JSONObject(responseData);
             if (responseJson.has("cursor")) {
                 JSONObject cursor = responseJson.getJSONObject("cursor");
                 if (cursor.has("estimatedResultCount")) {
-                    hitCount = cursor.getInt("estimatedResultCount");
+                    hitCount = cursor.getLong("estimatedResultCount");
                 }
             }
         } catch (JSONException e) {

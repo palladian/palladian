@@ -106,30 +106,30 @@ public final class TokenDistributionStatisticsCalculator extends TextDocumentPip
 
     }
 
-    public static void main(String[] args) throws DocumentUnprocessableException {
-        ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.add(new RegExTokenizer());
-        pipeline.add(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
-        pipeline.add(new StopTokenRemover(Language.ENGLISH));
-        pipeline.add(new LengthTokenRemover(3));
-        pipeline.add(new RegExTokenRemover("[A-Za-z0-9-]+", false));
-        pipeline.add(new NGramCreator(2, 2));
-        pipeline.add(new TokenMetricsCalculator());
-        pipeline.add(new TokenDistributionStatisticsCalculator());
-        pipeline.add(new DuplicateTokenRemover());
-
-        TextDocument doc = new TextDocument(
-                FileHelper.readFileToString("/Users/pk/Desktop/pg1661.txt"));
-        pipeline.process(doc);
-
-        List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(doc);
-        for (PositionAnnotation annotation : tokenAnnotations) {
-            NumericFeature levelStats = annotation.getFeatureVector().get(NumericFeature.class, LEVEL_STATISTICS);
-            if (levelStats.getValue() > 6) {
-                System.out.println(annotation.getValue() + " / " + levelStats);
-            }
-        }
-
-    }
+//    public static void main(String[] args) throws DocumentUnprocessableException {
+//        ProcessingPipeline pipeline = new ProcessingPipeline();
+//        pipeline.add(new RegExTokenizer());
+//        pipeline.add(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
+//        pipeline.add(new StopTokenRemover(Language.ENGLISH));
+//        pipeline.add(new LengthTokenRemover(3));
+//        pipeline.add(new RegExTokenRemover("[A-Za-z0-9-]+", false));
+//        pipeline.add(new NGramCreator(2, 2));
+//        pipeline.add(new TokenMetricsCalculator());
+//        pipeline.add(new TokenDistributionStatisticsCalculator());
+//        pipeline.add(new DuplicateTokenRemover());
+//
+//        TextDocument doc = new TextDocument(
+//                FileHelper.readFileToString("/Users/pk/Desktop/pg1661.txt"));
+//        pipeline.process(doc);
+//
+//        List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(doc);
+//        for (PositionAnnotation annotation : tokenAnnotations) {
+//            NumericFeature levelStats = annotation.getFeatureVector().get(NumericFeature.class, LEVEL_STATISTICS);
+//            if (levelStats.getValue() > 6) {
+//                System.out.println(annotation.getValue() + " / " + levelStats);
+//            }
+//        }
+//
+//    }
 
 }

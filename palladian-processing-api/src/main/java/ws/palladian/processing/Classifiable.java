@@ -1,5 +1,6 @@
 package ws.palladian.processing;
 
+import ws.palladian.classification.Classifier;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -16,6 +17,9 @@ import ws.palladian.processing.features.FeatureVector;
  * @since 0.1.8
  */
 public interface Classifiable {
+
+    // XXX can be removed, when FeatureVector has been converted to an interface.
+
     /**
      * @return The {@link FeatureVector} provided by this {@code Classifiable} object.
      */

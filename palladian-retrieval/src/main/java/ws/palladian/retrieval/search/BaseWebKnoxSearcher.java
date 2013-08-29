@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -81,7 +80,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
             HttpResult httpResult = retriever.httpGet(requestUrl);
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             JSONObject jsonObject = new JSONObject(jsonString);
 
             if (!jsonObject.has("results")) {
@@ -138,7 +137,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
     protected abstract String buildRequestUrl(String query, Language language, int offset, int count);
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Getting the total result count is not supported in the new WebKnox API.");
     }
 

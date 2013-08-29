@@ -11,7 +11,7 @@ import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.NumericFeature;
 
-public class ClassificationUtilsTest {
+public class MinMaxNormalizationTest {
 
     @Test
     public void testMinMaxNormalization() {
@@ -23,7 +23,7 @@ public class ClassificationUtilsTest {
         instances.add(instance2);
         instances.add(instance3);
 
-        MinMaxNormalization minMaxNormalize = ClassificationUtils.calculateMinMaxNormalization(instances);
+        MinMaxNormalization minMaxNormalize = new MinMaxNormalization(instances);
 
         minMaxNormalize.normalize(instances);
 

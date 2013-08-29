@@ -12,7 +12,6 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -89,7 +88,7 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while accessing \"" + queryUrl + "\": " + e.getMessage(), e);
         }
-        String jsonString = HttpHelper.getStringContent(httpResult);
+        String jsonString = httpResult.getStringContent();
         try {
             return new JsonObject(jsonString);
         } catch (JsonException e) {
@@ -98,14 +97,14 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         String baseUrl = getBaseUrl(language);
         JsonObject jsonResult = fetchJsonResponse(query, baseUrl, 0, 1);
-        Integer count = jsonResult.queryInt("/query/searchinfo/totalhits");
-        if (count == null) {
+        try {
+            return jsonResult.queryLong("/query/searchinfo/totalhits");
+        } catch (JsonException e) {
             throw new SearcherException("Error while getting the result count.");
         }
-        return count;
     }
 
     private Date parseDate(String dateString) {
