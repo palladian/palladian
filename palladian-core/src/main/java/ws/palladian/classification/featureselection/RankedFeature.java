@@ -9,10 +9,9 @@ package ws.palladian.classification.featureselection;
  * @since 0.2.0
  */
 public final class RankedFeature {
-    private String identifier;
-
-    private double score;
-    private String value;
+    private final String identifier;
+    private final double score;
+    private final String value;
 
     public RankedFeature(String identifier, String value, double score) {
         this.identifier = identifier;

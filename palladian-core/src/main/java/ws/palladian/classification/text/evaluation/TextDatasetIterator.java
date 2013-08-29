@@ -3,8 +3,7 @@ package ws.palladian.classification.text.evaluation;
 import java.util.Iterator;
 import java.util.List;
 
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.ClassifiedTextDocument;
 import ws.palladian.processing.Trainable;
@@ -48,11 +47,10 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
     public Iterator<ClassifiedTextDocument> iterator() {
         final Iterator<String> lineIterator = fileLines.iterator();
         final int totalLines = fileLines.size();
-        final StopWatch stopWatch = new StopWatch();
+        final ProgressMonitor progressMonitor = new ProgressMonitor(totalLines, 1, "Dataset: "
+                + FileHelper.getFileName(datasetRootPath));
 
         return new Iterator<ClassifiedTextDocument>() {
-
-            int counter = 0;
 
             @Override
             public boolean hasNext() {
@@ -62,7 +60,6 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
             @Override
             public ClassifiedTextDocument next() {
                 String nextLine = lineIterator.next();
-                counter++;
                 String[] parts = nextLine.split(separationString);
                 if (parts.length != 2) {
                     // XXX how to handle?
@@ -75,7 +72,7 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
                     learningText = new String(parts[0]);
                 }
                 String instanceCategory = new String(parts[1]);
-                ProgressHelper.printProgress(counter, totalLines, 1., stopWatch);
+                progressMonitor.incrementAndPrintProgress();
                 return new ClassifiedTextDocument(instanceCategory, learningText);
             }
 

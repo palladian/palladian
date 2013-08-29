@@ -25,7 +25,7 @@ public class VimeoSearcherTest {
         assertEquals("https://vimeo.com/20800127", result1.getUrl());
         assertEquals(246, (long)result1.getRunTime());
         
-        int resultCount = VimeoSearcher.parseResultCount(jsonString);
+        long resultCount = VimeoSearcher.parseResultCount(jsonString);
         assertEquals(94609, resultCount);
     }
 

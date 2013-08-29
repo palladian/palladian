@@ -1,10 +1,6 @@
-/**
- *
- */
 package ws.palladian.extraction.sentence;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 

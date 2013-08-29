@@ -142,8 +142,7 @@ public class ImageHandler {
                     bufferedImage = load(image.getUrl());
                     if (bufferedImage != null) {
                         bufferedImage = rescaleImage(bufferedImage, 200);
-                        image.setImageContent(bufferedImage);
-                        normalizedImages.add(new ExtractedImage(image));
+                        normalizedImages.add(new ExtractedImage(image, bufferedImage));
                     }
                 } catch (ArrayIndexOutOfBoundsException e) {
                     LOGGER.error(image.getUrl());

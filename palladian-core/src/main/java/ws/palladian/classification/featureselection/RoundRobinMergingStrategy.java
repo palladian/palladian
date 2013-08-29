@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ws.palladian.classification.Instance;
+import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -23,7 +23,8 @@ import ws.palladian.classification.Instance;
 public final class RoundRobinMergingStrategy implements SelectedFeatureMergingStrategy {
 
     @Override
-    public FeatureRanking merge(Collection<Instance> dataset, Map<String,Map<String,Double>> chiSquaredValues) {
+    public FeatureRanking merge(Collection<? extends Trainable> dataset,
+            Map<String, Map<String, Double>> chiSquaredValues) {
         FeatureRanking ret = new FeatureRanking();
         Map<String, FeatureRanking> rankingsPerTargetClass = new HashMap<String, FeatureRanking>();
 

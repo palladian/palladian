@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 public class TwitterTaggerTest {
 
@@ -15,7 +15,7 @@ public class TwitterTaggerTest {
     @Test
     public void testTwitterTagger() {
         TwitterTagger tagger = TwitterTagger.INSTANCE;
-        List<Annotated> annotations = tagger.getAnnotations(TWEET_TEXT);
+        List<Annotation> annotations = tagger.getAnnotations(TWEET_TEXT);
         assertEquals(7, annotations.size());
         assertEquals(0, annotations.get(0).getStartPosition());
         assertEquals(5, annotations.get(0).getEndPosition());

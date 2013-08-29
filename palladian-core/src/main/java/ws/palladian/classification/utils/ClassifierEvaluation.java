@@ -13,6 +13,27 @@ public final class ClassifierEvaluation {
         // no instances.
     }
 
+    public static <M extends Model, T extends Trainable> ConfusionMatrix evaluate(Classifier<M> classifier,
+            Iterable<T> testData, M... models) {
+
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+
+        for (T testInstance : testData) {
+            CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier, testInstance,
+                    models);
+            String classifiedCategory = classification.getMostLikelyCategory();
+            String realCategory = testInstance.getTargetClass();
+            confusionMatrix.add(realCategory, classifiedCategory);
+        }
+
+        return confusionMatrix;
+    }
+
+    /**
+     * @deprecated use a single or multiple models as the last parameter ClassifierEvaluation#evaluate(Classifier<M>
+     *             classifier, Iterable<T> testData, M... models)
+     * */
+    @Deprecated
     public static <M extends Model, T extends Trainable> ConfusionMatrix evaluate(Classifier<M> classifier, M model,
             Iterable<T> testData) {
 

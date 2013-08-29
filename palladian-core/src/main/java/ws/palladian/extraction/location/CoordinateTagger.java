@@ -31,17 +31,14 @@ public final class CoordinateTagger implements Tagger {
     private static final String LEFT = "(?<=^|\\s)";
     private static final String RIGHT = "\\b";
     private static final String DEG = "([-+]?\\d{1,3}\\.\\d{1,10})([NSWE])?";
-    private static final String DMS = "([-+]?\\d{1,3})[°d:](?:\\s?(\\d{2}(?:\\.\\d{1,10})?))?['′:]?(?:\\s?(\\d{2}(?:\\.\\d{1,10})?))?[\"″]?(?:\\s?([NSWE]))?";
     private static final String SEP = "(?:,\\s?|\\s)";
 
     /** Only degrees, as real number. */
     private static final Pattern PATTERN_DEG = Pattern.compile(LEFT + "(" + DEG + ")" + SEP + "(" + DEG + ")" + RIGHT);
 
     /** DMS scheme, and/or combination with degrees. */
-    private static final Pattern PATTERN_DMS = Pattern.compile(LEFT + "(" + DMS + ")" + SEP + "(" + DMS + ")" + RIGHT);
-
-    /** For parsing a single DMS expression. */
-    private static final Pattern PATTERN_PARSE_DMS = Pattern.compile(DMS);
+    private static final Pattern PATTERN_DMS = Pattern.compile(LEFT + "(" + GeoUtils.DMS + ")" + SEP + "("
+            + GeoUtils.DMS + ")" + RIGHT);
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
@@ -62,8 +59,8 @@ public final class CoordinateTagger implements Tagger {
         matcher = PATTERN_DMS.matcher(text);
         while (matcher.find()) {
             try {
-                double lat = dmsToDecimal(matcher.group(1));
-                double lng = dmsToDecimal(matcher.group(6));
+                double lat = GeoUtils.parseDms(matcher.group(1));
+                double lng = GeoUtils.parseDms(matcher.group(6));
                 annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
             } catch (NumberFormatException e) {
                 LOGGER.debug("NumberFormatException while parsing " + matcher.group() + ": " + e.getMessage());
@@ -74,33 +71,7 @@ public final class CoordinateTagger implements Tagger {
 
     private static final LocationAnnotation createAnnotation(int start, String value, double latitude, double longitude) {
         Location location = new ImmutableLocation(0, value, LocationType.UNDETERMINED, latitude, longitude, null);
-        return new LocationAnnotation(start, start + value.length(), value, location);
-    }
-
-    /**
-     * <p>
-     * Convert a DMS coordinate (degrees, minutes, seconds) to decimal degree.
-     * </p>
-     * 
-     * @param dmsString The string with the DMS coordinate, not <code>null</code>.
-     * @return The double value with decimal degree.
-     * @throws NumberFormatException in case the string could not be parsed.
-     */
-    public static final double dmsToDecimal(String dmsString) {
-        Matcher matcher = PATTERN_PARSE_DMS.matcher(dmsString);
-        if (!matcher.matches()) {
-            throw new NumberFormatException("The string " + dmsString + " could not be parsed in DMS format.");
-        }
-        int degrees = Integer.valueOf(matcher.group(1)); // degree value, including sign
-        int sign; // the sign, determined either from hemisphere/meridien, or degree sign
-        if (matcher.group(4) != null) {
-            sign = "W".equals(matcher.group(4)) || "S".equals(matcher.group(4)) ? -1 : 1;
-        } else {
-            sign = matcher.group(1).startsWith("-") ? -1 : 1;
-        }
-        double minutes = matcher.group(2) != null ? Double.valueOf(matcher.group(2)) : 0;
-        double seconds = matcher.group(3) != null ? Double.valueOf(matcher.group(3)) : 0;
-        return sign * (Math.abs(degrees) + minutes / 60. + seconds / 3600.);
+        return new LocationAnnotation(start, value, location);
     }
 
     @SuppressWarnings("unused")

@@ -13,7 +13,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -59,7 +58,7 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
         try {
             String requestUrl = buildRequestUrl(url);
             HttpResult httpResult = retriever.httpGet(requestUrl);
-            String response = HttpHelper.getStringContent(httpResult);
+            String response = httpResult.getStringContent();
 
             if (response != null) {
                 citationIndex = 0;

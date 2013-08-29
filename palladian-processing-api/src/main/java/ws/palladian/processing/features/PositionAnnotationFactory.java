@@ -25,7 +25,7 @@ public final class PositionAnnotationFactory {
 
     public PositionAnnotation create(int startPosition, int endPosition) {
         String value = text.substring(startPosition, endPosition);
-        return new PositionAnnotation(value, startPosition, endPosition);
+        return new PositionAnnotation(value, startPosition);
     }
 
 }

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -178,6 +179,9 @@ public final class MathHelper {
     }
 
     public static double round(double number, int digits) {
+        if (Double.isNaN(number)) {
+            return Double.NaN;
+        }
         double numberFactor = Math.pow(10.0, digits);
         return Math.round(numberFactor * number) / numberFactor;
     }
@@ -783,25 +787,27 @@ public final class MathHelper {
         return ret;
     }
 
-    /**
-     * <p>
-     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
-     * </p>
-     * 
-     * @param lat1 The latitude of the first place.
-     * @param lng1 The longitude of the first place.
-     * @param lat2 The latitude of the second place.
-     * @param lng2 The longitude of the second place.
-     * @return The distance between the points in kilometers.
-     */
-    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
-        double earthRadius = 6371;
-        return 2
-                * earthRadius
-                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
-                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
-    }
+//    /**
+//     * <p>
+//     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
+//     * </p>
+//     * 
+//     * @param lat1 The latitude of the first place.
+//     * @param lng1 The longitude of the first place.
+//     * @param lat2 The latitude of the second place.
+//     * @param lng2 The longitude of the second place.
+//     * @return The distance between the points in kilometers.
+//     * @deprecated Use <code>GeoUtils#getDistance</code> in palladian-core package
+//     */
+//    @Deprecated
+//    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
+//        double earthRadius = 6371;
+//        return 2
+//                * earthRadius
+//                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
+//                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+//                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
+//    }
 
     // public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
     // double earthRadius = 6371;
@@ -912,6 +918,72 @@ public final class MathHelper {
 
     /**
      * <p>
+     * Calculate all combinations for a given array of items.
+     * </p>
+     * <p>
+     * For example, the string "a b c" will return 7 combinations (2^3=8 but all empty is not allowed, hence 7):
+     * 
+     * <pre>
+     * a b c
+     * a b
+     * a c
+     * b c
+     * c
+     * b
+     * a
+     * </pre>
+     * 
+     * </p>
+     * 
+     * @param string A tokenized string to get the spans for.
+     * @return A collection of spans.
+     */
+    public static Collection<List<Object>> computeAllCombinations(Object[] items) {
+
+        // create bitvector (all bit combinations other than all zeros)
+        int bits = items.length;
+        List<List<Object>> combinations = new ArrayList<List<Object>>();
+
+        int max = (int)Math.pow(2, bits);
+        for (long i = 1; i < max; i++) {
+            List<Object> combination = new LinkedList<Object>();
+            if (computeCombinationRecursive(i, items, combination, 0)) {
+                combinations.add(combination);
+            }
+        }
+
+        return combinations;
+    }
+
+    /**
+     * <p>
+     * Recursive computation function for combinations.
+     * </p>
+     * 
+     * @param bitPattern The pattern describing the indices in the list of {@code items} to include in the resulting
+     *            combination.
+     * @param items The list of items to construct combinations from.
+     * @param combination The result combination will be constructed into this list.
+     * @param currentIndex The current index in the list of items. For this call the algorithm needs to decide whether
+     *            to include the item at that position in the combination or not based on whether the value in
+     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
+     * @return {@code true} if the computed combination was computed successfully.
+     */
+    private static Boolean computeCombinationRecursive(Long bitPattern, Object[] items, List<Object> combination,
+            Integer currentIndex) {
+        if (bitPattern % 2 != 0) {
+            combination.add(items[currentIndex]);
+        }
+        Long nextBitPattern = bitPattern / 2;
+        if (nextBitPattern < 1) {
+            return true;
+        } else {
+            return computeCombinationRecursive(nextBitPattern, items, combination, ++currentIndex);
+        }
+    }
+
+    /**
+     * <p>
      * Parse a numeric expression in a string to a double.
      * </p>
      * 
@@ -1018,6 +1090,16 @@ public final class MathHelper {
         }
 
         return value;
+    }
+
+    public static int getOrderOfMagnitude(long number) {
+        int orderOfMagnitude = 0;
+        long temp = number;
+        while (temp >= 10) {
+            temp /= 10;
+            orderOfMagnitude++;
+        }
+        return orderOfMagnitude;
     }
 
 }

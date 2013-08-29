@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -12,13 +13,10 @@ import opennlp.tools.util.Span;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.PositionAnnotationFactory;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -84,15 +82,14 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
     }
 
     @Override
-    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        String content = document.getContent();
-        Span[] spans = tokenizer.tokenizePos(content);
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
-        ListFeature<PositionAnnotation> feature = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
+    public List<Annotation> getAnnotations(String text) {
+        Span[] spans = tokenizer.tokenizePos(text);
+        List<Annotation> annotations = CollectionHelper.newArrayList();
         for (Span span : spans) {
-            feature.add(annotationFactory.create(span.getStart(), span.getEnd()));
+            String value = text.substring(span.getStart(), span.getEnd());
+            annotations.add(new ImmutableAnnotation(span.getStart(), value, PROVIDED_FEATURE));
         }
-        document.add(feature);
+        return annotations;
     }
 
 }

@@ -8,8 +8,10 @@ import ws.palladian.processing.Trainable;
  * classification through a {@link Classifier}.
  * 
  * @author Philipp Katz
+ * 
+ * @param <M> The type of the model that is created.
  */
-public interface Learner {
+public interface Learner<M extends Model> {
 
     /**
      * <p>
@@ -19,6 +21,6 @@ public interface Learner {
      * @param trainables The training data to use for building the model.
      * @return The model for the given training data.
      */
-    Model train(Iterable<? extends Trainable> trainables);
+    M train(Iterable<? extends Trainable> trainables);
 
 }

@@ -145,7 +145,7 @@ public class JsonArray extends AbstractList<Object> implements Json {
         }
     }
 
-    JsonArray(Object array) throws JsonException {
+    JsonArray(Object array) {
         this();
         if (array.getClass().isArray()) {
             int length = Array.getLength(array);
@@ -153,7 +153,7 @@ public class JsonArray extends AbstractList<Object> implements Json {
                 this.add(Array.get(array, i));
             }
         } else {
-            throw new JsonException("JSON array initial value should be a string or collection or array.");
+            throw new IllegalArgumentException("JSON array initial value should be a string or collection or array.");
         }
     }
 
@@ -164,10 +164,12 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * 
      * @param index The index must be between 0 and length() - 1.
      * @return An object value, or <code>null</code> in case there is no value with specified index.
+     * @throws IndexOutOfBoundsException If index is below zero or greater/equal its size.
      */
     @Override
     public Object get(int index) {
-        return index < 0 || index >= this.size() ? null : list.get(index);
+        // return index < 0 || index >= this.size() ? null : list.get(index);
+        return list.get(index);
     }
 
     /**
@@ -179,9 +181,18 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * @param index The index must be between 0 and length() - 1.
      * @return The boolean value, or <code>null</code> in case there is no value with specified index, or the value
      *         cannot be parsed as boolean.
+     * @throws JsonException
      */
-    public Boolean getBoolean(int index) {
+    public boolean getBoolean(int index) throws JsonException {
         return JsonUtil.parseBoolean(this.get(index));
+    }
+
+    public Boolean tryGetBoolean(int index) {
+        try {
+            return getBoolean(index);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -192,9 +203,18 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * @param index The index must be between 0 and length() - 1.
      * @return The double value, or <code>null</code> in case there is no value with specified index, or the value
      *         cannot be parsed as Double.
+     * @throws JsonException
      */
-    public Double getDouble(int index) {
+    public double getDouble(int index) throws JsonException {
         return JsonUtil.parseDouble(this.get(index));
+    }
+
+    public Double tryGetDouble(int index) {
+        try {
+            return getDouble(index);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -205,9 +225,18 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * @param index The index must be between 0 and length() - 1.
      * @return The integer value, or <code>null</code> in case there is no value with specified index, or the value
      *         cannot be parsed as Integer.
+     * @throws JsonException
      */
-    public Integer getInt(int index) {
+    public int getInt(int index) throws JsonException {
         return JsonUtil.parseInt(this.get(index));
+    }
+
+    public Integer tryGetInt(int index) {
+        try {
+            return getInt(index);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -218,9 +247,18 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * @param index The index must be between 0 and length() - 1.
      * @return A JsonArray value, or <code>null</code> in case there is no value with specified index, or the value is
      *         no {@link JsonArray}.
+     * @throws JsonException
      */
-    public JsonArray getJsonArray(int index) {
+    public JsonArray getJsonArray(int index) throws JsonException {
         return JsonUtil.parseJSONArray(this.get(index));
+    }
+
+    public JsonArray tryGetJsonArray(int index) {
+        try {
+            return getJsonArray(index);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -231,9 +269,18 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * @param index The index must be between 0 and length() - 1.
      * @return A JsonObject value, or <code>null</code> in case there is no value with specified index, or the value is
      *         no {@link JsonObject}.
+     * @throws JsonException
      */
-    public JsonObject getJsonObject(int index) {
+    public JsonObject getJsonObject(int index) throws JsonException {
         return JsonUtil.parseJSONObject(this.get(index));
+    }
+
+    public JsonObject tryGetJsonObject(int index) {
+        try {
+            return getJsonObject(index);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -244,9 +291,18 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * @param index The index must be between 0 and length() - 1.
      * @return The long value, or <code>null</code> in case there is no value with specified index, or the value cannot
      *         be parsed as Long.
+     * @throws JsonException
      */
-    public Long getLong(int index) {
+    public long getLong(int index) throws JsonException {
         return JsonUtil.parseLong(this.get(index));
+    }
+
+    public Long tryGetLong(int index) {
+        try {
+            return getLong(index);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -256,9 +312,18 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * 
      * @param index The index must be between 0 and length() - 1.
      * @return A string value, or <code>null</code> in case there is no value with specified index.
+     * @throws JsonException
      */
-    public String getString(int index) {
+    public String getString(int index) throws JsonException {
         return JsonUtil.parseString(this.get(index));
+    }
+
+    public String tryGetString(int index) {
+        try {
+            return getString(index);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -268,9 +333,13 @@ public class JsonArray extends AbstractList<Object> implements Json {
 
     @Override
     public Object set(int index, Object element) {
-        JsonUtil.testValidity(element);
+        try {
+            JsonUtil.testValidity(element);
+        } catch (JsonException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
         if (index < 0) {
-            throw new JsonException("JsonArray[" + index + "] not found.");
+            throw new IllegalArgumentException("JsonArray[" + index + "] not found.");
         }
         if (index < this.size()) {
             return list.set(index, element);
@@ -285,7 +354,11 @@ public class JsonArray extends AbstractList<Object> implements Json {
 
     @Override
     public void add(int index, Object element) {
-        JsonUtil.testValidity(element);
+        try {
+            JsonUtil.testValidity(element);
+        } catch (JsonException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
         list.add(element);
     }
 
@@ -313,52 +386,51 @@ public class JsonArray extends AbstractList<Object> implements Json {
     }
 
     @Override
-    public String toString(int indentFactor) throws JsonException {
-        StringWriter sw = new StringWriter();
-        return this.write(sw, indentFactor, 0).toString();
-    }
-
-    @Override
-    public Writer write(Writer writer) throws JsonException {
-        return this.write(writer, 0, 0);
-    }
-
-    Writer write(Writer writer, int indentFactor, int indent) throws JsonException {
+    public String toString(int indentFactor) {
         try {
-            boolean commanate = false;
-            int length = this.size();
-            writer.write('[');
-
-            if (length == 1) {
-                JsonUtil.writeValue(writer, list.get(0), indentFactor, indent);
-            } else if (length != 0) {
-                final int newindent = indent + indentFactor;
-
-                for (int i = 0; i < length; i += 1) {
-                    if (commanate) {
-                        writer.write(',');
-                    }
-                    if (indentFactor > 0) {
-                        writer.write('\n');
-                    }
-                    JsonUtil.indent(writer, newindent);
-                    JsonUtil.writeValue(writer, list.get(i), indentFactor, newindent);
-                    commanate = true;
-                }
-                if (indentFactor > 0) {
-                    writer.write('\n');
-                }
-                JsonUtil.indent(writer, indent);
-            }
-            writer.write(']');
-            return writer;
+            return this.write(new StringWriter(), indentFactor, 0).toString();
         } catch (IOException e) {
-            throw new JsonException(e);
+            return null;
         }
     }
 
     @Override
-    public Object query(String jPath) {
+    public Writer write(Writer writer) throws IOException {
+        return this.write(writer, 0, 0);
+    }
+
+    Writer write(Writer writer, int indentFactor, int indent) throws IOException {
+        boolean commanate = false;
+        int length = this.size();
+        writer.write('[');
+
+        if (length == 1) {
+            JsonUtil.writeValue(writer, list.get(0), indentFactor, indent);
+        } else if (length != 0) {
+            final int newindent = indent + indentFactor;
+
+            for (int i = 0; i < length; i += 1) {
+                if (commanate) {
+                    writer.write(',');
+                }
+                if (indentFactor > 0) {
+                    writer.write('\n');
+                }
+                JsonUtil.indent(writer, newindent);
+                JsonUtil.writeValue(writer, list.get(i), indentFactor, newindent);
+                commanate = true;
+            }
+            if (indentFactor > 0) {
+                writer.write('\n');
+            }
+            JsonUtil.indent(writer, indent);
+        }
+        writer.write(']');
+        return writer;
+    }
+
+    @Override
+    public Object query(String jPath) throws JsonException {
         if (jPath.isEmpty()) {
             return this;
         }
@@ -369,49 +441,54 @@ public class JsonArray extends AbstractList<Object> implements Json {
             return null;
         }
         int index = Integer.valueOf(head.substring(1, head.length() - 1));
-        Object value = get(index);
+        Object value;
+        try {
+            value = get(index);
+        } catch (IndexOutOfBoundsException e) {
+            throw new JsonException("Illegal index: " + index);
+        }
         if (value instanceof Json) {
             Json child = (Json)value;
             return child.query(remainingPath);
         } else if (remainingPath.isEmpty()) {
             return value;
         } else {
-            return null;
+            throw new JsonException("No value/item for query.");
         }
     }
 
     @Override
-    public Boolean queryBoolean(String jPath) {
+    public boolean queryBoolean(String jPath) throws JsonException {
         return JsonUtil.parseBoolean(query(jPath));
     }
 
     @Override
-    public Double queryDouble(String jPath) {
+    public double queryDouble(String jPath) throws JsonException {
         return JsonUtil.parseDouble(query(jPath));
     }
 
     @Override
-    public Integer queryInt(String jPath) {
+    public int queryInt(String jPath) throws JsonException {
         return JsonUtil.parseInt(query(jPath));
     }
 
     @Override
-    public JsonArray queryJsonArray(String jPath) {
+    public JsonArray queryJsonArray(String jPath) throws JsonException {
         return JsonUtil.parseJSONArray(query(jPath));
     }
 
     @Override
-    public JsonObject queryJsonObject(String jPath) {
+    public JsonObject queryJsonObject(String jPath) throws JsonException {
         return JsonUtil.parseJSONObject(query(jPath));
     }
 
     @Override
-    public Long queryLong(String jPath) {
+    public long queryLong(String jPath) throws JsonException {
         return JsonUtil.parseLong(query(jPath));
     }
 
     @Override
-    public String queryString(String jPath) {
+    public String queryString(String jPath) throws JsonException {
         return JsonUtil.parseString(query(jPath));
     }
 

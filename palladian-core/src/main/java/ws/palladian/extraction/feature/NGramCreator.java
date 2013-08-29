@@ -136,26 +136,22 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
     //
     protected PositionAnnotation postProcess(List<PositionAnnotation> gramToken) {
         int newStart = -1;
-        int newEnd = -1;
         StringBuilder newValue = new StringBuilder();
         for (int i = 0; i < gramToken.size(); i++) {
             PositionAnnotation current = gramToken.get(i);
             if (i == 0) {
                 newStart = current.getStartPosition();
             }
-            if (i == gramToken.size() - 1) {
-                newEnd = current.getEndPosition();
-            }
             newValue.append(current.getValue()).append(' ');
         }
 
-        if (newStart == -1 || newEnd == -1) {
+        if (newStart == -1) {
             throw new IllegalStateException("Yo, something is fucked up.");
         }
 
         String trimmedValue = newValue.toString().trim();
         if (!trimmedValue.isEmpty()) {
-            PositionAnnotation ret = new PositionAnnotation(trimmedValue, newStart, newEnd);
+            PositionAnnotation ret = new PositionAnnotation(trimmedValue, newStart);
 
             // combine NominalFeatures
             for (String descriptor : considerableFeatureDescriptors) {

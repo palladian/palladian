@@ -6,7 +6,7 @@ package ws.palladian.classification.featureselection;
 import java.util.Collection;
 import java.util.Map;
 
-import ws.palladian.classification.Instance;
+import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -30,5 +30,6 @@ public interface SelectedFeatureMergingStrategy {
      * @param chiSquaredScores The chi-squared scores to merge with this merging strategy.
      * @return A merged ranking of the provided features.
      */
-    FeatureRanking merge(Collection<Instance> dataset, Map<String, Map<String, Double>> chiSquaredScores);
+    FeatureRanking merge(Collection<? extends Trainable> dataset, Map<String, Map<String, Double>> chiSquaredScores);
+
 }

@@ -249,7 +249,7 @@ public class EvaluationSchedulerTask extends TimerTask {
             ((EvaluationFeedDatabase) feedReader.getFeedStore()).processBatchInsertQueue();
 
             LOGGER.info("All EvaluationFeedTasks done.");
-            feedReader.setStopped(true);
+            feedReader.stopContinuousReading();
         }
     }
 
