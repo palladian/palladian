@@ -6,14 +6,15 @@ public class RoundRobinList<E> extends ArrayList<E> {
 
     private static final long serialVersionUID = 8357139694464153452L;
 
+    private int index = 0;
+
     public E getNextItem() {
-        if (iterator().hasNext()) {
-            return iterator().next();
+        E item = get(index++);
+        if (index >= size()) {
+            index = 0;
         }
 
-        // reset the iterator
-        listIterator();
-        return iterator().next();
+        return item;
     }
 
 }

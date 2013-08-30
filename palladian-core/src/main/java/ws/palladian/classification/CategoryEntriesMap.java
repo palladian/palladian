@@ -90,6 +90,7 @@ public final class CategoryEntriesMap implements CategoryEntries {
         for (String category : valueMap.keySet()) {
             result.set(category, valueMap.get(category));
         }
+
         return result;
     }
 
