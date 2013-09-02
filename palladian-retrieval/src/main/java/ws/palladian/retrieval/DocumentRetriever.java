@@ -249,6 +249,18 @@ public class DocumentRetriever {
         return null;
     }
 
+    public JsonObject tryGetJsonObject(String url) {
+        JsonObject json = null;
+
+        try {
+            json = getJsonObject(url);
+        } catch (JsonException e) {
+            e.printStackTrace();
+        }
+
+        return json;
+    }
+
     /**
      * @deprecated Use getJsonObject
      */
