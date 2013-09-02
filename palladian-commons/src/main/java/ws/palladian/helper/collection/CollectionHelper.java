@@ -581,8 +581,14 @@ public final class CollectionHelper {
         return convert(iterable, function, new ArrayList<O>());
     }
 
-    // XXX document me
-    // XXX should go to StringHelper
+    /**
+     * <p>
+     * Join elements of a collection in a readable form.
+     * </p>
+     * 
+     * @param entries The entries that should be joined.
+     * @return The joined string.
+     */
     public static String joinReadable(Collection<String> entries) {
         String joinedText = StringUtils.join(entries, ", ");
         int lastIndex = joinedText.lastIndexOf(",");
