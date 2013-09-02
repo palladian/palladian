@@ -1,7 +1,6 @@
 package ws.palladian.helper.collection;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class RoundRobinList<E> extends ArrayList<E> {
 
@@ -11,7 +10,6 @@ public class RoundRobinList<E> extends ArrayList<E> {
 
     public E getNextItem() {
         E item = get(index++);
-        System.out.println("got item index "+index+" "+size());
         if (index >= size()) {
             index = 0;
         }
@@ -23,9 +21,8 @@ public class RoundRobinList<E> extends ArrayList<E> {
     public boolean remove(Object o) {
 
         Boolean remove = super.remove(o);
-        if(remove) {
+        if (remove && index > 0) {
             index--;
-            System.out.println("removed item index "+index+" "+size());
         }
         return remove;
     }
