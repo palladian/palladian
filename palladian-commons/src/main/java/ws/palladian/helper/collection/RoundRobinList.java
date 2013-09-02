@@ -8,7 +8,7 @@ public class RoundRobinList<E> extends ArrayList<E> {
 
     private int index = 0;
 
-    public E getNextItem() {
+    public synchronized E getNextItem() {
         E item = get(index++);
         if (index >= size()) {
             index = 0;
