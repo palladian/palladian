@@ -62,6 +62,9 @@ public class CollectionHelperTest {
         assertEquals("b", rrl.getNextItem());
         assertEquals("c", rrl.getNextItem());
         assertEquals("a", rrl.getNextItem());
+        assertEquals("b", rrl.getNextItem());
+        assertEquals(true, rrl.remove("a"));
+        assertEquals("c", rrl.getNextItem());
     }
 
     @Test
