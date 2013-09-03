@@ -9,17 +9,21 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
- * The RepustateContentExtractor extracts clean sentences from (English) texts.
+ * The {@link RepustateContentExtractor} extracts clean sentences from (English) texts.
  * </p>
  * 
  * @author David Urbansky
- * @see https://www.repustate.com/docs/#api-7
+ * @see <a href="https://www.repustate.com/docs/#api-7">Repustate: Clean HTML</a>
  */
 public class RepustateContentExtractor extends WebPageContentExtractor {
+
+    /** The name of this extractor. */
+    private static final String EXTRACTOR_NAME = "Repustate Content Extractor";
 
     /** For performing HTTP requests. */
     private final HttpRetriever httpRetriever;
@@ -50,8 +54,13 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
 
         extractedResult = httpResult.getStringContent();
 
-        JsonObjectWrapper json = new JsonObjectWrapper(extractedResult);
-        extractedResult = json.getString("text");
+        try {
+            JsonObject json = new JsonObject(extractedResult);
+            extractedResult = json.getString("text");
+        } catch (JsonException e) {
+            throw new PageContentExtractorException("Error while parsing the JSON response '"
+                    + httpResult.getStringContent() + "': " + e.getMessage(), e);
+        }
 
         return this;
     }
@@ -63,10 +72,8 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
     }
 
     private String buildRequestUrl(String docUrl) {
-        String requestUrl = String.format("http://api.repustate.com/v2/%s/clean-html.json?url=%s", apiKey,
+        return String.format("http://api.repustate.com/v2/%s/clean-html.json?url=%s", apiKey,
                 UrlHelper.encodeParameter(docUrl));
-
-        return requestUrl;
     }
 
     @Override
@@ -86,7 +93,7 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getExtractorName() {
-        return "Repustate Content Extractor";
+        return EXTRACTOR_NAME;
     }
 
     public static void main(String[] args) {

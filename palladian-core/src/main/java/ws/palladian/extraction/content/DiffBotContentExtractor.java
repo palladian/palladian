@@ -9,7 +9,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -17,9 +18,12 @@ import ws.palladian.retrieval.helper.JsonObjectWrapper;
  * </p>
  * 
  * @author David Urbansky
- * @see http://www.diffbot.com/our-apis/article/
+ * @see <a href="http://www.diffbot.com/our-apis/article/">Diffbot: Article API</a>
  */
 public class DiffBotContentExtractor extends WebPageContentExtractor {
+
+    /** The name of this extractor. */
+    private static final String EXTRACTOR_NAME = "DiffBot Content Extractor";
 
     /** For performing HTTP requests. */
     private final HttpRetriever httpRetriever;
@@ -30,7 +34,6 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
     private String extractedResult = "";
     private String extractedTitle = "";
     private String extractedAuthor = "";
-    private final String extractedTags = "";
     private String extractedDate = "";
 
     public DiffBotContentExtractor(String apiKey) {
@@ -54,11 +57,16 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
 
         extractedResult = httpResult.getStringContent();
 
-        JsonObjectWrapper json = new JsonObjectWrapper(extractedResult);
-        extractedResult = json.getString("text");
-        extractedTitle = json.getString("title");
-        extractedAuthor = json.getString("author");
-        extractedDate = json.getString("date");
+        try {
+            JsonObject json = new JsonObject(extractedResult);
+            extractedResult = json.getString("text");
+            extractedTitle = json.getString("title");
+            extractedAuthor = json.getString("author");
+            extractedDate = json.getString("date");
+        } catch (JsonException e) {
+            throw new PageContentExtractorException("Error while parsing the JSON response '"
+                    + httpResult.getStringContent() + "': " + e.getMessage(), e);
+        }
 
         return this;
     }
@@ -70,10 +78,8 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
     }
 
     private String buildRequestUrl(String docUrl) {
-        String requestUrl = String.format("http://www.diffbot.com/api/article?token=%s&url=%s", apiKey,
+        return String.format("http://www.diffbot.com/api/article?token=%s&url=%s", apiKey,
                 UrlHelper.encodeParameter(docUrl));
-
-        return requestUrl;
     }
 
     @Override
@@ -95,17 +101,13 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
         return extractedAuthor;
     }
 
-    public String getResultTags() {
-        return extractedTags;
-    }
-
     public String getResultDate() {
         return extractedDate;
     }
 
     @Override
     public String getExtractorName() {
-        return "DiffBot Content Extractor";
+        return EXTRACTOR_NAME;
     }
 
     public static void main(String[] args) {
@@ -117,7 +119,6 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
         System.out.println("title: " + ce.getResultTitle());
         System.out.println("text: " + resultText);
         System.out.println("author: " + ce.getResultAuthor());
-        System.out.println("tags: " + ce.getResultTags());
         System.out.println("date: " + ce.getResultDate());
     }
 
