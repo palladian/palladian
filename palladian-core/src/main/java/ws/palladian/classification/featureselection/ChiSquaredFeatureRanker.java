@@ -88,7 +88,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         Map<String, Map<String, Double>> ret = CollectionHelper.newHashMap();
 
         for (Trainable instance : dataset) {
-            Set<Feature<?>> features = convertToSet(instance.getFeatureVector(), dataset);
+            Set<Feature<?>> features = discretize(instance.getFeatureVector(), dataset);
             LOGGER.trace(features.toString());
             for (Feature<?> value : features) {
                 addCooccurence(value, instance.getTargetClass(), termClassCorrelationMatrix);
@@ -191,7 +191,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
+    public FeatureRanking rankFeatures(Collection<Trainable> dataset) {
         Map<String,Map<String,Double>> scoredFeatures = calculateChiSquareValues(dataset);
         return mergingStrategy.merge(dataset,scoredFeatures);
     }

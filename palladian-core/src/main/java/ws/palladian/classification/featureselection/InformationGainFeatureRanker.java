@@ -59,7 +59,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
      *         mean the {@link Feature} provides much information about the distribution of the target classes and about
      *         which target class an instance belongs to.
      */
-    private Map<Feature<?>, Double> calculateInformationGain(final Collection<? extends Trainable> dataset) {
+    private Map<Feature<?>, Double> calculateInformationGain(final Collection<Trainable> dataset) {
         Validate.notNull(dataset);
         Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
         if (dataset.isEmpty()) {
@@ -73,7 +73,9 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         // a schema would help.
         for (Feature<?> preparedFeature : preparedData.get(0).getFeatureVector()) {
             if (preparedFeature instanceof ListFeature) {
-                Map<Feature<?>, Double> gains = formula.calculateGains(dataset, preparedFeature.getName());
+                ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)preparedFeature;
+                Map<Feature<?>, Double> gains = formula.calculateGains(preparedData, listFeature);
+                ret.putAll(gains);
             } else {
                 double gain = formula.calculateGain(preparedData, preparedFeature.getName());
                 ret.put(preparedFeature, gain);
@@ -206,7 +208,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         for (Trainable instance : dataset) {
             // deduplicate // TODO is this necessary? Is it possible to include a duplicate feature in the feature
             // vector? is the same word at different positions the same feature?
-            Set<Feature<?>> features = convertToSet(instance.getFeatureVector(), dataset);
+            Set<Feature<?>> features = discretize(instance.getFeatureVector(), dataset);
 
             Instance preparedInstance = new Instance(instance.getTargetClass());
             preparedInstance.getFeatureVector().addAll(features);
@@ -250,7 +252,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     // }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
+    public FeatureRanking rankFeatures(Collection<Trainable> dataset) {
         FeatureRanking ranking = new FeatureRanking();
         Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(dataset);
         LOGGER.debug(informationGainValues.toString());
