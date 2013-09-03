@@ -167,6 +167,24 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
 
     /**
      * <p>
+     * Try to construct a {@link JsonObject} from a source JSON text string. Instead of the constructor, this method
+     * does not throw a {@link JsonException} in case the JsonObject cannot be constructed.
+     * </p>
+     * 
+     * @param source A string beginning with <code>{</code>&nbsp;<small>(left brace)</small> and ending with
+     *            <code>}</code>&nbsp;<small>(right brace)</small>.
+     * @return The {@link JsonObject}, or <code>null</code> in case it could not be parsed.
+     */
+    public static JsonObject tryParse(String source) {
+        try {
+            return new JsonObject(source);
+        } catch (JsonException e) {
+            return null;
+        }
+    }
+
+    /**
+     * <p>
      * Get the value object associated with a key.
      * </p>
      * 
