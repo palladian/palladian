@@ -71,7 +71,7 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      *            The actual {@code Feature} instance containing the value.
      */
     public void add(Feature<?> feature) {
-        if (features.get(feature.getName())!=null) {
+        if (features.get(feature.getName()) != null) {
             LOGGER.warn("Please use a ListFeature to add multiple features with the same name.");
         }
         features.put(feature.getName(), feature);
@@ -118,7 +118,11 @@ public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
      * @return The queried {@link Feature} or {@code null} if no such {@link Feature} exists.
      */
     public Feature<?> get(String name) {
-        return features.get(name);
+        Feature<?> ret = features.get(name);
+        if (ret == null) {
+            LOGGER.warn("Unable to find feature with name " + name);
+        }
+        return ret;
     }
 
     /**

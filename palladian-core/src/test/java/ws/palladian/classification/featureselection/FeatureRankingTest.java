@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.After;
@@ -17,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -32,13 +34,15 @@ import ws.palladian.processing.features.SparseFeature;
  * @since 0.1.7
  */
 public class FeatureRankingTest {
-    private List<Instance> fixture;
+    private Collection<Trainable> fixture;
 
     @Before
     public void setUp() {
         FeatureVector fv1 = new FeatureVector();
         FeatureVector fv2 = new FeatureVector();
         FeatureVector fv3 = new FeatureVector();
+        FeatureVector fv4 = new FeatureVector();
+        FeatureVector fv5 = new FeatureVector();
 
         ListFeature<SparseFeature<String>> listFeature1 = new ListFeature<SparseFeature<String>>("testfeature");
         listFeature1.add(new SparseFeature<String>("a"));
@@ -59,15 +63,29 @@ public class FeatureRankingTest {
         listFeature3.add(new SparseFeature<String>("e"));
         listFeature3.add(new SparseFeature<String>("f"));
         fv3.add(listFeature3);
+        
+        ListFeature<SparseFeature<String>> listFeature4 = new ListFeature<SparseFeature<String>>("testfeature");
+        listFeature4.add(new SparseFeature<String>("d"));
+        listFeature4.add(new SparseFeature<String>("f"));
+        fv4.add(listFeature4);
+        
+        ListFeature<SparseFeature<String>> listFeature5 = new ListFeature<SparseFeature<String>>("testfeature");
+        listFeature5.add(new SparseFeature<String>("a"));
+        listFeature5.add(new SparseFeature<String>("c"));
+        fv5.add(listFeature5);
 
         Instance instance1 = new Instance("c1", fv1);
         Instance instance2 = new Instance("c1", fv2);
         Instance instance3 = new Instance("c2", fv3);
+        Instance instance4 = new Instance("c2", fv4);
+        Instance instance5 = new Instance("c1", fv5);
 
-        fixture = new ArrayList<Instance>(3);
+        fixture = new ArrayList<Trainable>(3);
         fixture.add(instance1);
         fixture.add(instance2);
         fixture.add(instance3);
+        fixture.add(instance4);
+        fixture.add(instance5);
     }
 
     @After
@@ -118,29 +136,29 @@ public class FeatureRankingTest {
     }
 
     @Test
-    public void testInformationGainFeatureExtraction() throws Exception {
+    public void testInformationGain() throws Exception {
         FeatureRanker featureSelector = new InformationGainFeatureRanker();
 
         FeatureRanking ranking = featureSelector.rankFeatures(fixture);
         // System.out.println(ranking);
 
-        assertThat(ranking.getAll().get(5).getValue(), is("d"));
+        assertThat(ranking.getAll().get(5).getValue(), is("e"));
         assertThat(ranking.getAll().get(5).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(4).getValue(), isOneOf("a", "b", "c", "e", "f"));
+        assertThat(ranking.getAll().get(4).getValue(), isOneOf("b", "d"));
         assertThat(ranking.getAll().get(4).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(3).getValue(), isOneOf("a", "b", "c", "e", "f"));
+        assertThat(ranking.getAll().get(3).getValue(), isOneOf("b", "d"));
         assertThat(ranking.getAll().get(3).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(2).getValue(), isOneOf("a", "b", "c", "e", "f"));
+        assertThat(ranking.getAll().get(2).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(2).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(1).getValue(), isOneOf("a", "b", "c", "e", "f"));
+        assertThat(ranking.getAll().get(1).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(1).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(0).getValue(), isOneOf("a", "b", "c", "e", "f"));
+        assertThat(ranking.getAll().get(0).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(0).getScore(), is(notNullValue()));
     }
 
     @Test
     public void testNumericFeatureWithInformationGain() throws Exception {
-        List<Instance> dataset = new ArrayList<Instance>();
+        List<Trainable> dataset = new ArrayList<Trainable>();
         FeatureVector fV1 = new FeatureVector();
         fV1.add(new NumericFeature("numeric", 1.0d));
         Instance instance1 = new Instance("a", fV1);

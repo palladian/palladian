@@ -89,7 +89,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
+    public FeatureRanking rankFeatures(Collection<Trainable> dataset) {
         final FeatureRanking result = new FeatureRanking();
         final List<Trainable> instances = new ArrayList<Trainable>(dataset);
         Collections.shuffle(instances);
