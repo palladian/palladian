@@ -33,6 +33,7 @@ import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.BooleanFeature;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -218,7 +219,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
                 Long population = location.getPopulation();
 
                 // extract features and add them to the feature vector
-                FeatureVector fv = new FeatureVector();
+                BasicFeatureVectorImpl fv = new BasicFeatureVectorImpl();
                 fv.add(new NominalFeature("locationType", location.getType().toString()));
                 fv.add(new BooleanFeature("country", location.getType() == LocationType.COUNTRY));
                 fv.add(new BooleanFeature("continent", location.getType() == LocationType.CONTINENT));
@@ -474,9 +475,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     private static final class LocationInstance implements Location, Classifiable {
 
         private final Location location;
-        private final FeatureVector featureVector;
+        private final BasicFeatureVectorImpl featureVector;
 
-        public LocationInstance(Location location, FeatureVector featureVector) {
+        public LocationInstance(Location location, BasicFeatureVectorImpl featureVector) {
             this.location = location;
             this.featureVector = featureVector;
         }
@@ -522,7 +523,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         }
 
         @Override
-        public FeatureVector getFeatureVector() {
+        public BasicFeatureVectorImpl getFeatureVector() {
             return featureVector;
         }
 

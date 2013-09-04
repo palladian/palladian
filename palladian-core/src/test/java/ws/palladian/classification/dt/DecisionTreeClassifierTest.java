@@ -10,7 +10,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 
 public class DecisionTreeClassifierTest {
 
@@ -30,7 +30,7 @@ public class DecisionTreeClassifierTest {
         DecisionTreeModel model = classifier.train(instances);
 
 
-        FeatureVector featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
+        BasicFeatureVectorImpl featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
         CategoryEntries prediction = classifier.classify(featureVector, model);
 
         assertEquals(1., prediction.getProbability(prediction.getMostLikelyCategory()), 0);

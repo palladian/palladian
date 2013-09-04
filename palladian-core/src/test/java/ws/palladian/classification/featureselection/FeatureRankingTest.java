@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.SparseFeature;
@@ -38,11 +38,11 @@ public class FeatureRankingTest {
 
     @Before
     public void setUp() {
-        FeatureVector fv1 = new FeatureVector();
-        FeatureVector fv2 = new FeatureVector();
-        FeatureVector fv3 = new FeatureVector();
-        FeatureVector fv4 = new FeatureVector();
-        FeatureVector fv5 = new FeatureVector();
+        BasicFeatureVectorImpl fv1 = new BasicFeatureVectorImpl();
+        BasicFeatureVectorImpl fv2 = new BasicFeatureVectorImpl();
+        BasicFeatureVectorImpl fv3 = new BasicFeatureVectorImpl();
+        BasicFeatureVectorImpl fv4 = new BasicFeatureVectorImpl();
+        BasicFeatureVectorImpl fv5 = new BasicFeatureVectorImpl();
 
         ListFeature<SparseFeature<String>> listFeature1 = new ListFeature<SparseFeature<String>>("testfeature");
         listFeature1.add(new SparseFeature<String>("a"));
@@ -98,7 +98,7 @@ public class FeatureRankingTest {
         FeatureRanker featureSelector = new ChiSquaredFeatureRanker(new AverageMergingStrategy());
 
         FeatureRanking ranking = featureSelector.rankFeatures(fixture);
-         System.out.println(ranking);
+//         System.out.println(ranking);
 
         assertThat(ranking.getAll().get(5).getValue(), is("e"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.875, 0.0001)));
@@ -159,15 +159,15 @@ public class FeatureRankingTest {
     @Test
     public void testNumericFeatureWithInformationGain() throws Exception {
         List<Trainable> dataset = new ArrayList<Trainable>();
-        FeatureVector fV1 = new FeatureVector();
+        BasicFeatureVectorImpl fV1 = new BasicFeatureVectorImpl();
         fV1.add(new NumericFeature("numeric", 1.0d));
         Instance instance1 = new Instance("a", fV1);
         dataset.add(instance1);
-        FeatureVector fV2 = new FeatureVector();
+        BasicFeatureVectorImpl fV2 = new BasicFeatureVectorImpl();
         fV2.add(new NumericFeature("numeric", 2.0d));
         Instance instance2 = new Instance("b", fV2);
         dataset.add(instance2);
-        FeatureVector fV3 = new FeatureVector();
+        BasicFeatureVectorImpl fV3 = new BasicFeatureVectorImpl();
         fV3.add(new NumericFeature("numeric", 3.0d));
         Instance instance3 = new Instance("a", fV3);
         dataset.add(instance3);

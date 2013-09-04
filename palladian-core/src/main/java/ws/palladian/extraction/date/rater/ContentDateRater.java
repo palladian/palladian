@@ -21,7 +21,7 @@ import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 
 /**
  * <p>
@@ -86,7 +86,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             if (dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
                 result.add(RatedDate.create(date, 1.0));
             } else {
-                FeatureVector featureVector = DateInstanceFactory.createFeatureVector(date);
+                BasicFeatureVectorImpl featureVector = DateInstanceFactory.createFeatureVector(date);
                 try {
                     CategoryEntries dbl = predictor.classify(featureVector, model);
                     result.add(RatedDate.create(date, dbl.getProbability(dbl.getMostLikelyCategory())));

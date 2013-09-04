@@ -11,6 +11,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.classification.Instance;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -69,7 +70,7 @@ public class MinMaxNormalization implements Serializable {
 
     /**
      * <p>
-     * Normalize a {@link FeatureVector} based in the normalization information. The values are modified directly in
+     * Normalize a {@link BasicFeatureVectorImpl} based in the normalization information. The values are modified directly in
      * place.
      * </p>
      * 

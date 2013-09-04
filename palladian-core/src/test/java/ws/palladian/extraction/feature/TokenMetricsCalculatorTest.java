@@ -10,7 +10,7 @@ import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -29,7 +29,7 @@ public class TokenMetricsCalculatorTest {
         List<PositionAnnotation> annotations = document.get(ListFeature.class, RegExTokenizer.PROVIDED_FEATURE);
 
         PositionAnnotation token = annotations.get(1);
-        FeatureVector tokenFeatureVector = token.getFeatureVector();
+        BasicFeatureVectorImpl tokenFeatureVector = token.getFeatureVector();
         assertEquals("Reh", token.getValue());
         assertEquals(1. / 18, (double)tokenFeatureVector.get(NumericFeature.class, TokenMetricsCalculator.FIRST)
                 .getValue(), 0);

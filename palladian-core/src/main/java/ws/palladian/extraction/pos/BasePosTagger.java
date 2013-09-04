@@ -15,7 +15,7 @@ import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -31,7 +31,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * <li>{@link PipelineProcessor}, which works based on token annotations provided by an {@link AnnotationFeature}. This
  * means, that the input document must be tokenized in advance, using one of the available {@link BaseTokenizer}
- * implementations. In this mode, the POS tags are appended to the token's {@link FeatureVector}s and can be retrieved
+ * implementations. In this mode, the POS tags are appended to the token's {@link BasicFeatureVectorImpl}s and can be retrieved
  * later using the {@link #PROVIDED_FEATURE_DESCRIPTOR}.</li>
  * </ol>
  * </p>
