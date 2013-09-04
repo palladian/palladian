@@ -98,20 +98,20 @@ public class FeatureRankingTest {
         FeatureRanker featureSelector = new ChiSquaredFeatureRanker(new AverageMergingStrategy());
 
         FeatureRanking ranking = featureSelector.rankFeatures(fixture);
-        // System.out.println(ranking);
+         System.out.println(ranking);
 
-        assertThat(ranking.getAll().get(5).getValue(), is("d"));
-        assertThat(ranking.getAll().get(5).getScore(), is(closeTo(0.75, 0.0001)));
-        assertThat(ranking.getAll().get(4).getValue(), is("a"));
-        assertThat(ranking.getAll().get(4).getScore(), is(closeTo(3.0, 0.0001)));
-        assertThat(ranking.getAll().get(3).getValue(), is("c"));
-        assertThat(ranking.getAll().get(3).getScore(), is(closeTo(3.0, 0.0001)));
-        assertThat(ranking.getAll().get(2).getValue(), is("b"));
-        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(3.0, 0.0001)));
-        assertThat(ranking.getAll().get(1).getValue(), is("e"));
-        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(3.0, 0.0001)));
+        assertThat(ranking.getAll().get(5).getValue(), is("e"));
+        assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.875, 0.0001)));
+        assertThat(ranking.getAll().get(4).getValue(), is("b"));
+        assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.22222, 0.0001)));
+        assertThat(ranking.getAll().get(3).getValue(), is("d"));
+        assertThat(ranking.getAll().get(3).getScore(), is(closeTo(2.22222, 0.0001)));
+        assertThat(ranking.getAll().get(2).getValue(), is("a"));
+        assertThat(ranking.getAll().get(2).getScore(), is(closeTo(5.0, 0.0001)));
+        assertThat(ranking.getAll().get(1).getValue(), is("c"));
+        assertThat(ranking.getAll().get(1).getScore(), is(closeTo(5.0, 0.0001)));
         assertThat(ranking.getAll().get(0).getValue(), is("f"));
-        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(3.0, 0.0001)));
+        assertThat(ranking.getAll().get(0).getScore(), is(closeTo(5.0, 0.0001)));
     }
 
     @Test
@@ -119,19 +119,19 @@ public class FeatureRankingTest {
         FeatureRanker featureSelector = new ChiSquaredFeatureRanker(new RoundRobinMergingStrategy());
 
         FeatureRanking ranking = featureSelector.rankFeatures(fixture);
-        // System.out.println(ranking);
+//         System.out.println(ranking);
 
-        assertThat(ranking.getAll().get(5).getValue(), is("d"));
+        assertThat(ranking.getAll().get(5).getValue(), is("e"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.0, 0.0001)));
-        assertThat(ranking.getAll().get(4).getValue(), isOneOf("c", "b", "e", "f", "a"));
+        assertThat(ranking.getAll().get(4).getValue(), is("b"));
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.0, 0.0001)));
-        assertThat(ranking.getAll().get(3).getValue(), isOneOf("c", "b", "e", "f", "a"));
+        assertThat(ranking.getAll().get(3).getValue(), is("d"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(3.0, 0.0001)));
-        assertThat(ranking.getAll().get(2).getValue(), isOneOf("c", "b", "e", "f", "a"));
+        assertThat(ranking.getAll().get(2).getValue(), is("a"));
         assertThat(ranking.getAll().get(2).getScore(), is(closeTo(4.0, 0.0001)));
-        assertThat(ranking.getAll().get(1).getValue(), isOneOf("c", "b", "e", "f", "a"));
+        assertThat(ranking.getAll().get(1).getValue(), is("c"));
         assertThat(ranking.getAll().get(1).getScore(), is(closeTo(5.0, 0.0001)));
-        assertThat(ranking.getAll().get(0).getValue(), isOneOf("c", "b", "e", "f", "a"));
+        assertThat(ranking.getAll().get(0).getValue(), is("f"));
         assertThat(ranking.getAll().get(0).getScore(), is(closeTo(6.0, 0.0001)));
     }
 

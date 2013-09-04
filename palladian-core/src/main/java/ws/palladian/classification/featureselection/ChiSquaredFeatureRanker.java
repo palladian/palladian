@@ -15,6 +15,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 
 /**
  * <p>
@@ -88,7 +89,8 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         Map<String, Map<String, Double>> ret = CollectionHelper.newHashMap();
 
         for (Trainable instance : dataset) {
-            Set<Feature<?>> features = discretize(instance.getFeatureVector(), dataset);
+            Set<Feature<?>> features = convertToSet(instance.getFeatureVector());
+            features.addAll(discretize(features, dataset));
             LOGGER.trace(features.toString());
             for (Feature<?> value : features) {
                 addCooccurence(value, instance.getTargetClass(), termClassCorrelationMatrix);
@@ -133,6 +135,29 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
             }
         }
 
+        return ret;
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     * @param featureVector
+     * @return
+     */
+    private Set<Feature<?>> convertToSet(Iterable<Feature<?>> featureVector) {
+        Set<Feature<?>> ret = CollectionHelper.newHashSet();
+        for(Feature<?> feature:featureVector) {
+            if(feature instanceof ListFeature) {
+                ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
+                for(Feature<?> listFeatureElement:listFeature) {
+                    ret.add(listFeatureElement);
+                }
+            } else {
+                ret.add(feature);
+            }
+        }
         return ret;
     }
 
