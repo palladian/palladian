@@ -90,7 +90,7 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
     // return ret;
     // }
 
-    public Set<Feature<?>> discretize(final FeatureVector featureVector, final Collection<? extends Trainable> dataset) {
+    public Set<Feature<?>> discretize(final Iterable<Feature<?>> featureVector, final Collection<? extends Trainable> dataset) {
         Set<Feature<?>> ret = CollectionHelper.newHashSet();
 
         for (final Feature<?> feature : featureVector) {
