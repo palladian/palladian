@@ -3,6 +3,7 @@
  */
 package ws.palladian.classification.featureselection;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -30,14 +31,20 @@ import ws.palladian.processing.features.ListFeature;
  * @since 2.1.0
  */
 public final class InformationGainFormula {
-
-    public double calculateGain(List<Trainable> dataset, String featureName) {
-        Map<String, Double> classOccurrences = countClassOccurrences(dataset);
-
-        return entropy(dataset.size(), classOccurrences.values()) - conditionalEntropy(dataset, featureName);
+    
+    private final List<Trainable> dataset;
+    private final Map<String, Double> classOccurrences;
+    
+    public InformationGainFormula(Collection<Trainable> dataset) {
+        this.dataset = new ArrayList<Trainable>(dataset);
+        this.classOccurrences = countClassOccurrences();
     }
 
-    private Map<String, Double> countClassOccurrences(List<Trainable> dataset) {
+    public double calculateGain(String featureName) {
+        return entropy(dataset.size(), classOccurrences.values()) - conditionalEntropy(featureName);
+    }
+
+    private Map<String, Double> countClassOccurrences() {
         Map<String, Double> absoluteOccurrences = new HashMap<String, Double>();
         for (Classified dataItem : dataset) {
             Double absoluteOccurrence = absoluteOccurrences.get(dataItem.getTargetClass());
@@ -51,7 +58,7 @@ public final class InformationGainFormula {
         return absoluteOccurrences;
     }
 
-    private Map<String, Double> countFeatureOccurrences(List<Trainable> dataset, String featureName) {
+    private Map<String, Double> countFeatureOccurrences(String featureName) {
         Map<String, Double> absoluteOccurrences = new HashMap<String, Double>();
         for (Trainable dataItem : dataset) {
             Feature<?> feature = dataItem.getFeatureVector().get(featureName);
@@ -72,7 +79,7 @@ public final class InformationGainFormula {
         return absoluteOccurrences;
     }
 
-    private Map<Pair<String, String>, Double> countJointOccurrences(List<Trainable> dataset, String featureName) {
+    private Map<Pair<String, String>, Double> countJointOccurrences(String featureName) {
         Map<Pair<String, String>, Double> jointAbsoluteOccurrences = new HashMap<Pair<String, String>, Double>();
         for (Trainable dataItem : dataset) {
             Feature<?> feature = dataItem.getFeatureVector().get(featureName);
@@ -113,9 +120,9 @@ public final class InformationGainFormula {
         return -entropy;
     }
 
-    private double conditionalEntropy(List<Trainable> dataset, String featureName) {
-        Map<Pair<String, String>, Double> jointOccurrences = countJointOccurrences(dataset, featureName);
-        Map<String, Double> featureOccurrences = countFeatureOccurrences(dataset, featureName);
+    private double conditionalEntropy(String featureName) {
+        Map<Pair<String, String>, Double> jointOccurrences = countJointOccurrences(featureName);
+        Map<String, Double> featureOccurrences = countFeatureOccurrences(featureName);
         return entropy(dataset.size(), jointOccurrences.values())
                 - entropy(dataset.size(), featureOccurrences.values());
     }
@@ -142,10 +149,9 @@ public final class InformationGainFormula {
      * @param listFeature
      * @return
      */
-    public Map<Feature<?>, Double> calculateGains(List<Trainable> dataset, ListFeature<Feature<?>> listFeature) {
+    public Map<Feature<?>, Double> calculateGains(ListFeature<Feature<?>> listFeature) {
         Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
 
-        Map<String, Double> classOccurrences = countClassOccurrences(dataset);
         double classEntropy = entropy(dataset.size(), classOccurrences.values());
 
         Map<Feature<?>, Double> absoluteOccurrences = CollectionHelper.newHashMap();
@@ -178,18 +184,8 @@ public final class InformationGainFormula {
         }
 
         for (Entry<Feature<?>, Double> absoluteOccurrence : absoluteOccurrences.entrySet()) {
-            List<Double> occurrences = CollectionHelper.newArrayList();
             double occurrence = absoluteOccurrence.getValue();
             double nonOccurrence = dataset.size() - absoluteOccurrence.getValue();
-
-            // List<Double> jointOccurrences = CollectionHelper.newArrayList();
-            // for (Entry<Pair<Feature<?>, String>, Double> jointOccurrence : absoluteJointOccurrences.entrySet()) {
-            // if (jointOccurrence.getKey().getKey() == absoluteOccurrence.getKey()) {
-            // jointOccurrences.add(jointOccurrence.getValue());
-            // double classOccurrence = classOccurrences.get(jointOccurrence.getKey().getRight());
-            // jointOccurrences.add(classOccurrence - jointOccurrence.getValue());
-            // }
-            // }
 
             List<Double> jointOccurrences = CollectionHelper.newArrayList();
             List<Double> jointNonOccurrences = CollectionHelper.newArrayList();
@@ -205,13 +201,6 @@ public final class InformationGainFormula {
                 Double absoluteJointNonOccurrence = classOccurrences.get(targetClass) - absoluteJointOccurrence;
                 jointNonOccurrences.add(absoluteJointNonOccurrence);
             }
-            // for (Entry<Pair<Feature<?>, String>, Double> jointOccurrence : absoluteJointOccurrences.entrySet()) {
-            // if (jointOccurrence.getKey().getKey() == absoluteOccurrence.getKey()) {
-            // jointOccurrences.add(jointOccurrence.getValue());
-            // double classOccurrence = classOccurrences.get(jointOccurrence.getKey().getRight());
-            // jointOccurrences.add(classOccurrence - jointOccurrence.getValue());
-            // }
-            // }
 
             double subsetSizeWeight = occurrence / dataset.size();
             double nonSubsetSizeWeight = nonOccurrence / dataset.size();
