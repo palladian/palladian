@@ -61,7 +61,7 @@ public class InformationGainFormulaTest {
 
         instances.get(13).getFeatureVector().add(new NominalFeature("test", "b"));
 
-        double gain = (new InformationGainFormula()).calculateGain(instances, "test");
+        double gain = (new InformationGainFormula(instances)).calculateGain("test");
 
         assertThat(gain, is(closeTo(0.15184, 0.00001)));
     }
