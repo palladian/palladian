@@ -17,7 +17,7 @@ import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 
 /**
@@ -52,7 +52,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
      * probability that t and ci occur together.
      * </p>
      * 
-     * @param featurePath The feature name if you have a flat {@link FeatureVector} or the featurePath otherwise.
+     * @param featurePath The feature name if you have a flat {@link BasicFeatureVectorImpl} or the featurePath otherwise.
      * @param dataset The collection of instances to select features for.
      * @return A mapping from {@link Feature}s to their information gain score. This score is zero for features that are
      *         equally distributed over all target classes but can take on negative and positive values. Higher scores
@@ -200,7 +200,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
      * 
      * @param dataset The dataset to prepare.
      * @return The prepared dataset. Each entry corresponds to one instance from the dataset and contains the prepared
-     *         {@link Feature}s from that instance's {@link FeatureVector} and the instance's target class.
+     *         {@link Feature}s from that instance's {@link BasicFeatureVectorImpl} and the instance's target class.
      */
     private List<Trainable> prepare(Collection<? extends Trainable> dataset) {
         List<Trainable> ret = CollectionHelper.newArrayList();

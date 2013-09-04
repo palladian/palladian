@@ -18,7 +18,7 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -106,7 +106,7 @@ public final class ClassificationUtils {
                     }
                 }
 
-                FeatureVector featureVector = new FeatureVector();
+                BasicFeatureVectorImpl featureVector = new BasicFeatureVectorImpl();
 
                 for (int f = 0; f < parts.length - 1; f++) {
                     String name = headNames == null ? String.valueOf(f) : headNames[f];
@@ -264,7 +264,7 @@ public final class ClassificationUtils {
 
     /**
      * <p>
-     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accpted features
+     * Filter features by names, as specified by the filter. A new {@link BasicFeatureVectorImpl} containing the accpted features
      * is returned.
      * </p>
      * 
@@ -272,10 +272,10 @@ public final class ClassificationUtils {
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return The FeatureVector without the features filtered out by the nameFilter.
      */
-    public static FeatureVector filterFeatures(Classifiable classifiable, Filter<String> nameFilter) {
+    public static BasicFeatureVectorImpl filterFeatures(Classifiable classifiable, Filter<String> nameFilter) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
-        FeatureVector newFeatureVector = new FeatureVector();
+        BasicFeatureVectorImpl newFeatureVector = new BasicFeatureVectorImpl();
         for (Feature<?> feature : classifiable.getFeatureVector()) {
             if (nameFilter.accept(feature.getName())) {
                 newFeatureVector.add(feature);
@@ -292,12 +292,12 @@ public final class ClassificationUtils {
      * 
      * @param instances The instances to process, not <code>null</code>.
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
-     * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link FeatureVector}.
+     * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link BasicFeatureVectorImpl}.
      */
     public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances, Filter<String> nameFilter) {
         List<Trainable> result = CollectionHelper.newArrayList();
         for (Trainable instance : instances) {
-            FeatureVector featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
+            BasicFeatureVectorImpl featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
             result.add(new Instance(instance.getTargetClass(), featureVector));
         }
         return result;

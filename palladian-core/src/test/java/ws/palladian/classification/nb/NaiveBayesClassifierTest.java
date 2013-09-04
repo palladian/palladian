@@ -18,7 +18,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 
 /**
  * <p>
@@ -51,7 +51,7 @@ public class NaiveBayesClassifierTest {
 
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier(1);
         NaiveBayesModel model = bayesClassifier.train(instances);
-        FeatureVector featureVector = new InstanceBuilder().set("outlook", "sunny").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
+        BasicFeatureVectorImpl featureVector = new InstanceBuilder().set("outlook", "sunny").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
         assertEquals(0.262, categoryEntries.getProbability("yes"), 0.001);
         assertEquals(0.738, categoryEntries.getProbability("no"), 0.001);
@@ -83,7 +83,7 @@ public class NaiveBayesClassifierTest {
         NaiveBayesModel model = bayesClassifier.train(instances);
 
         // create an instance to classify
-        FeatureVector featureVector = new InstanceBuilder().set("f", 16.0).create();
+        BasicFeatureVectorImpl featureVector = new InstanceBuilder().set("f", 16.0).create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
 
         assertEquals(0.944, MathHelper.round(categoryEntries.getProbability(categoryEntries.getMostLikelyCategory()), 3), 0.01);

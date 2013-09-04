@@ -16,7 +16,7 @@ public class NumericFeature extends AbstractFeature<Double> {
      * Creates a new {@code NumericFeature} instance with all attributes initialized.
      * </p>
      * 
-     * @param name The {@link FeatureVector} wide unique identifier of this {@code Feature}.
+     * @param name The {@link BasicFeatureVectorImpl} wide unique identifier of this {@code Feature}.
      * @param value The numeric value of this {@code Feature}.
      */
     public NumericFeature(String name, Number value) {

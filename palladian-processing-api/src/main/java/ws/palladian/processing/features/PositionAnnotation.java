@@ -17,11 +17,11 @@ import ws.palladian.processing.Classifiable;
 public class PositionAnnotation extends Annotation implements Classifiable, Feature<String> {
 
     /**
-     * A {@link FeatureVector} for this annotation. Annotations may have {@link FeatureVector}s, so it is possible to
+     * A {@link BasicFeatureVectorImpl} for this annotation. Annotations may have {@link BasicFeatureVectorImpl}s, so it is possible to
      * classify them as well. This is for example important for named entity recognition or part of speech tagging. This
      * field is lazy-initialized to save some memory.
      */
-    private FeatureVector featureVector;
+    private BasicFeatureVectorImpl featureVector;
 
     /**
      * <p>
@@ -41,9 +41,9 @@ public class PositionAnnotation extends Annotation implements Classifiable, Feat
     }
 
     @Override
-    public FeatureVector getFeatureVector() {
+    public BasicFeatureVectorImpl getFeatureVector() {
         if (featureVector == null) {
-            featureVector = new FeatureVector();
+            featureVector = new BasicFeatureVectorImpl();
         }
         return featureVector;
     }

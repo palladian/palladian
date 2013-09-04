@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 
 /**
@@ -72,7 +72,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * @param featureType
      *            The implementation class of the features at the provided path.
      *            this is necessary to get the correct features from the
-     *            provided instances' {@link FeatureVector}.
+     *            provided instances' {@link BasicFeatureVectorImpl}.
      * @param dataset
      *            The dataset to use to calculate chi squared values for. The
      *            instances should actually contain the feature provided by {@code featurePath} and it needs to be of

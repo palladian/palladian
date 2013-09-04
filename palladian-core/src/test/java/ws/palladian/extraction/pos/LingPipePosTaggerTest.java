@@ -24,7 +24,7 @@ import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotated;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -83,7 +83,7 @@ public class LingPipePosTaggerTest {
         pipeline.connectToPreviousProcessor(objectOfClassUnderTest);
 
         pipeline.process(document);
-        FeatureVector featureVector = document.getFeatureVector();
+        BasicFeatureVectorImpl featureVector = document.getFeatureVector();
         ListFeature<PositionAnnotation> tokens = featureVector
                 .get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         for (int i = 0; i < tokens.size(); i++) {

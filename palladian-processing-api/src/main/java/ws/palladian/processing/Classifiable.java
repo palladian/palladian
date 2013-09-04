@@ -2,12 +2,13 @@ package ws.palladian.processing;
 
 import ws.palladian.classification.Classifier;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
  * Basic interface for objects that are classifiable by any subclass of {@link Classifier}. Any implementation needs to
- * supply at least a {@link FeatureVector} providing the {@link Feature}s to use for classification. If the
+ * supply at least a {@link BasicFeatureVectorImpl} providing the {@link Feature}s to use for classification. If the
  * {@code FeatureVector} does not contain {@code Feature}s processable by that classifier the classifier will complain
  * by throwing an appropriate {@code Exception}.
  * </p>

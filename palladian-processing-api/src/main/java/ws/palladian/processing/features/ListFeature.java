@@ -30,7 +30,7 @@ public final class ListFeature<T extends Feature<?>> extends AbstractFeature<Lis
      * </p>
      * 
      * @param name The name of the new {@link ListFeature}. This is later used to retrieve this feature from a
-     *            {@link FeatureVector}.
+     *            {@link BasicFeatureVectorImpl}.
      * @param value The value of this {@link ListFeature}.
      */
     public ListFeature(String name, List<T> value) {

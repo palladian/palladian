@@ -3,14 +3,14 @@ package ws.palladian.processing;
 import java.util.List;
 
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 
 /**
  * <p>
  * This interface defines components for use within {@link ProcessingPipeline}s, so called {@link PipelineProcessor}s.
  * Such processors can conduct any type of information processing task and modify {@link PipelineDocument}s given to
  * them. In addition the document may be enriched by {@link Feature}s which are attached to a PipelineDocument's
- * {@link FeatureVector}. Usually, instead of implementing the whole interface, concrete PipelineProcessor
+ * {@link BasicFeatureVectorImpl}. Usually, instead of implementing the whole interface, concrete PipelineProcessor
  * implementations should inherit from {@link AbstractPipelineProcessor}, which already provides a skeleton of common
  * functionality.
  * </p>
