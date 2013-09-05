@@ -250,7 +250,9 @@ public final class MathHelper {
      * 
      * @param values The values for which to get the median.
      * @return The median.
+     * @deprecated Use {@link Stats} instead.
      */
+    @Deprecated
     public static double getMedian(double[] values) {
         int numValues = values.length;
         Arrays.sort(values);
@@ -261,6 +263,8 @@ public final class MathHelper {
         }
     }
 
+    /** @deprecated Use {@link Stats} instead. */
+    @Deprecated
     public static double getMedian(long[] values) {
         int numValues = values.length;
         Arrays.sort(values);
@@ -271,6 +275,8 @@ public final class MathHelper {
         }
     }
 
+    /** @deprecated Use {@link Stats} instead. */
+    @Deprecated
     public static double getAverage(double[] values) {
         double sum = 0;
         for (double value : values) {
@@ -279,6 +285,8 @@ public final class MathHelper {
         return sum / values.length;
     }
 
+    /** @deprecated Use {@link Stats} instead. */
+    @Deprecated
     public static double getAverage(long[] values) {
         double sum = 0;
         for (long value : values) {
@@ -301,7 +309,9 @@ public final class MathHelper {
      * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
      *            <code>false</code> the <i>standard deviation of the sample</i>.
      * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     * @deprecated Use {@link Stats} instead.
      */
+    @Deprecated
     public static double getStandardDeviation(double[] values, boolean biasCorrection) {
         if (values.length == 0) {
             return Double.NaN;
@@ -324,10 +334,13 @@ public final class MathHelper {
     /**
      * <p>
      * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
+     * </p>
      * 
      * @param values The values for which to get the standard deviation.
      * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     * @deprecated Use {@link Stats} instead.
      */
+    @Deprecated
     public static double getStandardDeviation(double[] values) {
         return getStandardDeviation(values, true);
     }
@@ -341,7 +354,9 @@ public final class MathHelper {
      * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
      *            <code>false</code> the <i>standard deviation of the sample</i>.
      * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     * @deprecated Use {@link Stats} instead.
      */
+    @Deprecated
     public static double getStandardDeviation(long[] values, boolean biasCorrection) {
         if (values.length == 0) {
             return Double.NaN;
@@ -361,6 +376,8 @@ public final class MathHelper {
         }
     }
 
+    /** @deprecated Use {@link Stats} instead. */
+    @Deprecated
     public static double getStandardDeviation(long[] values) {
         return getStandardDeviation(values, true);
     }
