@@ -4,7 +4,6 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -19,7 +18,7 @@ import ws.palladian.processing.features.FeatureVector;
  */
 public final class Instance implements Trainable {
 
-    /** The {@link Classifiable} providing the {@link BasicFeatureVectorImpl}. */
+    /** The {@link Classifiable} providing the {@link FeatureVector}. */
     private final Classifiable classifiable;
 
     /** The target class this {@code Instance} belongs to. */
@@ -31,7 +30,7 @@ public final class Instance implements Trainable {
      * </p>
      * 
      * @param targetClass The target class this {@code Instance} belongs to.
-     * @param featureVector The {@link BasicFeatureVectorImpl} used by a processing classifier to train new {@link Model}.
+     * @param featureVector The {@link FeatureVector} used by a processing classifier to train new {@link Model}.
      */
     public Instance(String targetClass, Classifiable classifiable) {
         Validate.notNull(targetClass, "targetClass must not be null");
@@ -42,13 +41,27 @@ public final class Instance implements Trainable {
 
     /**
      * <p>
-     * Creates a new completely initialized {@link Instance} with an empty {@link BasicFeatureVectorImpl}.
+     * Creates a new completely initialized {@code Instance} for binary classification.
+     * </p>
+     * 
+     * @param targetClass The target class this {@code Instance} belongs to.
+     * @param featureVector The {@link FeatureVector} used by a processing classifier to train new {@link Model}.
+     */
+    public Instance(boolean targetClass, Classifiable classifiable) {
+        Validate.notNull(classifiable, "classifiable must not be null");
+        this.targetClass = String.valueOf(targetClass);
+        this.classifiable = classifiable;
+    }
+
+    /**
+     * <p>
+     * Creates a new completely initialized {@link Instance} with an empty {@link FeatureVector}.
      * </p>
      * 
      * @param targetClass The target class this {@link Instance} belongs to, not <code>null</code>.
      */
     public Instance(String targetClass) {
-        this(targetClass, new BasicFeatureVectorImpl());
+        this(targetClass, new FeatureVector());
     }
 
     @Override

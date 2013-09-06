@@ -1,6 +1,5 @@
 package ws.palladian.classification.nb;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -16,6 +15,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.math.Stats;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
@@ -142,47 +142,47 @@ public final class NaiveBayesClassifier implements Learner<NaiveBayesModel>, Cla
         return new CategoryEntriesMap(probabilities);
     }
 
-    /**
-     * <p>
-     * Keep mathematical stats such as mean and standard deviation for a series of numbers.
-     * </p>
-     * 
-     * @author Philipp Katz
-     */
-    private static final class Stats {
-
-        private final List<Double> values;
-
-        public Stats() {
-            this.values = CollectionHelper.newArrayList();
-        }
-
-        public void add(Double value) {
-            values.add(value);
-        }
-
-        public double getMean() {
-            double mean = 0;
-            for (double value : values) {
-                mean += value;
-            }
-            return mean / values.size();
-        }
-
-        public double getStandardDeviation() {
-            if (values.size() == 1) {
-                return 0.;
-            }
-            double mean = getMean();
-            double standardDeviation = 0;
-            for (double value : values) {
-                standardDeviation += Math.pow(value - mean, 2);
-            }
-            standardDeviation /= values.size() - 1;
-            standardDeviation = Math.sqrt(standardDeviation);
-            return standardDeviation;
-        }
-
-    }
+//    /**
+//     * <p>
+//     * Keep mathematical stats such as mean and standard deviation for a series of numbers.
+//     * </p>
+//     * 
+//     * @author Philipp Katz
+//     */
+//    private static final class Stats {
+//
+//        private final List<Double> values;
+//
+//        public Stats() {
+//            this.values = CollectionHelper.newArrayList();
+//        }
+//
+//        public void add(Double value) {
+//            values.add(value);
+//        }
+//
+//        public double getMean() {
+//            double mean = 0;
+//            for (double value : values) {
+//                mean += value;
+//            }
+//            return mean / values.size();
+//        }
+//
+//        public double getStandardDeviation() {
+//            if (values.size() == 1) {
+//                return 0.;
+//            }
+//            double mean = getMean();
+//            double standardDeviation = 0;
+//            for (double value : values) {
+//                standardDeviation += Math.pow(value - mean, 2);
+//            }
+//            standardDeviation /= values.size() - 1;
+//            standardDeviation = Math.sqrt(standardDeviation);
+//            return standardDeviation;
+//        }
+//
+//    }
 
 }

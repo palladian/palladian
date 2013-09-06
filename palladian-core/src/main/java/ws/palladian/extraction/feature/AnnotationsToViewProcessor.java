@@ -7,7 +7,7 @@ import java.util.List;
 
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 
 /**
@@ -35,7 +35,7 @@ public final class AnnotationsToViewProcessor extends TextDocumentPipelineProces
 
     @Override
     public void processDocument(TextDocument document) {
-        BasicFeatureVectorImpl vector = document.getFeatureVector();
+        FeatureVector vector = document.getFeatureVector();
         List<Feature<?>> features = vector.get(ListFeature.class,featureIdentifier);
 
         StringBuilder ret = new StringBuilder();

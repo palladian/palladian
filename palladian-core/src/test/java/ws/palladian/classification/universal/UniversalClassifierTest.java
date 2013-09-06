@@ -6,6 +6,7 @@ package ws.palladian.classification.universal;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -40,18 +41,19 @@ public class UniversalClassifierTest {
         List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/saheart.csv"), true, ",");
 
-        List<Trainable> trainingSet = ClassificationUtils.drawRandomSubset(instances, 60);
+        List<Trainable> trainingSet = new ArrayList<Trainable>(instances.subList(0, (int)(instances.size() * 0.6)));
         instances.removeAll(trainingSet);
 
         UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
         UniversalClassifierModel model = objectOfClassUnderTest.train(trainingSet);
 
-        ConfusionMatrix matrix = ClassifierEvaluation.evaluate(objectOfClassUnderTest, model, instances);
+        ConfusionMatrix matrix = ClassifierEvaluation.evaluate(objectOfClassUnderTest, instances, model);
         // Precision: 0.5645161290322581
         // Recall: 0.6140350877192983
         // F1: 0.5882352941176471
         assertTrue(matrix.getPrecision("1") > 0.56);
         assertTrue(matrix.getRecall("1") > 0.61);
         assertTrue(matrix.getF(1.0, "1") > 0.58);
+
     }
 }

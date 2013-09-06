@@ -1,7 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -13,7 +13,7 @@ import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -219,7 +219,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotated> getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
 
         String inputTextPath = new File(FileHelper.getTempDir(), "inputText.txt").getPath();
         FileHelper.writeToFile(inputTextPath, inputText);
@@ -239,7 +239,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
 
         // CollectionHelper.print(annotations);
 
-        return Collections.<Annotated> unmodifiableList(annotations);
+        return new ArrayList<Annotation>(annotations);
     }
 
     @Override

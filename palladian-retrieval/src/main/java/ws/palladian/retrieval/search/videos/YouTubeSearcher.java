@@ -21,7 +21,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -122,7 +121,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
         }
 
         List<WebVideoResult> webResults = new ArrayList<WebVideoResult>();
-        String jsonString = HttpHelper.getStringContent(httpResult);
+        String jsonString = httpResult.getStringContent();
 
         try {
             JsonObjectWrapper root = new JsonObjectWrapper(jsonString);
@@ -215,14 +214,14 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
-        int hitCount = 0;
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
+        long hitCount = 0;
         try {
             HttpResult httpResult = retriever.httpGet(getRequestUrl(query, 1, language));
-            JSONObject root = new JSONObject(HttpHelper.getStringContent(httpResult));
+            JSONObject root = new JSONObject(httpResult.getStringContent());
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
-            hitCount = root.getJSONObject("feed").getJSONObject("openSearch$totalResults").getInt("$t");
+            hitCount = root.getJSONObject("feed").getJSONObject("openSearch$totalResults").getLong("$t");
 
         } catch (JSONException e) {
             throw new SearcherException("Exception parsing the JSON response while searching for \"" + query

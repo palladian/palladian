@@ -1,26 +1,68 @@
-/**
- * Created on 04.09.2013 12:28:38
- */
 package ws.palladian.processing.features;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.processing.Classifiable;
 
 /**
  * <p>
- * Interface for a feature vector. A feature vector is a data structure that can hold features of a document and is
- * required to classify a document. Feature vectors are also used by Palladian pipelines to store all data extracted or
- * created during intermediate processing steps. The final result of a pipeline is stored as feature into a feature
- * vector as well.
+ * A class to describe collections of {@code Feature}s extracted from some document. Based on its {@code FeatureVector}
+ * the document can be processed by Information Retrieval components like classifiers or clusterers.
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 1.0
- * @since 0.2.2
+ * @author David Urbansky
+ * @author Philipp Katz
+ * @version 2.5
  */
-public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
+public class FeatureVector implements Iterable<Feature<?>>, Classifiable {
+
+    /**
+     * <p>
+     * The logger for objects of this class. Configure it using <code>/src/main/resources/log4j.properties</code>.
+     * </p>
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureVector.class);
+
+    /** Flag to avoid spamming of log warning messages. */
+    private static boolean showedWarning = false;
+
+    /**
+     * <p>
+     * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
+     * identifier to an actual {@code Feature} instance containing the value. The value might be of any java object
+     * type.
+     * </p>
+     */
+    private final SortedMap<String, Feature<?>> features;
+
+    /**
+     * <p>
+     * Creates a new empty {@code FeatureVector}. To fill it with {@link Feature}s call {@link #add(String, Feature)}.
+     * </p>
+     */
+    public FeatureVector() {
+        features = new TreeMap<String, Feature<?>>();
+    }
+
+    /**
+     * <p>
+     * Creates a new {@link FeatureVector} from the provided FeatureVector, i.e. a copy with all {@link Feature}s.
+     * </p>
+     * 
+     * @param featureVector The feature vector which Features to copy.
+     */
+    public FeatureVector(FeatureVector featureVector) {
+        features = new TreeMap<String, Feature<?>>(featureVector.features);
+    }
 
     /**
      * <p>
@@ -31,17 +73,27 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * @param feature
      *            The actual {@code Feature} instance containing the value.
      */
-    public abstract void add(Feature<?> feature);
+    public void add(Feature<?> feature) {
+        if (features.get(feature.getName()) != null && !showedWarning) {
+            LOGGER.warn("Please use a ListFeature to add multiple features with the same name.");
+            showedWarning = true;
+        }
+        features.put(feature.getName(), feature);
+    }
 
     /**
      * <p>
-     * Adds all provided {@link Feature}s to this {@link BasicFeatureVectorImpl} and overwrites existing {@link Feature}
-     * s with the same name.
+     * Adds all provided {@link Feature}s to this {@link FeatureVector} and overwrites existing {@link Feature}s with
+     * the same name.
      * </p>
      * 
-     * @param features The {@link Feature}s to add to this {@link BasicFeatureVectorImpl}.
+     * @param features The {@link Feature}s to add to this {@link FeatureVector}.
      */
-    public abstract void addAll(Iterable<? extends Feature<?>> features);
+    public void addAll(Iterable<? extends Feature<?>> features) {
+        for (Feature<?> feature : features) {
+            add(feature);
+        }
+    }
 
     /**
      * <p>
@@ -53,7 +105,13 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * @return Either the requested {@link Feature} or {@code null} if the {@link Feature} is not available or not of
      *         the correct type.
      */
-    public abstract <T extends Feature<?>> T get(Class<T> type, String name);
+    public <T extends Feature<?>> T get(Class<T> type, String name) {
+        try {
+            return type.cast(features.get(name));
+        } catch (ClassCastException e) {
+            return null;
+        }
+    }
 
     /**
      * <p>
@@ -63,28 +121,49 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * @param name The name of the queried {@link Feature}.
      * @return The queried {@link Feature} or {@code null} if no such {@link Feature} exists.
      */
-    public abstract Feature<?> get(String name);
+    public Feature<?> get(String name) {
+        return features.get(name);
+    }
 
     /**
      * <p>
-     * Provides all {@link Feature}s with the specified type from this {@link BasicFeatureVectorImpl}.
+     * Provides all {@link Feature}s with the specified type from this {@link FeatureVector}.
      * </p>
      * 
      * @param type The type of the {@link Feature}s to retrieve.
      * @return A {@link List} of {@link Feature}s for the specified type or an empty List of no such {@link Feature}s
      *         exist, never <code>null</code>.
      */
-    public abstract <T extends Feature<?>> List<T> getAll(Class<T> type);
+    public <T extends Feature<?>> List<T> getAll(Class<T> type) {
+        List<T> selectedFeatures = new ArrayList<T>();
+        for (Feature<?> feature : features.values()) {
+            if (type.isInstance(feature)) {
+                selectedFeatures.add(type.cast(feature));
+            }
+        }
+        return selectedFeatures;
+    }
 
     /**
      * <p>
-     * Provides all direct {@link Feature}s of this {@link BasicFeatureVectorImpl}. Remember that each {@link Feature}
-     * may have {@link Feature}s itself. In such a case you need to get those features recursively.
+     * Provides all direct {@link Feature}s of this {@link FeatureVector}. Remember that each {@link Feature} may have
+     * {@link Feature}s itself. In such a case you need to get those features recursively.
      * </p>
      * 
-     * @return All {@link Feature}s of this {@link BasicFeatureVectorImpl}.
+     * @return All {@link Feature}s of this {@link FeatureVector}.
      */
-    public abstract List<Feature<?>> getAll();
+    public List<Feature<?>> getAll() {
+        List<Feature<?>> featureList = new ArrayList<Feature<?>>();
+        for (Feature<?> feature : this.features.values()) {
+            featureList.add(feature);
+        }
+        return Collections.unmodifiableList(featureList);
+    }
+
+    @Override
+    public String toString() {
+        return features.values().toString();
+    }
 
     /**
      * <p>
@@ -93,37 +172,76 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * 
      * @return The size of this {@code FeatureVector}.
      */
-    public abstract int size();
+    public int size() {
+        return features.size();
+    }
 
     /**
      * <p>
-     * Removes all {@link Feature}s with the specified name from this {@link BasicFeatureVectorImpl}.
+     * Removes all {@link Feature}s with the specified name from this {@link FeatureVector}.
      * </p>
      * 
      * @param name The name of the {@link Feature}s to remove.
      * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
      *         specified identifier to remove.
      */
-    public abstract boolean remove(String name);
+    public boolean remove(String name) {
+        return features.remove(name) != null;
+    }
 
-    public abstract Iterator<Feature<?>> iterator();
+    @Override
+    public Iterator<Feature<?>> iterator() {
+        return getAll().iterator();
+    }
 
     /**
      * <p>
-     * Empties this {@link BasicFeatureVectorImpl}.
+     * Empties this {@link FeatureVector}.
      * </p>
      */
-    public abstract void clear();
+    public void clear() {
+        features.clear();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((features == null) ? 0 : features.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FeatureVector other = (FeatureVector)obj;
+        if (features == null) {
+            if (other.features != null)
+                return false;
+        } else if (!features.equals(other.features))
+            return false;
+        return true;
+    }
 
     /**
      * <p>
-     * Removes a {@link Feature} from this {@link BasicFeatureVectorImpl}.
+     * Removes a {@link Feature} from this {@link FeatureVector}.
      * </p>
      * 
      * @param feature The {@link Feature} to remove.
      */
-    public abstract void remove(Feature<?> feature);
+    public void remove(Feature<?> feature) {
+        features.remove(feature.getName());
+    }
 
-    public abstract FeatureVector getFeatureVector();
+    @Override
+    public FeatureVector getFeatureVector() {
+        return this;
+    }
 
 }

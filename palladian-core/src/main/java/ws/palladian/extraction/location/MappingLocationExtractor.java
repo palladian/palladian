@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CaseInsensitiveMap;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -50,10 +50,10 @@ public class MappingLocationExtractor extends LocationExtractor {
     @Override
     public List<LocationAnnotation> getAnnotations(String inputText) {
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
-        List<? extends Annotated> annotations = entityRecognizer.getAnnotations(inputText);
+        List<? extends Annotation> annotations = entityRecognizer.getAnnotations(inputText);
         // set of unmapped annotations, for debugging purposes
         Set<String> unmappedTags = CollectionHelper.newHashSet();
-        for (Annotated annotation : annotations) {
+        for (Annotation annotation : annotations) {
             LocationType mappedType = mapping.get(annotation.getTag());
             if (mappedType == null) {
                 unmappedTags.add(annotation.getTag());
