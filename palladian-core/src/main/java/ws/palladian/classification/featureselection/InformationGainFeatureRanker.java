@@ -166,7 +166,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         for (Trainable instance : dataset) {
             // deduplicate // TODO is this necessary? Is it possible to include a duplicate feature in the feature
             // vector? is the same word at different positions the same feature?
-            Set<Feature<?>> features = convertToSet(instance.getFeatureVector(),dataset);
+            Set<Feature<?>> features = discretize(instance.getFeatureVector(), dataset);
 
             ret.add(new ImmutablePair<Set<Feature<?>>, String>(features, instance.getTargetClass()));
         }

@@ -45,6 +45,7 @@ import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
@@ -65,7 +66,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private final TermCorpus termCorpus;
     private final TermCorpus keyphraseCorpus;
     private final CooccurrenceMatrix<String> cooccurrenceMatrix;
-    private StemmerAnnotator stemmer;
+    private final StemmerAnnotator stemmer;
     private int trainCount;
     private final Map<PipelineDocument<String>, Set<String>> trainDocuments;
     private BaggedDecisionTreeClassifier classifier;
@@ -215,7 +216,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
      * @return
      */
     private FeatureVector cleanFeatureVector(FeatureVector featureVector) {
-        FeatureVector result = new FeatureVector(featureVector);
+        FeatureVector result = new BasicFeatureVectorImpl(featureVector);
         result.remove(IS_KEYWORD);
         result.remove(StemmerAnnotator.UNSTEM);
         result.remove(BaseTokenizer.PROVIDED_FEATURE); // XXX was duplicate token annotation

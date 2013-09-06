@@ -15,6 +15,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 
 /**
  * <p>
@@ -88,7 +89,8 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         Map<String, Map<String, Double>> ret = CollectionHelper.newHashMap();
 
         for (Trainable instance : dataset) {
-            Set<Feature<?>> features = convertToSet(instance.getFeatureVector(), dataset);
+            Set<Feature<?>> features = convertToSet(instance.getFeatureVector());
+            features.addAll(discretize(features, dataset));
             LOGGER.trace(features.toString());
             for (Feature<?> value : features) {
                 addCooccurence(value, instance.getTargetClass(), termClassCorrelationMatrix);
@@ -111,19 +113,19 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
                 if (termClassCoocurrence == null) {
                     termClassCoocurrence = 0L;
                 }
-                //LOGGER.trace("Calculating Chi² for feature {} in class {}.", termOccurence.getKey(), className);
+                // LOGGER.trace("Calculating Chi² for feature {} in class {}.", termOccurence.getKey(), className);
                 long N_11 = termClassCoocurrence;
                 long N_10 = sumOfRowExceptOne(termOccurence.getKey(), className, termClassCorrelationMatrix);
                 long N_01 = classCount - termClassCoocurrence;
                 long N_00 = N - (N_10 + N_01 + N_11);
-                //LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
+                // LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
 
                 double numerator = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
                 long denominatorInt = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
                 double denominator = Double.valueOf(denominatorInt);
                 double chiSquare = numerator / denominator;
 
-                //LOGGER.trace("Chi² value is {}", chiSquare);
+                // LOGGER.trace("Chi² value is {}", chiSquare);
                 Map<String, Double> chiSquaresForCurrentTerm = ret.get(termOccurence.getKey());
                 if (chiSquaresForCurrentTerm == null) {
                     chiSquaresForCurrentTerm = new HashMap<String, Double>();
@@ -133,6 +135,21 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
             }
         }
 
+        return ret;
+    }
+
+    private Set<Feature<?>> convertToSet(Iterable<Feature<?>> featureVector) {
+        Set<Feature<?>> ret = CollectionHelper.newHashSet();
+        for (Feature<?> feature : featureVector) {
+            if (feature instanceof ListFeature) {
+                ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
+                for (Feature<?> listFeatureElement : listFeature) {
+                    ret.add(listFeatureElement);
+                }
+            } else {
+                ret.add(feature);
+            }
+        }
         return ret;
     }
 
@@ -169,12 +186,13 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * <p>
      * Increases the coocurrence of the row value and the column value in the provided correlation matrix by one.
      * </p>
-     *
+     * 
      * @param row The value of the row of the matrix.
      * @param column The value of the column of the matrix.
      * @param correlationMatrix The correlation matrix to add the correlation to.
      */
-    private static void addCooccurence(Feature<?> row, String column, Map<Feature<?>, Map<String, Long>> correlationMatrix) {
+    private static void addCooccurence(Feature<?> row, String column,
+            Map<Feature<?>, Map<String, Long>> correlationMatrix) {
 
         Map<String, Long> correlations = correlationMatrix.get(row);
         if (correlations == null) {
@@ -192,7 +210,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
 
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
-        Map<String,Map<String,Double>> scoredFeatures = calculateChiSquareValues(dataset);
-        return mergingStrategy.merge(dataset,scoredFeatures);
+        Map<String, Map<String, Double>> scoredFeatures = calculateChiSquareValues(dataset);
+        return mergingStrategy.merge(dataset, scoredFeatures);
     }
 }

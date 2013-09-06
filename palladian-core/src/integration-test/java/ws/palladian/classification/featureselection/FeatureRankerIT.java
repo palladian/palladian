@@ -32,7 +32,10 @@ public class FeatureRankerIT {
     
     @Before
     public void setUp() throws Exception {
+//        String csvFilePath = this.getClass().getResource(DATASET_SAMPLE).getFile();
+//        String csvFilePath = "/home/muthmann/location_disambiguation_1373234035433.csv";
         String csvFilePath = this.getClass().getResource(DATASET_SAMPLE).getFile();
+        List<Trainable> inputDataset = ClassificationUtils.readCsv(csvFilePath, true);
         dataset = ClassificationUtils.readCsv(csvFilePath, true);
         dataset = ClassificationUtils.filterFeatures(dataset, InverseFilter.create(new RegexFilter("marker=.*")));
         

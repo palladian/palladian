@@ -4,6 +4,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -61,7 +62,7 @@ public final class Instance implements Trainable {
      * @param targetClass The target class this {@link Instance} belongs to, not <code>null</code>.
      */
     public Instance(String targetClass) {
-        this(targetClass, new FeatureVector());
+        this(targetClass, new BasicFeatureVectorImpl());
     }
 
     @Override
