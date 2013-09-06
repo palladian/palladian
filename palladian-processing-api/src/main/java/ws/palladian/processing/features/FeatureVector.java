@@ -112,13 +112,4 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      */
     void clear();
 
-    /**
-     * <p>
-     * Removes a {@link Feature} from this {@link FeatureVector}.
-     * </p>
-     * 
-     * @param feature The {@link Feature} to remove.
-     */
-    void remove(Feature<?> feature);
-
 }

@@ -43,7 +43,7 @@ public class PositionAnnotation extends ImmutableAnnotation implements Classifia
     @Override
     public FeatureVector getFeatureVector() {
         if (featureVector == null) {
-            featureVector = new BasicFeatureVectorImpl();
+            featureVector = new BasicFeatureVector();
         }
         return featureVector;
     }

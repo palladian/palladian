@@ -28,7 +28,7 @@ import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 
 public class UniversalClassifier implements Learner<UniversalClassifierModel>, Classifier<UniversalClassifierModel> {
@@ -125,7 +125,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
         CategoryEntries numeric = null;
         CategoryEntries nominal = null;
 
-        FeatureVector featureVectorWithoutTerms = new BasicFeatureVectorImpl(classifiable.getFeatureVector());
+        FeatureVector featureVectorWithoutTerms = new BasicFeatureVector(classifiable.getFeatureVector());
         featureVectorWithoutTerms.remove(BaseTokenizer.PROVIDED_FEATURE);
 
         // classify text using the dictionary classifier

@@ -191,7 +191,7 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
         for (Feature<?> feature : copy) {
             if (feature instanceof ListFeature) {
                 if (!handleListFeature((ListFeature<Feature<?>>)feature)) {
-                    featureVector.remove(feature);
+                    featureVector.remove(feature.getName());
                 }
             } else {
                 handleFeature(feature, featureVector);
@@ -246,7 +246,7 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
         }
 
         if (!isOnList) {
-            featureVector.remove(feature);
+            featureVector.remove(feature.getName());
         }
 
     }

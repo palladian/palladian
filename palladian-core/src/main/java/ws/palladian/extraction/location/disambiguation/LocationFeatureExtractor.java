@@ -20,7 +20,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -90,7 +90,7 @@ class LocationFeatureExtractor {
                 Long population = location.getPopulation();
 
                 // extract features and add them to the feature vector
-                FeatureVector fv = new BasicFeatureVectorImpl();
+                FeatureVector fv = new BasicFeatureVector();
 
                 // annotation features
                 // fv.add(new NumericFeature("numCharacters", value.length()));
