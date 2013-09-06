@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -20,7 +21,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 
-public class WebKnoxLocationSource extends SingleQueryLocationSource {
+public class WebKnoxLocationSource extends SingleQueryLocationSource implements LocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxLocationSource.class);
@@ -68,7 +69,7 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource {
                 String concept = locationCandidate.getString("concept");
                 Double confidence = locationCandidate.getDouble("confidence");
                 if ((concept.equalsIgnoreCase("city") || concept.equalsIgnoreCase("country")) && confidence > 0.999) {
-                    JSONObject jsonObject = documentRetriever.getJSONObject("http://webknox.com/api/entities/"
+                    JSONObject jsonObject = documentRetriever.getJsonObject("http://webknox.com/api/entities/"
                             + locationCandidate.getString("id") + "?apiKey=" + apiKey);
                     JsonObjectWrapper json = new JsonObjectWrapper(jsonObject);
 

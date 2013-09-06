@@ -35,7 +35,7 @@ import ws.palladian.processing.PerformanceCheckProcessingPipeline;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -146,7 +146,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (PositionAnnotation annotation : annotations) {
             String value = annotation.getValue();
-            FeatureVector annotationFeatureVector = annotation.getFeatureVector();
+            BasicFeatureVectorImpl annotationFeatureVector = annotation.getFeatureVector();
             double frequency = annotationFeatureVector.get(NumericFeature.class, TokenMetricsCalculator.FREQUENCY).getValue();
 //            double phraseness = annotationFeatureVector.get(PhrasenessAnnotator.GENERALIZED_DICE).getValue();
             double prior = (double)(keyphraseCorpus.getCount(value) + 1) / keyphraseCorpus.getNumTerms();

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -57,7 +58,7 @@ public final class GooglePageRank extends BaseRankingService implements RankingS
         try {
             String requestUrl = buildRequestUrl(url);
             HttpResult httpResult = retriever.httpGet(requestUrl);
-            String response = httpResult.getStringContent();
+            String response = HttpHelper.getStringContent(httpResult);
             if (response != null) {
                 pageRank = 0;
                 // result stays 0 if response empty -> url not found

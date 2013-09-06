@@ -9,6 +9,10 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.images.ImageType;
 import ws.palladian.retrieval.search.images.WebImageResult;
@@ -73,7 +77,7 @@ public class PhotoXpressSearcher extends WebSearcher<WebImageResult> {
         HttpResult httpPost;
         try {
             httpPost = HttpRetrieverFactory.getHttpRetriever().httpPost("http://www.photoxpress.com/Xmlrpc", content);
-            String resultContent = httpPost.getStringContent();
+            String resultContent = HttpHelper.getStringContent(httpPost);
             System.out.println(resultContent);
         } catch (HttpException e) {
             // TODO Auto-generated catch block

@@ -9,7 +9,8 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -519,11 +520,11 @@ public class DateParserTest {
     @Test
     @Ignore // make this faster!
     public void testExtractFromText() throws FileNotFoundException {
-        final int count = 25;
-        final ProgressMonitor monitor = new ProgressMonitor(count, 1);
+        final int count = 100;
+        final StopWatch stopWatch = new StopWatch();
         String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("/wikipedia_2011_Egyptian_revolution.txt"));
         for (int i = 0; i < count; i++) {
-            monitor.incrementAndPrintProgress();
+            ProgressHelper.printProgress(i, count, 1, stopWatch);
             DateParser.findDates(text);
         }
         DateParser.printHallOfShame();

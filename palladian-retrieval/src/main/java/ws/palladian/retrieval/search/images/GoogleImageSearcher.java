@@ -26,7 +26,7 @@ public final class GoogleImageSearcher extends BaseGoogleSearcher<WebImageResult
         String caption = resultData.getString("content");
         int width = resultData.getInt("width");
         int height = resultData.getInt("height");
-        return new WebImageResult(pageUrl, imageUrl, caption, null, width, height, null);
+        return new WebImageResult(pageUrl, imageUrl, caption, null, width, height, null, null);
     }
 
     @Override

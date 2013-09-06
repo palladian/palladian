@@ -10,18 +10,15 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Collector;
@@ -49,9 +46,6 @@ import ws.palladian.helper.io.FileHelper;
  */
 public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
 
-    /** The Lucene version used throughout this class. */
-    private static final Version LUCENE_VERSION = Version.LUCENE_42;
-
     /** The Lucene directory represents the storage on disk. */
     private Directory directory;
 
@@ -59,13 +53,13 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     private IndexWriter writer;
 
     /** This analyzer just tokenizes at whitespace. */
-    private final Analyzer analyzer = new WhitespaceAnalyzer(LUCENE_VERSION);
+    private Analyzer analyzer = new WhitespaceAnalyzer(Version.LUCENE_31);
 
     /** This class collects search results. */
-    private static final class ShinglesIndexCollector extends Collector {
+    private class ShinglesIndexCollector extends Collector {
 
         private int docBase;
-        private final BitSet hits = new BitSet();
+        private BitSet hits = new BitSet();
 
         @Override
         public void setScorer(Scorer scorer) throws IOException {
@@ -78,8 +72,8 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
         }
 
         @Override
-        public void setNextReader(AtomicReaderContext context) throws IOException {
-            this.docBase = context.docBase;
+        public void setNextReader(IndexReader reader, int docBase) throws IOException {
+            this.docBase = docBase;
         }
 
         @Override
@@ -91,7 +85,6 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
         public BitSet getHits() {
             return hits;
         }
-
     }
 
     @Override
@@ -102,8 +95,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             directory = new SimpleFSDirectory(new File(INDEX_FILE_BASE_PATH + getIndexName()));
 
             // the writer is kept open all the time, it is closed via saveIndex()
-            // Lucene 3.x : writer = new IndexWriter(directory, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
-            writer = new IndexWriter(directory, new IndexWriterConfig(LUCENE_VERSION, analyzer));
+            writer = new IndexWriter(directory, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
 
         } catch (CorruptIndexException e) {
             LOGGER.error("", e);
@@ -161,19 +153,19 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     public Set<Integer> getDocumentsForHash(long hash) {
 
         Set<Integer> documents = new HashSet<Integer>();
-        IndexReader reader = null;
 
         try {
 
             // create the query and do the search
-            Query query = new QueryParser(LUCENE_VERSION, "sketch", analyzer).parse(String.valueOf(hash));
-            reader = DirectoryReader.open(directory);
-            IndexSearcher searcher = new IndexSearcher(reader);
+            Query query = new QueryParser(Version.LUCENE_31, "sketch", analyzer).parse(String.valueOf(hash));
+            IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
+            searcher.close();
 
             // retrieve the document information from the index
             BitSet bitSet = collector.getHits();
+            IndexReader reader = IndexReader.open(directory, true);
 
             for (int i = 0; i < bitSet.size(); i++) {
                 if (bitSet.get(i)) {
@@ -182,13 +174,12 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                     documents.add(documentId);
                 }
             }
+            reader.close();
 
         } catch (ParseException e) {
             LOGGER.error("", e);
         } catch (IOException e) {
             LOGGER.error("", e);
-        } finally {
-            FileHelper.close(reader);
         }
 
         return documents;
@@ -198,17 +189,17 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     public Set<Long> getSketchForDocument(int documentId) {
 
         Set<Long> result = new HashSet<Long>();
-        IndexReader reader = null;
 
         try {
 
-            Query query = new QueryParser(LUCENE_VERSION, "docId", analyzer).parse(String.valueOf(documentId));
-            reader = DirectoryReader.open(directory);
-            IndexSearcher searcher = new IndexSearcher(reader);
+            Query query = new QueryParser(Version.LUCENE_31, "docId", analyzer).parse(String.valueOf(documentId));
+            IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
+            searcher.close();
 
             BitSet bitSet = collector.getHits();
+            IndexReader reader = IndexReader.open(directory, true);
 
             for (int i = 0; i < bitSet.size(); i++) {
                 if (bitSet.get(i)) {
@@ -220,13 +211,12 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                     break;
                 }
             }
+            reader.close();
 
         } catch (ParseException e) {
             LOGGER.error("", e);
         } catch (IOException e) {
             LOGGER.error("", e);
-        } finally {
-            FileHelper.close(reader);
         }
 
         return result;
@@ -236,18 +226,17 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     public int getNumberOfDocuments() {
 
         int result = -1;
-        IndexReader reader = null;
 
         try {
-            reader = DirectoryReader.open(directory);
+            IndexReader reader = IndexReader.open(directory, true);
             result = reader.numDocs();
+            reader.close();
         } catch (CorruptIndexException e) {
             LOGGER.error("", e);
         } catch (IOException e) {
             LOGGER.error("", e);
-        } finally {
-            FileHelper.close(reader);
         }
+
         return result;
     }
 
@@ -255,17 +244,17 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     public Set<Integer> getSimilarDocuments(int documentId) {
 
         Set<Integer> result = new HashSet<Integer>();
-        IndexReader reader = null;
 
         try {
 
-            Query query = new QueryParser(LUCENE_VERSION, "docId", analyzer).parse(String.valueOf(documentId));
-            reader = DirectoryReader.open(directory);
-            IndexSearcher searcher = new IndexSearcher(reader);
+            Query query = new QueryParser(Version.LUCENE_31, "docId", analyzer).parse(String.valueOf(documentId));
+            IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
+            searcher.close();
 
             BitSet bitSet = collector.getHits();
+            IndexReader reader = IndexReader.open(directory, true);
 
             for (int i = 0; i < bitSet.size(); i++) {
                 if (bitSet.get(i)) {
@@ -277,12 +266,12 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                     break;
                 }
             }
+            reader.close();
+
         } catch (ParseException e) {
             LOGGER.error("", e);
         } catch (IOException e) {
             LOGGER.error("", e);
-        } finally {
-            FileHelper.close(reader);
         }
 
         return result;
@@ -292,18 +281,18 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     @Override
     public void addDocumentSimilarity(int masterDocumentId, int similarDocumentId) {
 
-        IndexReader reader = null;
         try {
 
             // first, query for the masterDocument by ID
-            Query query = new QueryParser(LUCENE_VERSION, "docId", analyzer).parse(String
+            Query query = new QueryParser(Version.LUCENE_31, "docId", analyzer).parse(String
                     .valueOf(masterDocumentId));
-            reader = DirectoryReader.open(directory);
-            IndexSearcher searcher = new IndexSearcher(reader);
+            IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
+            searcher.close();
 
             BitSet hits = collector.getHits();
+            IndexReader reader = IndexReader.open(directory, true);
             Document doc = null;
             for (int i = 0; i < hits.size(); i++) {
                 if (hits.get(i)) {
@@ -311,6 +300,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                     break;
                 }
             }
+            reader.close();
 
             if (doc == null) {
                 LOGGER.error("document with id " + masterDocumentId + " not found.");
@@ -338,8 +328,6 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             LOGGER.error("", e);
         } catch (IOException e) {
             LOGGER.error("", e);
-        } finally {
-            FileHelper.close(reader);
         }
 
     }
@@ -348,20 +336,17 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     public Map<Integer, Set<Integer>> getSimilarDocuments() {
 
         Map<Integer, Set<Integer>> similarDocuments = new HashMap<Integer, Set<Integer>>();
-        IndexReader reader = null;
 
         try {
 
-            reader = DirectoryReader.open(directory);
+            IndexReader reader = IndexReader.open(directory, true);
 
             // we need to iterate through the whole index
             for (int i = 0; i < reader.maxDoc(); i++) {
 
-                // if (reader.isDeleted(i)) {
-//                Bits liveDocs = MultiFields.getLiveDocs(reader);
-//                if (!liveDocs.get(i)) {
-//                    continue;
-//                }
+                if (reader.isDeleted(i)) {
+                    continue;
+                }
 
                 Document document = reader.document(i);
                 String similarities = document.get("similarities");
@@ -392,8 +377,6 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             LOGGER.error("", e);
         } catch (IOException e) {
             LOGGER.error("", e);
-        } finally {
-            FileHelper.close(reader);
         }
 
         return similarDocuments;
@@ -403,7 +386,6 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     public Map<Integer, Set<Long>> getDocumentsForSketch(Set<Long> sketch) {
 
         Map<Integer, Set<Long>> documents = new HashMap<Integer, Set<Long>>();
-        IndexReader reader = null;
 
         try {
 
@@ -413,12 +395,13 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                 query.add(new TermQuery(new Term("sketch", String.valueOf(hash))), BooleanClause.Occur.SHOULD);
             }
 
-            reader = DirectoryReader.open(directory);
-            IndexSearcher searcher = new IndexSearcher(reader);
+            IndexSearcher searcher = new IndexSearcher(directory, true);
             ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
+            searcher.close();
 
             BitSet bitSet = collector.getHits();
+            IndexReader reader = IndexReader.open(directory, true);
 
             for (int i = 0; i < bitSet.size(); i++) {
                 if (bitSet.get(i)) {
@@ -434,6 +417,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                     documents.put(docId, docSketch);
                 }
             }
+            reader.close();
 
         } catch (NumberFormatException e) {
             LOGGER.error("", e);
@@ -441,8 +425,6 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             LOGGER.error("", e);
         } catch (IOException e) {
             LOGGER.error("", e);
-        } finally {
-            FileHelper.close(reader);
         }
 
         return documents;

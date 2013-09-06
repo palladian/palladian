@@ -21,8 +21,6 @@ import ws.palladian.helper.constants.RegExp;
  */
 final class DateParserLogic {
 
-    private static final Pattern TIME_ZONE_PATTERN = Pattern.compile(RegExp.TIMEZONE, Pattern.CASE_INSENSITIVE);
-
     final String originalDateString;
     final DateFormat format;
 
@@ -34,6 +32,11 @@ final class DateParserLogic {
     int second;
     String timeZone;
 
+    static final Pattern TIME_ZONE_PATTERN;
+
+    static {
+        TIME_ZONE_PATTERN = Pattern.compile(RegExp.TIMEZONE, Pattern.CASE_INSENSITIVE);
+    }
 
     /**
      * <p>

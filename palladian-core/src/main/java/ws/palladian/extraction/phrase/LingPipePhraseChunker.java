@@ -12,8 +12,8 @@ import java.util.Set;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.ChunkFactory;
@@ -299,14 +299,14 @@ public final class LingPipePhraseChunker implements PhraseChunker {
 //    }
     
     @Override
-    public List<Annotation> chunk(String sentence) {
+    public List<Annotated> chunk(String sentence) {
       char[] characters = Strings.toCharArray(sentence);
       Chunking chunking = this.chunk(characters, 0, characters.length);
-      List<Annotation> tagAnnotations = CollectionHelper.newArrayList();
+      List<Annotated> tagAnnotations = CollectionHelper.newArrayList();
       for (Chunk chunk : chunking.chunkSet()) {
-            Annotation tagAnnotation = new ImmutableAnnotation(chunk.start(), sentence.substring(chunk.start(),
-                    chunk.end()), chunk.type());
-            tagAnnotations.add(tagAnnotation);
+            Annotation tagAnnotation = new Annotation(chunk.start(), sentence.substring(chunk.start(), chunk.end()),
+                    chunk.type());
+          tagAnnotations.add(tagAnnotation);
       }
       return tagAnnotations;
     }

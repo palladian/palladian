@@ -14,7 +14,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.ListFeature;
 
 /**
  * <p>
@@ -71,7 +72,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * @param featureType
      *            The implementation class of the features at the provided path.
      *            this is necessary to get the correct features from the
-     *            provided instances' {@link FeatureVector}.
+     *            provided instances' {@link BasicFeatureVectorImpl}.
      * @param dataset
      *            The dataset to use to calculate chi squared values for. The
      *            instances should actually contain the feature provided by {@code featurePath} and it needs to be of
@@ -88,7 +89,8 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         Map<String, Map<String, Double>> ret = CollectionHelper.newHashMap();
 
         for (Trainable instance : dataset) {
-            Set<Feature<?>> features = convertToSet(instance.getFeatureVector(), dataset);
+            Set<Feature<?>> features = convertToSet(instance.getFeatureVector());
+            features.addAll(discretize(features, dataset));
             LOGGER.trace(features.toString());
             for (Feature<?> value : features) {
                 addCooccurence(value, instance.getTargetClass(), termClassCorrelationMatrix);
@@ -133,6 +135,29 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
             }
         }
 
+        return ret;
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     * @param featureVector
+     * @return
+     */
+    private Set<Feature<?>> convertToSet(Iterable<Feature<?>> featureVector) {
+        Set<Feature<?>> ret = CollectionHelper.newHashSet();
+        for(Feature<?> feature:featureVector) {
+            if(feature instanceof ListFeature) {
+                ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
+                for(Feature<?> listFeatureElement:listFeature) {
+                    ret.add(listFeatureElement);
+                }
+            } else {
+                ret.add(feature);
+            }
+        }
         return ret;
     }
 
@@ -191,7 +216,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
+    public FeatureRanking rankFeatures(Collection<Trainable> dataset) {
         Map<String,Map<String,Double>> scoredFeatures = calculateChiSquareValues(dataset);
         return mergingStrategy.merge(dataset,scoredFeatures);
     }

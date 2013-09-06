@@ -13,6 +13,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -57,7 +58,7 @@ public class ReadItLaterContentExtractor extends WebPageContentExtractor {
             throw new PageContentExtractorException("Error when contacting API for URL \"" + docUrl + "\": "
                     + e.getMessage(), e);
         }
-        extractedResult = httpResult.getStringContent();
+        extractedResult = HttpHelper.getStringContent(httpResult);
         try {
             extractedDocument = htmlParser.parse(httpResult);
         } catch (ParserException e) {

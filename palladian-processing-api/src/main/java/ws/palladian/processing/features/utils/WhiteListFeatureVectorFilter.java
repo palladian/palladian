@@ -13,15 +13,16 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 
 /**
  * <p>
- * Filters a {@link FeatureVector} by removing some of the features in that FeatureVector. Removing can happen based on
+ * Filters a {@link BasicFeatureVectorImpl} by removing some of the features in that FeatureVector. Removing can happen based on
  * a white list or a black list. If a white list is used no black list is possible and vice versa. A white list passes
- * only the features on the list to the filtered {@link FeatureVector}. A black list removes only the features on the
- * list from the {@link FeatureVector}.
+ * only the features on the list to the filtered {@link BasicFeatureVectorImpl}. A black list removes only the features on the
+ * list from the {@link BasicFeatureVectorImpl}.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -181,10 +182,10 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Applies the entries from the white list to the provided {@link FeatureVector}.
+     * Applies the entries from the white list to the provided {@link BasicFeatureVectorImpl}.
      * </p>
      * 
-     * @param featureVector The {@link FeatureVector} to filter.
+     * @param featureVector The {@link BasicFeatureVectorImpl} to filter.
      */
     private void applyWhiteList(final FeatureVector featureVector) {
         List<Feature<?>> copy = featureVector.getAll();

@@ -52,7 +52,8 @@ public class PublicDomainImageSearcher extends WebSearcher<WebImageResult> {
                 imageUrl = "http://www.public-domain-image.com" + imageUrl;
                 thumbImageUrl = "http://www.public-domain-image.com" + thumbImageUrl;
 
-                WebImageResult webImageResult = new WebImageResult(imageUrl, imageUrl, summary, summary, -1, -1, null);
+                WebImageResult webImageResult = new WebImageResult(imageUrl, imageUrl, summary, summary, -1, -1, null,
+                        null);
                 webImageResult.setThumbImageUrl(thumbImageUrl);
 
                 webImageResult.setLicense(License.PUBLIC_DOMAIN);

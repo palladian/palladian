@@ -358,7 +358,8 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}.
+     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}. In
+     * contrast to {@link #filter(Iterable, Filter)}, this does not modify the supplied Iterable.
      * </p>
      * 
      * @param iterable The Iterable to filter, not <code>null</code>.
@@ -382,34 +383,6 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link List}.
-     * </p>
-     * 
-     * @param list The Iterable to filter, not <code>null</code>.
-     * @param filter The filter to apply, not <code>null</code>.
-     * @return A List with the items that passed the filter.
-     * @see #filter(Iterable, Filter, Collection)
-     */
-    public static <T> List<T> filterList(Iterable<T> iterable, Filter<? super T> filter) {
-        return filter(iterable, filter, CollectionHelper.<T> newArrayList());
-    }
-
-    /**
-     * <p>
-     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Set}.
-     * </p>
-     * 
-     * @param list The Iterable to filter, not <code>null</code>.
-     * @param filter The filter to apply, not <code>null</code>.
-     * @return A Set with the items that passed the filter.
-     * @see #filter(Iterable, Filter, Collection)
-     */
-    public static <T> Set<T> filterSet(Iterable<T> iterable, Filter<? super T> filter) {
-        return filter(iterable, filter, CollectionHelper.<T> newHashSet());
-    }
-
-    /**
-     * <p>
      * Apply a type filter to an {@link Iterable} and return the filtered result as new {@link Collection}. An example
      * scenario for this method might be a Collection of {@link Number}s, from which you only want to obtain
      * {@link Double} values.
@@ -421,12 +394,12 @@ public final class CollectionHelper {
      *            {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the type filter.
      */
-    public static <O, C extends Collection<O>> C filter(Iterable<?> iterable, Class<O> type, C output) {
+    public static <I, O, C extends Collection<O>> C filter(Iterable<I> iterable, Class<O> type, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(type, "type must not be null");
         Validate.notNull(output, "output must not be null");
 
-        for (Object item : iterable) {
+        for (I item : iterable) {
             if (type.isInstance(item)) {
                 output.add(type.cast(item));
             }
@@ -459,12 +432,18 @@ public final class CollectionHelper {
      */
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
         List<T> result = CollectionHelper.newArrayList();
+
+        int c = 0;
         for (T t : iterable) {
+
             result.add(t);
-            if (result.size() == num) {
+
+            c++;
+            if (c == num) {
                 break;
             }
         }
+
         return result;
     }
 
@@ -581,14 +560,6 @@ public final class CollectionHelper {
         return convert(iterable, function, new ArrayList<O>());
     }
 
-    /**
-     * <p>
-     * Join elements of a collection in a readable form.
-     * </p>
-     * 
-     * @param entries The entries that should be joined.
-     * @return The joined string.
-     */
     public static String joinReadable(Collection<String> entries) {
         String joinedText = StringUtils.join(entries, ", ");
         int lastIndex = joinedText.lastIndexOf(",");
@@ -601,45 +572,6 @@ public final class CollectionHelper {
             joinedText = joinedTextNew;
         }
         return joinedText;
-    }
-
-    /**
-     * <p>
-     * Get a value from a {@link Map} by trying multiple keys.
-     * </p>
-     * 
-     * @param map The map, not <code>null</code>.
-     * @param keys The keys.
-     * @return The value if any of the keys matches, or <code>null</code>.
-     */
-    public static <K, V> V getTrying(Map<K, V> map, K... keys) {
-        Validate.notNull(map, "map must not be null");
-        Validate.notNull(keys, "keys must not be null");
-        for (K key : keys) {
-            V value = map.get(key);
-            if (value != null) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * <p>
-     * Get the first non-null value from the given items.
-     * </p>
-     * 
-     * @param items The items.
-     * @return The first non-null item from the given, or <code>null</code> in case the only <code>null</code> or no
-     *         values were given.
-     */
-    public static <T> T coalesce(T... items) {
-        for (T item : items) {
-            if (item != null) {
-                return item;
-            }
-        }
-        return null;
     }
 
 }

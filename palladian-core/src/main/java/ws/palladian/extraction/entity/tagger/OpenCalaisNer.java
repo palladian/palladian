@@ -13,14 +13,15 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -117,9 +118,9 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String inputText) {
+    public List<Annotated> getAnnotations(String inputText) {
 
-        Annotations<Annotation> annotations = new Annotations<Annotation>();
+        Annotations<Annotated> annotations = new Annotations<Annotated>();
 
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
@@ -135,7 +136,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                response = httpResult.getStringContent();
+                response = HttpHelper.getStringContent(httpResult);
 
                 JSONObject json = new JSONObject(response);
 
@@ -161,8 +162,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                                 // co-reference resolution instances
                                 if (instance.getInt("length") == entityName.length()) {
                                     int offset = instance.getInt("offset");
-                                    annotations.add(new ImmutableAnnotation(cumulatedOffset + offset, entityName,
-                                            entityTag));
+                                    annotations.add(new Annotation(cumulatedOffset + offset, entityName, entityTag));
                                 }
                             }
                         }

@@ -19,11 +19,11 @@ import ws.palladian.processing.InputPort;
 import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 
 /**
  * <p>
- * Writes the {@link FeatureVector} of the processed document to a CSV file.
+ * Writes the {@link BasicFeatureVectorImpl} of the processed document to a CSV file.
  * </p>
  * 
  * @author Klemens Muthmann

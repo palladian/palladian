@@ -2,7 +2,6 @@ package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -12,9 +11,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
-import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.location.ImmutableLocation;
@@ -74,11 +70,9 @@ class LocalGlobalLexiconConverter {
                 if (qName.equals("article")) {
                     docId = attributes.getValue("docid");
                 } else if (qName.equals("toponyms")) {
-                    topCount = Integer.valueOf(CollectionHelper.coalesce(attributes.getValue("count"),
-                            attributes.getValue("toponymcount")));
+                    topCount = Integer.valueOf(attributes.getValue("count"));
                 } else if (qName.equals("gaztag")) {
-                    geonameId = Integer.valueOf(CollectionHelper.coalesce(attributes.getValue("geonameid"),
-                            attributes.getValue("gazid")));
+                    geonameId = Integer.valueOf(attributes.getValue("geonameid"));
                 }
                 clearBuffer();
             }
@@ -86,7 +80,7 @@ class LocalGlobalLexiconConverter {
             @Override
             public void endElement(String uri, String localName, String qName) throws SAXException {
                 if (qName.equals("article")) {
-                    if (topCount != null && annotations.size() != topCount) {
+                    if (annotations.size() != topCount) {
                         throw new IllegalStateException("Count mismatch; should be " + topCount + ", but is "
                                 + annotations.size());
                     }
@@ -197,37 +191,8 @@ class LocalGlobalLexiconConverter {
         FileHelper.appendFile(coordinateFile.getPath(), builder);
     }
 
-    /**
-     * <p>
-     * Clean the CLUST dataset; ignore duplicate texts, ignore texts which were no annotated.
-     * </p>
-     * 
-     * @param datasetPath
-     */
-    public static final void cleanClust(File datasetPath) {
-        File[] files = FileHelper.getFiles(datasetPath.getPath(), "text_");
-        File destinationDirectory = new File(datasetPath, "0-all");
-        Set<Integer> deduplication = CollectionHelper.newHashSet();
-        int annotated = 0;
-        for (File file : files) {
-            String fileContent = FileHelper.readFileToString(file);
-            if (deduplication.add(fileContent.hashCode())) {
-                Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(fileContent);
-                if (annotations.size() > 0) {
-                    annotated++;
-                    FileHelper.copyFileToDirectory(file, destinationDirectory);
-                }
-            }
-        }
-        System.out.println("# files: " + files.length);
-        System.out.println("# unique: " + deduplication.size());
-        System.out.println("# annotated: " + annotated);
-    }
-
     public static void main(String[] args) throws Exception {
-        // convert(new File("/Users/pk/Desktop/LocationLab/LGL/articles.xml"), new File("/Users/pk/Desktop/LGL-converted"));
-        // convert(new File("/Users/pk/Desktop/CLUST/articles.xml"), new File("/Users/pk/Desktop/CLUST-converted"));
-        cleanClust(new File("/Users/pk/Desktop/CLUST-converted"));
+        convert(new File("/Users/pk/Desktop/LocationLab/LGL/articles.xml"), new File("/Users/pk/Desktop/LGL-converted"));
     }
 
 }

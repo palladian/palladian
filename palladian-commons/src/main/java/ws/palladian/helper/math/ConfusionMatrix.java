@@ -202,7 +202,7 @@ public class ConfusionMatrix {
         int correct = getCorrectlyClassifiedDocuments(category);
         int classified = getClassifiedDocuments(category);
         if (classified == 0) {
-            return Double.NaN;
+            return -1;
         }
         return (double)correct / classified;
     }
@@ -219,7 +219,7 @@ public class ConfusionMatrix {
         int correct = getCorrectlyClassifiedDocuments(category);
         int real = getRealDocuments(category);
         if (real == 0) {
-            return 1;
+            return -1;
         }
         return (double)correct / real;
     }
@@ -237,10 +237,11 @@ public class ConfusionMatrix {
     public double getF(double alpha, String category) {
         double precision = getPrecision(category);
         double recall = getRecall(category);
-        if (Double.isNaN(precision)||Double.isNaN(recall)){
-            return Double.NaN;
+        if (precision < 0 || recall < 0) {
+            return -1;
         }
         return (1. + alpha) * ((precision * recall) / (alpha * precision + recall));
+        // return 1.0 / (alpha * 1.0 / precision + (1.0 - alpha) * 1.0 / recall);
     }
 
     /**
@@ -258,7 +259,7 @@ public class ConfusionMatrix {
         int realPositives = getRealDocuments(category);
         int falseNegatives = realPositives - truePositives;
         if (truePositives + falseNegatives == 0) {
-            return Double.NaN;
+            return -1.0;
         }
         return (double)truePositives / (truePositives + falseNegatives);
     }
@@ -283,7 +284,7 @@ public class ConfusionMatrix {
         int trueNegatives = getTotalDocuments() - classifiedPositives - falseNegatives;
 
         if (trueNegatives + falsePositives == 0) {
-            return Double.NaN;
+            return -1.0;
         }
 
         return (double)trueNegatives / (trueNegatives + falsePositives);
@@ -307,7 +308,7 @@ public class ConfusionMatrix {
         int trueNegatives = getTotalDocuments() - classifiedPositives - falseNegatives;
 
         if (truePositives + trueNegatives + falsePositives + falseNegatives == 0) {
-            return Double.NaN;
+            return -1.0;
         }
 
         return (double)(truePositives + trueNegatives)
@@ -345,7 +346,7 @@ public class ConfusionMatrix {
         double precision = 0.0;
         for (String category : getCategories()) {
             double precisionForCategory = getPrecision(category);
-            if (Double.isNaN(precisionForCategory)) {
+            if (precisionForCategory < 0) {
                 continue;
             }
             double weight = weighted ? getPrior(category) : 1;
@@ -356,7 +357,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return Double.NaN;
+            return -1.0;
         }
         return precision / count;
     }
@@ -374,7 +375,7 @@ public class ConfusionMatrix {
         double recall = 0.0;
         for (String category : getCategories()) {
             double recallForCategory = getRecall(category);
-            if (Double.isNaN(recallForCategory)) {
+            if (recallForCategory < 0.0) {
                 continue;
             }
             double weight = weighted ? getPrior(category) : 1;
@@ -385,7 +386,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return Double.NaN;
+            return -1.0;
         }
         return recall / count;
     }
@@ -405,7 +406,7 @@ public class ConfusionMatrix {
         double f = 0.0;
         for (String category : getCategories()) {
             double fForCategory = getF(alpha, category);
-            if (Double.isNaN(fForCategory)) {
+            if (fForCategory < 0.0) {
                 continue;
             }
             double weight = weighted ? getPrior(category) : 1;
@@ -416,7 +417,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return Double.NaN;
+            return -1.0;
         }
         return f / count;
     }
@@ -434,7 +435,7 @@ public class ConfusionMatrix {
         double sensitivity = 0.0;
         for (String category : getCategories()) {
             double sensitivityForCategory = getSensitivity(category);
-            if (Double.isNaN(sensitivityForCategory)) {
+            if (sensitivityForCategory < 0.0) {
                 continue;
             }
             double weight = weighted ? getPrior(category) : 1;
@@ -445,7 +446,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return Double.NaN;
+            return -1.0;
         }
         return sensitivity / count;
     }
@@ -463,8 +464,8 @@ public class ConfusionMatrix {
         double specificity = 0.0;
         for (String category : getCategories()) {
             double specifityForCategory = getSpecificity(category);
-            if (Double.isNaN(specifityForCategory)) {
-                return Double.NaN;
+            if (specifityForCategory < 0) {
+                return -1.0;
             }
             double weight = weighted ? getPrior(category) : 1;
             specificity += specifityForCategory * weight;
@@ -474,7 +475,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return Double.NaN;
+            return -1.0;
         }
         return specificity / count;
     }
@@ -492,8 +493,8 @@ public class ConfusionMatrix {
         double accuracy = 0.0;
         for (String category : getCategories()) {
             double accuracyForCategory = getAccuracy(category);
-            if (Double.isNaN(accuracyForCategory)) {
-                return Double.NaN;
+            if (accuracyForCategory < 0.0) {
+                return -1.0;
             }
             double weight = weighted ? getPrior(category) : 1;
             accuracy += accuracyForCategory * weight;
@@ -503,7 +504,7 @@ public class ConfusionMatrix {
         }
         int count = getCategories().size();
         if (count == 0) {
-            return Double.NaN;
+            return -1.0;
         }
         return accuracy / count;
     }
@@ -592,7 +593,6 @@ public class ConfusionMatrix {
         out.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
         out.append("# Documents:\t").append(getTotalDocuments()).append('\n');
         out.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
-        out.append("Accuracy:\t").append(getAccuracy()).append('\n');
 
         return out.toString();
 

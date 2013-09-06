@@ -20,7 +20,7 @@ import org.junit.Test;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 /**
@@ -37,10 +37,10 @@ public class LibSvmPredictorTest {
     @Test
     public void test() {
         List<Instance> instances = new ArrayList<Instance>();
-        FeatureVector featureVector1 = new FeatureVector();
+        BasicFeatureVectorImpl featureVector1 = new BasicFeatureVectorImpl();
         featureVector1.add(new NominalFeature("a", "a"));
         featureVector1.add(new NumericFeature("b", 0.9));
-        FeatureVector featureVector2 = new FeatureVector();
+        BasicFeatureVectorImpl featureVector2 = new BasicFeatureVectorImpl();
         featureVector2.add(new NominalFeature("a", "b"));
         featureVector2.add(new NumericFeature("b", 0.1));
         Instance instance1 = new Instance("A", featureVector1);
@@ -52,7 +52,7 @@ public class LibSvmPredictorTest {
         LibSvmModel model = predictor.train(instances);
         assertThat(model, Matchers.is(Matchers.notNullValue()));
 
-        FeatureVector classificationVector = new FeatureVector();
+        BasicFeatureVectorImpl classificationVector = new BasicFeatureVectorImpl();
         classificationVector.add(new NominalFeature("a", "a"));
         classificationVector.add(new NumericFeature("b", 0.8));
         CategoryEntries result = predictor.classify(classificationVector, model);
@@ -95,7 +95,7 @@ public class LibSvmPredictorTest {
         for (String line : lines) {
             String[] elements = line.split("\\s");
             String targetClass = elements[0];
-            FeatureVector featureVector = new FeatureVector();
+            BasicFeatureVectorImpl featureVector = new BasicFeatureVectorImpl();
             for (int i = 1; i < elements.length; i++) {
                 String[] element = elements[i].split(":");
                 String name = element[0];

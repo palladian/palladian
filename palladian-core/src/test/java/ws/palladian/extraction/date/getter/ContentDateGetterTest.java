@@ -70,7 +70,6 @@ public class ContentDateGetterTest {
 
     @Test
     @Ignore
-    // see issue #218 : https://bitbucket.org/palladian/palladian/issue/218/fix-contentdategettertest
     public void testGetContentDate2() throws Exception {
         File testPage = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit3.html");
         Document document = htmlParser.parse(testPage);

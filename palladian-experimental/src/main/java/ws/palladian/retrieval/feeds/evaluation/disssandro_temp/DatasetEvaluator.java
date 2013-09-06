@@ -124,7 +124,7 @@ public class DatasetEvaluator {
 
         String timestamp = DateHelper.getCurrentDatetime();
 
-        simulatedPollsDbTable = "eval_" + feedReader.getUpdateStrategy().getName() + "_"
+        simulatedPollsDbTable = "eval_" + feedReader.getUpdateStrategyName() + "_"
                 + updateStrategy.getLowestUpdateInterval() + "_" + updateStrategy.getHighestUpdateInterval() + "_"
                 + timestamp;
 

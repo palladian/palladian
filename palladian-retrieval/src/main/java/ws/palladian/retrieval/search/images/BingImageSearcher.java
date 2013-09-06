@@ -41,7 +41,7 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
         int width = currentResult.getInt("Width");
         int height = currentResult.getInt("Height");
         String title = currentResult.getString("Title");
-        return new WebImageResult(pageUrl, imageUrl, title, null, width, height, null);
+        return new WebImageResult(pageUrl, imageUrl, title, null, width, height, null, null);
     }
 
     @Override

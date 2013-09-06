@@ -20,7 +20,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Annotated;
 
 public class IllinoisLbjNerTest {
 
@@ -77,7 +77,7 @@ public class IllinoisLbjNerTest {
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.68);
 
         tagger.loadModel(modelFile);
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
+        List<Annotated> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
         // annotations.removeNestedAnnotations();
         // annotations.sort();
 

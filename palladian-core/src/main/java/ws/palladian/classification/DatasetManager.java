@@ -98,9 +98,7 @@ public final class DatasetManager {
     }
 
     /**
-     * <p>
      * Create a smaller subset of an index with exactly the same number of instances per class.
-     * </p>
      * 
      * @param indexFilePath The path to the index file.
      * @param separator The separator between the data and the class.
@@ -151,27 +149,6 @@ public final class DatasetManager {
         LOGGER.info("index excerpt file created in " + sw.getElapsedTimeString());
 
         return indexFilename;
-    }
-    
-    /**
-     * <p>
-     * Create a balanced index that each class has the same number of items in the dataset.
-     * </p>
-     * 
-     * @param indexFilePath The file to the (unbalanced) source data.
-     * @param separator The separator.
-     * @return The path to the balanced data.
-     * @throws IOException
-     */
-    public static String createBalancedIndex(String indexFilePath, final String separator) throws IOException {
-        Dataset ds = new Dataset();
-        ds.setSeparationString(separator);
-        ds.setPath(indexFilePath);
-      
-        CountMap<String> classDistribution = calculateClassDistribution(ds);
-        int lowestCount = classDistribution.getSortedMap().values().iterator().next();
-        
-        return createIndexExcerpt(indexFilePath, separator, lowestCount);
     }
 
     /**
@@ -319,10 +296,6 @@ public final class DatasetManager {
      * @throws IOException
      */
     public static String[] splitIndex(String indexFilePath, int splitPercentage) throws IOException {
-        return splitIndex(indexFilePath, splitPercentage, " ");
-    }
-
-    public static String[] splitIndex(String indexFilePath, int splitPercentage, String separator) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -338,7 +311,7 @@ public final class DatasetManager {
         List<String> lines = FileHelper.readFileToArray(indexFilePath);
         for (String line : lines) {
 
-            String[] parts = line.split(separator);
+            String[] parts = line.split(" ");
             Set<String> links = classMap.get(parts[1]);
             if (links == null) {
                 links = new HashSet<String>();
@@ -359,14 +332,14 @@ public final class DatasetManager {
 
                 if (entriesSplit1 < maxEntriesSplit1) {
                     splitFile1.write(string);
-                    splitFile1.write(separator);
+                    splitFile1.write(" ");
                     splitFile1.write(entry.getKey());
                     splitFile1.write("\n");
                     splitFile1.flush();
                     entriesSplit1++;
                 } else {
                     splitFile2.write(string);
-                    splitFile2.write(separator);
+                    splitFile2.write(" ");
                     splitFile2.write(entry.getKey());
                     splitFile2.write("\n");
                     splitFile2.flush();
@@ -528,10 +501,6 @@ public final class DatasetManager {
      * @param datasetPath The path to the dataset index file.
      * @param csvPath The path where the csv file should be saved to.
      */
-    public static CountMap<String> calculateClassDistribution(final Dataset dataset) {
-        return calculateClassDistribution(dataset, null);
-    }
-    
     public static CountMap<String> calculateClassDistribution(final Dataset dataset, String csvPath) {
 
         final CountMap<String> classCounts = CountMap.create();
@@ -551,13 +520,12 @@ public final class DatasetManager {
 
         FileHelper.performActionOnEveryLine(dataset.getPath(), la);
         
-        if (csvPath != null) {
-            StringBuilder csv = new StringBuilder();
-            for (String entry : classCounts) {
-                csv.append(entry).append(";").append(classCounts.getCount(entry)).append("\n");
-            }
-            FileHelper.writeToFile(csvPath, csv);
+        StringBuilder csv = new StringBuilder();
+        for (String entry : classCounts) {
+            csv.append(entry).append(";").append(classCounts.getCount(entry)).append("\n");
         }
+        
+        FileHelper.writeToFile(csvPath, csv);
         
         return classCounts;
     }
@@ -635,7 +603,6 @@ public final class DatasetManager {
         return modifiedDataset;
     }
 
-
     /**
      * @param args
      * @throws IOException
@@ -655,5 +622,4 @@ public final class DatasetManager {
         // dsm.splitIndexParts(corpusRootFolderPath + "index_split1.txt");
 
     }
-
 }

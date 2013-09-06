@@ -13,7 +13,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Annotated;
 
 public class AnnotationFilter {
 
@@ -51,10 +51,10 @@ public class AnnotationFilter {
                 new Object[] {words.size(), parts.size(), prefixes.size(), suffixes.size()});
     }
 
-    public List<Annotation> filter(List<Annotation> annotations) {
-        List<Annotation> result = CollectionHelper.newArrayList();
+    public List<Annotated> filter(List<Annotated> annotations) {
+        List<Annotated> result = CollectionHelper.newArrayList();
         Set<String> removeFragments = CollectionHelper.newHashSet();
-        out: for (Annotation annotation : annotations) {
+        out: for (Annotated annotation : annotations) {
             for (String part : parts) {
                 if (annotation.getValue().contains(part)) {
                     removeFragments.addAll(getParts(annotation.getValue()));
@@ -75,7 +75,7 @@ public class AnnotationFilter {
             }
         }
         LOGGER.debug("Fragment blacklist: {}", removeFragments);
-        for (Annotation annotation : annotations) {
+        for (Annotated annotation : annotations) {
             if (words.contains(annotation.getValue())) {
                 LOGGER.debug("Remove by word list: {}", annotation.getValue());
                 continue;

@@ -9,11 +9,9 @@ import java.util.zip.GZIPInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.dt.QuickDtClassifier;
-import ws.palladian.classification.dt.QuickDtLearner;
-import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
+import ws.palladian.classification.dt.BaggedDecisionTreeModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
@@ -23,7 +21,7 @@ import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 
 /**
  * <p>
@@ -44,8 +42,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     private static final String CLASSIFIER_MODEL_PUB = "/dates_pub_model.gz";
     private static final String CLASSIFIER_MODEL_MOD = "/dates_mod_model.gz";
 
-    private final QuickDtModel model;
-    private final QuickDtClassifier predictor = new QuickDtClassifier();
+    private final BaggedDecisionTreeModel model;
+    private final BaggedDecisionTreeClassifier predictor;
 
     public ContentDateRater(PageDateType dateType) {
         super(dateType);
@@ -54,10 +52,11 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         } else {
             model = loadModel(CLASSIFIER_MODEL_MOD);
         }
+        this.predictor = new BaggedDecisionTreeClassifier();
     }
 
-    private QuickDtModel loadModel(String classifierModel) {
-        QuickDtModel model = (QuickDtModel)Cache.getInstance().getDataObject(classifierModel);
+    private BaggedDecisionTreeModel loadModel(String classifierModel) {
+        BaggedDecisionTreeModel model = (BaggedDecisionTreeModel)Cache.getInstance().getDataObject(classifierModel);
         if (model == null) {
             InputStream inputStream = this.getClass().getResourceAsStream(CLASSIFIER_MODEL_PUB);
             if (inputStream == null) {
@@ -66,7 +65,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
             try {
                 ObjectInputStream objectInputStream = new ObjectInputStream(new GZIPInputStream(inputStream));
-                model = (QuickDtModel)objectInputStream.readObject();
+                model = (BaggedDecisionTreeModel)objectInputStream.readObject();
                 Cache.getInstance().putDataObject(classifierModel, model);
             } catch (IOException e) {
                 throw new IllegalStateException("Error loading the model file \"" + classifierModel + "\": "
@@ -87,7 +86,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             if (dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
                 result.add(RatedDate.create(date, 1.0));
             } else {
-                FeatureVector featureVector = DateInstanceFactory.createFeatureVector(date);
+                BasicFeatureVectorImpl featureVector = DateInstanceFactory.createFeatureVector(date);
                 try {
                     CategoryEntries dbl = predictor.classify(featureVector, model);
                     result.add(RatedDate.create(date, dbl.getProbability(dbl.getMostLikelyCategory())));
@@ -110,8 +109,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
      */
     private static void buildModel(String inputCsv, String outputPath) {
         List<Trainable> instances = ClassificationUtils.readCsv(inputCsv, true);
-        QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
-        QuickDtModel model = learner.train(instances);
+        BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+        BaggedDecisionTreeModel model = classifier.train(instances);
         FileHelper.serialize(model, outputPath);
     }
 

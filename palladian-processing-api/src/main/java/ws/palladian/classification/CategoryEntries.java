@@ -32,12 +32,15 @@ public interface CategoryEntries extends Iterable<String> {
     String getMostLikelyCategory();
 
     /**
-     * <p>
-     * Check whether a category is present.
-     * </p>
-     * 
+     * <p>Check whether a category is present.</p>
      * @return True if the category is present, false otherwise.
      */
     boolean contains(String category);
 
+    /**
+     * <p>
+     * Sorts the category entries descending by their probability.
+     * </p>
+     */
+    void sort();
 }

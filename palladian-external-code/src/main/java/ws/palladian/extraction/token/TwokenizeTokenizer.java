@@ -2,9 +2,12 @@ package ws.palladian.extraction.token;
 
 import java.util.List;
 
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
+import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
+import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.PositionAnnotationFactory;
 import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
 
 /**
@@ -19,12 +22,13 @@ import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
 public final class TwokenizeTokenizer extends BaseTokenizer {
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
-
+    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
+        String text = document.getContent();
+        FeatureVector featureVector = document.getFeatureVector();
         List<String> tokens = Twokenize.tokenizeForTagger_J(text);
-        List<Annotation> annotations = CollectionHelper.newArrayList();
-
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
         int endPosition = 0;
+        ListFeature<PositionAnnotation> tokensFeature = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
         for (String token : tokens) {
             int startPosition = text.indexOf(token, endPosition);
 
@@ -36,10 +40,9 @@ public final class TwokenizeTokenizer extends BaseTokenizer {
             }
 
             endPosition = startPosition + token.length();
-            annotations.add(new ImmutableAnnotation(startPosition, token, PROVIDED_FEATURE));
+            tokensFeature.add(annotationFactory.create(startPosition, endPosition));
         }
-
-        return annotations;
+        featureVector.add(tokensFeature);
     }
 
 }

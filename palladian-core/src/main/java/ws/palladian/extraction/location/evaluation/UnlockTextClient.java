@@ -21,6 +21,7 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * TODO currently just a parser for the JSON data. Not trivial to integrate, as text files need to be present on a web
@@ -50,7 +51,7 @@ class UnlockTextClient {
             createUserRequest.addHeader("accept", "application/json");
             createUserRequest.addHeader("Authorization", password);
             HttpResult createUserResult = retriever.execute(createUserRequest);
-            System.out.println(createUserResult.getStringContent());
+            System.out.println(HttpHelper.getStringContent(createUserResult));
         } catch (HttpException e) {
             throw new IllegalStateException(e);
         }
@@ -97,7 +98,7 @@ class UnlockTextClient {
             getStatusRequest.addHeader("Authorization", password);
             HttpResult getStatusResult = retriever.execute(getStatusRequest);
             // System.out.println(HttpHelper.getStringContent(getStatusResult));
-            JSONObject jsonObject = new JSONObject(getStatusResult.getStringContent());
+            JSONObject jsonObject = new JSONObject(HttpHelper.getStringContent(getStatusResult));
             String output = documentName + ": ";
             if (jsonObject.has("status-code")) {
                 output += jsonObject.getString("status-code") + "; " + jsonObject.optString("message");
@@ -121,7 +122,7 @@ class UnlockTextClient {
             getTextRequest.addHeader("accept", "application/json");
             getTextRequest.addHeader("Authorization", password);
             HttpResult getStatusResult = retriever.execute(getTextRequest);
-            return getStatusResult.getStringContent();
+            return HttpHelper.getStringContent(getStatusResult);
         } catch (HttpException e) {
             throw new IllegalStateException(e);
         }

@@ -13,7 +13,7 @@ import org.apache.commons.lang3.Validate;
  * 
  * @author Philipp Katz
  */
-public final class ImmutableLocation extends AbstractLocation {
+public final class ImmutableLocation implements Location {
 
     private final int id;
     private final String primaryName;

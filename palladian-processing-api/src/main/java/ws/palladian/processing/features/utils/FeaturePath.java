@@ -8,11 +8,11 @@ import java.util.Arrays;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 
 /**
  * <p>
- * A path to a {@link Feature} in a {@link FeatureVector}.
+ * A path to a {@link Feature} in a {@link BasicFeatureVectorImpl}.
  * </p>
  * 
  * @author Klemens Muthmann

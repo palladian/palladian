@@ -8,21 +8,18 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.helper.JsonObjectWrapper;
 
 /**
  * <p>
- * The {@link ExtractivContentExtractor} extracts clean sentences from (English) texts.
+ * The ExtractivContentExtractor extracts clean sentences from (English) texts.
  * </p>
  * 
  * @author David Urbansky
- * @see <a href="http://extractiv.com/demo.html">Extractiv</a>
+ * @see http://extractiv.com/demo.html
  */
 public class ExtractivContentExtractor extends WebPageContentExtractor {
-
-    /** The name of this extractor. */
-    private static final String EXTRACTOR_NAME = "Extractiv Content Extractor";
 
     /** For performing HTTP requests. */
     private final HttpRetriever httpRetriever;
@@ -47,16 +44,11 @@ public class ExtractivContentExtractor extends WebPageContentExtractor {
                     + e.getMessage(), e);
         }
 
-        extractedResult = httpResult.getStringContent();
+        extractedResult = HttpHelper.getStringContent(httpResult);
 
-        try {
-            JsonObject json = new JsonObject(extractedResult);
-            extractedResult = json.queryString("/Document/text");
-            extractedTitle = json.queryString("Document/title");
-        } catch (JsonException e) {
-            throw new PageContentExtractorException("Error while parsing the JSON response '"
-                    + httpResult.getStringContent() + "': " + e.getMessage(), e);
-        }
+        JsonObjectWrapper json = new JsonObjectWrapper(extractedResult);
+        extractedResult = json.getJSONObject("Document").getString("text");
+        extractedTitle = json.getJSONObject("Document").getString("title");
 
         return this;
     }
@@ -68,8 +60,11 @@ public class ExtractivContentExtractor extends WebPageContentExtractor {
     }
 
     private String buildRequestUrl(String docUrl) {
-        return String.format("http://rest.extractiv.com/extractiv/?url=%s&output_format=json",
+        String requestUrl = String.format(
+                "http://rest.extractiv.com/extractiv/?url=%s&output_format=json",
                 UrlHelper.encodeParameter(docUrl));
+
+        return requestUrl;
     }
 
     @Override
@@ -89,7 +84,7 @@ public class ExtractivContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getExtractorName() {
-        return EXTRACTOR_NAME;
+        return "Extractiv Content Extractor";
     }
 
     public static void main(String[] args) {

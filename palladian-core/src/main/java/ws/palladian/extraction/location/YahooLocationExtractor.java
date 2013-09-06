@@ -20,6 +20,7 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -95,11 +96,15 @@ public class YahooLocationExtractor extends LocationExtractor {
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP error when accessing the service", e);
         }
+        String response = HttpHelper.getStringContent(postResult);
+
+        List<LocationAnnotation> result;
         try {
-            return parseJson(inputText, postResult.getStringContent());
+            result = parseJson(inputText, response);
         } catch (JSONException e) {
-            throw new IllegalStateException("Error parsing the JSON: '" + postResult.getStringContent() + "'.", e);
+            throw new IllegalStateException("Error parsing the JSON: '" + response + "'.", e);
         }
+        return result;
     }
 
     static List<LocationAnnotation> parseJson(String text, String response) throws JSONException {

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -115,7 +116,7 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey="
                     + getApiKey() + "&url=" + encUrl);
-            JSONObject json = new JSONObject(httpResult.getStringContent());
+            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             if (checkJsonResponse(json)) {
                 JSONObject lookup = json.getJSONObject("data").getJSONArray("lookup").getJSONObject(0);
                 if (lookup.has("global_hash")) {
@@ -127,7 +128,7 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                 if (hash != null) {
                     HttpResult httpResult2 = retriever.httpGet("http://api.bit.ly/v3/clicks?login=" + getLogin()
                             + "&apiKey=" + getApiKey() + "&hash=" + hash);
-                    json = new JSONObject(httpResult2.getStringContent());
+                    json = new JSONObject(HttpHelper.getStringContent(httpResult2));
                     if (checkJsonResponse(json)) {
                         float result = json.getJSONObject("data").getJSONArray("clicks").getJSONObject(0)
                                 .getInt("global_clicks");
@@ -184,7 +185,7 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                         + "&mode=batch" + encUrls;
 
                 HttpResult httpResult = retriever.httpGet(urlString);
-                JSONObject json = new JSONObject(httpResult.getStringContent());
+                JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
                 if (checkJsonResponse(json)) {
                     JSONArray lookups = json.getJSONObject("data").getJSONArray("lookup");
                     for (int i = 0; i < lookups.length(); i++) {
@@ -211,7 +212,7 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                         urlString = "http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey=" + getApiKey()
                                 + "&mode=batch" + hashList;
                         HttpResult httpResult2 = retriever.httpGet(urlString);
-                        json = new JSONObject(httpResult2.getStringContent());
+                        json = new JSONObject(HttpHelper.getStringContent(httpResult2));
 
                         if (checkJsonResponse(json)) {
                             JSONArray clicks = json.getJSONObject("data").getJSONArray("clicks");

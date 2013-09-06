@@ -23,7 +23,7 @@ import ws.palladian.helper.constants.Language;
 abstract class SingleQueryLocationSource implements LocationSource {
 
     @Override
-    public final MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         MultiMap<String, Location> locationMap = DefaultMultiMap.createWithSet();
         for (String locationName : locationNames) {
             locationMap.put(locationName, getLocations(locationName, languages));
@@ -32,7 +32,7 @@ abstract class SingleQueryLocationSource implements LocationSource {
     }
 
     @Override
-    public final List<Location> getLocations(List<Integer> locationIds) {
+    public List<Location> getLocations(List<Integer> locationIds) {
         List<Location> locations = CollectionHelper.newArrayList();
         for (Integer locationId : locationIds) {
             Location location = getLocation(locationId);

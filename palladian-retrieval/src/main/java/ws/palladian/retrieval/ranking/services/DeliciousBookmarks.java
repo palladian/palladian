@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -67,7 +68,7 @@ public final class DeliciousBookmarks extends BaseRankingService implements Rank
 
             String md5Url = DigestUtils.md5Hex(url);
             HttpResult httpResult = retriever.httpGet("http://feeds.delicious.com/v2/json/urlinfo/" + md5Url);
-            String jsonString = httpResult.getStringContent();
+            String jsonString = HttpHelper.getStringContent(httpResult);
             LOGGER.trace("JSON=" + jsonString);
             JSONArray json = new JSONArray(jsonString);
 

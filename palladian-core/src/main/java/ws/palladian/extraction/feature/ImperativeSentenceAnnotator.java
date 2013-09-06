@@ -10,7 +10,7 @@ import ws.palladian.extraction.sentence.AbstractSentenceDetector;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
@@ -38,7 +38,7 @@ public final class ImperativeSentenceAnnotator extends TextDocumentPipelineProce
 
         Iterator<PositionAnnotation> posTagsIterator = tokenAnnotations.iterator();
         PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
-        for (Annotation sentence : sentences) {
+        for (Annotated sentence : sentences) {
             String firstTagInSentence = null;
             while (posTagsIterator.hasNext()) {
                 PositionAnnotation currentPosTag = posTagsIterator.next();

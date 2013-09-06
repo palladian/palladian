@@ -1,7 +1,7 @@
 package ws.palladian.extraction.location;
 
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -12,7 +12,7 @@ import ws.palladian.processing.features.ImmutableAnnotation;
  * 
  * @author Philipp Katz
  */
-public class LocationAnnotation extends ImmutableAnnotation {
+public class LocationAnnotation extends Annotation {
 
     private final Location location;
     
@@ -21,7 +21,7 @@ public class LocationAnnotation extends ImmutableAnnotation {
         this.location = location;
     }
 
-    public LocationAnnotation(Annotation annotation, Location location) {
+    public LocationAnnotation(Annotated annotation, Location location) {
         this(annotation.getStartPosition(), annotation.getValue(), location);
     }
 

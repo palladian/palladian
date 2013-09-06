@@ -75,7 +75,9 @@ public class StockXchngSearcher extends WebSearcher<WebImageResult> {
                 imageUrl = imageUrl.replace("photo/", "");
                 imageUrl = "http://www.sxc.hu/browse.phtml?f=download&id=" + imageUrl;
 
-                WebImageResult webImageResult = new WebImageResult(url, imageUrl, title, title, width, height, null);
+                WebImageResult webImageResult = new WebImageResult(url, imageUrl, title, title, width, height, null,
+                        null);
+
                 webImageResult.setThumbImageUrl(imageThumbUrl);
                 webImageResult.setLicense(License.ATTRIBUTION);
                 webImageResult.setLicenseLink("http://www.sxc.hu/help/7_2");

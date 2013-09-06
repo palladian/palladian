@@ -22,8 +22,8 @@ public class SqlHelper {
      * </p>
      * 
      * <p>
-     * {@link ResultSet} only provides a getInt method that returns an int value. In case the original value in the
-     * database was <code>null</code>, it returns 0.
+     * SQL only provides a getInt method that returns an int value. In case the original value in the database was
+     * <code>null</code>, it returns 0.
      * </p>
      * 
      * @param resultSet The resultSet to get the Integer value from.
@@ -32,8 +32,12 @@ public class SqlHelper {
      * @throws SQLException
      */
     public static Integer getInteger(ResultSet resultSet, String columnLabel) throws SQLException {
-        int value = resultSet.getInt(columnLabel);
-        return resultSet.wasNull() ? null : value;
+        Integer value = null;
+        synchronized (resultSet) {
+            value = resultSet.getInt(columnLabel);
+            value = resultSet.wasNull() ? null : value;
+        }
+        return value;
     }
 
     /**
@@ -42,8 +46,8 @@ public class SqlHelper {
      * </p>
      * 
      * <p>
-     * {@link ResultSet} only provides a getLong method that returns an Long value. In case the original value in the
-     * database was <code>null</code>, it returns 0.
+     * SQL only provides a getLong method that returns an Long value. In case the original value in the database was
+     * <code>null</code>, it returns 0.
      * </p>
      * 
      * @param resultSet The resultSet to get the Long value from.
@@ -52,8 +56,12 @@ public class SqlHelper {
      * @throws SQLException
      */
     public static Long getLong(ResultSet resultSet, String columnLabel) throws SQLException {
-        long value = resultSet.getLong(columnLabel);
-        return resultSet.wasNull() ? null : value;
+        Long value = null;
+        synchronized (resultSet) {
+            value = resultSet.getLong(columnLabel);
+            value = resultSet.wasNull() ? null : value;
+        }
+        return value;
     }
 
     /**
@@ -62,8 +70,8 @@ public class SqlHelper {
      * </p>
      * 
      * <p>
-     * {@link ResultSet} only provides a getDouble method that returns an Double value. In case the original value in
-     * the database was <code>null</code>, it returns 0.
+     * SQL only provides a getDouble method that returns an Double value. In case the original value in the database was
+     * <code>null</code>, it returns 0.
      * </p>
      * 
      * @param resultSet The resultSet to get the Double value from.
@@ -72,8 +80,12 @@ public class SqlHelper {
      * @throws SQLException
      */
     public static Double getDouble(ResultSet resultSet, String columnLabel) throws SQLException {
-        double value = resultSet.getDouble(columnLabel);
-        return resultSet.wasNull() ? null : value;
+        Double value = null;
+        synchronized (resultSet) {
+            value = resultSet.getDouble(columnLabel);
+            value = resultSet.wasNull() ? null : value;
+        }
+        return value;
     }
 
     /**
@@ -82,8 +94,8 @@ public class SqlHelper {
      * </p>
      * 
      * <p>
-     * {@link ResultSet} only provides a getBoolean method that returns an int value. In case the original value in the
-     * database was <code>null</code>, it returns <code>false</code>.
+     * SQL only provides a getBoolean method that returns an int value. In case the original value in the database was
+     * <code>null</code>, it returns 0.
      * </p>
      * 
      * @param resultSet The resultSet to get the Boolean value from.
@@ -92,31 +104,37 @@ public class SqlHelper {
      * @throws SQLException
      */
     public static Boolean getBoolean(ResultSet resultSet, String columnLabel) throws SQLException {
-        boolean value = resultSet.getBoolean(columnLabel);
-        return resultSet.wasNull() ? null : value;
+        Boolean value = null;
+        synchronized (resultSet) {
+            value = resultSet.getBoolean(columnLabel);
+            value = resultSet.wasNull() ? null : value;
+        }
+        return value;
     }
 
-    // not necessary: ResultSet#getString returns null
-
-//    /**
-//     * <p>
-//     * Helper to get a String value from a result set that preserves <code>null</code> values.
-//     * </p>
-//     * 
-//     * <p>
-//     * SQL only provides a getString method that returns an String value. In case the original value in the database was
-//     * <code>null</code>, it returns 0.
-//     * </p>
-//     * 
-//     * @param resultSet The resultSet to get the String value from.
-//     * @param columnLabel The label of the column to get the value from.
-//     * @return The String of the column or <code>null</code> if <code>null</code> is read from database.
-//     * @throws SQLException
-//     */
-//    public static String getString(ResultSet resultSet, String columnLabel) throws SQLException {
-//        String value = resultSet.getString(columnLabel);
-//        return resultSet.wasNull() ? null : value;
-//    }
+    /**
+     * <p>
+     * Helper to get a String value from a result set that preserves <code>null</code> values.
+     * </p>
+     * 
+     * <p>
+     * SQL only provides a getString method that returns an String value. In case the original value in the database was
+     * <code>null</code>, it returns 0.
+     * </p>
+     * 
+     * @param resultSet The resultSet to get the String value from.
+     * @param columnLabel The label of the column to get the value from.
+     * @return The String of the column or <code>null</code> if <code>null</code> is read from database.
+     * @throws SQLException
+     */
+    public static String getString(ResultSet resultSet, String columnLabel) throws SQLException {
+        String value = null;
+        synchronized (resultSet) {
+            value = resultSet.getString(columnLabel);
+            value = resultSet.wasNull() ? null : value;
+        }
+        return value;
+    }
 
     /**
      * <p>

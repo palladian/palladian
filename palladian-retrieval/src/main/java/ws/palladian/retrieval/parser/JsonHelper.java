@@ -4,9 +4,6 @@ import org.apache.commons.lang3.Validate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonObject;
-
 /**
  * <p>
  * Some convenience methods for dealing with JSON data types.
@@ -14,9 +11,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * 
  * @author Philipp Katz
  * @see <a href="http://json.org/java/">JSON in Java</a>
- * @deprecated Use {@link JsonObject} and {@link JsonArray} instead.
  */
-@Deprecated
 public final class JsonHelper {
 
     private JsonHelper() {

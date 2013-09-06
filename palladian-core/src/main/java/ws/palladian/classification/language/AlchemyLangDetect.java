@@ -30,7 +30,7 @@ public class AlchemyLangDetect implements LanguageClassifier {
 
     @Override
     public Language classify(String text) {
-        JSONObject json = documentRetriever.getJSONObject(String.format(API_URL, apiKey,
+        JSONObject json = documentRetriever.getJsonObject(String.format(API_URL, apiKey,
                 UrlHelper.encodeParameter(text)));
         try {
             return Language.getByIso6391(json.getString("iso-639-1"));

@@ -1059,8 +1059,7 @@ public final class StringHelper {
      * <li>Remove control characters.</li>
      * <li>Remove protected spaces.</li>
      * <li>Remove double white spaces.</li>
-     * <li>Remove HTML tags (<b>stop</b> becomes stop).</li>
-     * </ul>
+     * <li>Remove HTML tags (<b>stop</B> becomes stop).</li> </li>
      * 
      * @param text The text that should be cleansed.
      * @return The cleansed text.

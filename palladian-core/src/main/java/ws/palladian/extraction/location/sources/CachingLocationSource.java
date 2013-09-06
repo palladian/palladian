@@ -16,7 +16,7 @@ import ws.palladian.helper.constants.Language;
  * 
  * @author Philipp Katz
  */
-public final class CachingLocationSource extends SingleQueryLocationSource {
+public final class CachingLocationSource extends SingleQueryLocationSource implements LocationSource {
 
     private final LocationSource locationSource;
     private final Map<String, Collection<Location>> locationNameCache;

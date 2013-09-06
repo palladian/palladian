@@ -2,12 +2,9 @@ package ws.palladian.retrieval.feeds;
 
 import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
-
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.discovery.FeedDiscovery;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
@@ -17,11 +14,10 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 
 /**
- * <p>
  * Example class illustrating usage of most important feed classes.
- * </p>
  * 
  * @author Philipp Katz
+ * 
  */
 public class UsageExamples {
 
@@ -43,26 +39,15 @@ public class UsageExamples {
         CollectionHelper.print(feedItems);
 
         // initialize the FeedDatabase for storing the data
-        Configuration config = ConfigHolder.getInstance().getConfig();
-        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, config);
+        FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
 
         // add some feed URLs to the database
         FeedImporter feedImporter = new FeedImporter(feedStore);
         feedImporter.addFeedsFromFile(discoveredFeedsFile);
 
-        // specify what to do, when feed contains new items; here we simply add them to the database
-        FeedProcessingAction feedProcessingAction = new DefaultFeedProcessingAction() {
-            @Override
-            public boolean performAction(Feed feed, HttpResult httpResult) {
-                List<FeedItem> items = feed.getItems();
-                feedStore.addFeedItems(items);
-                return true;
-            }
-        };
-        // start reading feeds
+        // start aggregating news for the feeds in the database
         FeedReader feedReader = new FeedReader(feedStore);
-        feedReader.setFeedProcessingAction(feedProcessingAction);
-        feedReader.startContinuousReading();
+        feedReader.aggregate();
 
     }
 

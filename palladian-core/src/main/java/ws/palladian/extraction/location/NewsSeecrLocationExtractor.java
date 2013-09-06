@@ -17,6 +17,7 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -65,7 +66,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP exception while accessing the web service: " + e.getMessage(), e);
         }
-        String resultString = result.getStringContent();
+        String resultString = HttpHelper.getStringContent(result);
         checkError(result);
         LOGGER.debug("Result JSON: {}", resultString);
         try {
@@ -121,7 +122,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         if (result.getStatusCode() >= 300) {
             // try to get the message
             try {
-                JSONObject json = new JSONObject(result.getStringContent());
+                JSONObject json = new JSONObject(HttpHelper.getStringContent(result));
                 String message = json.getString("message");
                 throw new IllegalStateException("Error while accessing the web service: " + message
                         + ", response code: " + result.getStatusCode());

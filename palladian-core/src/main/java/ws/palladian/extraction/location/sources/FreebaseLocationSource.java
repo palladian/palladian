@@ -79,7 +79,7 @@ public class FreebaseLocationSource extends SingleQueryLocationSource implements
         String url = "https://www.googleapis.com/freebase/v1/search?query=" + UrlHelper.encodeParameter(locationName)
                 + "&filter=(any%20type:/location/)&key=" + apiKey;
         LOGGER.debug("check {}", url);
-        JSONObject locationCandidatesObject = documentRetriever.getJSONObject(url);
+        JSONObject locationCandidatesObject = documentRetriever.getJsonObject(url);
         if (locationCandidatesObject == null) {
             throw new IllegalStateException("Null return from DocumentRetriever");
         }
@@ -104,7 +104,7 @@ public class FreebaseLocationSource extends SingleQueryLocationSource implements
                                 .equalsIgnoreCase("continent"))) {
 
                     JSONObject jsonObject = documentRetriever
-                            .getJSONObject("https://www.googleapis.com/freebase/v1/topic/"
+                            .getJsonObject("https://www.googleapis.com/freebase/v1/topic/"
                                     + locationCandidate.getString("id") + "?key=" + apiKey);
 
                     JsonObjectWrapper json = new JsonObjectWrapper(jsonObject);

@@ -23,6 +23,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -74,7 +75,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
         String resultString = null;
         try {
             HttpResult httpResult = httpRetriever.httpGet(url);
-            resultString = httpResult.getStringContent();
+            resultString = HttpHelper.getStringContent(httpResult);
             JSONObject jsonResponse = new JSONObject(resultString);
             String status = jsonResponse.getString("status");
             checkStatus(status);

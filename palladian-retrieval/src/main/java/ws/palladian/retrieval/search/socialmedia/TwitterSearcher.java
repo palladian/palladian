@@ -25,6 +25,7 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -61,7 +62,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     /** The identifier for the {@link Configuration} key with the OAuth access token secret. */
     public static final String CONFIG_ACCESS_TOKEN_SECRET = "api.twitter.accessTokenSecret";
 
-    private static final String DATE_PATTERN = "E MMM dd HH:mm:ss Z yyyy";
+    private static final String DATE_PATTERN = "E, dd MMM yyyy HH:mm:ss Z";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
@@ -131,7 +132,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                 HttpRequest request = buildRequest(query, resultsPerPage, language, page, resultType);
                 HttpResult httpResult = performHttpRequest(request);
 
-                responseString = httpResult.getStringContent();
+                responseString = HttpHelper.getStringContent(httpResult);
                 LOGGER.debug("Response for {}: {}", request, responseString);
 
                 JSONObject jsonObject = new JSONObject(responseString);
@@ -211,8 +212,8 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
             throw new SearcherException("Twitter is currently blocked due to rate limit");
         }
         if (statusCode >= 400) {
-            throw new SearcherException("HTTP error " + statusCode + " for request " + request + ": "
-                    + httpResult.getStringContent());
+            String content = HttpHelper.getStringContent(httpResult);
+            throw new SearcherException("HTTP error " + statusCode + " for request " + request + ": " + content);
         }
         return httpResult;
     }

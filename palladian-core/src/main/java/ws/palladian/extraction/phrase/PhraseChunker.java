@@ -2,7 +2,7 @@ package ws.palladian.extraction.phrase;
 
 import java.util.List;
 
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * @author Martin Wunderwald
@@ -15,7 +15,7 @@ public interface PhraseChunker {
      * 
      * @param sentence The sentence to chunk.
      */
-    List<Annotation> chunk(String sentence);
+    List<Annotated> chunk(String sentence);
     
     /**
      * <p>Get the name of this chunker.</p>

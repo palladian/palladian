@@ -92,6 +92,7 @@ class SchedulerTask extends TimerTask {
      *            collection of feeds to check.
      */
     public SchedulerTask(final FeedReader feedReader) {
+        super();
         threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.persistence.CollectionFeedSource;
@@ -37,12 +39,12 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 public final class FeedReader {
 
     /** The logger for this class. */
-    static final Logger LOGGER = LoggerFactory.getLogger(FeedReader.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(FeedReader.class);
 
     /** Maximum number of feed reading threads at the same time. */
-    public static final int DEFAULT_THREAD_POOL_SIZE = 200;
+    public static final Integer DEFAULT_THREAD_POOL_SIZE = 200;
 
-    private final int threadPoolSize;
+    private Integer threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
 
     /** List of feeds that are read continuous. */
     private Collection<Feed> feedCollection;
@@ -71,7 +73,7 @@ public final class FeedReader {
     private final Timer checkScheduler;
 
     /** The feedstore. */
-    private final FeedStore feedStore;
+    private FeedStore feedStore;
 
     /**
      * Defines the default time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds
@@ -87,6 +89,7 @@ public final class FeedReader {
 
     /** The constructor. */
     public FeedReader(FeedStore feedStore) {
+        super();
         checkScheduler = new Timer();
         this.feedStore = feedStore;
         feedCollection = feedStore.getFeeds();
@@ -95,6 +98,7 @@ public final class FeedReader {
     }
 
     public FeedReader(FeedStore feedStore, int numThreads) {
+        super();
         checkScheduler = new Timer();
         this.feedStore = feedStore;
         feedCollection = feedStore.getFeeds();
@@ -154,7 +158,7 @@ public final class FeedReader {
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
                 + " milliseconds to check all feeds whether they need to be read or not");
 
-        while (!stopWatch.timeIsUp() && !stopped) {
+        while (!stopWatch.timeIsUp() && !isStopped()) {
 
                 LOGGER.trace("time is not up, keep reading feeds");
             LOGGER.debug("current total traffic: " + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + " MB");
@@ -163,7 +167,7 @@ public final class FeedReader {
                 Thread.sleep(TimeUnit.MINUTES.toMillis(1));
                 } catch (InterruptedException e) {
                     LOGGER.warn(e.getMessage());
-                    stopped = true;
+                    setStopped(true);
                     break;
                 }
 
@@ -185,7 +189,7 @@ public final class FeedReader {
      * Stop all timers, no reading will be performed after stopping the reader.
      */
     public void stopContinuousReading() {
-        stopped = true;
+        setStopped(true);
         LOGGER.info("stopped continuous reading");
         checkScheduler.cancel();
     }
@@ -209,40 +213,39 @@ public final class FeedReader {
         feed.increaseChecks();
     }
 
-//    /**
-//     * Use the {@link FeedReader} for aggregating feed items.
-//     */
-//    public void aggregate() {
-//        aggregate(-1);
-//    }
+    /**
+     * Use the {@link FeedReader} for aggregating feed items.
+     */
+    public void aggregate() {
+        aggregate(-1);
+    }
 
-//    /**
-//     * Use the {@link FeedReader} for aggregating feed items for the specified duration.
-//     * 
-//     * @param duration time in milliseconds, -1 for no limit.
-//     */
-//    public void aggregate(long duration) {
-//
-//        final AtomicInteger newItems = new AtomicInteger();
-//
-//        FeedProcessingAction processingAction = new DefaultFeedProcessingAction() {
-//
-//            @Override
-//            public boolean performAction(Feed feed, HttpResult httpResult) {
-//                List<FeedItem> items = feed.getItems();
-//                int addedItems = feedStore.addFeedItems(items);
-//                newItems.addAndGet(addedItems);
-//                return true;
-//            }
-//
-//        };
-//        setFeedProcessingAction(processingAction);
-//        startContinuousReading(duration);
-//
-//        LOGGER.info("# of new entries : " + newItems);
-//    }
+    /**
+     * Use the {@link FeedReader} for aggregating feed items for the specified duration.
+     * 
+     * @param duration time in milliseconds, -1 for no limit.
+     */
+    public void aggregate(long duration) {
 
-    // XXX should be specified in constructor
+        final AtomicInteger newItems = new AtomicInteger();
+
+        FeedProcessingAction processingAction = new DefaultFeedProcessingAction() {
+
+            @Override
+            public boolean performAction(Feed feed, HttpResult httpResult) {
+                List<FeedItem> items = feed.getItems();
+                int addedItems = feedStore.addFeedItems(items);
+                newItems.addAndGet(addedItems);
+                return true;
+            }
+
+        };
+        setFeedProcessingAction(processingAction);
+        startContinuousReading(duration);
+
+        LOGGER.info("# of new entries : " + newItems);
+    }
+
     public void setFeedProcessingAction(FeedProcessingAction feedProcessingAction) {
         this.feedProcessingAction = feedProcessingAction;
     }
@@ -257,7 +260,6 @@ public final class FeedReader {
      * 
      * @param updateStrategy The updating strategy for the feed reader.
      */
-    // XXX should be specified in constructor
     public void setUpdateStrategy(UpdateStrategy updateStrategy) {
         this.updateStrategy = updateStrategy;
     }
@@ -271,10 +273,10 @@ public final class FeedReader {
         return updateStrategy;
     }
 
-//    /** Get the human readable name of the chosen check approach. */
-//    public String getUpdateStrategyName() {
-//        return getUpdateStrategy().getName();
-//    }
+    /** Get the human readable name of the chosen check approach. */
+    public String getUpdateStrategyName() {
+        return getUpdateStrategy().getName();
+    }
 
     public FeedProcessingAction getFeedProcessingAction() {
         return feedProcessingAction;
@@ -284,16 +286,16 @@ public final class FeedReader {
         return feedCollection;
     }
 
-//    public void setStopped(boolean stopped) {
-//        this.stopped = stopped;
-//    }
+    public void setStopped(boolean stopped) {
+        this.stopped = stopped;
+    }
 
-//    public boolean isStopped() {
-//        return stopped;
-//    }
+    public boolean isStopped() {
+        return stopped;
+    }
 
     public boolean updateFeed(Feed feed) {
-        return feedStore.updateFeed(feed);
+        return getFeedStore().updateFeed(feed);
     }
 
     /**
@@ -305,7 +307,7 @@ public final class FeedReader {
      * @return <code>true</code> if (all) update(s) successful.
      */
     public boolean updateFeed(Feed feed, boolean replaceCachedItems) {
-        return feedStore.updateFeed(feed, replaceCachedItems);
+        return getFeedStore().updateFeed(feed, replaceCachedItems);
     }
     
     /**
@@ -366,25 +368,25 @@ public final class FeedReader {
 
     }
 
-//    public void setFeedStore(FeedStore feedStore) {
-//        this.feedStore = feedStore;
-//    }
-//
+    public void setFeedStore(FeedStore feedStore) {
+        this.feedStore = feedStore;
+    }
+
     public FeedStore getFeedStore() {
         return feedStore;
     }
 
-//    /**
-//     * @param threadPoolSize the threadPoolSize to set
-//     */
-//    public void setThreadPoolSize(Integer threadPoolSize) {
-//        this.threadPoolSize = threadPoolSize;
-//    }
+    /**
+     * @param threadPoolSize the threadPoolSize to set
+     */
+    public void setThreadPoolSize(Integer threadPoolSize) {
+        this.threadPoolSize = threadPoolSize;
+    }
 
     /**
      * @return the threadPoolSize
      */
-    public int getThreadPoolSize() {
+    public Integer getThreadPoolSize() {
         return threadPoolSize;
     }
 
@@ -422,9 +424,10 @@ public final class FeedReader {
         feedReader.startContinuousReading();
         System.exit(0);
 
-//        FeedReader r = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()), 1);
-//        r.aggregate(1000 * 60 * 5);
-//        System.exit(0);
+        FeedReader r = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
+        r.setThreadPoolSize(1);
+        r.aggregate(1000 * 60 * 5);
+        System.exit(0);
 
         FeedReader fchecker = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
         fchecker.setUpdateStrategy(new FixLearnedUpdateStrategy());

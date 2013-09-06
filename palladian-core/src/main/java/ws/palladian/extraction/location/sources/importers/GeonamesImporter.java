@@ -15,12 +15,13 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
-import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.EqualsFilter;
@@ -389,7 +390,7 @@ public final class GeonamesImporter {
      */
     private void importHierarchy(InputStream inputStream, final int numLines) {
         LOGGER.info("Importing hierarchy, {} lines to read", numLines);
-        final ProgressMonitor monitor = new ProgressMonitor(numLines, 1);
+        final StopWatch stopWatch = new StopWatch();
         final MultiMap<Integer, Integer> childParents = DefaultMultiMap.createWithSet();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
@@ -407,7 +408,7 @@ public final class GeonamesImporter {
                 if (type == null || type.equals("ADM")) {
                     childParents.add(childId, parentId);
                 }
-                String progress = monitor.incrementAndGetProgress();
+                String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
                 }
@@ -420,7 +421,7 @@ public final class GeonamesImporter {
                 hierarchyMappings.put(childId, CollectionHelper.getFirst(parentIds));
             }
         }
-        LOGGER.info("Finished importing hierarchy in {}", monitor.getTotalElapsedTimeString());
+        LOGGER.info("Finished importing hierarchy in {}", stopWatch.getTotalElapsedTimeString());
     }
 
     /**
@@ -433,11 +434,11 @@ public final class GeonamesImporter {
      */
     private void importAlternativeNames(InputStream inputStream, final int numLines) {
         LOGGER.info("Importing alternative names, {} lines to read", numLines);
-        final ProgressMonitor monitor = new ProgressMonitor(numLines, 1);
+        final StopWatch stopWatch = new StopWatch();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String progress = monitor.incrementAndGetProgress();
+                String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
                 }
@@ -460,7 +461,7 @@ public final class GeonamesImporter {
                 locationStore.addAlternativeNames(geonameid, Collections.singletonList(name));
             }
         });
-        LOGGER.info("Finished importing alternative names in {}", monitor.getTotalElapsedTimeString());
+        LOGGER.info("Finished importing alternative names in {}", stopWatch.getTotalElapsedTimeString());
     }
 
     /**
@@ -532,7 +533,7 @@ public final class GeonamesImporter {
 
     private static final void readLocations(InputStream inputStream, final int totalLines,
             final LocationLineCallback callback) {
-        final ProgressMonitor monitor = new ProgressMonitor(totalLines, 1);
+        final StopWatch stopWatch = new StopWatch();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -541,19 +542,19 @@ public final class GeonamesImporter {
                 }
                 GeonameLocation geonameLocation = parse(line);
                 callback.readLocation(geonameLocation);
-                String progress = monitor.incrementAndGetProgress();
+                String progress = ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch);
                 if (progress.length() > 0) {
                     LOGGER.info(progress);
                 }
             }
         });
-        LOGGER.debug("Finished processing, took {}", monitor.getTotalElapsedTimeString());
+        LOGGER.debug("Finished processing, took {}", stopWatch.getTotalElapsedTimeString());
     }
 
     /**
      * Temporally hold locations after parsing. This class basically just resembles the structure of the GeoNames data.
      */
-    private static final class GeonameLocation extends AbstractLocation {
+    private static final class GeonameLocation implements Location {
         int geonamesId;
         double longitude;
         double latitude;

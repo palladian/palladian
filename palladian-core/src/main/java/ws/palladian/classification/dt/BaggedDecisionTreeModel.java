@@ -6,7 +6,7 @@ import ws.palladian.classification.Model;
 
 public class BaggedDecisionTreeModel implements Model {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 1L;
     
     private final List<DecisionTreeModel> models;
 

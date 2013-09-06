@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -59,7 +60,7 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
 
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
-            String response = httpResult.getStringContent();
+            String response = HttpHelper.getStringContent(httpResult);
 
             if (response != null) {
                 JSONObject jsonObject = new JSONObject(response);
