@@ -23,7 +23,7 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
@@ -98,7 +98,7 @@ public class LingPipePosTaggerTest {
     public void testSimple() throws FileNotFoundException {
         File modelFile = ResourceHelper.getResourceFile(MODEL);
         BasePosTagger tagger = new LingPipePosTagger(modelFile);
-        List<Annotated> tagResult = tagger.getAnnotations(document.getContent());
+        List<Annotation> tagResult = tagger.getAnnotations(document.getContent());
         Assert.assertEquals(expectedTags.length, tagResult.size());
     }
 }

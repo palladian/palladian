@@ -58,7 +58,7 @@ public class WebKnoxPosTagger extends BasePosTagger {
         String url = "http://webknox.com/api/text/posTags?text=";
         url += UrlHelper.encodeParameter(text.toString().trim());
         url += "&apiKey=" + apiKey;
-        JSONObject result = retriever.getJsonObject(url);
+        JSONObject result = retriever.getJSONObject(url);
 
         String taggedText = "";
         try {

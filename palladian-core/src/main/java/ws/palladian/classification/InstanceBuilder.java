@@ -19,7 +19,7 @@ public class InstanceBuilder {
         return this;
     }
     
-    public InstanceBuilder set(String name, Double value) {
+    public InstanceBuilder set(String name, Number value) {
         featureVector.add(new NumericFeature(name, value));
         return this;
     }

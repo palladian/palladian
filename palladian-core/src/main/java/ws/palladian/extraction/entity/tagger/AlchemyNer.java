@@ -16,14 +16,13 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * 
@@ -370,7 +369,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
      * Specific {@link Annotation}, which provides access to the sub types delivered from Alchemy.
      * </p>
      */
-    public static final class AlchemyAnnotation extends Annotation {
+    public static final class AlchemyAnnotation extends ImmutableAnnotation {
 
         private final List<String> subtypes;
 
@@ -439,10 +438,12 @@ public class AlchemyNer extends NamedEntityRecognizer {
         Set<String> checkedEntities = new HashSet<String>();
         for (String textChunk : textChunks) {
 
+            String response = null;
+
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = HttpHelper.getStringContent(httpResult);
+                response = httpResult.getStringContent();
 
                 if (response.contains("daily-transaction-limit-exceeded")) {
                     LOGGER.warn("--- LIMIT EXCEEDED ---");
@@ -476,16 +477,16 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
                     // get locations of named entity
                     List<Integer> entityOffsets = NerHelper.getEntityOffsets(inputText, entityName);
-                    
+
                     for (Integer offset : entityOffsets) {
                         annotations.add(new AlchemyAnnotation(offset, entityName, entityType, subTypeList));
                     }
 
                 }
-            } catch (JSONException e) {
-                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
             } catch (HttpException e) {
                 LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.error(getName() + " could not parse JSON '" + response + "':" + e.getMessage());
             }
         }
 

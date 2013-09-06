@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.MinMaxNormalization;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVectorImpl;
@@ -111,7 +110,7 @@ public final class KnnModel implements Model {
      */
     public void normalize() {
         List<Trainable> nominalInstances = convertTrainingInstances(trainingExamples);
-        normalizationInformation = ClassificationUtils.calculateMinMaxNormalization(nominalInstances);
+        normalizationInformation = new MinMaxNormalization(nominalInstances);
         normalizationInformation.normalize(nominalInstances);
         trainingExamples = initTrainingInstances(nominalInstances);
         isNormalized = true;

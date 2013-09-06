@@ -3,7 +3,6 @@ package ws.palladian.extraction.location.evaluation;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +11,7 @@ import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -191,8 +191,7 @@ final class DatasetCheck {
      */
     static void getNonDisambiguatedStatistics(File datasetPath) {
         File coordinatesFile = new File(datasetPath, "coordinates.csv");
-        Map<String, SortedMap<Integer, GeoCoordinate>> coordinates = LocationExtractionEvaluator
-                .readCoordinatesCsv(coordinatesFile);
+        Map<String, Map<Integer, GeoCoordinate>> coordinates = LocationExtractorUtils.readCoordinates(coordinatesFile);
         CountMap<String> totalTypeCounts = CountMap.create();
         CountMap<String> disambiguatedTypeCounts = CountMap.create();
 

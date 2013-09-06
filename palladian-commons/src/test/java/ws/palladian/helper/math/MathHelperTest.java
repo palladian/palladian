@@ -51,6 +51,20 @@ public class MathHelperTest {
     }
 
     @Test
+    public void testComputeAllCombinations() {
+
+        String[] items = new String[] {"a", "b", "c"};
+        Collection<List<Object>> allCombinations = MathHelper.computeAllCombinations(items);
+        CollectionHelper.print(allCombinations);
+        assertEquals(7, allCombinations.size());
+
+        items = new String[] {"a"};
+        allCombinations = MathHelper.computeAllCombinations(items);
+        CollectionHelper.print(allCombinations);
+        assertEquals(1, allCombinations.size());
+    }
+
+    @Test
     public void testComputeCosineSimilarity() {
         Double[] vector1 = {10.0, 50.0};
         Double[] vector2 = {8.0, 66.0};
@@ -76,7 +90,6 @@ public class MathHelperTest {
         assertEquals(3948348538l, MathHelper.getMedian(new long[] {1l, 2l, 3948348538l, 3948348539l, 3948348540l}), 0);
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testGetMedianDifference() {
         assertEquals(5l, MathHelper.getMedianDifference(new long[] {1l, 2l, 4l, 9l, 16l, 24l}));
@@ -240,6 +253,12 @@ public class MathHelperTest {
         assertEquals(2, MathHelper.getOrderOfMagnitude(100));
         // assertEquals(-1, MathHelper.getOrderOfMagnitude(0.1));
         // assertEquals(-2, MathHelper.getOrderOfMagnitude(0.01));
+    }
+
+    @Test
+    public void testRound() {
+        assertEquals(0.333, MathHelper.round(1. / 3, 3), 0.);
+        assertTrue(Double.isNaN(MathHelper.round(Double.NaN, 2)));
     }
 
 }

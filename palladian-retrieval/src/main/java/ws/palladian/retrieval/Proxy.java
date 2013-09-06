@@ -2,7 +2,7 @@ package ws.palladian.retrieval;
 
 /**
  * <p>
- * A web proxy, optinally with authentication information.
+ * A Web proxy, optionally with authentication information.
  * </p>
  * 
  * @author Philipp Katz

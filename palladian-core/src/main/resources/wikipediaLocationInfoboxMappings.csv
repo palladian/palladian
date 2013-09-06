@@ -101,3 +101,15 @@ south african subplace	UNIT
 uk feature	UNDETERMINED
 cemetery	POI
 amusement park	POI
+u.s. state	UNIT
+country	COUNTRY
+
+### geobox types
+monument	POI
+building	POI
+protected area	LANDMARK
+range	LANDMARK
+region	REGION
+river	LANDMARK
+settlement	CITY
+valley	LANDMARK

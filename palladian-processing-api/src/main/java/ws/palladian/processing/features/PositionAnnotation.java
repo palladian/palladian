@@ -14,7 +14,7 @@ import ws.palladian.processing.Classifiable;
  * @author David Urbansky
  */
 // FIXME rename to TextAnnotation
-public class PositionAnnotation extends Annotation implements Classifiable, Feature<String> {
+public class PositionAnnotation extends ImmutableAnnotation implements Classifiable, Feature<String> {
 
     /**
      * A {@link BasicFeatureVectorImpl} for this annotation. Annotations may have {@link BasicFeatureVectorImpl}s, so it is possible to

@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.ListFeature;
 
 /**
@@ -216,7 +216,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<Trainable> dataset) {
+    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
         Map<String,Map<String,Double>> scoredFeatures = calculateChiSquareValues(dataset);
         return mergingStrategy.merge(dataset,scoredFeatures);
     }
