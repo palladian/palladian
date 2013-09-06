@@ -189,9 +189,4 @@ public class CountMatrix<K> implements Matrix<K, Integer>, Serializable {
         return matrix.getColumn(x);
     };
 
-    @Override
-    public String toString() {
-        return matrix.toString();
-    }
-
 }

@@ -14,6 +14,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -59,7 +60,7 @@ public final class GooglePlusLikes extends BaseRankingService implements Ranking
         try {
             String requestUrl = buildRequestUrl(url);
             HttpResult httpResult = retriever.httpGet(requestUrl);
-            String response = httpResult.getStringContent();
+            String response = HttpHelper.getStringContent(httpResult);
 
             if (response != null) {
                 googlePlusLikes = 0;

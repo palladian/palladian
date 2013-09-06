@@ -164,8 +164,7 @@
 		<dependency>
 			<groupId>quickdt</groupId>
 			<artifactId>quickdt</artifactId>
-			<!-- version>0.0.4</version -->
-			<version>0.0.8.6</version>
+			<version>0.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.smu.tspell</groupId>

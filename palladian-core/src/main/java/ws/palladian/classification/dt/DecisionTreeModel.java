@@ -2,37 +2,29 @@ package ws.palladian.classification.dt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Set;
 
-import quickdt.Tree;
+import quickdt.Node;
 import ws.palladian.classification.Model;
 
 public class DecisionTreeModel implements Model {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 1L;
     
-    private final Tree tree;
+    private final Node tree;
 
-    private final Set<String> classes;
-
-    DecisionTreeModel(Tree tree, Set<String> classes) {
+    DecisionTreeModel(Node tree) {
         this.tree = tree;
-        this.classes = classes;
     }
 
-    public Tree getTree() {
+    public Node getTree() {
         return tree;
-    }
-
-    public Set<String> getClasses() {
-        return classes;
     }
 
     @Override
     public String toString() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out);
-        tree.node.dump(printStream);
+        tree.dump(printStream);
         return out.toString();
     }
 

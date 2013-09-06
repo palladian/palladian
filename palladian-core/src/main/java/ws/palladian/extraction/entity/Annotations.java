@@ -7,16 +7,16 @@ import java.util.Iterator;
 import java.util.List;
 
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
- * A list of {@link Annotation}s.
+ * A list of {@link Annotated}s.
  * </p>
  * 
  * @author David Urbansky
  */
-public class Annotations<T extends Annotation> extends ArrayList<T> implements List<T> {
+public class Annotations<T extends Annotated> extends ArrayList<T> implements List<T> {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,7 +41,7 @@ public class Annotations<T extends Annotation> extends ArrayList<T> implements L
     public String toString() {
         sort();
         StringBuilder output = new StringBuilder();
-        for (Annotation annotation : this) {
+        for (Annotated annotation : this) {
             output.append(annotation.getStartPosition()).append(";");
             output.append(annotation.getValue().length()).append(";");
             output.append(annotation.getEndPosition()).append(";");
@@ -77,7 +77,7 @@ public class Annotations<T extends Annotation> extends ArrayList<T> implements L
 
     @Override
     public boolean add(T e) {
-        for (Annotation a : this) {
+        for (Annotated a : this) {
             if (a.getStartPosition() == e.getStartPosition()) {
                 return false;
             }

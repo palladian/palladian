@@ -12,6 +12,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -68,7 +69,7 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
                         e);
             }
 
-            String jsonString = httpResult.getStringContent();
+            String jsonString = HttpHelper.getStringContent(httpResult);
             try {
                 JSONObject jsonResult = new JSONObject(jsonString);
                 JSONObject responseJson = jsonResult.getJSONObject("response");

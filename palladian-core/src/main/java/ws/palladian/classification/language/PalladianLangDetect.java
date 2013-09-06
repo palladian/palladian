@@ -133,7 +133,6 @@ public class PalladianLangDetect implements LanguageClassifier {
                 narrowedCategories.set(categoryName, categoryEntries.getProbability(categoryName));
             }
         }
-        narrowedCategories.sort();
         return narrowedCategories;
     }
 

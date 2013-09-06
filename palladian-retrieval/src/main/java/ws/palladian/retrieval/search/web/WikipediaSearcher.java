@@ -5,6 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -12,9 +16,8 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.parser.JsonHelper;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -50,29 +53,30 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
         // fetch in chunks of 50 items, this is maximum size
         for (int offset = 0; offset < resultCount; offset += 50) {
 
-            JsonObject jsonResult = fetchJsonResponse(query, baseUrl, offset, 50);
+            JSONObject jsonResult = fetchJsonResponse(query, baseUrl, offset, 50);
 
             try {
-                JsonArray searchResults = jsonResult.queryJsonArray("/query/search");
+                JSONObject jsonQuery = jsonResult.getJSONObject("query");
+                JSONArray searchResults = jsonQuery.getJSONArray("search");
 
-                if (searchResults.size() == 0) {
+                if (searchResults.length() == 0) {
                     break; // no more results
                 }
 
-                for (Object result : searchResults) {
-                    JsonObject resultItem = (JsonObject)result;
-                    String title = resultItem.getString("title");
-                    String snippet = HtmlHelper.stripHtmlTags(resultItem.getString("snippet"));
-                    Date date = parseDate(resultItem.getString("timestamp"));
+                for (int i = 0; i < searchResults.length(); i++) {
+                    JSONObject resultItem = searchResults.getJSONObject(i);
+                    String title = JsonHelper.getString(resultItem, "title");
+                    String snippet = HtmlHelper.stripHtmlTags(JsonHelper.getString(resultItem, "snippet"));
+                    Date date = parseDate(JsonHelper.getString(resultItem, "timestamp"));
                     String url = getPageUrl(baseUrl, title);
                     results.add(new WebResult(url, title, snippet, date, NAME));
 
                     if (results.size() == resultCount) {
                         break;
                     }
-                }
 
-            } catch (Exception e) {
+                }
+            } catch (JSONException e) {
                 throw new SearcherException("JSON parse error: " + e.getMessage(), e);
             }
         }
@@ -80,7 +84,7 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
         return results;
     }
 
-    private JsonObject fetchJsonResponse(String query, String baseUrl, int offset, int limit) throws SearcherException {
+    private JSONObject fetchJsonResponse(String query, String baseUrl, int offset, int limit) throws SearcherException {
         String queryUrl = getQueryUrl(baseUrl, query, offset, limit);
         HttpResult httpResult;
         try {
@@ -88,22 +92,24 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while accessing \"" + queryUrl + "\": " + e.getMessage(), e);
         }
-        String jsonString = httpResult.getStringContent();
+        String jsonString = HttpHelper.getStringContent(httpResult);
         try {
-            return new JsonObject(jsonString);
-        } catch (JsonException e) {
+            return new JSONObject(jsonString);
+        } catch (JSONException e) {
             throw new SearcherException("JSON parse error while parsing \"" + jsonString + "\": " + e.getMessage(), e);
         }
     }
 
     @Override
-    public long getTotalResultCount(String query, Language language) throws SearcherException {
+    public int getTotalResultCount(String query, Language language) throws SearcherException {
         String baseUrl = getBaseUrl(language);
-        JsonObject jsonResult = fetchJsonResponse(query, baseUrl, 0, 1);
+        JSONObject jsonResult = fetchJsonResponse(query, baseUrl, 0, 1);
         try {
-            return jsonResult.queryLong("/query/searchinfo/totalhits");
-        } catch (JsonException e) {
-            throw new SearcherException("Error while getting the result count.");
+            JSONObject jsonQuery = jsonResult.getJSONObject("query");
+            JSONObject jsonInfo = jsonQuery.getJSONObject("searchinfo");
+            return jsonInfo.getInt("totalhits");
+        } catch (JSONException e) {
+            throw new SearcherException("JSON parse error: " + e.getMessage(), e);
         }
     }
 

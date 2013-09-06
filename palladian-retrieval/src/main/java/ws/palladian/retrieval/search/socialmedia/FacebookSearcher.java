@@ -1,12 +1,14 @@
 package ws.palladian.retrieval.search.socialmedia;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang3.Validate;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +17,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.parser.JsonHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -41,9 +42,6 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
     /** Pattern used for parsing the returned date strings. */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
     
-    /** Key of the {@link Configuration} entry with the access token. */
-    public static final String CONFIG_ACCESS_TOKEN = "api.facebook.accesstoken";
-
     /** Determine which results to return; URLs to exernal resources or URLs to posts within Facebook. */
     public static enum ResultType {
         /** Provide URLs as result, which link to the Facebook posts. To access them, authentication is necessary. */
@@ -55,44 +53,16 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
     /** Type of result to return, see {@link ResultType}. */
     private final ResultType resultType;
 
-    private final String accessToken;
 
-    /**
-     * <p>
-     * Create a new {@link FacebookSearcher}.
-     * </p>
-     * 
-     * @param accessToken The (user scoped) access token for Facebook, not <code>null</code>.
-     */
-    public FacebookSearcher(String accessToken) {
-        this(accessToken, ResultType.FACEBOOK_URLS);
+    public FacebookSearcher() {
+        this(ResultType.FACEBOOK_URLS);
     }
     
     /**
-     * <p>
-     * Create a new {@link FacebookSearcher}.
-     * </p>
-     * 
-     * @param configuration The configuration which must provide an access token as {@value #CONFIG_ACCESS_TOKEN}, not
-     *            <code>null</code>.
+     * @param resultType
      */
-    public FacebookSearcher(Configuration configuration) {
-        this(configuration.getString(CONFIG_ACCESS_TOKEN));
-    }
-
-    /**
-     * <p>
-     * Create a new {@link FacebookSearcher}.
-     * </p>
-     * 
-     * @param accessToken The (user scoped) access token for Facebook, not <code>null</code>.
-     * @param resultType The type of the results to deliver.
-     */
-    public FacebookSearcher(String accessToken, ResultType resultType) {
-        Validate.notEmpty(accessToken, "accessToken must not be empty");
-        Validate.notNull(resultType, "resultType must not be null");
+    public FacebookSearcher(ResultType resultType) {
         this.resultType = resultType;
-        this.accessToken = accessToken;
     }
 
     @Override
@@ -105,14 +75,8 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
 
         List<WebResult> result = CollectionHelper.newArrayList();
         Set<String> urlDeduplication = CollectionHelper.newHashSet();
-        
-        // XXX paging is no longer supported
-        if (resultCount > 100) {
-            LOGGER.warn("Paging is no longer supported, returning 100 results max.");
-        }
-        int page = 0;
 
-//        for (int page = 0; result.size() < resultCount; page++) {
+        for (int page = 0; result.size() < resultCount; page++) {
             String requestUrl = buildRequestUrl(query, page);
             HttpResult httpResult;
             try {
@@ -120,19 +84,18 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
             } catch (HttpException e) {
                 throw new SearcherException("Encountered HTTP exception while accessing \"" + requestUrl + "\"", e);
             }
-            String jsonString = httpResult.getStringContent();
+            String jsonString = HttpHelper.getStringContent(httpResult);
             // LOGGER.debug(jsonString);
 
             try {
-                JsonObject jsonResult = new JsonObject(jsonString);
-                checkError(jsonResult);
-                JsonArray jsonData = jsonResult.getJsonArray("data");
-//                if (jsonData.size() == 0 || result.size() == resultCount) {
-//                    break; // no more results
-//                }
+                JSONObject jsonResult = new JSONObject(jsonString);
+                JSONArray jsonData = jsonResult.getJSONArray("data");
+                if (jsonData.length() == 0 || result.size() == resultCount) {
+                    break; // no more results
+                }
 
-                for (int i = 0; i < jsonData.size(); i++) {
-                    JsonObject jsonEntry = jsonData.getJsonObject(i);
+                for (int i = 0; i < jsonData.length(); i++) {
+                    JSONObject jsonEntry = jsonData.getJSONObject(i);
                     
                     WebResult webResult;
                     if (resultType == ResultType.RESOLVED_URLS) {
@@ -153,41 +116,32 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
                     }
                 }
 
-            } catch (JsonException e) {
+            } catch (JSONException e) {
                 throw new SearcherException("Error parsing the JSON response from \"" + requestUrl
                         + "\" (result was: \"" + jsonString + "\")", e);
             }
-//        }
+        }
         return result;
     }
 
-    private void checkError(JsonObject jsonObject) throws SearcherException, JsonException {
-        if (jsonObject.containsKey("error")) {
-            String type = jsonObject.queryString("error/type");
-            String message = jsonObject.queryString("error/message");
-            String errorMsg = String.format("Error from Facebook: %s, %s", type, message);
-            throw new SearcherException(errorMsg);
-        }
-    }
-
-    private WebResult processPosts(JsonObject jsonEntry) {
-        String id = jsonEntry.tryGetString("id");
+    private WebResult processPosts(JSONObject jsonEntry) throws JSONException {
+        String id = JsonHelper.getString(jsonEntry, "id");
         // http://stackoverflow.com/questions/4729477/what-is-the-url-to-a-facebook-open-graph-post
         String url = String.format("http://www.facebook.com/%s", id);
-        String message = jsonEntry.tryGetString("message");
+        String message = JsonHelper.getString(jsonEntry, "message");
         // String description = JsonHelper.getString(jsonEntry, "description");
-        Date date = parseDate(jsonEntry.tryGetString("created_time"));
+        Date date = parseDate(jsonEntry.getString("created_time"));
         return new WebResult(url, message, null, date, SEARCHER_NAME);
     }
 
-    private WebResult processUrls(JsonObject jsonEntry) {
-        String url = jsonEntry.tryGetString("link");
+    private WebResult processUrls(JSONObject jsonEntry) throws JSONException {
+        String url = JsonHelper.getString(jsonEntry, "link");
         if (url == null) {
             return null; // ignore entries without URLs for now.
         }
-        String title = jsonEntry.tryGetString("name");
-        String summary = jsonEntry.tryGetString("caption");
-        Date date = parseDate(jsonEntry.tryGetString("created_time"));
+        String title = JsonHelper.getString(jsonEntry, "name");
+        String summary = JsonHelper.getString(jsonEntry, "caption");
+        Date date = parseDate(jsonEntry.getString("created_time"));
         return new WebResult(url, title, summary, date, SEARCHER_NAME);
     }
 
@@ -198,27 +152,24 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
         // TODO further types would be possible, see API doc.
         requestUrl.append("&type=post");
         requestUrl.append("&limit=100");
-//        if (page > 0) {
-//            requestUrl.append("&offset=").append(page * 100);
-//        }
-        requestUrl.append("&access_token=").append(UrlHelper.encodeParameter(accessToken));
-        System.out.println(requestUrl);
+        if (page > 0) {
+            requestUrl.append("&offset=").append(page * 100);
+        }
         return requestUrl.toString();
     }
 
     private Date parseDate(String string) {
         try {
             return new SimpleDateFormat(DATE_PATTERN).parse(string);
-        } catch (Exception e) {
+        } catch (ParseException e) {
             LOGGER.warn("Error parsing date \"" + string + "\"");
             return null;
         }
     }
 
     public static void main(String[] args) throws SearcherException {
-        FacebookSearcher searcher = new FacebookSearcher(
-                "CAAFFWgvRbnUBALYRiSRM4PPPu6wVpgGyZAYdpXBUZC45nHfdheK9ZCn9uVWMAGMo4frZCW2jiC0t7GQg2rAkmk5XneAubKtvK1czfeiCm1bUg82PGZBZACoXjyfZCbY6qwVFwd7D7gGdZBPsIXLvMGGuEgnz9MveQe77HAEf5LuEc3dQUOOZBdQKl5XuxNvILy1paEemns0rbDAZDZD");
-        List<WebResult> result = searcher.search("palladian", 200);
+        FacebookSearcher searcher = new FacebookSearcher();
+        List<WebResult> result = searcher.search("palladian", 10);
         CollectionHelper.print(result);
     }
 

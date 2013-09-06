@@ -9,21 +9,18 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.helper.JsonObjectWrapper;
 
 /**
  * <p>
- * The {@link RepustateContentExtractor} extracts clean sentences from (English) texts.
+ * The RepustateContentExtractor extracts clean sentences from (English) texts.
  * </p>
  * 
  * @author David Urbansky
- * @see <a href="https://www.repustate.com/docs/#api-7">Repustate: Clean HTML</a>
+ * @see https://www.repustate.com/docs/#api-7
  */
 public class RepustateContentExtractor extends WebPageContentExtractor {
-
-    /** The name of this extractor. */
-    private static final String EXTRACTOR_NAME = "Repustate Content Extractor";
 
     /** For performing HTTP requests. */
     private final HttpRetriever httpRetriever;
@@ -52,15 +49,10 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
                     + e.getMessage(), e);
         }
 
-        extractedResult = httpResult.getStringContent();
+        extractedResult = HttpHelper.getStringContent(httpResult);
 
-        try {
-            JsonObject json = new JsonObject(extractedResult);
-            extractedResult = json.getString("text");
-        } catch (JsonException e) {
-            throw new PageContentExtractorException("Error while parsing the JSON response '"
-                    + httpResult.getStringContent() + "': " + e.getMessage(), e);
-        }
+        JsonObjectWrapper json = new JsonObjectWrapper(extractedResult);
+        extractedResult = json.getString("text");
 
         return this;
     }
@@ -72,8 +64,10 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
     }
 
     private String buildRequestUrl(String docUrl) {
-        return String.format("http://api.repustate.com/v2/%s/clean-html.json?url=%s", apiKey,
+        String requestUrl = String.format("http://api.repustate.com/v2/%s/clean-html.json?url=%s", apiKey,
                 UrlHelper.encodeParameter(docUrl));
+
+        return requestUrl;
     }
 
     @Override
@@ -93,7 +87,7 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getExtractorName() {
-        return EXTRACTOR_NAME;
+        return "Repustate Content Extractor";
     }
 
     public static void main(String[] args) {

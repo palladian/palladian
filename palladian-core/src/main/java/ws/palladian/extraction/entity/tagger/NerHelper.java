@@ -15,7 +15,7 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Annotated;
 
 public final class NerHelper {
 
@@ -24,6 +24,14 @@ public final class NerHelper {
 
     private NerHelper() {
         // no instances.
+    }
+
+    public static boolean overlaps(Annotated a1, Annotated a2) {
+        if (a1.getStartPosition() <= a2.getStartPosition() && a1.getEndPosition() >= a2.getStartPosition()
+                || a1.getStartPosition() <= a2.getEndPosition() && a1.getEndPosition() >= a2.getStartPosition()) {
+            return true;
+        }
+        return false;
     }
 
     public static List<String> createSentenceChunks(String text, int maxChunkLength) {
@@ -154,7 +162,7 @@ public final class NerHelper {
         return alignedContent;
     }
 
-    public static String tag(String inputText, List<? extends Annotation> annotations, TaggingFormat taggingFormat) {
+    public static String tag(String inputText, List<? extends Annotated> annotations, TaggingFormat taggingFormat) {
         StringBuilder taggedText = new StringBuilder();
 
         int lastEndIndex = 0;
@@ -162,8 +170,8 @@ public final class NerHelper {
         // we need to sort in ascending order first
         Collections.sort(annotations);
 
-        Annotation lastAnnotation = null;
-        for (Annotation annotation : annotations) {
+        Annotated lastAnnotation = null;
+        for (Annotated annotation : annotations) {
 
             // ignore nested annotations
             if (annotation.getStartPosition() < lastEndIndex) {
@@ -225,6 +233,7 @@ public final class NerHelper {
     }
 
     public static List<Integer> getEntityOffsets(String text, String entityName) {
+        // String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
         String escapedEntity = Pattern.quote(entityName);
         Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
                 + escapedEntity + "(?=\\s)", Pattern.DOTALL);

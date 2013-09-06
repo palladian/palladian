@@ -1,7 +1,7 @@
 /**
  * This is <b>Palladians</b> model package containing all classes holding data for <b>Palladian</b> components
  * <p>
- * It manages {@link FeatureVector}s and its containing {@link Feature}s. You can use it following the example 
+ * It manages {@link BasicFeatureVectorImpl}s and its containing {@link Feature}s. You can use it following the example 
  * code below.
  * <pre>
  * Classifier classifier = new Classifier();

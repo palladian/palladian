@@ -72,7 +72,7 @@ public final class FileHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
 
     /** The encoding used by this class, instead of relying on the System's default encoding. */
-    public static final String DEFAULT_ENCODING = "UTF-8";
+    private static final String DEFAULT_ENCODING = "UTF-8";
 
     /** Constant for new line character. */
     public static final String NEWLINE_CHARACTER = "\n";
@@ -270,7 +270,6 @@ public final class FileHelper {
         return readFileToString(file, DEFAULT_ENCODING);
     }
 
-    // FIXME return null on error
     public static String readFileToString(File file, String encoding) {
 
         StringBuilder contents = new StringBuilder();
@@ -976,65 +975,36 @@ public final class FileHelper {
     }
 
     /**
-     * <p>
      * Copy a file.
-     * </p>
      * 
-     * @param sourceFile Path to the file to copy.
-     * @param destinationFile The destination path of the file.
+     * @param sourceFile The file to copy.
+     * @param destinationFile The destination of the file.
      */
-    public static boolean copyFile(String sourceFile, String destinationFile) {
+    public static void copyFile(String sourceFile, String destinationFile) {
         InputStream in = null;
         OutputStream out = null;
-        boolean success = false;
         try {
+
             File outputFile = new File(FileHelper.getFilePath(destinationFile));
             if (!outputFile.exists()) {
                 outputFile.mkdirs();
             }
+
             in = new FileInputStream(new File(sourceFile));
             out = new FileOutputStream(new File(destinationFile));
-            copy(in, out);
-            success = true;
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
+
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } catch (FileNotFoundException ex) {
+            LOGGER.error(ex.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
             close(in, out);
         }
-        return success;
-    }
-
-    static void copy(InputStream in, OutputStream out) throws IOException {
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
-        }
-    }
-
-    /**
-     * <p>
-     * Copy a file to the specified directory, keep the original name.
-     * </p>
-     * 
-     * @param source That path to the source file, not <code>null</code>.
-     * @param destinationDirectory The path to the destination directory, not <code>null</code>. In case the directory
-     *            does not exist, it will be created.
-     * @return <code>true</code> in case copying worked, <code>false</code> otherwise.
-     */
-    public static boolean copyFileToDirectory(File source, File destinationDirectory) {
-        Validate.notNull(source, "source must not be null");
-        Validate.notNull(destinationDirectory, "destinationDirectory must not be null");
-        if (!source.isFile()) {
-            throw new IllegalArgumentException(source + " is not a file or cannot be accessed.");
-        }
-        if (!destinationDirectory.isDirectory() && !destinationDirectory.mkdirs()) {
-            throw new IllegalArgumentException("Directory " + destinationDirectory + " could not be created.");
-        }
-        File destinationFile = new File(destinationDirectory, source.getName());
-        return copyFile(source.getPath(), destinationFile.getPath());
     }
 
     /**
@@ -1079,7 +1049,13 @@ public final class FileHelper {
                     in = new FileInputStream(srcPath);
                     out = new FileOutputStream(dstPath);
 
-                    copy(in, out);
+                    // Transfer bytes from in to out
+                    byte[] buf = new byte[1024];
+
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
 
                     in.close();
                     out.close();
@@ -1541,35 +1517,28 @@ public final class FileHelper {
     }
 
     /**
-     * <p>
      * Check whether a file exists.
-     * </p>
      * 
      * @param filePath The path to the file to check.
-     * @return <code>true</code> if the given path points to a file, <code>false</code> otherwise or in case path was
-     *         <code>null</code>.
+     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
      */
     public static boolean fileExists(String filePath) {
-        if (filePath == null) {
-            return false;
+        File file = new File(filePath);
+        if (file.exists() && !file.isDirectory()) {
+            return true;
         }
-        return new File(filePath).isFile();
+        return false;
     }
 
     /**
-     * <p>
-     * Check whether a directory exists.
-     * </p>
+     * Check if specified directory exists.
      * 
-     * @param filePath The path to the directory to check.
-     * @return <code>true</code> if the given path points to a directory, <code>false</code> otherwise or in case path
-     *         was <code>null</code>.
+     * @param directoryPath The path to the directory.
+     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
      */
     public static boolean directoryExists(String directoryPath) {
-        if (directoryPath == null) {
-            return false;
-        }
-        return new File(directoryPath).isDirectory();
+        File file = new File(directoryPath);
+        return file.exists() && file.isDirectory();
     }
 
     /**

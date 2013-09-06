@@ -55,18 +55,6 @@ public final class OneColumnRowConverter {
 
     /**
      * <p>
-     * A {@link RowConverter} for {@link Long} types.
-     * </p>
-     */
-    public final static RowConverter<Long> LONG = new RowConverter<Long>() {
-        @Override
-        public Long convert(ResultSet resultSet) throws SQLException {
-            return resultSet.getLong(1);
-        }
-    };
-
-    /**
-     * <p>
      * A {@link RowConverter} for {@link String} types.
      * </p>
      */

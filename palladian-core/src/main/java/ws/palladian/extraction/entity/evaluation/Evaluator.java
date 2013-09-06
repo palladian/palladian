@@ -24,7 +24,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * @author David Urbansky
@@ -150,9 +150,9 @@ public class Evaluator {
 
     }
 
-    private Set<String> getValues(List<? extends Annotation> annotations) {
+    private Set<String> getValues(List<? extends Annotated> annotations) {
         Set<String> values = CollectionHelper.newHashSet();
-        for (Annotation annotation : annotations) {
+        for (Annotated annotation : annotations) {
             values.add(annotation.getValue());
         }
         return values;

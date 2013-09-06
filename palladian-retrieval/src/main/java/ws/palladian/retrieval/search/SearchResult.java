@@ -26,6 +26,7 @@ public abstract class SearchResult {
     }
 
     public SearchResult(String title, String summary, Date date, String searchEngine) {
+        super();
         this.title = title;
         this.summary = summary;
         this.date = date;
@@ -34,13 +35,6 @@ public abstract class SearchResult {
 
     public SearchResult(String title, String summary, String searchEngine) {
         this(title, summary, null, searchEngine);
-    }
-
-    protected SearchResult(SearchResult searchResult) {
-        this.title = searchResult.getTitle();
-        this.summary = searchResult.getSummary();
-        this.date = searchResult.getDate();
-        this.searchEngine = searchResult.getSearchEngine();
     }
 
     /**

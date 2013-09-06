@@ -46,7 +46,7 @@ public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
         for (String link : links) {
             List<ContentDate> contentDates = contentDateGetter.getDates(link);
             List<RatedDate<ContentDate>> ratedContentDates = contentDateRater.rate(contentDates);
-            Collections.sort(ratedContentDates, RatedDateComparator.INSTANCE);
+            Collections.sort(ratedContentDates, new RatedDateComparator());
 
             // keep all with highest rate
             // TODO test this

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +16,9 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Tagger;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -40,30 +38,13 @@ public class EntityPreprocessingTagger implements Tagger {
     /** Length of the context. */
     private static final int CONTEXT_LENGTH = 5;
 
-    public static final String SPLIT_ANNOTATION_TAG = "PARTIAL_CANDIDATE";
-
     /** The base tagger, which delivers the annotations. */
     private final ContextTagger tagger;
 
     /** The case dictionary which contains the lowercase ratio for tokens. */
     private final Map<String, Double> caseDictionary;
 
-    private final int longAnnotationSplit;
-
     public EntityPreprocessingTagger() {
-        this(0);
-    }
-
-    /**
-     * <p>
-     * Create a new {@link EntityPreprocessingTagger}.
-     * </p>
-     * 
-     * @param longAnnotationSplit Annotations exceeding this amount of tokens, are <i>additionally</i> split up. This
-     *            means, for long annotations, additional sub-annotations are created using the case dictionary. Set to
-     *            zero to disable spitting.
-     */
-    public EntityPreprocessingTagger(int longAnnotationSplit) {
         tagger = new WindowSizeContextTagger(StringTagger.PATTERN, StringTagger.CANDIDATE_TAG, CONTEXT_LENGTH);
         InputStream inputStream = null;
         try {
@@ -72,7 +53,6 @@ public class EntityPreprocessingTagger implements Tagger {
         } finally {
             FileHelper.close(inputStream);
         }
-        this.longAnnotationSplit = longAnnotationSplit;
     }
 
     /**
@@ -95,9 +75,9 @@ public class EntityPreprocessingTagger implements Tagger {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
+    public List<Annotated> getAnnotations(String text) {
         List<ContextAnnotation> annotations = tagger.getAnnotations(text);
-        List<Annotation> fixedAnnotations = CollectionHelper.newArrayList();
+        List<Annotated> fixedAnnotations = CollectionHelper.newArrayList();
 
         Set<String> inSentence = getInSentenceCandidates(annotations);
 
@@ -151,71 +131,14 @@ public class EntityPreprocessingTagger implements Tagger {
                 } else if (offsetCut > 0) { // annotation start was corrected
                     LOGGER.debug("Correct '{}' to '{}' because of lc/uc ratios", value, newValue);
                     int newStart = annotation.getStartPosition() + offsetCut;
-                    fixedAnnotations.add(new ImmutableAnnotation(newStart, newValue, annotation.getTag()));
+                    fixedAnnotations.add(new Annotation(newStart, newValue, annotation.getTag()));
                     continue;
                 }
             }
             fixedAnnotations.add(annotation);
         }
         LOGGER.debug("Reduced from {} to {} with with case dictionary", annotations.size(), fixedAnnotations.size());
-
-        if (longAnnotationSplit > 0) {
-            List<Annotation> additionalAnnotations = getLongAnnotationSplit(fixedAnnotations, longAnnotationSplit);
-            LOGGER.debug("Extracted additional {} annotations by splitting", additionalAnnotations.size());
-            fixedAnnotations.addAll(additionalAnnotations);
-        }
-
         return fixedAnnotations;
-    }
-
-    /**
-     * Split-up long annotations, with exceed a specified length of tokens. Therefore, also the case dictionary is
-     * employed; we split on lowercased words from the case dictionary.
-     * 
-     * @param annotations
-     * @param length
-     * @return List with all additionally created annotations.
-     */
-    List<Annotation> getLongAnnotationSplit(List<Annotation> annotations, int length) {
-        List<Annotation> splitAnnotations = CollectionHelper.newArrayList();
-        for (Annotation annotation : annotations) {
-            String[] parts = annotation.getValue().split("\\s");
-            if (parts.length >= length) {
-                List<String> cumulatedTokens = CollectionHelper.newArrayList();
-                for (String token : parts) {
-                    double lcRatio = getLowercaseRatio(token);
-                    if (lcRatio < LOWERCASE_THRESHOLD) {
-                        cumulatedTokens.add(token);
-                    } else if (cumulatedTokens.size() > 0) {
-                        String value = StringUtils.join(cumulatedTokens, " ");
-                        if (value.length() > 1) {
-                            int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
-                            splitAnnotations.add(new ImmutableAnnotation(startPosition, value, SPLIT_ANNOTATION_TAG));
-                        }
-                        cumulatedTokens.clear();
-                    }
-                }
-                if (cumulatedTokens.size() > 0) {
-                    String value = StringUtils.join(cumulatedTokens, " ");
-                    if (value.length() > 1) {
-                        int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
-                        splitAnnotations.add(new ImmutableAnnotation(startPosition, value, SPLIT_ANNOTATION_TAG));
-                    }
-                }
-            }
-            // add additional splits for annotations with hyphens
-            String temp = StringHelper.normalizeQuotes(annotation.getValue());
-            if (temp.contains("-")) {
-                String[] hyphenParts = temp.split("-");
-                for (String part : hyphenParts) {
-                    if (StringHelper.startsUppercase(part)) {
-                        int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(part);
-                        splitAnnotations.add(new ImmutableAnnotation(startPosition, part, SPLIT_ANNOTATION_TAG));
-                    }
-                }
-            }
-        }
-        return splitAnnotations;
     }
 
     /**
@@ -258,31 +181,9 @@ public class EntityPreprocessingTagger implements Tagger {
         return ratio == null ? 0 : ratio;
     }
 
-    // XXX experimental
-    public String correctCapitalization(String sentence) {
-        String[] split = sentence.split("\\s");
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < split.length; i++) {
-            String part = split[i];
-            if (i > 0) {
-                result.append(" ");
-            }
-            String temp = part;
-            // last part of sentence
-            if (i == split.length - 1 && part.endsWith(".")) {
-                temp = part.substring(0, part.length() - 1);
-            }
-            if (i > 0 && getLowercaseRatio(temp) > LOWERCASE_THRESHOLD) {
-                part = part.toLowerCase();
-            }
-            result.append(part);
-        }
-        return result.toString();
-    }
-
     public static void main(String[] args) {
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
-        List<Annotation> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper
+        List<Annotated> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper
                 .readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1/text27.txt")));
         CollectionHelper.print(annotations);
     }

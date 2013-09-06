@@ -119,16 +119,6 @@ public class HttpResult implements Serializable {
         return transferedBytes;
     }
 
-    @SuppressWarnings("deprecation")
-    public String getStringContent() {
-        return HttpHelper.getStringContent(this);
-    }
-
-    @SuppressWarnings("deprecation")
-    public String getCharset() {
-        return HttpHelper.getCharset(this);
-    }
-
     /*
      * (non-Javadoc)
      * @see java.lang.Object#toString()

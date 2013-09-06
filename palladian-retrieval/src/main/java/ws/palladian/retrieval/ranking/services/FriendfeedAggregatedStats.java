@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -86,7 +87,7 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
         try {
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + encUrl);
-            JSONObject json = new JSONObject(httpResult.getStringContent());
+            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
 
             JSONArray entriesArray = json.getJSONArray("entries");
             float entries = 0;
@@ -120,7 +121,7 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
         boolean error = false;
         try {
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.encodeParameter("http://www.google.com/"));
-            JSONObject json = new JSONObject(httpResult.getStringContent());
+            JSONObject json = new JSONObject(HttpHelper.getStringContent(httpResult));
             if (json.has("errorCode")) {
                 if (json.get("errorCode").equals("limit-exceeded")) {
                     error = true;

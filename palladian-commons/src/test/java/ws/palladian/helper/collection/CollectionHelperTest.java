@@ -52,22 +52,6 @@ public class CollectionHelperTest {
     }
 
     @Test
-    public void testRoundRobinList() {
-        RoundRobinList<String> rrl = new RoundRobinList<String>();
-        rrl.add("a");
-        rrl.add("b");
-        rrl.add("c");
-
-        assertEquals("a", rrl.getNextItem());
-        assertEquals("b", rrl.getNextItem());
-        assertEquals("c", rrl.getNextItem());
-        assertEquals("a", rrl.getNextItem());
-        assertEquals("b", rrl.getNextItem());
-        assertEquals(true, rrl.remove("a"));
-        assertEquals("c", rrl.getNextItem());
-    }
-
-    @Test
     public void testJoinReadable() {
         assertEquals("a", CollectionHelper.joinReadable(Arrays.asList("a")));
         assertEquals("a and b", CollectionHelper.joinReadable(Arrays.asList("a", "b")));

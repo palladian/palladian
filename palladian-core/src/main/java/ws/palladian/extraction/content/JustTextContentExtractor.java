@@ -12,6 +12,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -49,7 +50,7 @@ public class JustTextContentExtractor extends WebPageContentExtractor {
                     + e.getMessage(), e);
         }
 
-        extractedResult = httpResult.getStringContent();
+        extractedResult = HttpHelper.getStringContent(httpResult);
 
         DocumentParser parser = ParserFactory.createHtmlParser();
         try {

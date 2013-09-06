@@ -5,7 +5,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.helper.html.JPathHelper;
-import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -14,9 +13,8 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * </p>
  * 
  * @author David Urbansky
- * @deprecated Use {@link JsonObject} instead.
+ * 
  */
-@Deprecated
 public class JsonObjectWrapper {
 
     private JSONObject jsonObject;

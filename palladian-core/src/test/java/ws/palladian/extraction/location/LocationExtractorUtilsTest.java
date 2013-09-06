@@ -21,23 +21,14 @@ public class LocationExtractorUtilsTest {
                 Arrays.asList(2028461, 2029969, 6255147, 6295630));
         Location l3 = new ImmutableLocation(6295630, "Earth", null, REGION, 0., 0., 6814400000l, Collections.<Integer>emptyList());
         
-        assertFalse(l1.descendantOf(l2));
-        assertFalse(l1.childOf(l2));
-        assertTrue(l2.descendantOf(l1));
-        assertTrue(l2.childOf(l1));
+        assertFalse(LocationExtractorUtils.isChildOf(l1, l2));
+        assertFalse(LocationExtractorUtils.isDirectChildOf(l1, l2));
+        assertTrue(LocationExtractorUtils.isChildOf(l2, l1));
+        assertTrue(LocationExtractorUtils.isDirectChildOf(l2, l1));
         
-        assertTrue(l1.descendantOf(l3));
-        assertFalse(l3.descendantOf(l1));
-        assertFalse(l1.childOf(l3));
-    }
-
-    @Test
-    public void testDifferentNames() {
-        Location l1 = new ImmutableLocation(4653031, "Richmond", CITY, 35.38563, -86.59194, 0l);
-        Location l2 = new ImmutableLocation(4074277, "Madison County", UNIT, 34.73342, -86.56666, 0l);
-        Location l3 = new ImmutableLocation(100080784, "Madison County", UNIT, 34.76583, -86.55778, null);
-        assertTrue(LocationExtractorUtils.differentNames(Arrays.asList(l1, l2, l3)));
-        assertFalse(LocationExtractorUtils.differentNames(Arrays.asList(l2, l3)));
+        assertTrue(LocationExtractorUtils.isChildOf(l1, l3));
+        assertFalse(LocationExtractorUtils.isChildOf(l3, l1));
+        assertFalse(LocationExtractorUtils.isDirectChildOf(l1, l3));
     }
 
 }

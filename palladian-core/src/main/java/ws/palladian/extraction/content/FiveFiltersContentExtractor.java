@@ -16,6 +16,7 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -57,7 +58,7 @@ public class FiveFiltersContentExtractor extends WebPageContentExtractor {
                     + e.getMessage(), e);
         }
 
-        extractedResult = httpResult.getStringContent();
+        extractedResult = HttpHelper.getStringContent(httpResult);
 
         RomeFeedParser parser = new RomeFeedParser();
         try {

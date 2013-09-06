@@ -16,7 +16,7 @@ import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.Annotated;
 
 /**
  * <p>
@@ -94,7 +94,7 @@ public class EvaluationResult {
     private static final String OTHER_MARKER = SPECIAL_MARKER + "OTHER" + SPECIAL_MARKER;
 
     /** Keep {@link Annotation}s indexed by {@link ResultType}. */
-    private final MultiMap<ResultType, Annotation> resultAnnotations;
+    private final MultiMap<ResultType, Annotated> resultAnnotations;
 
     /** Keep counts of actual tag assignments. */
     private final CountMap<String> actualAssignments;
@@ -165,7 +165,7 @@ public class EvaluationResult {
      * 
      * @param goldStandard The gold standard, not <code>null</code>.
      */
-    public EvaluationResult(List<? extends Annotation> goldStandard) {
+    public EvaluationResult(List<? extends Annotated> goldStandard) {
         Validate.notNull(goldStandard, "goldStandard must not be null");
         this.assignments = LazyMap.create(new Factory<CountMap<ResultType>>() {
             @Override
@@ -177,7 +177,7 @@ public class EvaluationResult {
         this.confusionMatrix = new ConfusionMatrix();
         this.actualAssignments = CountMap.create();
         this.possibleAssignments = CountMap.create();
-        for (Annotation annotation : goldStandard) {
+        for (Annotated annotation : goldStandard) {
             possibleAssignments.add(annotation.getTag());
         }
     }
@@ -459,7 +459,7 @@ public class EvaluationResult {
             }
             results.append("\n");
             if (getResultTypeCount(resultType) > 0) {
-                for (Annotation annotation : resultAnnotations.get(resultType)) {
+                for (Annotated annotation : resultAnnotations.get(resultType)) {
                     results.append("  ").append(annotation).append("\n");
                 }
             }
@@ -470,14 +470,14 @@ public class EvaluationResult {
 
     private CountMap<String> getAnnotationCount(ResultType resultType) {
         CountMap<String> counts = CountMap.create();
-        for (Annotation annotation : getAnnotations(resultType)) {
+        for (Annotated annotation : getAnnotations(resultType)) {
             counts.add(annotation.getTag());
         }
         return counts;
     }
 
     int getResultTypeCount(ResultType resultType) {
-        Collection<Annotation> annotations = resultAnnotations.get(resultType);
+        Collection<Annotated> annotations = resultAnnotations.get(resultType);
         return annotations != null ? annotations.size() : 0;
     }
 
@@ -501,16 +501,16 @@ public class EvaluationResult {
         return assignments.get(tagName).getCount(resultType);
     }
 
-    public Collection<Annotation> getAnnotations(ResultType resultType) {
-        Collection<Annotation> annotations = resultAnnotations.get(resultType);
+    public Collection<Annotated> getAnnotations(ResultType resultType) {
+        Collection<Annotated> annotations = resultAnnotations.get(resultType);
         return annotations != null ? Collections.unmodifiableCollection(annotations) : Collections
-                .<Annotation> emptyList();
+                .<Annotated> emptyList();
     }
 
     /**
      * <p>
      * Add data to this evaluation result, consisting of a {@link ResultType}, the real annotation from the gold
-     * standard, and the assigned {@link Annotation} from an NER.
+     * standard, and the assigned {@link Annotated} from an NER.
      * </p>
      * 
      * @param resultType The type of the result, not <code>null</code>.
@@ -519,7 +519,7 @@ public class EvaluationResult {
      * @param nerAnnotation The annotation assigned by the NER, or <code>null</code> in case of
      *            {@link ResultType#ERROR2} (something from the gold standard was not tagged at all).
      */
-    public void add(ResultType resultType, Annotation realAnnotation, Annotation nerAnnotation) {
+    public void add(ResultType resultType, Annotated realAnnotation, Annotated nerAnnotation) {
         Validate.notNull(resultType, "resultType must not be null");
 
         switch (resultType) {

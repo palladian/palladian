@@ -16,6 +16,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.JsonHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -90,7 +91,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
                         + e.getMessage(), e);
             }
 
-            String jsonString = httpResult.getStringContent();
+            String jsonString = HttpHelper.getStringContent(httpResult);
             try {
                 JSONObject jsonResult = new JSONObject(jsonString);
                 JSONArray jsonItems = jsonResult.getJSONArray("items");

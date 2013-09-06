@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
@@ -61,7 +62,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
     /**
      * <p>
      * Creates a new completely initialized {@link LibSvmPredictor} using a linear kernel. It can be used to either
-     * train a new model or classify unlabeled {@link FeatureVector}s.
+     * train a new model or classify unlabeled {@link BasicFeatureVectorImpl}s.
      * </p>
      * 
      * @param kernel The kernel to use with the SVM predictor. This implementation currently supports the
@@ -255,10 +256,10 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
 
     /**
      * <p>
-     * Transforms a Palladian {@link FeatureVector}
+     * Transforms a Palladian {@link BasicFeatureVectorImpl}
      * </p>
      * 
-     * @param vector The {@link FeatureVector} to transform.
+     * @param vector The {@link BasicFeatureVectorImpl} to transform.
      * @param indices A {@link Map} filled with the correct indices for all the features if {@code trainingMode} is
      *            {@code true}.
      * @param trainingMode Tells the function whether to fill the indices {@link Map} or not. In training mode, those
@@ -387,10 +388,10 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
 
     /**
      * <p>
-     * Writes the {@link FeatureVector}s of the provided instances to disk using the LibSvm format.
+     * Writes the {@link BasicFeatureVectorImpl}s of the provided instances to disk using the LibSvm format.
      * </p>
      * 
-     * @param instances The instances to get the {@link FeatureVector}s to write from.
+     * @param instances The instances to get the {@link BasicFeatureVectorImpl}s to write from.
      * @param targetFilePath The path to write the output to.
      */
     public void writeToDisk(List<Instance> instances, String targetFilePath) {

@@ -18,7 +18,7 @@ abstract class AbstractFeature<T> implements Feature<T> {
 
     /**
      * <p>
-     * The {@link FeatureVector} wide unique identifier of this {@code Feature}.
+     * The {@link BasicFeatureVectorImpl} wide unique identifier of this {@code Feature}.
      * </p>
      */
     private final String name;
@@ -36,7 +36,7 @@ abstract class AbstractFeature<T> implements Feature<T> {
      * </p>
      * 
      * @param name
-     *            The {@link FeatureVector} wide unique identifier of this {@code Feature}.
+     *            The {@link BasicFeatureVectorImpl} wide unique identifier of this {@code Feature}.
      * @param value
      *            The {@code Feature}'s value containing concrete extracted data
      *            from a document.

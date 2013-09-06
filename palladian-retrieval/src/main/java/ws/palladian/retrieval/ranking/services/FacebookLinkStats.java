@@ -20,6 +20,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -81,7 +82,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
             try {
                 HttpResult httpResult = retriever.httpGet(requestUrl);
 
-                JSONArray jsonArray = new JSONArray(httpResult.getStringContent());
+                JSONArray jsonArray = new JSONArray(HttpHelper.getStringContent(httpResult));
                 if (jsonArray.length() == 1) {
                     json = jsonArray.getJSONObject(0);
                 }
@@ -132,7 +133,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                     "select total_count,like_count,comment_count,share_count from link_stat where " + encUrls);
 
             HttpResult response = retriever.execute(postRequest);
-            String content = response.getStringContent();
+            String content = HttpHelper.getStringContent(response);
             JSONArray json = null;
             if (content.length() > 0) {
                 try {

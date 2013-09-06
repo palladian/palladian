@@ -34,7 +34,7 @@ import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -293,14 +293,14 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Adds the provided {@link FeatureVector} to the schema this ARFF writer is currently creating. After you have
-     * added als {@link FeatureVector}s you wish please call {@link #saveModel()} to write the created schema to an
+     * Adds the provided {@link BasicFeatureVectorImpl} to the schema this ARFF writer is currently creating. After you have
+     * added als {@link BasicFeatureVectorImpl}s you wish please call {@link #saveModel()} to write the created schema to an
      * actual ARFF file.
      * </p>
      * 
-     * @param vector The {@link FeatureVector} to add to the ARFF File.
+     * @param vector The {@link BasicFeatureVectorImpl} to add to the ARFF File.
      */
-    public void addFeatureVectorToOutput(final FeatureVector vector) {
+    public void addFeatureVectorToOutput(final BasicFeatureVectorImpl vector) {
         Validate.notNull(vector);
 
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
@@ -378,7 +378,7 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
 
     /**
      * <p>
-     * Handles one {@link Feature} from the {@link FeatureVector} of the current instance.
+     * Handles one {@link Feature} from the {@link BasicFeatureVectorImpl} of the current instance.
      * </p>
      * 
      * @param feature The {@code Feature} to handle.

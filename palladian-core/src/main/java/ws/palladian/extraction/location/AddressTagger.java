@@ -10,8 +10,8 @@ import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Tagger;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -22,10 +22,9 @@ import ws.palladian.processing.features.ImmutableAnnotation;
  */
 public final class AddressTagger implements Tagger {
 
-    public static final Pattern STREET_PATTERN = Pattern
-            .compile(
-                    ".+street$|.+road$|.+avenue$|.+ave\\.|.+boulevard$|.+straße$|.+strasse$|.+gasse$|^rue\\s.+|via\\s.+|viale\\s.+|.+straat|.+drive|.+\\sst\\.|.+\\strafficway",
-                    Pattern.CASE_INSENSITIVE);
+    public static final Pattern STREET_PATTERN = Pattern.compile(
+            ".*street$|.*road$|.*avenue$|.*ave\\.|.*boulevard$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
+            Pattern.CASE_INSENSITIVE);
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
@@ -34,32 +33,22 @@ public final class AddressTagger implements Tagger {
         // TODO StringTagger is too strict here, e.g. the following candidate is not recognized:
         // Viale di Porta Ardeatine -- use dedicted regex here?
         Annotations<ContextAnnotation> annotations = StringTagger.getTaggedEntities(text);
-        // CollectionHelper.print(annotations);
 
         // step one: match tagged annotations using street pattern
-        for (Annotation annotation : annotations) {
-            String value = annotation.getValue();
-
-            // XXX ugly; in case of "Bla St", check, if following character is a . and extend annotation, as the . was
-            // swallowed by StringTagger
-            if (value.endsWith(" St") && text.length() >= annotation.getEndPosition()
-                    && text.charAt(annotation.getEndPosition()) == '.') {
-                value += ".";
-            }
-
-            Matcher matcher = STREET_PATTERN.matcher(value);
+        for (Annotated annotation : annotations) {
+            Matcher matcher = STREET_PATTERN.matcher(annotation.getValue());
             if (matcher.matches()) {
                 // System.out.println("street : " + annotation.getEntity());
-                Annotation newAnnotation = new ImmutableAnnotation(annotation.getStartPosition(), value,
+                Annotated annotated = new Annotation(annotation.getStartPosition(), annotation.getValue(),
                         LocationType.STREET.toString());
-                ret.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, value, LocationType.STREET,
-                        null, null, null)));
+                ret.add(new LocationAnnotation(annotated, new ImmutableLocation(0, annotated.getValue(),
+                        LocationType.STREET, null, null, null)));
             }
         }
 
         // step two: look for street numbers before or after
         List<LocationAnnotation> streetNumbers = CollectionHelper.newArrayList();
-        for (Annotation annotation : ret) {
+        for (Annotated annotation : ret) {
             String regEx = Pattern.quote(annotation.getValue());
 
             // try number as suffix
@@ -67,9 +56,9 @@ public final class AddressTagger implements Tagger {
             Matcher matcher = suffixRegEx.matcher(text);
             while (matcher.find()) {
                 // System.out.println("suffix: " + matcher.group(1));
-                Annotation newAnnotation = new ImmutableAnnotation(matcher.start(1), matcher.group(1),
+                Annotated annotated = new Annotation(matcher.start(1), matcher.group(1),
                         LocationType.STREETNR.toString());
-                streetNumbers.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, matcher.group(1),
+                streetNumbers.add(new LocationAnnotation(annotated, new ImmutableLocation(0, matcher.group(1),
                         LocationType.STREETNR, null, null, null)));
             }
 
@@ -78,9 +67,9 @@ public final class AddressTagger implements Tagger {
             matcher = prefixRegEx.matcher(text);
             while (matcher.find()) {
                 // System.out.println("prefix: " + matcher.group(1));
-                Annotation newAnnotation = new ImmutableAnnotation(matcher.start(1), matcher.group(1),
+                Annotated annotated = new Annotation(matcher.start(1), matcher.group(1),
                         LocationType.STREETNR.toString());
-                streetNumbers.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, matcher.group(1),
+                streetNumbers.add(new LocationAnnotation(annotated, new ImmutableLocation(0, matcher.group(1),
                         LocationType.STREETNR, null, null, null)));
             }
         }

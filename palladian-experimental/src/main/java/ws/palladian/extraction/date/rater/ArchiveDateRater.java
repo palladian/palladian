@@ -48,7 +48,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
             result.add(RatedDate.create(dates.get(0), 1.0));
         } else {
             List<RatedDate<?>> sortedDates = new ArrayList<RatedDate<?>>(allDates);
-            Collections.sort(sortedDates, RatedDateComparator.INSTANCE);
+            Collections.sort(sortedDates, new RatedDateComparator());
             DateComparator dateComparator = new DateComparator();
             
             if (dateComparator.compare(dates.get(0), sortedDates.get(0)) < 0) {

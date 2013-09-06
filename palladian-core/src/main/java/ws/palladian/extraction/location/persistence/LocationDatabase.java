@@ -92,7 +92,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
             Double latitude = SqlHelper.getDouble(resultSet, "latitude");
             Double longitude = SqlHelper.getDouble(resultSet, "longitude");
             Long population = resultSet.getLong("population");
-            List<Integer> ancestorIds = splitHierarchyPath(resultSet.getString("ancestorIds"));
+            List<Integer> ancestorIds = splitHierarchyPath(SqlHelper.getString(resultSet, "ancestorIds"));
             return new ImmutableLocation(id, name, altNames, locationType, latitude, longitude, population, ancestorIds);
         }
     };
@@ -293,7 +293,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     @Override
     public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
         for (AlternativeName alternativeName : alternativeNames) {
-            String languageString = null;
+            String languageString = StringUtils.EMPTY;
             if (alternativeName.getLanguage() != null) {
                 languageString = alternativeName.getLanguage().getIso6391();
             }

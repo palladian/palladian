@@ -26,14 +26,15 @@ public final class ProgressMonitor {
 
     private final static char PROGRESS_CHAR = '■';
     private final StopWatch stopWatch = new StopWatch();
-    private final String processName;
+    private String processName;
     private int currentCount = 0;
-    private final int totalCount;
-    private final double showEveryPercent;
+    private int totalCount = 0;
+    private double showEveryPercent = 1.;
     private boolean compactRemaining = false;
 
     public ProgressMonitor(int totalCount, double showEveryPercent) {
-        this(totalCount, showEveryPercent, null);
+        this.totalCount = totalCount;
+        this.showEveryPercent = showEveryPercent;
     }
 
     public ProgressMonitor(int totalCount, double showEveryPercent, String processName) {
@@ -98,35 +99,35 @@ public final class ProgressMonitor {
      * @param counter Counter for current iteration in a loop.
      */
     public String getProgress(int counter) {
-        StringBuilder progressString = new StringBuilder();
+        StringBuilder processString = new StringBuilder();
         try {
             if (showEveryPercent == 0 || counter % (showEveryPercent * totalCount / 100.0) < 1) {
-                if (processName != null) {
-                    progressString.append(processName).append(" ");
-                }
                 double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
-                progressString.append(createProgressBar(percent));
-                progressString.append(" ").append(percent).append("% (");
-                progressString.append(totalCount - counter).append(" remaining");
+                processString.append(createProgressBar(percent));
+                processString.append(" => ").append(percent).append("% (");
+
+                if (processName != null) {
+                    processString.append(processName).append(", ");
+                }
+
+                processString.append(totalCount - counter).append(" items remaining");
                 if (stopWatch != null && percent > 0) {
                     long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
                     // if elapsed not possible (timer started long before progress helper used) =>
                     // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
-                    progressString.append(", elapsed: ").append(stopWatch.getTotalElapsedTimeString());
-                    progressString.append(", iteration: ").append(stopWatch.getElapsedTimeString());
-                    if (counter < totalCount) {
-                        progressString.append(", ~remaining: ").append(
-                                DateHelper.formatDuration(0, msRemaining, compactRemaining));
-                    }
+                    processString.append(", elapsed: ").append(stopWatch.getTotalElapsedTimeString());
+                    processString.append(", iteration: ").append(stopWatch.getElapsedTimeString());
+                    processString.append(", remaining: ").append(
+                            DateHelper.formatDuration(0, msRemaining, compactRemaining));
                     stopWatch.start();
                 }
-                progressString.append(")");
+                processString.append(")");
             }
         } catch (ArithmeticException e) {
         } catch (Exception e) {
         }
 
-        return progressString.toString();
+        return processString.toString();
     }
 
     public boolean isCompactRemaining() {
@@ -144,14 +145,9 @@ public final class ProgressMonitor {
         this.compactRemaining = compactRemaining;
     }
 
-    public String getTotalElapsedTimeString() {
-        return stopWatch.getTotalElapsedTimeString();
-    }
-
     public static void main(String[] args) {
-        int totalCount = 10;
-        ProgressMonitor pm = new ProgressMonitor(totalCount, .5, "My Progress");
-        pm.setCompactRemaining(true);
+        int totalCount = 1000;
+        ProgressMonitor pm = new ProgressMonitor(1000, .5, "My Progress");
         for (int i = 1; i <= totalCount; i++) {
             ThreadHelper.deepSleep(200);
             pm.incrementAndPrintProgress();

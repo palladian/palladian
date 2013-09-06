@@ -9,8 +9,10 @@ import java.util.Map.Entry;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.MinMaxNormalization;
 import ws.palladian.processing.Trainable;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -44,7 +46,7 @@ public final class KnnModel implements Model {
     private boolean isNormalized;
     /**
      * <p>
-     * An object carrying the information to normalize {@link FeatureVector}s based on the normalized
+     * An object carrying the information to normalize {@link BasicFeatureVectorImpl}s based on the normalized
      * {@link #trainingExamples}.
      * </p>
      */
@@ -91,7 +93,7 @@ public final class KnnModel implements Model {
         List<Trainable> nominalInstances = new ArrayList<Trainable>(instances.size());
 
         for (TrainingExample instance : trainingExamples) {
-            FeatureVector featureVector = new FeatureVector();
+            BasicFeatureVectorImpl featureVector = new BasicFeatureVectorImpl();
             for (Entry<String, Double> feature : instance.features.entrySet()) {
                 featureVector.add(new NumericFeature(feature.getKey(), feature.getValue()));
             }
@@ -109,7 +111,7 @@ public final class KnnModel implements Model {
      */
     public void normalize() {
         List<Trainable> nominalInstances = convertTrainingInstances(trainingExamples);
-        normalizationInformation = new MinMaxNormalization(nominalInstances);
+        normalizationInformation = ClassificationUtils.calculateMinMaxNormalization(nominalInstances);
         normalizationInformation.normalize(nominalInstances);
         trainingExamples = initTrainingInstances(nominalInstances);
         isNormalized = true;
@@ -117,12 +119,12 @@ public final class KnnModel implements Model {
 
     /**
      * <p>
-     * Normalizes a {@link FeatureVector} based on the {@link Instance} within this model. A call to this method makes
+     * Normalizes a {@link BasicFeatureVectorImpl} based on the {@link Instance} within this model. A call to this method makes
      * only sense if the model was previously normalized using {@link #normalize()}. Otherwise it throws an
      * {@code IllegalStateException}.
      * </p>
      * 
-     * @param vector The {@link FeatureVector} to normalize.
+     * @param vector The {@link BasicFeatureVectorImpl} to normalize.
      */
     public void normalize(FeatureVector vector) {
         if (!isNormalized) {

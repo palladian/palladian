@@ -20,6 +20,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -116,7 +117,7 @@ public final class BibsonomyBookmarks extends BaseRankingService implements Rank
             getRequest.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(pass));
 
             HttpResult getResult = retriever.execute(getRequest);
-            String response = getResult.getStringContent();
+            String response = HttpHelper.getStringContent(getResult);
 
             // create JSON-Object from response
             JSONObject json = null;

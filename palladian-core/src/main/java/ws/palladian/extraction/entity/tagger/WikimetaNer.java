@@ -14,14 +14,15 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -69,11 +70,11 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String inputText) {
-        List<Annotation> annotations;
+    public List<Annotated> getAnnotations(String inputText) {
+        List<Annotated> annotations;
         try {
             HttpResult httpResult = performRequest(inputText);
-            String resultString = httpResult.getStringContent();
+            String resultString = HttpHelper.getStringContent(httpResult);
             if (resultString.contains("<error msg=")) {
                 throw new IllegalStateException("Error from the web service: " + resultString);
             }
@@ -97,9 +98,9 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     /** Package-private for unit-testing. */
-    List<Annotation> parseXml(InputSource inputSource, String inputText) throws ParserException {
+    List<Annotated> parseXml(InputSource inputSource, String inputText) throws ParserException {
 
-        Annotations<Annotation> annotations = new Annotations<Annotation>();
+        Annotations<Annotated> annotations = new Annotations<Annotated>();
         Document doc = xmlParser.parse(inputSource);
 
         List<String> tokens = getCdataContent(doc);
@@ -139,7 +140,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             // the actual character index might be later
             tokenCharIndex = inputText.indexOf(value, tokenCharIndex);
             if (tokenCharIndex >= 0) {
-                annotations.add(new ImmutableAnnotation(tokenCharIndex, value, type));
+                annotations.add(new Annotation(tokenCharIndex, value, type));
             } else {
                 LOGGER.warn("Could not find {}/{} (idx:{},char:{})", value, type, tokenIndex, tokenCharIndex);
             }
@@ -181,7 +182,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
 
     /** Overridden, intended for unit-testing only. */
     @Override
-    protected String tagText(String inputText, List<? extends Annotation> annotations) {
+    protected String tagText(String inputText, List<? extends Annotated> annotations) {
         return super.tagText(inputText, annotations);
     }
 

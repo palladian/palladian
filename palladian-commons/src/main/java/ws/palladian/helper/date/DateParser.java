@@ -81,7 +81,6 @@ public final class DateParser {
                     format, e.getMessage()});
             // TODO what to do in this case; return null? For now I just return the ExtractedDate which is incorrect,
             // but we avoid NPEs for now.
-            LOGGER.debug("Stack trace", e);
         }
         return new ExtractedDateImpl(parseLogic);
     }

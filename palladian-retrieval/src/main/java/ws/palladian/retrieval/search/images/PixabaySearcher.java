@@ -94,6 +94,7 @@ public class PixabaySearcher extends WebSearcher<WebImageResult> {
                     int width = resultHit.getInt("imageWidth");
                     int height = resultHit.getInt("imageHeight");
                     WebImageResult webImageResult = new WebImageResult(url, imageUrl, summary, summary, width, height,
+                            null,
                             null);
 
                     webImageResult.setThumbImageUrl(resultHit.getString("previewURL"));

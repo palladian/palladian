@@ -2,7 +2,7 @@ package ws.palladian.processing;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 
 /**
  * <p>
@@ -16,7 +16,7 @@ import ws.palladian.processing.features.FeatureVector;
  * @author Philipp Katz
  * @version 2.0
  */
-public abstract class PipelineDocument<T> extends FeatureVector {
+public abstract class PipelineDocument<T> extends BasicFeatureVectorImpl {
 
     /**
      * <p>

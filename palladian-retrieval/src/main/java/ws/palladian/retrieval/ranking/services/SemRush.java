@@ -9,6 +9,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -48,7 +49,7 @@ public final class SemRush extends BaseRankingService implements RankingService 
         } catch (HttpException e) {
             throw new RankingServiceException("HTTP exception while checking ranking for \"" + url + "\"", e);
         }
-        String text = httpResult.getStringContent();
+        String text = HttpHelper.getStringContent(httpResult);
         try {
             long backlinksDomain = Long.valueOf(StringHelper.getSubstringBetween(text, "<links_domain>",
                     "</links_domain>"));

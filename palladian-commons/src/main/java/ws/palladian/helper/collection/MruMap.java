@@ -36,7 +36,7 @@ public class MruMap<K, V> extends LinkedHashMap<K, V> {
      * @param accessOrder <code>true</code> for access-order, <code>false</code> for insertion-order.
      */
     public MruMap(int maxEntries, boolean accessOrder) {
-        super(maxEntries + 1, 1.1f, accessOrder);
+        super(16, 0.75f, accessOrder);
         Validate.isTrue(maxEntries > 0);
         this.maxEntries = maxEntries;
     }

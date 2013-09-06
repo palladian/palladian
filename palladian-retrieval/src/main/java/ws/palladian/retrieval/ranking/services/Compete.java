@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -96,7 +97,7 @@ public final class Compete extends BaseRankingService implements RankingService 
                 + "&latest=1";
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
-            JSONObject jsonObject = new JSONObject(httpResult.getStringContent());
+            JSONObject jsonObject = new JSONObject(HttpHelper.getStringContent(httpResult));
             String status = jsonObject.getString("status");
             if ("OK".equals(status)) {
                 JSONArray metric = jsonObject.getJSONObject("data").getJSONObject("trends").getJSONArray(metricCode);

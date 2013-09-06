@@ -168,47 +168,40 @@ public final class HtmlHelper {
         return STRIP_ALL_TAGS.matcher(htmlText).replaceAll("");
     }
 
-    /**
-     * @deprecated Prefer using varargs {@link #stripHtmlTags(String, HtmlElement...)} because it is shorter in code
-     *             (avoids creating {@link EnumSet}).
-     */
-    @Deprecated
-    public static String stripHtmlTags(String htmlText, Set<HtmlElement> htmlElements) {
+    public static String stripHtmlTags(String htmlText, EnumSet<HtmlElement> htmlElements) {
         if (htmlText == null) {
-            return null;
-        }
-        if (htmlElements.isEmpty()) {
             return htmlText;
         }
-        List<String> regexes = CollectionHelper.newArrayList();
-        if (htmlElements.contains(HtmlElement.COMMENTS)) {
-            regexes.add("<!--.*?-->");
-        }
-        if (htmlElements.contains(HtmlElement.SCRIPT)) {
-            regexes.add("<script.*?>.*?</script>");
-        }
-        if (htmlElements.contains(HtmlElement.CSS)) {
-            regexes.add("<style.*?>.*?</style>");
-        }
-        if (htmlElements.contains(HtmlElement.TAG)) {
-            regexes.add("<.*?>");
-        }
-        String regex = StringUtils.join(regexes, "|");
-        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        return pattern.matcher(htmlText).replaceAll("");
-    }
 
-    /**
-     * <p>
-     * Remove specified parts (see {@link HtmlElement}) from HTML/XML content.
-     * </p>
-     * 
-     * @param htmlText The markup text to strip.
-     * @param htmlElements The elements to remove.
-     * @return The markup with the specified elements removed, or <code>null</code> in case input was <code>null</code>.
-     */
-    public static String stripHtmlTags(String htmlText, HtmlElement... htmlElements) {
-        return stripHtmlTags(htmlText, EnumSet.copyOf(Arrays.asList(htmlElements)));
+        StringBuilder regExp = new StringBuilder();
+
+        if (htmlElements.contains(HtmlElement.COMMENTS)) {
+            regExp.append("<!--.*?-->|");
+        }
+
+        if (htmlElements.contains(HtmlElement.SCRIPT)) {
+            regExp.append("<script.*?>.*?</script>|");
+        }
+
+        if (htmlElements.contains(HtmlElement.CSS)) {
+            regExp.append("<style.*?>.*?</style>|");
+        }
+
+        if (htmlElements.contains(HtmlElement.TAG)) {
+            regExp.append("<.*?>");
+        }
+
+        String r = regExp.toString();
+        if (r.isEmpty()) {
+            return htmlText;
+        }
+
+        if (r.endsWith("|")) {
+            r = r.substring(0, regExp.length() - 1);
+        }
+
+        Pattern p = Pattern.compile(r, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        return p.matcher(htmlText).replaceAll("");
     }
 
     public static String joinTagsAndRemoveNewLines(String htmlText) {
