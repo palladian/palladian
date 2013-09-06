@@ -11,7 +11,6 @@ import java.util.Stack;
 
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -120,12 +119,12 @@ public final class FeatureUtils {
 
     /**
      * <p>
-     * Finds all occurrences of the {@link Feature} inside the provided {@link BasicFeatureVectorImpl} including its
-     * {@link Feature}s {@link BasicFeatureVectorImpl}s.
+     * Finds all occurrences of the {@link Feature} inside the provided {@link FeatureVector} including its
+     * {@link Feature}s {@link FeatureVector}s.
      * </p>
      * 
      * @param feature An instance of the {@link Feature} to search for.
-     * @param featureVector The {@link BasicFeatureVectorImpl} to search.
+     * @param featureVector The {@link FeatureVector} to search.
      * @return A {@link List} of the found {@link Feature}s.
      */
     public static List<? extends Feature<?>> find(Feature<?> feature, FeatureVector featureVector) {
@@ -215,8 +214,8 @@ public final class FeatureUtils {
 
 /**
  * <p>
- * Recursively iterates over all {@link Feature}s of a {@link BasicFeatureVectorImpl} also providing the {@link Feature}s of the
- * {@link Feature}s. This happens if a {@link Feature} is a classifiable and thus has got a {@link BasicFeatureVectorImpl}
+ * Recursively iterates over all {@link Feature}s of a {@link FeatureVector} also providing the {@link Feature}s of the
+ * {@link Feature}s. This happens if a {@link Feature} is a classifiable and thus has got a {@link FeatureVector}
  * itself.
  * </p>
  * 
@@ -232,7 +231,7 @@ class FeatureIterator implements Iterator<Feature<?>> {
     /**
      * <p>
      * A {@link Stack} storing the {@link Iterator}s for all {@link Classifiable} {@link Feature}s. The top of the
-     * {@link Stack} stores the {@link Iterator} for the {@link BasicFeatureVectorImpl} currently iterated over.
+     * {@link Stack} stores the {@link Iterator} for the {@link FeatureVector} currently iterated over.
      * </p>
      */
     private final Stack<Iterator<? extends Feature<?>>> iteratorStack;
@@ -242,7 +241,7 @@ class FeatureIterator implements Iterator<Feature<?>> {
      * Creates a new completely initialized {@link FeatureIterator}.
      * </p>
      * 
-     * @param The {@link BasicFeatureVectorImpl} to iterate over.
+     * @param The {@link FeatureVector} to iterate over.
      */
     public FeatureIterator(FeatureVector vector) {
         iteratorStack = new Stack<Iterator<? extends Feature<?>>>();

@@ -16,7 +16,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.images.WebImageResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
@@ -98,7 +97,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
                         + e.getMessage(), e);
             }
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
 
             try {
                 JSONObject jsonResult = new JSONObject(jsonString);
@@ -119,7 +118,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
                     if (data.has("caption") && !data.getString("caption").equals("null")) {
                         title = data.getJSONObject("caption").getString("text");
                     }
-                    result.add(new WebImageResult(pageUrl, imageUrl, title, null, width, height, date, null));
+                    result.add(new WebImageResult(pageUrl, imageUrl, title, null, width, height, date));
 
                     if (result.size() == resultCount) {
                         break page;

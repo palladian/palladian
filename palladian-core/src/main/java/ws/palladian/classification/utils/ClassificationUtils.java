@@ -1,16 +1,27 @@
 package ws.palladian.classification.utils;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.Model;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.io.FileHelper;
@@ -18,7 +29,7 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -40,6 +51,19 @@ public final class ClassificationUtils {
 
     private ClassificationUtils() {
         // Should not be instantiated.
+    }
+
+    /**
+     * <p>
+     * Create instances from a file. The instances must be given in a CSV file in the following format:
+     * <code>feature1;..;featureN;NominalClass</code>. Each line is one training instance.
+     * </p>
+     * 
+     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+     *            path.
+     */
+    public static List<Trainable> readCsv(String filePath) {
+        return readCsv(filePath, true, DEFAULT_SEPARATOR);
     }
 
     /**
@@ -77,6 +101,7 @@ public final class ClassificationUtils {
             throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
         }
 
+        final StopWatch stopWatch = new StopWatch();
         final List<Trainable> instances = CollectionHelper.newArrayList();
 
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
@@ -106,7 +131,7 @@ public final class ClassificationUtils {
                     }
                 }
 
-                BasicFeatureVectorImpl featureVector = new BasicFeatureVectorImpl();
+                FeatureVector featureVector = new FeatureVector();
 
                 for (int f = 0; f < parts.length - 1; f++) {
                     String name = headNames == null ? String.valueOf(f) : headNames[f];
@@ -126,9 +151,13 @@ public final class ClassificationUtils {
                 }
                 String targetClass = parts[parts.length - 1];
                 instances.add(new Instance(targetClass, featureVector));
+
+                if (lineNumber % 10000 == 0) {
+                    LOGGER.debug("Read {} lines", lineNumber);
+                }
             }
         });
-
+        LOGGER.info("Read {} instances from {} in {}", instances.size(), filePath, stopWatch);
         return instances;
     }
 
@@ -145,87 +174,43 @@ public final class ClassificationUtils {
         Validate.notNull(trainData, "trainData must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
 
-        StringBuilder builder = new StringBuilder();
-        boolean writeHeader = true;
-        int count = 0;
-        for (Classifiable trainable : trainData) {
-            if (writeHeader) {
+        Writer writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),
+                    FileHelper.DEFAULT_ENCODING));
+
+            boolean writeHeader = true;
+            int count = 0;
+            int featureCount = 0;
+            for (Classifiable trainable : trainData) {
+                if (writeHeader) {
+                    for (Feature<?> feature : trainable.getFeatureVector()) {
+                        writer.write(feature.getName());
+                        writer.write(DEFAULT_SEPARATOR);
+                        featureCount++;
+                    }
+                    if (trainable instanceof Trainable) {
+                        writer.write("targetClass");
+                    }
+                    writer.write(FileHelper.NEWLINE_CHARACTER);
+                    writeHeader = false;
+                }
                 for (Feature<?> feature : trainable.getFeatureVector()) {
-                    builder.append(feature.getName()).append(DEFAULT_SEPARATOR);
+                    writer.write(feature.getValue().toString());
+                    writer.write(DEFAULT_SEPARATOR);
                 }
                 if (trainable instanceof Trainable) {
-                    builder.append("targetClass");
+                    writer.write(((Trainable)trainable).getTargetClass());
                 }
-                builder.append(FileHelper.NEWLINE_CHARACTER);
-                writeHeader = false;
+                writer.write(FileHelper.NEWLINE_CHARACTER);
+                count++;
             }
-            for (Feature<?> feature : trainable.getFeatureVector()) {
-                builder.append(feature.getValue()).append(DEFAULT_SEPARATOR);
-            }
-            if (trainable instanceof Trainable) {
-                builder.append(((Trainable)trainable).getTargetClass());
-            }
-            builder.append(FileHelper.NEWLINE_CHARACTER);
-            count++;
+            LOGGER.info("Wrote {} train instances with {} features.", count, featureCount);
+        } catch (IOException e) {
+            throw new IllegalStateException("Encountered " + e + " while writing to '" + outputFile + "'", e);
+        } finally {
+            FileHelper.close(writer);
         }
-        LOGGER.info("Wrote {} train instances.", count);
-        FileHelper.writeToFile(outputFile.getPath(), builder);
-    }
-
-    /**
-     * <p>
-     * Calculate Min-Max normalization information over the numeric values of the given features (i.e. calculate the
-     * minimum and maximum values for each feature). The {@link MinMaxNormalization} instance can then be used to
-     * normalize numeric instances to an interval of [0,1].
-     * </p>
-     * 
-     * @param instances The {@code List} of {@link Instance}s to normalize, not <code>null</code>.
-     * @return A {@link MinMaxNormalization} instance carrying information to normalize {@link Instance}s based on the
-     *         calculated normalization information.
-     */
-    public static MinMaxNormalization calculateMinMaxNormalization(List<? extends Classifiable> instances) {
-        Validate.notNull(instances, "instances must not be null");
-
-        // hold the min value of each feature <featureName, minValue>
-        Map<String, Double> minValues = CollectionHelper.newHashMap();
-
-        // hold the max value of each feature <featureIndex, maxValue>
-        Map<String, Double> maxValues = CollectionHelper.newHashMap();
-
-        // find the min and max values
-        for (Classifiable instance : instances) {
-
-            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
-
-            for (Feature<Double> feature : numericFeatures) {
-
-                String featureName = feature.getName();
-                double featureValue = feature.getValue();
-
-                // check min value
-                if (minValues.get(featureName) != null) {
-                    double currentMin = minValues.get(featureName);
-                    if (currentMin > featureValue) {
-                        minValues.put(featureName, featureValue);
-                    }
-                } else {
-                    minValues.put(featureName, featureValue);
-                }
-
-                // check max value
-                if (maxValues.get(featureName) != null) {
-                    double currentMax = maxValues.get(featureName);
-                    if (currentMax < featureValue) {
-                        maxValues.put(featureName, featureValue);
-                    }
-                } else {
-                    maxValues.put(featureName, featureValue);
-                }
-
-            }
-        }
-
-        return new MinMaxNormalization(maxValues, minValues);
     }
 
     /**
@@ -259,12 +244,12 @@ public final class ClassificationUtils {
             result.set(n, result.get(k));
             result.set(k, tmp);
         }
-        return new ArrayList<T>(list.subList(0, count));
+        return new ArrayList<T>(result.subList(0, count));
     }
 
     /**
      * <p>
-     * Filter features by names, as specified by the filter. A new {@link BasicFeatureVectorImpl} containing the accpted features
+     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accpted features
      * is returned.
      * </p>
      * 
@@ -272,10 +257,10 @@ public final class ClassificationUtils {
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return The FeatureVector without the features filtered out by the nameFilter.
      */
-    public static BasicFeatureVectorImpl filterFeatures(Classifiable classifiable, Filter<String> nameFilter) {
+    public static FeatureVector filterFeatures(Classifiable classifiable, Filter<String> nameFilter) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
-        BasicFeatureVectorImpl newFeatureVector = new BasicFeatureVectorImpl();
+        FeatureVector newFeatureVector = new FeatureVector();
         for (Feature<?> feature : classifiable.getFeatureVector()) {
             if (nameFilter.accept(feature.getName())) {
                 newFeatureVector.add(feature);
@@ -292,15 +277,47 @@ public final class ClassificationUtils {
      * 
      * @param instances The instances to process, not <code>null</code>.
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
-     * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link BasicFeatureVectorImpl}.
+     * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link FeatureVector}.
      */
     public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances, Filter<String> nameFilter) {
         List<Trainable> result = CollectionHelper.newArrayList();
         for (Trainable instance : instances) {
-            BasicFeatureVectorImpl featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
+            FeatureVector featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
             result.add(new Instance(instance.getTargetClass(), featureVector));
         }
         return result;
+    }
+
+    /**
+     * <p>
+     * Get the names of all features.
+     * </p>
+     * 
+     * @param dataset
+     * @return
+     */
+    // XXX currently, only get from first item in the dataset
+    public static Set<String> getFeatureNames(Collection<? extends Trainable> dataset) {
+        Validate.notNull(dataset, "dataset must not be null");
+        Set<String> featureNames = CollectionHelper.newTreeSet();
+        Trainable instance = CollectionHelper.getFirst(dataset);
+        for (Feature<?> feature : instance.getFeatureVector()) {
+            featureNames.add(feature.getName());
+        }
+        return featureNames;
+    }
+
+    public static <M extends Model, T extends Classifiable> CategoryEntries classifyWithMultipleModels(
+            Classifier<M> classifier, T classifiable, M... models) {
+
+        // merge the results
+        CategoryEntries mergedCategoryEntries = new CategoryEntriesMap();
+        for (M model : models) {
+            CategoryEntries categoryEntries = classifier.classify(classifiable, model);
+            mergedCategoryEntries = CategoryEntriesMap.merge(categoryEntries, mergedCategoryEntries);
+        }
+
+        return mergedCategoryEntries;
     }
 
 }

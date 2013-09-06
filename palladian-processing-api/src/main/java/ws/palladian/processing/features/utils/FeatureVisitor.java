@@ -10,16 +10,15 @@ import java.util.List;
 
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
- * Traverses a {@link BasicFeatureVectorImpl} and calls its {@link #template(Feature, FeaturePath)} method for every feature it
+ * Traverses a {@link FeatureVector} and calls its {@link #template(Feature, FeaturePath)} method for every feature it
  * encounters.
  * </p>
  * <p>
- * Modifying the {@link BasicFeatureVectorImpl} during processing will cause {@link ConcurrentModificationException}s.
+ * Modifying the {@link FeatureVector} during processing will cause {@link ConcurrentModificationException}s.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -29,10 +28,10 @@ import ws.palladian.processing.features.FeatureVector;
 public abstract class FeatureVisitor {
     /**
      * <p>
-     * Visits each {@link Feature} in the provided {@link BasicFeatureVectorImpl}.
+     * Visits each {@link Feature} in the provided {@link FeatureVector}.
      * </p>
      * 
-     * @param vector The {@link BasicFeatureVectorImpl} to visit.
+     * @param vector The {@link FeatureVector} to visit.
      */
     public void visit(FeatureVector vector) {
         internalVisit(vector, Collections.<FeatureDescriptor> emptyList());
@@ -40,7 +39,7 @@ public abstract class FeatureVisitor {
 
     /**
      * <p>
-     * Recursively visits every {@link Feature} in the {@link BasicFeatureVectorImpl}. Returns {@code false} if processing the
+     * Recursively visits every {@link Feature} in the {@link FeatureVector}. Returns {@code false} if processing the
      * vector should stop after the method was called. This enables the implementing algorithm to break on errors or if
      * it found what it was searching for to reduce computation cost.
      * </p>
@@ -48,7 +47,7 @@ public abstract class FeatureVisitor {
      * The search algorithm is implemented as a depth first search.
      * </p>
      * 
-     * @param vector The {@link BasicFeatureVectorImpl} to process.
+     * @param vector The {@link FeatureVector} to process.
      * @param parentPath The {@link FeaturePath} to the parent {@link Feature}.
      * @return {@code false} if processing the vector should stop at this point; {@code true} otherwise.
      */
@@ -72,7 +71,7 @@ public abstract class FeatureVisitor {
 
     /**
      * <p>
-     * Runs the algorithm to carry out on every {@link Feature} in this {@link BasicFeatureVectorImpl}.
+     * Runs the algorithm to carry out on every {@link Feature} in this {@link FeatureVector}.
      * </p>
      * 
      * @param feature The {@link Feature} to process.

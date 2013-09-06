@@ -14,7 +14,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -30,7 +30,7 @@ public class KnnClassifierTest {
     /**
      * <p>
      * Tests the typical in memory usage of the Knn classifier. It is trained with three instances and tried out on one
-     * {@link BasicFeatureVectorImpl}. In the end the top class and its absolute relevance need to be correct.
+     * {@link FeatureVector}. In the end the top class and its absolute relevance need to be correct.
      * </p>
      */
 
@@ -45,7 +45,7 @@ public class KnnClassifierTest {
         // create the KNN classifier and add the training instances
         KnnClassifier knn = new KnnClassifier();
         KnnModel model = knn.train(trainingInstances);
-        BasicFeatureVectorImpl featureVector = new InstanceBuilder().set("f1", 1d).set("f2", 2d).set("f3", 3d).create();
+        FeatureVector featureVector = new InstanceBuilder().set("f1", 1d).set("f2", 2d).set("f3", 3d).create();
 
         // classify
         CategoryEntries result = knn.classify(featureVector, model);
@@ -84,7 +84,7 @@ public class KnnClassifierTest {
         instanceBuilder.set("10", 1.01);
         instanceBuilder.set("11", 3.26);
         instanceBuilder.set("12", 1190d);
-        BasicFeatureVectorImpl featureVector = instanceBuilder.create();
+        FeatureVector featureVector = instanceBuilder.create();
 
         // classify
         CategoryEntries result = knn.classify(featureVector, model);

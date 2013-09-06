@@ -29,6 +29,8 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -223,9 +225,47 @@ public class DocumentRetriever {
      * </p>
      * 
      * @param url the URL pointing to the JSON string.
-     * @return the JSON object, or <code>null</code> in case of any error.
+     * @return the JSON object.
+     * @throws JsonException In case the JSON object could not be parsed.
      */
-    public JSONObject getJsonObject(String url) {
+    public JsonObject getJsonObject(String url) throws JsonException {
+        String json = getText(url);
+
+        if (json != null) {
+            json = json.trim();
+
+            JsonObject jsonObject = null;
+
+            if (!json.isEmpty()) {
+                // try {
+                jsonObject = new JsonObject(json);
+                // } catch (JSONException e) {
+                // LOGGER.error(url + ", " + e.getMessage(), e);
+                // }
+            }
+
+            return jsonObject;
+        }
+        return null;
+    }
+
+    public JsonObject tryGetJsonObject(String url) {
+        JsonObject json = null;
+
+        try {
+            json = getJsonObject(url);
+        } catch (JsonException e) {
+            e.printStackTrace();
+        }
+
+        return json;
+    }
+
+    /**
+     * @deprecated Use getJsonObject
+     */
+    @Deprecated
+    public JSONObject getJSONObject(String url) {
         String json = getText(url);
 
         if (json != null) {
@@ -264,6 +304,7 @@ public class DocumentRetriever {
      * 
      * @param url the URL pointing to the JSON string.
      * @return the JSON array, or <code>null</code> in case of any error.
+     *         FIXME this should return a Palladian JsonArray
      */
     public JSONArray getJsonArray(String url) {
         String json = getText(url);
@@ -562,6 +603,7 @@ public class DocumentRetriever {
         userAgents
         .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)");
     }
+
     public void switchAgent(){
         int index =  (int) (Math.random() * userAgents.size());
         String s = userAgents.get(index);

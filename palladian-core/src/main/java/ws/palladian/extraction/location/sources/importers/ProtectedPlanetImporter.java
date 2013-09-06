@@ -10,8 +10,7 @@ import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -47,11 +46,10 @@ public final class ProtectedPlanetImporter {
 
     public void importLocations(String locationFilePath) {
 
-        final StopWatch stopWatch = new StopWatch();
-
         // get the currently highest id
         final int maxId = locationStore.getHighestId();
         final int totalLocations = FileHelper.getNumberOfLines(locationFilePath) - 1;
+        final ProgressMonitor monitor = new ProgressMonitor(totalLocations, 1);
 
         LineAction action = new LineAction() {
 
@@ -83,13 +81,13 @@ public final class ProtectedPlanetImporter {
                 int id = maxId + lineNumber;
                 locationStore.save(new ImmutableLocation(id, placeName, LocationType.LANDMARK, latitude, longitude, null));
 
-                ProgressHelper.printProgress(lineNumber, totalLocations, 1, stopWatch);
+                monitor.incrementAndPrintProgress();
             }
         };
 
         FileHelper.performActionOnEveryLine(locationFilePath, action);
 
-        LOGGER.info("imported {} locations in {}", totalLocations, stopWatch.getTotalElapsedTimeString());
+        LOGGER.info("imported {} locations in {}", totalLocations, monitor.getTotalElapsedTimeString());
     }
 
     public static void main(String[] args) throws IOException {
