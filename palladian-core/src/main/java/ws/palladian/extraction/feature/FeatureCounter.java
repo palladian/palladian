@@ -9,13 +9,13 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureProvider;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * Counts how often a {@link Feature} is associated with a {@link BasicFeatureVectorImpl}.
+ * Counts how often a {@link Feature} is associated with a {@link FeatureVector}.
  * </p>
  * 
  * @author Klemens Muthmann

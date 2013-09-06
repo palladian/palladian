@@ -46,7 +46,7 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -188,9 +188,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         int negSamples = 0;
         List<Instance> instances = new ArrayList<Instance>();
         for (PositionAnnotation annotation : annotations) {
-            BasicFeatureVectorImpl featureVector = annotation.getFeatureVector();
+            FeatureVector featureVector = annotation.getFeatureVector();
             String targetClass = featureVector.get(NominalFeature.class, IS_KEYWORD).getValue();
-            BasicFeatureVectorImpl cleanedFv = cleanFeatureVector(featureVector);
+            FeatureVector cleanedFv = cleanFeatureVector(featureVector);
             if ("true".equals(targetClass)) {
                 posSamples++;
             } else {
@@ -214,8 +214,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
      * @param featureVector
      * @return
      */
-    private BasicFeatureVectorImpl cleanFeatureVector(BasicFeatureVectorImpl featureVector) {
-        BasicFeatureVectorImpl result = new BasicFeatureVectorImpl(featureVector);
+    private FeatureVector cleanFeatureVector(FeatureVector featureVector) {
+        FeatureVector result = new FeatureVector(featureVector);
         result.remove(IS_KEYWORD);
         result.remove(StemmerAnnotator.UNSTEM);
         result.remove(BaseTokenizer.PROVIDED_FEATURE); // XXX was duplicate token annotation
@@ -342,8 +342,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (PositionAnnotation annotation : annotations) {
-            BasicFeatureVectorImpl featureVector = annotation.getFeatureVector();
-            BasicFeatureVectorImpl cleanFv = cleanFeatureVector(featureVector);
+            FeatureVector featureVector = annotation.getFeatureVector();
+            FeatureVector cleanFv = cleanFeatureVector(featureVector);
             CategoryEntries predictionResult = classifier.classify(cleanFv, model);
             double trueCategory = predictionResult.getProbability("true");
             if (trueCategory != 0) {

@@ -23,7 +23,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -132,8 +131,7 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
             }
             logRateLimits(httpResult);
             try {
-                String jsonResult = HttpHelper.getStringContent(httpResult);
-                List<WebVideoResult> parsedVideos = parseVideoResult(jsonResult);
+                List<WebVideoResult> parsedVideos = parseVideoResult(httpResult.getStringContent());
                 if (parsedVideos.isEmpty()) {
                     break;
                 }
@@ -171,19 +169,19 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         HttpRequest request = buildRequest(query, 0, 1);
         try {
             HttpResult result = retriever.execute(request);
             logRateLimits(result);
-            return parseResultCount(HttpHelper.getStringContent(result));
+            return parseResultCount(result.getStringContent());
         } catch (HttpException e) {
             throw new SearcherException("HTTP error (request: " + request + "): " + e.getMessage(), e);
         }
     }
 
-    public static int parseResultCount(String jsonString) {
-        return JPathHelper.get(jsonString, "videos/total", Integer.class);
+    public static Long parseResultCount(String jsonString) {
+        return JPathHelper.get(jsonString, "videos/total", Long.class);
     }
 
     private static Date parseDate(String dateString) {

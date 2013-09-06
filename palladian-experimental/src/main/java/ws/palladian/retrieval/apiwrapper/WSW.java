@@ -102,7 +102,7 @@ public class WSW {
         String url = createQueryURL(webServiceID, parameterBindings);
 
         DocumentRetriever c = new DocumentRetriever();
-        JSONObject jsonOBJ = c.getJsonObject(url);
+        JSONObject jsonOBJ = c.getJSONObject(url);
 
         HashSet<ParameterBinding> outputParameterBindings = new HashSet<ParameterBinding>();
 

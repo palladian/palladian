@@ -16,7 +16,7 @@ public interface Feature<T> {
 
     /**
      * <p>
-     * Provides the {@link BasicFeatureVectorImpl} wide unique identifier of this {@code Feature}.
+     * Provides the {@link FeatureVector} wide unique identifier of this {@code Feature}.
      * </p>
      * 
      * @return The string representing this {@code Feature}'s identifier.

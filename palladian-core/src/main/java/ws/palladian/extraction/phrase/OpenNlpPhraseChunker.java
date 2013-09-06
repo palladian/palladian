@@ -10,8 +10,8 @@ import opennlp.tools.chunker.ChunkerModel;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 public final class OpenNlpPhraseChunker implements PhraseChunker {
     
@@ -44,8 +44,8 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
 //    }
     
     @Override
-    public List<Annotated> chunk(String sentence) {
-        List<Annotated> tagAnnotations = tagger.getAnnotations(sentence);
+    public List<Annotation> chunk(String sentence) {
+        List<Annotation> tagAnnotations = tagger.getAnnotations(sentence);
         return chunk(sentence, tagAnnotations);
     }
 
@@ -61,7 +61,7 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
      * @param tokenList
      * @param posList
      */
-    private List<Annotated> chunk(String sentence, List<Annotated> annotations) {
+    private List<Annotation> chunk(String sentence, List<Annotation> annotations) {
 
         // List<String> chunkList = model.chunk(tokenList, posList);
         String[] toks = new String[annotations.size()];
@@ -77,7 +77,7 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
         String tag = "";
         StringBuilder token = new StringBuilder();
 
-        List<Annotated> tagAnnotations = CollectionHelper.newArrayList();
+        List<Annotation> tagAnnotations = CollectionHelper.newArrayList();
 
         // joining Tags
         for (int i = 0; i < chunks.length; i++) {
@@ -95,7 +95,7 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
             }
             if (i + 1 < chunks.length && chunks[i + 1].contains("B-") || i == chunks.length - 1) {
 
-                tagAnnotations.add(new Annotation(sentence.indexOf(token.toString()), token.toString(), tag));
+                tagAnnotations.add(new ImmutableAnnotation(sentence.indexOf(token.toString()), token.toString(), tag));
             }
         }
         return tagAnnotations;

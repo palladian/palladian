@@ -6,7 +6,7 @@ import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -23,7 +23,7 @@ final class DateInstanceFactory {
         // no instances.
     }
 
-    public static BasicFeatureVectorImpl createFeatureVector(ContentDate date) {
+    public static FeatureVector createFeatureVector(ContentDate date) {
 
         String formatString = date.getFormat();
         if (!isNormalFormat(formatString)) {

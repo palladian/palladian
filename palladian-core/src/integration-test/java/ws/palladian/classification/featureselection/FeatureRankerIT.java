@@ -10,11 +10,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.InverseFilter;
+import ws.palladian.helper.collection.RegexFilter;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
 
 /**
  * <p>
@@ -33,21 +32,20 @@ public class FeatureRankerIT {
     
     @Before
     public void setUp() throws Exception {
-//        String csvFilePath = this.getClass().getResource(DATASET_SAMPLE).getFile();
-        String csvFilePath = "/home/muthmann/location_disambiguation_1373234035433.csv";
-        List<Trainable> inputDataset = ClassificationUtils.readCsv(csvFilePath, true);
+        String csvFilePath = this.getClass().getResource(DATASET_SAMPLE).getFile();
+        dataset = ClassificationUtils.readCsv(csvFilePath, true);
+        dataset = ClassificationUtils.filterFeatures(dataset, InverseFilter.create(new RegexFilter("marker=.*")));
         
-//        dataset = CollectionHelper.newArrayList();
-//        for(Trainable trainable:inputDataset) {
+//        List<Trainable> filteredDataset = CollectionHelper.newArrayList();
+//        for(Trainable trainable:dataset) {
 //            Instance filteredInstance = new Instance(trainable.getTargetClass());
 //            for(Feature<?> feature:trainable.getFeatureVector().getAll()) {
-//                if(feature.getName().equals("siblingOccurs")) {
+//                if(feature.getName().equals("marker=road")) {
 //                    filteredInstance.getFeatureVector().add(feature);
 //                }
 //            }
-//            dataset.add(filteredInstance);
+//            filteredDataset.add(filteredInstance);
 //        }
-        dataset = inputDataset;
     }
     
     @Test

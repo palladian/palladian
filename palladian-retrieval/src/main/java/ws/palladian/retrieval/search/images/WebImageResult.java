@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.search.images;
 
-import java.awt.image.BufferedImage;
 import java.util.Date;
 
 import ws.palladian.retrieval.search.License;
@@ -20,7 +19,6 @@ public class WebImageResult extends WebResult {
     private String thumbImageUrl;
     private final int width;
     private final int height;
-    private BufferedImage imageContent = null;
     private License license = License.UNKNOWN;
     private String licenseLink = "";
     private ImageType imageType = ImageType.UNKNOWN;
@@ -39,13 +37,21 @@ public class WebImageResult extends WebResult {
      * @param date
      * @param imageContent
      */
-    public WebImageResult(String url, String imageUrl, String title, String summary, int width, int height, Date date,
-            BufferedImage imageContent) {
+    public WebImageResult(String url, String imageUrl, String title, String summary, int width, int height, Date date) {
         super(url, title, summary, date);
         this.imageUrl = imageUrl;
         this.width = width;
         this.height = height;
-        this.imageContent = imageContent;
+    }
+
+    protected WebImageResult(WebImageResult webImageResult) {
+        super(webImageResult);
+        this.imageUrl = webImageResult.imageUrl;
+        this.width = webImageResult.width;
+        this.height = webImageResult.height;
+        this.license = webImageResult.license;
+        this.licenseLink = webImageResult.licenseLink;
+        this.imageType = webImageResult.imageType;
     }
 
     /**
@@ -80,14 +86,6 @@ public class WebImageResult extends WebResult {
 
     public double getWidthHeightRatio() {
         return (double)getWidth() / (double)getHeight();
-    }
-
-    public BufferedImage getImageContent() {
-        return imageContent;
-    }
-
-    public void setImageContent(BufferedImage imageContent) {
-        this.imageContent = imageContent;
     }
 
     public License getLicense() {

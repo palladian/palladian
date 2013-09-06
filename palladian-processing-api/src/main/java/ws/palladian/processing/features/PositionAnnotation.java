@@ -14,14 +14,14 @@ import ws.palladian.processing.Classifiable;
  * @author David Urbansky
  */
 // FIXME rename to TextAnnotation
-public class PositionAnnotation extends Annotation implements Classifiable, Feature<String> {
+public class PositionAnnotation extends ImmutableAnnotation implements Classifiable, Feature<String> {
 
     /**
-     * A {@link BasicFeatureVectorImpl} for this annotation. Annotations may have {@link BasicFeatureVectorImpl}s, so it is possible to
+     * A {@link FeatureVector} for this annotation. Annotations may have {@link FeatureVector}s, so it is possible to
      * classify them as well. This is for example important for named entity recognition or part of speech tagging. This
      * field is lazy-initialized to save some memory.
      */
-    private BasicFeatureVectorImpl featureVector;
+    private FeatureVector featureVector;
 
     /**
      * <p>
@@ -41,9 +41,9 @@ public class PositionAnnotation extends Annotation implements Classifiable, Feat
     }
 
     @Override
-    public BasicFeatureVectorImpl getFeatureVector() {
+    public FeatureVector getFeatureVector() {
         if (featureVector == null) {
-            featureVector = new BasicFeatureVectorImpl();
+            featureVector = new FeatureVector();
         }
         return featureVector;
     }

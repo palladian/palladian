@@ -22,7 +22,7 @@ import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -36,7 +36,7 @@ import ws.palladian.processing.features.SparseFeature;
  * </p>
  * <p>
  * Use {@link #train(List)} to train a new classifier based on a list of example instances and
- * {@link #predict(BasicFeatureVectorImpl)} to classify a {@link BasicFeatureVectorImpl}.
+ * {@link #predict(FeatureVector)} to classify a {@link FeatureVector}.
  * </p>
  * 
  * @see <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka 3</a>

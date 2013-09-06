@@ -37,7 +37,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @see <a href="http://www.geonames.org/export/web-services.html">Web Service documentation</a>
  * @author Philipp Katz
  */
-public class GeonamesLocationSource extends SingleQueryLocationSource implements LocationSource {
+public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesLocationSource.class);

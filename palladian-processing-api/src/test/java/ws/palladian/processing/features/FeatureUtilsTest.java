@@ -20,12 +20,12 @@ public class FeatureUtilsTest {
 
     /**
      * Test method for
-     * {@link ws.palladian.processing.features.utils.FeatureUtils#find(ws.palladian.processing.features.Feature, ws.palladian.processing.features.BasicFeatureVectorImpl)}
+     * {@link ws.palladian.processing.features.utils.FeatureUtils#find(ws.palladian.processing.features.Feature, ws.palladian.processing.features.FeatureVector)}
      * .
      */
     @Test
     public void testFind() {
-        FeatureVector fv = new BasicFeatureVectorImpl();
+        FeatureVector fv = new FeatureVector();
         fv.add(new NominalFeature("test", "test"));
         fv.add(new PositionAnnotation("ab", 0));
         FeatureUtils.find(new NominalFeature("test", "test"), fv);

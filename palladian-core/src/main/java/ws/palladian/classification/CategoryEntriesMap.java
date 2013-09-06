@@ -1,5 +1,6 @@
 package ws.palladian.classification;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -89,7 +90,12 @@ public final class CategoryEntriesMap implements CategoryEntries {
         for (String category : valueMap.keySet()) {
             result.set(category, valueMap.get(category));
         }
+
         return result;
+    }
+
+    public static CategoryEntriesMap merge(Collection<CategoryEntries> categoryEntries) {
+        return merge(categoryEntries.toArray(new CategoryEntries[categoryEntries.size()]));
     }
 
     @Override
@@ -223,7 +229,6 @@ public final class CategoryEntriesMap implements CategoryEntries {
         return entryMap.isEmpty();
     }
 
-    @Override
     public void sort() {
         entryMap = CollectionHelper.sortByValue(entryMap, false);
     }

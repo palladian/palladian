@@ -1,5 +1,7 @@
 package ws.palladian.extraction.multimedia;
 
+import java.awt.image.BufferedImage;
+
 import ws.palladian.retrieval.search.images.WebImageResult;
 
 /**
@@ -9,34 +11,27 @@ import ws.palladian.retrieval.search.images.WebImageResult;
  * 
  * @author David Urbansky
  */
-public class ExtractedImage extends WebImageResult {
-
-    public ExtractedImage(WebImageResult image) {
-        super(image.getUrl(), image.getImageUrl(), image.getTitle(), image.getSummary(), image.getWidth(), image
-                .getHeight(), image.getDate(), image.getImageContent());
-    }
+class ExtractedImage extends WebImageResult {
 
     private int rankCount = 1;
     private int duplicateCount = 0;
+    private final BufferedImage imageContent;
+
+    public ExtractedImage(WebImageResult image, BufferedImage imageContent) {
+        super(image);
+        this.imageContent = imageContent;
+    }
+
+    public BufferedImage getImageContent() {
+        return imageContent;
+    }
 
     public int getRankCount() {
         return rankCount;
     }
 
-    public void setRankCount(int rankCount) {
-        this.rankCount = rankCount;
-    }
-
     public void addRanking(int ranking) {
         this.rankCount += ranking;
-    }
-
-    public int getDuplicateCount() {
-        return duplicateCount;
-    }
-
-    public void setDuplicateCount(int duplicateCount) {
-        this.duplicateCount = duplicateCount;
     }
 
     public void addDuplicate() {
@@ -44,8 +39,7 @@ public class ExtractedImage extends WebImageResult {
     }
 
     public double getRanking() {
-        double ranking = getDuplicateCount() + (1 / (double)getRankCount());
-        return ranking;
+        return duplicateCount + 1. / getRankCount();
     }
 
     @Override

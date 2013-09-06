@@ -90,6 +90,11 @@ public class WebResult extends SearchResult {
         this.url = url;
     }
 
+    protected WebResult(WebResult webResult) {
+        super(webResult);
+        this.url = webResult.getUrl();
+    }
+
     /**
      * @return the url
      */

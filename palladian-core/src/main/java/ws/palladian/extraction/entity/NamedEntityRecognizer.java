@@ -19,7 +19,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
@@ -42,12 +42,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     private TaggingFormat taggingFormat = TaggingFormat.XML;
 
     @Override
-    public abstract List<? extends Annotated> getAnnotations(String inputText);
+    public abstract List<? extends Annotation> getAnnotations(String inputText);
 
     public String tag(String inputText) {
         StopWatch stopWatch = new StopWatch();
 
-        List<? extends Annotated> annotations = getAnnotations(inputText);
+        List<? extends Annotation> annotations = getAnnotations(inputText);
         String taggedText = tagText(inputText, annotations);
 
         LOGGER.debug("tagged text in {}", stopWatch.getElapsedTimeString(false));
@@ -55,7 +55,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         return taggedText;
     }
 
-    protected String tagText(String inputText, List<? extends Annotated> annotations) {
+    protected String tagText(String inputText, List<? extends Annotation> annotations) {
         return NerHelper.tag(inputText, annotations, taggingFormat);
     }
 
@@ -96,8 +96,8 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         // goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
 
         // get the annotations of the NER
-        List<? extends Annotated> nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
-        Annotations<Annotated> annotations = new Annotations<Annotated>(nerAnnotations);
+        List<? extends Annotation> nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
+        Annotations<Annotation> annotations = new Annotations<Annotation>(nerAnnotations);
         annotations.removeNested();
         annotations.sort();
         // String inputFile = FileHelper.getFileName(testingFilePath);
@@ -107,18 +107,18 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         return evaluate(goldStandard, annotations, ignore);
     }
 
-    public static EvaluationResult evaluate(List<? extends Annotated> goldStandard,
-            List<? extends Annotated> nerResult,
+    public static EvaluationResult evaluate(List<? extends Annotation> goldStandard,
+            List<? extends Annotation> nerResult,
             Set<String> ignore) {
 
         EvaluationResult evaluationResult = new EvaluationResult(goldStandard);
-        Set<Annotated> taggedAnnotations = CollectionHelper.newHashSet();
+        Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
 
         // check each NER annotation against the gold standard and add it to the assignment map depending on its error
         // type, we allow only one overlap for each gold standard annotation => real(<Person>Homer J. Simpson</Person>),
         // tagged(<Person>Homer</Person> J. <Person>Simpson</Person>) => tagged(<Person>Homer</Person> J. Simpson)
         // otherwise we get problems with calculating MUC precision and recall scores
-        for (Annotated nerAnnotation : nerResult) {
+        for (Annotation nerAnnotation : nerResult) {
 
             // skip "O" tags, XXX should this really be done here in this method?
             if (nerAnnotation.getTag().equalsIgnoreCase("o")) {
@@ -128,7 +128,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
             boolean taggedOverlap = false;
             int counter = 0;
 
-            for (Annotated goldStandardAnnotation : goldStandard) {
+            for (Annotation goldStandardAnnotation : goldStandard) {
 
                 counter++;
 
@@ -139,16 +139,10 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                     continue;
                 }
 
-                boolean samePositionAndLength = nerAnnotation.getStartPosition() == goldStandardAnnotation
-                        .getStartPosition()
-                        && nerAnnotation.getValue().length() == goldStandardAnnotation.getValue().length();
-                boolean overlaps = nerAnnotation.overlaps(goldStandardAnnotation);
-                boolean sameTag = nerAnnotation.getTag().equalsIgnoreCase(goldStandardAnnotation.getTag());
-
-                if (samePositionAndLength) {
+                if (nerAnnotation.congruent(goldStandardAnnotation)) {
                     // exact match
                     taggedAnnotations.add(goldStandardAnnotation);
-                    if (sameTag) {
+                    if (nerAnnotation.sameTag(goldStandardAnnotation)) {
                         // correct tag (no error)
                         evaluationResult.add(ResultType.CORRECT, goldStandardAnnotation, nerAnnotation);
                     } else {
@@ -156,10 +150,10 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         evaluationResult.add(ResultType.ERROR3, goldStandardAnnotation, nerAnnotation);
                     }
                     break;
-                } else if (overlaps) {
+                } else if (nerAnnotation.overlaps(goldStandardAnnotation)) {
                     // overlaps
                     taggedAnnotations.add(goldStandardAnnotation);
-                    if (sameTag) {
+                    if (nerAnnotation.sameTag(goldStandardAnnotation)) {
                         // correct tag (error4)
                         evaluationResult.add(ResultType.ERROR4, goldStandardAnnotation, nerAnnotation);
                     } else {
@@ -186,7 +180,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         }
 
         // check which gold standard annotations have not been found by the NER (error2)
-        for (Annotated goldStandardAnnotation : goldStandard) {
+        for (Annotation goldStandardAnnotation : goldStandard) {
             if (!taggedAnnotations.contains(goldStandardAnnotation)) {
                 evaluationResult.add(ResultType.ERROR2, goldStandardAnnotation, null);
             }
@@ -205,11 +199,11 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         String content = document.getContent();
         // TODO merge annotation classes
-        List<? extends Annotated> annotations = getAnnotations(content);
+        List<? extends Annotation> annotations = getAnnotations(content);
 
         PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
         ListFeature<PositionAnnotation> processedAnnotations = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
-        for (Annotated nerAnnotation : annotations) {
+        for (Annotation nerAnnotation : annotations) {
             PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getStartPosition(),
                     nerAnnotation.getEndPosition());
             processedAnnotations.add(procAnnotation);

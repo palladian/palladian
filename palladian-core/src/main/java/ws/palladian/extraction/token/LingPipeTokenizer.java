@@ -1,10 +1,10 @@
 package ws.palladian.extraction.token;
 
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.PositionAnnotationFactory;
+import java.util.List;
+
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
@@ -28,18 +28,16 @@ public final class LingPipeTokenizer extends BaseTokenizer {
     }
 
     @Override
-    public void processDocument(TextDocument document) {
-        String text = document.getContent();
+    public List<Annotation> getAnnotations(String text) {
         com.aliasi.tokenizer.Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
         String nextToken = tokenizer.nextToken();
-        PositionAnnotationFactory factory = new PositionAnnotationFactory(document);
-        ListFeature<PositionAnnotation> feature = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
+        List<Annotation> annotations = CollectionHelper.newArrayList();
         while (nextToken != null) {
             int startPosition = tokenizer.lastTokenStartPosition();
-            int endPosition = tokenizer.lastTokenEndPosition();
-            feature.add(factory.create(startPosition, endPosition));
+            annotations.add(new ImmutableAnnotation(startPosition, nextToken, PROVIDED_FEATURE));
             nextToken = tokenizer.nextToken();
         }
-        document.add(feature);
+        return annotations;
     }
+
 }

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -118,7 +119,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
      * 
      * @author Philipp Katz
      */
-    private static final class LinkedLocation implements Location {
+    private static final class LinkedLocation extends AbstractLocation {
 
         final int id;
         String primaryName;
