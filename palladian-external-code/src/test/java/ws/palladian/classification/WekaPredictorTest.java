@@ -20,7 +20,7 @@ import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
@@ -45,7 +45,7 @@ public class WekaPredictorTest {
         WekaPredictor objectOfClassUnderTest = new WekaPredictor(new NaiveBayes());
 
         List<Instance> trainingInstances = new ArrayList<Instance>();
-        FeatureVector v1 = new BasicFeatureVectorImpl();
+        FeatureVector v1 = new BasicFeatureVector();
         v1.add(new NumericFeature("a", 2.3));
         v1.add(new NominalFeature("b", "value1"));
         List<SparseFeature<String>> v1ListFeatureList = new ArrayList<SparseFeature<String>>();
@@ -56,7 +56,7 @@ public class WekaPredictorTest {
 
         Instance trainingInstance1 = new Instance("c1", v1);
 
-        FeatureVector v2 = new BasicFeatureVectorImpl();
+        FeatureVector v2 = new BasicFeatureVector();
         v2.add(new NumericFeature("a", 1.1));
         v2.add(new NominalFeature("b", "value2"));
         ListFeature<SparseFeature<String>> v2ListFeature = new ListFeature<SparseFeature<String>>("c");
@@ -70,7 +70,7 @@ public class WekaPredictorTest {
         trainingInstances.add(trainingInstance2);
         WekaModel model = objectOfClassUnderTest.train(trainingInstances);
 
-        FeatureVector testVector = new BasicFeatureVectorImpl();
+        FeatureVector testVector = new BasicFeatureVector();
         testVector.add(new NumericFeature("a", 1.5));
         testVector.add(new NominalFeature("b", "value2"));
         ListFeature<SparseFeature<String>> testListFeature = new ListFeature<SparseFeature<String>>("c");
@@ -99,7 +99,7 @@ public class WekaPredictorTest {
         ListFeature<SequentialPattern> pattern2ListFeature1 = new ListFeature<SequentialPattern>("tokendepattern");
         pattern2ListFeature1.add(new SequentialPattern(Arrays.asList(new String[] {"d"})));
 
-        FeatureVector featureVector1 = new BasicFeatureVectorImpl();
+        FeatureVector featureVector1 = new BasicFeatureVector();
         featureVector1.add(annotationListFeature);
         featureVector1.add(pattern1ListFeature1);
         featureVector1.add(pattern2ListFeature1);
@@ -110,7 +110,7 @@ public class WekaPredictorTest {
         ListFeature<SequentialPattern> pattern1ListFeature2 = new ListFeature<SequentialPattern>("tokendepattern");
         pattern1ListFeature2.add(new SequentialPattern(Arrays.asList(new String[] {"d"})));
 
-        FeatureVector featureVector2 = new BasicFeatureVectorImpl();
+        FeatureVector featureVector2 = new BasicFeatureVector();
         featureVector2.add(annotationListFeature2);
         featureVector2.add(pattern1ListFeature2);
 

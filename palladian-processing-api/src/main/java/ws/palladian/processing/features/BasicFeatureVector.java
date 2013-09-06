@@ -21,14 +21,10 @@ import org.slf4j.LoggerFactory;
  * @author Philipp Katz
  * @version 2.5
  */
-public class BasicFeatureVectorImpl implements FeatureVector {
+public class BasicFeatureVector implements FeatureVector {
 
-    /**
-     * <p>
-     * The logger for objects of this class. Configure it using <code>/src/main/resources/log4j.properties</code>.
-     * </p>
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicFeatureVectorImpl.class);
+    /** The logger for objects of this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicFeatureVector.class);
 
     /** Flag to avoid spamming of log warning messages. */
     private static boolean showedWarning = false;
@@ -47,34 +43,25 @@ public class BasicFeatureVectorImpl implements FeatureVector {
      * Creates a new empty {@code FeatureVector}. To fill it with {@link Feature}s call {@link #add(String, Feature)}.
      * </p>
      */
-    public BasicFeatureVectorImpl() {
+    public BasicFeatureVector() {
         features = new TreeMap<String, Feature<?>>();
     }
 
     /**
      * <p>
-     * Creates a new {@link BasicFeatureVectorImpl} from the provided FeatureVector, i.e. a copy with all
+     * Creates a new {@link BasicFeatureVector} from the provided FeatureVector, i.e. a copy with all
      * {@link Feature}s.
      * </p>
      * 
      * @param featureVector The feature vector which Features to copy.
      */
-    public BasicFeatureVectorImpl(FeatureVector featureVector) {
+    public BasicFeatureVector(FeatureVector featureVector) {
         features = new TreeMap<String, Feature<?>>();
         for (Feature<?> feature : featureVector.getAll()) {
             features.put(feature.getName(), feature);
         }
     }
 
-    /**
-     * <p>
-     * Adds a new {@code Feature} to this {@code FeatureVector} or overwrites an existing one with the same name without
-     * warning.
-     * </p>
-     * 
-     * @param feature
-     *            The actual {@code Feature} instance containing the value.
-     */
     @Override
     public void add(Feature<?> feature) {
         if (features.get(feature.getName()) != null && !showedWarning) {
@@ -84,14 +71,6 @@ public class BasicFeatureVectorImpl implements FeatureVector {
         features.put(feature.getName(), feature);
     }
 
-    /**
-     * <p>
-     * Adds all provided {@link Feature}s to this {@link BasicFeatureVectorImpl} and overwrites existing {@link Feature}
-     * s with the same name.
-     * </p>
-     * 
-     * @param features The {@link Feature}s to add to this {@link BasicFeatureVectorImpl}.
-     */
     @Override
     public void addAll(Iterable<? extends Feature<?>> features) {
         for (Feature<?> feature : features) {
@@ -99,16 +78,6 @@ public class BasicFeatureVectorImpl implements FeatureVector {
         }
     }
 
-    /**
-     * <p>
-     * Provides the {@link Feature} with the provided name cast to the provided feature subtype.
-     * </p>
-     * 
-     * @param type The type to cast to.
-     * @param name The name of the {@link Feature} to get and cast.
-     * @return Either the requested {@link Feature} or {@code null} if the {@link Feature} is not available or not of
-     *         the correct type.
-     */
     @Override
     public <T extends Feature<?>> T get(Class<T> type, String name) {
         try {
@@ -118,14 +87,6 @@ public class BasicFeatureVectorImpl implements FeatureVector {
         }
     }
 
-    /**
-     * <p>
-     * Provides the {@link Feature} with the provided name.
-     * </p>
-     * 
-     * @param name The name of the queried {@link Feature}.
-     * @return The queried {@link Feature} or {@code null} if no such {@link Feature} exists.
-     */
     @Override
     public Feature<?> get(String name) {
         Feature<?> ret = features.get(name);
@@ -135,15 +96,6 @@ public class BasicFeatureVectorImpl implements FeatureVector {
         return ret;
     }
 
-    /**
-     * <p>
-     * Provides all {@link Feature}s with the specified type from this {@link BasicFeatureVectorImpl}.
-     * </p>
-     * 
-     * @param type The type of the {@link Feature}s to retrieve.
-     * @return A {@link List} of {@link Feature}s for the specified type or an empty List of no such {@link Feature}s
-     *         exist, never <code>null</code>.
-     */
     @Override
     public <T extends Feature<?>> List<T> getAll(Class<T> type) {
         List<T> selectedFeatures = new ArrayList<T>();
@@ -155,14 +107,6 @@ public class BasicFeatureVectorImpl implements FeatureVector {
         return selectedFeatures;
     }
 
-    /**
-     * <p>
-     * Provides all direct {@link Feature}s of this {@link BasicFeatureVectorImpl}. Remember that each {@link Feature}
-     * may have {@link Feature}s itself. In such a case you need to get those features recursively.
-     * </p>
-     * 
-     * @return All {@link Feature}s of this {@link BasicFeatureVectorImpl}.
-     */
     @Override
     public List<Feature<?>> getAll() {
         List<Feature<?>> featureList = new ArrayList<Feature<?>>();
@@ -177,27 +121,11 @@ public class BasicFeatureVectorImpl implements FeatureVector {
         return features.values().toString();
     }
 
-    /**
-     * <p>
-     * Get the dimension of this feature vector, i.e. how many {@link Feature}s the vector contains.
-     * </p>
-     * 
-     * @return The size of this {@code FeatureVector}.
-     */
     @Override
     public int size() {
         return features.size();
     }
 
-    /**
-     * <p>
-     * Removes all {@link Feature}s with the specified name from this {@link BasicFeatureVectorImpl}.
-     * </p>
-     * 
-     * @param name The name of the {@link Feature}s to remove.
-     * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
-     *         specified identifier to remove.
-     */
     @Override
     public boolean remove(String name) {
         return features.remove(name) != null;
@@ -208,11 +136,6 @@ public class BasicFeatureVectorImpl implements FeatureVector {
         return getAll().iterator();
     }
 
-    /**
-     * <p>
-     * Empties this {@link BasicFeatureVectorImpl}.
-     * </p>
-     */
     @Override
     public void clear() {
         features.clear();
@@ -234,7 +157,7 @@ public class BasicFeatureVectorImpl implements FeatureVector {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        BasicFeatureVectorImpl other = (BasicFeatureVectorImpl)obj;
+        BasicFeatureVector other = (BasicFeatureVector)obj;
         if (features == null) {
             if (other.features != null)
                 return false;
@@ -243,20 +166,9 @@ public class BasicFeatureVectorImpl implements FeatureVector {
         return true;
     }
 
-    /**
-     * <p>
-     * Removes a {@link Feature} from this {@link BasicFeatureVectorImpl}.
-     * </p>
-     * 
-     * @param feature The {@link Feature} to remove.
-     */
     @Override
-    public synchronized void remove(Feature<?> feature) {
-        features.remove(feature.getName());
-    }
-
-    @Override
-    public BasicFeatureVectorImpl getFeatureVector() {
+    public FeatureVector getFeatureVector() {
         return this;
     }
+
 }
