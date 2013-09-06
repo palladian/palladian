@@ -1,5 +1,6 @@
 package ws.palladian.classification;
 
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -11,7 +12,7 @@ public class InstanceBuilder {
     private final FeatureVector featureVector;
 
     public InstanceBuilder() {
-        this.featureVector = new FeatureVector();
+        this.featureVector = new BasicFeatureVectorImpl();
     }
     
     public InstanceBuilder set(String name, String value) {

@@ -17,13 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.discretization.Binner;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -42,68 +39,68 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
 
     private final Map<String, Binner> binnerCache = CollectionHelper.newHashMap();
 
-    /**
-     * <p>
-     * Converts all features within a {@link FeatureVector} to a {@link Set}. For dense {@link Feature}s the set is
-     * extended by only one element. For sparse {@link Feature}s it contains all instances from the
-     * {@link FeatureVector} exactly once. This means, for example, if the term 'the' occurs two times in a text, this
-     * method will only include it once in the returned {@link Set}.
-     * </p>
-     * <p>
-     * The method is used for deduplication of features.
-     * </p>
-     * 
-     * @param featureVector The {@link FeatureVector} containing the dense {@link Feature} or sparse {@link Feature}s
-     * @return the {@link Feature} or {@link Feature}s as a {@link Set}.
-     */
-    @SuppressWarnings("unchecked")
-    protected Set<Feature<?>> convertToSet(FeatureVector featureVector, Collection<? extends Trainable> dataset) {
+//    /**
+//     * <p>
+//     * Converts all features within a {@link FeatureVector} to a {@link Set}. For dense {@link Feature}s the set is
+//     * extended by only one element. For sparse {@link Feature}s it contains all instances from the
+//     * {@link FeatureVector} exactly once. This means, for example, if the term 'the' occurs two times in a text, this
+//     * method will only include it once in the returned {@link Set}.
+//     * </p>
+//     * <p>
+//     * The method is used for deduplication of features.
+//     * </p>
+//     * 
+//     * @param featureVector The {@link FeatureVector} containing the dense {@link Feature} or sparse {@link Feature}s
+//     * @return the {@link Feature} or {@link Feature}s as a {@link Set}.
+//     */
+//    protected Set<Feature<?>> convertToSet(final FeatureVector featureVector,
+//            final Collection<? extends Trainable> dataset) {
+//        Set<Feature<?>> ret = CollectionHelper.newHashSet();
+//
+//        for (final Feature<?> feature : featureVector) {
+            // if (feature instanceof ListFeature<?>) {
+            // ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
+            // for (final Feature<?> element : listFeature) {
+            // if (element instanceof NumericFeature) {
+            // Binner binner = binnerCache.get(element.getName());
+            // if (binner == null) {
+            // binner = discretize(element.getName(), dataset, new Comparator<Trainable>() {
+            //
+            // @Override
+            // public int compare(Trainable i1, Trainable i2) {
+            // ListFeature<NumericFeature> i1ListFeature = i1.getFeatureVector().get(
+            // ListFeature.class, feature.getName());
+            // ListFeature<NumericFeature> i2ListFeature = i2.getFeatureVector().get(
+            // ListFeature.class, feature.getName());
+            //
+            // NumericFeature i1Feature = i1ListFeature.getFeatureWithName(element.getName());
+            // NumericFeature i2Feature = i2ListFeature.getFeatureWithName(element.getName());
+            // Double i1FeatureValue = i1Feature == null ? Double.MIN_VALUE : i1Feature.getValue();
+            // Double i2FeatureValue = i2Feature == null ? Double.MIN_VALUE : i2Feature.getValue();
+            // return i1FeatureValue.compareTo(i2FeatureValue);
+            // }
+            // });
+            // binnerCache.put(element.getName(), binner);
+            // }
+            // ret.add(binner.bin((NumericFeature)element));
+            // } else {
+            // ret.add(element);
+            // }
+            // }
+            // } else
+    //
+    // }
+    //
+    // return ret;
+    // }
+
+    public Set<Feature<?>> discretize(final Iterable<Feature<?>> featureVector, final Collection<? extends Trainable> dataset) {
         Set<Feature<?>> ret = CollectionHelper.newHashSet();
-        boolean firstRun = binnerCache.isEmpty();
-        if (firstRun) {
-            LOGGER.info("Converting {} features to set", featureVector.size());
-        }
-        ProgressMonitor progressMonitor = new ProgressMonitor(featureVector.size(), 1);
 
         for (final Feature<?> feature : featureVector) {
-            if (feature instanceof ListFeature<?>) {
-                ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
-                for (final Feature<?> element : listFeature) {
-                    if (element instanceof NumericFeature) {
-                        Binner binner = binnerCache.get(element.getName());
-                        if (binner == null) {
-                            if (firstRun) {
-                                progressMonitor.incrementAndPrintProgress();
-                            }
-                            binner = discretize(element.getName(), dataset, new Comparator<Trainable>() {
-
-                                @Override
-                                public int compare(Trainable i1, Trainable i2) {
-                                    ListFeature<NumericFeature> i1ListFeature = i1.getFeatureVector().get(
-                                            ListFeature.class, feature.getName());
-                                    ListFeature<NumericFeature> i2ListFeature = i2.getFeatureVector().get(
-                                            ListFeature.class, feature.getName());
-
-                                    NumericFeature i1Feature = i1ListFeature.getFeatureWithName(element.getName());
-                                    NumericFeature i2Feature = i2ListFeature.getFeatureWithName(element.getName());
-                                    Double i1FeatureValue = i1Feature == null ? Double.MIN_VALUE : i1Feature.getValue();
-                                    Double i2FeatureValue = i2Feature == null ? Double.MIN_VALUE : i2Feature.getValue();
-                                    return i1FeatureValue.compareTo(i2FeatureValue);
-                                }
-                            });
-                            binnerCache.put(element.getName(), binner);
-                        }
-                        ret.add(binner.bin((NumericFeature)element));
-                    } else {
-                        ret.add(element);
-                    }
-                }
-            } else if (feature instanceof NumericFeature) {
+            if (feature instanceof NumericFeature) {
                 Binner binner = binnerCache.get(feature.getName());
                 if (binner == null) {
-                    if (firstRun) {
-                        progressMonitor.incrementAndPrintProgress();
-                    }
                     binner = discretize(feature.getName(), dataset, new Comparator<Trainable>() {
 
                         @Override
@@ -122,9 +119,6 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
                 ret.add(binner.bin((NumericFeature)feature));
             } else {
                 ret.add(feature);
-                if (firstRun) {
-                    progressMonitor.incrementAndPrintProgress();
-                }
             }
         }
         return ret;

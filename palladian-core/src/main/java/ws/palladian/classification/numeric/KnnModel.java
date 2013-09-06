@@ -11,6 +11,7 @@ import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.utils.MinMaxNormalization;
 import ws.palladian.processing.Trainable;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -91,7 +92,7 @@ public final class KnnModel implements Model {
         List<Trainable> nominalInstances = new ArrayList<Trainable>(instances.size());
 
         for (TrainingExample instance : trainingExamples) {
-            FeatureVector featureVector = new FeatureVector();
+            FeatureVector featureVector = new BasicFeatureVectorImpl();
             for (Entry<String, Double> feature : instance.features.entrySet()) {
                 featureVector.add(new NumericFeature(feature.getKey(), feature.getValue()));
             }

@@ -19,4 +19,5 @@ import ws.palladian.processing.Trainable;
 public interface FeatureRanker {
 
     FeatureRanking rankFeatures(Collection<? extends Trainable> dataset);
+
 }

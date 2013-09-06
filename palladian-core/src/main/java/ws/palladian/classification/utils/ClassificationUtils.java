@@ -28,6 +28,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
+import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -131,7 +132,7 @@ public final class ClassificationUtils {
                     }
                 }
 
-                FeatureVector featureVector = new FeatureVector();
+                FeatureVector featureVector = new BasicFeatureVectorImpl();
 
                 for (int f = 0; f < parts.length - 1; f++) {
                     String name = headNames == null ? String.valueOf(f) : headNames[f];
@@ -249,7 +250,7 @@ public final class ClassificationUtils {
 
     /**
      * <p>
-     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accpted features
+     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accepted features
      * is returned.
      * </p>
      * 
@@ -260,7 +261,7 @@ public final class ClassificationUtils {
     public static FeatureVector filterFeatures(Classifiable classifiable, Filter<String> nameFilter) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
-        FeatureVector newFeatureVector = new FeatureVector();
+        FeatureVector newFeatureVector = new BasicFeatureVectorImpl();
         for (Feature<?> feature : classifiable.getFeatureVector()) {
             if (nameFilter.accept(feature.getName())) {
                 newFeatureVector.add(feature);

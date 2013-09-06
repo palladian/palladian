@@ -25,7 +25,7 @@ public class FeatureUtilsTest {
      */
     @Test
     public void testFind() {
-        FeatureVector fv = new FeatureVector();
+        FeatureVector fv = new BasicFeatureVectorImpl();
         fv.add(new NominalFeature("test", "test"));
         fv.add(new PositionAnnotation("ab", 0));
         FeatureUtils.find(new NominalFeature("test", "test"), fv);

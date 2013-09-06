@@ -12,7 +12,7 @@ public class FeatureVectorTest {
 
     @Test
     public void testGetFeature() {
-        FeatureVector featureVector = new FeatureVector();
+        FeatureVector featureVector = new BasicFeatureVectorImpl();
         featureVector.add(new NominalFeature("testFeature", "test"));
 
         NominalFeature retrievedFeature = featureVector.get(NominalFeature.class, "testFeature");
@@ -22,7 +22,7 @@ public class FeatureVectorTest {
 
     @Test
     public void testGetFeaturesByType() {
-        FeatureVector featureVector = new FeatureVector();
+        FeatureVector featureVector = new BasicFeatureVectorImpl();
         NominalFeature f1 = new NominalFeature("nominalFeature1", "test");
         NominalFeature f2 = new NominalFeature("nominalFeature3", "test");
         NumericFeature f3 = new NumericFeature("numericFeature1", 2.);
@@ -50,7 +50,7 @@ public class FeatureVectorTest {
 
     @Test
     public void testCopyFeatureVector() {
-        FeatureVector original = new FeatureVector();
+        FeatureVector original = new BasicFeatureVectorImpl();
         NominalFeature f1 = new NominalFeature("nominalFeature", "test");
         NumericFeature f2 = new NumericFeature("numericFeature", 7);
         NumericFeature f3 = new NumericFeature("numericFeature2", 8);
@@ -58,7 +58,7 @@ public class FeatureVectorTest {
         original.add(f2);
         original.add(f3);
 
-        FeatureVector newFeatureVector = new FeatureVector(original);
+        FeatureVector newFeatureVector = new BasicFeatureVectorImpl(original);
         List<NominalFeature> nominalFeatures = newFeatureVector.getAll(NominalFeature.class);
         List<NumericFeature> numericFeatures = newFeatureVector.getAll(NumericFeature.class);
         assertEquals(3, newFeatureVector.size());
@@ -71,8 +71,8 @@ public class FeatureVectorTest {
 
     @Test
     public void testEquality() {
-        FeatureVector featureVector1 = new FeatureVector();
-        FeatureVector featureVector2 = new FeatureVector();
+        FeatureVector featureVector1 = new BasicFeatureVectorImpl();
+        FeatureVector featureVector2 = new BasicFeatureVectorImpl();
         featureVector1.add(new NominalFeature("nominalFeature1", "test"));
         featureVector1.add(new NominalFeature("nominalFeature3", "test"));
         featureVector1.add(new NumericFeature("numericFeature1", 2.));
