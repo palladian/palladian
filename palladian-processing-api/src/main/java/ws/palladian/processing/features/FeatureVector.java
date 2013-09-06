@@ -3,7 +3,6 @@
  */
 package ws.palladian.processing.features;
 
-import java.util.Iterator;
 import java.util.List;
 
 import ws.palladian.processing.Classifiable;
@@ -31,17 +30,17 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * @param feature
      *            The actual {@code Feature} instance containing the value.
      */
-    public abstract void add(Feature<?> feature);
+    void add(Feature<?> feature);
 
     /**
      * <p>
-     * Adds all provided {@link Feature}s to this {@link BasicFeatureVectorImpl} and overwrites existing {@link Feature}
-     * s with the same name.
+     * Adds all provided {@link Feature}s to this {@link FeatureVector} and overwrites existing {@link Feature} s with
+     * the same name.
      * </p>
      * 
-     * @param features The {@link Feature}s to add to this {@link BasicFeatureVectorImpl}.
+     * @param features The {@link Feature}s to add to this {@link FeatureVector}.
      */
-    public abstract void addAll(Iterable<? extends Feature<?>> features);
+    void addAll(Iterable<? extends Feature<?>> features);
 
     /**
      * <p>
@@ -53,7 +52,7 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * @return Either the requested {@link Feature} or {@code null} if the {@link Feature} is not available or not of
      *         the correct type.
      */
-    public abstract <T extends Feature<?>> T get(Class<T> type, String name);
+    <T extends Feature<?>> T get(Class<T> type, String name);
 
     /**
      * <p>
@@ -63,28 +62,28 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * @param name The name of the queried {@link Feature}.
      * @return The queried {@link Feature} or {@code null} if no such {@link Feature} exists.
      */
-    public abstract Feature<?> get(String name);
+    Feature<?> get(String name);
 
     /**
      * <p>
-     * Provides all {@link Feature}s with the specified type from this {@link BasicFeatureVectorImpl}.
+     * Provides all {@link Feature}s with the specified type from this {@link FeatureVector}.
      * </p>
      * 
      * @param type The type of the {@link Feature}s to retrieve.
      * @return A {@link List} of {@link Feature}s for the specified type or an empty List of no such {@link Feature}s
      *         exist, never <code>null</code>.
      */
-    public abstract <T extends Feature<?>> List<T> getAll(Class<T> type);
+    <T extends Feature<?>> List<T> getAll(Class<T> type);
 
     /**
      * <p>
-     * Provides all direct {@link Feature}s of this {@link BasicFeatureVectorImpl}. Remember that each {@link Feature}
-     * may have {@link Feature}s itself. In such a case you need to get those features recursively.
+     * Provides all direct {@link Feature}s of this {@link FeatureVector}. Remember that each {@link Feature} may have
+     * {@link Feature}s itself. In such a case you need to get those features recursively.
      * </p>
      * 
-     * @return All {@link Feature}s of this {@link BasicFeatureVectorImpl}.
+     * @return All {@link Feature}s of this {@link FeatureVector}.
      */
-    public abstract List<Feature<?>> getAll();
+    List<Feature<?>> getAll();
 
     /**
      * <p>
@@ -93,39 +92,33 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * 
      * @return The size of this {@code FeatureVector}.
      */
-    public abstract int size();
+    int size();
 
     /**
      * <p>
-     * Removes all {@link Feature}s with the specified name from this {@link BasicFeatureVectorImpl}.
+     * Removes all {@link Feature}s with the specified name from this {@link FeatureVector}.
      * </p>
      * 
      * @param name The name of the {@link Feature}s to remove.
      * @return <code>true</code> if the {@link Feature} was removed, <code>false</code> if there was no feature with the
      *         specified identifier to remove.
      */
-    public abstract boolean remove(String name);
-
-    @Override
-    public abstract Iterator<Feature<?>> iterator();
+    boolean remove(String name);
 
     /**
      * <p>
-     * Empties this {@link BasicFeatureVectorImpl}.
+     * Empties this {@link FeatureVector}.
      * </p>
      */
-    public abstract void clear();
+    void clear();
 
     /**
      * <p>
-     * Removes a {@link Feature} from this {@link BasicFeatureVectorImpl}.
+     * Removes a {@link Feature} from this {@link FeatureVector}.
      * </p>
      * 
      * @param feature The {@link Feature} to remove.
      */
-    public abstract void remove(Feature<?> feature);
-
-    @Override
-    public abstract FeatureVector getFeatureVector();
+    void remove(Feature<?> feature);
 
 }
