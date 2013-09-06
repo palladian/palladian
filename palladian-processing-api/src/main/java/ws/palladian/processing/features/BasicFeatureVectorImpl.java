@@ -30,6 +30,9 @@ public class BasicFeatureVectorImpl implements FeatureVector {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(BasicFeatureVectorImpl.class);
 
+    /** Flag to avoid spamming of log warning messages. */
+    private static boolean showedWarning = false;
+
     /**
      * <p>
      * A map of all {@code Feature}s in this vector. It maps from the {@code Feature}s {@code FeatureVector} wide unique
@@ -74,8 +77,9 @@ public class BasicFeatureVectorImpl implements FeatureVector {
      */
     @Override
     public void add(Feature<?> feature) {
-        if (features.get(feature.getName()) != null) {
+        if (features.get(feature.getName()) != null && !showedWarning) {
             LOGGER.warn("Please use a ListFeature to add multiple features with the same name.");
+            showedWarning = true;
         }
         features.put(feature.getName(), feature);
     }
