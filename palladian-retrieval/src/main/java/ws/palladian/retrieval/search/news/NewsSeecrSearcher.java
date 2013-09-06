@@ -22,7 +22,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.helper.MashapeUtil;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebResult;
@@ -167,10 +166,10 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
                 // TODO get message
                 throw new SearcherException("Encountered HTTP status " + result.getStatusCode()
                         + " when executing the request: " + request + ", result: "
-                        + HttpHelper.getStringContent(result));
+ + result.getStringContent());
             }
 
-            String jsonString = HttpHelper.getStringContent(result);
+            String jsonString = result.getStringContent();
             LOGGER.debug("JSON result: " + jsonString);
 
             try {

@@ -17,13 +17,12 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * A KNN (k-nearest neighbor) classifier. It classifies {@link BasicFeatureVectorImpl}s based on the k nearest {@link Instance} s
+ * A KNN (k-nearest neighbor) classifier. It classifies {@link FeatureVector}s based on the k nearest {@link Instance} s
  * from the training set. Since this is an instance based classifier, it is fast during the learning phase but has a
  * more complicated prediction phase.
  * </p>

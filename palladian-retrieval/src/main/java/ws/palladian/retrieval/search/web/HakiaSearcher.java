@@ -10,7 +10,9 @@ import ws.palladian.retrieval.search.BaseHakiaSearcher;
  * </p>
  * 
  * @author Philipp Katz
+ * @deprecated Not really reliable (any longer).
  */
+@Deprecated
 public final class HakiaSearcher extends BaseHakiaSearcher {
 
     /**

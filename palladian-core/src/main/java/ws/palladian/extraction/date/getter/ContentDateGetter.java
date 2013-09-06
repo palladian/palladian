@@ -62,7 +62,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             ageOrder.add(date);
         }
 
-        Collections.sort(posOrder, new ContentDateComparator());
+        Collections.sort(posOrder, ContentDateComparator.INSTANCE);
         Collections.sort(ageOrder, new DateComparator());
 
         List<MetaDate> metaDates = metaDateGetter.getDates(document);

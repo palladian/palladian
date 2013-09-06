@@ -16,7 +16,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -111,7 +110,7 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
                         + e.getMessage() + ", request URL was \"" + requestUrl + "\"", e);
             }
             // TODO implement checking for error codes.
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             try {
                 JSONObject resultJson = new JSONObject(jsonString);
                 JSONObject photosJson = resultJson.getJSONObject("photos");
@@ -126,7 +125,7 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
                     String userId = photoJson.getString("owner");
                     String imageUrl = buildImageUrl(farmId, serverId, id, secret);
                     String pageUrl = buildPageUrl(id, userId);
-                    WebImageResult webImageResult = new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null, null);
+                    WebImageResult webImageResult = new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null);
                     webImageResult.setThumbImageUrl(imageUrl);
                     result.add(webImageResult);
                 }

@@ -25,3 +25,4 @@ log4j.properties
 **/data
 
 /data/datasets
+/data

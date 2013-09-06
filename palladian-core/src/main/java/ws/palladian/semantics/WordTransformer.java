@@ -8,17 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
-import org.tartarus.snowball.ext.germanStemmer;
-
+import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -36,8 +33,8 @@ public class WordTransformer {
     /** The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>. */
     private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<String, EnglishVerb>();
 
-    private static final SnowballStemmer GERMAN_STEMMER = new germanStemmer();
-    private static final SnowballStemmer ENGLISH_STEMMER = new englishStemmer();
+    private static final StemmerAnnotator GERMAN_STEMMER = new StemmerAnnotator(Language.GERMAN);
+    private static final StemmerAnnotator ENGLISH_STEMMER = new StemmerAnnotator(Language.ENGLISH);
 
     static {
 
@@ -308,12 +305,11 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToPluralEnglish(singular);
         } else if (language.equals(Language.GERMAN)) {
-            // return wordToPluralGerman(singular);
-            // TODO
-            throw new IllegalStateException("nix gut (needs to be restructured because of model paths).");
+            // return wordToPluralGerman(singular); XXX
+            throw new IllegalArgumentException("Language must be 'en'.");
         }
 
-        throw new IllegalArgumentException("Language must be 'en' or 'de'.");
+        throw new IllegalArgumentException("Language must be 'en'.");
     }
 
     /**
@@ -401,26 +397,42 @@ public class WordTransformer {
         return prefix + singular + "s";
     }
 
-    // /**
-    // * <p>
-    // * Transform a German singular word to its plural form using the wiktionary DB.
-    // * </p>
-    // *
-    // * @param singularForm The singular form of the word.
-    // * @return The plural form of the word.
-    // */
-    // public static String wordToPluralGerman(String singularForm) {
-    // PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-    // String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
+    /**
+     * <p>
+     * Transform a German singular word to its plural form using simple rules. These are only an approximation, German
+     * is difficult and doesn't seem to like rules.
+     * </p>
+     * 
+     * @param singular The singular form of the word.
+     * @see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
+     * @return The plural form of the word.
+     */
+    // public static String wordToPluralGerman(String singular) {
     //
-    // WordDB wordDB = new WordDB(path);
-    // Word word = wordDB.getWord(singularForm);
+    // if (singular == null) {
+    // return "";
+    // }
+    // String singularLc = singular.toLowerCase();
     //
-    // if (word != null && !word.getPlural().isEmpty()) {
-    // return word.getPlural();
+    // String plural = "";
+    //
+    // // no ending but umlauts
+    // if (singularLc.endsWith("er") || singularLc.endsWith("en") || singularLc.endsWith("el")
+    // || singularLc.endsWith("chen") || singularLc.endsWith("lein")) {
+    // plural = singular.replace("o", "ö");
+    // plural = plural.replace("a", "ä");
+    // plural = plural.replace("u", "ü");
+    // } else
+    //
+    // // add "n" ending and umlauts
+    // if (singularLc.endsWith("e")) {
+    // plural = singular.replace("o", "ö");
+    // plural = plural.replace("a", "ä");
+    // plural = plural.replace("u", "ü");
+    // plural += "n";
     // }
     //
-    // return singularForm;
+    // return plural;
     // }
 
     public static String stemGermanWords(String words) {
@@ -448,21 +460,11 @@ public class WordTransformer {
     }
 
     public static String stemGermanWord(String word) {
-        synchronized (GERMAN_STEMMER) {
-            GERMAN_STEMMER.setCurrent(word);
-            GERMAN_STEMMER.stem();
-            word = GERMAN_STEMMER.getCurrent();
-        }
-        return word;
+        return GERMAN_STEMMER.stem(word);
     }
 
     public static String stemEnglishWord(String word) {
-        synchronized (ENGLISH_STEMMER) {
-            ENGLISH_STEMMER.setCurrent(word);
-            ENGLISH_STEMMER.stem();
-            word = ENGLISH_STEMMER.getCurrent();
-        }
-        return word;
+        return ENGLISH_STEMMER.stem(word);
     }
 
     /**
@@ -610,7 +612,7 @@ public class WordTransformer {
         return getTense(string, posTagger.getAnnotations(string));
     }
 
-    public static EnglishTense getTense(String string, List<Annotated> annotations) {
+    public static EnglishTense getTense(String string, List<Annotation> annotations) {
 
         string = string.toLowerCase();
 
@@ -628,7 +630,7 @@ public class WordTransformer {
         boolean wasWereFound = (StringHelper.containsWord("was", string) || StringHelper.containsWord("were", string));
 
         Set<String> posTags = CollectionHelper.newHashSet();
-        for (Annotated a : annotations) {
+        for (Annotation a : annotations) {
             posTags.add(a.getTag());
         }
 

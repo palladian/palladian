@@ -7,12 +7,12 @@ import java.util.Map;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Instances;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
  * A Palladian model wrapping a Weka classifier and all information necessary to apply that classifier to new
- * {@link BasicFeatureVectorImpl}s containing the same features.
+ * {@link FeatureVector}s containing the same features.
  * </p>
  * 
  * @author Philipp Katz
