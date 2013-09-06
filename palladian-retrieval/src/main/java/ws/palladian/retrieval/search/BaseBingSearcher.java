@@ -23,7 +23,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.web.WebResult;
 import ws.palladian.retrieval.search.web.WebSearcher;
 
@@ -175,8 +174,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
         HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, requestUrl);
         httpRequest.addHeader("Authorization", basicAuthentication);
         HttpResult httpResult = retriever.execute(httpRequest);
-        String jsonString = new String(HttpHelper.getStringContent(httpResult));
-        return jsonString;
+        return httpResult.getStringContent();
     }
 
     /**
@@ -193,7 +191,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      */
     protected String buildRequestUrl(String query, String sourceType, Language language, int offset, int count) {
         StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append(BASE_SERVICE_URL);
+        queryBuilder.append(getBaseServiceUrl());
         queryBuilder.append(sourceType);
         queryBuilder.append("?Query=%27").append(UrlHelper.encodeParameter(query)).append("%27");
         queryBuilder.append("&$top=").append(count);
@@ -205,6 +203,13 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
             queryBuilder.append("&Market=%27").append(getLanguageString(language)).append("%27");
         }
         return queryBuilder.toString();
+    }
+
+    /**
+     * @return Get the base service URL.
+     */
+    protected String getBaseServiceUrl() {
+        return BASE_SERVICE_URL;
     }
 
     /**
@@ -227,7 +232,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Getting the total result count is not supported in the new Bing API.");
     }
 

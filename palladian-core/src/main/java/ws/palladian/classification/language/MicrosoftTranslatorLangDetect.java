@@ -16,7 +16,6 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -85,7 +84,7 @@ public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
         request.addHeader("Authorization", "Bearer " + accessToken);
         try {
             HttpResult result = httpRetriever.execute(request);
-            String langString = StringHelper.getSubstringBetween(HttpHelper.getStringContent(result), ">", "<");
+            String langString = StringHelper.getSubstringBetween(result.getStringContent(), ">", "<");
             return Language.getByIso6391(langString);
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP error while classifying language: " + e);
@@ -126,12 +125,11 @@ public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP error while trying to obtain access token: " + e, e);
         }
-        String jsonString = HttpHelper.getStringContent(result);
         try {
-            return new JSONObject(jsonString).getString("access_token");
+            return new JSONObject(result.getStringContent()).getString("access_token");
         } catch (JSONException e) {
             throw new IllegalStateException("JSON parse error while trying to obtain access token: " + e
-                    + ", JSON was: '" + jsonString + "'", e);
+                    + ", JSON was: '" + result.getStringContent() + "'", e);
         }
     }
 

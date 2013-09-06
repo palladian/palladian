@@ -10,7 +10,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
@@ -50,7 +49,7 @@ public class ViewTextContentExtractor extends WebPageContentExtractor {
                     + e.getMessage(), e);
         }
 
-        extractedResult = HttpHelper.getStringContent(httpResult);
+        extractedResult = httpResult.getStringContent();
 
         JsonObjectWrapper json = new JsonObjectWrapper(extractedResult);
         extractedResult = json.getString("content");

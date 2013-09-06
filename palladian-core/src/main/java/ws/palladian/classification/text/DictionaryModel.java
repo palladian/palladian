@@ -27,6 +27,9 @@ public final class DictionaryModel implements Model {
 
     private static final long serialVersionUID = 1L;
 
+    /** The optional name of the model. */
+    private String name = "NONAME";
+
     /** Term-category combinations with their counts. */
     private final CountMatrix<String> termCategories = CountMatrix.create();
 
@@ -42,6 +45,14 @@ public final class DictionaryModel implements Model {
      */
     public DictionaryModel(FeatureSetting featureSetting) {
         this.featureSetting = featureSetting;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public FeatureSetting getFeatureSetting() {

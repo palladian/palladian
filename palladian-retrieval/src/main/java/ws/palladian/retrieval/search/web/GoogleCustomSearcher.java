@@ -15,7 +15,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -105,7 +104,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
                         + searchUrl + "\": " + e.getMessage(), e);
             }
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             try {
                 results.addAll(parse(jsonString));
             } catch (JSONException e) {
@@ -158,7 +157,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         String requestUrl = createRequestUrl(query, 1, 1, language);
         HttpResult httpResult;
         try {
@@ -167,7 +166,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
             throw new SearcherException("HTTP exception while accessing Google Custom Search with URL \"" + requestUrl
                     + "\": " + e.getMessage(), e);
         }
-        String jsonString = HttpHelper.getStringContent(httpResult);
+        String jsonString = httpResult.getStringContent();
         try {
             return parseResultCount(jsonString);
         } catch (JSONException e) {
@@ -177,9 +176,9 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
     }
 
     /** default visibility for unit testing. */
-    static int parseResultCount(String jsonString) throws JSONException {
+    static long parseResultCount(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
-        return jsonObject.getJSONObject("searchInformation").getInt("totalResults");
+        return jsonObject.getJSONObject("searchInformation").getLong("totalResults");
     }
 
 }

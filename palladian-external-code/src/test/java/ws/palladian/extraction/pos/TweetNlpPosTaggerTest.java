@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ws.palladian.processing.features.Annotated;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -78,7 +78,7 @@ public class TweetNlpPosTaggerTest {
     @Test
     public void testTweetNlpPosTagger() {
         TweetNlpPosTagger posTagger = new TweetNlpPosTagger();
-        List<Annotated> tags = posTagger.getAnnotations(tweetText);
+        List<Annotation> tags = posTagger.getAnnotations(tweetText);
         assertEquals(expectedTags.length, tags.size());
         for (int i = 0; i < expectedTags.length; i++) {
             assertEquals(expectedTags[i], tags.get(i).getTag());

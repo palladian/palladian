@@ -7,7 +7,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -74,14 +73,10 @@ public final class UrlHelper {
      *         <code>null</code> in case the original URL was <code>null</code>.
      */
     public static String removeSessionId(String originalUrl) {
-        
         if (originalUrl == null) {
             return null;
         }
-        
-        Matcher matcher = SESSION_ID_PATTERN.matcher(originalUrl);
-        return matcher.replaceAll("");
-        
+        return SESSION_ID_PATTERN.matcher(originalUrl).replaceAll("");
     }
 
     /**
@@ -122,12 +117,11 @@ public final class UrlHelper {
      * @return The base URL, if present, <code>null</code> otherwise.
      */
     public static String getBaseUrl(Document document) {
-        String baseHref = null;
         Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
         if (baseNode != null) {
-            baseHref = baseNode.getTextContent();
+            return baseNode.getTextContent();
         }
-        return baseHref;
+        return null;
     }
 
     /**
@@ -365,12 +359,6 @@ public final class UrlHelper {
      * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
      */
     public static List<String> extractUrls(String text) {
-//        List<String> urls = new ArrayList<String>();
-//        Matcher matcher = URL_PATTERN.matcher(text);
-//        while (matcher.find()) {
-//            urls.add(matcher.group(0));
-//        }
-//        return urls;
         return StringHelper.getRegexpMatches(URL_PATTERN, text);
     }
 

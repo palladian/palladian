@@ -86,7 +86,7 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
     public abstract List<R> search(String query, int resultCount, Language language) throws SearcherException;
 
     @Override
-    public final int getTotalResultCount(String query) throws SearcherException {
+    public final long getTotalResultCount(String query) throws SearcherException {
         return getTotalResultCount(query, DEFAULT_SEARCHER_LANGUAGE);
     }
 
@@ -100,7 +100,7 @@ public abstract class WebSearcher<R extends WebResult> implements Searcher<R> {
      * @return
      * @throws SearcherException In case the search fails.
      */
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Obtaining the total number of results is not supported or implemented by "
                 + getName() + ".");
     }

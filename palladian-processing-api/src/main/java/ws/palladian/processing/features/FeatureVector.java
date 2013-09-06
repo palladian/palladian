@@ -106,6 +106,7 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      */
     public abstract boolean remove(String name);
 
+    @Override
     public abstract Iterator<Feature<?>> iterator();
 
     /**
@@ -124,6 +125,7 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      */
     public abstract void remove(Feature<?> feature);
 
+    @Override
     public abstract FeatureVector getFeatureVector();
 
 }

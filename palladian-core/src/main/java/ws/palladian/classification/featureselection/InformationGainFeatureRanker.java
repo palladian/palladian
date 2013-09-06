@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.ListFeature;
 
 /**
@@ -59,7 +59,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
      *         mean the {@link Feature} provides much information about the distribution of the target classes and about
      *         which target class an instance belongs to.
      */
-    private Map<Feature<?>, Double> calculateInformationGain(final Collection<Trainable> dataset) {
+    private Map<Feature<?>, Double> calculateInformationGain(final Collection<? extends Trainable> dataset) {
         Validate.notNull(dataset);
         Map<Feature<?>, Double> ret = CollectionHelper.newHashMap();
         if (dataset.isEmpty()) {
@@ -111,7 +111,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<Trainable> dataset) {
+    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
         FeatureRanking ranking = new FeatureRanking();
         Map<? extends Feature<?>, Double> informationGainValues = calculateInformationGain(dataset);
         LOGGER.debug(informationGainValues.toString());

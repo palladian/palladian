@@ -28,6 +28,13 @@ import ws.palladian.helper.date.ExtractedDate;
  */
 public class RatedDateComparator implements Comparator<RatedDate<? extends ExtractedDate>> {
 
+    /** The singleton instance. */
+    public static final RatedDateComparator INSTANCE = new RatedDateComparator();
+
+    private RatedDateComparator() {
+        // singleton instance.
+    }
+
     @Override
     public int compare(RatedDate<?> ratedDate1, RatedDate<?> ratedDate2) {
         ExtractedDate date1 = ratedDate1.getDate();

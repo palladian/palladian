@@ -13,9 +13,9 @@ import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotated;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -62,7 +62,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
     // ////////////////////////////////////////////
 
     @Override
-    public List<Annotated> getAnnotations(String text) {
+    public List<Annotation> getAnnotations(String text) {
         TextDocument document = new TextDocument(text);
         try {
             BaseTokenizer tokenizer = getTokenizer();
@@ -73,18 +73,18 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
         }
         List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
-        List<Annotated> ret = CollectionHelper.newArrayList();
+        List<Annotation> ret = CollectionHelper.newArrayList();
         for (PositionAnnotation annotation : annotationFeatureList) {
             NominalFeature tagFeature = annotation.getFeatureVector()
                     .get(NominalFeature.class, PROVIDED_FEATURE);
             String tag = tagFeature.getValue();
-            ret.add(new Annotation(annotation.getStartPosition(), annotation.getValue(), tag));
+            ret.add(new ImmutableAnnotation(annotation.getStartPosition(), annotation.getValue(), tag));
         }
         return ret;
     }
 
     public String getTaggedString(String text) {
-        List<Annotated> annotations = getAnnotations(text);
+        List<Annotation> annotations = getAnnotations(text);
         String taggedText = NerHelper.tag(text, annotations, TaggingFormat.SLASHES);
         return taggedText;
     }

@@ -6,9 +6,11 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
+import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -19,7 +21,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseTokenizer extends TextDocumentPipelineProcessor {
+public abstract class BaseTokenizer extends TextDocumentPipelineProcessor implements Tagger {
 
     /**
      * <p>
@@ -62,4 +64,16 @@ public abstract class BaseTokenizer extends TextDocumentPipelineProcessor {
         }
         return tokens;
     }
+
+    @Override
+    public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
+        String text = document.getContent();
+        ListFeature<PositionAnnotation> tokensFeature = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
+        List<? extends Annotation> annotations = getAnnotations(text);
+        for (Annotation annotation : annotations) {
+            tokensFeature.add(new PositionAnnotation(annotation.getValue(), annotation.getStartPosition()));
+        }
+        document.getFeatureVector().add(tokensFeature);
+    }
+
 }

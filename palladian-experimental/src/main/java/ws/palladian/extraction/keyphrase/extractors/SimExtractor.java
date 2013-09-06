@@ -12,6 +12,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -70,7 +71,7 @@ public class SimExtractor extends KeyphraseExtractor {
         IndexReader reader = null;
         IndexSearcher searcher = null;
         try {
-            reader = IndexReader.open(directory, true);
+            reader = DirectoryReader.open(directory);
             searcher = new IndexSearcher(reader);
             MoreLikeThis moreLikeThis = new MoreLikeThis(reader);
             moreLikeThis.setFieldNames(new String[] {"text"});
@@ -93,7 +94,7 @@ public class SimExtractor extends KeyphraseExtractor {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } finally {
-            FileHelper.close(searcher, reader);
+            FileHelper.close(reader);
         }
         return ret;
     }

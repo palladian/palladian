@@ -1,11 +1,11 @@
 package ws.palladian.extraction.location;
 
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.math.MathHelper;
 
 /**
  * @author Philipp Katz
@@ -16,6 +16,28 @@ public final class GeoUtils {
     private static final String DMS_PREFIX_FORMAT = "%s" + DMS_FORMAT;
     private static final String DMS_SUFFIX_FORMAT = DMS_FORMAT + "%s";
 
+    public static final String DMS = "([-+]?\\d{1,3}(?:\\.\\d{1,10})?)[°d:]" + // degree
+            "(?:\\s?(\\d{1,2}(?:\\.\\d{1,10})?))?['′:]?" + // minute
+            "(?:\\s?(\\d{1,2}(?:\\.\\d{1,10})?))?(?:\"|″|'')?" + // second
+            "(?:\\s?(N|S|W|E|North|South|West|East))?"; // direction
+
+    /** The radius of the earth in kilometers. */
+    public static final double EARTH_RADIUS_KM = 6371;
+
+    /** For parsing a single DMS expression. */
+    private static final Pattern PATTERN_PARSE_DMS = Pattern.compile(DMS);
+
+    /**
+     * <p>
+     * Get the distance in kilometers between the provided {@link GeoCoordinate}s on the earth (assuming an earth radius
+     * of {@value #EARTH_RADIUS_KM}).
+     * </p>
+     * 
+     * @param c1 The first coordinate, not <code>null</code>.
+     * @param c2 The second coordinate, not <code>null</code>.
+     * @return The distance between the two coordinates, or {@link Integer#MAX_VALUE} in case, one or more latitude or
+     *         longitude values of the given coordinates where <code>null</code>.
+     */
     public static final double getDistance(GeoCoordinate c1, GeoCoordinate c2) {
         Validate.notNull(c1, "c1 must not be null");
         Validate.notNull(c2, "c2 must not be null");
@@ -26,7 +48,11 @@ public final class GeoUtils {
         if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) {
             return Integer.MAX_VALUE;
         }
-        return MathHelper.computeDistanceBetweenWorldCoordinates(lat1, lng1, lat2, lng2);
+        return 2
+                * EARTH_RADIUS_KM
+                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
+                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
     }
 
     /**
@@ -105,7 +131,7 @@ public final class GeoUtils {
      * @param decimal The decimal value to convert.
      * @return The DMS string.
      */
-    public static final String decimalToDms(double decimal) {
+    static final String decimalToDms(double decimal) {
         String sign = decimal < 0 ? "-" : "";
         int[] parts = getParts(decimal);
         return String.format(DMS_PREFIX_FORMAT, sign, parts[0], parts[1], parts[2]);
@@ -157,6 +183,34 @@ public final class GeoUtils {
         String latString = String.format(DMS_SUFFIX_FORMAT, latParts[0], latParts[1], latParts[2], latSuffix);
         String lngString = String.format(DMS_SUFFIX_FORMAT, lngParts[0], lngParts[1], lngParts[2], lngSuffix);
         return latString + "," + lngString;
+    }
+
+    /**
+     * <p>
+     * Convert a DMS coordinate (degrees, minutes, seconds) to decimal degree.
+     * </p>
+     * 
+     * @param dmsString The string with the DMS coordinate, not <code>null</code> or empty.
+     * @return The double value with decimal degree.
+     * @throws NumberFormatException in case the string could not be parsed.
+     */
+    public static final double parseDms(String dmsString) {
+        Validate.notEmpty(dmsString, "dmsString must not be empty");
+        Matcher matcher = PATTERN_PARSE_DMS.matcher(dmsString);
+        if (!matcher.matches()) {
+            throw new NumberFormatException("The string " + dmsString + " could not be parsed in DMS format.");
+        }
+        double degrees = Double.valueOf(matcher.group(1)); // degree value, including sign
+        int sign; // the sign, determined either from hemisphere/meridien, or degree sign
+        String ws = matcher.group(4);
+        if (ws != null) {
+            sign = "W".equals(ws) || "S".equals(ws) || "West".equals(ws) || "South".equals(ws) ? -1 : 1;
+        } else {
+            sign = matcher.group(1).startsWith("-") ? -1 : 1;
+        }
+        double minutes = matcher.group(2) != null ? Double.valueOf(matcher.group(2)) : 0;
+        double seconds = matcher.group(3) != null ? Double.valueOf(matcher.group(3)) : 0;
+        return sign * (Math.abs(degrees) + minutes / 60. + seconds / 3600.);
     }
 
     private GeoUtils() {

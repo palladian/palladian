@@ -1,17 +1,16 @@
 package ws.palladian.extraction.token;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.TextDocument;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureProvider;
-import ws.palladian.processing.features.BasicFeatureVectorImpl;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.PositionAnnotationFactory;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -78,17 +77,13 @@ public final class RegExTokenizer extends BaseTokenizer implements FeatureProvid
     }
 
     @Override
-    public void processDocument(TextDocument document) {
-        Validate.notNull(document, "document must not be null");
-
-        String text = document.getContent();
+    public List<Annotation> getAnnotations(String text) {
         Matcher matcher = pattern.matcher(text);
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
-        ListFeature<PositionAnnotation> annotations = new ListFeature<PositionAnnotation>(featureName);
+        List<Annotation> annotations = CollectionHelper.newArrayList();
         while (matcher.find()) {
-            annotations.add(annotationFactory.create(matcher.start(), matcher.end()));
+            annotations.add(new ImmutableAnnotation(matcher.start(), matcher.group(), PROVIDED_FEATURE));
         }
-        document.add(annotations);
+        return annotations;
     }
 
     @Override
