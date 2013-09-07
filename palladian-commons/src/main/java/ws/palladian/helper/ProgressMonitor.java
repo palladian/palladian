@@ -71,11 +71,23 @@ public final class ProgressMonitor {
      * Increments the counter by one and prints the current progress to the System's standard output.
      * </p>
      * 
-     * @param counter Counter for current iteration in a loop.
      */
     public void incrementAndPrintProgress() {
         currentCount++;
         printProgress(currentCount);
+    }
+    
+    /**
+     * <p>
+     * Increments the counter by the step size and prints the current progress to the System's standard output.
+     * </p>
+     * 
+     * @param steps The number of steps to increment the counter with.
+     */
+    public void incrementByAndPrintProgress(int steps) {
+        for (int i = 0; i < steps; i++) {
+            incrementAndPrintProgress();
+        }
     }
 
     /**
@@ -157,4 +169,5 @@ public final class ProgressMonitor {
             pm.incrementAndPrintProgress();
         }
     }
+    
 }
