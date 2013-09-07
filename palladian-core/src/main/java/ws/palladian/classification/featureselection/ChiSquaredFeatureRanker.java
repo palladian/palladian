@@ -11,6 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
@@ -88,6 +89,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         Map<String, Long> classCounts = CollectionHelper.newHashMap();
         Map<String, Map<String, Double>> ret = CollectionHelper.newHashMap();
 
+        ProgressMonitor countMonitor = new ProgressMonitor(dataset.size(), 1.0, "Counting cooccurrences.");
         for (Trainable instance : dataset) {
             Set<Feature<?>> features = convertToSet(instance.getFeatureVector());
             features.addAll(discretize(features, dataset));
@@ -100,8 +102,10 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
                 count = 0L;
             }
             classCounts.put(instance.getTargetClass(), ++count);
+            LOGGER.info(countMonitor.incrementAndGetProgress());
         }
 
+        ProgressMonitor chiSquaredMonitor = new ProgressMonitor(termClassCorrelationMatrix.size(), 1.0, "Calculating chi² values.");
         for (Map.Entry<Feature<?>, Map<String, Long>> termOccurence : termClassCorrelationMatrix.entrySet()) {
             // The following variables are uppercase because that is the way
             // they are used in the literature.
@@ -133,6 +137,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
                 chiSquaresForCurrentTerm.put(className, chiSquare);
                 ret.put(termOccurence.getKey().getName(), chiSquaresForCurrentTerm);
             }
+            LOGGER.info(chiSquaredMonitor.incrementAndGetProgress());
         }
 
         return ret;

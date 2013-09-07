@@ -11,9 +11,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classified;
 import ws.palladian.processing.Trainable;
@@ -37,6 +41,8 @@ import ws.palladian.processing.features.ListFeature;
  */
 public final class InformationGainFormula {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFormula.class);
+
     /**
      * <p>
      * The list of {@link Trainable} making up the dataset handled by this formula.
@@ -50,6 +56,10 @@ public final class InformationGainFormula {
      */
     private final Map<String, Double> classOccurrences;
 
+    private final ProgressMonitor monitor;
+    
+    private double progressToOne;
+
     /**
      * <p>
      * Creates a new completely initialized object of this class. The provided dataset needs to provide all the features
@@ -60,8 +70,26 @@ public final class InformationGainFormula {
      * @param dataset The dataset this formula works on.
      */
     public InformationGainFormula(Collection<Trainable> dataset) {
+        this(dataset,null);
+    }
+
+    /**
+     * <p>
+     * Creates a new completely initialized object of this class. The provided dataset needs to provide all the features
+     * you want to calculate information gain values for. If the feature is dense it should not have missing values.
+     * Sparse features can be handled by using a {@link ListFeature}.
+     * </p>
+     * 
+     * @param dataset The dataset this formula works on.
+     * @param monitor A progress monitor
+     */
+    public InformationGainFormula(Collection<Trainable> dataset, ProgressMonitor monitor) {
+        Validate.notEmpty(dataset);
+
         this.dataset = new ArrayList<Trainable>(dataset);
         this.classOccurrences = countClassOccurrences();
+        this.monitor = monitor;
+        this.progressToOne = .0;
     }
 
     /**
@@ -119,6 +147,7 @@ public final class InformationGainFormula {
             }
             absoluteOccurrence += 1.0;
             absoluteOccurrences.put(value, absoluteOccurrence);
+            progress(0.5);
         }
 
         return absoluteOccurrences;
@@ -145,6 +174,7 @@ public final class InformationGainFormula {
             }
             jointAbsoluteOccurrence++;
             jointAbsoluteOccurrences.put(key, jointAbsoluteOccurrence);
+            progress(0.5);
         }
 
         return jointAbsoluteOccurrences;
@@ -245,6 +275,7 @@ public final class InformationGainFormula {
                 jointCounter += 1.0;
                 absoluteJointOccurrences.put(jointOccurrencesKey, jointCounter);
             }
+            progress(0.5);
         }
 
         // calculate gains
@@ -275,8 +306,19 @@ public final class InformationGainFormula {
 
             double gain = classEntropy - attributeEntropy;
             ret.put(absoluteOccurrence.getKey(), gain);
+            progress(0.5);
         }
 
         return ret;
+    }
+
+    private void progress(double dataItemsProcessed) {
+        if (monitor != null) {
+            progressToOne += dataItemsProcessed;
+            while (progressToOne >= 1.0) {
+                LOGGER.info(monitor.incrementAndGetProgress());
+                progressToOne -= 1.0;
+            }
+        }
     }
 }

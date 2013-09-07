@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
@@ -68,7 +69,11 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         }
 
         List<Trainable> preparedData = prepare(dataset);
-        InformationGainFormula formula = new InformationGainFormula(preparedData);
+
+        int workItems = preparedData.get(0).getFeatureVector().size() * preparedData.size();
+        ProgressMonitor monitor = new ProgressMonitor(workItems, 0.5, "Ranking Features");
+        InformationGainFormula formula = new InformationGainFormula(preparedData, monitor);
+        
         // TODO This is evil since it assumes the first Trainable in the preparedData list contains all features. Again
         // a schema would help.
         for (Feature<?> preparedFeature : preparedData.get(0).getFeatureVector()) {
