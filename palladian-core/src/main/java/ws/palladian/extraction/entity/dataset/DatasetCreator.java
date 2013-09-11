@@ -22,7 +22,7 @@ import org.w3c.dom.Document;
 
 import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CountMap;
@@ -280,8 +280,6 @@ public class DatasetCreator {
 
         LOGGER.info("Creating dataset for {}", seedFileName);
 
-        StopWatch stopWatch = new StopWatch();
-
         DocumentRetriever urlDownloader = new DocumentRetriever();
         urlDownloader.setDownloadFilter(downloadFilter);
         List<String> seedEntities = FileHelper.readFileToArray(seedFile);
@@ -297,13 +295,15 @@ public class DatasetCreator {
         // write a seed file in classification format with all the seeds used for the current concept
         StringBuilder seedFileCopy = new StringBuilder();
 
+        ProgressMonitor progressMonitor = new ProgressMonitor(seedEntities.size(), 1);
         int entityCount = 0;
 
         for (String seedEntity : seedEntities) {
 
             StopWatch sw = new StopWatch();
 
-            ProgressHelper.printProgress(entityCount, seedEntities.size(), 1, stopWatch);
+            // ProgressHelper.printProgress(entityCount, seedEntities.size(), 1, stopWatch);
+            progressMonitor.incrementAndPrintProgress();
             LOGGER.info("start processing seed entity {} ({})", seedEntity, seedFileName);
 
             seedFileCopy.append(seedEntity).append("###")
@@ -338,7 +338,7 @@ public class DatasetCreator {
         FileHelper.writeToFile(new File(datasetLocation, seedFileName + "/seeds/seeds.txt").getPath(), seedFileCopy);
 
         LOGGER.info("created dataset for concept {} with {} seeds in {}", seedFileName, seedEntities.size(),
-                stopWatch.getTotalElapsedTime());
+                progressMonitor.getTotalElapsedTimeString());
     }
 
     /**
@@ -405,7 +405,7 @@ public class DatasetCreator {
 
                 // XXX hard-coded special treatment for type "PER"; here also the last part is marked up
                 // (e.g. "Tina Turner" -> "Turner)
-                if ("person".equalsIgnoreCase(conceptName) || "person".equalsIgnoreCase(conceptName)) {
+                if ("person".equalsIgnoreCase(conceptName)) {
                     String lastName = seedEntity.substring(seedEntity.lastIndexOf(' ') + 1, seedEntity.length());
                     escapedSeed = "(" + Pattern.quote(seedEntity) + "|" + Pattern.quote(lastName) + ")";
                 }
