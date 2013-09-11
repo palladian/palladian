@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.evaluation;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -11,9 +12,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
+import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
@@ -21,10 +23,25 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
- * TODO currently just a parser for the JSON data. Not trivial to integrate, as text files need to be present on a web
- * server and processing takes time.
+ * <p>
+ * Test client for Unlock. As the service works asynchronous and takes a long time for processing, there are several
+ * steps:
+ * <ol>
+ * <li>Create clean texts from the annotated dataset using {@link #writeCleanTexts(String, String)}</li>
+ * <li>Upload the clean texts to a web server, so that Unlock can access them.</li>
+ * <li>Set up a user account at Unlock using {@link #registerUser()}</li>
+ * <li>Create a new batch job, using {@link #addDocuments(String, List)}</li>
+ * <li>... wait ...</li>
+ * <li>Check the status using {@link #printBatchStatus(String)}</li>
+ * <li>Fetch the batch result using {@link #fetchBatchResult(String, String)}</li>
+ * <li>Delete the batch using {@link #deleteBatch(String)}</li>
+ * <li>Use the {@link UnlockTextMockExtractor} to evaluate.</li>
+ * </ol>
  * 
  * @see <a href="http://unlock.edina.ac.uk/texts/api">API Documentation</a>
  * @author Philipp Katz
@@ -39,11 +56,25 @@ class UnlockTextClient {
 
     private final String password;
 
+    /**
+     * <p>
+     * Create a new Unlock client. If the username/password have not been used before, call {@link #registerUser()}
+     * after init.
+     * </p>
+     * 
+     * @param username The username.
+     * @param password The password.
+     */
     public UnlockTextClient(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
+    /**
+     * <p>
+     * Create a user account with the credentials specified in the constructor.
+     * </p>
+     */
     public void registerUser() {
         try {
             HttpRequest createUserRequest = new HttpRequest(HttpMethod.POST, BASE_URL + username);
@@ -56,7 +87,23 @@ class UnlockTextClient {
         }
     }
 
-    public void addDocuments(String jobName, List<String> documentUrls) {
+    /**
+     * <p>
+     * Create a new job with the documents from the specified URL.
+     * </p>
+     * 
+     * @param jobName The name of the job, used to access it later.
+     * @param baseUrl The directory, where the texts are available on the web for Unlock to retrieve them.
+     * @param textPath The local path to the directory, used for obtaining the file names.
+     */
+    public void addDocuments(String jobName, String baseUrl, File textsPath) {
+        List<String> documentUrls = CollectionHelper.newArrayList();
+        File[] files = FileHelper.getFiles(textsPath.getPath());
+        for (File file : files) {
+            if (file.getName().startsWith("text")) {
+                documentUrls.add(String.format("%s/%s", baseUrl, file.getName()));
+            }
+        }
         try {
             String postUrl = BASE_URL + username + "/batchjobs/" + jobName;
             HttpClient client = new DefaultHttpClient();
@@ -89,44 +136,89 @@ class UnlockTextClient {
         }
     }
 
-    public void getTextStatus(String batchName, String documentName) {
+    /**
+     * <p>
+     * Print the current status of a batch.
+     * </p>
+     * 
+     * @param batchName The name of the batch.
+     */
+    public void printBatchStatus(String batchName) {
         try {
-            String requestUrl = BASE_URL + username + "/batchjobs/" + batchName + "/" + documentName;
-            HttpRequest getStatusRequest = new HttpRequest(HttpMethod.GET, requestUrl);
-            getStatusRequest.addHeader("accept", "application/json");
-            getStatusRequest.addHeader("Authorization", password);
-            HttpResult getStatusResult = retriever.execute(getStatusRequest);
-            // System.out.println(HttpHelper.getStringContent(getStatusResult));
-            JSONObject jsonObject = new JSONObject(getStatusResult.getStringContent());
-            String output = documentName + ": ";
-            if (jsonObject.has("status-code")) {
-                output += jsonObject.getString("status-code") + "; " + jsonObject.optString("message");
-            } else if (jsonObject.has("output")) {
-                output += "done.";
-            } else {
-                output += "?";
+            int completeCount = 0;
+            JsonObject batchStatus = getBatchStatus(batchName);
+            JsonArray textsArray = batchStatus.getJsonArray("Texts");
+            for (Object textObject : textsArray) {
+                JsonObject jsonTextObject = (JsonObject)textObject;
+                String source = jsonTextObject.getString("src");
+                String status = jsonTextObject.getString("status");
+                System.out.println(source + " : " + status);
+                if ("complete".equals(status)) {
+                    completeCount++;
+                }
             }
-            System.out.println(output);
+            System.out.println("\n\nCompleted " + completeCount + "/" + textsArray.size());
         } catch (HttpException e) {
             throw new IllegalStateException(e);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    public String getText(String batchName, String documentName) {
+    private JsonObject getBatchStatus(String batchName) throws HttpException, JsonException {
+        String requestUrl = BASE_URL + username + "/batchjobs/" + batchName;
+        HttpRequest getStatusRequest = new HttpRequest(HttpMethod.GET, requestUrl);
+        getStatusRequest.addHeader("accept", "application/json");
+        getStatusRequest.addHeader("Authorization", password);
+        HttpResult getStatusResult = retriever.execute(getStatusRequest);
+        return new JsonObject(getStatusResult.getStringContent());
+    }
+
+    private String getText(String batchName, String requestUrl) throws HttpException {
+        HttpRequest getTextRequest = new HttpRequest(HttpMethod.GET, requestUrl);
+        getTextRequest.addHeader("accept", "application/json");
+        getTextRequest.addHeader("Authorization", password);
+        HttpResult getStatusResult = retriever.execute(getTextRequest);
+        return getStatusResult.getStringContent();
+    }
+
+    /**
+     * <p>
+     * Retrieve all the results of a batch.
+     * </p>
+     * 
+     * @param batchName The name of the batch.
+     * @param outputDir The path to the directory where to store the result JSON files.
+     */
+    public void fetchBatchResult(String batchName, File outputDir) {
         try {
-            String requestUrl = BASE_URL + username + "/batchjobs/" + batchName + "/" + documentName + ".json";
-            HttpRequest getTextRequest = new HttpRequest(HttpMethod.GET, requestUrl);
-            getTextRequest.addHeader("accept", "application/json");
-            getTextRequest.addHeader("Authorization", password);
-            HttpResult getStatusResult = retriever.execute(getTextRequest);
-            return getStatusResult.getStringContent();
+            JsonObject batchStatus = getBatchStatus(batchName);
+            JsonArray textsArray = batchStatus.getJsonArray("Texts");
+            ProgressMonitor monitor = new ProgressMonitor(textsArray.size(), 1);
+            for (Object textObject : textsArray) {
+                JsonObject jsonTextObject = (JsonObject)textObject;
+                String source = jsonTextObject.getString("src");
+                String resourceUri = jsonTextObject.getString("resource-uri");
+                String text = getText(batchName, resourceUri + ".json");
+                File outputFile = new File(outputDir, source.substring(source.lastIndexOf("/"))
+                        .replace(".txt", ".json"));
+                FileHelper.writeToFile(outputFile.getPath(), text);
+                monitor.incrementAndPrintProgress();
+            }
+        } catch (JsonException e) {
+            throw new IllegalStateException(e);
         } catch (HttpException e) {
             throw new IllegalStateException(e);
         }
     }
 
+    /**
+     * <p>
+     * Delete a batch.
+     * </p>
+     * 
+     * @param batchName Name of the batch to delete.
+     */
     public void deleteBatch(String batchName) {
         try {
             String postUrl = BASE_URL + username + "/batchjobs/" + batchName;
@@ -142,35 +234,28 @@ class UnlockTextClient {
         }
     }
 
-
+    public static void writeCleanTexts(String inputDir, String outputDir) {
+        File[] files = FileHelper.getFiles(inputDir);
+        for (File file : files) {
+            String taggedText = FileHelper.readFileToString(file);
+            String strippedText = HtmlHelper.stripHtmlTags(taggedText);
+            FileHelper.writeToFile(new File(new File(outputDir), file.getName()).getPath(), strippedText);
+        }
+    }
 
     public static void main(String[] args) throws Exception {
 
         String username = "palladian-test-user";
         String password = "opabonand";
-        UnlockTextClient unlockTextEvaluator = new UnlockTextClient(username, password);
-        int numFiles = 152;
 
-        // unlockTextEvaluator.registerUser();
+        UnlockTextClient client = new UnlockTextClient(username, password);
+        // client.registerUser();
 
-        // List<String> documentUrls = CollectionHelper.newArrayList();
-        // for (int i = 1; i <= numFiles; i++) {
-        // documentUrls.add(String.format("http://palladian.ws/tudLocEvaluation/text%s.txt", i));
-        // }
-        // unlockTextEvaluator.addDocuments("palladian-test-evaluation", documentUrls);
-
-        // ... wait ...
-
-        // for (int i = 1; i <= numFiles; i++) {
-        // unlockTextEvaluator.getTextStatus("palladian-test-evaluation", "palladian-test-evaluation" + i);
-        // }
-
-        for (int i = 1; i <= numFiles; i++) {
-            String text = unlockTextEvaluator.getText("palladian-test-evaluation", "palladian-test-evaluation" + i);
-            FileHelper.writeToFile("/Users/pk/Desktop/LocationLab/UnlockTextResults/text" + i + ".json", text);
-        }
-
-        // unlockTextEvaluator.deleteBatch("palladian-test-evaluation");
+        // client.addDocuments("LGL", "http://palladian.ws/tempLocationTest", new
+        // File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-cleanTexts"));
+        // client.printBatchStatus("LGL");
+        // client.fetchBatchResult("LGL", new File("/Users/pk/Desktop/UnlockTextResults"));
+        client.deleteBatch("LGL");
     }
 
 }
