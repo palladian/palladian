@@ -142,7 +142,8 @@ public enum Language {
     }
 
     /**
-     * @return The ISO 639-1 code of the language, <code>null</code> in case no such code exists.
+     * @return The ISO 639-1 code of the language, <code>null</code> in case no such code exists. Usually two letters,
+     *         e.g. "en".
      */
     public String getIso6391() {
         return iso6391;
@@ -151,7 +152,7 @@ public enum Language {
     /**
      * @return The ISO 639-2 code of the language. (in case <a
      *         href="http://en.wikipedia.org/wiki/ISO_639-2#B_and_T_codes">B and T</a> codes exist, the T code is
-     *         returned).
+     *         returned). Usually three letters, e.g. "eng".
      */
     public String getIso6392() {
         return iso6392;

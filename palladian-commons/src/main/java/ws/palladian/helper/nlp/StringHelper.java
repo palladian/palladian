@@ -462,9 +462,13 @@ public final class StringHelper {
      * @return True, if the word is contained, false if not.
      */
     public static boolean containsWordCaseSensitive(String word, String searchString) {
+        return containsWordCaseSensitiveRecursive(word, searchString, false);
+    }
+
+    public static boolean containsWordCaseSensitiveRecursive(String word, String searchString, boolean contained) {
         int index = searchString.indexOf(word);
         if (index == -1) {
-            return false;
+            return contained;
         }
         boolean leftBorder;
         if (index == 0) {
@@ -484,7 +488,8 @@ public final class StringHelper {
             // == ')';
             rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
         }
-        return leftBorder && rightBorder;
+
+        return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(word, ""), leftBorder && rightBorder);
     }
 
     /**

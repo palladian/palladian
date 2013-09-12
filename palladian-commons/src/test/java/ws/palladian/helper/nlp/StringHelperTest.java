@@ -50,6 +50,7 @@ public class StringHelperTest {
     @Test
     public void testContainsWord() {
 
+
         assertEquals(true, StringHelper.containsWord("test", "a test b"));
         assertEquals(true, StringHelper.containsWord("test", "test"));
         assertEquals(true, StringHelper.containsWord("yes", "Yes, he went there."));
@@ -63,6 +64,8 @@ public class StringHelperTest {
         assertEquals(false, StringHelper.containsWordCaseSensitive("test", "a Test b"));
         assertEquals(true, StringHelper.containsWordCaseSensitive("test", "test"));
         assertEquals(false, StringHelper.containsWordCaseSensitive("Test", "test"));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "abtester ist test"));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("tester", "abtester ist test"));
 
         assertEquals(true, StringHelper.containsWordRegExp("test", "a test b"));
         assertEquals(true, StringHelper.containsWordRegExp("test", "test"));
