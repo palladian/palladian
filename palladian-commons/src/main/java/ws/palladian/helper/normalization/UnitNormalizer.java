@@ -365,6 +365,27 @@ public class UnitNormalizer {
         return false;
     }
 
+    /**
+     * <p>
+     * </p>
+     * 
+     * @param unit The source unit.
+     * @return The unit to which all values are normalized to, e.g. "second" for time units.
+     */
+    public static String findBaseUnit(String unit) {
+
+        unit = unit.toLowerCase();
+        Set<String> allUnitsOfSameType = getAllUnitsOfSameType(unit);
+        for (String unitType : allUnitsOfSameType) {
+            double multiplier = unitLookup(unitType);
+            if (multiplier == 1.) {
+                return unitType;
+            }
+        }
+
+        return null;
+    }
+
     public static double unitLookup(String unit) {
 
         String origUnit = unit;
