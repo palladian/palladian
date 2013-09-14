@@ -489,7 +489,8 @@ public final class StringHelper {
             rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
         }
 
-        return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(word, ""), leftBorder && rightBorder);
+        return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(Pattern.quote(word), ""), leftBorder
+                && rightBorder);
     }
 
     /**
