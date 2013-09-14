@@ -101,5 +101,19 @@ public class Cache {
     public long getCacheSize() {
         return cacheSize;
     }
+    
+    
+    /**
+     * <p>
+     * Explicit remove data object from cache
+     * </p>
+     * 
+     * @param identifier The identifier of the object in the cache.
+     * 
+     * @return 
+     */
+    public void removeDataObject(String cacheName) {
+        dataObjects.remove(cacheName);        
+    }
 
 }
