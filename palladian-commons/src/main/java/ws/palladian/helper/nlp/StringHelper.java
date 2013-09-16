@@ -467,7 +467,7 @@ public final class StringHelper {
 
     public static boolean containsWordCaseSensitiveRecursive(String word, String searchString, boolean contained) {
         int index = searchString.indexOf(word);
-        if (index == -1) {
+        if (index == -1 || word.isEmpty()) {
             return contained;
         }
         boolean leftBorder;
