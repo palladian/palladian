@@ -41,6 +41,7 @@ public abstract class AbstractMultifacetSearcher<R extends WebContent> extends A
         return resultCount;
     }
 
+    /** To be overridden by implementations. */
     public abstract SearchResults<R> search(MultifacetQuery query) throws SearcherException;
 
 }
