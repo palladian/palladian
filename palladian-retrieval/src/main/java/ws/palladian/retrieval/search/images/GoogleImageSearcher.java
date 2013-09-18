@@ -23,12 +23,13 @@ public final class GoogleImageSearcher extends BaseGoogleSearcher<WebImage> {
 
     @Override
     protected WebImage parseResult(JSONObject resultData) throws JSONException {
-        String pageUrl = resultData.getString("originalContextUrl");
-        String imageUrl = resultData.getString("unescapedUrl");
-        String caption = resultData.getString("content");
-        int width = resultData.getInt("width");
-        int height = resultData.getInt("height");
-        return new BasicWebImage(pageUrl, imageUrl, caption, null, width, height, null);
+        BasicWebImage.Builder builder = new BasicWebImage.Builder();
+        builder.setUrl(resultData.getString("originalContextUrl"));
+        builder.setImageUrl(resultData.getString("unescapedUrl"));
+        builder.setTitle(resultData.getString("content"));
+        builder.setWidth(resultData.getInt("width"));
+        builder.setHeight(resultData.getInt("height"));
+        return builder.create();
     }
 
     @Override

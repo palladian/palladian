@@ -38,14 +38,15 @@ public final class BingVideoSearcher extends BaseBingSearcher<WebVideo> {
 
     @Override
     protected WebVideo parseResult(JSONObject currentResult) throws JSONException {
-        String title = currentResult.getString("Title");
-        String pageUrl = currentResult.getString("MediaUrl");
+        BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
+        builder.setTitle(currentResult.getString("Title"));
+        builder.setUrl(currentResult.getString("MediaUrl"));
         // interpret a value of "0", as "no run time specified"
         Long runTime = currentResult.getLong("RunTime");
-        if (runTime == 0) {
-            runTime = null;
+        if (runTime != 0) {
+            builder.setDuration(runTime);
         }
-        return new BasicWebVideo(pageUrl, null, title, runTime, null);
+        return builder.create();
     }
 
     @Override

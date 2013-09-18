@@ -149,17 +149,17 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
     }
 
     /** default visibility for unit testing. */
-    static List<BasicWebContent> parse(String jsonString) throws JSONException {
-        List<BasicWebContent> result = CollectionHelper.newArrayList();
+    static List<WebContent> parse(String jsonString) throws JSONException {
+        List<WebContent> result = CollectionHelper.newArrayList();
         JSONObject jsonObject = new JSONObject(jsonString);
         JSONArray jsonItems = jsonObject.getJSONArray("items");
         for (int i = 0; i < jsonItems.length(); i++) {
             JSONObject jsonItem = jsonItems.getJSONObject(i);
-            String title = jsonItem.getString("title");
-            String link = jsonItem.getString("link");
-            String snippet = jsonItem.getString("snippet");
-            result.add(new BasicWebContent(link, title, snippet));
-
+            BasicWebContent.Builder builder = new BasicWebContent.Builder();
+            builder.setTitle(jsonItem.getString("title"));
+            builder.setUrl(jsonItem.getString("link"));
+            builder.setSummary(jsonItem.getString("snippet"));
+            result.add(builder.create());
         }
         return result;
     }

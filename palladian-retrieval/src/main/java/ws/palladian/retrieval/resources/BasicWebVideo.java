@@ -1,7 +1,5 @@
 package ws.palladian.retrieval.resources;
 
-import java.util.Date;
-
 /**
  * <p>
  * A {@link BasicWebContent} representing video links.
@@ -12,95 +10,112 @@ import java.util.Date;
  */
 public class BasicWebVideo extends BasicWebContent implements WebVideo {
 
+    /**
+     * <p>
+     * Builder for creating new instances of {@link WebVideo}.
+     * </p>
+     * 
+     * @author katz
+     */
+    public static class Builder extends BasicWebContent.Builder {
+
+        protected String videoUrl;
+        protected String thumbnailUrl;
+        protected Long duration;
+        protected Integer views;
+        protected Double rating;
+
+        public Builder setVideoUrl(String videoUrl) {
+            this.videoUrl = videoUrl;
+            return this;
+        }
+
+        public Builder setThumbnailUrl(String thumbnailUrl) {
+            this.thumbnailUrl = thumbnailUrl;
+            return this;
+        }
+
+        public Builder setDuration(Long duration) {
+            this.duration = duration;
+            return this;
+        }
+
+        public Builder setViews(Integer views) {
+            this.views = views;
+            return this;
+        }
+
+        public Builder setRating(Double rating) {
+            this.rating = rating;
+            return this;
+        }
+
+        public Builder setWebVideo(WebVideo webVideo) {
+            super.setWebContent(webVideo);
+            this.videoUrl = webVideo.getVideoUrl();
+            this.thumbnailUrl = webVideo.getThumbnailUrl();
+            this.duration = webVideo.getDuration();
+            this.views = webVideo.getViews();
+            this.rating = webVideo.getRating();
+            return this;
+        }
+
+        @Override
+        public WebVideo create() {
+            return new BasicWebVideo(this);
+        }
+
+    }
+
     private final String videoUrl;
-    private String thumbnail;
-    private final Long runTime;
-    private Integer views;
-    private Double rating;
+    private final String thumbnailUrl;
+    private final Long duration;
+    private final Integer views;
+    private final Double rating;
 
-    /**
-     * <p>
-     * Instantiate a new {@link WebVideoResult}.
-     * </p>
-     * 
-     * @param url The URL linking to the page containing the video.
-     * @param videoUrl The URL linking to the video file.
-     * @param title The title of the video.
-     * @param runTime The run time of the video in seconds.
-     */
-    public BasicWebVideo(String url, String videoUrl, String title, Long runTime, Date date) {
-        this(url, videoUrl, title, null, runTime, date);
+    private BasicWebVideo(Builder builder) {
+        super(builder);
+        this.videoUrl = builder.videoUrl;
+        this.thumbnailUrl = builder.thumbnailUrl;
+        this.duration = builder.duration;
+        this.views = builder.views;
+        this.rating = builder.rating;
     }
 
-    /**
-     * <p>
-     * Instantiate a new {@link WebVideoResult}.
-     * </p>
-     * 
-     * @param url The URL linking to the page containing the video.
-     * @param videoUrl The URL linking to the video file.
-     * @param title The title of the video.
-     * @param runTime The run time of the video in seconds.
-     */
-    public BasicWebVideo(String url, String videoUrl, String title, String summary, Long runTime, Date date) {
-        super(url, title, summary, date);
-        this.videoUrl = videoUrl;
-        this.runTime = runTime;
-    }
-
-    /**
-     * <p>
-     * Get the URL linking to the video.
-     * </p>
-     * 
-     * @return The URL linking directly to the video.
-     */
+    @Override
     public String getVideoUrl() {
         return videoUrl;
     }
 
-    /**
-     * <p>
-     * Get the run time of the video in seconds.
-     * </p>
-     * 
-     * @return the runTime The run time of the video, or <code>null</code> if no run time specified.
-     */
+    @Override
     public Long getDuration() {
-        return runTime;
+        return duration;
     }
 
+    @Override
     public Integer getViews() {
         return views;
     }
 
-    public void setViews(Integer views) {
-        this.views = views;
-    }
-
+    @Override
     public Double getRating() {
         return rating;
     }
 
-    public void setRating(Double rating) {
-        this.rating = rating;
-    }
-
+    @Override
     public String getThumbnailUrl() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
+        return thumbnailUrl;
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("WebVideoResult [videoUrl=");
+        builder.append("BasicWebVideo [videoUrl=");
         builder.append(videoUrl);
-        builder.append(", runTime=");
-        builder.append(runTime);
+        builder.append(", thumbnailUrl=");
+        builder.append(thumbnailUrl);
+        builder.append(", duration=");
+        builder.append(duration);
         builder.append(", views=");
         builder.append(views);
         builder.append(", rating=");
@@ -111,10 +126,10 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
         builder.append(getTitle());
         builder.append(", getSummary()=");
         builder.append(getSummary());
-        builder.append(", getThumbnail()=");
-        builder.append(getThumbnailUrl());
-        builder.append(", getDate()=");
+        builder.append(", getPublished()=");
         builder.append(getPublished());
+        builder.append(", getCoordinate()=");
+        builder.append(getCoordinate());
         builder.append("]");
         return builder.toString();
     }
@@ -123,7 +138,11 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + (int)(runTime ^ (runTime >>> 32));
+        result = prime * result + ((duration == null) ? 0 : duration.hashCode());
+        result = prime * result + ((rating == null) ? 0 : rating.hashCode());
+        result = prime * result + ((thumbnailUrl == null) ? 0 : thumbnailUrl.hashCode());
+        result = prime * result + ((videoUrl == null) ? 0 : videoUrl.hashCode());
+        result = prime * result + ((views == null) ? 0 : views.hashCode());
         return result;
     }
 
@@ -136,7 +155,30 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
         if (getClass() != obj.getClass())
             return false;
         BasicWebVideo other = (BasicWebVideo)obj;
-        if (runTime != other.runTime)
+        if (duration == null) {
+            if (other.duration != null)
+                return false;
+        } else if (!duration.equals(other.duration))
+            return false;
+        if (rating == null) {
+            if (other.rating != null)
+                return false;
+        } else if (!rating.equals(other.rating))
+            return false;
+        if (thumbnailUrl == null) {
+            if (other.thumbnailUrl != null)
+                return false;
+        } else if (!thumbnailUrl.equals(other.thumbnailUrl))
+            return false;
+        if (videoUrl == null) {
+            if (other.videoUrl != null)
+                return false;
+        } else if (!videoUrl.equals(other.videoUrl))
+            return false;
+        if (views == null) {
+            if (other.views != null)
+                return false;
+        } else if (!views.equals(other.views))
             return false;
         return true;
     }

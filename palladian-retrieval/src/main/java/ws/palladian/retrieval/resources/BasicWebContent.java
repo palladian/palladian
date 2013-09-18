@@ -3,74 +3,83 @@ package ws.palladian.retrieval.resources;
 import java.util.Date;
 
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.helper.collection.Factory;
 
 /**
  * <p>
- * {@link BasicWebContent}s represent search results from web search engines.
+ * {@link BasicWebContent}s represent search results from web search engines. For instantiation use the {@link Builder}.
  * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
  */
 public class BasicWebContent implements WebContent {
-	
-	/** The URL of the web result. */
-	private final String url;
-	
+
+    /**
+     * <p>
+     * Builder for creating new instances of {@link WebContent}.
+     * </p>
+     * 
+     * @author katz
+     */
+    public static class Builder implements Factory<WebContent> {
+
+        protected String url;
+        protected String title;
+        protected String summary;
+        protected Date published;
+        protected GeoCoordinate coordinate;
+
+        public Builder setUrl(String url) {
+            this.url = url;
+            return this;
+        }
+
+        public Builder setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder setSummary(String summary) {
+            this.summary = summary;
+            return this;
+        }
+
+        public Builder setPublished(Date published) {
+            this.published = published;
+            return this;
+        }
+
+        public Builder setCoordinate(GeoCoordinate coordinate) {
+            this.coordinate = coordinate;
+            return this;
+        }
+
+        public Builder setWebContent(WebContent webContent) {
+            this.url = webContent.getUrl();
+            this.title = webContent.getTitle();
+            this.summary = webContent.getSummary();
+            this.published = webContent.getPublished();
+            this.coordinate = webContent.getCoordinate();
+            return this;
+        }
+
+        @Override
+        public WebContent create() {
+            return new BasicWebContent(this);
+        }
+
+    }
+
+    private final String url;
+
     private final String title;
-    
+
     private final String summary;
-    
+
     private final Date published;
-    
+
     private final GeoCoordinate coordinate;
-
-    /**
-     * <p>
-     * Create a new {@link BasicWebContent}.
-     * </p>
-     * 
-     * @param url The URL to the result. This should usually point to an HTML page.
-     * @param title
-     */
-    public BasicWebContent(String url, String title) {
-    	this(url, title, null, null, null);
-    }
-    
-    /**
-     * <p>
-     * Create a new {@link BasicWebContent}.
-     * </p>
-     * 
-     * @param url The URL to the result. This should usually point to an HTML page.
-     * @param title
-     * @param summary
-     */
-    public BasicWebContent(String url, String title, String summary) {
-    	this(url, title, summary, null, null);
-    }
-
-    public BasicWebContent(String url, String title, String summary, Date published) {
-    	this(url, title, summary, published, null);
-    }
-    
-    /**
-     * <p>
-     * Create a new {@link BasicWebContent}.
-     * </p>
-     * 
-     * @param url The URL to the result. This should usually point to an HTML page.
-     * @param title
-     * @param summary
-     * @param published
-     */
-    public BasicWebContent(String url, String title, String summary, Date published, GeoCoordinate coordinate) {
-        this.url = url;
-        this.title = title;
-        this.summary = summary;
-        this.published = published;
-        this.coordinate = coordinate;
-    }
 
     protected BasicWebContent(WebContent webResult) {
         this.url = webResult.getUrl();
@@ -80,87 +89,95 @@ public class BasicWebContent implements WebContent {
         this.coordinate = webResult.getCoordinate();
     }
 
+    protected BasicWebContent(Builder builder) {
+        this.url = builder.url;
+        this.title = builder.title;
+        this.summary = builder.summary;
+        this.published = builder.published;
+        this.coordinate = builder.coordinate;
+    }
+
     @Override
     public String getUrl() {
         return url;
     }
-    
-	@Override
-	public String getTitle() {
-		return title;
-	}
 
-	@Override
-	public String getSummary() {
-		return summary;
-	}
+    @Override
+    public String getTitle() {
+        return title;
+    }
 
-	@Override
-	public Date getPublished() {
-		return published;
-	}
-	
-	@Override
-	public GeoCoordinate getCoordinate() {
-		return coordinate;
-	}
+    @Override
+    public String getSummary() {
+        return summary;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("WebResult [url=");
-		builder.append(url);
-		builder.append(", title=");
-		builder.append(title);
-		builder.append(", summary=");
-		builder.append(summary);
-		builder.append(", date=");
-		builder.append(published);
-		builder.append("]");
-		return builder.toString();
-	}
+    @Override
+    public Date getPublished() {
+        return published;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((published == null) ? 0 : published.hashCode());
-		result = prime * result + ((summary == null) ? 0 : summary.hashCode());
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
-		return result;
-	}
+    @Override
+    public GeoCoordinate getCoordinate() {
+        return coordinate;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BasicWebContent other = (BasicWebContent) obj;
-		if (published == null) {
-			if (other.published != null)
-				return false;
-		} else if (!published.equals(other.published))
-			return false;
-		if (summary == null) {
-			if (other.summary != null)
-				return false;
-		} else if (!summary.equals(other.summary))
-			return false;
-		if (title == null) {
-			if (other.title != null)
-				return false;
-		} else if (!title.equals(other.title))
-			return false;
-		if (url == null) {
-			if (other.url != null)
-				return false;
-		} else if (!url.equals(other.url))
-			return false;
-		return true;
-	}
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("WebResult [url=");
+        builder.append(url);
+        builder.append(", title=");
+        builder.append(title);
+        builder.append(", summary=");
+        builder.append(summary);
+        builder.append(", date=");
+        builder.append(published);
+        builder.append("]");
+        return builder.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((published == null) ? 0 : published.hashCode());
+        result = prime * result + ((summary == null) ? 0 : summary.hashCode());
+        result = prime * result + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + ((url == null) ? 0 : url.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BasicWebContent other = (BasicWebContent)obj;
+        if (published == null) {
+            if (other.published != null)
+                return false;
+        } else if (!published.equals(other.published))
+            return false;
+        if (summary == null) {
+            if (other.summary != null)
+                return false;
+        } else if (!summary.equals(other.summary))
+            return false;
+        if (title == null) {
+            if (other.title != null)
+                return false;
+        } else if (!title.equals(other.title))
+            return false;
+        if (url == null) {
+            if (other.url != null)
+                return false;
+        } else if (!url.equals(other.url))
+            return false;
+        return true;
+    }
 
 }

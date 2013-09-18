@@ -52,10 +52,10 @@ public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebContent> {
 
     @Override
     protected WebContent parseResult(JSONObject currentResult) throws JSONException {
-        String summary = null;
-        String url = currentResult.getString("url");
-        String title = currentResult.getString("title");
-        return new BasicWebContent(url, title, summary);
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(currentResult.getString("url"));
+        builder.setTitle(currentResult.getString("title"));
+        return builder.create();
     }
 
     @Override

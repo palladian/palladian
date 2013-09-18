@@ -87,11 +87,11 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
                     if (!urlDeduplication.add(object.getString("u"))) {
                         break paging;
                     }
-                    String summary = stripAndUnescape(object.getString("a"));
-                    String title = stripAndUnescape(object.getString("t"));
-
-                    WebContent webResult = new BasicWebContent(object.getString("u"), title, summary);
-                    result.add(webResult);
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
+                    builder.setSummary(stripAndUnescape(object.getString("a")));
+                    builder.setTitle(stripAndUnescape(object.getString("t")));
+                    builder.setUrl(object.getString("u"));
+                    result.add(builder.create());
 
                     if (result.size() >= resultCount) {
                         break paging;

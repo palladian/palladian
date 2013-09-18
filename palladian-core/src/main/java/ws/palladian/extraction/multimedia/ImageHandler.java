@@ -85,6 +85,10 @@ public class ImageHandler {
         public double getRanking() {
             return duplicateCount + 1. / rankCount;
         }
+        
+        public double getWidthHeightRatio() {
+            return getWidth() / getHeight();
+        }
     	
     }
 

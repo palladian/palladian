@@ -10,7 +10,7 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.ParserFactory;
-import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 
 public class GoogleScraperSearcherTest {
 
@@ -18,7 +18,7 @@ public class GoogleScraperSearcherTest {
     public void testParseHtml() throws Exception {
         File file = ResourceHelper.getResourceFile("apiresponse/googleResult.html");
         Document document = ParserFactory.createHtmlParser().parse(file);
-        List<BasicWebContent> webResults = GoogleScraperSearcher.parseHtml(document);
+        List<WebContent> webResults = GoogleScraperSearcher.parseHtml(document);
         assertEquals(10, webResults.size());
         assertEquals("Cat Products & Services", webResults.get(0).getTitle());
         assertEquals("http://www.cat.com/", webResults.get(0).getUrl());

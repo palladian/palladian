@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import ws.palladian.retrieval.parser.JsonHelper;
 import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseBingSearcher;
 
 /**
@@ -17,7 +18,7 @@ import ws.palladian.retrieval.search.BaseBingSearcher;
  * 
  * @author Philipp Katz
  */
-public final class BingNewsSearcher extends BaseBingSearcher<BasicWebContent> {
+public final class BingNewsSearcher extends BaseBingSearcher<WebContent> {
 
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
@@ -62,17 +63,17 @@ public final class BingNewsSearcher extends BaseBingSearcher<BasicWebContent> {
 //    }
 
     @Override
-    protected BasicWebContent parseResult(JSONObject currentResult) throws JSONException {
-        String url = currentResult.getString("Url");
-        String title = JsonHelper.getString(currentResult, "Title");
-        String summary = JsonHelper.getString(currentResult, "Description");
-        Date date = null;
+    protected WebContent parseResult(JSONObject currentResult) throws JSONException {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(currentResult.getString("Url"));
+        builder.setTitle(JsonHelper.getString(currentResult, "Title"));
+        builder.setSummary(JsonHelper.getString(currentResult, "Description"));
         if (currentResult.has("Date")) {
             String dateString = currentResult.getString("Date");
-            date = parseDate(dateString);
+            Date date = parseDate(dateString);
+            builder.setPublished(date);
         }
-        BasicWebContent webResult = new BasicWebContent(url, title, summary, date);
-        return webResult;
+        return builder.create();
     }
 
     /**

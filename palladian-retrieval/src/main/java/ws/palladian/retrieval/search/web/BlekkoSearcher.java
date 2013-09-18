@@ -115,14 +115,13 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
 
                 for (int j = 0; j < jsonResults.length(); j++) {
                     JSONObject jsonResult = jsonResults.getJSONObject(j);
-                    String summary = null;
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
                     if (jsonResult.has("snippet")) {
-                        summary = jsonResult.getString("snippet");
+                        builder.setSummary(jsonResult.getString("snippet"));
                     }
-                    String url = jsonResult.getString("url");
-                    String title = jsonResult.getString("url_title");
-                    BasicWebContent webResult = new BasicWebContent(url, title, summary);
-                    webResults.add(webResult);
+                    builder.setUrl(jsonResult.getString("url"));
+                    builder.setTitle(jsonResult.getString("url_title"));
+                    webResults.add(builder.create());
                     if (webResults.size() >= resultCount) {
                         break;
                     }

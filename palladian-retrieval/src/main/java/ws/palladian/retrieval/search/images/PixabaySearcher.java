@@ -89,22 +89,17 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
                     JsonObjectWrapper resultHit = new JsonObjectWrapper(jsonArray.getJSONObject(i));
-                    String url = resultHit.getString("pageURL");
-                    String imageUrl = resultHit.getString("webformatURL");
-                    String summary = resultHit.getString("tags");
-                    String imageTypeString = resultHit.getString("type");
-                    int width = resultHit.getInt("imageWidth");
-                    int height = resultHit.getInt("imageHeight");
-                    BasicWebImage webImageResult = new BasicWebImage(url, imageUrl, summary, summary, width, height,
-                            null);
-
-                    webImageResult.setThumbnailUrl(resultHit.getString("previewURL"));
-                    webImageResult.setLicense(License.PUBLIC_DOMAIN);
-                    webImageResult.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
-                    webImageResult.setImageType(getImageType(imageTypeString));
-
-                    results.add(webImageResult);
-
+                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setUrl(resultHit.getString("pageURL"));
+                    builder.setImageUrl(resultHit.getString("webformatURL"));
+                    builder.setTitle(resultHit.getString("tags"));
+                    builder.setWidth(resultHit.getInt("imageWidth"));
+                    builder.setHeight(resultHit.getInt("imageHeight"));
+                    builder.setImageType(getImageType(resultHit.getString("type")));
+                    builder.setThumbnailUrl(resultHit.getString("previewURL"));
+                    builder.setLicense(License.PUBLIC_DOMAIN);
+                    builder.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
+                    results.add(builder.create());
                 } catch (JSONException e) {
                     throw new SearcherException(e.getMessage());
                 }

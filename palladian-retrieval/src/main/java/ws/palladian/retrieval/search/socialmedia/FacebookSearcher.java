@@ -140,7 +140,7 @@ public final class FacebookSearcher extends AbstractSearcher<WebContent> {
                 for (int i = 0; i < jsonData.size(); i++) {
                     JsonObject jsonEntry = jsonData.getJsonObject(i);
                     
-                    BasicWebContent webResult;
+                    WebContent webResult;
                     if (resultType == ResultType.RESOLVED_URLS) {
                         webResult = processUrls(jsonEntry);
                     } else {
@@ -176,25 +176,28 @@ public final class FacebookSearcher extends AbstractSearcher<WebContent> {
         }
     }
 
-    private BasicWebContent processPosts(JsonObject jsonEntry) {
+    private WebContent processPosts(JsonObject jsonEntry) {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
         String id = jsonEntry.tryGetString("id");
         // http://stackoverflow.com/questions/4729477/what-is-the-url-to-a-facebook-open-graph-post
-        String url = String.format("http://www.facebook.com/%s", id);
-        String message = jsonEntry.tryGetString("message");
+        builder.setUrl(String.format("http://www.facebook.com/%s", id));
+        builder.setTitle(jsonEntry.tryGetString("message"));
         // String description = JsonHelper.getString(jsonEntry, "description");
-        Date date = parseDate(jsonEntry.tryGetString("created_time"));
-        return new BasicWebContent(url, message, null, date);
+        builder.setPublished(parseDate(jsonEntry.tryGetString("created_time")));
+        return builder.create();
     }
 
-    private BasicWebContent processUrls(JsonObject jsonEntry) {
+    private WebContent processUrls(JsonObject jsonEntry) {
         String url = jsonEntry.tryGetString("link");
         if (url == null) {
             return null; // ignore entries without URLs for now.
         }
-        String title = jsonEntry.tryGetString("name");
-        String summary = jsonEntry.tryGetString("caption");
-        Date date = parseDate(jsonEntry.tryGetString("created_time"));
-        return new BasicWebContent(url, title, summary, date);
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(url);
+        builder.setTitle(jsonEntry.tryGetString("name"));
+        builder.setSummary(jsonEntry.tryGetString("caption"));
+        builder.setPublished(parseDate(jsonEntry.tryGetString("created_time")));
+        return builder.create();
     }
 
     public String buildRequestUrl(String query, int page) {

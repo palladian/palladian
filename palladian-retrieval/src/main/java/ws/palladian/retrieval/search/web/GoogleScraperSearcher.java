@@ -84,7 +84,7 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
                 Document document = parser.parse(httpResult);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
                 
-                List<BasicWebContent> webResults = parseHtml(document);
+                List<WebContent> webResults = parseHtml(document);
                 result.addAll(webResults);
 
             }
@@ -101,9 +101,9 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
 
     }
     
-    static List<BasicWebContent> parseHtml(Document document) throws SearcherException {
+    static List<WebContent> parseHtml(Document document) throws SearcherException {
         
-        List<BasicWebContent> result = CollectionHelper.newArrayList();
+        List<WebContent> result = CollectionHelper.newArrayList();
         
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, LINK_XPATH);
         List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, INFORMATION_XPATH);
@@ -127,17 +127,21 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
             if (url.startsWith("/search")) {
                 continue;
             }
-            String extractedUrl = extractUrl(url);
             
-            String title = linkNode.getTextContent();
+            BasicWebContent.Builder builder = new BasicWebContent.Builder();
+            
+            builder.setUrl(extractUrl(url));
+            
+            builder.setTitle(linkNode.getTextContent());
 
             // the summary needs some cleaning; what we want is between "quotes",
             // we also remove double whitespaces
             String summary = infoNode.getTextContent();
             summary = StringHelper.trim(summary);
             summary = StringHelper.removeDoubleWhitespaces(summary);
+            builder.setSummary(summary);
 
-            result.add(new BasicWebContent(extractedUrl, title, summary));
+            result.add(builder.create());
             
 //            if (result.size() >= resultCount) {
 //                break paging;

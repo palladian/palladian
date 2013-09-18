@@ -150,12 +150,12 @@ public final class TwitterSearcher extends AbstractSearcher<WebContent> {
 
                 for (int i = 0; i < numResults; i++) {
                     JSONObject jsonResult = jsonResults.getJSONObject(i);
-                    String text = StringEscapeUtils.unescapeHtml4(jsonResult.getString("text"));
-                    String dateString = jsonResult.getString("created_at");
-                    Date date = parseDate(dateString);
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
+                    builder.setTitle(StringEscapeUtils.unescapeHtml4(jsonResult.getString("text")));
+                    builder.setPublished(parseDate(jsonResult.getString("created_at")));
                     JSONObject jsonUser = jsonResult.getJSONObject("user");
-                    String url = createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str"));
-                    webResults.add(new BasicWebContent(url, text, null, date));
+                    builder.setUrl(createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str")));
+                    webResults.add(builder.create());
                     if (webResults.size() >= resultCount) {
                         break;
                     }

@@ -110,20 +110,20 @@ public final class InstagramTagSearcher extends AbstractSearcher<WebImage> {
 
                 for (int i = 0; i < dataArray.length(); i++) {
                     JSONObject data = dataArray.getJSONObject(i);
+                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
 
-                    String pageUrl = data.getString("link");
-                    Date date = new Date(data.getLong("created_time") * 1000);
+                    builder.setUrl(data.getString("link"));
+                    builder.setPublished(new Date(data.getLong("created_time") * 1000));
 
                     JSONObject imageData = data.getJSONObject("images").getJSONObject("standard_resolution");
-                    String imageUrl = imageData.getString("url");
-                    int width = imageData.getInt("width");
-                    int height = imageData.getInt("height");
+                    builder.setImageUrl(imageData.getString("url"));
+                    builder.setWidth(imageData.getInt("width"));
+                    builder.setHeight(imageData.getInt("height"));
 
-                    String title = null;
                     if (data.has("caption") && !data.getString("caption").equals("null")) {
-                        title = data.getJSONObject("caption").getString("text");
+                        builder.setTitle(data.getJSONObject("caption").getString("text"));
                     }
-                    result.add(new BasicWebImage(pageUrl, imageUrl, title, null, width, height, date));
+                    result.add(builder.create());
 
                     if (result.size() == resultCount) {
                         break page;

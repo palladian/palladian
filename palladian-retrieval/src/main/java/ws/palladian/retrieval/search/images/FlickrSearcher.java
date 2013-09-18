@@ -124,17 +124,16 @@ public final class FlickrSearcher extends AbstractSearcher<WebImage> {
                 JSONArray photoJsonArray = photosJson.getJSONArray("photo");
                 for (int i = 0; i < photoJsonArray.length(); i++) {
                     JSONObject photoJson = photoJsonArray.getJSONObject(i);
-                    String title = photoJson.getString("title");
+                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setTitle(photoJson.getString("title"));
                     String farmId = photoJson.getString("farm");
                     String serverId = photoJson.getString("server");
                     String id = photoJson.getString("id");
                     String secret = photoJson.getString("secret");
                     String userId = photoJson.getString("owner");
-                    String imageUrl = buildImageUrl(farmId, serverId, id, secret);
-                    String pageUrl = buildPageUrl(id, userId);
-                    BasicWebImage webImageResult = new BasicWebImage(pageUrl, imageUrl, title, null, -1, -1, null);
-                    webImageResult.setThumbnailUrl(imageUrl);
-                    result.add(webImageResult);
+                    builder.setImageUrl(buildImageUrl(farmId, serverId, id, secret));
+                    builder.setUrl(buildPageUrl(id, userId));
+                    result.add(builder.create());
                 }
             } catch (JSONException e) {
                 throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()

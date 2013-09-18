@@ -10,14 +10,14 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 
 public class GoogleCustomSearcherTest {
     
     @Test
     public void testParsing() throws FileNotFoundException, JSONException {
         String jsonString = FileHelper.readFileToString(ResourceHelper.getResourceFile("/apiresponse/googleCustomSearchResponse.json"));
-        List<BasicWebContent> results = GoogleCustomSearcher.parse(jsonString);
+        List<WebContent> results = GoogleCustomSearcher.parse(jsonString);
         assertEquals(10, results.size());
         
         assertEquals("Palladian architecture - Wikipedia, the free encyclopedia", results.get(0).getTitle());

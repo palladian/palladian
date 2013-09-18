@@ -46,23 +46,20 @@ public class PublicDomainImageSearcher extends AbstractSearcher<WebImage> {
 
             for (Node node : imageNodes) {
 
-                String summary = node.getAttributes().getNamedItem("alt").getTextContent();
+                BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                builder.setSummary(node.getAttributes().getNamedItem("alt").getTextContent());
                 String imageUrl = node.getAttributes().getNamedItem("src").getTextContent();
                 String thumbImageUrl = imageUrl;
                 imageUrl = imageUrl.replace("cache/", "public-domain-images-pictures-free-stock-photos/");
                 imageUrl = imageUrl.replace("_85_thumb", "");
                 imageUrl = "http://www.public-domain-image.com" + imageUrl;
                 thumbImageUrl = "http://www.public-domain-image.com" + thumbImageUrl;
-
-                BasicWebImage webImageResult = new BasicWebImage(imageUrl, imageUrl, summary, summary, -1, -1, null);
-                webImageResult.setThumbnailUrl(thumbImageUrl);
-
-                webImageResult.setLicense(License.PUBLIC_DOMAIN);
-                webImageResult.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
-                webImageResult.setImageType(ImageType.PHOTO);
-
-                results.add(webImageResult);
-
+                builder.setImageUrl(imageUrl);
+                builder.setThumbnailUrl(thumbImageUrl);
+                builder.setLicense(License.PUBLIC_DOMAIN);
+                builder.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
+                builder.setImageType(ImageType.PHOTO);
+                results.add(builder.create());
                 if (results.size() >= resultCount) {
                     break ol;
                 }

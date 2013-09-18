@@ -485,35 +485,31 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         for (Node node : imageNodes) {
             try {
 
-                // WebImage webImage = new WebImage();
-
                 NamedNodeMap nnm = node.getAttributes();
+                BasicWebImage.Builder builder = new BasicWebImage.Builder();
                 String imageUrl = nnm.getNamedItem("src").getTextContent();
-                String alt = null;
-                String title = null;
-                int width = 0;
-                int height = 0;
 
                 if (!imageUrl.startsWith("http")) {
                     imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
                 }
+                builder.setImageUrl(imageUrl);
 
                 if (nnm.getNamedItem("alt") != null) {
-                    alt = nnm.getNamedItem("alt").getTextContent();
+                    builder.setSummary(nnm.getNamedItem("alt").getTextContent());
                 }
                 if (nnm.getNamedItem("title") != null) {
-                    title = nnm.getNamedItem("title").getTextContent();
+                    builder.setTitle(nnm.getNamedItem("title").getTextContent());
                 }
                 if (nnm.getNamedItem("width") != null) {
                     String w = nnm.getNamedItem("width").getTextContent();
-                    width = getImageSize(w);
+                    builder.setWidth(getImageSize(w));
                 }
                 if (nnm.getNamedItem("height") != null) {
                     String h = nnm.getNamedItem("height").getTextContent();
-                    height = getImageSize(h);
+                    builder.setHeight(getImageSize(h));
                 }
                 
-                imageURLs.add(new BasicWebImage(null, imageUrl, title, alt, width, height, null));
+                imageURLs.add(builder.create());
 
             } catch (NumberFormatException e) {
                 LOGGER.debug(e.getMessage());
@@ -606,25 +602,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * </p>
      */
     public void analyzeImages() {
-    	
-    	List<WebImage> temp = CollectionHelper.newArrayList();
+
+        List<WebImage> temp = CollectionHelper.newArrayList();
 
         for (WebImage webImage : getImages()) {
             if (webImage.getWidth() == 0 || webImage.getHeight() == 0) {
                 BufferedImage image = ImageHandler.load(webImage.getUrl());
                 if (image != null) {
-					temp.add(new BasicWebImage(webImage.getUrl(), webImage
-							.getImageUrl(), webImage.getTitle(), webImage
-							.getSummary(), image.getWidth(), image.getHeight(),
-							webImage.getPublished()));
+                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setWebImage(webImage);
+                    builder.setWidth(image.getWidth());
+                    builder.setHeight(image.getHeight());
+                    temp.add(builder.create());
                 } else {
-                	temp.add(webImage);
+                    temp.add(webImage);
                 }
             } else {
-            	temp.add(webImage);
+                temp.add(webImage);
             }
         }
-        
+
         imageURLs = temp;
 
     }

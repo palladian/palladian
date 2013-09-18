@@ -11,7 +11,8 @@ import ws.palladian.retrieval.resources.WebContent;
  * <p>
  * Interface defining a {@link Searcher}. A Searcher might be an implementation for a web search engine like Google,
  * Bing, etc. On the other hand, a Searcher might perform queries on local, file-system-based indices like Lucene.
- * Searchers can be queried with information requests and return subclasses of {@link SearchResult}s.
+ * Searchers can be queried with information requests and return subclasses of {@link SearchResult}s. <b>Hint:</b> Use
+ * {@link AbstractSearcher} or {@link AbstractMultifacetSearcher} as base class for implementations of this interface.
  * </p>
  * 
  * @param <R> The specific type of search result this {@link Searcher} implementation provides. This might be page
@@ -19,8 +20,8 @@ import ws.palladian.retrieval.resources.WebContent;
  * @author Philipp Katz
  */
 public interface Searcher<R extends WebContent> {
-	
-	/** The default language to use for search. */
+
+    /** The default language to use for search. */
     public static final Language DEFAULT_SEARCHER_LANGUAGE = Language.ENGLISH;
 
     /**
@@ -33,8 +34,8 @@ public interface Searcher<R extends WebContent> {
      * @return
      * @throws SearcherException In case the search fails.
      */
-    List<R> search(String query, int resultCount) throws SearcherException; 
-    
+    List<R> search(String query, int resultCount) throws SearcherException;
+
     /**
      * <p>
      * Retrieve a list of {@link SearchResult}s for the specified query.
@@ -47,7 +48,7 @@ public interface Searcher<R extends WebContent> {
      * @throws SearcherException In case the search fails.
      */
     List<R> search(String query, int resultCount, Language language) throws SearcherException;
-    
+
     /**
      * <p>
      * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
@@ -59,7 +60,7 @@ public interface Searcher<R extends WebContent> {
      * @throws SearcherException In case the search fails.
      */
     List<String> searchUrls(String query, int resultCount) throws SearcherException;
-    
+
     /**
      * <p>
      * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
@@ -83,7 +84,7 @@ public interface Searcher<R extends WebContent> {
      * @throws SearcherException In case the search fails.
      */
     long getTotalResultCount(String query) throws SearcherException;
-    
+
     /**
      * <p>
      * Override, if this searcher supports getting the total number of available results.
@@ -95,17 +96,17 @@ public interface Searcher<R extends WebContent> {
      * @throws SearcherException In case the search fails.
      */
     long getTotalResultCount(String query, Language language) throws SearcherException;
-    
-	/**
-	 * <p>
-	 * Do a search with a {@link MultifacetQuery}. In case, a facet is not supported, it is simply ignored.
-	 * </p>
-	 * 
-	 * @param query The query, not <code>null</code>.
-	 * @return The results for the query, never <code>null</code>.
-	 * @throws SearcherException In case the search fails.
-	 */
-	SearchResults<R> search(MultifacetQuery query) throws SearcherException;
+
+    /**
+     * <p>
+     * Do a search with a {@link MultifacetQuery}. In case, a facet is not supported, it is simply ignored.
+     * </p>
+     * 
+     * @param query The query, not <code>null</code>.
+     * @return The results for the query, never <code>null</code>.
+     * @throws SearcherException In case the search fails.
+     */
+    SearchResults<R> search(MultifacetQuery query) throws SearcherException;
 
     /**
      * <p>

@@ -105,12 +105,13 @@ public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
                 }
                 for (int i = 0; i < jsonItems.length(); i++) {
                     JSONObject jsonItem = jsonItems.getJSONObject(i);
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
 
-                    String url = JsonHelper.getString(jsonItem, "url");
-                    String title = JsonHelper.getString(jsonItem, "title");
-                    String content = JsonHelper.getString(jsonItem, "content");
-                    Date date = getCreationDate(JsonHelper.getString(jsonItem, "published"));
-                    results.add(new BasicWebContent(url, title, content, date));
+                    builder.setUrl(JsonHelper.getString(jsonItem, "url"));
+                    builder.setTitle(JsonHelper.getString(jsonItem, "title"));
+                    builder.setSummary(JsonHelper.getString(jsonItem, "content"));
+                    builder.setPublished(getCreationDate(JsonHelper.getString(jsonItem, "published")));
+                    results.add(builder.create());
                     if (results.size() == resultCount) {
                         break out;
                     }

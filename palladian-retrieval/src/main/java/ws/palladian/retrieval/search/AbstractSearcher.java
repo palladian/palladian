@@ -8,22 +8,25 @@ import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
- * Base implementation for a {@link Searcher} providing common functionality. A Searcher is a component which
- * queries APIs from web search engines, like Google.
+ * Base implementation for a {@link Searcher} providing common functionality. A Searcher is a component which queries
+ * APIs from web search engines, like Google. Implementation hints: At least {@link #search(String, int, Language)} must
+ * be implemented. In case the searcher supports retrieving the number of available search results for a query, also
+ * override {@link #getTotalResultCount(String, Language)} (if not overridden, this will trigger a
+ * {@link SearcherException} else wise). <b>Important:</b> From now on, new {@link Searcher} implementations should use
+ * {@link AbstractMultifacetSearcher} as a foundation.
  * </p>
  * 
  * @author Philipp Katz
  */
-
 public abstract class AbstractSearcher<R extends WebContent> implements Searcher<R> {
 
     @Override
-	public final List<String> searchUrls(String query, int resultCount) throws SearcherException {
+    public final List<String> searchUrls(String query, int resultCount) throws SearcherException {
         return searchUrls(query, resultCount, DEFAULT_SEARCHER_LANGUAGE);
     }
-    
+
     @Override
-	public final List<String> searchUrls(String query, int resultCount, Language language) throws SearcherException {
+    public final List<String> searchUrls(String query, int resultCount, Language language) throws SearcherException {
         List<String> urls = new ArrayList<String>();
 
         List<R> webresults = search(query, resultCount, language);
@@ -58,17 +61,17 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
      * @throws SearcherException In case the search fails.
      */
     @Override
-	public long getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Obtaining the total number of results is not supported or implemented by "
                 + getName() + ".");
     }
-    
+
     /**
      * Default implementation which just delegates to the old API (only text query and language).
      */
     @Override
     public SearchResults<R> search(MultifacetQuery query) throws SearcherException {
-    	return new SearchResults<R>(search(query.getText(), query.getResultCount(), query.getLanguage()));
+        return new SearchResults<R>(search(query.getText(), query.getResultCount(), query.getLanguage()));
     }
 
     @Override
