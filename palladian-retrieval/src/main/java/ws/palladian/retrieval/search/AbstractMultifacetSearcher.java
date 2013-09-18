@@ -27,6 +27,20 @@ public abstract class AbstractMultifacetSearcher<R extends WebContent> extends A
         return search(builder.create()).getResultList();
     }
 
+    @Override
+    public final long getTotalResultCount(String query, Language language) throws SearcherException {
+        MultifacetQuery.Builder builder = new MultifacetQuery.Builder();
+        builder.setText(query);
+        builder.setLanguage(language);
+        builder.setResultCount(1);
+        Long resultCount = search(builder.create()).getResultCount();
+        if (resultCount == null) {
+            throw new SearcherException("Obtaining the total number of results is not supported or implemented by "
+                    + getName() + ".");
+        }
+        return resultCount;
+    }
+
     public abstract SearchResults<R> search(MultifacetQuery query) throws SearcherException;
 
 }
