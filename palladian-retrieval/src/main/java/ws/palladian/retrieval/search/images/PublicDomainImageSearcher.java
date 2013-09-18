@@ -10,6 +10,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
@@ -21,11 +23,11 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author David Urbansky
  */
-public class PublicDomainImageSearcher extends AbstractSearcher<WebImageResult> {
+public class PublicDomainImageSearcher extends AbstractSearcher<WebImage> {
 
     @Override
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImageResult> results = CollectionHelper.newArrayList();
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+        List<WebImage> results = CollectionHelper.newArrayList();
 
         resultCount = Math.min(1000, resultCount);
 
@@ -52,8 +54,8 @@ public class PublicDomainImageSearcher extends AbstractSearcher<WebImageResult> 
                 imageUrl = "http://www.public-domain-image.com" + imageUrl;
                 thumbImageUrl = "http://www.public-domain-image.com" + thumbImageUrl;
 
-                WebImageResult webImageResult = new WebImageResult(imageUrl, imageUrl, summary, summary, -1, -1, null);
-                webImageResult.setThumbImageUrl(thumbImageUrl);
+                BasicWebImage webImageResult = new BasicWebImage(imageUrl, imageUrl, summary, summary, -1, -1, null);
+                webImageResult.setThumbnailUrl(thumbImageUrl);
 
                 webImageResult.setLicense(License.PUBLIC_DOMAIN);
                 webImageResult.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
@@ -88,7 +90,7 @@ public class PublicDomainImageSearcher extends AbstractSearcher<WebImageResult> 
      */
     public static void main(String[] args) throws SearcherException {
         PublicDomainImageSearcher searcher = new PublicDomainImageSearcher();
-        List<WebImageResult> results = searcher.search("car", 10);
+        List<WebImage> results = searcher.search("car", 10);
         CollectionHelper.print(results);
     }
 }

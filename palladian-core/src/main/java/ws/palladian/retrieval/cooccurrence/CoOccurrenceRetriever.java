@@ -11,9 +11,9 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.WebContent;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 
 /**

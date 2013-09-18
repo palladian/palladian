@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search;
+package ws.palladian.retrieval.resources;
 
 import java.util.Date;
 

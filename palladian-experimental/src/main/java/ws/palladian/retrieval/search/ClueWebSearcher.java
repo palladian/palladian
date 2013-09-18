@@ -28,6 +28,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.ClueWebSearcher.ClueWebResult;
 
 /**

@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>

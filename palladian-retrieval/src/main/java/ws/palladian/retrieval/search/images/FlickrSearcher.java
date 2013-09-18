@@ -18,6 +18,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -30,7 +32,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="http://www.flickr.com/services/api/">Flickr Services</a>
  * @see <a href="http://www.flickr.com/services/api/misc.api_keys.html">Obtaining an API key</a>
  */
-public final class FlickrSearcher extends AbstractSearcher<WebImageResult> {
+public final class FlickrSearcher extends AbstractSearcher<WebImage> {
 
     /**
      * Identifier for the API key when supplied via {@link Configuration}.
@@ -94,13 +96,13 @@ public final class FlickrSearcher extends AbstractSearcher<WebImageResult> {
     }
 
     @Override
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         return search(query, null, null, resultCount, language);
     }
 
-    public List<WebImageResult> search(String query, String minUploadDate, String tags, int resultCount,
+    public List<WebImage> search(String query, String minUploadDate, String tags, int resultCount,
             Language language) throws SearcherException {
-        List<WebImageResult> result = new ArrayList<WebImageResult>();
+        List<WebImage> result = new ArrayList<WebImage>();
 
         int resultsPerPage = Math.min(resultCount, 500); // max. 500 per page
         int neccessaryPages = (int)Math.ceil((double)resultCount / resultsPerPage);
@@ -130,8 +132,8 @@ public final class FlickrSearcher extends AbstractSearcher<WebImageResult> {
                     String userId = photoJson.getString("owner");
                     String imageUrl = buildImageUrl(farmId, serverId, id, secret);
                     String pageUrl = buildPageUrl(id, userId);
-                    WebImageResult webImageResult = new WebImageResult(pageUrl, imageUrl, title, null, -1, -1, null);
-                    webImageResult.setThumbImageUrl(imageUrl);
+                    BasicWebImage webImageResult = new BasicWebImage(pageUrl, imageUrl, title, null, -1, -1, null);
+                    webImageResult.setThumbnailUrl(imageUrl);
                     result.add(webImageResult);
                 }
             } catch (JSONException e) {

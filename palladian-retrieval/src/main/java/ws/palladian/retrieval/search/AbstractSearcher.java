@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>

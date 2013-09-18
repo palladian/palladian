@@ -14,6 +14,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.resources.WebContent;
 
 public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
 

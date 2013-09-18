@@ -4,6 +4,8 @@ import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.BaseBingSearcher;
 
 /**
@@ -13,7 +15,7 @@ import ws.palladian.retrieval.search.BaseBingSearcher;
  * 
  * @author Philipp Katz
  */
-public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
+public final class BingImageSearcher extends BaseBingSearcher<WebImage> {
 
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
@@ -35,13 +37,13 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
     }
 
     @Override
-    protected WebImageResult parseResult(JSONObject currentResult) throws JSONException {
+    protected WebImage parseResult(JSONObject currentResult) throws JSONException {
         String pageUrl = currentResult.getString("SourceUrl");
         String imageUrl = currentResult.getString("MediaUrl");
         int width = currentResult.getInt("Width");
         int height = currentResult.getInt("Height");
         String title = currentResult.getString("Title");
-        return new WebImageResult(pageUrl, imageUrl, title, null, width, height, null);
+        return new BasicWebImage(pageUrl, imageUrl, title, null, width, height, null);
     }
 
     @Override

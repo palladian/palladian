@@ -25,6 +25,8 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
+import ws.palladian.retrieval.resources.BasicWebVideo;
+import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -36,7 +38,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author Philipp Katz
  * @see <a href="http://developer.vimeo.com/apis/advanced/methods/vimeo.videos.search">API documentation</a>
  */
-public final class VimeoSearcher extends AbstractSearcher<WebVideoResult> {
+public final class VimeoSearcher extends AbstractSearcher<WebVideo> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(VimeoSearcher.class);
@@ -118,9 +120,9 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideoResult> {
     }
 
     @Override
-    public List<WebVideoResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebVideo> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebVideoResult> webResults = CollectionHelper.newArrayList();
+        List<WebVideo> webResults = CollectionHelper.newArrayList();
 
         for (int page = 0; page < Math.ceil((double)resultCount / 50); page++) {
             int itemsToGet = Math.min(50, resultCount - page * 50);
@@ -135,7 +137,7 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideoResult> {
             }
             logRateLimits(httpResult);
             try {
-                List<WebVideoResult> parsedVideos = parseVideoResult(httpResult.getStringContent());
+                List<WebVideo> parsedVideos = parseVideoResult(httpResult.getStringContent());
                 if (parsedVideos.isEmpty()) {
                     break;
                 }
@@ -155,8 +157,8 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideoResult> {
         LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
     }
 
-    public static List<WebVideoResult> parseVideoResult(String jsonString) throws JSONException {
-        List<WebVideoResult> result = CollectionHelper.newArrayList();
+    public static List<WebVideo> parseVideoResult(String jsonString) throws JSONException {
+        List<WebVideo> result = CollectionHelper.newArrayList();
         JSONArray jsonVideos = JPathHelper.get(jsonString, "videos/video", JSONArray.class);
         for (int i = 0; i < jsonVideos.length(); i++) {
             JSONObject jsonVideo = jsonVideos.getJSONObject(i);
@@ -167,7 +169,7 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideoResult> {
             String id = JPathHelper.get(jsonVideo, "id", String.class);
             String url = String.format("https://vimeo.com/%s", id);
             long duration = JPathHelper.get(jsonVideo, "duration", Long.class);
-            result.add(new WebVideoResult(url, null, title, description, duration, uploadDate));
+            result.add(new BasicWebVideo(url, null, title, description, duration, uploadDate));
         }
         return result;
     }

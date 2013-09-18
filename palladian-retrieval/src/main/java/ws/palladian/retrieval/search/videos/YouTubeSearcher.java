@@ -24,6 +24,8 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.resources.BasicWebVideo;
+import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -36,7 +38,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author Philipp Katz
  * @see <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol">API documentation</a>
  */
-public final class YouTubeSearcher extends AbstractSearcher<WebVideoResult> {
+public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
@@ -111,7 +113,7 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideoResult> {
     }
 
     @Override
-    public List<WebVideoResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebVideo> search(String query, int resultCount, Language language) throws SearcherException {
 
         // TODO pagination available? Currently I get only 50 results max.
 
@@ -125,7 +127,7 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideoResult> {
                     + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
         }
 
-        List<WebVideoResult> webResults = new ArrayList<WebVideoResult>();
+        List<WebVideo> webResults = new ArrayList<WebVideo>();
         String jsonString = httpResult.getStringContent();
 
         try {
@@ -167,7 +169,7 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideoResult> {
                     rtLong = runtime.longValue();
                 }
 
-                WebVideoResult webResult = new WebVideoResult(pageLink, videoLink, title, description, rtLong, date);
+                BasicWebVideo webResult = new BasicWebVideo(pageLink, videoLink, title, description, rtLong, date);
                 webResult.setViews(viewCount);
                 webResult.setRating(rating);
                 webResult.setThumbnail(thumbnailUrl);

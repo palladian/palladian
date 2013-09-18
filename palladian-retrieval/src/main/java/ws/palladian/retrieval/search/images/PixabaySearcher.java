@@ -12,6 +12,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
@@ -24,7 +26,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * @see <a href="http://pixabay.com/api/docs/">Pixabay API</a>
  */
-public class PixabaySearcher extends AbstractSearcher<WebImageResult> {
+public class PixabaySearcher extends AbstractSearcher<WebImage> {
 
     /**
      * Identifier for the API key when supplied via {@link Configuration}.
@@ -67,8 +69,8 @@ public class PixabaySearcher extends AbstractSearcher<WebImageResult> {
     /**
      * @param language Supported languages are  id, cs, de, en, es, fr, it, nl, no, hu, ru, pl, pt, ro, fi, sv, tr, ja, ko, and zh.
      */
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImageResult> results = CollectionHelper.newArrayList();
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+        List<WebImage> results = CollectionHelper.newArrayList();
 
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(100, resultCount);
@@ -93,10 +95,10 @@ public class PixabaySearcher extends AbstractSearcher<WebImageResult> {
                     String imageTypeString = resultHit.getString("type");
                     int width = resultHit.getInt("imageWidth");
                     int height = resultHit.getInt("imageHeight");
-                    WebImageResult webImageResult = new WebImageResult(url, imageUrl, summary, summary, width, height,
+                    BasicWebImage webImageResult = new BasicWebImage(url, imageUrl, summary, summary, width, height,
                             null);
 
-                    webImageResult.setThumbImageUrl(resultHit.getString("previewURL"));
+                    webImageResult.setThumbnailUrl(resultHit.getString("previewURL"));
                     webImageResult.setLicense(License.PUBLIC_DOMAIN);
                     webImageResult.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
                     webImageResult.setImageType(getImageType(imageTypeString));
@@ -144,7 +146,7 @@ public class PixabaySearcher extends AbstractSearcher<WebImageResult> {
      */
     public static void main(String[] args) throws SearcherException {
         PixabaySearcher pixabaySearcher = new PixabaySearcher("USER", "KEY");
-        List<WebImageResult> results = pixabaySearcher.search("car", 101);
+        List<WebImage> results = pixabaySearcher.search("car", 101);
         CollectionHelper.print(results);
     }
 }

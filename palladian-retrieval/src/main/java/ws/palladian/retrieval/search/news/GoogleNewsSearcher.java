@@ -3,9 +3,9 @@ package ws.palladian.retrieval.search.news;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseGoogleSearcher;
-import ws.palladian.retrieval.search.WebContent;
-import ws.palladian.retrieval.search.web.BasicWebContent;
 
 
 /**
