@@ -19,10 +19,14 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>
@@ -35,7 +39,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="http://help.yandex.com/xml/?id=1116467">API documentation</a>
  * @author Philipp Katz
  */
-public final class YandexSearcher extends WebSearcher<WebResult> {
+public final class YandexSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YandexSearcher.class);
@@ -58,6 +62,8 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
     private final String yandexSearchUrl;
     /** The parser used for processing the returned XML data. */
     private final DocumentParser xmlParser;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -73,6 +79,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
         checkSearchUrlValidity(yandexSearchUrl);
         this.yandexSearchUrl = yandexSearchUrl;
         this.xmlParser = ParserFactory.createXmlParser();
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -94,6 +101,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
     YandexSearcher() {
         this.yandexSearchUrl = null;
         this.xmlParser = ParserFactory.createXmlParser();
+        this.retriever = null;
     }
 
     /**
@@ -121,11 +129,11 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
         int necessaryPages = (int)Math.ceil((double)resultCount / MAX_RESULTS_PER_PAGE);
         int pageSize = Math.min(MAX_RESULTS_PER_PAGE, resultCount);
-        List<WebResult> results = new ArrayList<WebResult>();
+        List<WebContent> results = new ArrayList<WebContent>();
 
         for (int page = 0; page < necessaryPages; page++) {
 
@@ -142,7 +150,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
             }
             try {
                 Document document = xmlParser.parse(httpResult);
-                List<WebResult> currentResults = parse(document);
+                List<WebContent> currentResults = parse(document);
                 if (currentResults.isEmpty()) {
                     // we did not get any more results
                     break;
@@ -159,7 +167,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
 
     /**
      * <p>
-     * Parse the supplied response document and return a list of {@link WebResult}s extracted from the document. In
+     * Parse the supplied response document and return a list of {@link BasicWebContent}s extracted from the document. In
      * case, the document contains an error message, throw a {@link SearcherException}. Package private to allow unit
      * testing.
      * </p>
@@ -168,7 +176,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
      * @return
      * @throws SearcherException
      */
-    List<WebResult> parse(Document document) throws SearcherException {
+    List<WebContent> parse(Document document) throws SearcherException {
         Node responseNode = XPathHelper.getNode(document, "/yandexsearch/response");
 
         if (responseNode == null) {
@@ -179,7 +187,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
         checkError(responseNode);
 
         List<Node> resultDocs = XPathHelper.getNodes(responseNode, "results/grouping/group/doc");
-        List<WebResult> result = new ArrayList<WebResult>();
+        List<WebContent> result = new ArrayList<WebContent>();
         for (Node resultDoc : resultDocs) {
             // required
             Node urlNode = XPathHelper.getNode(resultDoc, "url");
@@ -195,7 +203,7 @@ public final class YandexSearcher extends WebSearcher<WebResult> {
             Node timeNode = XPathHelper.getNode(resultDoc, "modtime");
             Date date = timeNode == null ? null : parseDate(timeNode.getTextContent());
 
-            WebResult webResult = new WebResult(url, title, headline, date, getName());
+            BasicWebContent webResult = new BasicWebContent(url, title, headline, date);
             result.add(webResult);
         }
         return result;

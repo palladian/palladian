@@ -37,10 +37,11 @@ import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.WebContent;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 import ws.palladian.retrieval.search.web.BlekkoSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 import ws.palladian.semantics.WordTransformer;
 
 /**
@@ -68,7 +69,7 @@ public class DatasetCreator {
     private final int seedsPerConcept;
 
     /** The search API to use. */
-    private final WebSearcher<WebResult> searcher;
+    private final Searcher<WebContent> searcher;
 
     /** Save a map with concept name and the seeds searched for every concept. */
     private Map<String, List<String>> conceptSeeds;
@@ -93,7 +94,7 @@ public class DatasetCreator {
      * @param queryWithConceptName Specify whether to add the name of the concept to the query (e.g.
      *            <code>"Porsche 911" car</code>).
      */
-    public DatasetCreator(File datasetLocation, WebSearcher<WebResult> searcher, int seedsPerConcept,
+    public DatasetCreator(File datasetLocation, Searcher<WebContent> searcher, int seedsPerConcept,
             int mentionsPerSeed, boolean queryWithConceptName) {
         Validate.notNull(datasetLocation, "datasetLocation must not be null");
         if (!datasetLocation.exists() && !datasetLocation.mkdirs()) {
@@ -741,7 +742,7 @@ public class DatasetCreator {
      * @param mentionsPerSeed The minimum mentions which each seed entity should have at least, greater zero. This
      *            basically resembles the number of queries to the search engine per entity.
      */
-    public static void generateDatasets(File datasetLocation, WebSearcher<WebResult> searcher, File seedFile,
+    public static void generateDatasets(File datasetLocation, Searcher<WebContent> searcher, File seedFile,
             int minSeeds, int maxSeeds, int mentionsPerSeed) {
         Validate.notNull(datasetLocation, "datasetLocation must not be null");
         if (!datasetLocation.exists() && !datasetLocation.mkdirs()) {
@@ -766,7 +767,7 @@ public class DatasetCreator {
 
     public static void main(String[] args) {
 
-        WebSearcher<WebResult> searcher = new BlekkoSearcher();
+        Searcher<WebContent> searcher = new BlekkoSearcher();
 
         File outputDirectory = new File("/Volumes/iMac HD/temp/locationNerDataset");
         DatasetCreator datasetCreator = new DatasetCreator(outputDirectory, searcher, 800, 100, false);

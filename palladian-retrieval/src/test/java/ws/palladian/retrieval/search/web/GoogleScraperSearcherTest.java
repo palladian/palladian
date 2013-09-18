@@ -17,7 +17,7 @@ public class GoogleScraperSearcherTest {
     public void testParseHtml() throws Exception {
         File file = ResourceHelper.getResourceFile("apiresponse/googleResult.html");
         Document document = ParserFactory.createHtmlParser().parse(file);
-        List<WebResult> webResults = GoogleScraperSearcher.parseHtml(document);
+        List<BasicWebContent> webResults = GoogleScraperSearcher.parseHtml(document);
         assertEquals(10, webResults.size());
         assertEquals("Cat Products & Services", webResults.get(0).getTitle());
         assertEquals("http://www.cat.com/", webResults.get(0).getUrl());

@@ -23,8 +23,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
@@ -34,7 +35,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="https://datamarket.azure.com/dataset/bing/search">Bing Search API on Windows Azure Marketplace</a>
  * @author Philipp Katz
  */
-public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
+public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseBingSearcher.class);
@@ -50,6 +51,8 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     protected final String accountKey;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -61,6 +64,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     public BaseBingSearcher(String accountKey) {
         Validate.notEmpty(accountKey, "accountKey must not be empty");
         this.accountKey = accountKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -132,7 +136,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
 
     /**
      * <p>
-     * Parse the {@link JSONObject} to the desired type of {@link WebResult}.
+     * Parse the {@link JSONObject} to the desired type of {@link BasicWebContent}.
      * </p>
      * 
      * @param currentResult

@@ -12,10 +12,14 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>
@@ -28,13 +32,15 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="http://stackoverflow.com/questions/964454/how-to-use-wikipedia-api-if-it-exists">How to use wikipedia
  *      api if it exists?</a>
  */
-public final class WikipediaSearcher extends WebSearcher<WebResult> {
+public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
 
     /** The name of this searcher. */
     private static final String NAME = "Wikipedia";
 
     /** Pattern used for parsing the returned date strings. */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    
+    private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
     public String getName() {
@@ -42,9 +48,9 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> results = CollectionHelper.newArrayList();
+        List<WebContent> results = CollectionHelper.newArrayList();
         String baseUrl = getBaseUrl(language);
 
         // fetch in chunks of 50 items, this is maximum size
@@ -65,7 +71,7 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
                     String snippet = HtmlHelper.stripHtmlTags(resultItem.getString("snippet"));
                     Date date = parseDate(resultItem.getString("timestamp"));
                     String url = getPageUrl(baseUrl, title);
-                    results.add(new WebResult(url, title, snippet, date, NAME));
+                    results.add(new BasicWebContent(url, title, snippet, date));
 
                     if (results.size() == resultCount) {
                         break;
@@ -154,7 +160,7 @@ public final class WikipediaSearcher extends WebSearcher<WebResult> {
 
     public static void main(String[] args) throws SearcherException {
         WikipediaSearcher searcher = new WikipediaSearcher();
-        List<WebResult> result = searcher.search("dresden", 500, Language.GERMAN);
+        List<WebContent> result = searcher.search("dresden", 500, Language.GERMAN);
         CollectionHelper.print(result);
         // System.out.println(searcher.getTotalResultCount("cat"));
     }

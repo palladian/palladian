@@ -16,9 +16,11 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.images.WebImageResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -32,7 +34,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="http://instagram.com/developer/">Instagram Developer Documentation</a>
  * @see <a href="http://instagram.com/developer/authentication/">Authentication</a>
  */
-public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
+public final class InstagramTagSearcher extends AbstractSearcher<WebImageResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InstagramTagSearcher.class);
@@ -41,6 +43,8 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
     public static final String CONFIG_ACCESS_TOKEN = "api.instagram.accessToken";
 
     private final String accessToken;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -52,6 +56,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
     public InstagramTagSearcher(String accessToken) {
         Validate.notEmpty(accessToken, "accessToken must not be empty");
         this.accessToken = accessToken;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -64,8 +69,7 @@ public final class InstagramTagSearcher extends WebSearcher<WebImageResult> {
      *            {@value #CONFIG_ACCESS_TOKEN}, not <code>null</code>.
      */
     public InstagramTagSearcher(Configuration configuration) {
-        Validate.notNull(configuration, "configuration must not be null");
-        this.accessToken = configuration.getString(CONFIG_ACCESS_TOKEN);
+        this(configuration.getString(CONFIG_ACCESS_TOKEN));
     }
 
     @Override

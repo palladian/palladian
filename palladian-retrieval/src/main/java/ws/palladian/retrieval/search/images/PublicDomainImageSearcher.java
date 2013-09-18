@@ -10,9 +10,9 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -21,7 +21,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * 
  * @author David Urbansky
  */
-public class PublicDomainImageSearcher extends WebSearcher<WebImageResult> {
+public class PublicDomainImageSearcher extends AbstractSearcher<WebImageResult> {
 
     @Override
     public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {

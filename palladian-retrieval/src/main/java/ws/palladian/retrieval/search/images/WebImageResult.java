@@ -3,7 +3,7 @@ package ws.palladian.retrieval.search.images;
 import java.util.Date;
 
 import ws.palladian.retrieval.search.License;
-import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
@@ -13,7 +13,7 @@ import ws.palladian.retrieval.search.web.WebResult;
  * @author Philipp Katz
  * @author David Urbansky
  */
-public class WebImageResult extends WebResult {
+public class WebImageResult extends BasicWebContent {
 
     private final String imageUrl;
     private String thumbImageUrl;

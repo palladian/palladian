@@ -23,21 +23,24 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.WebContent;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
- * Searcher for Tweets on Twitter. The Tweet content can be accessed via {@link WebResult#getSummary()}.
+ * Searcher for Tweets on Twitter. The Tweet content can be accessed via {@link BasicWebContent#getSummary()}.
  * </p>
  * 
  * @see <a href="https://dev.twitter.com/docs/api/1/get/search">API Resources: GET search</a>
  * @author Philipp Katz
  */
-public final class TwitterSearcher extends WebSearcher<WebResult> {
+public final class TwitterSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterSearcher.class);
@@ -66,6 +69,8 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private final OAuthParams oAuthParams;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -77,6 +82,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     public TwitterSearcher(OAuthParams oAuthParams) {
         Validate.notNull(oAuthParams, "oAuthParams must not be null");
         this.oAuthParams = oAuthParams;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -103,15 +109,14 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
      *            {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
      */
     public TwitterSearcher(Configuration configuration) {
-        Validate.notNull(configuration, "configuration must not be null");
-        this.oAuthParams = new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
+        this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
                 configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
-                configuration.getString(CONFIG_ACCESS_TOKEN_SECRET));
+                configuration.getString(CONFIG_ACCESS_TOKEN_SECRET)));
     }
 
-    public List<WebResult> search(String query, int resultCount, Language language, ResultType resultType)
+    public List<WebContent> search(String query, int resultCount, Language language, ResultType resultType)
             throws SearcherException {
-        List<WebResult> webResults = new ArrayList<WebResult>();
+        List<WebContent> webResults = new ArrayList<WebContent>();
         int resultsPerPage = Math.min(100, resultCount);
         int numRequests = (int)Math.ceil(resultCount / 100.);
 
@@ -150,7 +155,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
                     Date date = parseDate(dateString);
                     JSONObject jsonUser = jsonResult.getJSONObject("user");
                     String url = createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str"));
-                    webResults.add(new WebResult(url, text, null, date));
+                    webResults.add(new BasicWebContent(url, text, null, date));
                     if (webResults.size() >= resultCount) {
                         break;
                     }
@@ -187,7 +192,7 @@ public final class TwitterSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
         return search(query, resultCount, language, ResultType.MIXED);
     }
 

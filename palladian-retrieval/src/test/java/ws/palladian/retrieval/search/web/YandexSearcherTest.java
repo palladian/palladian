@@ -15,6 +15,7 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.WebContent;
 
 public class YandexSearcherTest {
 
@@ -30,7 +31,7 @@ public class YandexSearcherTest {
     public void testParseResponse() throws FileNotFoundException, ParserException {
         Document document = xmlParser.parse(ResourceHelper.getResourceFile("/apiresponse/response1.xml"));
         try {
-            List<WebResult> webResults = yandexSearcher.parse(document);
+            List<WebContent> webResults = yandexSearcher.parse(document);
             assertEquals(10, webResults.size());
             assertEquals("http://www.mercedes-benz.ru/", webResults.get(0).getUrl());
             assertEquals("\"Mercedes-Benz in Russia\" - продажа автомобилей", webResults.get(0).getTitle());

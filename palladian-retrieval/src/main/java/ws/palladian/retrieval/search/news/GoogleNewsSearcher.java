@@ -4,7 +4,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.retrieval.search.BaseGoogleSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.WebContent;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 
 /**
@@ -14,7 +15,7 @@ import ws.palladian.retrieval.search.web.WebResult;
  * 
  * @author Philipp Katz
  */
-public final class GoogleNewsSearcher extends BaseGoogleSearcher<WebResult> {
+public final class GoogleNewsSearcher extends BaseGoogleSearcher<WebContent> {
 
     @Override
     protected String getBaseUrl() {
@@ -22,12 +23,11 @@ public final class GoogleNewsSearcher extends BaseGoogleSearcher<WebResult> {
     }
 
     @Override
-    protected WebResult parseResult(JSONObject resultData) throws JSONException {
+    protected WebContent parseResult(JSONObject resultData) throws JSONException {
         String title = resultData.getString("titleNoFormatting");
         String content = resultData.getString("content");
         String url = resultData.getString("unescapedUrl");
-        WebResult webResult = new WebResult(url, title, content, getName());
-        return webResult;
+        return new BasicWebContent(url, title, content);
     }
 
     @Override

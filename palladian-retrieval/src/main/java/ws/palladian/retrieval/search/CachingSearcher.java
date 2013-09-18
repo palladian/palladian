@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.MruMap;
+import ws.palladian.helper.constants.Language;
 
 /**
  * <p>
@@ -14,7 +15,7 @@ import ws.palladian.helper.collection.MruMap;
  * @author Philipp Katz
  * @param <R> The result type of the {@link Searcher}.
  */
-public class CachingSearcher<R extends SearchResult> implements Searcher<R> {
+public class CachingSearcher<R extends WebContent> extends AbstractSearcher<R> {
 
     private final Searcher<R> searcher;
 
@@ -37,24 +38,25 @@ public class CachingSearcher<R extends SearchResult> implements Searcher<R> {
         searchCache = new MruMap<String, List<R>>(cacheSize);
         countCache = new MruMap<String, Long>(cacheSize);
     }
-
-    @Override
-    public List<R> search(String query, int resultCount) throws SearcherException {
-        String identifier = query + "####" + resultCount;
+    
+	@Override
+	public List<R> search(String query, int resultCount, Language language) throws SearcherException {
+        String identifier = language.getIso6391() + "####" + query + "####" + resultCount;
         List<R> result = searchCache.get(identifier);
         if (result == null) {
-            result = searcher.search(query, resultCount);
+            result = searcher.search(query, resultCount, language);
             searchCache.put(identifier, result);
         }
         return result;
-    }
+	}
 
     @Override
-    public long getTotalResultCount(String query) throws SearcherException {
-        Long result = countCache.get(query);
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
+    	String identifier = language.getIso6391() + "####" + query;
+        Long result = countCache.get(identifier);
         if (result == null) {
-            result = searcher.getTotalResultCount(query);
-            countCache.put(query, result);
+            result = searcher.getTotalResultCount(query, language);
+            countCache.put(identifier, result);
         }
         return result;
     }

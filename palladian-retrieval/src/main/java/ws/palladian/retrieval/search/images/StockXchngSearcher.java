@@ -12,9 +12,9 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -23,7 +23,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * 
  * @author David Urbansky
  */
-public class StockXchngSearcher extends WebSearcher<WebImageResult> {
+public class StockXchngSearcher extends AbstractSearcher<WebImageResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(StockXchngSearcher.class);

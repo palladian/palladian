@@ -12,15 +12,17 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
-public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
+public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
 
     /** The identifier for the API key when provided via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.topsy.key";
 
     private final String apiKey;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -32,6 +34,7 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
     protected BaseTopsySearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -43,14 +46,13 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
      *            <code>null</code>.
      */
     protected BaseTopsySearcher(Configuration configuration) {
-        Validate.notNull(configuration, "configuration must not be null");
-        this.apiKey = configuration.getString(CONFIG_API_KEY);
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> result = CollectionHelper.newArrayList();
+        List<WebContent> result = CollectionHelper.newArrayList();
 
         // # of necessary requests, we fetch in chunks of 100
         int numRequests = (int)Math.ceil(resultCount / 100.);
@@ -77,7 +79,7 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
                 for (int i = 0; i < listJson.length(); i++) {
 
                     JSONObject item = listJson.getJSONObject(i);
-                    WebResult webResult = parse(item);
+                    WebContent webResult = parse(item);
                     result.add(webResult);
 
                     if (result.size() == resultCount) {
@@ -104,6 +106,6 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
     /**
      * Subclass performs the parsing for each item in the JSON list.
      */
-    protected abstract WebResult parse(JSONObject item) throws JSONException;
+    protected abstract WebContent parse(JSONObject item) throws JSONException;
 
 }

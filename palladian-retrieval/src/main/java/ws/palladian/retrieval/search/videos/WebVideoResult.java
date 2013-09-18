@@ -2,17 +2,17 @@ package ws.palladian.retrieval.search.videos;
 
 import java.util.Date;
 
-import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
- * A {@link WebResult} representing video links.
+ * A {@link BasicWebContent} representing video links.
  * </p>
  * 
  * @author Philipp Katz
  * @author David Urbansky
  */
-public class WebVideoResult extends WebResult {
+public class WebVideoResult extends BasicWebContent {
 
     private final String videoUrl;
     private String thumbnail;

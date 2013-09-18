@@ -32,9 +32,9 @@ import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>
@@ -71,7 +71,7 @@ public final class FeedDiscovery {
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
-    private WebSearcher<WebResult> webSearcher = null;
+    private Searcher<WebContent> webSearcher = null;
 
     /** The parser used for parsing HTML pages. */
     private final DocumentParser parser = ParserFactory.createHtmlParser();
@@ -483,7 +483,7 @@ public final class FeedDiscovery {
      * 
      * @param webSearcher
      */
-    public void setSearchEngine(WebSearcher<WebResult> webSearcher) {
+    public void setSearchEngine(Searcher<WebContent> webSearcher) {
         LOGGER.trace("using " + webSearcher.getName());
         this.webSearcher = webSearcher;
     }
@@ -493,7 +493,7 @@ public final class FeedDiscovery {
 //        setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
 //    }
 
-    public WebSearcher<WebResult> getSearchEngine() {
+    public Searcher<WebContent> getSearchEngine() {
         return webSearcher;
     }
 

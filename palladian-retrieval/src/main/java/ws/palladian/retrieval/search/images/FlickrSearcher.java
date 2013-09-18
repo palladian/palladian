@@ -16,8 +16,10 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -28,7 +30,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="http://www.flickr.com/services/api/">Flickr Services</a>
  * @see <a href="http://www.flickr.com/services/api/misc.api_keys.html">Obtaining an API key</a>
  */
-public final class FlickrSearcher extends WebSearcher<WebImageResult> {
+public final class FlickrSearcher extends AbstractSearcher<WebImageResult> {
 
     /**
      * Identifier for the API key when supplied via {@link Configuration}.
@@ -39,6 +41,8 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
 
     /** Search only photos with one of the given licenses. */
     private Collection<Integer> allowedLicenses = CollectionHelper.newHashSet();
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -50,6 +54,7 @@ public final class FlickrSearcher extends WebSearcher<WebImageResult> {
     public FlickrSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**

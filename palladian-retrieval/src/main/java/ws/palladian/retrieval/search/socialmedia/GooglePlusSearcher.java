@@ -16,10 +16,13 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.JsonHelper;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.WebContent;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
@@ -29,7 +32,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="https://developers.google.com/+/api/latest/activities/search">API documentation for search</a>
  * @author Philipp Katz
  */
-public final class GooglePlusSearcher extends WebSearcher<WebResult> {
+public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
 
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "Google+";
@@ -42,6 +45,8 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
 
     /** The API key for accessing Google+ API. */
     private final String apiKey;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -53,6 +58,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
     public GooglePlusSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -64,8 +70,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
      *            {@value #CONFIG_API_KEY}, not <code>null</code>.
      */
     public GooglePlusSearcher(Configuration configuration) {
-        Validate.notNull(configuration, "configuration must not be null");
-        this.apiKey = configuration.getString(CONFIG_API_KEY);
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override
@@ -74,9 +79,9 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> results = CollectionHelper.newArrayList();
+        List<WebContent> results = CollectionHelper.newArrayList();
 
         String nextPageToken = null;
 
@@ -105,7 +110,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
                     String title = JsonHelper.getString(jsonItem, "title");
                     String content = JsonHelper.getString(jsonItem, "content");
                     Date date = getCreationDate(JsonHelper.getString(jsonItem, "published"));
-                    results.add(new WebResult(url, title, content, date, SEARCHER_NAME));
+                    results.add(new BasicWebContent(url, title, content, date));
                     if (results.size() == resultCount) {
                         break out;
                     }
@@ -144,7 +149,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
 
     public static void main(String[] args) throws SearcherException {
         GooglePlusSearcher searcher = new GooglePlusSearcher("AIzaSyDPsLByNcOyrAFPlsldd8B2SoBHH3sywmo");
-        List<WebResult> result = searcher.search("cat", 1000);
+        List<WebContent> result = searcher.search("cat", 1000);
         CollectionHelper.print(result);
     }
 

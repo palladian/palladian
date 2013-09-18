@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import ws.palladian.retrieval.parser.JsonHelper;
 import ws.palladian.retrieval.search.BaseTopsySearcher;
+import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>
@@ -60,10 +61,10 @@ public final class TopsyUrlSearcher extends BaseTopsySearcher {
     }
 
     @Override
-    protected WebResult parse(JSONObject item) throws JSONException {
+    protected WebContent parse(JSONObject item) throws JSONException {
         String url = JsonHelper.getString(item, "permalink_url");
         String title = JsonHelper.getString(item, "content");
-        return new WebResult(url, title, null, SEARCHER_NAME);
+        return new BasicWebContent(url, title, null);
     }
 
 }
