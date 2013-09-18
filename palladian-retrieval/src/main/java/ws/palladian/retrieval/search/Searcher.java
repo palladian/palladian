@@ -2,8 +2,6 @@ package ws.palladian.retrieval.search;
 
 import java.util.List;
 
-import javax.naming.directory.SearchResult;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.resources.WebContent;
 
@@ -11,7 +9,7 @@ import ws.palladian.retrieval.resources.WebContent;
  * <p>
  * Interface defining a {@link Searcher}. A Searcher might be an implementation for a web search engine like Google,
  * Bing, etc. On the other hand, a Searcher might perform queries on local, file-system-based indices like Lucene.
- * Searchers can be queried with information requests and return subclasses of {@link SearchResult}s. <b>Hint:</b> Use
+ * Searchers can be queried with information requests and return subclasses of {@link WebContent}s. <b>Hint:</b> Use
  * {@link AbstractSearcher} or {@link AbstractMultifacetSearcher} as base class for implementations of this interface.
  * </p>
  * 
@@ -26,7 +24,7 @@ public interface Searcher<R extends WebContent> {
 
     /**
      * <p>
-     * Retrieve a list of {@link SearchResult}s for the specified query.
+     * Retrieve a list of {@link WebContent}s for the specified query.
      * </p>
      * 
      * @param query
@@ -38,7 +36,7 @@ public interface Searcher<R extends WebContent> {
 
     /**
      * <p>
-     * Retrieve a list of {@link SearchResult}s for the specified query.
+     * Retrieve a list of {@link WebContent}s for the specified query.
      * </p>
      * 
      * @param query
@@ -51,7 +49,7 @@ public interface Searcher<R extends WebContent> {
 
     /**
      * <p>
-     * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
+     * Convenience method to retrieve a list of URLs for the specified query instead of {@link WebContent}s.
      * </p>
      * 
      * @param query
@@ -63,7 +61,7 @@ public interface Searcher<R extends WebContent> {
 
     /**
      * <p>
-     * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
+     * Convenience method to retrieve a list of URLs for the specified query instead of {@link WebContent}s.
      * </p>
      * 
      * @param query
