@@ -2,6 +2,7 @@ package ws.palladian.extraction.location;
 
 import org.apache.commons.lang3.Validate;
 
+// FIXME this is a class for the API module
 public final class ImmutableGeoCoordinate implements GeoCoordinate {
 
     private final Double lat;

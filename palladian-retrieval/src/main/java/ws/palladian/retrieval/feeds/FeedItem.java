@@ -3,6 +3,7 @@ package ws.palladian.retrieval.feeds;
 import java.util.Date;
 import java.util.Map;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.retrieval.resources.WebContent;
 
 /**
@@ -271,6 +272,11 @@ public class FeedItem implements WebContent {
      */
     public final void setPollTimestamp(Date pollTimestamp) {
         this.pollTimestamp = pollTimestamp;
+    }
+    
+    @Override
+    public GeoCoordinate getCoordinate() {
+    	return null;
     }
 
 }

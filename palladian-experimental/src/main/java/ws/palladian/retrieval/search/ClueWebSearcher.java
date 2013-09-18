@@ -24,6 +24,7 @@ import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -89,6 +90,11 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
 		
 		public float getScore() {
 			return score;
+		}
+
+		@Override
+		public GeoCoordinate getCoordinate() {
+			return null;
 		}
 
     }
