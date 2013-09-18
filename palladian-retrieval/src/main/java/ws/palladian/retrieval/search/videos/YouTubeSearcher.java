@@ -154,7 +154,6 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
                 builder.setThumbnailUrl(entry.get("media$group/media$thumbnail[2]/url", String.class));
 
                 JsonObjectWrapper ratingObject = entry.getJSONObject("yt$rating");
-                Double rating = null;
                 if (ratingObject != null) {
                     int numDislikes = ratingObject.getInt("numDislikes");
                     int numLikes = ratingObject.getInt("numLikes");
