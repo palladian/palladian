@@ -1,8 +1,14 @@
 package ws.palladian.retrieval.search.images;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
@@ -10,17 +16,23 @@ import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.Facet;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -30,9 +42,98 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author Philipp Katz
  * @see <a href="http://www.flickr.com/services/api/">Flickr Services</a>
+ * @see <a href="http://www.flickr.com/services/api/flickr.photos.search.html">API: flickr.photos.search</a>
  * @see <a href="http://www.flickr.com/services/api/misc.api_keys.html">Obtaining an API key</a>
  */
-public final class FlickrSearcher extends AbstractSearcher<WebImage> {
+public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlickrSearcher.class);
+
+    /** The name of this searcher. */
+    private static final String SEARCHER_NAME = "Flickr";
+
+    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
+    private final HttpRetriever retriever;
+
+    /**
+     * <p>
+     * Search facet allowing to specify a/multiple {@link License}.
+     * </p>
+     * 
+     * @author Philipp Katz
+     */
+    public static final class Licenses implements Facet {
+
+        private static final String LICENSES_IDENTIFIER = "flickr.licenses";
+
+        private final Set<License> licenses;
+
+        public Licenses(License... licenses) {
+            this.licenses = new HashSet<License>(Arrays.asList(licenses));
+        }
+
+        public Licenses(Collection<License> licenses) {
+            this.licenses = new HashSet<License>(licenses);
+        }
+
+        @Override
+        public String getIdentifier() {
+            return LICENSES_IDENTIFIER;
+        }
+
+        String getLicensesString() {
+            StringBuilder licensesString = new StringBuilder();
+            boolean first = true;
+            for (License license : licenses) {
+                if (first) {
+                    first = false;
+                } else {
+                    licensesString.append(",");
+                }
+                licensesString.append(license.id);
+            }
+            return licensesString.toString();
+        }
+    }
+
+    // XXX this should be unified with ws.palladian.retrieval.search.License
+    public static enum License {
+        /** All Rights Reserved */
+        ALL_RIGHTS_RESERVED(0),
+        /** Attribution-NonCommercial-ShareAlike License */
+        ATTRIBUTION_NONCOMMERCIAL_SHAREALIKE(1),
+        /** Attribution-NonCommercial License */
+        ATTRIBUTION_NONCOMMERCIAL(2),
+        /** Attribution-NonCommercial-NoDerivs License */
+        ATTRIBUTION_NONCOMMERCIAL_NODERIVS(3),
+        /** Attribution License */
+        ATTRIBUTION(4),
+        /** Attribution-ShareAlike License */
+        ATTRIBUTION_SHAREALIKE(5),
+        /** Attribution-NoDerivs License */
+        ATTRIBUTION_NODERIVS(6),
+        /** No known copyright restrictions */
+        NO_KNOWN_COPYRIGHT_RESTRICTIONS(7),
+        /** United States Government Work */
+        UNITED_STATES_GOVERNMENT_WORK(8);
+
+        private int id;
+
+        License(int id) {
+            this.id = id;
+        }
+
+        static License get(int id) {
+            for (License license : values()) {
+                if (license.id == id) {
+                    return license;
+                }
+            }
+            return null;
+        }
+    }
 
     /**
      * Identifier for the API key when supplied via {@link Configuration}.
@@ -40,11 +141,6 @@ public final class FlickrSearcher extends AbstractSearcher<WebImage> {
     public static final String CONFIG_API_KEY = "api.flickr.key";
 
     private final String apiKey;
-
-    /** Search only photos with one of the given licenses. */
-    private Collection<Integer> allowedLicenses = CollectionHelper.newHashSet();
-    
-    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -71,44 +167,28 @@ public final class FlickrSearcher extends AbstractSearcher<WebImage> {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
-    /**
-     * <pre>
-     * 0 = "All Rights Reserved"
-     * 1 = "Attribution-NonCommercial-ShareAlike License"
-     * 2 = "Attribution-NonCommercial License"
-     * 3 = "Attribution-NonCommercial-NoDerivs License"
-     * 4 = "Attribution License"
-     * 5 = "Attribution-ShareAlike License"
-     * 6 = "Attribution-NoDerivs License"
-     * 7 = "No known copyright restrictions"
-     * 8 = "United States Government Work"
-     * </pre>
-     * 
-     * @param licenses
-     */
-    public void setAllowedLicenses(Collection<Integer> licenses) {
-        allowedLicenses = licenses;
-    }
-
     @Override
     public String getName() {
-        return "Flickr";
+        return SEARCHER_NAME;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.newsseecr.searcher.MutifacetSearcher#search(com.newsseecr.searcher.MultifacetQuery)
+     */
     @Override
-    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
-        return search(query, null, null, resultCount, language);
-    }
-
-    public List<WebImage> search(String query, String minUploadDate, String tags, int resultCount,
-            Language language) throws SearcherException {
+    public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
         List<WebImage> result = new ArrayList<WebImage>();
 
+        int resultCount = query.getResultCount();
         int resultsPerPage = Math.min(resultCount, 500); // max. 500 per page
         int neccessaryPages = (int)Math.ceil((double)resultCount / resultsPerPage);
 
+        long availableResults = 0;
+
         for (int p = 0; p < neccessaryPages; p++) {
-            String requestUrl = buildRequestUrl(query, tags, minUploadDate, resultsPerPage, p, language);
+            String requestUrl = buildRequestUrl(query, resultsPerPage, p);
+            LOGGER.info("Requesting page {} with {}", p, requestUrl);
             HttpResult httpResult;
             try {
                 httpResult = retriever.httpGet(requestUrl);
@@ -121,18 +201,29 @@ public final class FlickrSearcher extends AbstractSearcher<WebImage> {
             try {
                 JSONObject resultJson = new JSONObject(jsonString);
                 JSONObject photosJson = resultJson.getJSONObject("photos");
+                availableResults = photosJson.getLong("total");
                 JSONArray photoJsonArray = photosJson.getJSONArray("photo");
                 for (int i = 0; i < photoJsonArray.length(); i++) {
                     JSONObject photoJson = photoJsonArray.getJSONObject(i);
                     BasicWebImage.Builder builder = new BasicWebImage.Builder();
-                    builder.setTitle(photoJson.getString("title"));
+
                     String farmId = photoJson.getString("farm");
                     String serverId = photoJson.getString("server");
                     String id = photoJson.getString("id");
                     String secret = photoJson.getString("secret");
                     String userId = photoJson.getString("owner");
+
+                    builder.setTitle(photoJson.getString("title"));
                     builder.setImageUrl(buildImageUrl(farmId, serverId, id, secret));
                     builder.setUrl(buildPageUrl(id, userId));
+                    builder.setSummary(photoJson.getJSONObject("description").getString("_content"));
+                    builder.setPublished(parseDate(photoJson.getString("datetaken")));
+                    builder.setCoordinate(parseCoordinate(photoJson));
+
+                    // List<String> tags = Arrays.asList(photoJson.getString("tags").split("\\s"));
+                    // License license = License.get(photoJson.getInt("license"));
+                    builder.setWidth(photoJson.optInt("o_width", -1));
+                    builder.setHeight(photoJson.optInt("o_height", -1));
                     result.add(builder.create());
                 }
             } catch (JSONException e) {
@@ -140,41 +231,69 @@ public final class FlickrSearcher extends AbstractSearcher<WebImage> {
                         + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
             }
         }
-        return result;
+        return new SearchResults<WebImage>(result, availableResults);
+    }
+
+    private static final GeoCoordinate parseCoordinate(JSONObject photoJson) throws JSONException {
+        double lat = photoJson.getDouble("latitude");
+        double lng = photoJson.getDouble("longitude");
+        if (lat == 0.0 && lng == 0.0) {
+            return null;
+        }
+        return new ImmutableGeoCoordinate(lat, lng);
+    }
+
+    private static final Date parseDate(String string) {
+        try {
+            return new SimpleDateFormat(DATE_PATTERN).parse(string);
+        } catch (ParseException e) {
+            LOGGER.warn("Error while parsing date string '" + string + "'.");
+            return null;
+        }
     }
 
     /**
      * 
      * @param query
-     * @param tags
-     * @param uploadDate
      * @param perPage Number of results to return per page.
      * @param page The page to return.
-     * @param language
      * @return
      */
-    private String buildRequestUrl(String query, String tags, String uploadDate, int perPage, int page,
-            Language language) {
+    private String buildRequestUrl(MultifacetQuery query, int perPage, int page) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://api.flickr.com/services/rest/");
         urlBuilder.append("?method=flickr.photos.search");
         urlBuilder.append("&api_key=").append(apiKey);
-        if (query != null) {
-            urlBuilder.append("&text=").append(UrlHelper.encodeParameter(query));
+        if (query.getText() != null) {
+            urlBuilder.append("&text=").append(UrlHelper.encodeParameter(query.getText()));
         }
-        if (tags != null) {
-            urlBuilder.append("&tags=").append(tags);
+        if (query.getTags() != null && !query.getTags().isEmpty()) {
+            urlBuilder.append("&tags=").append(StringUtils.join(query.getTags(), ","));
         }
-        if (uploadDate != null) {
-            urlBuilder.append("&min_upload_date=").append(uploadDate);
+        if (query.getStartDate() != null) {
+            urlBuilder.append("&min_taken_date=").append(query.getStartDate().getTime() / 1000);
         }
-        if (!allowedLicenses.isEmpty()) {
-            urlBuilder.append("&license=").append(StringUtils.join(allowedLicenses, ","));
+        if (query.getEndDate() != null) {
+            urlBuilder.append("&max_taken_date=").append(query.getEndDate().getTime() / 1000);
+        }
+        if (query.getCoordinate() != null) {
+            double[] bbox = GeoUtils.getBoundingBox(query.getCoordinate(), query.getRadius());
+            String params = String.format("%s,%s,%s,%s", bbox[1], bbox[0], bbox[3], bbox[2]);
+            urlBuilder.append("&bbox=").append(params);
+        }
+        Facet facet = query.getFacet(Licenses.LICENSES_IDENTIFIER);
+        if (facet != null) {
+            Licenses licensesFacet = (Licenses)facet;
+            if (licensesFacet.licenses.size() > 0) {
+                urlBuilder.append("&license=").append(licensesFacet.getLicensesString());
+            }
         }
         urlBuilder.append("&per_page=").append(perPage);
         urlBuilder.append("&page=").append(page);
         urlBuilder.append("&format=json");
         urlBuilder.append("&nojsoncallback=1");
+        urlBuilder.append("&extras=description,license,date_taken,geo,tags,o_dims,");
+        LOGGER.debug("Query URL {}", urlBuilder);
         return urlBuilder.toString();
     }
 
