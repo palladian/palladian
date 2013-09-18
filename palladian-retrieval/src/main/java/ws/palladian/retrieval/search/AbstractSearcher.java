@@ -17,9 +17,6 @@ import ws.palladian.retrieval.resources.WebContent;
 
 public abstract class AbstractSearcher<R extends WebContent> implements Searcher<R> {
 
-	/** The default language to use for search. */
-    private static final Language DEFAULT_SEARCHER_LANGUAGE = Language.ENGLISH;
-
     @Override
 	public final List<String> searchUrls(String query, int resultCount) throws SearcherException {
         return searchUrls(query, resultCount, DEFAULT_SEARCHER_LANGUAGE);
@@ -64,6 +61,14 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
 	public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Obtaining the total number of results is not supported or implemented by "
                 + getName() + ".");
+    }
+    
+    /**
+     * Default implementation which just delegates to the old API (only text query and language).
+     */
+    @Override
+    public SearchResults<R> search(MultifacetQuery query) throws SearcherException {
+    	return new SearchResults<R>(search(query.getText(), query.getResultCount(), query.getLanguage()));
     }
 
     @Override

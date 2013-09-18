@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+// FIXME this is a class for the API module
 public interface GeoCoordinate {
 
     /**

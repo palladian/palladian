@@ -2,6 +2,7 @@ package ws.palladian.retrieval.resources;
 
 import java.util.Date;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.images.ImageType;
 
@@ -23,6 +24,10 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
     private String licenseLink = "";
     private ImageType imageType = ImageType.UNKNOWN;
     private String fileType = null;
+    
+    public BasicWebImage(String url, String imageUrl, String title, String summary, int width, int height, Date date) {
+        this(url, imageUrl, title, summary, width, height, date, null);
+    }
 
     /**
      * <p>
@@ -38,8 +43,8 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
      * @param date
      * @param imageContent
      */
-    public BasicWebImage(String url, String imageUrl, String title, String summary, int width, int height, Date date) {
-        super(url, title, summary, date);
+    public BasicWebImage(String url, String imageUrl, String title, String summary, int width, int height, Date date, GeoCoordinate coordinate) {
+        super(url, title, summary, date, coordinate);
         this.imageUrl = imageUrl;
         this.width = width;
         this.height = height;

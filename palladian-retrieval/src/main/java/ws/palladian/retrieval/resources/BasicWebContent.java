@@ -2,6 +2,8 @@ package ws.palladian.retrieval.resources;
 
 import java.util.Date;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+
 /**
  * <p>
  * {@link BasicWebContent}s represent search results from web search engines.
@@ -20,6 +22,8 @@ public class BasicWebContent implements WebContent {
     private final String summary;
     
     private final Date published;
+    
+    private final GeoCoordinate coordinate;
 
     /**
      * <p>
@@ -30,7 +34,7 @@ public class BasicWebContent implements WebContent {
      * @param title
      */
     public BasicWebContent(String url, String title) {
-    	this(url, title, null, null);
+    	this(url, title, null, null, null);
     }
     
     /**
@@ -43,9 +47,13 @@ public class BasicWebContent implements WebContent {
      * @param summary
      */
     public BasicWebContent(String url, String title, String summary) {
-    	this(url, title, summary, null);
+    	this(url, title, summary, null, null);
     }
 
+    public BasicWebContent(String url, String title, String summary, Date published) {
+    	this(url, title, summary, published, null);
+    }
+    
     /**
      * <p>
      * Create a new {@link BasicWebContent}.
@@ -56,11 +64,12 @@ public class BasicWebContent implements WebContent {
      * @param summary
      * @param published
      */
-    public BasicWebContent(String url, String title, String summary, Date published) {
+    public BasicWebContent(String url, String title, String summary, Date published, GeoCoordinate coordinate) {
         this.url = url;
         this.title = title;
         this.summary = summary;
         this.published = published;
+        this.coordinate = coordinate;
     }
 
     protected BasicWebContent(WebContent webResult) {
@@ -68,6 +77,7 @@ public class BasicWebContent implements WebContent {
         this.title = webResult.getTitle();
         this.summary = webResult.getSummary();
         this.published = webResult.getPublished();
+        this.coordinate = webResult.getCoordinate();
     }
 
     @Override
@@ -88,6 +98,11 @@ public class BasicWebContent implements WebContent {
 	@Override
 	public Date getPublished() {
 		return published;
+	}
+	
+	@Override
+	public GeoCoordinate getCoordinate() {
+		return coordinate;
 	}
 
 	@Override

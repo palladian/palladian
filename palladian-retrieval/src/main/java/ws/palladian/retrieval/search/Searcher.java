@@ -19,6 +19,9 @@ import ws.palladian.retrieval.resources.WebContent;
  * @author Philipp Katz
  */
 public interface Searcher<R extends WebContent> {
+	
+	/** The default language to use for search. */
+    public static final Language DEFAULT_SEARCHER_LANGUAGE = Language.ENGLISH;
 
     /**
      * <p>
@@ -92,6 +95,17 @@ public interface Searcher<R extends WebContent> {
      * @throws SearcherException In case the search fails.
      */
     long getTotalResultCount(String query, Language language) throws SearcherException;
+    
+	/**
+	 * <p>
+	 * Do a search with a {@link MultifacetQuery}. In case, a facet is not supported, it is simply ignored.
+	 * </p>
+	 * 
+	 * @param query The query, not <code>null</code>.
+	 * @return The results for the query, never <code>null</code>.
+	 * @throws SearcherException In case the search fails.
+	 */
+	SearchResults<R> search(MultifacetQuery query) throws SearcherException;
 
     /**
      * <p>
