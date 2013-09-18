@@ -21,7 +21,7 @@ public class VimeoSearcherTest {
 
         WebVideoResult result1 = videoResults.get(0);
         assertEquals("Matta - Release The Freq", result1.getTitle());
-        assertEquals(1299589789000l, result1.getDate().getTime());
+        assertEquals(1299589789000l, result1.getPublished().getTime());
         assertEquals("https://vimeo.com/20800127", result1.getUrl());
         assertEquals(246, (long)result1.getRunTime());
         

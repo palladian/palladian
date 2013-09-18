@@ -304,11 +304,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         List<Object> parameters = new ArrayList<Object>();
         parameters.add(entry.getFeedId());
         parameters.add(entry.getTitle());
-        parameters.add(entry.getLink());
+        parameters.add(entry.getUrl());
         parameters.add(entry.getRawId());
         parameters.add(SqlHelper.getTimestamp(entry.getPublished()));
         parameters.add(entry.getAuthors());
-        parameters.add(entry.getDescription());
+        parameters.add(entry.getSummary());
         parameters.add(entry.getText());
         parameters.add(entry.getHash());
         return parameters;

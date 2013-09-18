@@ -78,7 +78,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
 		}
 
 		@Override
-		public Date getDate() {
+		public Date getPublished() {
 			return null;
 		}
 		

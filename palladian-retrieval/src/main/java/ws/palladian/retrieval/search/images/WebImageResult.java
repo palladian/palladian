@@ -132,7 +132,7 @@ public class WebImageResult extends BasicWebContent {
         builder.append(", summary=");
         builder.append(getSummary());
         builder.append(", date=");
-        builder.append(getDate());
+        builder.append(getPublished());
         builder.append("]");
         return builder.toString();
     }

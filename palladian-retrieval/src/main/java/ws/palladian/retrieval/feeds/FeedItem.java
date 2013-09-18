@@ -3,6 +3,8 @@ package ws.palladian.retrieval.feeds;
 import java.util.Date;
 import java.util.Map;
 
+import ws.palladian.retrieval.search.WebContent;
+
 /**
  * <p>
  * Represents a news item within a feed ({@link Feed}).
@@ -12,10 +14,7 @@ import java.util.Map;
  * @author David Urbansky
  * @author Sandro Reichert
  */
-public class FeedItem {
-
-    /** The logger for this class. */
-//    private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
+public class FeedItem implements WebContent {
 
     private int id = -1;
 
@@ -79,6 +78,7 @@ public class FeedItem {
         return feedId;
     }
 
+    @Override
     public String getTitle() {
         return title;
     }
@@ -87,7 +87,8 @@ public class FeedItem {
         this.title = title;
     }
 
-    public String getLink() {
+    @Override
+    public String getUrl() {
         return link;
     }
 
@@ -108,6 +109,7 @@ public class FeedItem {
      * 
      * @return
      */
+    @Override
     public Date getPublished() {
         return published;
     }
@@ -147,7 +149,8 @@ public class FeedItem {
         this.authors = authors;
     }
 
-    public String getDescription() {
+    @Override
+    public String getSummary() {
         return description;
     }
 
@@ -224,34 +227,6 @@ public class FeedItem {
         return itemHash;
     }
 
-//    /**
-//     * Returns a custom hash representation calculated by the item's title, link and raw id or <code>null</code> if it
-//     * is impossible to calculate a meaningful hash because title, link and raw id are all <code>null</code> or the
-//     * empty string. SessionIDs are removed from link and raw id (in case raw id contains a url string only)
-//     * 
-//     * @return sha1 hash.
-//     */
-//    private String generateHash() {
-//        String newHash = null;
-//
-//        StringBuilder hash = new StringBuilder();
-//        hash.append(getTitle());
-//        hash.append(UrlHelper.removeSessionId(getLink(), false));
-//        hash.append(UrlHelper.removeSessionId(getRawId(), true));
-//        // if (getFeed().getActivityPattern() != FeedClassifier.CLASS_UNKNOWN
-//        // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
-//        // hash.append(getPublished().toString());
-//        // }
-//        if (getTitle() != null || getLink() != null || getRawId() != null) {
-//            newHash = StringHelper.sha1(hash.toString());
-//
-//        } else {
-//            LOGGER.error("Could not generate custom item hash, all values are null or empty. Feed id " + feed.getId());
-//        }
-//
-//        return newHash;
-//    }
-
     public void setAdditionalData(Map<String, Object> additionalData) {
         this.additionalData = additionalData;
     }
@@ -297,26 +272,5 @@ public class FeedItem {
     public final void setPollTimestamp(Date pollTimestamp) {
         this.pollTimestamp = pollTimestamp;
     }
-
-//    /**
-//     * <p>
-//     * Free the memory because feed item objects might be held in memory. Rests everything to <code>null</code> except
-//     * the dates {@link #published}, {@link #correctedPublishedDate}, {@link #httpDate} and the {@link #itemHash}. Use
-//     * with caution :)
-//     * </p>
-//     * Usually used in case one wants to generate feed post statistics using all items a feed has--this number may
-//     * exceed 10 million as seen in TUDCS6 dataset.
-//     */
-//    public final void freeMemory() {
-//        added = null;
-//        additionalData = null;
-//        authors = null;
-//        description = null;
-//        feed = null;
-//        link = null;
-//        rawId = null;
-//        text = null;
-//        title = null;
-//    }
 
 }
