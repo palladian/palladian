@@ -68,11 +68,13 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
 
                 for (Object result : searchResults) {
                     JsonObject resultItem = (JsonObject)result;
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
                     String title = resultItem.getString("title");
-                    String snippet = HtmlHelper.stripHtmlTags(resultItem.getString("snippet"));
-                    Date date = parseDate(resultItem.getString("timestamp"));
-                    String url = getPageUrl(baseUrl, title);
-                    results.add(new BasicWebContent(url, title, snippet, date));
+                    builder.setTitle(title);
+                    builder.setSummary(HtmlHelper.stripHtmlTags(resultItem.getString("snippet")));
+                    builder.setPublished(parseDate(resultItem.getString("timestamp")));
+                    builder.setUrl(getPageUrl(baseUrl, title));
+                    results.add(builder.create());
 
                     if (results.size() == resultCount) {
                         break;

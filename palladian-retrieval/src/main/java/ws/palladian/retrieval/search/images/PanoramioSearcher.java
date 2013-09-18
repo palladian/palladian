@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -104,16 +103,17 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
                 }
                 for (int i = 0; i < photosJson.length(); i++) {
                     JSONObject photoJson = photosJson.getJSONObject(i);
-                    String title = photoJson.getString("photo_title");
-                    String pageUrl = photoJson.getString("photo_url");
-                    String imageUrl = photoJson.getString("photo_file_url");
+                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setTitle(photoJson.getString("photo_title"));
+                    builder.setUrl(photoJson.getString("photo_url"));
+                    builder.setImageUrl(photoJson.getString("photo_file_url"));
+                    builder.setWidth(photoJson.getInt("width"));
+                    builder.setHeight(photoJson.getInt("height"));
+                    builder.setPublished(parseDate(photoJson.getString("upload_date")));
                     double lng = photoJson.getDouble("longitude");
                     double lat = photoJson.getDouble("latitude");
-                    int width = photoJson.getInt("width");
-                    int height = photoJson.getInt("height");
-                    Date date = parseDate(photoJson.getString("upload_date"));
-                    GeoCoordinate imageCoordinate = new ImmutableGeoCoordinate(lat, lng);
-                    result.add(new BasicWebImage(pageUrl, imageUrl, title, null, width, height, date, imageCoordinate));
+                    builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
+                    result.add(builder.create());
                     if (result.size() >= query.getResultCount()) {
                         break;
                     }

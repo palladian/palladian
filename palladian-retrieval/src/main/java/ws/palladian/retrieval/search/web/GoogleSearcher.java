@@ -23,10 +23,11 @@ public final class GoogleSearcher extends BaseGoogleSearcher<WebContent> {
 
     @Override
     protected WebContent parseResult(JSONObject resultData) throws JSONException {
-        String title = resultData.getString("titleNoFormatting");
-        String content = resultData.getString("content");
-        String url = resultData.getString("unescapedUrl");
-        return new BasicWebContent(url, title, content);
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setTitle(resultData.getString("titleNoFormatting"));
+        builder.setSummary(resultData.getString("content"));
+        builder.setUrl(resultData.getString("unescapedUrl"));
+        return builder.create();
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseGoogleSearcher;
 
 
@@ -14,7 +15,7 @@ import ws.palladian.retrieval.search.BaseGoogleSearcher;
  * 
  * @author Philipp Katz
  */
-public final class GoogleBlogsSearcher extends BaseGoogleSearcher<BasicWebContent> {
+public final class GoogleBlogsSearcher extends BaseGoogleSearcher<WebContent> {
 
     @Override
     protected String getBaseUrl() {
@@ -22,12 +23,12 @@ public final class GoogleBlogsSearcher extends BaseGoogleSearcher<BasicWebConten
     }
 
     @Override
-    protected BasicWebContent parseResult(JSONObject resultData) throws JSONException {
-        String title = resultData.getString("titleNoFormatting");
-        String content = resultData.getString("content");
-        String url = resultData.getString("postUrl");
-        BasicWebContent webResult = new BasicWebContent(url, title, content);
-        return webResult;
+    protected WebContent parseResult(JSONObject resultData) throws JSONException {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setTitle(resultData.getString("titleNoFormatting"));
+        builder.setSummary(resultData.getString("content"));
+        builder.setUrl(resultData.getString("postUrl"));
+        return builder.create();
     }
 
     @Override

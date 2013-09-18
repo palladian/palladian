@@ -142,15 +142,16 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
 
             for (int i = 0; i < entries.length(); i++) {
                 JsonObjectWrapper entry = new JsonObjectWrapper(entries.getJSONObject(i));
+                BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
                 String published = entry.get("published/$t", String.class);
-                String title = entry.get("title/$t", String.class);
-                String videoLink = entry.get("content/src", String.class);
-                Date date = parseDate(published);
-                String pageLink = getPageLink(entry.getJsonObject());
-                Integer runtime = entry.get("media$group/yt$duration/seconds", Integer.class);
-                Integer viewCount = entry.get("yt$statistics/viewCount", Integer.class);
-                String description = entry.get("media$group/media$description/$t", String.class);
-                String thumbnailUrl = entry.get("media$group/media$thumbnail[2]/url", String.class);
+                builder.setPublished(parseDate(published));
+                builder.setTitle(entry.get("title/$t", String.class));
+                builder.setVideoUrl(entry.get("content/src", String.class));
+                builder.setUrl(getPageLink(entry.getJsonObject()));
+                builder.setDuration(entry.get("media$group/yt$duration/seconds", Long.class));
+                builder.setViews(entry.get("yt$statistics/viewCount", Integer.class));
+                builder.setSummary(entry.get("media$group/media$description/$t", String.class));
+                builder.setThumbnailUrl(entry.get("media$group/media$thumbnail[2]/url", String.class));
 
                 JsonObjectWrapper ratingObject = entry.getJSONObject("yt$rating");
                 Double rating = null;
@@ -160,20 +161,11 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
                     int total = numLikes + numDislikes;
 
                     if (total > 0) {
-                        rating = numLikes / (double)total;
+                        builder.setRating(numLikes / (double)total);
                     }
                 }
 
-                Long rtLong = null;
-                if (runtime != null) {
-                    rtLong = runtime.longValue();
-                }
-
-                BasicWebVideo webResult = new BasicWebVideo(pageLink, videoLink, title, description, rtLong, date);
-                webResult.setViews(viewCount);
-                webResult.setRating(rating);
-                webResult.setThumbnail(thumbnailUrl);
-                webResults.add(webResult);
+                webResults.add(builder.create());
 
                 if (webResults.size() >= resultCount) {
                     break;

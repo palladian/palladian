@@ -52,38 +52,34 @@ public class StockXchngSearcher extends AbstractSearcher<WebImage> {
 
             for (Node node : targetNodes) {
 
+                BasicWebImage.Builder builder = new BasicWebImage.Builder();
                 Node dimensionNode = XPathHelper.getXhtmlNode(node, ".//li[@class='t_size']");
-                int width = -1;
-                int height = -1;
                 if (dimensionNode != null) {
                     String[] split = dimensionNode.getTextContent().split("\\*");
-                    width = Integer.parseInt(split[0]);
-                    height = Integer.parseInt(split[1]);
+                    builder.setWidth(Integer.parseInt(split[0]));
+                    builder.setHeight(Integer.parseInt(split[1]));
                 }
-                String title = "";
                 Node titleNode = XPathHelper.getXhtmlNode(node, ".//li[@class='t_title0']");
                 if (titleNode != null) {
-                    title = titleNode.getTextContent();
+                    builder.setTitle(titleNode.getTextContent());
                 }
 
                 Node imageNode = XPathHelper.getXhtmlNode(node, ".//img/@src");
-                String imageThumbUrl = "";
                 if (imageNode != null) {
-                    imageThumbUrl = "http://www.sxc.hu/" + imageNode.getTextContent();
+                    builder.setThumbnailUrl("http://www.sxc.hu/" + imageNode.getTextContent());
                 }
 
                 String imageUrl = XPathHelper.getXhtmlNode(node, ".//a/@href").getTextContent();
-                String url = "http://www.sxc.hu/" + imageUrl;
+                builder.setUrl("http://www.sxc.hu/" + imageUrl);
                 imageUrl = imageUrl.replace("photo/", "");
                 imageUrl = "http://www.sxc.hu/browse.phtml?f=download&id=" + imageUrl;
+                builder.setImageUrl(imageUrl);
 
-                BasicWebImage webImageResult = new BasicWebImage(url, imageUrl, title, title, width, height, null);
-                webImageResult.setThumbnailUrl(imageThumbUrl);
-                webImageResult.setLicense(License.ATTRIBUTION);
-                webImageResult.setLicenseLink("http://www.sxc.hu/help/7_2");
-                webImageResult.setImageType(ImageType.PHOTO);
+                builder.setLicense(License.ATTRIBUTION);
+                builder.setLicenseLink("http://www.sxc.hu/help/7_2");
+                builder.setImageType(ImageType.PHOTO);
 
-                results.add(webImageResult);
+                results.add(builder.create());
 
                 if (results.size() >= resultCount) {
                     break ol;

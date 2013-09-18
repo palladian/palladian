@@ -147,24 +147,25 @@ public abstract class BaseHakiaSearcher extends AbstractSearcher<WebContent> {
 
         for (Node resultNode : resultNodes) {
 
-            String url = XPathHelper.getNode(resultNode, "Url").getTextContent();
-            String title = XPathHelper.getNode(resultNode, "Title").getTextContent();
-            String summary = XPathHelper.getNode(resultNode, "Paragraph").getTextContent();
+            BasicWebContent.Builder builder = new BasicWebContent.Builder();
+            builder.setUrl(XPathHelper.getNode(resultNode, "Url").getTextContent());
+            builder.setTitle(XPathHelper.getNode(resultNode, "Title").getTextContent());
+            builder.setSummary(XPathHelper.getNode(resultNode, "Paragraph").getTextContent());
 
             // date is only available for hakia news
             Node dateNode = XPathHelper.getNode(resultNode, "Date");
-            Date date = null;
             if (dateNode != null) {
                 String dateString = dateNode.getTextContent();
                 try {
-                    date = dateFormat.parse(dateString);
+                    Date date = dateFormat.parse(dateString);
+                    builder.setPublished(date);
                 } catch (ParseException e) {
                     throw new SearcherException("Error parsing the search result's date (" + dateString + ") at "
                             + getName() + ": " + e.getMessage(), e);
                 }
             }
 
-            BasicWebContent webResult = new BasicWebContent(url, title, summary, date);
+            WebContent webResult = builder.create();
             LOGGER.debug("hakia retrieved {}", webResult);
             webResults.add(webResult);
 

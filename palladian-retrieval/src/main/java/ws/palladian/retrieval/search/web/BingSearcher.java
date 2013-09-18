@@ -1,7 +1,5 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.Date;
-
 import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,22 +43,19 @@ public final class BingSearcher extends BaseBingSearcher<WebContent> {
 
     @Override
     protected WebContent parseResult(JSONObject currentResult) throws JSONException {
-        String url = currentResult.getString("Url");
-        String title = null;
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(currentResult.getString("Url"));
         if (currentResult.has("Title")) {
-            title = currentResult.getString("Title");
+            builder.setTitle(currentResult.getString("Title"));
         }
-        String summary = null;
         if (currentResult.has("Description")) {
-            summary = currentResult.getString("Description");
+            builder.setSummary(currentResult.getString("Description"));
         }
-        Date date = null;
         if (currentResult.has("DateTime")) {
             String dateString = currentResult.getString("DateTime");
-            date = parseDate(dateString);
+            builder.setPublished(parseDate(dateString));
         }
-        BasicWebContent webResult = new BasicWebContent(url, title, summary, date);
-        return webResult;
+        return builder.create();
     }
 
     @Override

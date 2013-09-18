@@ -49,10 +49,11 @@ public final class TopsySearcher extends BaseTopsySearcher {
     }
 
     protected WebContent parse(JSONObject item) throws JSONException {
-        String url = JsonHelper.getString(item, "trackback_permalink");
-        String title = StringEscapeUtils.unescapeHtml4(JsonHelper.getString(item, "title"));
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(JsonHelper.getString(item, "trackback_permalink"));
+        builder.setTitle(StringEscapeUtils.unescapeHtml4(JsonHelper.getString(item, "title")));
         // String description = StringEscapeUtils.unescapeHtml4(JsonHelper.getString(item, "content"));
-        return new BasicWebContent(url, title, null);
+        return builder.create();
     }
 
     protected String buildQueryUrl(String query, int page, String apiKey) {

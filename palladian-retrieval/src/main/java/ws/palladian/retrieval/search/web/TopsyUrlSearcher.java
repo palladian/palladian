@@ -63,9 +63,10 @@ public final class TopsyUrlSearcher extends BaseTopsySearcher {
 
     @Override
     protected WebContent parse(JSONObject item) throws JSONException {
-        String url = JsonHelper.getString(item, "permalink_url");
-        String title = JsonHelper.getString(item, "content");
-        return new BasicWebContent(url, title, null);
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(JsonHelper.getString(item, "permalink_url"));
+        builder.setTitle(JsonHelper.getString(item, "content"));
+        return builder.create();
     }
 
 }

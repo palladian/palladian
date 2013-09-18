@@ -196,16 +196,19 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
             if (urlNode == null || titleNode == null) {
                 throw new SearcherException("Expected element (url or title) was missing");
             }
-            String url = urlNode.getTextContent();
-            String title = titleNode.getTextContent();
+            BasicWebContent.Builder builder = new BasicWebContent.Builder();
+            builder.setUrl(urlNode.getTextContent());
+            builder.setTitle(titleNode.getTextContent());
             // optional
             Node headlineNode = XPathHelper.getNode(resultDoc, "headline");
-            String headline = headlineNode == null ? null : headlineNode.getTextContent();
+            if (headlineNode != null) {
+                builder.setSummary(headlineNode.getTextContent());
+            }
             Node timeNode = XPathHelper.getNode(resultDoc, "modtime");
-            Date date = timeNode == null ? null : parseDate(timeNode.getTextContent());
-
-            BasicWebContent webResult = new BasicWebContent(url, title, headline, date);
-            result.add(webResult);
+            if (timeNode != null) {
+                builder.setPublished(parseDate(timeNode.getTextContent()));
+            }
+            result.add(builder.create());
         }
         return result;
     }

@@ -182,12 +182,13 @@ public final class NewsSeecrSearcher extends AbstractSearcher<WebContent> {
                 JSONArray resultArray = JPathHelper.get(jsonString, "/results", JSONArray.class);
                 for (int i = 0; i < resultArray.length(); i++) {
                     JSONObject resultObject = resultArray.getJSONObject(i);
-                    String title = JPathHelper.get(resultObject, "/title", String.class);
-                    String dateString = JPathHelper.get(resultObject, "/publishedDate", String.class);
-                    String link = JPathHelper.get(resultObject, "/link", String.class);
-                    String text = JPathHelper.get(resultObject, "/text", String.class);
-                    Date date = parseDate(dateString);
-                    webResults.add(new BasicWebContent(link, title, text, date));
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
+                    builder.setTitle(JPathHelper.get(resultObject, "/title", String.class));
+                    builder.setUrl(JPathHelper.get(resultObject, "/link", String.class));
+                    builder.setSummary(JPathHelper.get(resultObject, "/text", String.class));
+                    Date date = parseDate(JPathHelper.get(resultObject, "/publishedDate", String.class));
+                    builder.setPublished(date);
+                    webResults.add(builder.create());
                     if (webResults.size() == resultCount) {
                         break;
                     }

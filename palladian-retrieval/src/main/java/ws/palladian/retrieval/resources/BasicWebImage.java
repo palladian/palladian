@@ -1,14 +1,12 @@
 package ws.palladian.retrieval.resources;
 
-import java.util.Date;
-
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.images.ImageType;
 
 /**
  * <p>
- * {@link WebImageResult}s represent search results from image searches on web search engines.
+ * {@link BasicWebImage}s represent search results from image searches on web search engines. For instantiation use the
+ * {@link Builder}.
  * </p>
  * 
  * @author Philipp Katz
@@ -16,171 +14,216 @@ import ws.palladian.retrieval.search.images.ImageType;
  */
 public class BasicWebImage extends BasicWebContent implements WebImage {
 
-    private final String imageUrl;
-    private String thumbImageUrl;
-    private final int width;
-    private final int height;
-    private License license = License.UNKNOWN;
-    private String licenseLink = "";
-    private ImageType imageType = ImageType.UNKNOWN;
-    private String fileType = null;
-    
-    public BasicWebImage(String url, String imageUrl, String title, String summary, int width, int height, Date date) {
-        this(url, imageUrl, title, summary, width, height, date, null);
-    }
-
     /**
      * <p>
-     * Create a new {@link WebImageResult}
+     * Builder for creating new instances of {@link WebImage}.
      * </p>
      * 
-     * @param url The URL to the result. This should usually point to an HTML page on which the image is situated.
-     * @param imageUrl The URL to the image. This should usually point directly to the image file (e.g. JPEG, PNG, etc.)
-     * @param title
-     * @param summary
-     * @param width
-     * @param height
-     * @param date
-     * @param imageContent
+     * @author katz
      */
-    public BasicWebImage(String url, String imageUrl, String title, String summary, int width, int height, Date date, GeoCoordinate coordinate) {
-        super(url, title, summary, date, coordinate);
-        this.imageUrl = imageUrl;
-        this.width = width;
-        this.height = height;
+    public static class Builder extends BasicWebContent.Builder {
+
+        protected String imageUrl;
+        protected String thumbnailUrl;
+        protected int width;
+        protected int height;
+        protected License license = License.UNKNOWN;
+        protected String licenseLink = "";
+        protected ImageType imageType = ImageType.UNKNOWN;
+        protected String fileType;
+
+        public Builder setImageType(ImageType imageType) {
+            this.imageType = imageType;
+            return this;
+        }
+
+        public Builder setThumbnailUrl(String thumbnailUrl) {
+            this.thumbnailUrl = thumbnailUrl;
+            return this;
+
+        }
+
+        public Builder setWidth(int width) {
+            this.width = width;
+            return this;
+
+        }
+
+        public Builder setHeight(int height) {
+            this.height = height;
+            return this;
+
+        }
+
+        public Builder setLicense(License license) {
+            this.license = license;
+            return this;
+
+        }
+
+        public Builder setLicenseLink(String licenseLink) {
+            this.licenseLink = licenseLink;
+            return this;
+
+        }
+
+        public Builder setImageUrl(String imageUrl) {
+            this.imageUrl = imageUrl;
+            return this;
+
+        }
+
+        public Builder setFileType(String fileType) {
+            this.fileType = fileType;
+            return this;
+        }
+
+        public Builder setWebImage(WebImage webImage) {
+            super.setWebContent(webImage);
+            this.imageUrl = webImage.getImageUrl();
+            this.thumbnailUrl = webImage.getThumbnailUrl();
+            this.width = webImage.getWidth();
+            this.height = webImage.getHeight();
+            this.license = webImage.getLicense();
+            this.licenseLink = webImage.getLicenseLink();
+            this.imageType = webImage.getImageType();
+            this.fileType = webImage.getFileType();
+            return this;
+        }
+
+        @Override
+        public WebImage create() {
+            return new BasicWebImage(this);
+        }
+
     }
+
+    private String imageUrl;
+    private String thumbnailUrl;
+    private int width;
+    private int height;
+    private License license;
+    private String licenseLink;
+    private ImageType imageType;
+    private String fileType;
 
     protected BasicWebImage(WebImage webImage) {
         super(webImage);
         this.imageUrl = webImage.getImageUrl();
+        this.thumbnailUrl = webImage.getThumbnailUrl();
         this.width = webImage.getWidth();
         this.height = webImage.getHeight();
         this.license = webImage.getLicense();
         this.licenseLink = webImage.getLicenseLink();
         this.imageType = webImage.getImageType();
+        this.fileType = webImage.getFileType();
     }
 
-    /**
-     * @return The width of the image.
-     */
+    private BasicWebImage(Builder builder) {
+        super(builder);
+        this.imageUrl = builder.imageUrl;
+        this.thumbnailUrl = builder.thumbnailUrl;
+        this.width = builder.width;
+        this.height = builder.height;
+        this.license = builder.license;
+        this.licenseLink = builder.licenseLink;
+        this.imageType = builder.imageType;
+        this.fileType = builder.fileType;
+    }
+
     @Override
     public int getWidth() {
         return width;
     }
 
-    /**
-     * @return The height of the image.
-     */
     @Override
     public int getHeight() {
         return height;
     }
-    
+
     @Override
     public int getSize() {
-    	return width * height;
+        return width * height;
     }
 
-    /**
-     * @return The URL of the image. In contrast to {@link #getUrl()}, which links to a (HTML) page surrounding the
-     *         actual image, this URL points directly to the image file.
-     */
     @Override
-	public String getImageUrl() {
+    public String getImageUrl() {
         return imageUrl;
     }
-    
+
     @Override
     public String getThumbnailUrl() {
-    	return thumbImageUrl;
-    }
-
-    public void setThumbnailUrl(String thumbImageUrl) {
-        this.thumbImageUrl = thumbImageUrl;
-    }
-
-    public double getWidthHeightRatio() {
-        return (double)getWidth() / (double)getHeight();
+        return thumbnailUrl;
     }
 
     @Override
-	public License getLicense() {
+    public License getLicense() {
         return license;
     }
 
-    public void setLicense(License license) {
-        this.license = license;
-    }
-
     @Override
-	public ImageType getImageType() {
+    public ImageType getImageType() {
         return imageType;
     }
 
-    public void setImageType(ImageType imageType) {
-        this.imageType = imageType;
-    }
-
     @Override
-	public String getLicenseLink() {
+    public String getLicenseLink() {
         return licenseLink;
     }
 
-    public void setLicenseLink(String licenseLink) {
-        this.licenseLink = licenseLink;
-    }
-    
     @Override
     public String getFileType() {
-    	return fileType;
+        return fileType;
     }
-    
-    public void setFileType(String fileType) {
-		this.fileType = fileType;
-	}
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("BasicWebImage [width=");
+        builder.append("BasicWebImage [imageUrl=");
+        builder.append(imageUrl);
+        builder.append(", thumbnailUrl=");
+        builder.append(thumbnailUrl);
+        builder.append(", width=");
         builder.append(width);
         builder.append(", height=");
         builder.append(height);
-        builder.append(", url=");
+        builder.append(", license=");
+        builder.append(license);
+        builder.append(", licenseLink=");
+        builder.append(licenseLink);
+        builder.append(", imageType=");
+        builder.append(imageType);
+        builder.append(", fileType=");
+        builder.append(fileType);
+        builder.append(", getUrl()=");
         builder.append(getUrl());
-        builder.append(", imageUrl=");
-        builder.append(getImageUrl());
-        builder.append(", title=");
+        builder.append(", getTitle()=");
         builder.append(getTitle());
-        builder.append(", summary=");
+        builder.append(", getSummary()=");
         builder.append(getSummary());
-        builder.append(", date=");
+        builder.append(", getPublished()=");
         builder.append(getPublished());
+        builder.append(", getCoordinate()=");
+        builder.append(getCoordinate());
         builder.append("]");
         return builder.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
+        result = prime * result + ((fileType == null) ? 0 : fileType.hashCode());
         result = prime * result + height;
+        result = prime * result + ((imageType == null) ? 0 : imageType.hashCode());
+        result = prime * result + ((imageUrl == null) ? 0 : imageUrl.hashCode());
+        result = prime * result + ((license == null) ? 0 : license.hashCode());
+        result = prime * result + ((licenseLink == null) ? 0 : licenseLink.hashCode());
+        result = prime * result + ((thumbnailUrl == null) ? 0 : thumbnailUrl.hashCode());
         result = prime * result + width;
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -190,7 +233,31 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         if (getClass() != obj.getClass())
             return false;
         BasicWebImage other = (BasicWebImage)obj;
+        if (fileType == null) {
+            if (other.fileType != null)
+                return false;
+        } else if (!fileType.equals(other.fileType))
+            return false;
         if (height != other.height)
+            return false;
+        if (imageType != other.imageType)
+            return false;
+        if (imageUrl == null) {
+            if (other.imageUrl != null)
+                return false;
+        } else if (!imageUrl.equals(other.imageUrl))
+            return false;
+        if (license != other.license)
+            return false;
+        if (licenseLink == null) {
+            if (other.licenseLink != null)
+                return false;
+        } else if (!licenseLink.equals(other.licenseLink))
+            return false;
+        if (thumbnailUrl == null) {
+            if (other.thumbnailUrl != null)
+                return false;
+        } else if (!thumbnailUrl.equals(other.thumbnailUrl))
             return false;
         if (width != other.width)
             return false;

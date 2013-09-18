@@ -162,14 +162,15 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideo> {
         JSONArray jsonVideos = JPathHelper.get(jsonString, "videos/video", JSONArray.class);
         for (int i = 0; i < jsonVideos.length(); i++) {
             JSONObject jsonVideo = jsonVideos.getJSONObject(i);
-            String title = JPathHelper.get(jsonVideo, "title", String.class);
-            String description = JPathHelper.get(jsonVideo, "description", String.class);
+            BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
+            builder.setTitle(JPathHelper.get(jsonVideo, "title", String.class));
+            builder.setSummary(JPathHelper.get(jsonVideo, "description", String.class));
             String uploadDateString = JPathHelper.get(jsonVideo, "upload_date", String.class);
-            Date uploadDate = parseDate(uploadDateString);
+            builder.setPublished(parseDate(uploadDateString));
             String id = JPathHelper.get(jsonVideo, "id", String.class);
-            String url = String.format("https://vimeo.com/%s", id);
-            long duration = JPathHelper.get(jsonVideo, "duration", Long.class);
-            result.add(new BasicWebVideo(url, null, title, description, duration, uploadDate));
+            builder.setUrl(String.format("https://vimeo.com/%s", id));
+            builder.setDuration(JPathHelper.get(jsonVideo, "duration", Long.class));
+            result.add(builder.create());
         }
         return result;
     }

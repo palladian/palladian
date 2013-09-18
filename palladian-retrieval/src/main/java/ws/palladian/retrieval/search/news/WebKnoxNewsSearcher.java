@@ -91,18 +91,18 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebContent> {
 
     @Override
     protected WebContent parseResult(JSONObject currentResult) throws JSONException {
-        String url = currentResult.getString("url");
-        String title = currentResult.getString("title");
-        String summary = currentResult.getString("summary");
-        Date date = null;
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(currentResult.getString("url"));
+        builder.setTitle(currentResult.getString("title"));
+        builder.setSummary(currentResult.getString("summary"));
         String publishTimestamp = currentResult.getString("timestamp");
         if (!publishTimestamp.isEmpty()) {
             try {
-                date = new Date(Long.valueOf(publishTimestamp) * 1000);
+                builder.setPublished(new Date(Long.valueOf(publishTimestamp) * 1000));
             } catch (Exception e) {
             }
         }
-        return new BasicWebContent(url, title, summary, date);
+        return builder.create();
     }
 
     @Override

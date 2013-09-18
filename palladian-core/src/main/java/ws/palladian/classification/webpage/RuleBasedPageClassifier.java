@@ -114,7 +114,7 @@ public abstract class RuleBasedPageClassifier<T> {
                 // continue;
             }
 
-            WebContent link = new BasicWebContent(linkUrl, linkText);
+            WebContent link = new BasicWebContent.Builder().setUrl(linkUrl).setTitle(linkText).create();
 
             if (UrlHelper.getDomain(linkUrl).equalsIgnoreCase(pageDomain) || linkUrl.indexOf("http") != 0) {
                 ingoingLinks.add(link);
