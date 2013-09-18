@@ -123,9 +123,11 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                     }
                     if (data.has("location") && !"null".equals(data.getString("location"))) {
                         JSONObject jsonLocaiton = data.getJSONObject("location");
-                        double longitude = jsonLocaiton.getDouble("longitude");
-                        double latitude = jsonLocaiton.getDouble("latitude");
-                        builder.setCoordinate(new ImmutableGeoCoordinate(latitude, longitude));
+                        if (jsonLocaiton.has("longitude") && jsonLocaiton.has("latitude")) {
+                            double longitude = jsonLocaiton.getDouble("longitude");
+                            double latitude = jsonLocaiton.getDouble("latitude");
+                            builder.setCoordinate(new ImmutableGeoCoordinate(latitude, longitude));
+                        }
                     }
                     result.add(builder.create());
 

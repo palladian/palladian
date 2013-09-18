@@ -12,13 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.constants.Language;
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -27,9 +25,15 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.Facet;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -37,22 +41,36 @@ import ws.palladian.retrieval.search.SearcherException;
  * Searcher for Tweets on Twitter. The Tweet content can be accessed via {@link BasicWebContent#getSummary()}.
  * </p>
  * 
- * @see <a href="https://dev.twitter.com/docs/api/1/get/search">API Resources: GET search</a>
+ * @see <a href="https://dev.twitter.com/docs/api/1.1/get/search/tweets">API Resources: GET search</a>
  * @author Philipp Katz
  */
-public final class TwitterSearcher extends AbstractSearcher<WebContent> {
+public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterSearcher.class);
 
+    /** The name of this searcher. */
+    private static final String SEARCHER_NAME = "Twitter";
+
     /** The result type for which to search. */
-    public static enum ResultType {
+    public static enum ResultType implements Facet {
         /** Popular + real time results. */
         MIXED,
         /** Only most recent results. */
         RECENT,
         /** Only most popular results. */
-        POPULAR
+        POPULAR;
+
+        private static final String TWITTER_RESULT_TYPE_ID = "twitter.resultType";
+
+        @Override
+        public String getIdentifier() {
+            return TWITTER_RESULT_TYPE_ID;
+        }
+
+        public String getValue() {
+            return toString().toLowerCase();
+        }
     }
 
     /** The identifier for the {@link Configuration} key with the OAuth consumer key. */
@@ -66,10 +84,12 @@ public final class TwitterSearcher extends AbstractSearcher<WebContent> {
 
     private static final String DATE_PATTERN = "E MMM dd HH:mm:ss Z yyyy";
 
+    private static final String REQUEST_DATE_PATTERN = "yyyy-MM-dd";
+
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private final OAuthParams oAuthParams;
-    
+
     private final HttpRetriever retriever;
 
     /**
@@ -114,65 +134,6 @@ public final class TwitterSearcher extends AbstractSearcher<WebContent> {
                 configuration.getString(CONFIG_ACCESS_TOKEN_SECRET)));
     }
 
-    public List<WebContent> search(String query, int resultCount, Language language, ResultType resultType)
-            throws SearcherException {
-        List<WebContent> webResults = new ArrayList<WebContent>();
-        int resultsPerPage = Math.min(100, resultCount);
-        int numRequests = (int)Math.ceil(resultCount / 100.);
-
-        // XXX v1.1 currently does not support paging, so 100 results is maximum;
-        // leave code here for now, maybe this will be improved in the future
-        // https://dev.twitter.com/discussions/11016
-        if (resultCount > 100) {
-            LOGGER.warn("Currently, at most 100 results per query are supported by the Twitter API.");
-        }
-
-        String responseString = null;
-
-        try {
-
-            for (int page = 1; page <= numRequests; page++) {
-
-                HttpRequest request = buildRequest(query, resultsPerPage, language, page, resultType);
-                HttpResult httpResult = performHttpRequest(request);
-
-                responseString = httpResult.getStringContent();
-                LOGGER.debug("Response for {}: {}", request, responseString);
-
-                JSONObject jsonObject = new JSONObject(responseString);
-                JSONArray jsonResults = jsonObject.getJSONArray("statuses");
-                int numResults = jsonResults.length();
-
-                // stop, if we got no results
-                if (numResults == 0) {
-                    break;
-                }
-
-                for (int i = 0; i < numResults; i++) {
-                    JSONObject jsonResult = jsonResults.getJSONObject(i);
-                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
-                    builder.setTitle(StringEscapeUtils.unescapeHtml4(jsonResult.getString("text")));
-                    builder.setPublished(parseDate(jsonResult.getString("created_at")));
-                    JSONObject jsonUser = jsonResult.getJSONObject("user");
-                    builder.setUrl(createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str")));
-                    webResults.add(builder.create());
-                    if (webResults.size() >= resultCount) {
-                        break;
-                    }
-                }
-            }
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
-        } catch (JSONException e) {
-            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
-                    + getName() + ": " + e.getMessage() + " (JSON: '" + responseString + "')", e);
-        }
-
-        LOGGER.debug("twitter requests: {}", TOTAL_REQUEST_COUNT.get());
-        return webResults;
-    }
-
     /**
      * <p>
      * Build URL linking to the Tweet, which is of the form
@@ -191,12 +152,7 @@ public final class TwitterSearcher extends AbstractSearcher<WebContent> {
         return String.format("http://twitter.com/%s/status/%s", userId, statusId);
     }
 
-    @Override
-    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
-        return search(query, resultCount, language, ResultType.MIXED);
-    }
-
-    private Date parseDate(String dateString) {
+    private static final Date parseDate(String dateString) {
         Date date = null;
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN, Locale.ENGLISH);
         try {
@@ -216,8 +172,8 @@ public final class TwitterSearcher extends AbstractSearcher<WebContent> {
             throw new SearcherException("Twitter is currently blocked due to rate limit");
         }
         if (statusCode >= 400) {
-            throw new SearcherException("HTTP error " + statusCode + " for request " + request + ": "
-                    + httpResult.getStringContent());
+            String content = httpResult.getStringContent();
+            throw new SearcherException("HTTP error " + statusCode + " for request " + request + ": " + content);
         }
         return httpResult;
     }
@@ -228,25 +184,106 @@ public final class TwitterSearcher extends AbstractSearcher<WebContent> {
      * </p>
      * 
      * @param query The actual query.
-     * @param resultsPerPage The number of results to return.
-     * @param language The language.
-     * @param page The page index.
-     * @return
+     * @return The authenticated {@link HttpRequest} for accessing the API.
      */
-    private HttpRequest buildRequest(String query, int resultsPerPage, Language language, int page,
-            ResultType resultType) {
+    private HttpRequest buildRequest(MultifacetQuery query) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, "https://api.twitter.com/1.1/search/tweets.json");
-        request.addParameter("q", query);
-        request.addParameter("count", resultsPerPage);
-        request.addParameter("lang", language.getIso6391());
-        request.addParameter("result_type", resultType.toString().toLowerCase());
+        if (query.getText() != null) {
+            request.addParameter("q", query.getText());
+        }
+        request.addParameter("count", query.getResultCount());
+        if (query.getLanguage() != null) {
+            request.addParameter("lang", query.getLanguage().getIso6391());
+        }
+        Facet facet = query.getFacet(ResultType.TWITTER_RESULT_TYPE_ID);
+        if (facet != null) {
+            ResultType resultType = (ResultType)facet;
+            request.addParameter("result_type", resultType.getValue());
+        }
+        GeoCoordinate coordinate = query.getCoordinate();
+        if (coordinate != null) {
+            double radius = query.getRadius() != null ? query.getRadius() : 10;
+            String geocode = String.format("%s,%s,%skm", coordinate.getLatitude(), coordinate.getLongitude(), radius);
+            request.addParameter("geocode", geocode);
+
+        }
+        if (query.getEndDate() != null) {
+            String untilString = new SimpleDateFormat(REQUEST_DATE_PATTERN).format(query.getEndDate());
+            request.addParameter("until", untilString);
+        }
         HttpRequest signedRequest = OAuthUtil.createSignedRequest(request, oAuthParams);
+        LOGGER.debug("Request: {}", request);
         return signedRequest;
     }
 
     @Override
     public String getName() {
-        return "Twitter";
+        return SEARCHER_NAME;
+    }
+
+    @Override
+    public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
+
+        List<WebContent> webResults = new ArrayList<WebContent>();
+
+        // XXX v1.1 currently does not support paging, so 100 results is maximum;
+        // leave code here for now, maybe this will be improved in the future
+        // https://dev.twitter.com/discussions/11016
+        if (query.getResultCount() > 100) {
+            LOGGER.warn("Currently, at most 100 results per query are supported by the Twitter API.");
+        }
+
+        String responseString = null;
+
+        try {
+
+            HttpRequest request = buildRequest(query);
+            HttpResult httpResult = performHttpRequest(request);
+
+            responseString = httpResult.getStringContent();
+            LOGGER.debug("Response for {}: {}", request, responseString);
+
+            JsonObject jsonObject = new JsonObject(responseString);
+            JsonArray jsonResults = jsonObject.getJsonArray("statuses");
+            int numResults = jsonResults.size();
+
+            for (int i = 0; i < numResults; i++) {
+                JsonObject jsonResult = jsonResults.getJsonObject(i);
+                BasicWebContent.Builder builder = new BasicWebContent.Builder();
+                builder.setTitle(StringEscapeUtils.unescapeHtml4(jsonResult.getString("text")));
+                builder.setPublished(parseDate(jsonResult.getString("created_at")));
+
+                JsonObject jsonUser = jsonResult.getJsonObject("user");
+                builder.setUrl(createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str")));
+
+                if (jsonResult.get("coordinates") != null) {
+                    JsonObject jsonCoordinates = jsonResult.getJsonObject("coordinates");
+                    String type = jsonCoordinates.tryGetString("type");
+                    if (!"point".equalsIgnoreCase(type)) {
+                        LOGGER.warn("Unexpected coordinate type: " + type);
+                    } else {
+                        JsonArray coordinates = jsonCoordinates.getJsonArray("coordinates");
+                        double lat = coordinates.getDouble(1);
+                        double lng = coordinates.getDouble(0);
+                        builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
+                    }
+                }
+
+                webResults.add(builder.create());
+                if (webResults.size() >= query.getResultCount()) {
+                    break;
+                }
+            }
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
+                    + e.getMessage(), e);
+        } catch (JsonException e) {
+            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
+                    + getName() + ": " + e.getMessage() + " (JSON: '" + responseString + "')", e);
+        }
+
+        LOGGER.debug("twitter requests: {}", TOTAL_REQUEST_COUNT.get());
+        return new SearchResults<WebContent>(webResults);
     }
 
     /**

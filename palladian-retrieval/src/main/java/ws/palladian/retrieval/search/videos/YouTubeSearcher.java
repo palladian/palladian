@@ -221,7 +221,6 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     }
 
     private Date parseDate(String dateString) {
-        System.out.println(">> " + dateString);
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN, Locale.ENGLISH);
         try {
             return dateFormat.parse(dateString);
