@@ -131,11 +131,11 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         }
 
         // item link
-        if (item.getLink() == null || item.getLink().length() == 0) {
+        if (item.getUrl() == null || item.getUrl().length() == 0) {
             fileEntry.append(DatasetCreator.NO_LINK_REPLACEMENT).append(";");
         } else {
             fileEntry.append("\"");
-            fileEntry.append(item.getLink().replace("\"", "'")); // TODO clean string?
+            fileEntry.append(item.getUrl().replace("\"", "'")); // TODO clean string?
             fileEntry.append("\";");
         }
 

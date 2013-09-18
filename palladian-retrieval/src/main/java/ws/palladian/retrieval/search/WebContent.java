@@ -12,14 +12,23 @@ import java.util.Date;
 public interface WebContent {
 	
 	/**
-	 * @return The URL pointing to this Web content.
+	 * @return The URL pointing to this content.
 	 */
 	String getUrl();
 	
+	/**
+	 * @return The title of this content.
+	 */
 	String getTitle();
 	
+	/**
+	 * @return A textual summary of this content.
+	 */
 	String getSummary();
 	
-	Date getDate();
+	/**
+	 * @return The publication date of this content.
+	 */
+	Date getPublished();
 
 }

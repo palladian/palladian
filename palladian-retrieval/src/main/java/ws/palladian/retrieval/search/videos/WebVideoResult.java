@@ -116,7 +116,7 @@ public class WebVideoResult extends BasicWebContent {
         builder.append(", getThumbnail()=");
         builder.append(getThumbnail());
         builder.append(", getDate()=");
-        builder.append(getDate());
+        builder.append(getPublished());
         builder.append("]");
         return builder.toString();
     }

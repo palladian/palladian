@@ -63,7 +63,7 @@ public class FiveFiltersContentExtractor extends WebPageContentExtractor {
         try {
             Feed feed = parser.getFeed(new StringInputStream(extractedResult));
             FeedItem feedItem = feed.getItems().get(0);
-            extractedResult = feedItem.getDescription();
+            extractedResult = feedItem.getSummary();
             extractedTitle = feedItem.getTitle();
 
             DocumentParser htmlParser = ParserFactory.createHtmlParser();
