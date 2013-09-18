@@ -10,23 +10,24 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebVideo;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -38,10 +39,13 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author Philipp Katz
  * @see <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol">API documentation</a>
  */
-public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
+public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
+
+    /** Name of this searcher. */
+    private static final String SEARCHER_NAME = "YouTube";
 
     /** Key of the {@link Configuration} item which contains the API key. */
     public static final String CONFIG_API_KEY = "api.youtube.key";
@@ -54,7 +58,7 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
 
     /** The API key. */
     private final String apiKey;
-    
+
     private final HttpRetriever retriever;
 
     /**
@@ -62,9 +66,9 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
      * Create a new {@link YouTubeSearcher}.
      * </p>
      */
-	public YouTubeSearcher() {
-		this((String) null);
-	}
+    public YouTubeSearcher() {
+        this((String)null);
+    }
 
     /**
      * <p>
@@ -75,7 +79,7 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
      */
     public YouTubeSearcher(String apiKey) {
         this.apiKey = apiKey;
-        this.retriever = HttpRetrieverFactory.getHttpRetriever(); 
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -91,21 +95,22 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
 
     @Override
     public String getName() {
-        return "YouTube";
+        return SEARCHER_NAME;
     }
 
-    private String getRequestUrl(String query, int resultCount, Language language) {
+    private String getRequestUrl(MultifacetQuery query) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("https://gdata.youtube.com/feeds/api/videos?q=");
-        urlBuilder.append(UrlHelper.encodeParameter(query));
+        urlBuilder.append(UrlHelper.encodeParameter(query.getText()));
         urlBuilder.append("&orderby=relevance");
         urlBuilder.append("&start-index=1");
-        urlBuilder.append("&max-results=" + Math.min(50, resultCount));
+        urlBuilder.append("&max-results=" + Math.min(50, query.getResultCount()));
         urlBuilder.append("&v=2");
         urlBuilder.append("&alt=json");
         if (apiKey != null && !apiKey.isEmpty()) {
             urlBuilder.append("&key=").append(apiKey);
         }
+        Language language = query.getLanguage();
         if (language != null) {
             urlBuilder.append("&lr=").append(language.getIso6391());
         }
@@ -113,11 +118,10 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
     }
 
     @Override
-    public List<WebVideo> search(String query, int resultCount, Language language) throws SearcherException {
-
+    public SearchResults<WebVideo> search(MultifacetQuery query) throws SearcherException {
         // TODO pagination available? Currently I get only 50 results max.
 
-        String url = getRequestUrl(query, resultCount, language);
+        String url = getRequestUrl(query);
 
         HttpResult httpResult;
         try {
@@ -128,46 +132,26 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
         }
 
         List<WebVideo> webResults = new ArrayList<WebVideo>();
+        long numResults = 0;
         String jsonString = httpResult.getStringContent();
 
         try {
-            JsonObjectWrapper root = new JsonObjectWrapper(jsonString);
+            JsonObject root = new JsonObject(jsonString);
             TOTAL_REQUEST_COUNT.incrementAndGet();
-            JsonObjectWrapper feed = root.getJSONObject("feed");
+            JsonObject feed = root.getJsonObject("feed");
+            numResults = feed.getJsonObject("openSearch$totalResults").getLong("$t");
 
-            JSONArray entries = feed.getJSONArray("entry");
-            if (entries == null) {
-                return webResults;
-            }
+            JsonArray entries = feed.getJsonArray("entry");
 
-            for (int i = 0; i < entries.length(); i++) {
-                JsonObjectWrapper entry = new JsonObjectWrapper(entries.getJSONObject(i));
-                BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
-                String published = entry.get("published/$t", String.class);
-                builder.setPublished(parseDate(published));
-                builder.setTitle(entry.get("title/$t", String.class));
-                builder.setVideoUrl(entry.get("content/src", String.class));
-                builder.setUrl(getPageLink(entry.getJsonObject()));
-                builder.setDuration(entry.get("media$group/yt$duration/seconds", Long.class));
-                builder.setViews(entry.get("yt$statistics/viewCount", Integer.class));
-                builder.setSummary(entry.get("media$group/media$description/$t", String.class));
-                builder.setThumbnailUrl(entry.get("media$group/media$thumbnail[2]/url", String.class));
+            if (entries != null) {
 
-                JsonObjectWrapper ratingObject = entry.getJSONObject("yt$rating");
-                if (ratingObject != null) {
-                    int numDislikes = ratingObject.getInt("numDislikes");
-                    int numLikes = ratingObject.getInt("numLikes");
-                    int total = numLikes + numDislikes;
+                for (int i = 0; i < entries.size(); i++) {
+                    WebVideo webVideoResult = parseEntry(entries.getJsonObject(i));
+                    webResults.add(webVideoResult);
 
-                    if (total > 0) {
-                        builder.setRating(numLikes / (double)total);
+                    if (webResults.size() >= query.getResultCount()) {
+                        break;
                     }
-                }
-
-                webResults.add(builder.create());
-
-                if (webResults.size() >= resultCount) {
-                    break;
                 }
             }
 
@@ -176,7 +160,43 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
                     + "\" with " + getName() + ", JSON was \"" + jsonString + "\": " + e, e);
 
         }
-        return webResults;
+        return new SearchResults<WebVideo>(webResults, numResults);
+    }
+
+    private WebVideo parseEntry(JsonObject entry) throws JsonException {
+        BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
+        String published = entry.queryString("published/$t");
+        builder.setPublished(parseDate(published));
+        builder.setTitle(entry.queryString("title/$t"));
+        builder.setVideoUrl(entry.queryString("content/src"));
+        builder.setUrl(getPageLink(entry));
+        builder.setDuration(entry.queryLong("media$group/yt$duration/seconds"));
+        builder.setViews(entry.queryInt("yt$statistics/viewCount"));
+        builder.setSummary(entry.queryString("media$group/media$description/$t"));
+        builder.setThumbnailUrl(entry.queryString("media$group/media$thumbnail[2]/url"));
+
+        JsonObject ratingObject = entry.getJsonObject("yt$rating");
+        if (ratingObject != null) {
+            int numDislikes = ratingObject.getInt("numDislikes");
+            int numLikes = ratingObject.getInt("numLikes");
+            int total = numLikes + numDislikes;
+
+            if (total > 0) {
+                builder.setRating(numLikes / (double)total);
+            }
+        }
+
+        if (entry.get("georss$where") != null) {
+            String positionString = entry.queryString("georss$where/gml$Point/gml$pos/$t");
+            if (positionString != null) {
+                String[] longLat = positionString.split(" ");
+                double lat = Double.valueOf(longLat[0]);
+                double lng = Double.valueOf(longLat[1]);
+                builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
+            }
+        }
+
+        return builder.create();
     }
 
     /**
@@ -186,12 +206,12 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
      * 
      * @param entry
      * @return The URL, or <code>null</code> if no URL provided.
-     * @throws JSONException
+     * @throws JsonException
      */
-    public String getPageLink(JSONObject entry) throws JSONException {
-        JSONArray linkArray = entry.getJSONArray("link");
-        for (int k = 0; k < linkArray.length(); k++) {
-            JSONObject linkObject = linkArray.getJSONObject(k);
+    public String getPageLink(JsonObject entry) throws JsonException {
+        JsonArray linkArray = entry.getJsonArray("link");
+        for (int k = 0; k < linkArray.size(); k++) {
+            JsonObject linkObject = linkArray.getJsonObject(k);
             String rel = linkObject.getString("rel");
             if (rel.equals("alternate")) {
                 return linkObject.getString("href");
@@ -201,34 +221,14 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
     }
 
     private Date parseDate(String dateString) {
-        Date date = null;
+        System.out.println(">> " + dateString);
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN, Locale.ENGLISH);
         try {
-            date = dateFormat.parse(dateString);
+            return dateFormat.parse(dateString);
         } catch (ParseException e) {
             LOGGER.error("Error parsing date " + dateString, e);
         }
-        return date;
-    }
-
-    @Override
-    public long getTotalResultCount(String query, Language language) throws SearcherException {
-        long hitCount = 0;
-        try {
-            HttpResult httpResult = retriever.httpGet(getRequestUrl(query, 1, language));
-            JSONObject root = new JSONObject(httpResult.getStringContent());
-            TOTAL_REQUEST_COUNT.incrementAndGet();
-
-            hitCount = root.getJSONObject("feed").getJSONObject("openSearch$totalResults").getLong("$t");
-
-        } catch (JSONException e) {
-            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                    + "\" with " + getName() + ": " + e.getMessage(), e);
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP exception while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
-        }
-        return hitCount;
+        return null;
     }
 
     /**
@@ -242,7 +242,4 @@ public final class YouTubeSearcher extends AbstractSearcher<WebVideo> {
         return TOTAL_REQUEST_COUNT.get();
     }
 
-    public static void main(String[] args) throws SearcherException {
-        CollectionHelper.print(new YouTubeSearcher().search("Nokia Lumia 920", 5));
-    }
 }
