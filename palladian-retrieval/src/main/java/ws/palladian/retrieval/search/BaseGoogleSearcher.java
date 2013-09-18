@@ -14,25 +14,28 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
  * Base implementation for all Google searchers. Subclasses must implement {@link #getBaseUrl()}, which provides the URL
  * to the API endpoint and {@link #parseResult(JSONObject)}, which is responsible for parsing the JSONObject for each
- * result to the desired type ({@link WebResult} or subclasses).
+ * result to the desired type ({@link BasicWebContent} or subclasses).
  * </p>
  * 
  * @see http://code.google.com/intl/de/apis/websearch/docs/reference.html
  * @author Philipp Katz
  */
-public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearcher<R> {
+public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseGoogleSearcher.class);
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+    
+    private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
     public List<R> search(String query, int resultCount, Language language) throws SearcherException {
@@ -154,7 +157,7 @@ public abstract class BaseGoogleSearcher<R extends WebResult> extends WebSearche
     }
 
     /**
-     * Parse one result object from JSON to an instance of {@link WebResult}.
+     * Parse one result object from JSON to an instance of {@link BasicWebContent}.
      * 
      * @param resultData
      * @return

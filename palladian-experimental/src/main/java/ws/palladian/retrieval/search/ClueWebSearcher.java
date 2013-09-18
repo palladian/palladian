@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.search.ClueWebSearcher.ClueWebResult;
 
@@ -37,7 +39,7 @@ import ws.palladian.retrieval.search.ClueWebSearcher.ClueWebResult;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class ClueWebSearcher implements Searcher<ClueWebResult>, Closeable {
+public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> implements Closeable {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ClueWebSearcher.class);
@@ -48,37 +50,45 @@ public final class ClueWebSearcher implements Searcher<ClueWebResult>, Closeable
 
     private static final String FIELD_WARC_ID = "WARC-TREC-ID";
 
-    public static final class ClueWebResult extends SearchResult {
+    public static final class ClueWebResult implements WebContent {
 
         private final String id;
+        private final String content;
         private final float score;
 
         public ClueWebResult(String id, String content, float score) {
-            super(null, content);
             this.id = id;
+            this.content = content;
             this.score = score;
         }
 
-        public String getId() {
-            return id;
-        }
+		@Override
+		public String getUrl() {
+			return null;
+		}
 
-        public float getScore() {
-            return score;
-        }
+		@Override
+		public String getTitle() {
+			return null;
+		}
 
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("ClueWebResult [id=");
-            builder.append(id);
-            builder.append(", score=");
-            builder.append(score);
-            builder.append(", text(characters)=");
-            builder.append(getSummary().length());
-            builder.append("]");
-            return builder.toString();
-        }
+		@Override
+		public String getSummary() {
+			return content;
+		}
+
+		@Override
+		public Date getDate() {
+			return null;
+		}
+		
+		public String getId() {
+			return id;
+		}
+		
+		public float getScore() {
+			return score;
+		}
 
     }
 
@@ -103,7 +113,7 @@ public final class ClueWebSearcher implements Searcher<ClueWebResult>, Closeable
     }
 
     @Override
-    public List<ClueWebResult> search(String query, int resultCount) throws SearcherException {
+    public List<ClueWebResult> search(String query, int resultCount, Language language) throws SearcherException {
         StopWatch stopWatch = new StopWatch();
         List<ClueWebResult> rankedDocuments = CollectionHelper.newArrayList();
         IndexReader indexReader = null;
@@ -145,7 +155,7 @@ public final class ClueWebSearcher implements Searcher<ClueWebResult>, Closeable
     }
 
     @Override
-    public long getTotalResultCount(String query) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         StopWatch stopWatch = new StopWatch();
         IndexReader indexReader = null;
         try {

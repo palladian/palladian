@@ -12,9 +12,9 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -24,7 +24,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @author David Urbansky
  * @see <a href="http://pixabay.com/api/docs/">Pixabay API</a>
  */
-public class PixabaySearcher extends WebSearcher<WebImageResult> {
+public class PixabaySearcher extends AbstractSearcher<WebImageResult> {
 
     /**
      * Identifier for the API key when supplied via {@link Configuration}.

@@ -2,6 +2,8 @@ package ws.palladian.retrieval.search;
 
 import java.util.List;
 
+import ws.palladian.helper.constants.Language;
+
 /**
  * <p>
  * Interface defining a {@link Searcher}. A Searcher might be an implementation for a web search engine like Google,
@@ -13,7 +15,7 @@ import java.util.List;
  *            links, image links, full documents, etc.
  * @author Philipp Katz
  */
-public interface Searcher<R extends SearchResult> {
+public interface Searcher<R extends WebContent> {
 
     /**
      * <p>
@@ -26,6 +28,44 @@ public interface Searcher<R extends SearchResult> {
      * @throws SearcherException In case the search fails.
      */
     List<R> search(String query, int resultCount) throws SearcherException; 
+    
+    /**
+     * <p>
+     * Retrieve a list of {@link SearchResult}s for the specified query.
+     * </p>
+     * 
+     * @param query
+     * @param resultCount Maximum number of results to retrieve.
+     * @param language The language for which to search.
+     * @return
+     * @throws SearcherException In case the search fails.
+     */
+    List<R> search(String query, int resultCount, Language language) throws SearcherException;
+    
+    /**
+     * <p>
+     * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
+     * </p>
+     * 
+     * @param query
+     * @param resultCount Maximum number of results to retrieve.
+     * @return
+     * @throws SearcherException In case the search fails.
+     */
+    List<String> searchUrls(String query, int resultCount) throws SearcherException;
+    
+    /**
+     * <p>
+     * Convenience method to retrieve a list of URLs for the specified query instead of {@link SearchResult}s.
+     * </p>
+     * 
+     * @param query
+     * @param resultCount Maximum number of results to retrieve.
+     * @param language The language for which to search.
+     * @return
+     * @throws SearcherException In case the search fails.
+     */
+    List<String> searchUrls(String query, int resultCount, Language language) throws SearcherException;
 
     /**
      * <p>
@@ -37,6 +77,18 @@ public interface Searcher<R extends SearchResult> {
      * @throws SearcherException In case the search fails.
      */
     long getTotalResultCount(String query) throws SearcherException;
+    
+    /**
+     * <p>
+     * Override, if this searcher supports getting the total number of available results.
+     * </p>
+     * 
+     * @param query
+     * @param language
+     * @return
+     * @throws SearcherException In case the search fails.
+     */
+    long getTotalResultCount(String query, Language language) throws SearcherException;
 
     /**
      * <p>

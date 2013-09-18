@@ -21,10 +21,12 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -34,7 +36,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @author Philipp Katz
  * @see <a href="http://developer.vimeo.com/apis/advanced/methods/vimeo.videos.search">API documentation</a>
  */
-public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
+public final class VimeoSearcher extends AbstractSearcher<WebVideoResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(VimeoSearcher.class);
@@ -56,6 +58,8 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
 
     /** Authentication data. */
     private final OAuthParams oAuthParams;
+    
+    private final HttpRetriever retriever;
 
     /**
      * Create a new {@link VimeoSearcher}.
@@ -65,6 +69,7 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
     public VimeoSearcher(OAuthParams oAuthParams) {
         Validate.notNull(oAuthParams, "oAuthParams must not be null");
         this.oAuthParams = oAuthParams;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -91,10 +96,9 @@ public final class VimeoSearcher extends WebSearcher<WebVideoResult> {
      *            {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
      */
     public VimeoSearcher(Configuration configuration) {
-        Validate.notNull(configuration, "configuration must not be null");
-        this.oAuthParams = new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
+        this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
                 configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
-                configuration.getString(CONFIG_ACCESS_TOKEN_SECRET));
+                configuration.getString(CONFIG_ACCESS_TOKEN_SECRET)));
     }
 
     @Override

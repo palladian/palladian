@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.parser.JsonHelper;
 import ws.palladian.retrieval.search.BaseTopsySearcher;
+import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>
@@ -46,11 +47,11 @@ public final class TopsySearcher extends BaseTopsySearcher {
         return SEARCHER_NAME;
     }
 
-    protected WebResult parse(JSONObject item) throws JSONException {
+    protected WebContent parse(JSONObject item) throws JSONException {
         String url = JsonHelper.getString(item, "trackback_permalink");
         String title = StringEscapeUtils.unescapeHtml4(JsonHelper.getString(item, "title"));
         // String description = StringEscapeUtils.unescapeHtml4(JsonHelper.getString(item, "content"));
-        return new WebResult(url, title, null, SEARCHER_NAME);
+        return new BasicWebContent(url, title, null);
     }
 
     protected String buildQueryUrl(String query, int page, String apiKey) {

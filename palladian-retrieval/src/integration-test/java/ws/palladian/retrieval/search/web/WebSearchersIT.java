@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.images.BingImageSearcher;
 import ws.palladian.retrieval.search.images.FlickrSearcher;
@@ -46,7 +47,7 @@ public class WebSearchersIT {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSearchersIT.class);
 
-    private final WebSearcher<?> searcher;
+    private final Searcher<?> searcher;
 
     @Parameters
     public static Collection<Object[]> searchers() throws ConfigurationException, FileNotFoundException {
@@ -102,7 +103,7 @@ public class WebSearchersIT {
         return new PropertiesConfiguration(ResourceHelper.getResourceFile("/palladian-test.properties"));
     }
 
-    public WebSearchersIT(WebSearcher<?> searcher) {
+    public WebSearchersIT(Searcher<?> searcher) {
         this.searcher = searcher;
     }
 

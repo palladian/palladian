@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 import ws.palladian.retrieval.parser.JsonHelper;
 import ws.palladian.retrieval.search.BaseBingSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
@@ -17,7 +17,7 @@ import ws.palladian.retrieval.search.web.WebResult;
  * 
  * @author Philipp Katz
  */
-public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
+public final class BingNewsSearcher extends BaseBingSearcher<BasicWebContent> {
 
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
@@ -62,7 +62,7 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
 //    }
 
     @Override
-    protected WebResult parseResult(JSONObject currentResult) throws JSONException {
+    protected BasicWebContent parseResult(JSONObject currentResult) throws JSONException {
         String url = currentResult.getString("Url");
         String title = JsonHelper.getString(currentResult, "Title");
         String summary = JsonHelper.getString(currentResult, "Description");
@@ -71,7 +71,7 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
             String dateString = currentResult.getString("Date");
             date = parseDate(dateString);
         }
-        WebResult webResult = new WebResult(url, title, summary, date);
+        BasicWebContent webResult = new BasicWebContent(url, title, summary, date);
         return webResult;
     }
 

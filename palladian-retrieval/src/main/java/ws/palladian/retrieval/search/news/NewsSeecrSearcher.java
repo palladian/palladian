@@ -22,10 +22,13 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.MashapeUtil;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.WebContent;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
@@ -37,7 +40,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  *      authentication mechanism</a>
  * @author Philipp Katz
  */
-public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
+public final class NewsSeecrSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NewsSeecrSearcher.class);
@@ -55,6 +58,8 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
     private final String mashapePrivateKey;
 
     private final String mashapeKey;
+    
+    private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     /** Configuraiton key for the Mashape public key. */
     @Deprecated
@@ -135,9 +140,9 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
 
     @SuppressWarnings("deprecation")
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> webResults = CollectionHelper.newArrayList();
+        List<WebContent> webResults = CollectionHelper.newArrayList();
 
         for (int offset = 0; offset < Math.ceil((double)resultCount / RESULTS_PER_REQUEST); offset++) {
 
@@ -163,10 +168,11 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
                         + e.getMessage(), e);
             }
             if (result.getStatusCode() != 200) {
-                // TODO get message
-                throw new SearcherException("Encountered HTTP status " + result.getStatusCode()
-                        + " when executing the request: " + request + ", result: "
- + result.getStringContent());
+				// TODO get message
+				throw new SearcherException("Encountered HTTP status "
+						+ result.getStatusCode()
+						+ " when executing the request: " + request
+						+ ", result: " + result.getStringContent());
             }
 
             String jsonString = result.getStringContent();
@@ -181,7 +187,7 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
                     String link = JPathHelper.get(resultObject, "/link", String.class);
                     String text = JPathHelper.get(resultObject, "/text", String.class);
                     Date date = parseDate(dateString);
-                    webResults.add(new WebResult(link, title, text, date, SEARCHER_NAME));
+                    webResults.add(new BasicWebContent(link, title, text, date));
                     if (webResults.size() == resultCount) {
                         break;
                     }
@@ -214,7 +220,7 @@ public final class NewsSeecrSearcher extends WebSearcher<WebResult> {
         // new:
         String mashapeKey = "...";
         NewsSeecrSearcher searcher = new NewsSeecrSearcher(mashapeKey);
-        List<WebResult> results = searcher.search("obama", 250);
+        List<WebContent> results = searcher.search("obama", 250);
         CollectionHelper.print(results);
     }
 

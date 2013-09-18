@@ -16,7 +16,7 @@ public class GoogleCustomSearcherTest {
     @Test
     public void testParsing() throws FileNotFoundException, JSONException {
         String jsonString = FileHelper.readFileToString(ResourceHelper.getResourceFile("/apiresponse/googleCustomSearchResponse.json"));
-        List<WebResult> results = GoogleCustomSearcher.parse(jsonString);
+        List<BasicWebContent> results = GoogleCustomSearcher.parse(jsonString);
         assertEquals(10, results.size());
         
         assertEquals("Palladian architecture - Wikipedia, the free encyclopedia", results.get(0).getTitle());

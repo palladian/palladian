@@ -15,12 +15,15 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.WebContent;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
@@ -30,7 +33,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="http://developers.facebook.com/docs/reference/api/">Facebook Graph API</a>
  * @author Philipp Katz
  */
-public final class FacebookSearcher extends WebSearcher<WebResult> {
+public final class FacebookSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookSearcher.class);
@@ -56,6 +59,8 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
     private final ResultType resultType;
 
     private final String accessToken;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -93,6 +98,7 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
         Validate.notNull(resultType, "resultType must not be null");
         this.resultType = resultType;
         this.accessToken = accessToken;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     @Override
@@ -101,9 +107,9 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> result = CollectionHelper.newArrayList();
+        List<WebContent> result = CollectionHelper.newArrayList();
         Set<String> urlDeduplication = CollectionHelper.newHashSet();
         
         // XXX paging is no longer supported
@@ -134,7 +140,7 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
                 for (int i = 0; i < jsonData.size(); i++) {
                     JsonObject jsonEntry = jsonData.getJsonObject(i);
                     
-                    WebResult webResult;
+                    BasicWebContent webResult;
                     if (resultType == ResultType.RESOLVED_URLS) {
                         webResult = processUrls(jsonEntry);
                     } else {
@@ -170,17 +176,17 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
         }
     }
 
-    private WebResult processPosts(JsonObject jsonEntry) {
+    private BasicWebContent processPosts(JsonObject jsonEntry) {
         String id = jsonEntry.tryGetString("id");
         // http://stackoverflow.com/questions/4729477/what-is-the-url-to-a-facebook-open-graph-post
         String url = String.format("http://www.facebook.com/%s", id);
         String message = jsonEntry.tryGetString("message");
         // String description = JsonHelper.getString(jsonEntry, "description");
         Date date = parseDate(jsonEntry.tryGetString("created_time"));
-        return new WebResult(url, message, null, date, SEARCHER_NAME);
+        return new BasicWebContent(url, message, null, date);
     }
 
-    private WebResult processUrls(JsonObject jsonEntry) {
+    private BasicWebContent processUrls(JsonObject jsonEntry) {
         String url = jsonEntry.tryGetString("link");
         if (url == null) {
             return null; // ignore entries without URLs for now.
@@ -188,7 +194,7 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
         String title = jsonEntry.tryGetString("name");
         String summary = jsonEntry.tryGetString("caption");
         Date date = parseDate(jsonEntry.tryGetString("created_time"));
-        return new WebResult(url, title, summary, date, SEARCHER_NAME);
+        return new BasicWebContent(url, title, summary, date);
     }
 
     public String buildRequestUrl(String query, int page) {
@@ -218,7 +224,7 @@ public final class FacebookSearcher extends WebSearcher<WebResult> {
     public static void main(String[] args) throws SearcherException {
         FacebookSearcher searcher = new FacebookSearcher(
                 "CAAFFWgvRbnUBALYRiSRM4PPPu6wVpgGyZAYdpXBUZC45nHfdheK9ZCn9uVWMAGMo4frZCW2jiC0t7GQg2rAkmk5XneAubKtvK1czfeiCm1bUg82PGZBZACoXjyfZCbY6qwVFwd7D7gGdZBPsIXLvMGGuEgnz9MveQe77HAEf5LuEc3dQUOOZBdQKl5XuxNvILy1paEemns0rbDAZDZD");
-        List<WebResult> result = searcher.search("palladian", 200);
+        List<WebContent> result = searcher.search("palladian", 200);
         CollectionHelper.print(result);
     }
 

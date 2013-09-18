@@ -16,8 +16,12 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>
@@ -28,7 +32,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
+public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
@@ -37,11 +41,13 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
 
     /** Prevent over penetrating the searcher. */
     private static final RequestThrottle THROTTLE = new RequestThrottle(1000);
+    
+    private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> result = new ArrayList<WebResult>();
+        List<WebContent> result = new ArrayList<WebContent>();
         Set<String> urlDeduplication = new HashSet<String>();
 
         paging: for (int page = 0; page <= 999; page++) {
@@ -83,7 +89,7 @@ public final class DuckDuckGoSearcher extends WebSearcher<WebResult> {
                     String summary = stripAndUnescape(object.getString("a"));
                     String title = stripAndUnescape(object.getString("t"));
 
-                    WebResult webResult = new WebResult(object.getString("u"), title, summary, getName());
+                    WebContent webResult = new BasicWebContent(object.getString("u"), title, summary);
                     result.add(webResult);
 
                     if (result.size() >= resultCount) {

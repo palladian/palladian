@@ -21,9 +21,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -34,7 +36,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @author Philipp Katz
  * @see <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol">API documentation</a>
  */
-public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
+public final class YouTubeSearcher extends AbstractSearcher<WebVideoResult> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
@@ -50,15 +52,17 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
 
     /** The API key. */
     private final String apiKey;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
      * Create a new {@link YouTubeSearcher}.
      * </p>
      */
-    public YouTubeSearcher() {
-        this.apiKey = null;
-    }
+	public YouTubeSearcher() {
+		this((String) null);
+	}
 
     /**
      * <p>
@@ -69,6 +73,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
      */
     public YouTubeSearcher(String apiKey) {
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever(); 
     }
 
     /**
@@ -79,7 +84,7 @@ public final class YouTubeSearcher extends WebSearcher<WebVideoResult> {
      * @param configuration The configuration which can provide an API key via key {@link #CONFIG_API_KEY}.
      */
     public YouTubeSearcher(Configuration configuration) {
-        this.apiKey = configuration.getString(CONFIG_API_KEY);
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override

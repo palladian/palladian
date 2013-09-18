@@ -9,8 +9,8 @@ import org.json.JSONObject;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.search.WebContent;
+import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
@@ -22,7 +22,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see http://webknox.com/api#!/news/search_GET
  * @author David Urbansky
  */
-public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
+public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebContent> {
 
     /** If true, only news are returned, that contain the search term exactly as given in their titles. */
     private final boolean onlyExactMatchesInTitle;
@@ -90,7 +90,7 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
     }
 
     @Override
-    protected WebResult parseResult(JSONObject currentResult) throws JSONException {
+    protected WebContent parseResult(JSONObject currentResult) throws JSONException {
         String url = currentResult.getString("url");
         String title = currentResult.getString("title");
         String summary = currentResult.getString("summary");
@@ -102,9 +102,7 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
             } catch (Exception e) {
             }
         }
-        WebResult webResult = new WebResult(url, title, summary, date, getName());
-
-        return webResult;
+        return new BasicWebContent(url, title, summary, date);
     }
 
     @Override

@@ -13,8 +13,12 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>
@@ -30,7 +34,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="http://help.blekko.com/index.php/tag/api/">API information</a>
  * @author Philipp Katz
  */
-public final class BlekkoSearcher extends WebSearcher<WebResult> {
+public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
 
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.blekko.key";
@@ -44,6 +48,8 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     private static final RequestThrottle THROTTLE = new RequestThrottle(THROTTLING_INTERVAL_MS);
 
     private final String apiKey;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -54,6 +60,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
      */
     public BlekkoSearcher(String apiKey) {
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -63,7 +70,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
      * 
      */
     public BlekkoSearcher() {
-        this.apiKey = null;
+		this((String) null);
     }
 
     /**
@@ -79,9 +86,9 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> webResults = new ArrayList<WebResult>();
+        List<WebContent> webResults = new ArrayList<WebContent>();
         int pageSize = Math.min(resultCount, 100);
         int necessaryPages = (int)Math.ceil(resultCount / 100.);
 
@@ -113,7 +120,7 @@ public final class BlekkoSearcher extends WebSearcher<WebResult> {
                     }
                     String url = jsonResult.getString("url");
                     String title = jsonResult.getString("url_title");
-                    WebResult webResult = new WebResult(url, title, summary, getName());
+                    BasicWebContent webResult = new BasicWebContent(url, title, summary);
                     webResults.add(webResult);
                     if (webResults.size() >= resultCount) {
                         break;
