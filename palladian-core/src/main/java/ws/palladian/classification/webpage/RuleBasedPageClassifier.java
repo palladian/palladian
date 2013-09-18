@@ -20,8 +20,9 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.resources.WebLink;
 
 public abstract class RuleBasedPageClassifier<T> {
 
@@ -32,8 +33,8 @@ public abstract class RuleBasedPageClassifier<T> {
     private String pageURL = "";
     private String pageSentences = "";
     private int highestNumberOfConsecutiveSentences = 0;
-    private List<WebLink> ingoingLinks = new ArrayList<WebLink>();
-    private List<WebLink> outgoingLinks = new ArrayList<WebLink>();
+    private List<WebContent> ingoingLinks = new ArrayList<WebContent>();
+    private List<WebContent> outgoingLinks = new ArrayList<WebContent>();
     private Collection<String> paginationLinks = new ArrayList<String>();
     private Collection<WebImage> images = new HashSet<WebImage>();
     private Collection<String> headlineContents = new ArrayList<String>();
@@ -47,8 +48,8 @@ public abstract class RuleBasedPageClassifier<T> {
         pageTitle = "";
         pageURL = "";
         pageSentences = "";
-        ingoingLinks = new ArrayList<WebLink>();
-        outgoingLinks = new ArrayList<WebLink>();
+        ingoingLinks = new ArrayList<WebContent>();
+        outgoingLinks = new ArrayList<WebContent>();
         paginationLinks = new ArrayList<String>();
         images = new HashSet<WebImage>();
         headlineContents = new ArrayList<String>();
@@ -104,7 +105,6 @@ public abstract class RuleBasedPageClassifier<T> {
 
         for (Node node : linkNodes) {
 
-            String linkTitle = "";
             String linkText = node.getTextContent();
             String linkUrl = "";
             try {
@@ -114,15 +114,12 @@ public abstract class RuleBasedPageClassifier<T> {
                 // continue;
             }
 
-            WebLink webLink = new WebLink();
-            webLink.setTitle(linkTitle);
-            webLink.setText(linkText);
-            webLink.setUrl(linkUrl);
+            WebContent link = new BasicWebContent(linkUrl, linkText);
 
             if (UrlHelper.getDomain(linkUrl).equalsIgnoreCase(pageDomain) || linkUrl.indexOf("http") != 0) {
-                ingoingLinks.add(webLink);
+                ingoingLinks.add(link);
             } else {
-                outgoingLinks.add(webLink);
+                outgoingLinks.add(link);
             }
 
         }
@@ -234,19 +231,19 @@ public abstract class RuleBasedPageClassifier<T> {
         this.pageSentences = pageSentences;
     }
 
-    public List<WebLink> getIngoingLinks() {
+    public List<WebContent> getIngoingLinks() {
         return ingoingLinks;
     }
 
-    public void setIngoingLinks(List<WebLink> ingoingLinks) {
+    public void setIngoingLinks(List<WebContent> ingoingLinks) {
         this.ingoingLinks = ingoingLinks;
     }
 
-    public List<WebLink> getOutgoingLinks() {
+    public List<WebContent> getOutgoingLinks() {
         return outgoingLinks;
     }
 
-    public void setOutgoingLinks(List<WebLink> outgoingLinks) {
+    public void setOutgoingLinks(List<WebContent> outgoingLinks) {
         this.outgoingLinks = outgoingLinks;
     }
 

@@ -45,7 +45,8 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.search.images.WebImageResult;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
 
 /**
  * <p>
@@ -59,6 +60,33 @@ public class ImageHandler {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandler.class);
+
+	/**
+	 * <p>
+	 * An extracted image.
+	 * </p>
+	 * 
+	 * @author David Urbansky
+	 */
+    private static final class ExtractedImage extends BasicWebImage {
+        private int rankCount = 1;
+        private int duplicateCount = 0;
+        private final BufferedImage imageContent;
+        
+        public ExtractedImage(WebImage image, BufferedImage imageContent) {
+        	super(image);
+        	this.imageContent = imageContent;
+		}
+        
+        public void addRanking(int ranking) {
+        	this.rankCount += ranking;
+        }
+        
+        public double getRanking() {
+            return duplicateCount + 1. / rankCount;
+        }
+    	
+    }
 
     /** Image similarity mean square error. */
     public static final int MSE = 1;
@@ -83,10 +111,7 @@ public class ImageHandler {
      * @throws IOException
      */
     public static BufferedImage load(File imageFile) throws IOException {
-        BufferedImage bufferedImage = null;
-        bufferedImage = ImageIO.read(imageFile);
-
-        return bufferedImage;
+        return ImageIO.read(imageFile);
     }
 
     /**
@@ -121,7 +146,7 @@ public class ImageHandler {
         return bufferedImage;
     }
 
-    public static String getMatchingImageUrl(Collection<WebImageResult> images) {
+    public static String getMatchingImageUrl(Collection<WebImage> images) {
         String[] matchingImages = getMatchingImageUrls(images, 1);
         if (matchingImages.length > 0) {
             return matchingImages[0];
@@ -129,14 +154,14 @@ public class ImageHandler {
         return "";
     }
 
-    public static String[] getMatchingImageUrls(Collection<WebImageResult> images, int matchingNumber) {
+    public static String[] getMatchingImageUrls(Collection<WebImage> images, int matchingNumber) {
 
         try {
 
             // normalize all images to fixed width
             List<ExtractedImage> normalizedImages = new ArrayList<ExtractedImage>();
 
-            for (WebImageResult image : images) {
+            for (WebImage image : images) {
                 BufferedImage bufferedImage = null;
                 try {
                     bufferedImage = load(image.getUrl());
@@ -172,9 +197,9 @@ public class ImageHandler {
                                 .isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
                             continue;
                         }
-                        if (isDuplicate(image1.getImageContent(), image2.getImageContent())) {
-                            image1.addDuplicate();
-                            image1.addRanking(image2.getRankCount());
+                        if (isDuplicate(image1.imageContent, image2.imageContent)) {
+                            image1.duplicateCount++;
+                            image1.addRanking(image2.rankCount);
                             duplicateImages.add(image2.getUrl());
                         }
                     } catch (Exception e) {

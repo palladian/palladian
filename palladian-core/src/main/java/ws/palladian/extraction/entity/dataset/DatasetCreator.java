@@ -37,10 +37,9 @@ import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.WebContent;
-import ws.palladian.retrieval.search.web.BasicWebContent;
 import ws.palladian.retrieval.search.web.BlekkoSearcher;
 import ws.palladian.semantics.WordTransformer;
 

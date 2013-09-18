@@ -8,9 +8,9 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
-import ws.palladian.retrieval.search.WebContent;
-import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>

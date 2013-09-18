@@ -3,7 +3,7 @@ package ws.palladian.retrieval.feeds;
 import java.util.Date;
 import java.util.Map;
 
-import ws.palladian.retrieval.search.WebContent;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>

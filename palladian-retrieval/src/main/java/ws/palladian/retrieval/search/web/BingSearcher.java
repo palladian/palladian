@@ -6,8 +6,9 @@ import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseBingSearcher;
-import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>

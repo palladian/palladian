@@ -10,6 +10,7 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.resources.BasicWebContent;
 
 public class GoogleScraperSearcherTest {
 

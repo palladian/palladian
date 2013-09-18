@@ -2,7 +2,10 @@ package ws.palladian.retrieval.search;
 
 import java.util.List;
 
+import javax.naming.directory.SearchResult;
+
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>

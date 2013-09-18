@@ -17,9 +17,10 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.WebContent;
 
 /**
  * <p>

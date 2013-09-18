@@ -1,8 +1,6 @@
-package ws.palladian.retrieval.search.videos;
+package ws.palladian.retrieval.resources;
 
 import java.util.Date;
-
-import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>
@@ -12,7 +10,7 @@ import ws.palladian.retrieval.search.web.BasicWebContent;
  * @author Philipp Katz
  * @author David Urbansky
  */
-public class WebVideoResult extends BasicWebContent {
+public class BasicWebVideo extends BasicWebContent implements WebVideo {
 
     private final String videoUrl;
     private String thumbnail;
@@ -30,7 +28,7 @@ public class WebVideoResult extends BasicWebContent {
      * @param title The title of the video.
      * @param runTime The run time of the video in seconds.
      */
-    public WebVideoResult(String url, String videoUrl, String title, Long runTime, Date date) {
+    public BasicWebVideo(String url, String videoUrl, String title, Long runTime, Date date) {
         this(url, videoUrl, title, null, runTime, date);
     }
 
@@ -44,7 +42,7 @@ public class WebVideoResult extends BasicWebContent {
      * @param title The title of the video.
      * @param runTime The run time of the video in seconds.
      */
-    public WebVideoResult(String url, String videoUrl, String title, String summary, Long runTime, Date date) {
+    public BasicWebVideo(String url, String videoUrl, String title, String summary, Long runTime, Date date) {
         super(url, title, summary, date);
         this.videoUrl = videoUrl;
         this.runTime = runTime;
@@ -68,7 +66,7 @@ public class WebVideoResult extends BasicWebContent {
      * 
      * @return the runTime The run time of the video, or <code>null</code> if no run time specified.
      */
-    public Long getRunTime() {
+    public Long getDuration() {
         return runTime;
     }
 
@@ -88,7 +86,7 @@ public class WebVideoResult extends BasicWebContent {
         this.rating = rating;
     }
 
-    public String getThumbnail() {
+    public String getThumbnailUrl() {
         return thumbnail;
     }
 
@@ -114,7 +112,7 @@ public class WebVideoResult extends BasicWebContent {
         builder.append(", getSummary()=");
         builder.append(getSummary());
         builder.append(", getThumbnail()=");
-        builder.append(getThumbnail());
+        builder.append(getThumbnailUrl());
         builder.append(", getDate()=");
         builder.append(getPublished());
         builder.append("]");
@@ -137,7 +135,7 @@ public class WebVideoResult extends BasicWebContent {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        WebVideoResult other = (WebVideoResult)obj;
+        BasicWebVideo other = (BasicWebVideo)obj;
         if (runTime != other.runTime)
             return false;
         return true;

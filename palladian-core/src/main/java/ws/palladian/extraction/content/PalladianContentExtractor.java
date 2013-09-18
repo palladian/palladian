@@ -31,6 +31,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
 import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
 /**
@@ -446,7 +447,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<WebImage> filteredImages = new ArrayList<WebImage>();
         String ftSmall = fileType.toLowerCase();
         for (WebImage webImage : getImages()) {
-            if (webImage.getType().toLowerCase().equalsIgnoreCase(ftSmall)) {
+            if (webImage.getFileType().toLowerCase().equalsIgnoreCase(ftSmall)) {
                 filteredImages.add(webImage);
             }
         }
@@ -484,33 +485,35 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         for (Node node : imageNodes) {
             try {
 
-                WebImage webImage = new WebImage();
+                // WebImage webImage = new WebImage();
 
                 NamedNodeMap nnm = node.getAttributes();
                 String imageUrl = nnm.getNamedItem("src").getTextContent();
+                String alt = null;
+                String title = null;
+                int width = 0;
+                int height = 0;
 
                 if (!imageUrl.startsWith("http")) {
                     imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
                 }
 
-                webImage.setUrl(imageUrl);
-
                 if (nnm.getNamedItem("alt") != null) {
-                    webImage.setAlt(nnm.getNamedItem("alt").getTextContent());
+                    alt = nnm.getNamedItem("alt").getTextContent();
                 }
                 if (nnm.getNamedItem("title") != null) {
-                    webImage.setTitle(nnm.getNamedItem("title").getTextContent());
+                    title = nnm.getNamedItem("title").getTextContent();
                 }
                 if (nnm.getNamedItem("width") != null) {
                     String w = nnm.getNamedItem("width").getTextContent();
-                    webImage.setWidth(getImageSize(w));
+                    width = getImageSize(w);
                 }
                 if (nnm.getNamedItem("height") != null) {
                     String h = nnm.getNamedItem("height").getTextContent();
-                    webImage.setHeight(getImageSize(h));
+                    height = getImageSize(h);
                 }
-
-                imageURLs.add(webImage);
+                
+                imageURLs.add(new BasicWebImage(null, imageUrl, title, alt, width, height, null));
 
             } catch (NumberFormatException e) {
                 LOGGER.debug(e.getMessage());
@@ -603,16 +606,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * </p>
      */
     public void analyzeImages() {
+    	
+    	List<WebImage> temp = CollectionHelper.newArrayList();
 
         for (WebImage webImage : getImages()) {
             if (webImage.getWidth() == 0 || webImage.getHeight() == 0) {
                 BufferedImage image = ImageHandler.load(webImage.getUrl());
                 if (image != null) {
-                    webImage.setWidth(image.getWidth());
-                    webImage.setHeight(image.getHeight());
+					temp.add(new BasicWebImage(webImage.getUrl(), webImage
+							.getImageUrl(), webImage.getTitle(), webImage
+							.getSummary(), image.getWidth(), image.getHeight(),
+							webImage.getPublished()));
+                } else {
+                	temp.add(webImage);
                 }
+            } else {
+            	temp.add(webImage);
             }
         }
+        
+        imageURLs = temp;
 
     }
 

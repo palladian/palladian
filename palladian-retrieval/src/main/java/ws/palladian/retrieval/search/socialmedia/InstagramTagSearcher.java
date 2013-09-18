@@ -18,9 +18,10 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.images.WebImageResult;
 
 /**
  * <p>
@@ -34,7 +35,7 @@ import ws.palladian.retrieval.search.images.WebImageResult;
  * @see <a href="http://instagram.com/developer/">Instagram Developer Documentation</a>
  * @see <a href="http://instagram.com/developer/authentication/">Authentication</a>
  */
-public final class InstagramTagSearcher extends AbstractSearcher<WebImageResult> {
+public final class InstagramTagSearcher extends AbstractSearcher<WebImage> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InstagramTagSearcher.class);
@@ -78,9 +79,9 @@ public final class InstagramTagSearcher extends AbstractSearcher<WebImageResult>
     }
 
     @Override
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebImageResult> result = new ArrayList<WebImageResult>();
+        List<WebImage> result = new ArrayList<WebImage>();
 
         String[] querySplit = query.split("\\s");
         if (querySplit.length > 1) {
@@ -122,7 +123,7 @@ public final class InstagramTagSearcher extends AbstractSearcher<WebImageResult>
                     if (data.has("caption") && !data.getString("caption").equals("null")) {
                         title = data.getJSONObject("caption").getString("text");
                     }
-                    result.add(new WebImageResult(pageUrl, imageUrl, title, null, width, height, date));
+                    result.add(new BasicWebImage(pageUrl, imageUrl, title, null, width, height, date));
 
                     if (result.size() == resultCount) {
                         break page;

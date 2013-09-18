@@ -6,6 +6,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.MruMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>

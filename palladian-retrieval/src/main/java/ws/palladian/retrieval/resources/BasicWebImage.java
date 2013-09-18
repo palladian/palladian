@@ -1,9 +1,9 @@
-package ws.palladian.retrieval.search.images;
+package ws.palladian.retrieval.resources;
 
 import java.util.Date;
 
 import ws.palladian.retrieval.search.License;
-import ws.palladian.retrieval.search.web.BasicWebContent;
+import ws.palladian.retrieval.search.images.ImageType;
 
 /**
  * <p>
@@ -13,7 +13,7 @@ import ws.palladian.retrieval.search.web.BasicWebContent;
  * @author Philipp Katz
  * @author David Urbansky
  */
-public class WebImageResult extends BasicWebContent {
+public class BasicWebImage extends BasicWebContent implements WebImage {
 
     private final String imageUrl;
     private String thumbImageUrl;
@@ -22,6 +22,7 @@ public class WebImageResult extends BasicWebContent {
     private License license = License.UNKNOWN;
     private String licenseLink = "";
     private ImageType imageType = ImageType.UNKNOWN;
+    private String fileType = null;
 
     /**
      * <p>
@@ -37,26 +38,27 @@ public class WebImageResult extends BasicWebContent {
      * @param date
      * @param imageContent
      */
-    public WebImageResult(String url, String imageUrl, String title, String summary, int width, int height, Date date) {
+    public BasicWebImage(String url, String imageUrl, String title, String summary, int width, int height, Date date) {
         super(url, title, summary, date);
         this.imageUrl = imageUrl;
         this.width = width;
         this.height = height;
     }
 
-    protected WebImageResult(WebImageResult webImageResult) {
-        super(webImageResult);
-        this.imageUrl = webImageResult.imageUrl;
-        this.width = webImageResult.width;
-        this.height = webImageResult.height;
-        this.license = webImageResult.license;
-        this.licenseLink = webImageResult.licenseLink;
-        this.imageType = webImageResult.imageType;
+    protected BasicWebImage(WebImage webImage) {
+        super(webImage);
+        this.imageUrl = webImage.getImageUrl();
+        this.width = webImage.getWidth();
+        this.height = webImage.getHeight();
+        this.license = webImage.getLicense();
+        this.licenseLink = webImage.getLicenseLink();
+        this.imageType = webImage.getImageType();
     }
 
     /**
      * @return The width of the image.
      */
+    @Override
     public int getWidth() {
         return width;
     }
@@ -64,23 +66,31 @@ public class WebImageResult extends BasicWebContent {
     /**
      * @return The height of the image.
      */
+    @Override
     public int getHeight() {
         return height;
+    }
+    
+    @Override
+    public int getSize() {
+    	return width * height;
     }
 
     /**
      * @return The URL of the image. In contrast to {@link #getUrl()}, which links to a (HTML) page surrounding the
      *         actual image, this URL points directly to the image file.
      */
-    public String getImageUrl() {
+    @Override
+	public String getImageUrl() {
         return imageUrl;
     }
-
-    public String getThumbImageUrl() {
-        return thumbImageUrl;
+    
+    @Override
+    public String getThumbnailUrl() {
+    	return thumbImageUrl;
     }
 
-    public void setThumbImageUrl(String thumbImageUrl) {
+    public void setThumbnailUrl(String thumbImageUrl) {
         this.thumbImageUrl = thumbImageUrl;
     }
 
@@ -88,7 +98,8 @@ public class WebImageResult extends BasicWebContent {
         return (double)getWidth() / (double)getHeight();
     }
 
-    public License getLicense() {
+    @Override
+	public License getLicense() {
         return license;
     }
 
@@ -96,7 +107,8 @@ public class WebImageResult extends BasicWebContent {
         this.license = license;
     }
 
-    public ImageType getImageType() {
+    @Override
+	public ImageType getImageType() {
         return imageType;
     }
 
@@ -104,13 +116,23 @@ public class WebImageResult extends BasicWebContent {
         this.imageType = imageType;
     }
 
-    public String getLicenseLink() {
+    @Override
+	public String getLicenseLink() {
         return licenseLink;
     }
 
     public void setLicenseLink(String licenseLink) {
         this.licenseLink = licenseLink;
     }
+    
+    @Override
+    public String getFileType() {
+    	return fileType;
+    }
+    
+    public void setFileType(String fileType) {
+		this.fileType = fileType;
+	}
 
     /*
      * (non-Javadoc)
@@ -119,7 +141,7 @@ public class WebImageResult extends BasicWebContent {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("WebImageResult [width=");
+        builder.append("BasicWebImage [width=");
         builder.append(width);
         builder.append(", height=");
         builder.append(height);
@@ -162,7 +184,7 @@ public class WebImageResult extends BasicWebContent {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        WebImageResult other = (WebImageResult)obj;
+        BasicWebImage other = (BasicWebImage)obj;
         if (height != other.height)
             return false;
         if (width != other.width)

@@ -25,7 +25,8 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.search.web.BasicWebContent;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>

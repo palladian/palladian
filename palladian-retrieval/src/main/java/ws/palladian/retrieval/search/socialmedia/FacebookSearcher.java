@@ -20,10 +20,10 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.WebContent;
-import ws.palladian.retrieval.search.web.BasicWebContent;
 
 /**
  * <p>

@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.resources.BasicWebContent;
 
 public class GoogleCustomSearcherTest {
     

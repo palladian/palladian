@@ -4,6 +4,8 @@ import org.apache.commons.configuration.Configuration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ws.palladian.retrieval.resources.BasicWebVideo;
+import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.BaseBingSearcher;
 
 /**
@@ -13,7 +15,7 @@ import ws.palladian.retrieval.search.BaseBingSearcher;
  * 
  * @author Philipp Katz
  */
-public final class BingVideoSearcher extends BaseBingSearcher<WebVideoResult> {
+public final class BingVideoSearcher extends BaseBingSearcher<WebVideo> {
 
     /**
      * @see BaseBingSearcher#BaseBingSearcher(Configuration)
@@ -35,7 +37,7 @@ public final class BingVideoSearcher extends BaseBingSearcher<WebVideoResult> {
     }
 
     @Override
-    protected WebVideoResult parseResult(JSONObject currentResult) throws JSONException {
+    protected WebVideo parseResult(JSONObject currentResult) throws JSONException {
         String title = currentResult.getString("Title");
         String pageUrl = currentResult.getString("MediaUrl");
         // interpret a value of "0", as "no run time specified"
@@ -43,7 +45,7 @@ public final class BingVideoSearcher extends BaseBingSearcher<WebVideoResult> {
         if (runTime == 0) {
             runTime = null;
         }
-        return new WebVideoResult(pageUrl, null, title, runTime, null);
+        return new BasicWebVideo(pageUrl, null, title, runTime, null);
     }
 
     @Override

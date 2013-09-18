@@ -20,8 +20,8 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.resources.WebLink;
 
 public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> {
 
@@ -43,7 +43,7 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
         int moreCount = 0;
         final String[] readMore = {"mehr", "weiterlesen", "artikel lesen", "[...]"};
 
-        java.util.List<WebLink> allLinks = new ArrayList<WebLink>();
+        java.util.List<WebContent> allLinks = new ArrayList<WebContent>();
         allLinks.addAll(getIngoingLinks());
         allLinks.addAll(getOutgoingLinks());
 
@@ -56,10 +56,10 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
             return ContentType.CONTENT;
         }
 
-        for (WebLink ingoingLink : allLinks) {
+        for (WebContent ingoingLink : allLinks) {
 
             for (String readMoreWord : readMore) {
-                if (ingoingLink.getText().toLowerCase().indexOf(readMoreWord) > -1) {
+                if (ingoingLink.getTitle().toLowerCase().indexOf(readMoreWord) > -1) {
                     moreCount++;
                 }
                 if (moreCount >= moreThresholdCount) {

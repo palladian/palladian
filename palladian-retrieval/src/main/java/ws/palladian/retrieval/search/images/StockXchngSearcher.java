@@ -12,6 +12,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
@@ -23,14 +25,14 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author David Urbansky
  */
-public class StockXchngSearcher extends AbstractSearcher<WebImageResult> {
+public class StockXchngSearcher extends AbstractSearcher<WebImage> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(StockXchngSearcher.class);
 
     @Override
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImageResult> results = CollectionHelper.newArrayList();
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+        List<WebImage> results = CollectionHelper.newArrayList();
 
         resultCount = Math.min(1000, resultCount);
 
@@ -75,8 +77,8 @@ public class StockXchngSearcher extends AbstractSearcher<WebImageResult> {
                 imageUrl = imageUrl.replace("photo/", "");
                 imageUrl = "http://www.sxc.hu/browse.phtml?f=download&id=" + imageUrl;
 
-                WebImageResult webImageResult = new WebImageResult(url, imageUrl, title, title, width, height, null);
-                webImageResult.setThumbImageUrl(imageThumbUrl);
+                BasicWebImage webImageResult = new BasicWebImage(url, imageUrl, title, title, width, height, null);
+                webImageResult.setThumbnailUrl(imageThumbUrl);
                 webImageResult.setLicense(License.ATTRIBUTION);
                 webImageResult.setLicenseLink("http://www.sxc.hu/help/7_2");
                 webImageResult.setImageType(ImageType.PHOTO);
@@ -124,8 +126,8 @@ public class StockXchngSearcher extends AbstractSearcher<WebImageResult> {
      */
     public static void main(String[] args) throws SearcherException {
         StockXchngSearcher searcher = new StockXchngSearcher();
-        List<WebImageResult> results = searcher.search("planet earth", 10);
+        List<WebImage> results = searcher.search("planet earth", 10);
         CollectionHelper.print(results);
-        System.out.println(results.get(0).getThumbImageUrl());
+        System.out.println(results.get(0).getThumbnailUrl());
     }
 }

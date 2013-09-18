@@ -25,7 +25,8 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
-import ws.palladian.retrieval.search.web.BasicWebContent;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
