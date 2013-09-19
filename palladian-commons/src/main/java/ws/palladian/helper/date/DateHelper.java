@@ -5,15 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import ws.palladian.helper.constants.RegExp;
 
-// TODO Move to Extraction package
 /**
+ * <p>
  * This class helps to transform and help with dates.
+ * </p>
  * 
  * @author David Urbansky
  * @author Sandro Reichert
@@ -21,17 +21,12 @@ import ws.palladian.helper.constants.RegExp;
 public class DateHelper {
 
     public static boolean containsDate(String searchString) {
-        Pattern pat = null;
         try {
-            pat = Pattern.compile(RegExp.DATE_ALL);
+            Pattern pattern = Pattern.compile(RegExp.DATE_ALL);
+            return pattern.matcher(searchString).find();
         } catch (PatternSyntaxException e) {
             throw new IllegalStateException("Error compiling the date RegEx");
         }
-        Matcher m = pat.matcher(searchString);
-        if (m.find()) {
-            return true;
-        }
-        return false;
     }
 
     public static String getCurrentDatetime(String format) {
@@ -43,19 +38,26 @@ public class DateHelper {
     }
 
     public static String getDatetime(String format, long timestamp) {
-        LocalizeHelper.setLocaleEnglish();
+        // 2013-09-19 : Removed LocalizeHelper.setLocaleEnglish() and LocalizeHelper.restoreLocale();
+        // (the other methods were commented already). These are leftovers from Sandro and nobody
+        // understands why they are necessary. I checked this method with and without the LocalizeHelper,
+        // and for me, the results are equal. -- Philipp
+
+        // LocalizeHelper.setLocaleEnglish(); // removed 2013-09-19
         // LocalizeHelper.setUTC();
 
         DateFormat dfm = new SimpleDateFormat(format);
         String dateTime = dfm.format(new Date(timestamp));
 
-        LocalizeHelper.restoreLocale();
+        // LocalizeHelper.restoreLocale(); // removed 2013-09-19
         // LocalizeHelper.restoreTimeZone();
         return dateTime;
     }
 
     /**
+     * <p>
      * Get the number of hours, minutes, seconds, or milliseconds that passed on the given day from midnight.
+     * </p>
      * 
      * @param date The date of the day including time.
      * @param resolution The resolution (Calendar.HOUR, Calendar.MINUTE, Calendar.SECOND or Calendar.MILLISECOND)
@@ -89,7 +91,9 @@ public class DateHelper {
     }
 
     /**
+     * <p>
      * Return the current date as a string with the format "yyyy-MM-dd_HH-mm-ss".
+     * </p>
      * 
      * @return The date as a string.
      */
@@ -98,7 +102,10 @@ public class DateHelper {
     }
 
     /**
-     * <p>Convert the supplied month name to a number.</p>
+     * <p>
+     * Convert the supplied month name to a number.
+     * </p>
+     * 
      * @param monthName The month name to convert to number, not <code>null</code>.
      * @return The number for the month name, or <code>-1</code> if no month was recognized.
      */
@@ -276,8 +283,10 @@ public class DateHelper {
     }
 
     /**
+     * <p>
      * Get interval in millisecond between two dates. Dates are not checked correct order: in case intervalStartTime >
      * intervalStopTime, a negative value is returned. In case date(s) are <code>null</code>, 0 is returned.
+     * </p>
      * 
      * @param intervalStartTime the older date.
      * @param intervalStopTime the newer date.
@@ -294,7 +303,6 @@ public class DateHelper {
     public static String getTimeString(long time) {
         return formatDuration(0, time, true);
     }
-
 
     //    /**
     //     * Formats a given {@link Date} to ISO8601 "yyyy-MM-dd'T'HH:mm:ss+HH:mm.S", using the given {@link TimeZone}
@@ -343,8 +351,10 @@ public class DateHelper {
     //    }
 
     /**
+     * <p>
      * Checks whether a date's year exceeds the given maximum. Useful to store a date in a mysql database since the
      * maximum value of the DATETIME type is the year 9999.
+     * </p>
      * 
      * @param date date to check.
      * @param maxYear maximum year allowed.
@@ -364,6 +374,11 @@ public class DateHelper {
     }
 
     public static void main(String[] t) {
+        System.out.println(getDatetime(2832837283728l));
+        // without LocalizeHelper: 2059-10-08 13:14:43
+        // with LocalizeHelper: 2059-10-08 13:14:43
+        System.exit(666);
+
         System.out.println(DateHelper.formatDuration(0, 10805000, false));
         System.out.println(DateHelper.formatDuration(0, 10850000));
         System.out.println(DateHelper.formatDuration(0, 10878512));
