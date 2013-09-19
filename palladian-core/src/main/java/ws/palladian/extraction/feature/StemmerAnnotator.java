@@ -164,8 +164,9 @@ public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
                 return new swedishStemmer();
             case TURKISH:
                 return new turkishStemmer();
+            default:
+                throw new IllegalArgumentException("No stemmer for language '" + language.toString() + "' available.");
         }
-        throw new IllegalArgumentException("No stemmer for language " + language.toString() + " available.");
     }
     
     @Override
@@ -201,6 +202,8 @@ public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
             stemmedAnnotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstemmedValue));
             newList.add(stemmedAnnotation);
         }
+        // remove first, to avoid warning
+        document.getFeatureVector().remove(BaseTokenizer.PROVIDED_FEATURE);
         document.getFeatureVector().add(newList);
     }
 
