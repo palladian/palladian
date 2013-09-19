@@ -449,7 +449,7 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runQuery(converter, sql, args.toArray());
+        return runQuery(converter, new BasicQuery(sql, args));
     }
 
     /**
@@ -467,6 +467,22 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
+        return runQuery(converter, new BasicQuery(sql, args));
+    }
+
+    /**
+     * <p>
+     * Run a query operation on the database, return the result as List.
+     * </p>
+     * 
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return List with results.
+     */
+    public final <T> List<T> runQuery(RowConverter<T> converter, Query query) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notNull(query, "query must not be null");
 
         final List<T> result = new ArrayList<T>();
 
@@ -479,7 +495,7 @@ public class DatabaseManager {
 
         };
 
-        runQuery(callback, converter, sql, args);
+        runQuery(callback, converter, query.getSql(), query.getArgs());
         return result;
     }
 
@@ -505,7 +521,7 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runQueryWithIterator(converter, sql, args.toArray());
+        return runQueryWithIterator(converter, new BasicQuery(sql, args));
     }
 
     /**
@@ -529,6 +545,28 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
+        return runQueryWithIterator(converter, new BasicQuery(sql, args));
+    }
+    
+    /**
+     * <p>
+     * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
+     * not allow modifications, so invoking {@link ResultIterator#remove()} will cause an
+     * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
+     * element has been retrieved. If you break the iteration loop, you <b>must</b> manually call
+     * {@link ResultIterator#close()}. In general, you should prefer using
+     * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
+     * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
+     * </p>
+     * 
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return Iterator for iterating over results.
+     */
+    public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, Query query) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notNull(query, "query must not be null");
 
         @SuppressWarnings("unchecked")
         ResultIterator<T> result = ResultIterator.NULL_ITERATOR;
@@ -539,21 +577,23 @@ public class DatabaseManager {
         try {
 
             connection = getConnection();
-            ps = connection.prepareStatement(sql);
 
-            // do not buffer the whole ResultSet in memory, but use streaming to save memory
-            // http://webmoli.com/2009/02/01/jdbc-performance-tuning-with-optimal-fetch-size/
-            // TODO make this a global option?
-            // ps.setFetchSize(Integer.MIN_VALUE);
-            ps.setFetchSize(1);
+            // do not buffer the whole ResultSet in memory, but use streaming to save memory; see:
+            // http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html
+            ps = connection.prepareStatement(query.getSql(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            try {
+                ps.setFetchSize(Integer.MIN_VALUE);
+            } catch (SQLException e) {
+                LOGGER.warn("Exception at Statement#setFetchSize(Integer.MIN_VALUE). This is caused, when the database is not MySQL.");
+            }
 
-            fillPreparedStatement(ps, args);
+            fillPreparedStatement(ps, query.getArgs());
 
             resultSet = ps.executeQuery();
             result = new ResultIterator<T>(connection, ps, resultSet, converter);
 
         } catch (SQLException e) {
-            logError(e, sql, args);
+            logError(e, query.getSql(), query.getArgs());
             close(connection, ps, resultSet);
         }
 
