@@ -22,12 +22,12 @@ import org.apache.commons.lang3.Validate;
  * 
  * <pre>
  * // create queries as constants
- * private static final PlaceholderQuery QUERY = new PlaceholderQuery(
+ * private static final PlaceholderQuery PLACEHOLDER = new PlaceholderQuery(
  *         &quot;SELECT * FROM table WHERE col1 = @value1 AND col2 = @value2&quot;);
  * 
  * // usage within method
- * List&lt;Object&gt; args = QUERY.newArgs().set(&quot;value1&quot;, 1).set(&quot;value2&quot;, 2).create();
- * List&lt;Result&gt; result = databaseManager.runQuery(CONVERTER, QUERY.getSql(), args);
+ * Query query = PLACEHOLDER.newArgs().set(&quot;value1&quot;, 1).set(&quot;value2&quot;, 2).create();
+ * List&lt;Result&gt; result = databaseManager.runQuery(CONVERTER, query);
  * </pre>
  * 
  * @author Philipp Katz
@@ -89,7 +89,7 @@ public final class PlaceholderQuery {
      * @return A new {@link ArgumentBuilder}.
      */
     public ArgumentBuilder newArgs() {
-        return new ArgumentBuilder(placeholders);
+        return new ArgumentBuilder(query, placeholders);
     }
 
     @Override
@@ -100,9 +100,11 @@ public final class PlaceholderQuery {
     public static final class ArgumentBuilder {
 
         private final Map<String, Object> parameters = new HashMap<String, Object>();
+        private final String sql;
         private final List<String> placeholders;
 
-        private ArgumentBuilder(List<String> placeholders) {
+        private ArgumentBuilder(String sql, List<String> placeholders) {
+            this.sql = sql;
             this.placeholders = placeholders;
         }
 
@@ -122,7 +124,7 @@ public final class PlaceholderQuery {
                 parameters.put(placeholder, value);
                 return this;
             } else {
-                throw new IllegalArgumentException(placeholder + " is not a placeholder");
+                throw new IllegalArgumentException("'" + placeholder + "' is not a placeholder");
             }
         }
 
@@ -134,17 +136,29 @@ public final class PlaceholderQuery {
          * @return The list of parameters in the correct order.
          * @throws IllegalStateException In case not all placeholders have been set.
          */
-        public List<Object> create() {
+        public List<Object> createArgs() {
             List<Object> arguments = new ArrayList<Object>();
             for (String placeholder : placeholders) {
                 if (parameters.containsKey(placeholder)) {
                     Object value = parameters.get(placeholder);
                     arguments.add(value);
                 } else {
-                    throw new IllegalStateException("Placeholder " + placeholder + " has not been set");
+                    throw new IllegalStateException("Placeholder '" + placeholder + "' has not been set");
                 }
             }
             return arguments;
+        }
+
+        /**
+         * <p>
+         * Create the final query which can be supplied to the {@link DatabaseManager}.
+         * </p>
+         * 
+         * @return The query.
+         * @throws IllegalStateException In case not all placeholders have been set.
+         */
+        public Query create() {
+            return new BasicQuery(sql, createArgs());
         }
 
     }

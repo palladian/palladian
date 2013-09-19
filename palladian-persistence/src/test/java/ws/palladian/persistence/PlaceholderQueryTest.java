@@ -3,12 +3,10 @@ package ws.palladian.persistence;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 
 public class PlaceholderQueryTest {
 
@@ -33,9 +31,9 @@ public class PlaceholderQueryTest {
 
     @Test
     public void testPlaceholderQueryArguments() {
-        List<Object> args = query.newArgs().set("value3", 3).set("value1", 1).set("value2", 2).create();
-        assertEquals(4, args.size());
-        assertEquals(Arrays.asList(1, 2, 3, 2), args);
+        Query args = query.newArgs().set("value3", 3).set("value1", 1).set("value2", 2).create();
+        assertEquals(4, args.getArgs().length);
+        assertEquals(Arrays.asList(1, 2, 3, 2), Arrays.asList(args.getArgs()));
     }
 
     @Test(expected = IllegalArgumentException.class)
