@@ -65,7 +65,15 @@ public class BasicFeatureVector implements FeatureVector {
     @Override
     public void add(Feature<?> feature) {
         if (features.get(feature.getName()) != null && !showedWarning) {
-            LOGGER.warn("Please use a ListFeature to add multiple features with the same name.");
+            // create the warning with stack trace, so that we can fix those issues better
+            StringBuilder loggerBuilder = new StringBuilder();
+            loggerBuilder.append("Please use a ListFeature to add multiple features with the same name.\n");
+            loggerBuilder.append("The caller was (this stack trace is only for debugging purposes and no exception!):\n");
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+            for (int i = 2; i < stackTrace.length; i++) {
+                loggerBuilder.append('\t').append(stackTrace[i]).append('\n');
+            }
+            LOGGER.warn(loggerBuilder.toString());
             showedWarning = true;
         }
         features.put(feature.getName(), feature);
