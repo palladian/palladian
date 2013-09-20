@@ -19,6 +19,7 @@ public class StatsTest {
         assertEquals(6.5, stats.getMedian(), 0);
         assertEquals(23, stats.getMax(), 0);
         assertEquals(1, stats.getMin(), 0);
+        assertEquals(7.985, stats.getStandardDeviation(), 0.001);
         System.out.println(stats);
     }
 

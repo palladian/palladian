@@ -11,6 +11,14 @@ import ws.palladian.helper.collection.CollectionHelper;
 public class GeoUtilsTest {
 
     @Test
+    public void testDistance() {
+        GeoCoordinate c1 = new ImmutableGeoCoordinate(33.662508, -95.547692);
+        GeoCoordinate c2 = new ImmutableGeoCoordinate(48.85341, 2.3488);
+        double distance = GeoUtils.getDistance(c1, c2);
+        assertEquals(7783, distance, 1);
+    }
+
+    @Test
     public void testMidpoint() {
         Collection<GeoCoordinate> locations = CollectionHelper.newHashSet();
         locations.add(new ImmutableGeoCoordinate(52.52437, 13.41053));
