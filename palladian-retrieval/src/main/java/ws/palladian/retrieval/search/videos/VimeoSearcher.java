@@ -7,16 +7,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.html.JPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -25,9 +21,14 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.OAuthParams;
 import ws.palladian.retrieval.OAuthUtil;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebVideo;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -38,7 +39,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author Philipp Katz
  * @see <a href="http://developer.vimeo.com/apis/advanced/methods/vimeo.videos.search">API documentation</a>
  */
-public final class VimeoSearcher extends AbstractSearcher<WebVideo> {
+public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(VimeoSearcher.class);
@@ -60,7 +61,7 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideo> {
 
     /** Authentication data. */
     private final OAuthParams oAuthParams;
-    
+
     private final HttpRetriever retriever;
 
     /**
@@ -108,10 +109,10 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideo> {
         return SEARCHER_NAME;
     }
 
-    private HttpRequest buildRequest(String query, int page, int resultCount) {
+    private HttpRequest buildRequest(MultifacetQuery query, int page, int resultCount) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, "http://vimeo.com/api/rest/v2");
         request.addParameter("method", "vimeo.videos.search");
-        request.addParameter("query", query);
+        request.addParameter("query", query.getText());
         request.addParameter("full_response", "true");
         request.addParameter("format", "json");
         request.addParameter("page", page);
@@ -120,12 +121,17 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideo> {
     }
 
     @Override
-    public List<WebVideo> search(String query, int resultCount, Language language) throws SearcherException {
+    public SearchResults<WebVideo> search(MultifacetQuery query) throws SearcherException {
+
+        if (StringUtils.isBlank(query.getText())) {
+            throw new SearcherException("The query must specify a search string (other parameters are not supported).");
+        }
 
         List<WebVideo> webResults = CollectionHelper.newArrayList();
-
-        for (int page = 0; page < Math.ceil((double)resultCount / 50); page++) {
-            int itemsToGet = Math.min(50, resultCount - page * 50);
+        int requestedResults = query.getResultCount();
+        Long availableResults = null;
+        for (int page = 0; page < Math.ceil((double)requestedResults / 50); page++) {
+            int itemsToGet = Math.min(50, requestedResults - page * 50);
             HttpRequest request = buildRequest(query, page, itemsToGet);
             LOGGER.debug("request = " + request);
             HttpResult httpResult;
@@ -137,17 +143,19 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideo> {
             }
             logRateLimits(httpResult);
             try {
-                List<WebVideo> parsedVideos = parseVideoResult(httpResult.getStringContent());
+                JsonObject json = new JsonObject(httpResult.getStringContent());
+                availableResults = json.queryLong("/videos/total");
+                List<WebVideo> parsedVideos = parseVideoResult(json);
                 if (parsedVideos.isEmpty()) {
                     break;
                 }
                 webResults.addAll(parsedVideos);
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
                         + "\" with " + getName() + ": " + e.getMessage(), e);
             }
         }
-        return webResults;
+        return new SearchResults<WebVideo>(webResults, availableResults);
     }
 
     private static void logRateLimits(HttpResult httpResult) {
@@ -157,38 +165,22 @@ public final class VimeoSearcher extends AbstractSearcher<WebVideo> {
         LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
     }
 
-    public static List<WebVideo> parseVideoResult(String jsonString) throws JSONException {
+    public static List<WebVideo> parseVideoResult(JsonObject json) throws JsonException {
         List<WebVideo> result = CollectionHelper.newArrayList();
-        JSONArray jsonVideos = JPathHelper.get(jsonString, "videos/video", JSONArray.class);
-        for (int i = 0; i < jsonVideos.length(); i++) {
-            JSONObject jsonVideo = jsonVideos.getJSONObject(i);
+        JsonArray jsonVideos = json.queryJsonArray("videos/video");
+        for (int i = 0; i < jsonVideos.size(); i++) {
+            JsonObject jsonVideo = jsonVideos.getJsonObject(i);
             BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
-            builder.setTitle(JPathHelper.get(jsonVideo, "title", String.class));
-            builder.setSummary(JPathHelper.get(jsonVideo, "description", String.class));
-            String uploadDateString = JPathHelper.get(jsonVideo, "upload_date", String.class);
+            builder.setTitle(jsonVideo.getString("title"));
+            builder.setSummary(jsonVideo.getString("description"));
+            String uploadDateString = jsonVideo.getString("upload_date");
             builder.setPublished(parseDate(uploadDateString));
-            String id = JPathHelper.get(jsonVideo, "id", String.class);
+            String id = jsonVideo.getString("id");
             builder.setUrl(String.format("https://vimeo.com/%s", id));
-            builder.setDuration(JPathHelper.get(jsonVideo, "duration", Long.class));
+            builder.setDuration(jsonVideo.getLong("duration"));
             result.add(builder.create());
         }
         return result;
-    }
-
-    @Override
-    public long getTotalResultCount(String query, Language language) throws SearcherException {
-        HttpRequest request = buildRequest(query, 0, 1);
-        try {
-            HttpResult result = retriever.execute(request);
-            logRateLimits(result);
-            return parseResultCount(result.getStringContent());
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP error (request: " + request + "): " + e.getMessage(), e);
-        }
-    }
-
-    public static Long parseResultCount(String jsonString) {
-        return JPathHelper.get(jsonString, "videos/total", Long.class);
     }
 
     private static Date parseDate(String dateString) {

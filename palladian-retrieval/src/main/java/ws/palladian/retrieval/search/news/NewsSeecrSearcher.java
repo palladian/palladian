@@ -10,14 +10,11 @@ import java.util.List;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.html.JPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -25,6 +22,9 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.MashapeUtil;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -179,21 +179,21 @@ public final class NewsSeecrSearcher extends AbstractSearcher<WebContent> {
             LOGGER.debug("JSON result: " + jsonString);
 
             try {
-                JSONArray resultArray = JPathHelper.get(jsonString, "/results", JSONArray.class);
-                for (int i = 0; i < resultArray.length(); i++) {
-                    JSONObject resultObject = resultArray.getJSONObject(i);
+                JsonArray resultArray = new JsonObject(jsonString).queryJsonArray("/results");
+                for (int i = 0; i < resultArray.size(); i++) {
+                    JsonObject resultObject = resultArray.getJsonObject(i);
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
-                    builder.setTitle(JPathHelper.get(resultObject, "/title", String.class));
-                    builder.setUrl(JPathHelper.get(resultObject, "/link", String.class));
-                    builder.setSummary(JPathHelper.get(resultObject, "/text", String.class));
-                    Date date = parseDate(JPathHelper.get(resultObject, "/publishedDate", String.class));
+                    builder.setTitle(resultObject.queryString("/title"));
+                    builder.setUrl(resultObject.queryString("/link"));
+                    builder.setSummary(resultObject.queryString("/text"));
+                    Date date = parseDate(resultObject.queryString("/publishedDate"));
                     builder.setPublished(date);
                     webResults.add(builder.create());
                     if (webResults.size() == resultCount) {
                         break;
                     }
                 }
-            } catch (Exception e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error while parsing the JSON response (" + jsonString + "): "
                         + e.getMessage(), e);
             }
@@ -221,7 +221,7 @@ public final class NewsSeecrSearcher extends AbstractSearcher<WebContent> {
         // new:
         String mashapeKey = "...";
         NewsSeecrSearcher searcher = new NewsSeecrSearcher(mashapeKey);
-        List<WebContent> results = searcher.search("obama", 250);
+        List<WebContent> results = searcher.search("obama", 20);
         CollectionHelper.print(results);
     }
 
