@@ -101,8 +101,10 @@ public class MultifacetQuery {
          * @param radius The distance in kilometers, greater/equal zero.
          * @return The builder.
          */
-        public Builder setRadius(double radius) {
-            Validate.isTrue(radius >= 0, "radius must be greater/equal zero.");
+        public Builder setRadius(Double radius) {
+            if (radius != null) {
+                Validate.isTrue(radius >= 0, "radius must be greater/equal zero.");
+            }
             this.radius = radius;
             return this;
         }
