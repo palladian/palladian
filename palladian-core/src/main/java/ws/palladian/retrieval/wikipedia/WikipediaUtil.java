@@ -293,12 +293,15 @@ public final class WikipediaUtil {
      * @param markup The markup, not <code>null</code>.
      * @return A {@link Map} containing extracted key-value pairs from the template, entries in the map have the same
      *         order as in the markup. Entries without a key are are indexed by running numbers as strings (0,1,2…).
+     * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
      */
-    static Map<String, String> extractTemplate(String markup) {
+    static WikipediaTemplate extractTemplate(String markup) {
         Validate.notNull(markup, "markup must not be null");
+        
         Map<String, String> properties = new LinkedHashMap<String, String>();
         // trim surrounding {{ and }}
         String content = markup.substring(2, markup.length() - 2);
+        String templateName = getTemplateName(content);
 
         // in case of geobox, we must remove the first | character
         if (markup.toLowerCase().startsWith("{{geobox")) {
@@ -317,10 +320,48 @@ public final class WikipediaUtil {
                     equalIdx = -1;
                 }
             }
-            properties.put(key, part.substring(equalIdx + 1).trim());
+            String value = part.substring(equalIdx + 1).trim();
+            properties.put(key, value);
         }
-        return properties;
+
+        return new WikipediaTemplate(templateName, properties);
     }
+    
+    
+    private static final String getTemplateName(String markup) {
+        Pattern pattern = Pattern.compile("(?:geobox\\|)?[^|<}]+");
+        Matcher matcher = pattern.matcher(markup.toLowerCase());
+        return matcher.find() ? matcher.group().trim() : null;
+    }
+    
+    
+//    static Map<String, String> extractTemplate(String markup) {
+//        Validate.notNull(markup, "markup must not be null");
+//        Map<String, String> properties = new LinkedHashMap<String, String>();
+//        // trim surrounding {{ and }}
+//        String content = markup.substring(2, markup.length() - 2);
+//        
+//        // in case of geobox, we must remove the first | character
+//        if (markup.toLowerCase().startsWith("{{geobox")) {
+//            content = markup.substring(markup.indexOf('|') + 1, markup.length() - 2);
+//        }
+//        
+//        int i = 0;
+//        for (String part : splitTemplateMarkup(content)) {
+//            String key = String.valueOf(i++);
+//            int equalIdx = part.indexOf('=');
+//            if (equalIdx > 0) {
+//                String potentialKey = part.substring(0, equalIdx);
+//                if (isBracketBalanced(potentialKey) && isTagBalanced(potentialKey)) {
+//                    key = part.substring(0, equalIdx).trim();
+//                } else {
+//                    equalIdx = -1;
+//                }
+//            }
+//            properties.put(key, part.substring(equalIdx + 1).trim());
+//        }
+//        return properties;
+//    }
 
     static final List<String> splitTemplateMarkup(String markup) {
         List<String> result = CollectionHelper.newArrayList();
@@ -404,7 +445,7 @@ public final class WikipediaUtil {
      *         <code>null</code>.
      * @see #extractTemplate(String)
      */
-    public static Set<GeoCoordinate> extractCoordinatesFromInfobox(WikipediaInfobox infobox) {
+    public static Set<GeoCoordinate> extractCoordinatesFromInfobox(WikipediaTemplate infobox) {
         Validate.notNull(infobox, "parsedTemplate must not be null");
         Set<GeoCoordinate> coordinates = CollectionHelper.newHashSet();
 
@@ -525,7 +566,7 @@ public final class WikipediaUtil {
      * @param name The name, like infobox, quote, etc.
      * @return The content in the markup, or an empty list of not found, never <code>null</code>.
      */
-    static List<String> getNamedMarkup(String markup, String... names) {
+    public static List<String> getNamedMarkup(String markup, String... names) {
         List<String> result = CollectionHelper.newArrayList();
         int startIdx = 0;
         String cleanMarkup = HtmlHelper.stripHtmlTags(markup, HtmlElement.COMMENTS);
@@ -569,11 +610,11 @@ public final class WikipediaUtil {
      */
     public static double parseDecDeg(String docDegMarkup) {
         Validate.notNull(docDegMarkup, "string must not be null");
-        Map<String, String> templateData = extractTemplate(docDegMarkup);
-        String degStr = CollectionHelper.getTrying(templateData, "deg", "0");
-        String minStr = CollectionHelper.getTrying(templateData, "min", "1");
-        String secStr = CollectionHelper.getTrying(templateData, "sec", "2");
-        String hem = CollectionHelper.getTrying(templateData, "hem", "3");
+        WikipediaTemplate templateData = extractTemplate(docDegMarkup);
+        String degStr = templateData.getEntry("deg", "0");
+        String minStr = templateData.getEntry("min", "1");
+        String secStr = templateData.getEntry("sec", "2");
+        String hem = templateData.getEntry("hem", "3");
         try {
             double deg = StringUtils.isNotBlank(degStr) ? Double.valueOf(degStr) : 0;
             double min = StringUtils.isNotBlank(minStr) ? Double.valueOf(minStr) : 0;
@@ -585,7 +626,7 @@ public final class WikipediaUtil {
                 sgn = degStr.startsWith("-") ? -1 : 1;
             }
             double result = sgn * (Math.abs(deg) + min / 60. + sec / 3600.);
-            String rndStr = CollectionHelper.getTrying(templateData, "rnd", "4");
+            String rndStr = templateData.getEntry("rnd", "4");
             if (StringUtils.isNotBlank(rndStr)) {
                 int rnd = Integer.valueOf(rndStr);
                 result = MathHelper.round(result, rnd);
@@ -610,8 +651,9 @@ public final class WikipediaUtil {
 
         // WikipediaPage page = getArticle("Mit Schirm, Charme und Melone (Film)", Language.GERMAN);
         WikipediaPage page = retrieveArticle("Charles River", Language.ENGLISH);
-        Map<String, String> infoboxData = extractTemplate(getNamedMarkup(page.getText(), "geobox").get(0));
-        CollectionHelper.print(infoboxData);
+        WikipediaTemplate infoboxData = extractTemplate(getNamedMarkup(page.getText(), "geobox").get(0));
+        // CollectionHelper.print(infoboxData);
+        System.out.println(infoboxData);
         System.out.println(page);
 
     }

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -29,14 +28,14 @@ public class WikipediaUtilTest {
     @Test
     public void testTemplateExtraction() throws FileNotFoundException {
         String quote = "{{Quote|text=Cry \"Havoc\" and let slip the dogs of war.|sign=[[William Shakespeare]]|source=''[[Julius Caesar (play)|Julius Caesar]]'', act III, scene I}}";
-        Map<String, String> extractedTemplate = WikipediaUtil.extractTemplate(quote);
+        WikipediaTemplate extractedTemplate = WikipediaUtil.extractTemplate(quote);
         assertEquals(3, extractedTemplate.size());
-        assertEquals("Cry \"Havoc\" and let slip the dogs of war.", extractedTemplate.get("text"));
+        assertEquals("Cry \"Havoc\" and let slip the dogs of war.", extractedTemplate.getEntry("text"));
 
         quote = "{{Quote|Cry \"Havoc\" and let slip the dogs of war.|[[William Shakespeare]]|''[[Julius Caesar (play)|Julius Caesar]]'', act III, scene I}}";
         extractedTemplate = WikipediaUtil.extractTemplate(quote);
         assertEquals(3, extractedTemplate.size());
-        assertEquals("Cry \"Havoc\" and let slip the dogs of war.", extractedTemplate.get("0"));
+        assertEquals("Cry \"Havoc\" and let slip the dogs of war.", extractedTemplate.getEntry("0"));
     }
 
     @Test

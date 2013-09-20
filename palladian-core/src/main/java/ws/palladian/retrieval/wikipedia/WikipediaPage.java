@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.wikipedia;
 
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,7 +22,6 @@ public class WikipediaPage extends WikipediaPageReference {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPage.class);
 
-
     private final String text;
 
     public WikipediaPage(int pageId, int namespaceId, String title, String text) {
@@ -31,6 +29,9 @@ public class WikipediaPage extends WikipediaPageReference {
         this.text = text;
     }
 
+    /**
+     * @return The text on this Wiki page, as raw Mediawiki markup.
+     */
     public String getText() {
         return text;
     }
@@ -116,17 +117,22 @@ public class WikipediaPage extends WikipediaPageReference {
     }
 
     /**
-     * @return A list of {@link WikipediaInfobox}es on the page, or an empty list in case no such exist, never
+     * @return A list of {@link WikipediaTemplate}es on the page, or an empty list in case no such exist, never
      *         <code>null</code>.
+     * @deprecated Prefer using the more flexible {@link #getTemplates(String...)} and specify what to extract.
      */
-    public List<WikipediaInfobox> getInfoboxes() {
-        List<WikipediaInfobox> infoboxes = CollectionHelper.newArrayList();
+    @Deprecated
+    public List<WikipediaTemplate> getInfoboxes() {
+        return getTemplates("infobox", "geobox");
+    }
+
+    public List<WikipediaTemplate> getTemplates(String... templateNames) {
+        List<WikipediaTemplate> infoboxes = CollectionHelper.newArrayList();
         try {
-            List<String> infoboxesMarkup = WikipediaUtil.getNamedMarkup(text, "infobox", "geobox");
+            List<String> infoboxesMarkup = WikipediaUtil.getNamedMarkup(text, templateNames);
             for (String infoboxMarkup : infoboxesMarkup) {
-                Map<String, String> infoboxData = WikipediaUtil.extractTemplate(infoboxMarkup);
-                String infoboxType = getInfoboxType(infoboxMarkup);
-                infoboxes.add(new WikipediaInfobox(infoboxType, infoboxData));
+                WikipediaTemplate template = WikipediaUtil.extractTemplate(infoboxMarkup);
+                infoboxes.add(template);
             }
         } catch (StringIndexOutOfBoundsException e) {
             LOGGER.warn("{} when getting infobox markup; this is usually caused by invalid markup.", e.getMessage());
@@ -163,7 +169,6 @@ public class WikipediaPage extends WikipediaPageReference {
      *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
      */
     public List<WikipediaLink> getLinks() {
-        // return WikipediaUtil.getLinks(text);
         List<WikipediaLink> result = CollectionHelper.newArrayList();
         Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(text);
         while (matcher.find()) {
