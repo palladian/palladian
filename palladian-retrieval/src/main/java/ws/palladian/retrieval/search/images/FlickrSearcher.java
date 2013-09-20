@@ -253,11 +253,10 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     }
 
     /**
-     * 
-     * @param query
+     * @param query The {@link MultifacetQuery} to process.
      * @param perPage Number of results to return per page.
      * @param page The page to return.
-     * @return
+     * @return The query URL.
      */
     private String buildRequestUrl(MultifacetQuery query, int perPage, int page) {
         StringBuilder urlBuilder = new StringBuilder();

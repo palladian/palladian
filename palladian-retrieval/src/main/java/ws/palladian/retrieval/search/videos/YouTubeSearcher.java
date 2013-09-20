@@ -114,6 +114,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         if (language != null) {
             urlBuilder.append("&lr=").append(language.getIso6391());
         }
+        // TODO geo search is currently not available.
         return urlBuilder.toString();
     }
 
