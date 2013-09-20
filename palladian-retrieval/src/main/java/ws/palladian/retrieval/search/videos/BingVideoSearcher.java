@@ -1,9 +1,9 @@
 package ws.palladian.retrieval.search.videos;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONException;
-import org.json.JSONObject;
 
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.BaseBingSearcher;
@@ -37,7 +37,7 @@ public final class BingVideoSearcher extends BaseBingSearcher<WebVideo> {
     }
 
     @Override
-    protected WebVideo parseResult(JSONObject currentResult) throws JSONException {
+    protected WebVideo parseResult(JsonObject currentResult) throws JsonException {
         BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
         builder.setTitle(currentResult.getString("Title"));
         builder.setUrl(currentResult.getString("MediaUrl"));

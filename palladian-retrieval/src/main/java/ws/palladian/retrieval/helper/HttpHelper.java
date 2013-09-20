@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +19,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.slf4j.Logger;
@@ -93,59 +91,6 @@ public final class HttpHelper {
             }
         }
         return date;
-    }
-
-    /**
-     * <p>
-     * Get the content of the supplied {@link HttpResult} as string. For conversion, the "Content-Type" HTTP header with
-     * a specified charset is considered. If no default encoding is specified, <i>ISO-8859-1</i> is assumed.
-     * </p>
-     * 
-     * @see <a href="http://www.w3.org/International/O-HTTP-charset.en.php">Setting the HTTP charset parameter</a>.
-     * @param httpResult The HttpResult for which to get the content as string, not <code>null</code>.
-     * @return The string value of the supplied HttpResult.
-     * @deprecated Use {@link HttpResult#getStringContent()} instead.
-     */
-    @Deprecated
-    public static String getStringContent(HttpResult httpResult) {
-        Validate.notNull(httpResult, "httpResult must not be null");
-
-        String foundCharset = getCharset(httpResult);
-        Charset charset;
-        if (foundCharset != null && Charset.isSupported(foundCharset)) {
-            charset = Charset.forName(foundCharset);
-        } else {
-            charset = Charset.forName("ISO-8859-1");
-        }
-        return new String(httpResult.getContent(), charset);
-    }
-
-    /**
-     * <p>
-     * Retrieve the encoding from the supplied {@link HttpResult}, if it is specified in the "Content-Type" HTTP header.
-     * </p>
-     * 
-     * @param httpResult The HttpResult for which to determine the encoding, not <code>null</code>.
-     * @return The encoding of the HttpResult, nor <code>null</code> if no encoding was specified explicitly.
-     * @deprecated Use {@link HttpResult#getCharset()} instead.
-     */
-    @Deprecated
-    public static String getCharset(HttpResult httpResult) {
-        Validate.notNull(httpResult, "httpResult must not be null");
-
-        String ret = null;
-        List<String> contentTypeValues = httpResult.getHeader("Content-Type");
-        if (contentTypeValues != null) {
-            for (String contentTypeValue : contentTypeValues) {
-                int index = contentTypeValue.indexOf("charset=");
-                if (index != -1) {
-                    ret = contentTypeValue.substring(index + "charset=".length(), contentTypeValue.length());
-                    ret = ret.replace("\"", "");
-                    break;
-                }
-            }
-        }
-        return ret;
     }
 
     /**

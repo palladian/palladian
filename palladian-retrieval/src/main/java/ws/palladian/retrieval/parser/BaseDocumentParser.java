@@ -11,7 +11,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -36,7 +35,7 @@ public abstract class BaseDocumentParser implements DocumentParser {
         InputSource inputSource = new InputSource(new ByteArrayInputStream(content));
 
         // detect the encoding in advance, this avoids wrongly interpreted documents
-        String charset = HttpHelper.getCharset(httpResult);
+        String charset = httpResult.getCharset();
         if (charset != null && Charset.isSupported(charset)) {
             inputSource.setEncoding(charset);
         }

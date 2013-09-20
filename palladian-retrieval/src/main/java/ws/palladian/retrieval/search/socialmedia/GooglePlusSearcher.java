@@ -7,9 +7,6 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -18,7 +15,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.parser.JsonHelper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -97,26 +96,26 @@ public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
 
             String jsonString = httpResult.getStringContent();
             try {
-                JSONObject jsonResult = new JSONObject(jsonString);
-                JSONArray jsonItems = jsonResult.getJSONArray("items");
-                nextPageToken = JsonHelper.getString(jsonResult, "nextPageToken");
+                JsonObject jsonResult = new JsonObject(jsonString);
+                JsonArray jsonItems = jsonResult.getJsonArray("items");
+                nextPageToken = jsonResult.tryGetString("nextPageToken");
                 if (nextPageToken == null) {
                     break;
                 }
-                for (int i = 0; i < jsonItems.length(); i++) {
-                    JSONObject jsonItem = jsonItems.getJSONObject(i);
+                for (int i = 0; i < jsonItems.size(); i++) {
+                    JsonObject jsonItem = jsonItems.getJsonObject(i);
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
 
-                    builder.setUrl(JsonHelper.getString(jsonItem, "url"));
-                    builder.setTitle(JsonHelper.getString(jsonItem, "title"));
-                    builder.setSummary(JsonHelper.getString(jsonItem, "content"));
-                    builder.setPublished(getCreationDate(JsonHelper.getString(jsonItem, "published")));
+                    builder.setUrl(jsonItem.tryGetString("url"));
+                    builder.setTitle(jsonItem.tryGetString("title"));
+                    builder.setSummary(jsonItem.tryGetString("content"));
+                    builder.setPublished(getCreationDate(jsonItem.tryGetString("published")));
                     results.add(builder.create());
                     if (results.size() == resultCount) {
                         break out;
                     }
                 }
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error parsing the JSON response from \"" + requestUrl + "\": "
                         + jsonString, e);
             }
