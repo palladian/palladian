@@ -135,7 +135,9 @@ public final class PlaceholderQuery {
          * 
          * @return The list of parameters in the correct order.
          * @throws IllegalStateException In case not all placeholders have been set.
+         * @deprecated Prefer using {@link #create()}.
          */
+        @Deprecated
         public List<Object> createArgs() {
             List<Object> arguments = new ArrayList<Object>();
             for (String placeholder : placeholders) {
