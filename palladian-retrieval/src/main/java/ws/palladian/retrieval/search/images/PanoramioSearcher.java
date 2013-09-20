@@ -152,7 +152,7 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
     public static void main(String[] args) throws SearcherException {
         // System.out.println(parseDate("22 January 2007"));
         PanoramioSearcher searcher = new PanoramioSearcher();
-        MultifacetQuery query = new MultifacetQuery.Builder().setCoordinate(51.049259, 13.73836).setRadius(1)
+        MultifacetQuery query = new MultifacetQuery.Builder().setCoordinate(51.049259, 13.73836).setRadius(1.)
                 .setResultCount(100).create();
         SearchResults<WebImage> result = searcher.search(query);
         CollectionHelper.print(result);
