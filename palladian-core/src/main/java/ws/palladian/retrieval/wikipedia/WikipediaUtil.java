@@ -162,12 +162,6 @@ public final class WikipediaUtil {
         return result;
     }
 
-    public static String cleanTitle(String title) {
-        String clean = title.replaceAll("\\s\\([^)]*\\)", "");
-        clean = clean.replaceAll(",.*", ""); // XXX comma should not be here! (makes sense for locations only)
-        return clean;
-    }
-
     /**
      * <p>
      * Retrieve a {@link WikipediaPage} directly from the web.
@@ -333,37 +327,8 @@ public final class WikipediaUtil {
         Matcher matcher = pattern.matcher(markup.toLowerCase());
         return matcher.find() ? matcher.group().trim() : null;
     }
-    
-    
-//    static Map<String, String> extractTemplate(String markup) {
-//        Validate.notNull(markup, "markup must not be null");
-//        Map<String, String> properties = new LinkedHashMap<String, String>();
-//        // trim surrounding {{ and }}
-//        String content = markup.substring(2, markup.length() - 2);
-//        
-//        // in case of geobox, we must remove the first | character
-//        if (markup.toLowerCase().startsWith("{{geobox")) {
-//            content = markup.substring(markup.indexOf('|') + 1, markup.length() - 2);
-//        }
-//        
-//        int i = 0;
-//        for (String part : splitTemplateMarkup(content)) {
-//            String key = String.valueOf(i++);
-//            int equalIdx = part.indexOf('=');
-//            if (equalIdx > 0) {
-//                String potentialKey = part.substring(0, equalIdx);
-//                if (isBracketBalanced(potentialKey) && isTagBalanced(potentialKey)) {
-//                    key = part.substring(0, equalIdx).trim();
-//                } else {
-//                    equalIdx = -1;
-//                }
-//            }
-//            properties.put(key, part.substring(equalIdx + 1).trim());
-//        }
-//        return properties;
-//    }
 
-    static final List<String> splitTemplateMarkup(String markup) {
+    private static final List<String> splitTemplateMarkup(String markup) {
         List<String> result = CollectionHelper.newArrayList();
         int startIdx = markup.indexOf('|') + 1;
         for (int currentIdx = startIdx; currentIdx < markup.length(); currentIdx++) {
@@ -395,7 +360,7 @@ public final class WikipediaUtil {
         // check the balance of HTML tags
         int openTags = StringHelper.countRegexMatches(markup, OPEN_TAG_PATTERN);
         int closeTags = StringHelper.countRegexMatches(markup, CLOSE_TAG_PATTERN);
-        return openTags - closeTags == 0;
+        return openTags == closeTags;
     }
 
     /**
@@ -608,7 +573,7 @@ public final class WikipediaUtil {
      * @return The double value with the coordinates.
      * @throws NumberFormatException in case the string could not be parsed.
      */
-    public static double parseDecDeg(String docDegMarkup) {
+    static double parseDecDeg(String docDegMarkup) {
         Validate.notNull(docDegMarkup, "string must not be null");
         WikipediaTemplate templateData = extractTemplate(docDegMarkup);
         String degStr = templateData.getEntry("deg", "0");

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,16 @@ public class WikipediaPage extends WikipediaPageReference {
 
     private final String text;
 
+    /**
+     * <p>
+     * Create a new {@link WikipediaPage}.
+     * </p>
+     * 
+     * @param pageId The unique identifier of this page.
+     * @param namespaceId The namespace to which this page belongs.
+     * @param title The title of this page.
+     * @param text The raw markup of this page.
+     */
     public WikipediaPage(int pageId, int namespaceId, String title, String text) {
         super(pageId, namespaceId, title);
         this.text = text;
@@ -58,10 +69,16 @@ public class WikipediaPage extends WikipediaPageReference {
         return result;
     }
 
+    /**
+     * @return <code>true</code> in case this page redirects to another, <code>false</code> otherwise.
+     */
     public boolean isRedirect() {
         return getRedirectTitle() != null;
     }
 
+    /**
+     * @return The title of the page to which this redirects, or <code>null</code> in case this page is no redirect.
+     */
     public String getRedirectTitle() {
         Matcher matcher = WikipediaUtil.REDIRECT_PATTERN.matcher(text);
         if (matcher.find()) {
@@ -126,7 +143,13 @@ public class WikipediaPage extends WikipediaPageReference {
         return getTemplates("infobox", "geobox");
     }
 
+    /**
+     * @param templateNames The name(s) of the templates to retrieve, not <code>null</code>.
+     * @return A list of {@link WikipediaTemplate}s with the given name(s) on the page, or an empty list in case no such
+     *         exist, never <code>null</code>.
+     */
     public List<WikipediaTemplate> getTemplates(String... templateNames) {
+        Validate.notNull(templateNames, "templateNames must not be null");
         List<WikipediaTemplate> infoboxes = CollectionHelper.newArrayList();
         try {
             List<String> infoboxesMarkup = WikipediaUtil.getNamedMarkup(text, templateNames);

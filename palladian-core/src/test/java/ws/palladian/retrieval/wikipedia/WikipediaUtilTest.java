@@ -18,14 +18,6 @@ public class WikipediaUtilTest {
     private static final double DELTA = 0.000001;
 
     @Test
-    public void testCleanName() {
-        assertEquals("Theater District", WikipediaUtil.cleanTitle("Theater District (San Francisco, California)"));
-        assertEquals("Oregon", WikipediaUtil.cleanTitle("Oregon, Illinois"));
-        assertEquals("West Seneca", WikipediaUtil.cleanTitle("West Seneca (town), New York"));
-        assertEquals("Capital of the Cocos Islands", WikipediaUtil.cleanTitle("Capital of the Cocos (Keeling) Islands"));
-    }
-
-    @Test
     public void testTemplateExtraction() throws FileNotFoundException {
         String quote = "{{Quote|text=Cry \"Havoc\" and let slip the dogs of war.|sign=[[William Shakespeare]]|source=''[[Julius Caesar (play)|Julius Caesar]]'', act III, scene I}}";
         WikipediaTemplate extractedTemplate = WikipediaUtil.extractTemplate(quote);
