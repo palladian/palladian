@@ -3,10 +3,9 @@ package ws.palladian.retrieval.search.news;
 import java.util.Date;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import ws.palladian.retrieval.parser.JsonHelper;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseBingSearcher;
@@ -63,12 +62,12 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebContent> {
 //    }
 
     @Override
-    protected WebContent parseResult(JSONObject currentResult) throws JSONException {
+    protected WebContent parseResult(JsonObject currentResult) throws JsonException {
         BasicWebContent.Builder builder = new BasicWebContent.Builder();
         builder.setUrl(currentResult.getString("Url"));
-        builder.setTitle(JsonHelper.getString(currentResult, "Title"));
-        builder.setSummary(JsonHelper.getString(currentResult, "Description"));
-        if (currentResult.has("Date")) {
+        builder.setTitle(currentResult.tryGetString("Title"));
+        builder.setSummary(currentResult.tryGetString("Description"));
+        if (currentResult.get("Date") != null) {
             String dateString = currentResult.getString("Date");
             Date date = parseDate(dateString);
             builder.setPublished(date);

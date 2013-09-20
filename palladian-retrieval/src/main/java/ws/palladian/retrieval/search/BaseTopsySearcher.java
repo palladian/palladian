@@ -4,9 +4,6 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -14,6 +11,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.WebContent;
 
 public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
@@ -73,13 +73,13 @@ public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
 
             String jsonString = httpResult.getStringContent();
             try {
-                JSONObject jsonResult = new JSONObject(jsonString);
-                JSONObject responseJson = jsonResult.getJSONObject("response");
-                JSONArray listJson = responseJson.getJSONArray("list");
+                JsonObject jsonResult = new JsonObject(jsonString);
+                JsonObject responseJson = jsonResult.getJsonObject("response");
+                JsonArray listJson = responseJson.getJsonArray("list");
 
-                for (int i = 0; i < listJson.length(); i++) {
+                for (int i = 0; i < listJson.size(); i++) {
 
-                    JSONObject item = listJson.getJSONObject(i);
+                    JsonObject item = listJson.getJsonObject(i);
                     WebContent webResult = parse(item);
                     result.add(webResult);
 
@@ -89,7 +89,7 @@ public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
 
                 }
 
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error parsing the JSON response " + e.getMessage() + ", JSON was \""
                         + jsonString + "\"", e);
             }
@@ -107,6 +107,6 @@ public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
     /**
      * Subclass performs the parsing for each item in the JSON list.
      */
-    protected abstract WebContent parse(JSONObject item) throws JSONException;
+    protected abstract WebContent parse(JsonObject item) throws JsonException;
 
 }

@@ -10,8 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +23,9 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 
@@ -98,16 +99,16 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
 
                 jsonString = getResponseData(requestUrl, accountKey);
 
-                JSONObject jsonObject = new JSONObject(jsonString);
-                JSONObject responseData = jsonObject.getJSONObject("d");
+                JsonObject jsonObject = new JsonObject(jsonString);
+                JsonObject responseData = jsonObject.getJsonObject("d");
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
-                JSONArray results = responseData.getJSONArray("results");
-                int numResults = results.length();
+                JsonArray results = responseData.getJsonArray("results");
+                int numResults = results.size();
                 offset += numResults;
 
                 for (int j = 0; j < numResults; j++) {
-                    JSONObject currentResult = results.getJSONObject(j);
+                    JsonObject currentResult = results.getJsonObject(j);
                     R webResult = parseResult(currentResult);
                     webResults.add(webResult);
 
@@ -116,14 +117,14 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
                     }
                 }
 
-                if (!responseData.has("__next")) {
+                if (responseData.get("__next") == null) {
                     break;
                 }
 
             } catch (HttpException e) {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
                         + e.getMessage(), e);
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error parsing the JSON response while searching for \"" + query
                         + "\" with " + getName() + ": " + e.getMessage() + ", url: \"" + requestUrl + "\", json: \""
                         + jsonString + "\"", e);
@@ -142,9 +143,9 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
      * 
      * @param currentResult
      * @return
-     * @throws JSONException
+     * @throws JsonException
      */
-    protected abstract R parseResult(JSONObject currentResult) throws JSONException;
+    protected abstract R parseResult(JsonObject currentResult) throws JsonException;
 
     /**
      * <p>
@@ -172,9 +173,9 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
      * @param requestUrl
      * @return
      * @throws HttpException
-     * @throws JSONException
+     * @throws JsonException
      */
-    private String getResponseData(String requestUrl, String accountKey) throws HttpException, JSONException {
+    private String getResponseData(String requestUrl, String accountKey) throws HttpException, JsonException {
         String basicAuthentication = "Basic " + StringHelper.encodeBase64(":" + accountKey);
         HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, requestUrl);
         httpRequest.addHeader("Authorization", basicAuthentication);

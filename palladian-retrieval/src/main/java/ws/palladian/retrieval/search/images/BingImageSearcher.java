@@ -1,9 +1,9 @@
 package ws.palladian.retrieval.search.images;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONException;
-import org.json.JSONObject;
 
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.BaseBingSearcher;
@@ -37,7 +37,7 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImage> {
     }
 
     @Override
-    protected WebImage parseResult(JSONObject currentResult) throws JSONException {
+    protected WebImage parseResult(JsonObject currentResult) throws JsonException {
         BasicWebImage.Builder builder = new BasicWebImage.Builder();
         builder.setUrl(currentResult.getString("SourceUrl"));
         builder.setImageUrl(currentResult.getString("MediaUrl"));
