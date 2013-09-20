@@ -17,6 +17,8 @@ public class WikipediaPageTest {
     public void testWikipediaPage() throws FileNotFoundException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
+        System.out.println(page.getInfoboxes().get(0));
+        
         assertEquals("german location", page.getInfoboxes().get(0).getName());
         assertEquals(4, page.getCategories().size());
         assertEquals(484, page.getLinks().size());
@@ -27,7 +29,7 @@ public class WikipediaPageTest {
         String markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dry Fork (Cheat River)", markup);
-        List<WikipediaInfobox> infoboxes = page.getInfoboxes();
+        List<WikipediaTemplate> infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
         assertEquals("river", infoboxes.get(0).getName());
     }
@@ -36,9 +38,9 @@ public class WikipediaPageTest {
     public void testInfoboxExtraction() throws FileNotFoundException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
-        List<WikipediaInfobox> infoboxes = page.getInfoboxes();
+        List<WikipediaTemplate> infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
-        WikipediaInfobox infobox = CollectionHelper.getFirst(infoboxes);
+        WikipediaTemplate infobox = CollectionHelper.getFirst(infoboxes);
         assertEquals(34, infobox.size());
         assertEquals("Dresden", infobox.getEntry("Name"));
         assertEquals("City", infobox.getEntry("Art"));

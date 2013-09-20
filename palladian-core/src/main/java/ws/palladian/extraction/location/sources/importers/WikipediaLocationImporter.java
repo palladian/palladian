@@ -40,7 +40,7 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wikipedia.MarkupLocation;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
-import ws.palladian.retrieval.wikipedia.WikipediaInfobox;
+import ws.palladian.retrieval.wikipedia.WikipediaTemplate;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
@@ -200,13 +200,13 @@ public class WikipediaLocationImporter {
 
                 String text = page.getText();
                 
-                List<WikipediaInfobox> infoboxes = page.getInfoboxes();
+                List<WikipediaTemplate> infoboxes = page.getInfoboxes();
                 if (infoboxes.isEmpty()) {
                     LOGGER.debug("Page '{}' has no infobox; skip", page.getTitle());
                     return;
                 }
                 LocationType type = null;
-                for (WikipediaInfobox infobox : infoboxes) {
+                for (WikipediaTemplate infobox : infoboxes) {
                     type = INFOBOX_MAPPING.get(infobox.getName());
                     if (type != null) {
                         break;
@@ -231,7 +231,7 @@ public class WikipediaLocationImporter {
 
                 // fallback, use infobox/geobox:
                 if (coordinate == null) {
-                    for (WikipediaInfobox infobox : infoboxes) {
+                    for (WikipediaTemplate infobox : infoboxes) {
                         Set<GeoCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(infobox);
                         // XXX we might also want to extract population information here in the future
                         if (coordinates.size() > 0) {

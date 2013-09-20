@@ -28,10 +28,16 @@ public class WikipediaPageReference implements WebContent {
         this.title = title;
     }
 
+    /**
+     * @return The unique page ID in the wiki.
+     */
     public int getPageId() {
         return pageId;
     }
 
+    /**
+     * @return The namespace ID, in which this page resides.
+     */
     public int getNamespaceId() {
         return namespaceId;
     }

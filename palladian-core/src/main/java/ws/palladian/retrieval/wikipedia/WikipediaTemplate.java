@@ -6,20 +6,35 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
- * Infobox (or similar like geobox) on a Wikipedia page.
+ * Template (infobox, geobox, etc.) on a Wikipedia page.
  * </p>
+ * 
+ * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
+ * @author katz
  */
-public class WikipediaInfobox {
+public class WikipediaTemplate {
 
     private final String name;
     private final Map<String, String> content;
 
-    public WikipediaInfobox(String name, Map<String, String> content) {
+    public WikipediaTemplate(String name, Map<String, String> content) {
         this.name = name;
         this.content = content;
     }
 
+    /**
+     * @return The name of this template, in case it is a infobox or a geobox, that value is trimmed (e.g. type
+     *         <code>geobox|river</code> returns <code>river</code>.
+     */
+    @Deprecated
     public String getName() {
+        if (name == null) {
+            return null;
+        }
+        return name.replaceAll("^(?:infobox\\s+|geobox\\|)", "").toLowerCase();
+    }
+
+    public String getTemplateName() {
         return name;
     }
 
