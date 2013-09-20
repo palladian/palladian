@@ -25,6 +25,7 @@ public class WikipediaTemplate {
     /**
      * @return The name of this template, in case it is a infobox or a geobox, that value is trimmed (e.g. type
      *         <code>geobox|river</code> returns <code>river</code>.
+     * @deprecated Prefer getting the complete template name using {@link #getTemplateName()}.
      */
     @Deprecated
     public String getName() {

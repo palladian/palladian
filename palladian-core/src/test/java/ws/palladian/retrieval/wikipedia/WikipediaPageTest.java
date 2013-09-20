@@ -17,8 +17,6 @@ public class WikipediaPageTest {
     public void testWikipediaPage() throws FileNotFoundException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
-        System.out.println(page.getInfoboxes().get(0));
-        
         assertEquals("german location", page.getInfoboxes().get(0).getName());
         assertEquals(4, page.getCategories().size());
         assertEquals(484, page.getLinks().size());
@@ -75,7 +73,6 @@ public class WikipediaPageTest {
         infoboxes = page.getInfoboxes();
         assertEquals(2, infoboxes.size());
     }
-    
 
     @Test
     public void testGetSections() throws FileNotFoundException {
@@ -84,12 +81,23 @@ public class WikipediaPageTest {
         List<String> sections = page.getSections();
         assertEquals(46, sections.size());
     }
-    
 
     @Test
     public void testGetRedirect() {
         WikipediaPage page = new WikipediaPage(0, 0, "L.A.", "#REDIRECT [[Los Angeles]]");
         assertEquals("Los Angeles", page.getRedirectTitle());
+    }
+
+    @Test
+    public void testCleanName() {
+        WikipediaPage page = new WikipediaPage(0, 0, "Theater District (San Francisco, California)", null);
+        assertEquals("Theater District", page.getCleanTitle());
+        page = new WikipediaPage(0, 0, "Oregon, Illinois", null);
+        assertEquals("Oregon", page.getCleanTitle());
+        page = new WikipediaPage(0, 0, "West Seneca (town), New York", null);
+        assertEquals("West Seneca", page.getCleanTitle());
+        page = new WikipediaPage(0, 0, "Capital of the Cocos (Keeling) Islands", null);
+        assertEquals("Capital of the Cocos Islands", page.getCleanTitle());
     }
 
 }

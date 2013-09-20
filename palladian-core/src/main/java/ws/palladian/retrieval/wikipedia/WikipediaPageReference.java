@@ -51,7 +51,9 @@ public class WikipediaPageReference implements WebContent {
      * @return The title of the page, but with text in parenthesis and after comma removed.
      */
     public String getCleanTitle() {
-        return WikipediaUtil.cleanTitle(title);
+        String clean = title.replaceAll("\\s\\([^)]*\\)", "");
+        clean = clean.replaceAll(",.*", ""); // XXX comma should not be here! (makes sense for locations only)
+        return clean;
     }
 
     @Override
