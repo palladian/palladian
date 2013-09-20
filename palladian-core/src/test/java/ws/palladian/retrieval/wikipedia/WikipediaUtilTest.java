@@ -13,7 +13,6 @@ import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.wikipedia.WikipediaUtil.MarkupLocation;
 
 public class WikipediaUtilTest {
 
@@ -25,11 +24,6 @@ public class WikipediaUtilTest {
         assertEquals("Oregon", WikipediaUtil.cleanTitle("Oregon, Illinois"));
         assertEquals("West Seneca", WikipediaUtil.cleanTitle("West Seneca (town), New York"));
         assertEquals("Capital of the Cocos Islands", WikipediaUtil.cleanTitle("Capital of the Cocos (Keeling) Islands"));
-    }
-
-    @Test
-    public void testGetRedirect() {
-        assertEquals("Los Angeles", WikipediaUtil.getRedirect("#REDIRECT [[Los Angeles]]"));
     }
 
     @Test
@@ -249,13 +243,6 @@ public class WikipediaUtilTest {
         // System.out.println(cleanText);
         assertEquals(46225, cleanText.length());
         assertEquals(-43112148, cleanText.hashCode());
-    }
-
-    @Test
-    public void testGetSections() throws FileNotFoundException {
-        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
-        List<String> sections = WikipediaUtil.getSections(markup);
-        assertEquals(46, sections.size());
     }
 
     @Test

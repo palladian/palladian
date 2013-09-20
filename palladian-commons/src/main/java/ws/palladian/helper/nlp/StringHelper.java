@@ -1975,6 +1975,20 @@ public final class StringHelper {
     }
 
     /**
+     * <p>
+     * Print all groups in a {@link Matcher}; useful for debugging.
+     * </p>
+     * 
+     * @param matcher The matcher, not <code>null</code>.
+     */
+    public static final void printGroups(Matcher matcher) {
+        Validate.notNull(matcher, "matcher must not be null");
+        for (int i = 0; i <= matcher.groupCount(); i++) {
+            System.out.println(i + ":" + matcher.group(i));
+        }
+    }
+
+    /**
      * The main method.
      * 
      * @param args the arguments

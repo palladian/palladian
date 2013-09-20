@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -17,120 +18,17 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @author Philipp Katz
  */
-public class WikipediaPage {
-
-    /**
-     * <p>
-     * Internal link on a Wikipedia page.
-     * </p>
-     */
-    public static class WikipediaLink {
-
-        private final String destination;
-        private final String title;
-
-        public WikipediaLink(String destination, String title) {
-            this.destination = destination;
-            this.title = title;
-        }
-
-        public String getDestination() {
-            return destination;
-        }
-
-        public String getTitle() {
-            // return title != null ? title : destination;
-            return title;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("WikipediaLink [");
-            builder.append("destination=");
-            builder.append(destination);
-            if (title != null) {
-                builder.append(", title=");
-                builder.append(title);
-            }
-            builder.append("]");
-            return builder.toString();
-        }
-
-    }
-    
-    /**
-     * <p>
-     * Infobox (or similar like geobox) on a Wikipedia page.
-     * </p>
-     */
-    public static class WikipediaInfobox {
-
-        private final String name;
-        private final Map<String, String> content;
-
-        public WikipediaInfobox(String name, Map<String, String> content) {
-            this.name = name;
-            this.content = content;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getEntry(String key) {
-            return content.get(key);
-        }
-
-        public String getEntry(String... keys) {
-            return CollectionHelper.getTrying(content, keys);
-        }
-
-        public int size() {
-            return content.size();
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("WikipediaInfobox [name=");
-            builder.append(name);
-            builder.append(", content=");
-            builder.append(content);
-            builder.append("]");
-            return builder.toString();
-        }
-
-    }
+public class WikipediaPage extends WikipediaPageReference {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPage.class);
 
-    /** The id of the main namespace with articles. Other namespaces contain meta pages, like discussions etc. */
-    public static final int MAIN_NAMESPACE = 0;
 
-    private final int pageId;
-    private final int namespaceId;
-    private final String title;
     private final String text;
 
     public WikipediaPage(int pageId, int namespaceId, String title, String text) {
-        this.pageId = pageId;
-        this.namespaceId = namespaceId;
-        this.title = title;
+        super(pageId, namespaceId, title);
         this.text = text;
-    }
-
-    public int getPageId() {
-        return pageId;
-    }
-
-    public int getNamespaceId() {
-        return namespaceId;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public String getText() {
@@ -147,7 +45,16 @@ public class WikipediaPage {
      *         never <code>null</code> however.
      */
     public List<String> getSections() {
-        return WikipediaUtil.getSections(text);
+        List<String> result = CollectionHelper.newArrayList();
+        Matcher matcher = WikipediaUtil.HEADING_PATTERN.matcher(text);
+        int start = 0;
+        while (matcher.find()) {
+            int end = matcher.start();
+            result.add(text.substring(start, end));
+            start = end;
+        }
+        result.add(text.substring(start));
+        return result;
     }
 
     public boolean isRedirect() {
@@ -155,7 +62,11 @@ public class WikipediaPage {
     }
 
     public String getRedirectTitle() {
-        return WikipediaUtil.getRedirect(text);
+        Matcher matcher = WikipediaUtil.REDIRECT_PATTERN.matcher(text);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 
     /**
@@ -224,13 +135,6 @@ public class WikipediaPage {
     }
 
     /**
-     * @return The title of the page, but with text in parenthesis and after comma removed.
-     */
-    public String getCleanTitle() {
-        return WikipediaUtil.cleanTitle(title);
-    }
-
-    /**
      * @return The categories links assigned to this page, or an empty List if no category links are present.
      */
     public List<String> getCategories() {
@@ -247,7 +151,7 @@ public class WikipediaPage {
      * @return <code>true</code> in case this page is marked as "disambiguation page".
      */
     public boolean isDisambiguation() {
-        if (title.endsWith("(disambiguation)")) {
+        if (getTitle().endsWith("(disambiguation)")) {
             return true;
         }
         String temp = text.toLowerCase();
@@ -259,18 +163,40 @@ public class WikipediaPage {
      *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
      */
     public List<WikipediaLink> getLinks() {
-        return WikipediaUtil.getLinks(text);
+        // return WikipediaUtil.getLinks(text);
+        List<WikipediaLink> result = CollectionHelper.newArrayList();
+        Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String target = matcher.group(1);
+            // strip fragments
+            int idx = target.indexOf('#');
+            if (idx >= 0) {
+                target = target.substring(0, idx);
+            }
+            String text = matcher.group(2);
+            // ignore category links here
+            if (target.toLowerCase().startsWith("category:")) {
+                continue;
+            }
+            result.add(new WikipediaLink(target, text));
+        }
+        return result;
+    }
+    
+    @Override
+    public GeoCoordinate getCoordinate() {
+        return CollectionHelper.getFirst(WikipediaUtil.extractCoordinateTag(text));
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("WikipediaPage [pageId=");
-        builder.append(pageId);
+        builder.append(getPageId());
         builder.append(", namespaceId=");
-        builder.append(namespaceId);
+        builder.append(getNamespaceId());
         builder.append(", title=");
-        builder.append(title);
+        builder.append(getTitle());
         builder.append(", redirectTitle=");
         builder.append(getRedirectTitle());
         builder.append("]");
