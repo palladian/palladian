@@ -74,11 +74,4 @@ public final class CoordinateTagger implements Tagger {
         return new LocationAnnotation(start, value, location);
     }
 
-    @SuppressWarnings("unused")
-    private static final void printGroups(Matcher matcher) {
-        for (int i = 0; i <= matcher.groupCount(); i++) {
-            System.out.println(i + ":" + matcher.group(i));
-        }
-    }
-
 }

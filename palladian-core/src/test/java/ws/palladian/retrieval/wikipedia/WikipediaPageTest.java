@@ -10,7 +10,6 @@ import org.junit.Test;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaInfobox;
 
 public class WikipediaPageTest {
 
@@ -73,6 +72,22 @@ public class WikipediaPageTest {
         page = new WikipediaPage(0, 0, "Muskingum University", markup);
         infoboxes = page.getInfoboxes();
         assertEquals(2, infoboxes.size());
+    }
+    
+
+    @Test
+    public void testGetSections() throws FileNotFoundException {
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
+        List<String> sections = page.getSections();
+        assertEquals(46, sections.size());
+    }
+    
+
+    @Test
+    public void testGetRedirect() {
+        WikipediaPage page = new WikipediaPage(0, 0, "L.A.", "#REDIRECT [[Los Angeles]]");
+        assertEquals("Los Angeles", page.getRedirectTitle());
     }
 
 }

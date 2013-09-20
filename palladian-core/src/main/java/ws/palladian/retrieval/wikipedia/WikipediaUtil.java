@@ -31,8 +31,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaInfobox;
-import ws.palladian.retrieval.wikipedia.WikipediaPage.WikipediaLink;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -47,67 +48,15 @@ public final class WikipediaUtil {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaUtil.class);
 
-    /**
-     * Utility class representing a location extracted from Wikipedia coordinate markup.
-     */
-    public static final class MarkupLocation implements GeoCoordinate {
-        double lat;
-        double lng;
-        Long population;
-        String display;
-        String name;
-        String type;
-        String region;
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("MarkupLocation [lat=");
-            builder.append(lat);
-            builder.append(", lng=");
-            builder.append(lng);
-            builder.append(", population=");
-            builder.append(population);
-            builder.append(", display=");
-            builder.append(display);
-            builder.append(", name=");
-            builder.append(name);
-            builder.append(", type=");
-            builder.append(type);
-            builder.append(", region=");
-            builder.append(region);
-            builder.append("]");
-            return builder.toString();
-        }
-
-        @Override
-        public Double getLatitude() {
-            return lat;
-        }
-
-        @Override
-        public Double getLongitude() {
-            return lng;
-        }
-
-        public String getDisplay() {
-            return display;
-        }
-
-        public Long getPopulation() {
-            return population;
-        }
-    }
-
     private static final Pattern REF_PATTERN = Pattern.compile("<ref(?:\\s[^>]*)?>[^<]*</ref>|<ref[^/>]*/>",
             Pattern.MULTILINE);
-    private static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}([^=]*)={1,6}$", Pattern.MULTILINE);
+    public static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}([^=]*)={1,6}$", Pattern.MULTILINE);
     private static final Pattern CONVERT_PATTERN = Pattern
             .compile("\\{\\{convert\\|([\\d.]+)\\|([\\w°]+)(\\|[^}]*)?\\}\\}");
-    private static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
+    public static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
     private static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("\\[http([^\\s]+)(?:\\s([^\\]]+))\\]");
 
-    private static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
+    public static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern OPEN_TAG_PATTERN = Pattern.compile("<\\w+[^>/]*>");
@@ -219,14 +168,6 @@ public final class WikipediaUtil {
         return clean;
     }
 
-    static String getRedirect(String text) {
-        Matcher matcher = REDIRECT_PATTERN.matcher(text);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
-
     /**
      * <p>
      * Retrieve a {@link WikipediaPage} directly from the web.
@@ -239,23 +180,40 @@ public final class WikipediaUtil {
      *         was given.
      */
     public static final WikipediaPage retrieveArticle(String title, Language language) {
-        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
-
         // http://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=Dresden
-        String escapedTitle = title.replace(" ", "_");
-        escapedTitle = UrlHelper.encodeParameter(escapedTitle);
-        String url = String
-                .format("http://%s.wikipedia.org/w/api.php?action=query"
-                        + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", language.getIso6391(),
-                        escapedTitle);
+        String baseUrl = String.format("http://%s.wikipedia.org/w", language.getIso6391());
+        return retrieveArticle(baseUrl, title);
+    }
+    
+    /**
+     * <p>
+     * Retrieve a {@link WikipediaPage} directly from the web.
+     * </p>
+     * 
+     * @param baseUrl The base URL of the API, e.g. <code>http://en.wikipedia.org/w</code>, not <code>null</code> or
+     *            empty.
+     * @param title The title to retrieve; will be escaped automatically.
+     * @return The {@link WikipediaPage} for the given title, or <code>null</code> in case no article with that title
+     *         was given.
+     */
+    public static final WikipediaPage retrieveArticle(String baseUrl, String title) {
+        Validate.notEmpty(baseUrl, "baseUrl must not be empty");
+        Validate.notEmpty(title, "title must not be empty");
+        
+        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         HttpResult httpResult;
         try {
+            String escapedTitle = title.replace(" ", "_");
+            escapedTitle = UrlHelper.encodeParameter(escapedTitle);
+            String url = String.format("%s/api.php?action=query"
+                    + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", baseUrl, escapedTitle);
             httpResult = retriever.httpGet(url);
         } catch (HttpException e) {
             throw new IllegalStateException(e);
         }
 
         String stringResult = httpResult.getStringContent();
+
         try {
             JSONObject jsonResult = new JSONObject(stringResult);
             JSONObject queryJson = jsonResult.getJSONObject("query");
@@ -285,6 +243,46 @@ public final class WikipediaUtil {
             throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
                     + stringResult + "'", e);
         }
+    }
+
+    /**
+     * <p>
+     * Retrieve {@link WikipediaPageReference}s in the specified category.
+     * </p>
+     * 
+     * @param baseUrl The base URL of the Mediawiki API, not <code>null</code>.
+     * @param categoryName The name of the category, must start with the <texttt> Category:</texttt> prefix, not
+     *            <code>null</code>.
+     * @return A list of {@link WikipediaPageReference}s in the specified category, or an empty list, never
+     *         <code>null</code>.
+     */
+    public static final List<WikipediaPageReference> retrieveArticlesForCategory(String baseUrl, String categoryName) {
+        String url = String.format(
+                "%s/api.php?action=query&list=categorymembers&cmtitle=%s&cmsort=timestamp&cmdir=desc&format=json",
+                baseUrl, categoryName);
+        List<WikipediaPageReference> pages = CollectionHelper.newArrayList();
+        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
+        HttpResult httpResult;
+        try {
+            httpResult = retriever.httpGet(url);
+        } catch (HttpException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            JsonObject jsonResult = new JsonObject(httpResult.getStringContent());
+            JsonArray resultArray = jsonResult.queryJsonArray("/query/categorymembers");
+            for (int i = 0; i < resultArray.size(); i++) {
+                JsonObject jsonEntry = resultArray.getJsonObject(i);
+                int pageId = jsonEntry.getInt("pageid");
+                int namespaceId = jsonEntry.getInt("ns");
+                String title = jsonEntry.getString("title");
+                pages.add(new WikipediaPageReference(pageId, namespaceId, title));
+            }
+        } catch (JsonException e) {
+            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
+                    + httpResult.getStringContent() + "'", e);
+        }
+        return pages;
     }
 
     /**
@@ -517,33 +515,6 @@ public final class WikipediaUtil {
         int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
         return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
     }
-
-    /**
-     * @param markup The markup, nor <code>null</code>.
-     * @return A {@link List} with all internal links on the page (sans "category:" links; they can be retrieved using
-     *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
-     */
-    static final List<WikipediaLink> getLinks(String markup) {
-        Validate.notNull(markup, "markup must not be null");
-        List<WikipediaLink> result = CollectionHelper.newArrayList();
-        Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(markup);
-        while (matcher.find()) {
-            String target = matcher.group(1);
-            // strip fragments
-            int idx = target.indexOf('#');
-            if (idx >= 0) {
-                target = target.substring(0, idx);
-            }
-            String text = matcher.group(2);
-            // ignore category links here
-            if (target.toLowerCase().startsWith("category:")) {
-                continue;
-            }
-            result.add(new WikipediaLink(target, text));
-        }
-
-        return result;
-    }
     
     /**
      * <p>
@@ -583,30 +554,6 @@ public final class WikipediaUtil {
             }
             startIdx = endIdx;
         }
-        return result;
-    }
-
-    /**
-     * <p>
-     * Split the given MediaWiki markup into individual sections. The beginning of the article is also added to the
-     * result, even if it does not start with a section heading.
-     * </p>
-     * 
-     * @param markup The MediaWiki markup, not <code>null</code>.
-     * @return List with sections, starting with the original section headings, or empty list if no sections were found,
-     *         never <code>null</code> however.
-     */
-    static List<String> getSections(String markup) {
-        Validate.notNull(markup, "markup must not be null");
-        List<String> result = CollectionHelper.newArrayList();
-        Matcher matcher = HEADING_PATTERN.matcher(markup);
-        int start = 0;
-        while (matcher.find()) {
-            int end = matcher.start();
-            result.add(markup.substring(start, end));
-            start = end;
-        }
-        result.add(markup.substring(start));
         return result;
     }
 
