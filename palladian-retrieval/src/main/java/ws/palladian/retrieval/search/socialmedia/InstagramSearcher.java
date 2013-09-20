@@ -177,11 +177,13 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                 long maxTimestamp = query.getEndDate().getTime() / 1000;
                 urlBuilder.append("&max_timestamp=").append(maxTimestamp);
             }
-            urlBuilder.append("&distance=").append(query.getRadius());
+            // 5000 meteres is maximum radius
+            double radius = query.getRadius() != null ? query.getRadius() * 1000 : 5000;
+            urlBuilder.append("&distance=").append(radius);
             urlBuilder.append("&access_token=").append(accessToken);
             queryUrl = urlBuilder.toString();
         } else {
-            throw new SearcherException("Search must either provide a tag or a geographic coordinate.");
+            throw new SearcherException("Search must either provide a tag or a geographic coordinate and a radius.");
         }
 
         LOGGER.debug("Query URL: {}", queryUrl);
