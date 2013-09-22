@@ -9,8 +9,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -30,7 +28,8 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
@@ -639,14 +638,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         String url = "http://webknox.com/api/webpage/author?url=" + getDocument().getDocumentURI()
                 + "&language=en&apiKey=" + apiKey;
         DocumentRetriever retriever = new DocumentRetriever();
-        JSONArray authors = retriever.getJsonArray(url);
-        if (authors != null && authors.length() > 0) {
+        // changed to palladian JSON, but untested. Philipp, 2013-09-22
+        String authorsJson = retriever.getText(url);
+        if (authorsJson != null && authorsJson.length() > 0) {
             try {
-                author = new JsonObjectWrapper(authors.getJSONObject(0)).getString("name");
-            } catch (JSONException e) {
+                return new JsonArray(authorsJson).getJsonObject(0).getString("name");
+            } catch (JsonException e) {
             }
         }
-
         return author;
     }
 
