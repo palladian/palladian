@@ -43,6 +43,7 @@ public class MultifacetQuery {
         /** Default offset if not specified explicitly. */
         private static final int DEFAULT_PAGE = 0;
 
+        private String id;
         private Set<String> tags;
         private String text;
         private Date startDate;
@@ -56,6 +57,20 @@ public class MultifacetQuery {
         // additional facets, in the future, we might want to make this super-generic and also replace the dedicated
         // fields given above by facets
         private final Map<String, Facet> facets = CollectionHelper.newHashMap();
+
+        /**
+         * <p>
+         * Set a source internal ID for which to query. For Twitter e.g., one might specify the status ID of the Tweet
+         * to retrieve. In general, this makes all other parameters unnecessary.
+         * </p>
+         * 
+         * @param id The ID to set.
+         * @return The builder.
+         */
+        public Builder setId(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder setTags(Collection<String> tags) {
             this.tags = tags == null ? Collections.<String> emptySet() : new HashSet<String>(tags);
@@ -134,6 +149,7 @@ public class MultifacetQuery {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    private final String id;
     private final Set<String> tags;
     private final String text;
     private final Date startDate;
@@ -147,6 +163,7 @@ public class MultifacetQuery {
 
     /** Created by the builder. */
     private MultifacetQuery(Builder builder) {
+        this.id = builder.id;
         this.tags = builder.tags;
         this.text = builder.text;
         this.startDate = builder.startDate;
@@ -157,6 +174,10 @@ public class MultifacetQuery {
         this.language = builder.language;
         this.facets = builder.facets;
         this.resultPage = builder.resultPage;
+    }
+    
+    public String getId() {
+        return id;
     }
 
     public Set<String> getTags() {

@@ -187,29 +187,38 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      * @return The authenticated {@link HttpRequest} for accessing the API.
      */
     private HttpRequest buildRequest(MultifacetQuery query) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://api.twitter.com/1.1/search/tweets.json");
-        if (query.getText() != null) {
-            request.addParameter("q", query.getText());
-        }
-        request.addParameter("count", query.getResultCount());
-        if (query.getLanguage() != null) {
-            request.addParameter("lang", query.getLanguage().getIso6391());
-        }
-        Facet facet = query.getFacet(ResultType.TWITTER_RESULT_TYPE_ID);
-        if (facet != null) {
-            ResultType resultType = (ResultType)facet;
-            request.addParameter("result_type", resultType.getValue());
-        }
-        GeoCoordinate coordinate = query.getCoordinate();
-        if (coordinate != null) {
-            double radius = query.getRadius() != null ? query.getRadius() : 10;
-            String geocode = String.format("%s,%s,%skm", coordinate.getLatitude(), coordinate.getLongitude(), radius);
-            request.addParameter("geocode", geocode);
+        HttpRequest request;
+        if (query.getId() != null && query.getId().length() > 0) {
+            // query for ID
+            request = new HttpRequest(HttpMethod.GET, "https://api.twitter.com/1.1/statuses/show.json");
+            request.addParameter("id", query.getId());
+        } else {
+            // query by criteria
+            request = new HttpRequest(HttpMethod.GET, "https://api.twitter.com/1.1/search/tweets.json");
+            if (query.getText() != null) {
+                request.addParameter("q", query.getText());
+            }
+            request.addParameter("count", query.getResultCount());
+            if (query.getLanguage() != null) {
+                request.addParameter("lang", query.getLanguage().getIso6391());
+            }
+            Facet facet = query.getFacet(ResultType.TWITTER_RESULT_TYPE_ID);
+            if (facet != null) {
+                ResultType resultType = (ResultType)facet;
+                request.addParameter("result_type", resultType.getValue());
+            }
+            GeoCoordinate coordinate = query.getCoordinate();
+            if (coordinate != null) {
+                double radius = query.getRadius() != null ? query.getRadius() : 10;
+                String geocode = String.format("%s,%s,%skm", coordinate.getLatitude(), coordinate.getLongitude(),
+                        radius);
+                request.addParameter("geocode", geocode);
 
-        }
-        if (query.getEndDate() != null) {
-            String untilString = new SimpleDateFormat(REQUEST_DATE_PATTERN).format(query.getEndDate());
-            request.addParameter("until", untilString);
+            }
+            if (query.getEndDate() != null) {
+                String untilString = new SimpleDateFormat(REQUEST_DATE_PATTERN).format(query.getEndDate());
+                request.addParameter("until", untilString);
+            }
         }
         HttpRequest signedRequest = OAuthUtil.createSignedRequest(request, oAuthParams);
         LOGGER.debug("Request: {}", request);
@@ -243,35 +252,22 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
             responseString = httpResult.getStringContent();
             LOGGER.debug("Response for {}: {}", request, responseString);
 
-            JsonObject jsonObject = new JsonObject(responseString);
-            JsonArray jsonResults = jsonObject.getJsonArray("statuses");
-            int numResults = jsonResults.size();
+            if (query.getId() != null && query.getId().length() > 0) {
+                // retrieve single result (ID query)
+                JsonObject result = new JsonObject(responseString);
+                webResults.add(parseSingleEntry(result));
+            } else {
+                JsonObject jsonObject = new JsonObject(responseString);
+                JsonArray jsonResults = jsonObject.getJsonArray("statuses");
+                int numResults = jsonResults.size();
 
-            for (int i = 0; i < numResults; i++) {
-                JsonObject jsonResult = jsonResults.getJsonObject(i);
-                BasicWebContent.Builder builder = new BasicWebContent.Builder();
-                builder.setTitle(StringEscapeUtils.unescapeHtml4(jsonResult.getString("text")));
-                builder.setPublished(parseDate(jsonResult.getString("created_at")));
-
-                JsonObject jsonUser = jsonResult.getJsonObject("user");
-                builder.setUrl(createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str")));
-
-                if (jsonResult.get("coordinates") != null) {
-                    JsonObject jsonCoordinates = jsonResult.getJsonObject("coordinates");
-                    String type = jsonCoordinates.tryGetString("type");
-                    if (!"point".equalsIgnoreCase(type)) {
-                        LOGGER.warn("Unexpected coordinate type: " + type);
-                    } else {
-                        JsonArray coordinates = jsonCoordinates.getJsonArray("coordinates");
-                        double lat = coordinates.getDouble(1);
-                        double lng = coordinates.getDouble(0);
-                        builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
+                for (int i = 0; i < numResults; i++) {
+                    JsonObject jsonResult = jsonResults.getJsonObject(i);
+                    WebContent result = parseSingleEntry(jsonResult);
+                    webResults.add(result);
+                    if (webResults.size() >= query.getResultCount()) {
+                        break;
                     }
-                }
-
-                webResults.add(builder.create());
-                if (webResults.size() >= query.getResultCount()) {
-                    break;
                 }
             }
         } catch (HttpException e) {
@@ -284,6 +280,31 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
 
         LOGGER.debug("twitter requests: {}", TOTAL_REQUEST_COUNT.get());
         return new SearchResults<WebContent>(webResults);
+    }
+
+    private WebContent parseSingleEntry(JsonObject jsonResult) throws JsonException {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setTitle(StringEscapeUtils.unescapeHtml4(jsonResult.getString("text")));
+        builder.setPublished(parseDate(jsonResult.getString("created_at")));
+
+        JsonObject jsonUser = jsonResult.getJsonObject("user");
+        builder.setUrl(createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str")));
+
+        if (jsonResult.get("coordinates") != null) {
+            JsonObject jsonCoordinates = jsonResult.getJsonObject("coordinates");
+            String type = jsonCoordinates.tryGetString("type");
+            if (!"point".equalsIgnoreCase(type)) {
+                LOGGER.warn("Unexpected coordinate type: " + type);
+            } else {
+                JsonArray coordinates = jsonCoordinates.getJsonArray("coordinates");
+                double lat = coordinates.getDouble(1);
+                double lng = coordinates.getDouble(0);
+                builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
+            }
+        }
+
+        WebContent result = builder.create();
+        return result;
     }
 
     /**
