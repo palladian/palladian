@@ -45,7 +45,6 @@ public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
      * The mode in which this {@link StemmerAnnotator} operates.
      * </p>
      */
-    // TODO re-think whether we really need this feature, as it bloats the API.
     public static enum Mode {
         /**
          * <p>
@@ -203,24 +202,9 @@ public final class StemmerAnnotator extends TextDocumentPipelineProcessor {
             newList.add(stemmedAnnotation);
         }
         // remove first, to avoid warning
-        document.getFeatureVector().remove(BaseTokenizer.PROVIDED_FEATURE);
-        document.getFeatureVector().add(newList);
+        document.remove(BaseTokenizer.PROVIDED_FEATURE);
+        document.add(newList);
     }
-
-//    @Override
-//    protected void processToken(PositionAnnotation annotation) throws DocumentUnprocessableException {
-//        String unstem = annotation.getValue();
-//        String stem = stem(unstem);
-//        switch (mode) {
-//            case ANNOTATE:
-//                annotation.getFeatureVector().add(new NominalFeature(STEM, stem));
-//                break;
-//            case MODIFY:
-//                annotation.getFeatureVector().add(new NominalFeature(UNSTEM, unstem));
-//                annotation.setValue(stem);
-//                break;
-//        }
-//    }
 
     /**
      * <p>
