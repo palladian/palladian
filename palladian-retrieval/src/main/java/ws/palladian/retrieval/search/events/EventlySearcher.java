@@ -6,14 +6,14 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -78,13 +78,13 @@ public class EventlySearcher extends EventSearcher {
 
         String requestUrl = buildRequest(keywords, location, eventType);
 
-        JSONArray eventEntries;
+        JsonArray eventEntries;
         try {
-            eventEntries = new JSONArray(new DocumentRetriever().getText(requestUrl));
+            eventEntries = new JsonArray(new DocumentRetriever().getText(requestUrl));
 
-            for (int i = 0; i < eventEntries.length(); i++) {
+            for (int i = 0; i < eventEntries.size(); i++) {
 
-                JsonObjectWrapper eventEntry = new JsonObjectWrapper(eventEntries.getJSONObject(i));
+                JsonObject eventEntry = eventEntries.getJsonObject(i);
 
                 Event event = new Event();
                 event.setTitle(eventEntry.getString("name"));
@@ -95,7 +95,7 @@ public class EventlySearcher extends EventSearcher {
                 if (event.getUrl() == null) {
                     event.setUrl(eventEntry.getString("web_url"));
                 }
-                JsonObjectWrapper venueEntry = eventEntry.getJSONObject("venue");
+                JsonObject venueEntry = eventEntry.getJsonObject("venue");
                 event.setVenueName(venueEntry.getString("name"));
                 event.setVenueAddress(venueEntry.getString("street"));
                 event.setVenueZipCode(venueEntry.getString("postcode"));
@@ -111,7 +111,7 @@ public class EventlySearcher extends EventSearcher {
                 }
             }
 
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new SearcherException(e.getMessage());
         }
 
@@ -135,8 +135,6 @@ public class EventlySearcher extends EventSearcher {
             url += "&city=" + UrlHelper.encodeParameter(location);
         }
 
-        System.out.println(url);
-
         return url;
     }
 
@@ -151,7 +149,7 @@ public class EventlySearcher extends EventSearcher {
      */
     public static void main(String[] args) throws SearcherException {
         EventlySearcher searcher = new EventlySearcher("GET YOUR OWN");
-        List<Event> results = searcher.search("funny", "Chicago", null, null, null, EventType.COMEDY);
+        List<Event> results = searcher.search("funny", "London", null, null, null, EventType.EVENT);
         CollectionHelper.print(results);
     }
 
