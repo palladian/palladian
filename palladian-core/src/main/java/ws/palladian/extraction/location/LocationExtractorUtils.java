@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -29,6 +31,9 @@ import ws.palladian.helper.io.LineAction;
  * @author Philipp Katz
  */
 public final class LocationExtractorUtils {
+
+    /** The pattern for recognizing the role="main" annotation. */
+    private static final String MAIN_ROLE_ANNOTATION_PATTERN = "\\<([A-Z]+)(\\s+role=\"main\")?\\>(.{1,1000}?)\\</\\1\\>";
 
     public static String normalizeName(String value) {
         if (value.matches("([A-Z]\\.)+")) {
@@ -141,11 +146,17 @@ public final class LocationExtractorUtils {
             public LocationDocument next() {
                 monitor.incrementAndPrintProgress();
                 File currentFile = fileIterator.next();
-                String rawText = FileHelper.readFileToString(currentFile).replace(" role=\"main\"", "");
+                String fileContent = FileHelper.readFileToString(currentFile);
+                String rawText = fileContent.replace(" role=\"main\"", "");
                 String cleanText = HtmlHelper.stripHtmlTags(rawText);
                 Map<Integer, GeoCoordinate> currentCoordinates = coordinates.get(currentFile.getName());
                 List<LocationAnnotation> annotations = getAnnotations(rawText, currentCoordinates);
-                return new LocationDocument(currentFile.getName(), cleanText, annotations);
+                int mainLocationIdx = getMainLocationIdx(fileContent);
+                Location mainLocation = null;
+                if (mainLocationIdx != -1) {
+                    mainLocation = annotations.get(mainLocationIdx).getLocation();
+                }
+                return new LocationDocument(currentFile.getName(), cleanText, annotations, mainLocation);
             }
 
             @Override
@@ -154,6 +165,25 @@ public final class LocationExtractorUtils {
             }
         };
 
+    }
+
+    /**
+     * Get the index of the annotation marked with <code>role="main"</code>.
+     * 
+     * @param text The text.
+     * @return The main index, or -1 if no annotation was marked as such.
+     */
+    private static int getMainLocationIdx(String text) {
+        Pattern pattern = Pattern.compile(MAIN_ROLE_ANNOTATION_PATTERN, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(text);
+        int idx = 0;
+        while (matcher.find()) {
+            if (matcher.group(2) != null && matcher.group(2).length() > 0) {
+                return idx;
+            }
+            idx++;
+        }
+        return -1;
     }
 
     /**
@@ -281,15 +311,15 @@ public final class LocationExtractorUtils {
      */
     public static class LocationTypeFilter implements Filter<Location> {
 
-        private final LocationType type;
+        private final Set<LocationType> types;
 
-        public LocationTypeFilter(LocationType type) {
-            this.type = type;
+        public LocationTypeFilter(LocationType... types) {
+            this.types = new HashSet<LocationType>(Arrays.asList(types));
         }
 
         @Override
         public boolean accept(Location item) {
-            return item.getType() == type;
+            return types.contains(item.getType());
         }
 
     }
@@ -307,11 +337,13 @@ public final class LocationExtractorUtils {
         private final String fileName;
         private final String text;
         private final List<LocationAnnotation> annotations;
+        private final Location main;
 
-        public LocationDocument(String fileName, String text, List<LocationAnnotation> annotations) {
+        LocationDocument(String fileName, String text, List<LocationAnnotation> annotations, Location main) {
             this.fileName = fileName;
             this.text = text;
             this.annotations = annotations;
+            this.main = main;
         }
 
         public String getFileName() {
@@ -326,6 +358,52 @@ public final class LocationExtractorUtils {
             return annotations;
         }
 
+        public Location getMainLocation() {
+            return main;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("LocationDocument [fileName=");
+            builder.append(fileName);
+            builder.append(", annotations=");
+            builder.append(annotations.size());
+            builder.append(", main=");
+            builder.append(main);
+            builder.append("]");
+            return builder.toString();
+        }
+
+    }
+
+    /**
+     * <p>
+     * Determine the "scope" within the given coordinates.
+     * </p>
+     * 
+     * @param coordinates The coordinates, not <code>null</code>.
+     * @return The scope, or <code>null</code> in case no scope could be determined.
+     */
+    public static <T extends GeoCoordinate> T getScope(Collection<T> coordinates) {
+        Validate.notNull(coordinates, "coordinates must not be null");
+        if (coordinates.isEmpty()) {
+            return null;
+        }
+        GeoCoordinate midpoint = GeoUtils.getMidpoint(coordinates);
+        double smallestDistance = Double.MAX_VALUE;
+        T selectedCoordinate = null;
+        for (T coordinate : coordinates) {
+            if (coordinate.getLatitude() == null || coordinate.getLongitude() == null) {
+                continue;
+            }
+            double distance = GeoUtils.getDistance(midpoint, coordinate);
+            if (distance < smallestDistance) {
+                smallestDistance = distance;
+                selectedCoordinate = coordinate;
+            }
+        }
+        return selectedCoordinate;
     }
 
     private LocationExtractorUtils() {
