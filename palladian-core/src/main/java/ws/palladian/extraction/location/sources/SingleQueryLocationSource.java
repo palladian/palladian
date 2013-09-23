@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -41,6 +42,11 @@ abstract class SingleQueryLocationSource implements LocationSource {
             }
         }
         return locations;
+    }
+    
+    @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
 
 }
