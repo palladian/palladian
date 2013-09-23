@@ -254,6 +254,18 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Create a new {@link LinkedHashMap}. This method allows omitting the type parameter when creating the
+     * LinkedHashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newLinkedHashMap();</code>.
+     * </p>
+     * 
+     * @return A new {@link LinkedHashMap}.
+     */
+    public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
+        return new LinkedHashMap<K, V>();
+    }
+
+    /**
+     * <p>
      * Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the ArrayList:
      * <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
      * </p>

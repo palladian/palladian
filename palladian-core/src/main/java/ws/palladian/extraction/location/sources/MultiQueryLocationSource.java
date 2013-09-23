@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -28,6 +29,11 @@ abstract class MultiQueryLocationSource implements LocationSource {
     @Override
     public final Location getLocation(int locationId) {
         return CollectionHelper.getFirst(getLocations(Collections.singletonList(locationId)));
+    }
+    
+    @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
 
 }
