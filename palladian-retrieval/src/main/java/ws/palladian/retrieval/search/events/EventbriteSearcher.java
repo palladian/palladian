@@ -11,8 +11,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -20,7 +18,9 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -79,7 +79,6 @@ public class EventbriteSearcher extends EventSearcher {
                 new HashSet<String>(Arrays.asList("conferences", "seminars", "fairs")));
     }
 
-
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType) throws SearcherException {
@@ -87,18 +86,24 @@ public class EventbriteSearcher extends EventSearcher {
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
 
-        String jsonString = new DocumentRetriever().getText(requestUrl);
-        JsonObjectWrapper json = new JsonObjectWrapper(jsonString);
+        JsonObject json = new JsonObject();
+        JsonArray eventEntries = new JsonArray();
 
-        JSONArray eventEntries = json.getJSONArray("events");
-        if (eventEntries == null) {
-            return events;
+        try {
+            json = new DocumentRetriever().getJsonObject(requestUrl);
+
+            eventEntries = json.getJsonArray("events");
+            if (eventEntries == null) {
+                return events;
+            }
+        } catch (Exception e) {
+            throw new SearcherException(e.getMessage());
         }
-        for (int i = 1; i < eventEntries.length(); i++) {
+        for (int i = 1; i < eventEntries.size(); i++) {
 
-            JsonObjectWrapper eventEntry;
+            JsonObject eventEntry;
             try {
-                eventEntry = new JsonObjectWrapper(eventEntries.getJSONObject(i).getJSONObject("event"));
+                eventEntry = eventEntries.getJsonObject(i).getJsonObject("event");
 
                 Event event = new Event();
                 event.setTitle(eventEntry.getString("title"));
@@ -111,7 +116,7 @@ public class EventbriteSearcher extends EventSearcher {
                 event.setRecurringString(eventEntry.getString("repeats"));
                 event.setUrl(eventEntry.getString("url"));
 
-                JsonObjectWrapper venueEntry = eventEntry.getJSONObject("venue");
+                JsonObject venueEntry = eventEntry.getJsonObject("venue");
 
                 if (venueEntry == null) {
                     continue;
@@ -132,7 +137,7 @@ public class EventbriteSearcher extends EventSearcher {
                     events.add(event);
                 }
 
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException(e.getMessage());
             }
         }
@@ -171,8 +176,6 @@ public class EventbriteSearcher extends EventSearcher {
         }
         url += "&sort_by=date";
 
-        System.out.println(url);
-
         return url;
     }
 
@@ -186,10 +189,10 @@ public class EventbriteSearcher extends EventSearcher {
      * @throws SearcherException
      */
     public static void main(String[] args) throws SearcherException {
-        EventbriteSearcher searcher = new EventbriteSearcher("GET YOU OWN");
+        EventbriteSearcher searcher = new EventbriteSearcher("GET YOUR OWN");
         Date startDate = new Date();
         Date endDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
-        List<Event> results = searcher.search(null, "Chicago", 10, startDate, endDate, EventType.COMEDY);
+        List<Event> results = searcher.search(null, "Chicago", 10, startDate, endDate, EventType.EVENT);
         CollectionHelper.print(results);
     }
 
