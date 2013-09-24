@@ -1,6 +1,6 @@
 package ws.palladian.classification.nominal;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +28,7 @@ public final class NominalClassifier implements Learner<NominalClassifierModel>,
 
         for (Trainable trainable : trainables) {
             String className = trainable.getTargetClass();
-            List<NominalFeature> nominalFeatures = trainable.getFeatureVector().getAll(NominalFeature.class);
+            Collection<NominalFeature> nominalFeatures = trainable.getFeatureVector().getAll(NominalFeature.class);
             for (NominalFeature nominalFeature : nominalFeatures) {
                 cooccurrenceMatrix.add(className, nominalFeature.getValue());
             }

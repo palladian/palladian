@@ -57,7 +57,7 @@ public class PalladianTextClassifierIT {
         DictionaryModel model = classifier.train(trainIterator);
 
         TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testFile, " ", true);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, testIterator);
+        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy char jrc: " + evaluation.getAccuracy());
         assertTrue(evaluation.getAccuracy() >= 0.983);
@@ -76,7 +76,7 @@ public class PalladianTextClassifierIT {
         DictionaryModel model = classifier.train(trainIterator);
 
         TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testFile, " ", true);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, testIterator);
+        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy word jrc: " + evaluation.getAccuracy());
         assertTrue(evaluation.getAccuracy() >= 0.935);
@@ -95,7 +95,7 @@ public class PalladianTextClassifierIT {
         DictionaryModel model = classifier.train(trainIterator);
 
         TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testFile, " ", true);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, testIterator);
+        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy char ng: " + evaluation.getAccuracy());
         assertTrue(evaluation.getAccuracy() >= 0.8893436410489617); // 0.8882825526754585
@@ -114,7 +114,7 @@ public class PalladianTextClassifierIT {
         DictionaryModel model = classifier.train(trainIterator);
 
         TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testFile, " ", true);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, testIterator);
+        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy word ng: " + evaluation.getAccuracy());
         // assertTrue(evaluation.getAccuracy() >= 0.6030013642564802); // 0.17735334242837653

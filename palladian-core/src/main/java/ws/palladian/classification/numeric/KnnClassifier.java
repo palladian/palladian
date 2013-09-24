@@ -1,5 +1,6 @@
 package ws.palladian.classification.numeric;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +153,7 @@ public final class KnnClassifier implements Learner<KnnModel>, Classifier<KnnMod
 
         double squaredSum = 0;
 
-        List<NumericFeature> instanceFeatures = vector.getAll(NumericFeature.class);
+        Collection<NumericFeature> instanceFeatures = vector.getAll(NumericFeature.class);
 
         for (NumericFeature instanceFeature : instanceFeatures) {
             squaredSum += Math.pow(

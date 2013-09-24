@@ -3,7 +3,7 @@
  */
 package ws.palladian.processing.features;
 
-import java.util.List;
+import java.util.Collection;
 
 import ws.palladian.processing.Classifiable;
 
@@ -70,10 +70,10 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * </p>
      * 
      * @param type The type of the {@link Feature}s to retrieve.
-     * @return A {@link List} of {@link Feature}s for the specified type or an empty List of no such {@link Feature}s
-     *         exist, never <code>null</code>.
+     * @return A {@link Collection} of {@link Feature}s for the specified type or an empty Collection of no such
+     *         {@link Feature}s exist, never <code>null</code>.
      */
-    <T extends Feature<?>> List<T> getAll(Class<T> type);
+    <T extends Feature<?>> Collection<T> getAll(Class<T> type);
 
     /**
      * <p>
@@ -83,7 +83,7 @@ public interface FeatureVector extends Iterable<Feature<?>>, Classifiable {
      * 
      * @return All {@link Feature}s of this {@link FeatureVector}.
      */
-    List<Feature<?>> getAll();
+    Collection<Feature<?>> getAll();
 
     /**
      * <p>
