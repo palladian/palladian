@@ -1,7 +1,7 @@
 /**
  * Created on: 01.07.2012 09:27:43
  */
-package ws.palladian.extraction;
+package ws.palladian.extraction.feature;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -15,7 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.extraction.feature.SparseArffWriter;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
