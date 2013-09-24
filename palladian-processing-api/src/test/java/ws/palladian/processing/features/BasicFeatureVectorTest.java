@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Test;
 
-public class FeatureVectorTest {
+public class BasicFeatureVectorTest {
 
     @Test
     public void testGetFeature() {
@@ -34,12 +34,12 @@ public class FeatureVectorTest {
 
         assertEquals(4, featureVector.size());
 
-        List<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
+        Collection<NominalFeature> nominalFeatures = featureVector.getAll(NominalFeature.class);
         assertEquals(2, nominalFeatures.size());
         assertTrue(nominalFeatures.contains(f1));
         assertTrue(nominalFeatures.contains(f2));
 
-        List<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
+        Collection<NumericFeature> numericFeatures = featureVector.getAll(NumericFeature.class);
         assertEquals(2, numericFeatures.size());
         assertTrue(numericFeatures.contains(f3));
         assertTrue(numericFeatures.contains(f4));
@@ -59,8 +59,8 @@ public class FeatureVectorTest {
         original.add(f3);
 
         FeatureVector newFeatureVector = new BasicFeatureVector(original);
-        List<NominalFeature> nominalFeatures = newFeatureVector.getAll(NominalFeature.class);
-        List<NumericFeature> numericFeatures = newFeatureVector.getAll(NumericFeature.class);
+        Collection<NominalFeature> nominalFeatures = newFeatureVector.getAll(NominalFeature.class);
+        Collection<NumericFeature> numericFeatures = newFeatureVector.getAll(NumericFeature.class);
         assertEquals(3, newFeatureVector.size());
         assertEquals(1, nominalFeatures.size());
         assertEquals(2, numericFeatures.size());

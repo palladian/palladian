@@ -1,11 +1,12 @@
 package ws.palladian.processing.features;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class BasicFeatureVector implements FeatureVector {
      * type.
      * </p>
      */
-    private final SortedMap<String, Feature<?>> features;
+    private final Map<String, Feature<?>> features;
 
     /**
      * <p>
@@ -44,22 +45,19 @@ public class BasicFeatureVector implements FeatureVector {
      * </p>
      */
     public BasicFeatureVector() {
-        features = new TreeMap<String, Feature<?>>();
+        features = new HashMap<String, Feature<?>>();
     }
 
     /**
      * <p>
-     * Creates a new {@link BasicFeatureVector} from the provided FeatureVector, i.e. a copy with all
-     * {@link Feature}s.
+     * Creates a new {@link BasicFeatureVector} from the provided FeatureVector, i.e. a copy with all {@link Feature}s.
      * </p>
      * 
      * @param featureVector The feature vector which Features to copy.
      */
     public BasicFeatureVector(FeatureVector featureVector) {
-        features = new TreeMap<String, Feature<?>>();
-        for (Feature<?> feature : featureVector.getAll()) {
-            features.put(feature.getName(), feature);
-        }
+        this();
+        addAll(featureVector);
     }
 
     @Override
@@ -68,7 +66,8 @@ public class BasicFeatureVector implements FeatureVector {
             // create the warning with stack trace, so that we can fix those issues better
             StringBuilder loggerBuilder = new StringBuilder();
             loggerBuilder.append("Please use a ListFeature to add multiple features with the same name.\n");
-            loggerBuilder.append("The caller was (this stack trace is only for debugging purposes and no exception!):\n");
+            loggerBuilder
+                    .append("The caller was (this stack trace is only for debugging purposes and no exception!):\n");
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
             for (int i = 2; i < stackTrace.length; i++) {
                 loggerBuilder.append('\t').append(stackTrace[i]).append('\n');
@@ -105,7 +104,7 @@ public class BasicFeatureVector implements FeatureVector {
     }
 
     @Override
-    public <T extends Feature<?>> List<T> getAll(Class<T> type) {
+    public <T extends Feature<?>> Collection<T> getAll(Class<T> type) {
         List<T> selectedFeatures = new ArrayList<T>();
         for (Feature<?> feature : features.values()) {
             if (type.isInstance(feature)) {
@@ -116,12 +115,8 @@ public class BasicFeatureVector implements FeatureVector {
     }
 
     @Override
-    public List<Feature<?>> getAll() {
-        List<Feature<?>> featureList = new ArrayList<Feature<?>>();
-        for (Feature<?> feature : this.features.values()) {
-            featureList.add(feature);
-        }
-        return Collections.unmodifiableList(featureList);
+    public Collection<Feature<?>> getAll() {
+        return Collections.unmodifiableCollection(features.values());
     }
 
     @Override
@@ -141,7 +136,7 @@ public class BasicFeatureVector implements FeatureVector {
 
     @Override
     public Iterator<Feature<?>> iterator() {
-        return getAll().iterator();
+        return features.values().iterator();
     }
 
     @Override

@@ -2,6 +2,7 @@ package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public final class KnnModel implements Model {
 
             trainingInstance.targetClass = instance.getTargetClass();
             trainingInstance.features = new HashMap<String, Double>();
-            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
+            Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
             for (NumericFeature feature : numericFeatures) {
                 trainingInstance.features.put(feature.getName(), feature.getValue());
             }

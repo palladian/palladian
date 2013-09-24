@@ -2,6 +2,7 @@ package ws.palladian.classification.utils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class MinMaxNormalization implements Serializable {
         // find the min and max values
         for (Classifiable instance : instances) {
 
-            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
+            Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
 
             for (Feature<Double> feature : numericFeatures) {
 

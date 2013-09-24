@@ -4,6 +4,8 @@
 package ws.palladian.processing.features.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -132,7 +134,7 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
 
         PipelineDocument document = getInput();
         // if (!whiteList.isEmpty()) {
-        applyWhiteList(document.getFeatureVector());
+        applyWhiteList(document);
         // } else if (!blackList.isEmpty()) {
         // applyBlackList(document.getFeatureVector());
         // }
@@ -187,7 +189,7 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
      * @param featureVector The {@link FeatureVector} to filter.
      */
     private void applyWhiteList(final FeatureVector featureVector) {
-        List<Feature<?>> copy = featureVector.getAll();
+        Collection<Feature<?>> copy = new HashSet<Feature<?>>(featureVector.getAll());
         for (Feature<?> feature : copy) {
             if (feature instanceof ListFeature) {
                 if (!handleListFeature((ListFeature<Feature<?>>)feature)) {
@@ -196,7 +198,6 @@ public class WhiteListFeatureVectorFilter extends AbstractPipelineProcessor {
             } else {
                 handleFeature(feature, featureVector);
             }
-
         }
     }
 
@@ -286,13 +287,6 @@ class DenseFilter implements Filter {
         this.featureName = featureName;
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @return
-     */
     @Override
     public String getFeatureName() {
         return this.featureName;
