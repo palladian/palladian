@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.BidiMap;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.AbstractPipelineProcessor;
 import ws.palladian.processing.DocumentUnprocessableException;
@@ -302,10 +304,15 @@ public final class SparseArffWriter extends AbstractPipelineProcessor {
      */
     public void addFeatureVectorToOutput(final FeatureVector vector) {
         Validate.notNull(vector);
+        
+        SortedSet<String> sortedFeatureNames = CollectionHelper.newTreeSet();
+        for (Feature<?> feature : vector) {
+            sortedFeatureNames.add(feature.getName());
+        }
 
         List<Pair<Integer, String>> newInstance = new LinkedList<Pair<Integer, String>>();
-        for (Feature<?> feature : vector) {
-            handleFeature(feature, newInstance);
+        for (String featureName : sortedFeatureNames) {
+            handleFeature(vector.get(featureName), newInstance);
         }
         instances.add(newInstance);
     }

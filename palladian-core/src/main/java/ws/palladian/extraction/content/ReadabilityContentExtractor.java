@@ -262,24 +262,26 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        // postprocessing, replace <p style="display:inline"> with normal Text nodes again -- Philipp.
-        NodeList pElements = result.getElementsByTagName("p");
-        for (int i = pElements.getLength() - 1; i >= 0; i--) {
-            Element element = (Element) pElements.item(i);
-            if (element.getAttribute("style").equals("display:inline")) {
-                Text textNode = result.createTextNode(element.getTextContent());
-                element.getParentNode().replaceChild(textNode, element);
+        if (result != null) {
+            // postprocessing, replace <p style="display:inline"> with normal Text nodes again -- Philipp.
+            NodeList pElements = result.getElementsByTagName("p");
+            for (int i = pElements.getLength() - 1; i >= 0; i--) {
+                Element element = (Element)pElements.item(i);
+                if (element.getAttribute("style").equals("display:inline")) {
+                    Text textNode = result.createTextNode(element.getTextContent());
+                    element.getParentNode().replaceChild(textNode, element);
+                }
+            }
+
+            // strip out class+readability attributes, as we dont need them
+            NodeList elements = result.getElementsByTagName("*");
+            for (int i = 0; i < elements.getLength(); i++) {
+                Element element = (Element)elements.item(i);
+                element.removeAttribute("class");
+                element.removeAttribute(READABILITY_ATTR);
             }
         }
 
-        // strip out class+readability attributes, as we dont need them
-        NodeList elements = result.getElementsByTagName("*");
-        for (int i = 0; i < elements.getLength(); i++) {
-            Element element = (Element) elements.item(i);
-            element.removeAttribute("class");
-            element.removeAttribute(READABILITY_ATTR);
-        }
-        
         return result;
     }
 
