@@ -1,6 +1,8 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +17,7 @@ import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
@@ -37,6 +40,9 @@ class LocationFeatureExtractor {
 
 //    /** The logger for this class. */
 //    private static final Logger LOGGER = LoggerFactory.getLogger(LocationFeatureExtractor.class);
+    
+    /** The size of the disambiguation context. See {@link DisambiguationContext}. */
+    private static final int CONTEXT_SIZE = 1000;
 
     public static boolean debug = false;
 
@@ -51,7 +57,7 @@ class LocationFeatureExtractor {
     public Set<LocationInstance> makeInstances(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
         Set<LocationInstance> instances = CollectionHelper.newHashSet();
-        Collection<Location> allLocations = locations.allValues();
+        // Collection<Location> allLocations = locations.allValues();
         // CountMap<String> counts = getCounts(locations.keySet());
         // int annotationCount = locations.keySet().size();
         Set<Location> uniqLocations = getUniqueLocations(locations);
@@ -60,8 +66,11 @@ class LocationFeatureExtractor {
         // Set<Location> continents = CollectionHelper.filterSet(allLocations, new LocationTypeFilter(CONTINENT));
         // Set<Location> countries = CollectionHelper.filterSet(allLocations, new LocationTypeFilter(COUNTRY));
         // Set<Location> units = CollectionHelper.filterSet(allLocations, new LocationTypeFilter(UNIT));
+        DisambiguationContext context = new DisambiguationContext(locations);
 
         for (ClassifiedAnnotation annotation : locations.keySet()) {
+            
+            Collection<Location> allLocations = context.getLocations(annotation, CONTEXT_SIZE);
 
             String value = annotation.getValue();
             String normalizedValue = LocationExtractorUtils.normalizeName(value);
@@ -613,6 +622,60 @@ class LocationFeatureExtractor {
             builder.append(featureVector);
             builder.append("]");
             return builder.toString();
+        }
+
+    }
+
+    /**
+     * <p>
+     * The disambiguation context is a window around the current candidate. This way, the number of computations
+     * (distance calculation, etc.) can be reduced, because we simply ignore everything outside the window. For small
+     * documents, the context has little/no impact, but for very large documents, the processing time is greatly reduced
+     * (or so to say, an extraction becomes feasible).
+     * </p>
+     * 
+     * @author pk
+     */
+    private static final class DisambiguationContext {
+
+        private final List<ClassifiedAnnotation> sortedAnnotations;
+
+        private final MultiMap<ClassifiedAnnotation, Location> locations;
+
+        DisambiguationContext(MultiMap<ClassifiedAnnotation, Location> locations) {
+            this.locations = locations;
+            this.sortedAnnotations = new ArrayList<ClassifiedAnnotation>(locations.keySet());
+            Collections.sort(this.sortedAnnotations);
+        }
+
+        /**
+         * <p>
+         * Get the context around the specified {@link Annotation}.
+         * </p>
+         * 
+         * @param annotation The annotation.
+         * @param contextSize The context size/lookaround.
+         * @return The context within the specified scope.
+         */
+        public MultiMap<ClassifiedAnnotation, Location> getCandidates(Annotation annotation, int contextSize) {
+            MultiMap<ClassifiedAnnotation, Location> context = DefaultMultiMap.createWithSet();
+            int contextStart = annotation.getStartPosition() - contextSize;
+            int contextEnd = annotation.getEndPosition() + contextSize;
+            for (ClassifiedAnnotation current : sortedAnnotations) {
+                if (current.getStartPosition() >= contextStart && current.getEndPosition() <= contextEnd) {
+                    context.put(current, locations.get(current));
+                }
+            }
+            return context;
+        }
+        
+        public Collection<Location> getLocations(ClassifiedAnnotation annotation, int contextSize) {
+//            Collection<Location> result = CollectionHelper.newHashSet();
+//            for (Collection<Location> locations : getCandidates(annotation, contextSize).values()) {
+//                result.addAll(locations);
+//            }
+//            return result;
+            return getCandidates(annotation, contextSize).allValues();
         }
 
     }
