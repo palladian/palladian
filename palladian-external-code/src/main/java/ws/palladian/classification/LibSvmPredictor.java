@@ -45,8 +45,6 @@ import ws.palladian.processing.features.utils.FeatureUtils;
 public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<LibSvmModel> {
     private final static Logger LOGGER = LoggerFactory.getLogger(LibSvmPredictor.class);
 
-    // private final List<String> normalFeaturePaths;
-    // private final List<String> sparseFeaturePaths;
     private final LibSvmKernel kernel;
 
     private Map<NominalFeature, List<String>> possibleNominalValues;
@@ -78,8 +76,6 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
      *            // * case.
      */
     public LibSvmPredictor(LibSvmKernel kernel) {
-        // this.normalFeaturePaths = new ArrayList<String>(normalFeaturePaths);
-        // this.sparseFeaturePaths = new ArrayList<String>(sparseFeaturePaths);
         this.kernel = kernel;
     }
 
@@ -270,14 +266,12 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
     private svm_node[] transformPalladianFeatureVectorToLibsvmFeatureVector(FeatureVector vector,
             Map<String, Integer> indices, boolean trainingMode, Map<String, Normalization> normalizations) {
         Map<String, Feature<?>> features = new HashMap<String, Feature<?>>();
-//        Map<String, Feature<?>> sparseFeatures = new HashMap<String, Feature<?>>();
 
         for (Feature<?> feature : vector.getFeatureVector()) {
             if (feature instanceof ListFeature) {
                 ListFeature<?> listFeature = (ListFeature<?>)feature;
-                for(Feature<?> value:listFeature.getValue()) {
+                for (Feature<?> value : listFeature.getValue()) {
                     String featureIdentifier = listFeature.getName() + ":" + value.getName();
-//                    sparseFeatures.put(featureIdentifier.toString(), value);
                     features.put(featureIdentifier.toString(), value);
 
                     if (trainingMode) {
@@ -294,49 +288,9 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
             }
         }
 
-//        for (String featurePath : normalFeaturePaths) {
-//            List<Feature<?>> normalFeatures = FeatureUtils.getFeaturesAtPath(vector, featurePath);
-//            if (normalFeatures.size() != 1) {
-//                throw new IllegalStateException("Found " + normalFeatures.size() + " values for feature " + featurePath
-//                        + " but expected 1.");
-//            }
-//            features.put(normalFeatures.get(0).getName(), normalFeatures.get(0));
-//            if (trainingMode && !indices.containsKey(normalFeatures.get(0).getName())) {
-//                indices.put(normalFeatures.get(0).getName(), currentIndex++);
-//            }
-//        }
-//
-//        for (String featurePath : sparseFeaturePaths) {
-//            List<Feature<?>> feature = FeatureUtils.getFeaturesAtPath(vector, featurePath);
-//            for (Feature<?> sparseFeature : feature) {
-//                String featureIdentifier = null;
-//                // This is probably hard to understand. Not every sparse feature must have the type sparse feature (at
-//                // least not at the moment).
-//                if (sparseFeature instanceof SparseFeature) {
-//                    SparseFeature castedSparseFeature = (SparseFeature)sparseFeature;
-//                    featureIdentifier = castedSparseFeature.getName() + ":" + castedSparseFeature.getIdentifier();
-//                } else {
-//                    featureIdentifier = sparseFeature.getName() + ":" + sparseFeature.getValue();
-//                }
-//                sparseFeatures.put(featureIdentifier.toString(), sparseFeature);
-//
-//                if (trainingMode) {
-//                    if (!indices.containsKey(featureIdentifier)) {
-//                        indices.put(featureIdentifier, currentIndex++);
-//                    }
-//                }
-//            }
-//        }
         List<svm_node> libSvmFeatureVector = new ArrayList<svm_node>();
-//        for (Entry<String, Feature<?>> entry : features.entrySet()) {
-//            svm_node node = new svm_node();
-//            node.index = indices.get(entry.getKey());
-//            node.value = featureToDouble(entry.getValue(), trainables, normalizations);
-//            libSvmFeatureVector.add(node);
-//        }
 
-//        for (Entry<String, Feature<?>> entry : sparseFeatures.entrySet()) {
-        for(Entry<String, Feature<?>> entry : features.entrySet()) {
+        for (Entry<String, Feature<?>> entry : features.entrySet()) {
             Integer featureIndex = indices.get(entry.getKey());
             if (featureIndex == null) {
                 LOGGER.debug("Ignoring sparse feature \"" + entry.getKey() + "\" since it was not in the training set.");
@@ -344,9 +298,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
             }
             svm_node node = new svm_node();
             node.index = featureIndex;
-             node.value = featureToDouble(entry.getValue(), trainables, normalizations);
-//            node.value = (entry.getValue() instanceof SparseFeature) ? ((SparseFeature<Number>)entry.getValue())
-//                    .getValue().getValue().doubleValue() : 1.0;
+            node.value = featureToDouble(entry.getValue(), trainables, normalizations);
             libSvmFeatureVector.add(node);
         }
         return libSvmFeatureVector.toArray(new svm_node[libSvmFeatureVector.size()]);
