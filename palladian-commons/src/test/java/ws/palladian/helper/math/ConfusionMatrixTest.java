@@ -1,7 +1,7 @@
 package ws.palladian.helper.math;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.closeTo;
 
 import org.junit.Test;
 
@@ -113,6 +113,30 @@ public class ConfusionMatrixTest {
         assertTrue(Double.isNaN(confusionMatrix.getF(1.0, "false")));
 
         // System.out.println(confusionMatrix);
+    }
+    
+    @Test
+    public void testWeightedFMeasure() throws Exception {
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("false", "true");
+        confusionMatrix.add("true", "false");
+        confusionMatrix.add("true", "false");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "false");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        
+        assertThat(confusionMatrix.getF(0.5,"true"),closeTo(0.895522388,DELTA));
+        assertThat(confusionMatrix.getF(2.0, "true"),closeTo(0.821917808,DELTA));
     }
 
 }

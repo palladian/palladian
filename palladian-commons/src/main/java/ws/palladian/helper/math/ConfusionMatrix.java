@@ -240,7 +240,9 @@ public class ConfusionMatrix {
         if (Double.isNaN(precision)||Double.isNaN(recall)){
             return Double.NaN;
         }
-        return (1. + alpha) * ((precision * recall) / (alpha * precision + recall));
+        double alphaSquare = alpha * alpha;
+        
+        return (1. + alphaSquare) * ((precision * recall) / (alphaSquare * precision + recall));
     }
 
     /**
