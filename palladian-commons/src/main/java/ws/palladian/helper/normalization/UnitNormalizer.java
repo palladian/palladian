@@ -175,6 +175,8 @@ public class UnitNormalizer {
         VOLUME_UNITS.add("gallon");
         VOLUME_UNITS.add("gallons");
         VOLUME_UNITS.add("pint");
+        VOLUME_UNITS.add("pt");
+        VOLUME_UNITS.add("pts");
         VOLUME_UNITS.add("pints");
         VOLUME_UNITS.add("cups");
         VOLUME_UNITS.add("cup");
@@ -520,7 +522,7 @@ public class UnitNormalizer {
             multiplier = 3785.41;
         } else if (unit.equals("quart") || unit.equals("quarts") || unit.equals("qt") || unit.equals("qts")) {
             multiplier = 946.353;
-        } else if (unit.equals("pint") || unit.equals("pints")) {
+        } else if (unit.equals("pint") || unit.equals("pints") || unit.equals("pt") || unit.equals("pts")) {
             multiplier = 473.176;
         } else if (unit.equals("cups") || unit.equals("cup") || unit.equals("c") || unit.equals("cp")) {
             multiplier = 236.588;
