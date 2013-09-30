@@ -1,9 +1,13 @@
 package ws.palladian.helper;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
+import javax.mail.Address;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
@@ -18,6 +22,8 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -69,20 +75,26 @@ public class Mailer {
 
     /**
      * <p>
-     * Send a new mail to multiple recipients.
+     * Send a new (html) mail to multiple recipients.
      * </p>
      * 
-     * @param sender The sender, not <code>null</code> or empty.
+     * @param senderAddress The address of the sender, not <code>null</code> or empty.
+     * @param senderName The name of the sender, not <code>null</code> or empty.
      * @param recipients The list of recipients, not <code>null</code> or empty.
      * @param subject The subject of the mail, not <code>null</code>.
-     * @param text The text content of the mail, not <code>null</code>.
+     * @param content The (html) content of the mail, not <code>null</code>.
+     * @param isHtml If true, the content will be sent as html.
+     * @param replyToAddresses Addresses to reply to.
      * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
      */
-    public boolean sendMail(String sender, List<String> recipients, String subject, String text) {
-        Validate.notEmpty(sender, "sender must not be empty");
+    public boolean sendMail(String senderAddress, String senderName, Map<RecipientType, List<String>> recipients,
+            String subject,
+            String content, boolean isHtml, Address... replyToAddresses) {
+        Validate.notEmpty(senderAddress, "sender must not be empty");
+        Validate.notEmpty(senderName, "sender must not be empty");
         Validate.notEmpty(recipients, "recipients must not be empty");
         Validate.notNull(subject, "subject must not be null");
-        Validate.notNull(text, "text must not be null");
+        Validate.notNull(content, "content must not be null");
 
         boolean success = false;
 
@@ -91,12 +103,21 @@ public class Mailer {
 
         try {
 
-            simpleMessage.setFrom(new InternetAddress(sender));
-            for (String recipient : recipients) {
-                simpleMessage.addRecipient(RecipientType.TO, new InternetAddress(recipient));
+            simpleMessage.setFrom(new InternetAddress(senderAddress, senderName));
+            for (Entry<RecipientType, List<String>> recipient : recipients.entrySet()) {
+                for (String address : recipient.getValue()) {
+                    simpleMessage.addRecipient(recipient.getKey(), new InternetAddress(address));
+                }
             }
             simpleMessage.setSubject(subject);
-            simpleMessage.setText(text);
+            if (replyToAddresses.length > 0) {
+                simpleMessage.setReplyTo(replyToAddresses);
+            }
+            if (isHtml) {
+                simpleMessage.setContent(content, "text/html");
+            } else {
+                simpleMessage.setText(content);
+            }
 
             Transport.send(simpleMessage);
 
@@ -107,10 +128,28 @@ public class Mailer {
             LOGGER.error("Exception while sending: {}", e);
         } catch (MessagingException e) {
             LOGGER.error("Exception while sending: {}", e);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("Exception while sending: {}", e);
         }
 
         return success;
+    }
 
+    /**
+     * <p>
+     * Send a new plain text mail to multiple recipients.
+     * </p>
+     * 
+     * @param sender The sender, not <code>null</code> or empty.
+     * @param recipients The list of recipients, not <code>null</code> or empty.
+     * @param subject The subject of the mail, not <code>null</code>.
+     * @param text The text content of the mail, not <code>null</code>.
+     * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
+     */
+    public boolean sendMail(String sender, List<String> recipients, String subject, String text) {
+        Map<RecipientType, List<String>> recipientMap = CollectionHelper.newHashMap();
+        recipientMap.put(RecipientType.TO, recipients);
+        return sendMail(sender, sender, recipientMap, subject, text, false);
     }
 
     /**
