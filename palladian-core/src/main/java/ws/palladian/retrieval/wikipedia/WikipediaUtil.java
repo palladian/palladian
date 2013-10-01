@@ -278,6 +278,37 @@ public final class WikipediaUtil {
         }
         return pages;
     }
+    
+    /**
+     * <p>
+     * Retrieve a random article from the main namespace (ID 0).
+     * </p>
+     * 
+     * @param baseUrl The base UR of the Mediawiki API, not <code>null</code>.
+     * @return A {@link WikipediaPageReference} for a random article.
+     */
+    public static final WikipediaPageReference retrieveRandomArticle(String baseUrl) {
+        Validate.notNull(baseUrl, "baseUrl must not be null");
+        
+        String url = String.format("%s/api.php?action=query&list=random&rnnamespace=0&format=json", baseUrl);
+        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
+        HttpResult httpResult;
+        try {
+            httpResult = retriever.httpGet(url);
+        } catch (HttpException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            JsonObject jsonResult = new JsonObject(httpResult.getStringContent());
+            int pageId = jsonResult.queryInt("/query/random[0]/id");
+            int namespaceId = jsonResult.queryInt("/query/random[0]/ns");
+            String title = jsonResult.queryString("/query/random[0]/title");
+            return new WikipediaPageReference(pageId, namespaceId, title);
+        } catch (JsonException e) {
+            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
+                    + httpResult.getStringContent() + "'", e);
+        }
+    }
 
     /**
      * <p>
@@ -607,6 +638,10 @@ public final class WikipediaUtil {
     }
 
     public static void main(String[] args) {
+        WikipediaPageReference random = retrieveRandomArticle("http://en.wikipedia.org/w");
+        System.out.println(random);
+        System.exit(0);
+        
         // System.out.println(getDoubleBracketBalance("{{xx{{{{"));
         // System.exit(0);
         // String wikipediaPage = FileHelper.readFileToString("/Users/pk/Desktop/newYork.wikipedia");
