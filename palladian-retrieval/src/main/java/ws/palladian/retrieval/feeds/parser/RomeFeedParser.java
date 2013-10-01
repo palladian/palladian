@@ -369,14 +369,14 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
         List<SyndPerson> syndPersons = syndEntry.getAuthors();
         if (syndPersons != null) {
             for (SyndPerson syndPerson : syndPersons) {
-                authors.add(syndPerson.getName());
+                authors.add(syndPerson.getName().trim());
             }
         }
 
         // try to get author as single item
         String author = syndEntry.getAuthor();
         if (authors.isEmpty() && author != null && !author.isEmpty()) {
-            authors.add(author);
+            authors.add(author.trim());
         }
 
         // if the entry provides no author data, try to get it from the feed
@@ -386,14 +386,14 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
             List<SyndPerson> syndFeedPersons = syndFeed.getAuthors();
             if (syndFeedPersons != null) {
                 for (SyndPerson syndPerson : syndFeedPersons) {
-                    authors.add(syndPerson.getName());
+                    authors.add(syndPerson.getName().trim());
                 }
             }
         }
 
         String feedAuthor = syndFeed.getAuthor();
         if (authors.isEmpty() && feedAuthor != null && !feedAuthor.isEmpty()) {
-            authors.add(syndFeed.getAuthor());
+            authors.add(syndFeed.getAuthor().trim());
         }
 
         String result = null;

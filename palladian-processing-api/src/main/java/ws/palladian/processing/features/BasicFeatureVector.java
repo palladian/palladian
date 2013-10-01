@@ -60,6 +60,18 @@ public class BasicFeatureVector implements FeatureVector {
         addAll(featureVector);
     }
 
+    /**
+     * <p>
+     * Creates a new {@link BasicFeatureVector} from the {@link Iterable} of {@link Feature}s.
+     * </p>
+     * 
+     * @param features The features to add.
+     */
+    public BasicFeatureVector(Iterable<? extends Feature<?>> features) {
+        this();
+        addAll(features);
+    }
+
     @Override
     public void add(Feature<?> feature) {
         if (features.get(feature.getName()) != null && !showedWarning) {

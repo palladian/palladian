@@ -14,7 +14,7 @@ import org.apache.commons.lang3.Validate;
  * @version 1.0
  * @since 0.2.2
  */
-abstract class AbstractFeature<T> implements Feature<T> {
+public abstract class AbstractFeature<T> implements Feature<T> {
 
     /**
      * <p>

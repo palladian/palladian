@@ -11,6 +11,7 @@ import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -41,9 +42,9 @@ public abstract class BaseTokenizer extends TextDocumentPipelineProcessor implem
      * @throws IllegalStateException In case the document does not provide any token annotations.
      */
     @SuppressWarnings("unchecked")
-    public static ListFeature<PositionAnnotation> getTokenAnnotations(TextDocument document) {
-        Validate.notNull(document, "document must not be null");
-        return document.get(ListFeature.class, PROVIDED_FEATURE);
+    public static ListFeature<PositionAnnotation> getTokenAnnotations(FeatureVector featureVector) {
+        Validate.notNull(featureVector, "document must not be null");
+        return featureVector.get(ListFeature.class, PROVIDED_FEATURE);
     }
 
     /**
@@ -55,10 +56,10 @@ public abstract class BaseTokenizer extends TextDocumentPipelineProcessor implem
      * @return List of token values.
      * @throws IllegalStateException In case the document does not provide any token annotations.
      */
-    public static List<String> getTokens(TextDocument document) {
-        Validate.notNull(document, "document must not be null");
+    public static List<String> getTokens(FeatureVector featureVector) {
+        Validate.notNull(featureVector, "document must not be null");
         List<String> tokens = new ArrayList<String>();
-        List<PositionAnnotation> annotations = getTokenAnnotations(document);
+        List<PositionAnnotation> annotations = getTokenAnnotations(featureVector);
         for (PositionAnnotation annotation : annotations) {
             tokens.add(annotation.getValue());
         }

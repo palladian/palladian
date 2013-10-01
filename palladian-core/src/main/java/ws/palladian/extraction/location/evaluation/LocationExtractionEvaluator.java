@@ -36,8 +36,9 @@ import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.disambiguation.CombinedDisambiguation;
+import ws.palladian.extraction.location.YahooLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -55,6 +56,7 @@ import ws.palladian.processing.features.Annotation;
  * 
  * @author Philipp Katz
  */
+@SuppressWarnings(value="unused")
 public final class LocationExtractionEvaluator {
 
     private final List<File> datasetPaths = CollectionHelper.newArrayList();
@@ -85,12 +87,12 @@ public final class LocationExtractionEvaluator {
         extractors.addAll(e);
     }
 
-    public void runAll() {
+    public void runAll(boolean detailedReport) {
         int numIterations = datasetPaths.size() * extractors.size();
         ProgressMonitor monitor = new ProgressMonitor(numIterations, 0, "LocationExtractionEvaluation");
         for (File datasetPath : datasetPaths) {
             for (LocationExtractor extractor : extractors) {
-                run(extractor, datasetPath);
+                run(extractor, datasetPath, detailedReport);
                 monitor.incrementAndPrintProgress();
             }
         }
@@ -117,8 +119,10 @@ public final class LocationExtractionEvaluator {
      * 
      * @param extractor The extractor, not <code>null</code>.
      * @param datasetDirectory The directory with the dataset, not <code>null</code>.
+     * @param detailedReport <code>true</code> to write detailed evaluation results (*_allErrors.csv, *_distances.csv),
+     *            <code>false</code> to only write the _locations_summary.csv.
      */
-    public static void run(LocationExtractor extractor, File datasetDirectory) {
+    public static void run(LocationExtractor extractor, File datasetDirectory, boolean detailedReport) {
         Validate.notNull(extractor, "extractor must not be null");
         Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
 
@@ -259,9 +263,34 @@ public final class LocationExtractionEvaluator {
             }
             detailedOutput.append("\n\n");
         }
+        
+        detailedOutput.append("Per-type stats:\n\n");
+        
+        // per-tag-level stats
+        for (LocationType type : LocationType.values()) {
+            // XXX does it make sense to score type-specified using MUC? At least, there is a bug in the
+            // EvaluationResult class, causing type specific MUC precision above one!
+            
+            double typePrExact = micro.getPrecisionFor(type.toString(), EvaluationMode.EXACT_MATCH);
+            double typeRcExact = micro.getRecallFor(type.toString(), EvaluationMode.EXACT_MATCH);
+            double typeF1Exact = micro.getF1For(type.toString(), EvaluationMode.EXACT_MATCH);
+//            double typePrMuc = micro.getPrecisionFor(type.toString(), EvaluationMode.MUC);
+//            double typeRcMuc = micro.getRecallFor(type.toString(), EvaluationMode.MUC);
+//            double typeF1Muc = micro.getF1For(type.toString(), EvaluationMode.MUC);
+            detailedOutput.append("Type:").append(type.toString()).append("\n");
+            detailedOutput.append("Precision Exact:").append(typePrExact).append("\n");
+            detailedOutput.append("Recall Exact:").append(typeRcExact).append("\n");
+            detailedOutput.append("F1 Exact:").append(typeF1Exact).append("\n");
+//            detailedOutput.append("Precision MUC:").append(typePrMuc).append("\n");
+//            detailedOutput.append("Recall MUC:").append(typeRcMuc).append("\n");
+//            detailedOutput.append("F1 MUC:").append(typeF1Muc).append("\n").append("\n");
+        }
 
         long timestamp = System.currentTimeMillis();
-        FileHelper.writeToFile("data/temp/" + timestamp + "_allErrors.csv", detailedOutput);
+        
+        if (detailedReport) {
+            FileHelper.writeToFile("data/temp/" + timestamp + "_allErrors.csv", detailedOutput);
+        }
 
         // write summary to summary.csv
         StringBuilder summaryCsv = new StringBuilder();
@@ -270,7 +299,7 @@ public final class LocationExtractionEvaluator {
         if (!summaryFile.exists()) {
             // write header
             summaryCsv
-                    .append("timestamp;dataset;extractor;prExact;rcExact;f1Exact;prMUC;rcMUC;f1MUC;prRec;rcRec;f1Rec;prGeo;rcGeo;f1Geo\n");
+                    .append("timestamp;dataset;extractor;prExact;rcExact;f1Exact;prMUC;rcMUC;f1MUC;prRec;rcRec;f1Rec;prGeo;rcGeo;f1Geo;time\n");
         }
         summaryCsv.append(timestamp).append(';');
         summaryCsv.append(datasetDirectory.getPath()).append(';');
@@ -287,7 +316,9 @@ public final class LocationExtractionEvaluator {
         // geo evaluation result
         summaryCsv.append(geoResult.getPrecision()).append(';');
         summaryCsv.append(geoResult.getRecall()).append(';');
-        summaryCsv.append(geoResult.getF1()).append(';').append('\n');
+        summaryCsv.append(geoResult.getF1()).append(';');
+        // elapsed time
+        summaryCsv.append(stopWatch.getTotalElapsedTime()).append('\n');
 
         FileHelper.appendFile(summaryFile.getPath(), summaryCsv);
 
@@ -296,10 +327,11 @@ public final class LocationExtractionEvaluator {
         System.out.println(geoResult.getSummary());
 
         // write coordinates results
-        geoResult.writeDetailedReport(new File("data/temp/" + timestamp + "_distances.csv"));
+        if (detailedReport) {
+            geoResult.writeDetailedReport(new File("data/temp/" + timestamp + "_distances.csv"));
+        }
     }
-    
-    @SuppressWarnings("unused")
+
     private static List<LocationExtractor> createForParameterOptimization(LocationDatabase database) {
         List<LocationExtractor> extractors = CollectionHelper.newArrayList();
         for (int anchorDistanceThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000)) {
@@ -375,12 +407,22 @@ public final class LocationExtractionEvaluator {
         return extractors;
     }
 
-    @SuppressWarnings("unused")
     private static List<LocationExtractor> createForThresholdAnalysis(LocationDatabase database, QuickDtModel model) {
         List<LocationExtractor> extractors = CollectionHelper.newArrayList();
         for (int i = 0; i <= 10; i++) {
             double threshold = i / 10.;
-            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, threshold);
+            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, threshold,
+                    FeatureBasedDisambiguation.CONTEXT_SIZE);
+            extractors.add(new PalladianLocationExtractor(database, disambiguation));
+        }
+        return extractors;
+    }
+
+    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
+        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+        for (int i = 0; i <= 5000; i += 100) {
+            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
+                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);
             extractors.add(new PalladianLocationExtractor(database, disambiguation));
         }
         return extractors;
@@ -403,15 +445,16 @@ public final class LocationExtractionEvaluator {
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_tud_train_1375884663191.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_lgl_train_1375884760443.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_clust_train_1375885091622.model");
-        QuickDtModel model = FileHelper.deserialize("data/temp/location_disambiguation_1377440795471.model");
+        QuickDtModel model;
+        // model = FileHelper.deserialize("data/temp/location_disambiguation_1377440795471.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
         // model = FileHelper.deserialize("data/temp/location_disambiguation_1377440979286.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
         // model = FileHelper.deserialize("data/temp/location_disambiguation_1377441648409.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
-        // model = FileHelper.deserialize("data/temp/location_disambiguation_1377442726898.model");
-        // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
-        evaluator.addExtractor(new PalladianLocationExtractor(database, new CombinedDisambiguation(model)));
+        model = FileHelper.deserialize("data/temp/location_disambiguation_all_train_1377442726898.model");
+        evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
+        // evaluator.addExtractor(new PalladianLocationExtractor(database, new CombinedDisambiguation(model)));
 
         // perform threshold analysis ////////////////////////////////
         // List<LocationExtractor> extractors = createForThresholdAnalysis(database, model);
@@ -419,6 +462,10 @@ public final class LocationExtractionEvaluator {
 
         // parameter tuning for heuristic; vary one parameter at once ////////////////////////////
         // List<LocationExtractor> extractors = createForParameterOptimization(database);
+        // evaluator.addExtractors(extractors);
+
+        // analyse impact of disambiguation window size /////////////////////////
+        // List<LocationExtractor> extractors = createForContextAnalysis(database, model);
         // evaluator.addExtractors(extractors);
 
         // comparison with others /////////////////////////////
@@ -430,7 +477,7 @@ public final class LocationExtractionEvaluator {
         // File pathToJsonResults = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/UnlockTextResults");
         // evaluator.addExtractor(new UnlockTextMockExtractor(pathToTexts, pathToJsonResults));
 
-        evaluator.runAll();
+        evaluator.runAll(true);
     }
 
 }
