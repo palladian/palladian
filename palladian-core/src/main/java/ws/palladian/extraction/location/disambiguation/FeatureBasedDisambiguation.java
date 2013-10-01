@@ -34,25 +34,32 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguation.class);
 
     public static final double PROBABILITY_THRESHOLD = 0.15;
+    
+    /** The size of the disambiguation context. See {@link DisambiguationContext}. */
+    public static final int CONTEXT_SIZE = 1000;
 
     private final double probabilityThreshold;
 
     private final QuickDtClassifier classifier = new QuickDtClassifier();
 
-    private final LocationFeatureExtractor featureExtractor = new LocationFeatureExtractor();
+    private final LocationFeatureExtractor featureExtractor;
 
     private final QuickDtModel model;
 
+    private final int contextSize;
+
     public FeatureBasedDisambiguation(QuickDtModel model) {
-        this(model, PROBABILITY_THRESHOLD);
+        this(model, PROBABILITY_THRESHOLD, CONTEXT_SIZE);
     }
 
-    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold) {
+    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold, int contextSize) {
         Validate.notNull(model, "model must not be null");
         Validate.inclusiveBetween(0., 1., probabilityThreshold,
                 "probabilityThreshold must be between inclusive 0 and 1.");
         this.model = model;
         this.probabilityThreshold = probabilityThreshold;
+        this.contextSize = contextSize;
+        this.featureExtractor = new LocationFeatureExtractor(contextSize);
     }
 
     @Override
@@ -97,6 +104,8 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         StringBuilder builder = new StringBuilder();
         builder.append("FeatureBasedDisambiguation [probabilityThreshold=");
         builder.append(probabilityThreshold);
+        builder.append(", contextSize=");
+        builder.append(contextSize);
         builder.append("]");
         return builder.toString();
     }

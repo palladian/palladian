@@ -64,7 +64,7 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
      */
     public NGramCreator(int minLength, int maxLength, String... considerableFeatureDescriptors) {
         Validate.notNull(considerableFeatureDescriptors, "considerableFeatureDescriptors must not be null");
-        Validate.inclusiveBetween(1, Integer.MAX_VALUE, minLength);
+        Validate.inclusiveBetween(2, Integer.MAX_VALUE, minLength);
         Validate.inclusiveBetween(minLength, Integer.MAX_VALUE, maxLength);
 
         this.minLength = minLength;

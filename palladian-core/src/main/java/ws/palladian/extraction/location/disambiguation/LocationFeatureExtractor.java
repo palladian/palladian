@@ -40,13 +40,32 @@ class LocationFeatureExtractor {
 
 //    /** The logger for this class. */
 //    private static final Logger LOGGER = LoggerFactory.getLogger(LocationFeatureExtractor.class);
-    
-    /** The size of the disambiguation context. See {@link DisambiguationContext}. */
-    private static final int CONTEXT_SIZE = 1000;
 
     public static boolean debug = false;
 
     private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
+    
+    private final int contextSize;
+    
+    /**
+     * <p>
+     * Create a new {@link LocationFeatureExtractor} without a context limit.
+     * </p>
+     */
+    public LocationFeatureExtractor() {
+        this(-1);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link LocationFeatureExtractor} with the specified context size.
+     * </p>
+     * 
+     * @param contextSize The context size, -1 means no limit.
+     */
+    public LocationFeatureExtractor(int contextSize) {
+        this.contextSize = contextSize;
+    }
 
 //    private final Set<String> locationMarkers = new HashSet<String>(
 //            FileHelper.readFileToArray(FeatureBasedDisambiguation.class.getResourceAsStream("/locationMarkers.txt")));
@@ -70,7 +89,7 @@ class LocationFeatureExtractor {
 
         for (ClassifiedAnnotation annotation : locations.keySet()) {
             
-            Collection<Location> allLocations = context.getLocations(annotation, CONTEXT_SIZE);
+            Collection<Location> allLocations = context.getLocations(annotation, contextSize);
 
             String value = annotation.getValue();
             String normalizedValue = LocationExtractorUtils.normalizeName(value);
@@ -658,6 +677,9 @@ class LocationFeatureExtractor {
          * @return The context within the specified scope.
          */
         public MultiMap<ClassifiedAnnotation, Location> getCandidates(Annotation annotation, int contextSize) {
+            if (contextSize == -1) {
+                return locations;
+            }
             MultiMap<ClassifiedAnnotation, Location> context = DefaultMultiMap.createWithSet();
             int contextStart = annotation.getStartPosition() - contextSize;
             int contextEnd = annotation.getEndPosition() + contextSize;
@@ -668,7 +690,7 @@ class LocationFeatureExtractor {
             }
             return context;
         }
-        
+
         public Collection<Location> getLocations(ClassifiedAnnotation annotation, int contextSize) {
 //            Collection<Location> result = CollectionHelper.newHashSet();
 //            for (Collection<Location> locations : getCandidates(annotation, contextSize).values()) {

@@ -295,10 +295,11 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             }
             lassoLocations.remove(farthestLocation);
             if (LOGGER.isDebugEnabled()) {
-                Object[] logArgs = new Object[] {farthestLocation, maxDistance, lassoLocations.size()};
-                LOGGER.debug("Removed {}, distance to center: {}, {} items left", logArgs);
+                Object[] logArgs = new Object[] {farthestLocation, midpoint, maxDistance, lassoLocations.size()};
+                LOGGER.debug("Removed {}, distance to center {}: {}, {} items left", logArgs);
             }
         }
+
         if (lassoLocations.size() < 2 || LocationExtractorUtils.sameNames(lassoLocations)) {
             LOGGER.debug("Could not identify lasso locations");
             return Collections.emptySet();
