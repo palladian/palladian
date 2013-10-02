@@ -12,7 +12,6 @@ import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -401,7 +400,8 @@ class LocationFeatureExtractor {
 //    }
 
     private static boolean isUnique(Collection<Location> locations) {
-        Set<Location> group = LocationExtractorUtils.filterConditionally(locations, new CoordinateFilter());
+        Set<Location> group = LocationExtractorUtils.filterConditionally(locations,
+                LocationExtractorUtils.COORDINATE_FILTER);
         return LocationExtractorUtils.getLargestDistance(group) < 50;
     }
 

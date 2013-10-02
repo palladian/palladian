@@ -22,7 +22,6 @@ import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.CoordinateFilter;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationTypeFilter;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -242,7 +241,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
             // in case we have locations with same name, but once with and without coordinates in the DB, we drop those
             // without coordinates
-            group = LocationExtractorUtils.filterConditionally(group, new CoordinateFilter());
+            group = LocationExtractorUtils.filterConditionally(group, LocationExtractorUtils.COORDINATE_FILTER);
 
             if (LocationExtractorUtils.getLargestDistance(group) < sameDistanceThreshold) {
                 Location location = LocationExtractorUtils.getBiggest(group);
