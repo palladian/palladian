@@ -73,7 +73,7 @@ public final class LocationExtractorUtils {
      * @return The {@link Location} with the highest population, or <code>null</code> in case the collection was empty,
      *         or none of the locations has a population specified.
      */
-    public static Location getBiggest(Collection<Location> locations) {
+    public static Location getBiggest(Collection<? extends Location> locations) {
         Validate.notNull(locations, "locations must not be null");
         Location biggest = null;
         for (Location location : locations) {
