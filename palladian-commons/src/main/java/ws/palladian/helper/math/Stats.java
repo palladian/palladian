@@ -112,6 +112,24 @@ public class Stats {
         return sum;
     }
 
+    /**
+     * @return Assuming that the given values were errors, return the mean squared error.
+     */
+    public double getMse() {
+        double mse = 0;
+        for (Number value : values) {
+            mse += Math.pow(value.doubleValue(), 2);
+        }
+        return mse / values.size();
+    }
+
+    /**
+     * @return Assuming that the given values were errors, return the root mean squared error.
+     */
+    public double getRmse() {
+        return Math.sqrt(getMse());
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -129,6 +147,10 @@ public class Stats {
         builder.append(getMax());
         builder.append(", sum=");
         builder.append(getSum());
+        builder.append(", MSE=");
+        builder.append(getMse());
+        builder.append(", RMSE=");
+        builder.append(getRmse());
         builder.append("]");
         return builder.toString();
     }

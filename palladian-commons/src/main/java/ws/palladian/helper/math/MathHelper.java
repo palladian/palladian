@@ -438,6 +438,10 @@ public final class MathHelper {
         return computeRootMeanSquareError(values);
     }
 
+    /**
+     * @deprecated Use the {@link Stats} instead.
+     */
+    @Deprecated
     public static double computeRootMeanSquareError(List<double[]> values) {
         double sum = 0.0;
         for (double[] d : values) {
