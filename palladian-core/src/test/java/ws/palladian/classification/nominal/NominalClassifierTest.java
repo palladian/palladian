@@ -1,6 +1,7 @@
 package ws.palladian.classification.nominal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -31,6 +32,9 @@ public class NominalClassifierTest {
         trainInstances.add(new InstanceBuilder().set("f", "f2").create("B"));
 
         NominalClassifierModel model = nominalClassifier.train(trainInstances);
+        assertEquals(2, model.getCategories().size());
+        assertTrue(model.getCategories().contains("A"));
+        assertTrue(model.getCategories().contains("B"));
 
         CategoryEntries result = nominalClassifier.classify(new InstanceBuilder().set("f", "f2").create(), model);
 

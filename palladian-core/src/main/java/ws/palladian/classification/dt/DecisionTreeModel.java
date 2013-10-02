@@ -10,7 +10,7 @@ import ws.palladian.classification.Model;
 public class DecisionTreeModel implements Model {
 
     private static final long serialVersionUID = 2L;
-    
+
     private final Tree tree;
 
     private final Set<String> classes;
@@ -34,6 +34,11 @@ public class DecisionTreeModel implements Model {
         PrintStream printStream = new PrintStream(out);
         tree.node.dump(printStream);
         return out.toString();
+    }
+
+    @Override
+    public Set<String> getCategories() {
+        throw new UnsupportedOperationException("Not supported, migrate to QuickDtClassifier.");
     }
 
 }

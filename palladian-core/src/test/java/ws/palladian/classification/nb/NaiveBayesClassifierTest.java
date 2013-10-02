@@ -51,6 +51,10 @@ public class NaiveBayesClassifierTest {
 
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier(1);
         NaiveBayesModel model = bayesClassifier.train(instances);
+        assertEquals(2, model.getCategories().size());
+        assertTrue(model.getCategories().contains("yes"));
+        assertTrue(model.getCategories().contains("no"));
+        
         FeatureVector featureVector = new InstanceBuilder().set("outlook", "sunny").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
         assertEquals(0.262, categoryEntries.getProbability("yes"), 0.001);
@@ -113,8 +117,8 @@ public class NaiveBayesClassifierTest {
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
         NaiveBayesModel bayesModel = bayesClassifier.train(train);
         
-        ConfusionMatrix evaluationResult = ClassifierEvaluation.evaluate(bayesClassifier, bayesModel, test);
-        System.out.println(evaluationResult);
+        ConfusionMatrix evaluationResult = ClassifierEvaluation.evaluate(bayesClassifier, test, bayesModel);
+        // System.out.println(evaluationResult);
         return evaluationResult.getAccuracy();
     }
 

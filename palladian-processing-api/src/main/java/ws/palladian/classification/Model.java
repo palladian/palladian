@@ -1,6 +1,7 @@
 package ws.palladian.classification;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * <p>
@@ -13,5 +14,11 @@ import java.io.Serializable;
  * @author Philipp Katz
  */
 public interface Model extends Serializable {
+
+    /**
+     * @return The categories supported by this Model. These are usually the categories (classes) on which the model was
+     *         trained.
+     */
+    Set<String> getCategories();
 
 }

@@ -36,7 +36,8 @@ public class QuickDtModel implements Model {
         return model;
     }
 
-    public Set<String> getClasses() {
+    @Override
+    public Set<String> getCategories() {
         return classes;
     }
 

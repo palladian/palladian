@@ -1,11 +1,13 @@
 package ws.palladian.classification.universal;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import ws.palladian.classification.Model;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.helper.collection.CollectionHelper;
 
 public class UniversalClassifierModel implements Model {
 
@@ -64,6 +66,15 @@ public class UniversalClassifierModel implements Model {
         this.weights[0] = weights[0];
         this.weights[1] = weights[1];
         this.weights[2] = weights[2];
+    }
+
+    @Override
+    public Set<String> getCategories() {
+        Set<String> result = CollectionHelper.newHashSet();
+        result.addAll(bayesModel.getCategories());
+        result.addAll(knnModel.getCategories());
+        result.addAll(dictionaryModel.getCategories());
+        return result;
     }
 
 }

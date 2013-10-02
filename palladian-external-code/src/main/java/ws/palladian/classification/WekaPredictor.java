@@ -48,6 +48,15 @@ import ws.palladian.processing.features.SparseFeature;
 public final class WekaPredictor implements Learner<WekaModel>, Classifier<WekaModel> {
 
     /**
+     * This is necessary, because there is a bug when using sparse features in Weka ARFF files, therefore we need to add
+     * one dummy attribute first. Says Klemens. See also Weka documentation, section 9.3 'Sparse ARFF files'.
+     */
+    static final String DUMMY_CLASS = "wekadummyclass";
+
+    /** The prediction target, where the classification result goes. */
+    private static final String TARGET_CLASS_ATTRIBUTE = "palladianWekaTargetClass";
+
+    /**
      * <p>
      * Logger for objects of this class. Configure it using <tt>/src/main/resources/log4j.properties</tt>.
      * </p>
@@ -97,11 +106,11 @@ public final class WekaPredictor implements Learner<WekaModel>, Classifier<WekaM
 
         // add attribute for the classification target
         FastVector targetClassVector = new FastVector();
-        targetClassVector.addElement("wekadummyclass");
+        targetClassVector.addElement(DUMMY_CLASS);
         for (String targetClass : classes) {
             targetClassVector.addElement(targetClass);
         }
-        Attribute classAttribute = new Attribute("palladianWekaTargetClass", targetClassVector);
+        Attribute classAttribute = new Attribute(TARGET_CLASS_ATTRIBUTE, targetClassVector);
         data.insertAttributeAt(classAttribute, data.numAttributes());
 
         // Add instances to weka dataset.
@@ -125,7 +134,7 @@ public final class WekaPredictor implements Learner<WekaModel>, Classifier<WekaM
         }
 
         data.compactify();
-        Attribute palladianWekaTargetClass = data.attribute("palladianWekaTargetClass");
+        Attribute palladianWekaTargetClass = data.attribute(TARGET_CLASS_ATTRIBUTE);
         data.setClassIndex(palladianWekaTargetClass.index());
         try {
             classifier.buildClassifier(data);

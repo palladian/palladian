@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.utils.MinMaxNormalization;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
@@ -150,6 +152,16 @@ public final class KnnModel implements Model {
         toStringBuilder.append("]");
         return toStringBuilder.toString();
     }
+
+    @Override
+    public Set<String> getCategories() {
+        Set<String> categories = CollectionHelper.newHashSet();
+        for (TrainingExample example : trainingExamples) {
+            categories.add(example.targetClass);
+        }
+        return categories;
+    }
+    
 }
 
 class TrainingExample implements Serializable {
