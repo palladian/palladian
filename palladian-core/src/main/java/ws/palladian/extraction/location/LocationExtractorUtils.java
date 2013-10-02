@@ -22,6 +22,7 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -34,6 +35,22 @@ public final class LocationExtractorUtils {
 
     /** The pattern for recognizing the role="main" annotation. */
     private static final String MAIN_ROLE_ANNOTATION_PATTERN = "\\<([A-Z]+)(\\s+role=\"main\")?\\>(.{1,1000}?)\\</\\1\\>";
+
+    /** {@link Function} to unwrap a {@link Location} from a {@link LocationAnnotation}. */
+    public static final Function<LocationAnnotation, Location> ANNOTATION_LOCATION_FUNCTION = new Function<LocationAnnotation, Location>() {
+        @Override
+        public Location compute(LocationAnnotation annotation) {
+            return annotation.getLocation();
+        }
+    };
+
+    /** {@link Filter} for removing {@link Location}s without coordinates. */
+    public static final Filter<Location> COORDINATE_FILTER = new Filter<Location>() {
+        @Override
+        public boolean accept(Location location) {
+            return location.getLatitude() != null && location.getLongitude() != null;
+        }
+    };
 
     public static String normalizeName(String value) {
         if (value.matches("([A-Z]\\.)+")) {
@@ -324,14 +341,6 @@ public final class LocationExtractorUtils {
 
     }
 
-    public static class CoordinateFilter implements Filter<Location> {
-        @Override
-        public boolean accept(Location item) {
-            return item.getLatitude() != null && item.getLongitude() != null;
-        }
-
-    }
-
     public static class LocationDocument {
 
         private final String fileName;
@@ -339,7 +348,7 @@ public final class LocationExtractorUtils {
         private final List<LocationAnnotation> annotations;
         private final Location main;
 
-        LocationDocument(String fileName, String text, List<LocationAnnotation> annotations, Location main) {
+        public LocationDocument(String fileName, String text, List<LocationAnnotation> annotations, Location main) {
             this.fileName = fileName;
             this.text = text;
             this.annotations = annotations;
@@ -368,42 +377,13 @@ public final class LocationExtractorUtils {
             builder.append("LocationDocument [fileName=");
             builder.append(fileName);
             builder.append(", annotations=");
-            builder.append(annotations.size());
+            builder.append(annotations != null ? annotations.size() : "null");
             builder.append(", main=");
             builder.append(main);
             builder.append("]");
             return builder.toString();
         }
 
-    }
-
-    /**
-     * <p>
-     * Determine the "scope" within the given coordinates.
-     * </p>
-     * 
-     * @param coordinates The coordinates, not <code>null</code>.
-     * @return The scope, or <code>null</code> in case no scope could be determined.
-     */
-    public static <T extends GeoCoordinate> T getScope(Collection<T> coordinates) {
-        Validate.notNull(coordinates, "coordinates must not be null");
-        if (coordinates.isEmpty()) {
-            return null;
-        }
-        GeoCoordinate midpoint = GeoUtils.getMidpoint(coordinates);
-        double smallestDistance = Double.MAX_VALUE;
-        T selectedCoordinate = null;
-        for (T coordinate : coordinates) {
-            if (coordinate.getLatitude() == null || coordinate.getLongitude() == null) {
-                continue;
-            }
-            double distance = GeoUtils.getDistance(midpoint, coordinate);
-            if (distance < smallestDistance) {
-                smallestDistance = distance;
-                selectedCoordinate = coordinate;
-            }
-        }
-        return selectedCoordinate;
     }
 
     private LocationExtractorUtils() {
