@@ -116,7 +116,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ImmutableGeoCoordinate other = (ImmutableGeoCoordinate)obj;
+        AbstractGeoCoordinate other = (AbstractGeoCoordinate)obj;
         if (getLatitude() == null) {
             if (other.getLatitude() != null)
                 return false;
