@@ -1,6 +1,7 @@
 package ws.palladian.classification.numeric;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -46,6 +47,10 @@ public class KnnClassifierTest {
         KnnClassifier knn = new KnnClassifier();
         KnnModel model = knn.train(trainingInstances);
         FeatureVector featureVector = new InstanceBuilder().set("f1", 1d).set("f2", 2d).set("f3", 3d).create();
+        
+        assertEquals(2, model.getCategories().size());
+        assertTrue(model.getCategories().contains("A"));
+        assertTrue(model.getCategories().contains("B"));
 
         // classify
         CategoryEntries result = knn.classify(featureVector, model);
@@ -65,6 +70,7 @@ public class KnnClassifierTest {
         List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/wineData.txt"), false);
         KnnModel model = knn.train(instances);
+        assertEquals(3, model.getCategories().size());
 
         // create an instance to classify
         // 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 =>

@@ -3,6 +3,7 @@
  */
 package ws.palladian.classification.universal;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
@@ -46,6 +47,10 @@ public class UniversalClassifierTest {
 
         UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
         UniversalClassifierModel model = objectOfClassUnderTest.train(trainingSet);
+
+        assertEquals(2, model.getCategories().size());
+        assertTrue(model.getCategories().contains("0"));
+        assertTrue(model.getCategories().contains("1"));
 
         ConfusionMatrix matrix = ClassifierEvaluation.evaluate(objectOfClassUnderTest, instances, model);
         // Precision: 0.5645161290322581

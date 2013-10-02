@@ -1,5 +1,7 @@
 package ws.palladian.classification.nominal;
 
+import java.util.Set;
+
 import ws.palladian.classification.Model;
 import ws.palladian.helper.collection.CountMatrix;
 
@@ -28,6 +30,11 @@ public final class NominalClassifierModel implements Model {
         builder.append(cooccurrenceMatrix);
         builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public Set<String> getCategories() {
+        return cooccurrenceMatrix.getKeysX();
     }
 
 }

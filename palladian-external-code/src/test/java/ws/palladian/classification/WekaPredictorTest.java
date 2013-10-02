@@ -6,7 +6,9 @@ package ws.palladian.classification;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isOneOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +71,10 @@ public class WekaPredictorTest {
         trainingInstances.add(trainingInstance1);
         trainingInstances.add(trainingInstance2);
         WekaModel model = objectOfClassUnderTest.train(trainingInstances);
+
+        assertEquals(2, model.getCategories().size());
+        assertTrue(model.getCategories().contains("c1"));
+        assertTrue(model.getCategories().contains("c2"));
 
         FeatureVector testVector = new BasicFeatureVector();
         testVector.add(new NumericFeature("a", 1.5));
@@ -143,7 +149,7 @@ public class WekaPredictorTest {
 
         WekaPredictor classifier = new WekaPredictor(new Bagging());
         WekaModel model = classifier.train(trainSet);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, model, validationSet);
+        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, validationSet, model);
         assertThat(evaluation.getF(1.0, "false"), is(greaterThan(0.0)));
         assertThat(evaluation.getAccuracy(), is(greaterThan(0.0)));
     }

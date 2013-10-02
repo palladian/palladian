@@ -5,7 +5,9 @@ package ws.palladian.classification;
 
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,6 +54,9 @@ public class LibSvmPredictorTest {
         LibSvmPredictor predictor = new LibSvmPredictor(new LinearKernel(1.0d));
         LibSvmModel model = predictor.train(instances);
         assertThat(model, Matchers.is(Matchers.notNullValue()));
+        assertEquals(2, model.getCategories().size());
+        assertTrue(model.getCategories().contains("A"));
+        assertTrue(model.getCategories().contains("B"));
 
         FeatureVector classificationVector = new BasicFeatureVector();
         classificationVector.add(new NominalFeature("a", "a"));

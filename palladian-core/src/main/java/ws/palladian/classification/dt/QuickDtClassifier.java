@@ -22,7 +22,7 @@ public class QuickDtClassifier implements Classifier<QuickDtModel> {
         PredictiveModel pm = model.getModel();
         Attributes attributes = HashMapAttributes.create(QuickDtLearner.getInput(classifiable));
         CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
-        for (String targetClass : model.getClasses()) {
+        for (String targetClass : model.getCategories()) {
             categoryEntries.set(targetClass, pm.getProbability(attributes, targetClass));
         }
         categoryEntries.sort();

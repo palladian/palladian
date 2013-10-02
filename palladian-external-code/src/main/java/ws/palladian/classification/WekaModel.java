@@ -3,10 +3,12 @@ package ws.palladian.classification;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Instances;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -25,7 +27,9 @@ public final class WekaModel implements Model {
     private static final long serialVersionUID = 1L;
 
     private final Classifier classifier;
+
     private final Map<String, Attribute> schema;
+
     private final Instances dataset;
 
     public WekaModel(Classifier classifier, Instances data) {
@@ -52,6 +56,20 @@ public final class WekaModel implements Model {
      */
     public Instances getDataset() {
         return dataset;
+    }
+
+    @Override
+    public Set<String> getCategories() {
+        Enumeration<?> values = dataset.classAttribute().enumerateValues();
+        Set<String> categories = CollectionHelper.newHashSet();
+        while (values.hasMoreElements()) {
+            String category = (String) values.nextElement();
+            if (category.equals(WekaPredictor.DUMMY_CLASS)) {
+                continue; // ignore this dummy class, see comment at constant.
+            }
+            categories.add(category);
+        }
+        return categories;
     }
 
 }
