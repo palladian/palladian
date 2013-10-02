@@ -25,7 +25,7 @@ public final class MidpointScopeDetector implements ScopeDetector {
             if (location.getLatitude() == null || location.getLongitude() == null) {
                 continue;
             }
-            double distance = GeoUtils.getDistance(midpoint, location);
+            double distance = midpoint.distance(location);
             if (distance < smallestDistance) {
                 smallestDistance = distance;
                 selectedCoordinate = location;

@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
@@ -80,7 +79,7 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
         List<WebImage> result = CollectionHelper.newArrayList();
 
         Long totalResultCount = null;
-        double[] boundingBox = GeoUtils.getBoundingBox(query.getCoordinate(), query.getRadius());
+        double[] boundingBox = query.getCoordinate().getBoundingBox(query.getRadius());
         
         for (int offset = 0; result.size() < query.getResultCount(); offset += 100) {
             String requestUrl = getRequestUrl(offset, boundingBox);

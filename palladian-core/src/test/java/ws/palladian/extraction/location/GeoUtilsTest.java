@@ -14,7 +14,9 @@ public class GeoUtilsTest {
     public void testDistance() {
         GeoCoordinate c1 = new ImmutableGeoCoordinate(33.662508, -95.547692);
         GeoCoordinate c2 = new ImmutableGeoCoordinate(48.85341, 2.3488);
-        double distance = GeoUtils.getDistance(c1, c2);
+        double distance = c1.distance(c2);
+        assertEquals(7783, distance, 1);
+        distance = c2.distance(c1);
         assertEquals(7783, distance, 1);
     }
 
@@ -39,7 +41,7 @@ public class GeoUtilsTest {
 
     @Test
     public void testBoundingBox() {
-        double[] boundingBox = GeoUtils.getBoundingBox(new ImmutableGeoCoordinate(52.52437, 13.41053), 10);
+        double[] boundingBox = new ImmutableGeoCoordinate(52.52437, 13.41053).getBoundingBox(10);
         assertEquals(4, boundingBox.length);
         assertEquals(52.4343, boundingBox[0], 0.001);
         assertEquals(13.2625, boundingBox[1], 0.001);
@@ -47,16 +49,16 @@ public class GeoUtilsTest {
         assertEquals(13.5585, boundingBox[3], 0.001);
     }
 
-    @Test
-    public void testDecToDms() {
-        assertEquals("40°26′46″", GeoUtils.decimalToDms(40.446195));
-        assertEquals("-79°56′55″", GeoUtils.decimalToDms(-79.948862));
-    }
+//    @Test
+//    public void testDecToDms() {
+//        assertEquals("40°26′46″", GeoUtils.decimalToDms(40.446195));
+//        assertEquals("-79°56′55″", GeoUtils.decimalToDms(-79.948862));
+//    }
 
     @Test
     public void testCoordinateToDms() {
-        assertEquals("51°1′59″N,13°43′59″E", GeoUtils.coordinateToDms(new ImmutableGeoCoordinate(51.033333, 13.733333)));
-        assertEquals("0°0′0″,0°0′0″", GeoUtils.coordinateToDms(new ImmutableGeoCoordinate(0., 0.)));
+        assertEquals("51°1′59″N,13°43′59″E", new ImmutableGeoCoordinate(51.033333, 13.733333).toDmsString());
+        assertEquals("0°0′0″,0°0′0″", new ImmutableGeoCoordinate(0., 0.).toDmsString());
     }
 
     @Test

@@ -138,7 +138,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                     continue;
                 }
                 for (Location anchor : currentAnchors) {
-                    double distance = GeoUtils.getDistance(candidate, anchor);
+                    double distance = candidate.distance(anchor);
                     LocationType anchorType = anchor.getType();
                     if (distance < anchorDistanceThreshold) {
                         LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
@@ -283,7 +283,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             double maxDistance = Double.MIN_VALUE;
             Location farthestLocation = null;
             for (Location location : lassoLocations) {
-                double distance = GeoUtils.getDistance(location, midpoint);
+                double distance = location.distance(midpoint);
                 if (distance > maxDistance) {
                     maxDistance = distance;
                     farthestLocation = location;

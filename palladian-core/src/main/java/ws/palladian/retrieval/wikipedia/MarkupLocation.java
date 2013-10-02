@@ -1,11 +1,11 @@
 package ws.palladian.retrieval.wikipedia;
 
-import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.AbstractGeoCoordinate;
 
 /**
  * Utility class representing a location extracted from Wikipedia coordinate markup.
  */
-public final class MarkupLocation implements GeoCoordinate {
+public final class MarkupLocation extends AbstractGeoCoordinate {
     double lat;
     double lng;
     Long population;

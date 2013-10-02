@@ -3,7 +3,7 @@ package ws.palladian.extraction.location;
 import org.apache.commons.lang3.Validate;
 
 // FIXME this is a class for the API module
-public final class ImmutableGeoCoordinate implements GeoCoordinate {
+public final class ImmutableGeoCoordinate extends AbstractGeoCoordinate {
 
     private final Double lat;
     private final Double lng;
@@ -32,17 +32,6 @@ public final class ImmutableGeoCoordinate implements GeoCoordinate {
     @Override
     public Double getLongitude() {
         return lng;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("DefaultGeoCoordinate [lat=");
-        builder.append(lat);
-        builder.append(", lng=");
-        builder.append(lng);
-        builder.append("]");
-        return builder.toString();
     }
 
 }

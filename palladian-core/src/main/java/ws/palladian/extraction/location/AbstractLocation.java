@@ -13,7 +13,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @author Philipp Katz
  */
-public abstract class AbstractLocation implements Location {
+public abstract class AbstractLocation extends AbstractGeoCoordinate implements Location {
 
     @Override
     public final boolean descendantOf(Location other) {

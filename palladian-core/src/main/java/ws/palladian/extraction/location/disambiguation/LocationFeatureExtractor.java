@@ -9,7 +9,6 @@ import java.util.Set;
 
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
@@ -408,7 +407,7 @@ class LocationFeatureExtractor {
     private static int getPopulationInRadius(Location location, Collection<Location> others, double distance) {
         int population = 0;
         for (Location other : others) {
-            if (GeoUtils.getDistance(location, other) <= distance) {
+            if (location.distance(other) <= distance) {
                 population += other.getPopulation();
             }
         }
@@ -419,7 +418,7 @@ class LocationFeatureExtractor {
         int distance = Integer.MAX_VALUE;
         for (Location other : others) {
             if (other.getPopulation() >= population) {
-                distance = (int)Math.min(distance, GeoUtils.getDistance(other, location));
+                distance = (int)Math.min(distance, other.distance(location));
             }
         }
         return distance;
@@ -435,7 +434,7 @@ class LocationFeatureExtractor {
         int distance = Integer.MAX_VALUE;
         for (Location other : others) {
             if (other.getPopulation() >= population) {
-                distance = (int)Math.min(distance, GeoUtils.getDistance(other, location));
+                distance = (int)Math.min(distance, other.distance(location));
             }
         }
         return distance;
@@ -444,7 +443,7 @@ class LocationFeatureExtractor {
     private static int countLocationsInDistance(Location location, Collection<Location> others, double distance) {
         int count = 0;
         for (Location other : others) {
-            if (GeoUtils.getDistance(location, other) < distance) {
+            if (location.distance(other) < distance) {
                 count++;
             }
         }

@@ -21,7 +21,6 @@ import ws.palladian.extraction.location.ContextClassifier;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.EntityPreprocessingTagger;
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractorUtils;
@@ -129,7 +128,7 @@ public class FeatureBasedDisambiguationLearner {
                 }
                 Location trainLocation = trainAnnotation.getLocation();
                 // XXX offsets are not considered here; necessary?
-                boolean samePlace = GeoUtils.getDistance(location, trainLocation) < 50;
+                boolean samePlace = location.distance(trainLocation) < 50;
                 boolean sameName = location.commonName(trainLocation);
                 boolean sameType = location.getType().equals(trainLocation.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms
