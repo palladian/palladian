@@ -13,7 +13,6 @@ import java.util.Set;
 
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -65,7 +64,7 @@ class GeoEvaluationResult {
             if (taggedCoord == null || taggedCoord.getLatitude() == null || taggedCoord.getLongitude() == null) {
                 return null;
             }
-            return GeoUtils.getDistance(goldCoord, taggedCoord);
+            return goldCoord.distance(taggedCoord);
         }
 
         public String toCsvLine() {

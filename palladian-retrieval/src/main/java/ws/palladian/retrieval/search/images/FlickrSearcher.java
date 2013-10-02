@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
@@ -276,7 +275,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             urlBuilder.append("&max_taken_date=").append(query.getEndDate().getTime() / 1000);
         }
         if (query.getCoordinate() != null) {
-            double[] bbox = GeoUtils.getBoundingBox(query.getCoordinate(), query.getRadius());
+            double[] bbox = query.getCoordinate().getBoundingBox(query.getRadius());
             String params = String.format("%s,%s,%s,%s", bbox[1], bbox[0], bbox[3], bbox[2]);
             urlBuilder.append("&bbox=").append(params);
         }

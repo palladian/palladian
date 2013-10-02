@@ -123,7 +123,7 @@ public final class LocationExtractorUtils {
             Location l1 = temp.get(i);
             for (int j = i + 1; j < temp.size(); j++) {
                 Location l2 = temp.get(j);
-                largestDistance = Math.max(largestDistance, GeoUtils.getDistance(l1, l2));
+                largestDistance = Math.max(largestDistance, l1.distance(l2));
             }
         }
         return largestDistance;
