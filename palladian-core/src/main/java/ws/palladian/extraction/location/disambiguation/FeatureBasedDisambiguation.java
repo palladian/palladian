@@ -15,7 +15,6 @@ import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.disambiguation.LocationFeatureExtractor.LocationInstance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.processing.features.Annotation;
@@ -65,12 +64,12 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
-        Set<LocationInstance> instances = featureExtractor.makeInstances(text, locations);
+        Set<ClassifiableLocation> classifiableLocations = featureExtractor.extractFeatures(text, locations);
         Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
-        for (LocationInstance instance : instances) {
-            CategoryEntries classification = classifier.classify(instance, model);
-            scoredLocations.put(instance.getId(), classification.getProbability("true"));
+        for (ClassifiableLocation location : classifiableLocations) {
+            CategoryEntries classification = classifier.classify(location, model);
+            scoredLocations.put(location.getId(), classification.getProbability("true"));
         }
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();

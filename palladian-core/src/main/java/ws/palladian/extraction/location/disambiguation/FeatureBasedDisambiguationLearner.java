@@ -28,7 +28,6 @@ import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.disambiguation.LocationFeatureExtractor.LocationInstance;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CompositeIterator;
@@ -110,28 +109,29 @@ public class FeatureBasedDisambiguationLearner {
             MultiMap<ClassifiedAnnotation, Location> locations = PalladianLocationExtractor.fetchLocations(
                     locationSource, classifiedEntities);
 
-            Set<LocationInstance> instances = featureExtraction.makeInstances(text, locations);
-            Set<Trainable> trainInstances = createTrainData(instances, trainAnnotations);
+            Set<ClassifiableLocation> classifiableLocations = featureExtraction.extractFeatures(text, locations);
+            Set<Trainable> trainInstances = createTrainData(classifiableLocations, trainAnnotations);
             trainingData.addAll(trainInstances);
         }
         return trainingData;
     }
 
-    private Set<Trainable> createTrainData(Set<LocationInstance> instances, List<LocationAnnotation> positiveLocations) {
+    private Set<Trainable> createTrainData(Set<ClassifiableLocation> classifiableLocations,
+            List<LocationAnnotation> positiveLocations) {
         Set<Trainable> result = CollectionHelper.newHashSet();
         int numPositive = 0;
-        for (LocationInstance instance : instances) {
+        for (ClassifiableLocation location : classifiableLocations) {
             boolean positiveClass = false;
             for (LocationAnnotation trainAnnotation : positiveLocations) {
                 // we cannot determine the correct location, if the training data did not provide coordinates
-                if (instance.getLatitude() == null || instance.getLongitude() == null) {
+                if (location.getLatitude() == null || location.getLongitude() == null) {
                     continue;
                 }
                 Location trainLocation = trainAnnotation.getLocation();
                 // XXX offsets are not considered here; necessary?
-                boolean samePlace = GeoUtils.getDistance(instance, trainLocation) < 50;
-                boolean sameName = instance.commonName(trainLocation);
-                boolean sameType = instance.getType().equals(trainLocation.getType());
+                boolean samePlace = GeoUtils.getDistance(location, trainLocation) < 50;
+                boolean sameName = location.commonName(trainLocation);
+                boolean sameType = location.getType().equals(trainLocation.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms
                 if (samePlace && sameName && sameType) {
                     numPositive++;
@@ -139,10 +139,10 @@ public class FeatureBasedDisambiguationLearner {
                     break;
                 }
             }
-            result.add(new Instance(positiveClass, instance));
+            result.add(new Instance(positiveClass, location));
         }
-        double positivePercentage = MathHelper.round((float)numPositive / instances.size() * 100, 2);
-        LOGGER.info("{} positive instances in {} ({}%)", numPositive, instances.size(), positivePercentage);
+        double positivePercentage = MathHelper.round((float)numPositive / classifiableLocations.size() * 100, 2);
+        LOGGER.info("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);
         return result;
     }
 
