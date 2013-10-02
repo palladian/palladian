@@ -20,7 +20,9 @@ public class StatsTest {
         assertEquals(23, stats.getMax(), 0);
         assertEquals(1, stats.getMin(), 0);
         assertEquals(7.985, stats.getStandardDeviation(), 0.001);
-        System.out.println(stats);
+        assertEquals(119.833, stats.getMse(), 0.001);
+        assertEquals(10.947, stats.getRmse(), 0.001);
+        // System.out.println(stats);
     }
 
     @Test
