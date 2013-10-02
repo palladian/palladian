@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.extraction.feature.StopTokenRemover;
-import ws.palladian.extraction.location.AbstractLocation;
-import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
@@ -21,7 +19,6 @@ import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.BooleanFeature;
@@ -73,9 +70,9 @@ class LocationFeatureExtractor {
 //    private final Searcher<ClueWebResult> clueWebIndex = new CachingSearcher<ClueWebResult>(10000, new ClueWebSearcher(
 //            new File("/Volumes/LaCie500/ClueWeb09")));
 
-    public Set<LocationInstance> makeInstances(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
+    public Set<ClassifiableLocation> extractFeatures(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
-        Set<LocationInstance> instances = CollectionHelper.newHashSet();
+        Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
         // Collection<Location> allLocations = locations.allValues();
         // CountMap<String> counts = getCounts(locations.keySet());
         // int annotationCount = locations.keySet().size();
@@ -253,7 +250,7 @@ class LocationFeatureExtractor {
                     fv.add(new NominalFeature("identifier", hash));
                 }
 
-                instances.add(new LocationInstance(location, fv));
+                instances.add(new ClassifiableLocation(location, fv));
             }
         }
         return instances;
@@ -545,105 +542,6 @@ class LocationFeatureExtractor {
 //        }
 //        return LocationExtractorUtils.getLargestDistance(locations) / normalization;
 //    }
-
-    static final class LocationInstance extends AbstractLocation implements Classifiable {
-
-        private final Location location;
-        private final FeatureVector featureVector;
-
-        public LocationInstance(Location location, FeatureVector featureVector) {
-            this.location = location;
-            this.featureVector = featureVector;
-        }
-
-        @Override
-        public Double getLatitude() {
-            return location.getLatitude();
-        }
-
-        @Override
-        public Double getLongitude() {
-            return location.getLongitude();
-        }
-
-        @Override
-        public int getId() {
-            return location.getId();
-        }
-
-        @Override
-        public String getPrimaryName() {
-            return location.getPrimaryName();
-        }
-
-        @Override
-        public Collection<AlternativeName> getAlternativeNames() {
-            return location.getAlternativeNames();
-        }
-
-        @Override
-        public LocationType getType() {
-            return location.getType();
-        }
-
-        @Override
-        public Long getPopulation() {
-            return location.getPopulation();
-        }
-
-        @Override
-        public List<Integer> getAncestorIds() {
-            return location.getAncestorIds();
-        }
-
-        @Override
-        public FeatureVector getFeatureVector() {
-            return featureVector;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((featureVector == null) ? 0 : featureVector.hashCode());
-            result = prime * result + ((location == null) ? 0 : location.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            LocationInstance other = (LocationInstance)obj;
-            if (featureVector == null) {
-                if (other.featureVector != null)
-                    return false;
-            } else if (!featureVector.equals(other.featureVector))
-                return false;
-            if (location == null) {
-                if (other.location != null)
-                    return false;
-            } else if (!location.equals(other.location))
-                return false;
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("LocationInstance [location=");
-            builder.append(location);
-            builder.append(", featureVector=");
-            builder.append(featureVector);
-            builder.append("]");
-            return builder.toString();
-        }
-
-    }
 
     /**
      * <p>

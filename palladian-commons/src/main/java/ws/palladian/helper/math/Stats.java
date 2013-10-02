@@ -116,6 +116,9 @@ public class Stats {
      * @return Assuming that the given values were errors, return the mean squared error.
      */
     public double getMse() {
+        if (values.isEmpty()) {
+            return Double.NaN;
+        }
         double mse = 0;
         for (Number value : values) {
             mse += Math.pow(value.doubleValue(), 2);
@@ -128,6 +131,28 @@ public class Stats {
      */
     public double getRmse() {
         return Math.sqrt(getMse());
+    }
+
+    /**
+     * <p>
+     * Calculate the cumulative probability with a <a
+     * href="http://en.wikipedia.org/wiki/Empirical_distribution_function>empirical distribution function</a>.
+     * </p>
+     * 
+     * @param t The parameter t.
+     * @return The probability for being less/equal t.
+     */
+    public double getCumulativeProbability(double t) {
+        if (values.isEmpty()) {
+            return Double.NaN;
+        }
+        int count = 0;
+        for (Number value : values) {
+            if (value.doubleValue() <= t) {
+                count++;
+            }
+        }
+        return (double)count / getCount();
     }
 
     @Override
