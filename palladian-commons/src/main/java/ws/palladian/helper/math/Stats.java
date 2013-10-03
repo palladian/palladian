@@ -136,7 +136,7 @@ public class Stats {
     /**
      * <p>
      * Calculate the cumulative probability with a <a
-     * href="http://en.wikipedia.org/wiki/Empirical_distribution_function>empirical distribution function</a>.
+     * href="http://en.wikipedia.org/wiki/Empirical_distribution_function">empirical distribution function</a>.
      * </p>
      * 
      * @param t The parameter t.
