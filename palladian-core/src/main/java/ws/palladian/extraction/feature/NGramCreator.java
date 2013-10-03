@@ -58,13 +58,13 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
      * Create a new {@link NGramCreator} which calculates [minLength, maxLength]-grams.
      * </p>
      * 
-     * @param minLength
-     * @param maxLength
+     * @param minLength The minimal length of the n-gram.
+     * @param maxLength The maximal length of the n-gram.
      * @param considerableFeatureDescriptors
      */
     public NGramCreator(int minLength, int maxLength, String... considerableFeatureDescriptors) {
         Validate.notNull(considerableFeatureDescriptors, "considerableFeatureDescriptors must not be null");
-        Validate.inclusiveBetween(2, Integer.MAX_VALUE, minLength);
+        Validate.inclusiveBetween(1, Integer.MAX_VALUE, minLength);
         Validate.inclusiveBetween(minLength, Integer.MAX_VALUE, maxLength);
 
         this.minLength = minLength;
