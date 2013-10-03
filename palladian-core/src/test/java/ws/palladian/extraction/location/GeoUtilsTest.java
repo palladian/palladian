@@ -22,21 +22,36 @@ public class GeoUtilsTest {
 
     @Test
     public void testMidpoint() {
-        Collection<GeoCoordinate> locations = CollectionHelper.newHashSet();
-        locations.add(new ImmutableGeoCoordinate(52.52437, 13.41053));
-        locations.add(new ImmutableGeoCoordinate(51.50853, -0.12574));
-        locations.add(new ImmutableGeoCoordinate(47.66033, 9.17582));
-        locations.add(new ImmutableGeoCoordinate(45.74846, 4.84671));
-        GeoCoordinate midpoint = GeoUtils.getMidpoint(locations);
+        Collection<GeoCoordinate> coordinates = CollectionHelper.newHashSet();
+        coordinates.add(new ImmutableGeoCoordinate(52.52437, 13.41053));
+        coordinates.add(new ImmutableGeoCoordinate(51.50853, -0.12574));
+        coordinates.add(new ImmutableGeoCoordinate(47.66033, 9.17582));
+        coordinates.add(new ImmutableGeoCoordinate(45.74846, 4.84671));
+        GeoCoordinate midpoint = GeoUtils.getMidpoint(coordinates);
         assertEquals(49.464867, midpoint.getLatitude(), 0.01);
         assertEquals(6.7807, midpoint.getLongitude(), 0.01);
 
-        locations = CollectionHelper.newHashSet();
-        locations.add(new ImmutableGeoCoordinate(40.71427, -74.00597));
-        locations.add(new ImmutableGeoCoordinate(35.68950, 139.69171));
-        midpoint = GeoUtils.getMidpoint(locations);
+        coordinates = CollectionHelper.newHashSet();
+        coordinates.add(new ImmutableGeoCoordinate(40.71427, -74.00597));
+        coordinates.add(new ImmutableGeoCoordinate(35.68950, 139.69171));
+        midpoint = GeoUtils.getMidpoint(coordinates);
         assertEquals(69.660652, midpoint.getLatitude(), 0.01);
         assertEquals(-153.661864, midpoint.getLongitude(), 0.01);
+        
+         coordinates = CollectionHelper.newHashSet();
+         coordinates.add(new AbstractGeoCoordinate() {
+            @Override
+            public Double getLongitude() {
+                return null;
+            }
+            @Override
+            public Double getLatitude() {
+                return null;
+            }
+        });
+         midpoint = GeoUtils.getMidpoint(coordinates);
+         assertEquals(0, midpoint.getLatitude(), 0.01);
+         assertEquals(0, midpoint.getLongitude(), 0.01);
     }
 
     @Test
@@ -48,12 +63,6 @@ public class GeoUtilsTest {
         assertEquals(52.6144, boundingBox[2], 0.001);
         assertEquals(13.5585, boundingBox[3], 0.001);
     }
-
-//    @Test
-//    public void testDecToDms() {
-//        assertEquals("40°26′46″", GeoUtils.decimalToDms(40.446195));
-//        assertEquals("-79°56′55″", GeoUtils.decimalToDms(-79.948862));
-//    }
 
     @Test
     public void testCoordinateToDms() {
