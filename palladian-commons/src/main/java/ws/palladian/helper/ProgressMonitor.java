@@ -32,10 +32,38 @@ public final class ProgressMonitor {
     private final double showEveryPercent;
     private boolean compactRemaining = false;
 
+    /**
+     * <p>
+     * Create a new {@link ProgressMonitor} showing the current progress with each percent.
+     * </p>
+     * 
+     * @param totalCount The total iterations to perform.
+     */
+    public ProgressMonitor(int totalCount) {
+        this(totalCount, 1);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link ProgressMonitor}.
+     * </p>
+     * 
+     * @param totalCount The total iterations to perform.
+     * @param showEveryPercent Step size for outputting the progress.
+     */
     public ProgressMonitor(int totalCount, double showEveryPercent) {
         this(totalCount, showEveryPercent, null);
     }
 
+    /**
+     * <p>
+     * Create a new {@link ProgressMonitor}.
+     * </p>
+     * 
+     * @param totalCount The total iterations to perform.
+     * @param showEveryPercent Step size for outputting the progress.
+     * @param processName The name of the process, for identification purposes when outputting the bar.
+     */
     public ProgressMonitor(int totalCount, double showEveryPercent, String processName) {
         this.totalCount = totalCount;
         this.showEveryPercent = showEveryPercent;
