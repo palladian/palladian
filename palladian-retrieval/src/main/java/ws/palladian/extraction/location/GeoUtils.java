@@ -11,8 +11,8 @@ import org.apache.commons.lang3.Validate;
  */
 public final class GeoUtils {
 
-    private static final String DMS_FORMAT = "%d°%d′%d″";
-    public static final String DMS_SUFFIX_FORMAT = DMS_FORMAT + "%s";
+    /** degree-minutes-seconds coordinate format. */
+    public static final String DMS_SUFFIX_FORMAT = "%d°%d′%d″%s";
 
     public static final String DMS = "([-+]?\\d{1,3}(?:\\.\\d{1,10})?)[°d:]" + // degree
             "(?:\\s?(\\d{1,2}(?:\\.\\d{1,10})?))?['′:]?" + // minute
@@ -54,6 +54,10 @@ public final class GeoUtils {
             y += Math.cos(latRad) * Math.sin(lngRad);
             z += Math.sin(latRad);
             count++;
+        }
+        // necessary dirty fix, in case all of the values were null
+        if (count == 0) {
+            return new ImmutableGeoCoordinate(0., 0.);
         }
         x /= count;
         y /= count;
