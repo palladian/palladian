@@ -3,9 +3,6 @@ package ws.palladian.extraction.location;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +14,9 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -70,35 +70,36 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         LOGGER.debug("Result JSON: {}", resultString);
         try {
             List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
-            JSONObject jsonResult = new JSONObject(resultString);
-            JSONArray resultArray = jsonResult.getJSONArray("results");
-            for (int i = 0; i < resultArray.length(); i++) {
-                JSONObject currentResult = resultArray.getJSONObject(i);
+            JsonObject jsonResult = new JsonObject(resultString);
+            JsonArray resultArray = jsonResult.getJsonArray("results");
+            for (int i = 0; i < resultArray.size(); i++) {
+                JsonObject currentResult = resultArray.getJsonObject(i);
                 int startPos = currentResult.getInt("startPosition");
                 String name = currentResult.getString("value");
 
-                JSONObject locationJson = currentResult.getJSONObject("location");
+                JsonObject locationJson = currentResult.getJsonObject("location");
                 int locationId = locationJson.getInt("id");
                 String primaryName = locationJson.getString("primaryName");
                 LocationType type = LocationType.valueOf(locationJson.getString("type"));
-                Double lat = locationJson.optDouble("latitude");
-                Double lng = locationJson.optDouble("longitude");
+
                 GeoCoordinate coordinate = null;
-                if (lat != null && lng != null) {
+                if (locationJson.get("coordinate") != null) {
+                    double lat = locationJson.queryDouble("coordinate/latitude");
+                    double lng = locationJson.queryDouble("coordinate/longitude");
                     coordinate = new ImmutableGeoCoordinate(lat, lng);
                 }
-                Long population = locationJson.optLong("population");
+                Long population = locationJson.tryGetLong("population");
                 List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
-                JSONArray altNamesJson = locationJson.getJSONArray("alternativeNames");
-                for (int j = 0; j < altNamesJson.length(); j++) {
-                    JSONObject altNameJson = altNamesJson.getJSONObject(j);
+                JsonArray altNamesJson = locationJson.getJsonArray("alternativeNames");
+                for (int j = 0; j < altNamesJson.size(); j++) {
+                    JsonObject altNameJson = altNamesJson.getJsonObject(j);
                     String altName = altNameJson.getString("name");
                     Language altLng = Language.getByIso6391(altNameJson.getString("language"));
                     alternativeNames.add(new AlternativeName(altName, altLng));
                 }
                 List<Integer> ancestorIds = CollectionHelper.newArrayList();
-                JSONArray ancestorJson = locationJson.getJSONArray("ancestorIds");
-                for (int j = 0; j < ancestorJson.length(); j++) {
+                JsonArray ancestorJson = locationJson.getJsonArray("ancestorIds");
+                for (int j = 0; j < ancestorJson.size(); j++) {
                     ancestorIds.add(ancestorJson.getInt(j));
                 }
 
@@ -108,7 +109,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
 
             }
             return annotations;
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON: "
                     + resultString, e);
         }
@@ -125,11 +126,11 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         if (result.getStatusCode() >= 300) {
             // try to get the message
             try {
-                JSONObject json = new JSONObject(result.getStringContent());
+                JsonObject json = new JsonObject(result.getStringContent());
                 String message = json.getString("message");
                 throw new IllegalStateException("Error while accessing the web service: " + message
                         + ", response code: " + result.getStatusCode());
-            } catch (JSONException ignore) {
+            } catch (JsonException ignore) {
                 // no message could be extracted
             }
             throw new IllegalStateException("Error while accessing the web service, response code: "
