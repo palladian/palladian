@@ -88,11 +88,11 @@ public class NerTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1516, annotations.size());
+        assertEquals(1514, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(25542, annotations.get(500).getStartPosition());
+        assertEquals(25575, annotations.get(500).getStartPosition());
         assertEquals(7, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
