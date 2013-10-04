@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -132,7 +134,8 @@ public class OsmLocationSource extends SingleQueryLocationSource {
                 }
                 String placeType = jsonTags.getString("place");
                 LocationType type = mapPlaceType(placeType);
-                locations.add(new ImmutableLocation(hack, name, altNames, type, lat, lon, population, null));
+                GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lon);
+                locations.add(new ImmutableLocation(hack, name, altNames, type, coordinate, population, null));
             }
             return locations;
         } catch (HttpException e) {

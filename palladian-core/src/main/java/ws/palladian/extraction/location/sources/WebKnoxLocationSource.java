@@ -10,6 +10,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
@@ -100,8 +102,11 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource {
                             population = Long.valueOf(value);
                         }
                     }
-                    locations
-                            .add(new ImmutableLocation(id, primaryName, locationType, latitude, longitude, population));
+                    GeoCoordinate coordinate = null;
+                    if (latitude != null && longitude != null) {
+                        coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+                    }
+                    locations.add(new ImmutableLocation(id, primaryName, locationType, coordinate, population));
                 }
             }
         } catch (JsonException e) {

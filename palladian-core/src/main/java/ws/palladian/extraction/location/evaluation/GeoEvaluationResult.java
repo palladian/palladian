@@ -58,10 +58,10 @@ class GeoEvaluationResult {
         }
 
         public Double getDistance() {
-            if (goldCoord == null || goldCoord.getLatitude() == null || goldCoord.getLongitude() == null) {
+            if (goldCoord == null) {
                 return null;
             }
-            if (taggedCoord == null || taggedCoord.getLatitude() == null || taggedCoord.getLongitude() == null) {
+            if (taggedCoord == null) {
                 return null;
             }
             return goldCoord.distance(taggedCoord);
@@ -143,26 +143,26 @@ class GeoEvaluationResult {
             for (LocationAnnotation goldAnnotation : document.getAnnotations()) {
                 counter++;
 
-                GeoCoordinate goldCoordinate = goldAnnotation.getLocation();
+                GeoCoordinate goldCoordinate = goldAnnotation.getLocation().getCoordinate();
 
                 if (assignedAnnotation.congruent(goldAnnotation)) {
                     // same start and end
                     taggedAnnotations.add(goldAnnotation);
                     evaluationList.add(new EvaluationItem(fileName, goldAnnotation, CORRECT, goldCoordinate,
-                            assignedAnnotation.getLocation()));
+                            assignedAnnotation.getLocation().getCoordinate()));
                     break;
                 } else if (assignedAnnotation.overlaps(goldAnnotation)) {
                     // overlap
                     taggedOverlap = true;
                     taggedAnnotations.add(goldAnnotation);
                     evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR4, goldCoordinate,
-                            assignedAnnotation.getLocation()));
+                            assignedAnnotation.getLocation().getCoordinate()));
                 } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition()
                         || counter == document.getAnnotations().size()) {
                     if (!taggedOverlap) {
                         // false alarm
                         evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, ERROR1, null,
-                                assignedAnnotation.getLocation()));
+                                assignedAnnotation.getLocation().getCoordinate()));
                     }
                     break;
                 } else {
@@ -174,7 +174,7 @@ class GeoEvaluationResult {
         // check which gold standard annotations have not been found by the NER (error2)
         for (LocationAnnotation goldAnnotation : document.getAnnotations()) {
             if (!taggedAnnotations.contains(goldAnnotation)) {
-                GeoCoordinate goldCooardinate = goldAnnotation.getLocation();
+                GeoCoordinate goldCooardinate = goldAnnotation.getLocation().getCoordinate();
                 evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR2, goldCooardinate, null));
             }
         }

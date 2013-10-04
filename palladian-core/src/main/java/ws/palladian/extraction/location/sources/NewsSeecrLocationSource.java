@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -104,8 +106,9 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
 
     private Location parseSingleResult(JsonObject resultObject) throws JsonException {
         Integer id = resultObject.getInt("id");
-        Double latitude = resultObject.getDouble("latitude");
-        Double longitude = resultObject.getDouble("longitude");
+        double latitude = resultObject.getDouble("latitude");
+        double longitude = resultObject.getDouble("longitude");
+        GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
         String primaryName = resultObject.getString("primaryName");
         String typeString = resultObject.getString("type");
         Long population = resultObject.getLong("population");
@@ -127,7 +130,7 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
         for (int i = 0; i < ancestorIds.size(); i++) {
             ancestors.add(ancestorIds.getInt(i));
         }
-        return new ImmutableLocation(id, primaryName, altNames, type, latitude, longitude, population, ancestors);
+        return new ImmutableLocation(id, primaryName, altNames, type, coordinate, population, ancestors);
     }
 
     @Override

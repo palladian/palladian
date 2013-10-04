@@ -53,7 +53,7 @@ public final class AddressTagger implements Tagger {
                 Annotation newAnnotation = new ImmutableAnnotation(annotation.getStartPosition(), value,
                         LocationType.STREET.toString());
                 ret.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, value, LocationType.STREET,
-                        null, null, null)));
+                        null, null)));
             }
         }
 
@@ -70,7 +70,7 @@ public final class AddressTagger implements Tagger {
                 Annotation newAnnotation = new ImmutableAnnotation(matcher.start(1), matcher.group(1),
                         LocationType.STREETNR.toString());
                 streetNumbers.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, matcher.group(1),
-                        LocationType.STREETNR, null, null, null)));
+                        LocationType.STREETNR, null, null)));
             }
 
             // try number as prefix
@@ -81,7 +81,7 @@ public final class AddressTagger implements Tagger {
                 Annotation newAnnotation = new ImmutableAnnotation(matcher.start(1), matcher.group(1),
                         LocationType.STREETNR.toString());
                 streetNumbers.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, matcher.group(1),
-                        LocationType.STREETNR, null, null, null)));
+                        LocationType.STREETNR, null, null)));
             }
         }
 

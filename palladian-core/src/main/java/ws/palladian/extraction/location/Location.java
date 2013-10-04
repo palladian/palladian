@@ -12,7 +12,7 @@ import java.util.Set;
  * 
  * @author Philipp Katz
  */
-public interface Location extends GeoCoordinate {
+public interface Location {
 
     /**
      * @return The unique identifier of this location.
@@ -107,5 +107,24 @@ public interface Location extends GeoCoordinate {
      * @see #getAlternativeNames()
      */
     Set<String> collectAlternativeNames();
+
+    /**
+     * @return The geographical latitude of this location, or <code>null</code> if no coordinates exist.
+     * @deprecated Use {@link #getCoordinate()} instead.
+     */
+    @Deprecated
+    Double getLatitude();
+
+    /**
+     * @return The geographical longitude of this location, or <code>null</code> if no coordinates exist.
+     * @deprecated Use {@link #getCoordinate()} instead.
+     */
+    @Deprecated
+    Double getLongitude();
+
+    /**
+     * @return The geographical coordinate for this location, or <code>null</code> in case no coordinates exist.
+     */
+    GeoCoordinate getCoordinate();
 
 }

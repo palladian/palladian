@@ -15,14 +15,11 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     @Override
     public double distance(GeoCoordinate other) {
         Validate.notNull(other, "other must not be null");
-        
-        Double lat1 = getLatitude();
-        Double lng1 = getLongitude();
-        Double lat2 = other.getLatitude();
-        Double lng2 = other.getLongitude();
-        if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) {
-            return Integer.MAX_VALUE;
-        }
+
+        double lat1 = getLatitude();
+        double lng1 = getLongitude();
+        double lat2 = other.getLatitude();
+        double lng2 = other.getLongitude();
         return 2
                 * GeoUtils.EARTH_RADIUS_KM
                 * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
@@ -76,10 +73,6 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     public double[] getBoundingBox(double distance) {
         Validate.isTrue(distance >= 0, "distance must be equal/greater zero");
 
-        if (getLatitude() == null || getLongitude() == null) {
-            return new double[0];
-        }
-
         // http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/
         double lat1 = getLatitude() - distance / 111.04;
         double lat2 = getLatitude() + distance / 111.04;
@@ -90,26 +83,23 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("GeoCoordinate [");
-        builder.append(getLatitude());
-        builder.append(",");
-        builder.append(getLongitude());
-        builder.append("]");
-        return builder.toString();
+        return String.format("(%s,%s)", getLatitude(), getLongitude());
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((getLatitude() == null) ? 0 : getLatitude().hashCode());
-        result = prime * result + ((getLongitude() == null) ? 0 : getLongitude().hashCode());
+        long temp;
+        temp = Double.doubleToLongBits(getLatitude());
+        result = prime * result + (int)(temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(getLongitude());
+        result = prime * result + (int)(temp ^ (temp >>> 32));
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -117,17 +107,10 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         if (getClass() != obj.getClass())
             return false;
         AbstractGeoCoordinate other = (AbstractGeoCoordinate)obj;
-        if (getLatitude() == null) {
-            if (other.getLatitude() != null)
-                return false;
-        } else if (!getLatitude().equals(other.getLatitude()))
+        if (Double.doubleToLongBits(getLatitude()) != Double.doubleToLongBits(other.getLatitude()))
             return false;
-        if (getLongitude() == null) {
-            if (other.getLongitude() != null)
-                return false;
-        } else if (!getLongitude().equals(other.getLongitude()))
+        if (Double.doubleToLongBits(getLongitude()) != Double.doubleToLongBits(other.getLongitude()))
             return false;
         return true;
     }
-
 }

@@ -17,6 +17,8 @@ import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
@@ -117,7 +119,11 @@ class LocalGlobalLexiconConverter {
                     if (topName == null) {
                         topName = StringUtils.EMPTY;
                     }
-                    Location location = new ImmutableLocation(geonameId, topName, type, lat, lng, null);
+                    GeoCoordinate coordinate = null;
+                    if (lat != null && lng != null) {
+                        coordinate = new ImmutableGeoCoordinate(lat, lng);
+                    }
+                    Location location = new ImmutableLocation(geonameId, topName, type, coordinate, null);
                     String value = text.substring(topStart, topEnd);
                     annotations.add(new LocationAnnotation(topStart, value, location));
                     clearToponym();

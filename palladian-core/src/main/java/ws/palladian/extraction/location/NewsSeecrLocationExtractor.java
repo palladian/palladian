@@ -83,6 +83,10 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
                 LocationType type = LocationType.valueOf(locationJson.getString("type"));
                 Double lat = locationJson.optDouble("latitude");
                 Double lng = locationJson.optDouble("longitude");
+                GeoCoordinate coordinate = null;
+                if (lat != null && lng != null) {
+                    coordinate = new ImmutableGeoCoordinate(lat, lng);
+                }
                 Long population = locationJson.optLong("population");
                 List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
                 JSONArray altNamesJson = locationJson.getJSONArray("alternativeNames");
@@ -98,7 +102,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
                     ancestorIds.add(ancestorJson.getInt(j));
                 }
 
-                Location location = new ImmutableLocation(locationId, primaryName, alternativeNames, type, lat, lng,
+                Location location = new ImmutableLocation(locationId, primaryName, alternativeNames, type, coordinate,
                         population, ancestorIds);
                 annotations.add(new LocationAnnotation(startPos, name, location));
 

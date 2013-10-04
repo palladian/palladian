@@ -6,6 +6,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -62,8 +64,9 @@ public final class HotelsBaseImporter {
                 String hotelName = parts[1].replace("&amp;", "&");
                 Double latitude = Double.valueOf(parts[12]);
                 Double longitude = Double.valueOf(parts[13]);
+                GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
                 int id = maxId + lineNumber;
-                locationStore.save(new ImmutableLocation(id, hotelName, LocationType.POI, latitude, longitude, null));
+                locationStore.save(new ImmutableLocation(id, hotelName, LocationType.POI, coordinate, null));
                 monitor.incrementAndPrintProgress();
             }
         };

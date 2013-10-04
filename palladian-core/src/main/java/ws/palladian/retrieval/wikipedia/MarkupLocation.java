@@ -36,12 +36,12 @@ public final class MarkupLocation extends AbstractGeoCoordinate {
     }
 
     @Override
-    public Double getLatitude() {
+    public double getLatitude() {
         return lat;
     }
 
     @Override
-    public Double getLongitude() {
+    public double getLongitude() {
         return lng;
     }
 

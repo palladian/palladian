@@ -48,7 +48,15 @@ public final class LocationExtractorUtils {
     public static final Filter<Location> COORDINATE_FILTER = new Filter<Location>() {
         @Override
         public boolean accept(Location location) {
-            return location.getLatitude() != null && location.getLongitude() != null;
+            return location.getCoordinate() != null;
+        }
+    };
+
+    /** {@link Function} for unwrapping a {@link GeoCoordinate} from a {@link Location}. */
+    public static final Function<Location, GeoCoordinate> LOCATION_COORDINATE_FUNCTION = new Function<Location, GeoCoordinate>() {
+        @Override
+        public GeoCoordinate compute(Location location) {
+            return location.getCoordinate();
         }
     };
 
@@ -108,25 +116,60 @@ public final class LocationExtractorUtils {
 
     /**
      * <p>
-     * For each pair in the given Collection of {@link Location}s determine the distance, and return the highest
+     * For each pair in the given Collection of {@link GeoCoordinate}s determine the distance, and return the highest
      * distance.
      * </p>
      * 
-     * @param locations {@link Collection} of {@link Location}s, not <code>null</code>.
-     * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection wsa
+     * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
+     * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection was
      *         empty.
+     * @see #largestDistanceBelow(double, Collection) is faster, if you just care about a maximum value.
      */
-    public static double getLargestDistance(Collection<Location> locations) {
+    public static double getLargestDistance(Collection<? extends GeoCoordinate> coordinates) {
+        Validate.notNull(coordinates, "coordinates must not be null");
         double largestDistance = 0;
-        List<Location> temp = new ArrayList<Location>(locations);
+        if (coordinates.contains(null)) {
+            return Double.MAX_VALUE;
+        }
+        List<GeoCoordinate> temp = new ArrayList<GeoCoordinate>(coordinates);
         for (int i = 0; i < temp.size(); i++) {
-            Location l1 = temp.get(i);
+            GeoCoordinate c1 = temp.get(i);
             for (int j = i + 1; j < temp.size(); j++) {
-                Location l2 = temp.get(j);
-                largestDistance = Math.max(largestDistance, l1.distance(l2));
+                GeoCoordinate c2 = temp.get(j);
+                largestDistance = Math.max(largestDistance, c1.distance(c2));
             }
         }
         return largestDistance;
+    }
+
+    /**
+     * <p>
+     * For each pair in the given Collection of {@link GeoCoordinate}s determine, if its distance is below the specified
+     * distance.
+     * </p>
+     * 
+     * @param distance The distance threshold, larger/equal zero.
+     * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
+     * @return <code>true</code> in case the distance for each pair in the given collection is below the specified
+     *         distance, <code>false</code> otherwise.
+     */
+    public static boolean largestDistanceBelow(double distance, Collection<? extends GeoCoordinate> coordinates) {
+        Validate.isTrue(distance >= 0, "distance must be greater/equal zero.");
+        Validate.notNull(coordinates, "coordinates must not be null");
+        if (coordinates.contains(null)) {
+            return false;
+        }
+        List<GeoCoordinate> temp = new ArrayList<GeoCoordinate>(coordinates);
+        for (int i = 0; i < temp.size(); i++) {
+            GeoCoordinate c1 = temp.get(i);
+            for (int j = i + 1; j < temp.size(); j++) {
+                GeoCoordinate c2 = temp.get(j);
+                if (c1.distance(c2) >= distance) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public static <T> Set<T> filterConditionally(Collection<T> set, Filter<T> filter) {
@@ -258,10 +301,8 @@ public final class LocationExtractorUtils {
             int dummyId = xmlAnnotation.getValue().hashCode();
             String name = xmlAnnotation.getValue();
             GeoCoordinate coordinate = coordinates.get(xmlAnnotation.getStartPosition());
-            Double lat = coordinate != null ? coordinate.getLongitude() : null;
-            Double lng = coordinate != null ? coordinate.getLatitude() : null;
             LocationType type = LocationType.map(xmlAnnotation.getTag());
-            Location location = new ImmutableLocation(dummyId, name, type, lng, lat, 0l);
+            Location location = new ImmutableLocation(dummyId, name, type, coordinate, 0l);
             annotations.add(new LocationAnnotation(xmlAnnotation, location));
         }
         return annotations;
