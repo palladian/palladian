@@ -45,9 +45,6 @@ public final class GeoUtils {
         double z = 0;
         int count = 0;
         for (GeoCoordinate location : coordinates) {
-            if (location.getLatitude() == null || location.getLongitude() == null) {
-                continue;
-            }
             double latRad = location.getLatitude() * Math.PI / 180;
             double lngRad = location.getLongitude() * Math.PI / 180;
             x += Math.cos(latRad) * Math.cos(lngRad);
@@ -55,10 +52,10 @@ public final class GeoUtils {
             z += Math.sin(latRad);
             count++;
         }
-        // necessary dirty fix, in case all of the values were null
-        if (count == 0) {
-            return new ImmutableGeoCoordinate(0., 0.);
-        }
+//        // necessary dirty fix, in case all of the values were null
+//        if (count == 0) {
+//            return new ImmutableGeoCoordinate(0., 0.);
+//        }
         x /= count;
         y /= count;
         z /= count;

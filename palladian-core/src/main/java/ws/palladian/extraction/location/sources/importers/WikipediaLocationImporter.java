@@ -40,10 +40,10 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wikipedia.MarkupLocation;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
-import ws.palladian.retrieval.wikipedia.WikipediaTemplate;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
+import ws.palladian.retrieval.wikipedia.WikipediaTemplate;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil;
 
 /**
@@ -244,8 +244,8 @@ public class WikipediaLocationImporter {
                 if (coordinate != null) {
                     String cleanArticleName = page.getCleanTitle();
                     int locationId = page.getPageId() + idOffset;
-                    locationStore.save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate
-                            .getLatitude(), coordinate.getLongitude(), population));
+                    locationStore
+                            .save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate, population));
                     LOGGER.trace("Saved location with ID {}, name {}", page.getPageId(), cleanArticleName);
                     locationNamesIds.put(page.getTitle(), page.getPageId());
                     counter[0]++;

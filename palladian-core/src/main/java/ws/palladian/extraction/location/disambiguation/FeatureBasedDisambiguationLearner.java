@@ -21,6 +21,7 @@ import ws.palladian.extraction.location.ContextClassifier;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.EntityPreprocessingTagger;
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractorUtils;
@@ -46,9 +47,13 @@ import ws.palladian.processing.features.Annotation;
  */
 public class FeatureBasedDisambiguationLearner {
 
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguationLearner.class);
 
+    /** Maximum distance between train and candidate location to be considered positive. */
+    private static final int MAX_DISTANCE = 50;
+    
     private final QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
 
     private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor();
@@ -123,12 +128,14 @@ public class FeatureBasedDisambiguationLearner {
             boolean positiveClass = false;
             for (LocationAnnotation trainAnnotation : positiveLocations) {
                 // we cannot determine the correct location, if the training data did not provide coordinates
-                if (location.getLatitude() == null || location.getLongitude() == null) {
+                if (location.getCoordinate() == null) {
                     continue;
                 }
                 Location trainLocation = trainAnnotation.getLocation();
+                GeoCoordinate trainCoordinate = trainLocation.getCoordinate();
                 // XXX offsets are not considered here; necessary?
-                boolean samePlace = location.distance(trainLocation) < 50;
+                boolean samePlace = trainCoordinate != null
+                        && location.getCoordinate().distance(trainCoordinate) < MAX_DISTANCE;
                 boolean sameName = location.commonName(trainLocation);
                 boolean sameType = location.getType().equals(trainLocation.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms

@@ -9,6 +9,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -107,8 +109,7 @@ public class FreebaseLocationSource extends SingleQueryLocationSource implements
 
                     String primaryName = locationCandidate.getString("name");
                     LocationType locationType = LOCATION_MAPPING.get(concept);
-                    Double latitude = null;
-                    Double longitude = null;
+                    GeoCoordinate coordinate = null;
                     Long population = null;
 
                     JsonObject property = jsonObject.getJsonObject("property");
@@ -130,17 +131,18 @@ public class FreebaseLocationSource extends SingleQueryLocationSource implements
                         // latitude
                         JsonArray valuesArray = locationProperty.getJsonObject("/location/geocode/latitude")
                                 .getJsonArray("values");
-                        latitude = valuesArray.getJsonObject(0).getDouble("value");
+                        double latitude = valuesArray.getJsonObject(0).getDouble("value");
 
                         // longitude
                         valuesArray = locationProperty.getJsonObject("/location/geocode/longitude").getJsonArray(
                                 "values");
-                        longitude = valuesArray.getJsonObject(0).getDouble("value");
+                        double longitude = valuesArray.getJsonObject(0).getDouble("value");
+
+                        coordinate = new ImmutableGeoCoordinate(latitude, longitude);
                     } catch (Exception e) {
                     }
 
-                    locations
-                            .add(new ImmutableLocation(-1, primaryName, locationType, latitude, longitude, population));
+                    locations.add(new ImmutableLocation(-1, primaryName, locationType, coordinate, population));
                 }
             }
         } catch (JsonException e) {

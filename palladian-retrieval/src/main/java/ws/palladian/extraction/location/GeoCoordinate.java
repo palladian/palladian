@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location;
 
 // FIXME this is a class for the API module
-// FIXME those potential null values for lat/lng are stupid, change this! 
 /**
  * <p>
  * Implementations of this interface represent geographic coordinates represented by latitude and longitude values.
@@ -12,14 +11,14 @@ package ws.palladian.extraction.location;
 public interface GeoCoordinate {
 
     /**
-     * @return The geographical latitude of this location, or <code>null</code> if no coordinates exist.
+     * @return The geographical latitude of this location.
      */
-    Double getLatitude();
+    double getLatitude();
 
     /**
-     * @return The geographical longitude of this location, or <code>null</code> if no coordinates exist.
+     * @return The geographical longitude of this location.
      */
-    Double getLongitude();
+    double getLongitude();
 
     /**
      * <p>

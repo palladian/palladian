@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.AbstractLocation;
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -125,8 +126,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
         String primaryName;
         final Set<AlternativeName> alternativeNames = CollectionHelper.newHashSet();
         LocationType type;
-        Double latitude;
-        Double longitude;
+        GeoCoordinate coordinate;
         Long population;
         LinkedLocation parent;
 
@@ -153,15 +153,10 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
         public LocationType getType() {
             return type;
         }
-
+        
         @Override
-        public Double getLatitude() {
-            return latitude;
-        }
-
-        @Override
-        public Double getLongitude() {
-            return longitude;
+        public GeoCoordinate getCoordinate() {
+            return coordinate;
         }
 
         @Override
@@ -198,11 +193,8 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
             if (location.getType() != null) {
                 this.type = location.getType();
             }
-            if (location.getLatitude() != null) {
-                this.latitude = location.getLatitude();
-            }
-            if (location.getLongitude() != null) {
-                this.longitude = location.getLongitude();
+            if (location.getCoordinate() != null) {
+                this.coordinate = location.getCoordinate();
             }
             if (location.getPopulation() != null) {
                 this.population = location.getPopulation();

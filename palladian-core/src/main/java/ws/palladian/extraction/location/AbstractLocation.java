@@ -13,7 +13,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @author Philipp Katz
  */
-public abstract class AbstractLocation extends AbstractGeoCoordinate implements Location {
+public abstract class AbstractLocation implements Location {
 
     @Override
     public final boolean descendantOf(Location other) {
@@ -48,6 +48,20 @@ public abstract class AbstractLocation extends AbstractGeoCoordinate implements 
             names.add(LocationExtractorUtils.normalizeName(alternativeName.getName()));
         }
         return names;
+    }
+    
+    // deprecated getters (returning null values when no coordinate is present)
+
+    @Override
+    @Deprecated
+    public final Double getLatitude() {
+        return getCoordinate() != null ? getCoordinate().getLatitude() : null;
+    }
+
+    @Override
+    @Deprecated
+    public final Double getLongitude() {
+        return getCoordinate() != null ? getCoordinate().getLongitude() : null;
     }
 
 }

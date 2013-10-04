@@ -295,6 +295,18 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the LinkedList:
+     * <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
+     * </p>
+     * 
+     * @return A new {@link LinkedList}.
+     */
+    public static <E> LinkedList<E> newLinkedList() {
+        return new LinkedList<E>();
+    }
+
+    /**
+     * <p>
      * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
      * <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
      * </p>

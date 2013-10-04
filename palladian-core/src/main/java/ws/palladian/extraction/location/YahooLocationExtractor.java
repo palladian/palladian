@@ -157,6 +157,7 @@ public class YahooLocationExtractor extends LocationExtractor {
             JSONObject jsonCentroid = placeJson.getJSONObject("centroid");
             double lng = jsonCentroid.getDouble("longitude");
             double lat = jsonCentroid.getDouble("latitude");
+            GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lng);
 
             String name = placeJson.getString("name");
             String actualName = text.substring(startOffset, endOffset);
@@ -170,7 +171,8 @@ public class YahooLocationExtractor extends LocationExtractor {
                 LOGGER.error("Unmapped type {}", type);
                 continue;
             }
-            Location location = new ImmutableLocation(woeId, actualName, alternatives, mappedType, lat, lng, null, null);
+            Location location = new ImmutableLocation(woeId, actualName, alternatives, mappedType, coordinate, null,
+                    null);
             result.add(new LocationAnnotation(startOffset, actualName, location));
         }
         return result;

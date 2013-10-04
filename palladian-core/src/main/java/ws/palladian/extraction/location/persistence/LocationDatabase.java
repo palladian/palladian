@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
@@ -91,9 +92,13 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
 
             Double latitude = SqlHelper.getDouble(resultSet, "latitude");
             Double longitude = SqlHelper.getDouble(resultSet, "longitude");
+            GeoCoordinate coordinate = null;
+            if (latitude != null && longitude != null) {
+                coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+            }
             Long population = resultSet.getLong("population");
             List<Integer> ancestorIds = splitHierarchyPath(resultSet.getString("ancestorIds"));
-            return new ImmutableLocation(id, name, altNames, locationType, latitude, longitude, population, ancestorIds);
+            return new ImmutableLocation(id, name, altNames, locationType, coordinate, population, ancestorIds);
         }
     };
 

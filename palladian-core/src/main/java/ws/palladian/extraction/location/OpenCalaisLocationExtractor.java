@@ -106,16 +106,18 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
                             continue;
                         }
 
-                        Double latitude = null;
-                        Double longitude = null;
                         int id = 0;
                         String name = entityName;
+                        GeoCoordinate coordinate = null;
                         if (obj.has("resolutions")) {
                             JSONArray resolutions = obj.getJSONArray("resolutions");
                             if (resolutions.length() > 0) {
                                 JSONObject firstResolution = resolutions.getJSONObject(0);
-                                latitude = firstResolution.optDouble("latitude");
-                                longitude = firstResolution.optDouble("longitude");
+                                Double latitude = firstResolution.optDouble("latitude");
+                                Double longitude = firstResolution.optDouble("longitude");
+                                if (latitude != null && longitude != null) {
+                                    coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+                                }
                                 String idString = firstResolution.optString("id");
                                 id = idString != null ? idString.hashCode() : 0;
                                 name = firstResolution.optString("name");
@@ -133,10 +135,8 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
                                 if (instance.getInt("length") == entityName.length()) {
                                     int offset = instance.getInt("offset");
                                     Annotation annotation = new ImmutableAnnotation(cumulatedOffset + offset,
-                                            entityName,
-                                            entityTag);
-                                    Location location = new ImmutableLocation(id, name, type, latitude,
-                                            longitude, null);
+                                            entityName, entityTag);
+                                    Location location = new ImmutableLocation(id, name, type, coordinate, null);
                                     annotations.add(new LocationAnnotation(annotation, location));
                                 }
                             }

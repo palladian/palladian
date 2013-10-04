@@ -37,21 +37,6 @@ public class GeoUtilsTest {
         midpoint = GeoUtils.getMidpoint(coordinates);
         assertEquals(69.660652, midpoint.getLatitude(), 0.01);
         assertEquals(-153.661864, midpoint.getLongitude(), 0.01);
-        
-         coordinates = CollectionHelper.newHashSet();
-         coordinates.add(new AbstractGeoCoordinate() {
-            @Override
-            public Double getLongitude() {
-                return null;
-            }
-            @Override
-            public Double getLatitude() {
-                return null;
-            }
-        });
-         midpoint = GeoUtils.getMidpoint(coordinates);
-         assertEquals(0, midpoint.getLatitude(), 0.01);
-         assertEquals(0, midpoint.getLongitude(), 0.01);
     }
 
     @Test

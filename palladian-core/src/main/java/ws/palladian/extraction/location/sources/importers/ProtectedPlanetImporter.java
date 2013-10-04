@@ -6,6 +6,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -60,8 +62,7 @@ public final class ProtectedPlanetImporter {
                     return;
                 }
                 String placeName = new String(parts[5]); // new string, save memory.
-                Double latitude = null;
-                Double longitude = null;
+                GeoCoordinate coordinate = null;
                 try {
                     int coordinatesIndex;
                     // find start of geometry
@@ -73,13 +74,14 @@ public final class ProtectedPlanetImporter {
                     }
                     String longitudeString = StringHelper.getSubstringBetween(parts[coordinatesIndex], "<coordinates>",
                             null);
-                    latitude = Double.valueOf(StringHelper.getSubstringBetween(parts[coordinatesIndex + 1], null, " "));
-                    longitude = Double.valueOf(longitudeString);
+                    double latitude = Double.valueOf(StringHelper.getSubstringBetween(parts[coordinatesIndex + 1], null, " "));
+                    double longitude = Double.valueOf(longitudeString);
+                    coordinate = new ImmutableGeoCoordinate(latitude, longitude);
                 } catch (Exception e) {
                     LOGGER.error("No coordinates in {}", line);
                 }
                 int id = maxId + lineNumber;
-                locationStore.save(new ImmutableLocation(id, placeName, LocationType.LANDMARK, latitude, longitude, null));
+                locationStore.save(new ImmutableLocation(id, placeName, LocationType.LANDMARK, coordinate, null));
 
                 monitor.incrementAndPrintProgress();
             }

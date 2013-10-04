@@ -1,5 +1,8 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import static ws.palladian.extraction.location.LocationExtractorUtils.COORDINATE_FILTER;
+import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +12,7 @@ import java.util.Set;
 
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
@@ -399,16 +403,20 @@ class LocationFeatureExtractor {
 //    }
 
     private static boolean isUnique(Collection<Location> locations) {
-        Set<Location> group = LocationExtractorUtils.filterConditionally(locations,
-                LocationExtractorUtils.COORDINATE_FILTER);
-        return LocationExtractorUtils.getLargestDistance(group) < 50;
+        Set<Location> group = LocationExtractorUtils.filterConditionally(locations, COORDINATE_FILTER);
+        Set<GeoCoordinate> coordinates = CollectionHelper.convertSet(group, LOCATION_COORDINATE_FUNCTION);
+        return LocationExtractorUtils.largestDistanceBelow(50, coordinates);
     }
 
     private static int getPopulationInRadius(Location location, Collection<Location> others, double distance) {
         int population = 0;
-        for (Location other : others) {
-            if (location.distance(other) <= distance) {
-                population += other.getPopulation();
+        GeoCoordinate locationCoordinate = location.getCoordinate();
+        if (locationCoordinate != null) {
+            for (Location other : others) {
+                GeoCoordinate otherCoordinate = other.getCoordinate();
+                if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) <= distance) {
+                    population += other.getPopulation();
+                }
             }
         }
         return population;
@@ -416,9 +424,13 @@ class LocationFeatureExtractor {
 
     private static int getDistanceToPopulation(Location location, Collection<Location> others, int population) {
         int distance = Integer.MAX_VALUE;
-        for (Location other : others) {
-            if (other.getPopulation() >= population) {
-                distance = (int)Math.min(distance, other.distance(location));
+        GeoCoordinate locationCoordinate = location.getCoordinate();
+        if (locationCoordinate != null) {
+            for (Location other : others) {
+                GeoCoordinate otherCoordinate = other.getCoordinate();
+                if (otherCoordinate != null && other.getPopulation() >= population) {
+                    distance = (int)Math.min(distance, otherCoordinate.distance(locationCoordinate));
+                }
             }
         }
         return distance;
@@ -432,18 +444,27 @@ class LocationFeatureExtractor {
             return 0;
         }
         int distance = Integer.MAX_VALUE;
-        for (Location other : others) {
-            if (other.getPopulation() >= population) {
-                distance = (int)Math.min(distance, other.distance(location));
+        GeoCoordinate locationCoordinate = location.getCoordinate();
+        if (locationCoordinate != null) {
+            for (Location other : others) {
+                GeoCoordinate otherCoordinate = other.getCoordinate();
+                if (otherCoordinate != null && other.getPopulation() >= population) {
+                    distance = (int)Math.min(distance, otherCoordinate.distance(locationCoordinate));
+                }
             }
         }
         return distance;
     }
 
     private static int countLocationsInDistance(Location location, Collection<Location> others, double distance) {
+        GeoCoordinate locationCoordinate = location.getCoordinate();
+        if (locationCoordinate == null) {
+            return 0;
+        }
         int count = 0;
         for (Location other : others) {
-            if (location.distance(other) < distance) {
+            GeoCoordinate otherCoordinate = other.getCoordinate();
+            if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) < distance) {
                 count++;
             }
         }

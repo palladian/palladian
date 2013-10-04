@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
@@ -47,8 +49,7 @@ final class UnlockTextMockExtractor extends LocationExtractor {
         Iterator<String> keyIterator = placesJson.keys();
         while (keyIterator.hasNext()) {
             String name = keyIterator.next();
-            Double lng = null;
-            Double lat = null;
+            GeoCoordinate coordinate = null;
             Long pop = null;
             int id = -1;
             List<AlternativeName> altNames = CollectionHelper.newArrayList();
@@ -72,12 +73,13 @@ final class UnlockTextMockExtractor extends LocationExtractor {
                     pop = locationObj.getLong("pop");
                 }
                 if (locationObj.has("long")) {
-                    lng = locationObj.getDouble("long");
-                    lat = locationObj.getDouble("lat");
+                    Double lng = locationObj.getDouble("long");
+                    Double lat = locationObj.getDouble("lat");
+                    coordinate = new ImmutableGeoCoordinate(lat, lng);
                     break;
                 }
             }
-            locations.add(new ImmutableLocation(id, name, altNames, LocationType.UNDETERMINED, lat, lng, pop, null));
+            locations.add(new ImmutableLocation(id, name, altNames, LocationType.UNDETERMINED, coordinate, pop, null));
         }
         return locations;
     }

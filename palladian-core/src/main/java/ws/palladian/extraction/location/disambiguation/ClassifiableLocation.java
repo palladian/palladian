@@ -5,6 +5,7 @@ import java.util.List;
 
 import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.processing.Classifiable;
@@ -26,15 +27,10 @@ public final class ClassifiableLocation extends AbstractLocation implements Clas
         this.location = location;
         this.featureVector = featureVector;
     }
-
+    
     @Override
-    public Double getLatitude() {
-        return location.getLatitude();
-    }
-
-    @Override
-    public Double getLongitude() {
-        return location.getLongitude();
+    public GeoCoordinate getCoordinate() {
+        return location.getCoordinate();
     }
 
     @Override

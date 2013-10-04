@@ -1,11 +1,13 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 import static ws.palladian.extraction.location.LocationType.CITY;
 import static ws.palladian.extraction.location.LocationType.CONTINENT;
 import static ws.palladian.extraction.location.LocationType.COUNTRY;
 import static ws.palladian.extraction.location.LocationType.UNIT;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -138,15 +140,19 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                     continue;
                 }
                 for (Location anchor : currentAnchors) {
-                    double distance = candidate.distance(anchor);
-                    LocationType anchorType = anchor.getType();
-                    if (distance < anchorDistanceThreshold) {
-                        LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
-                        preselection.add(candidate);
-                    } else if (anchorType == CITY || anchorType == UNIT || anchorType == COUNTRY) {
+                    if (candidate.getCoordinate() != null && anchor.getCoordinate() != null) {
+                        double distance = candidate.getCoordinate().distance(anchor.getCoordinate());
+                        if (distance < anchorDistanceThreshold) {
+                            LOGGER.debug("Distance of {} to anchors: {}", distance, candidate);
+                            preselection.add(candidate);
+                            break;
+                        }
+                    }
+                    if (Arrays.asList(CITY, UNIT, COUNTRY).contains(anchor.getType())) {
                         if (candidate.descendantOf(anchor) && candidate.getPopulation() > lowerPopulationThreshold) {
                             LOGGER.debug("{} is child of anchor '{}'", candidate, anchor.getPrimaryName());
                             preselection.add(candidate);
+                            break;
                         }
                     }
                 }
@@ -242,8 +248,9 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             // in case we have locations with same name, but once with and without coordinates in the DB, we drop those
             // without coordinates
             group = LocationExtractorUtils.filterConditionally(group, LocationExtractorUtils.COORDINATE_FILTER);
+            Set<GeoCoordinate> coordinates = CollectionHelper.convertSet(group, LOCATION_COORDINATE_FUNCTION);
 
-            if (LocationExtractorUtils.getLargestDistance(group) < sameDistanceThreshold) {
+            if (LocationExtractorUtils.largestDistanceBelow(sameDistanceThreshold, coordinates)) {
                 Location location = LocationExtractorUtils.getBiggest(group);
                 if (location.getPopulation() > lowerPopulationThreshold || name.split("\\s").length >= tokenThreshold) {
                     anchorLocations.add(location);
@@ -279,11 +286,13 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     private Set<Location> getLassoLocations(MultiMap<? extends Annotation, Location> locations) {
         Set<Location> lassoLocations = new HashSet<Location>(locations.allValues());
         while (lassoLocations.size() > 1) {
-            GeoCoordinate midpoint = GeoUtils.getMidpoint(lassoLocations);
+            List<GeoCoordinate> coordinates = CollectionHelper
+                    .convertList(lassoLocations, LOCATION_COORDINATE_FUNCTION);
+            GeoCoordinate midpoint = GeoUtils.getMidpoint(coordinates);
             double maxDistance = Double.MIN_VALUE;
             Location farthestLocation = null;
             for (Location location : lassoLocations) {
-                double distance = location.distance(midpoint);
+                double distance = location.getCoordinate().distance(midpoint);
                 if (distance > maxDistance) {
                     maxDistance = distance;
                     farthestLocation = location;

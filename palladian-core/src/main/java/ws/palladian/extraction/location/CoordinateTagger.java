@@ -70,7 +70,8 @@ public final class CoordinateTagger implements Tagger {
     }
 
     private static final LocationAnnotation createAnnotation(int start, String value, double latitude, double longitude) {
-        Location location = new ImmutableLocation(0, value, LocationType.UNDETERMINED, latitude, longitude, null);
+        GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+        Location location = new ImmutableLocation(0, value, LocationType.UNDETERMINED, coordinate, null);
         return new LocationAnnotation(start, value, location);
     }
 

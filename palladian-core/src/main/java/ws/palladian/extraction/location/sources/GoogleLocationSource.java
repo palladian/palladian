@@ -111,12 +111,13 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
             for (int i = 0; i < result.size(); i++) {
                 JsonObject current = result.getJsonObject(i);
                 JsonObject jsonLocation = current.getJsonObject("geometry").getJsonObject("location");
-                Double lat = jsonLocation.getDouble("lat");
-                Double lng = jsonLocation.getDouble("lng");
+                double lat = jsonLocation.getDouble("lat");
+                double lng = jsonLocation.getDouble("lng");
+                GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lng);
                 LocationType type = mapType(current.getJsonArray("types"));
                 String name = current.getString("formatted_address");
                 int id = name.hashCode(); // not available by Google
-                locations.add(new ImmutableLocation(id, name, type, lat, lng, null));
+                locations.add(new ImmutableLocation(id, name, type, coordinate, null));
             }
         }
         return locations;

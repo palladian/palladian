@@ -58,7 +58,7 @@ public class MappingLocationExtractor extends LocationExtractor {
             if (mappedType == null) {
                 unmappedTags.add(annotation.getTag());
             } else {
-                Location location = new ImmutableLocation(0, annotation.getValue(), mappedType, null, null, null);
+                Location location = new ImmutableLocation(0, annotation.getValue(), mappedType, null, null);
                 result.add(new LocationAnnotation(annotation, location));
             }
         }
