@@ -106,9 +106,12 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
 
     private Location parseSingleResult(JsonObject resultObject) throws JsonException {
         Integer id = resultObject.getInt("id");
-        double latitude = resultObject.getDouble("latitude");
-        double longitude = resultObject.getDouble("longitude");
-        GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+        GeoCoordinate coordinate = null;
+        if (resultObject.get("coordinate") != null) {
+            double latitude = resultObject.queryDouble("coordinate/latitude");
+            double longitude = resultObject.queryDouble("coordinate/longitude");
+            coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+        }
         String primaryName = resultObject.getString("primaryName");
         String typeString = resultObject.getString("type");
         Long population = resultObject.getLong("population");
@@ -154,14 +157,19 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
             StringBuilder langParameter = new StringBuilder();
             boolean first = true;
             for (Language language : languages) {
+                String iso6391 = language.getIso6391();
+                if (iso6391 == null) {
+                    continue;
+                }
                 if (!first) {
                     langParameter.append(',');
                 }
-                langParameter.append(language.getIso6391());
+                langParameter.append(iso6391);
                 first = false;
             }
             request.addParameter("languages", langParameter.toString());
         }
+        LOGGER.info("Request = {}", request);
         String jsonString = retrieveResult(request);
 
         // parse the bulk response
