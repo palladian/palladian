@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -27,8 +26,8 @@ public class MapMatrix<K, V> implements Serializable, Matrix<K, V> {
 
     public MapMatrix() {
         matrix = CollectionHelper.newHashMap();
-        keysX = new TreeSet<K>();
-        keysY = new TreeSet<K>();
+        keysX = CollectionHelper.newLinkedHashSet();
+        keysY = CollectionHelper.newLinkedHashSet();
     }
 
     /* (non-Javadoc)
