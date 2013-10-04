@@ -89,10 +89,13 @@ class LocationFeatureExtractor {
         for (ClassifiedAnnotation annotation : locations.keySet()) {
             
             Collection<Location> allLocations = context.getLocations(annotation, contextSize);
+            Collection<Location> candidates = locations.get(annotation);
+            // all locations except for the current annotation
+            Set<Location> otherLocations = new HashSet<Location>(allLocations);
+            otherLocations.removeAll(candidates);
 
             String value = annotation.getValue();
             String normalizedValue = LocationExtractorUtils.normalizeName(value);
-            Collection<Location> candidates = locations.get(annotation);
             Location biggestLocation = LocationExtractorUtils.getBiggest(candidates);
             long maxPopulation = Math.max(1, biggestLocation != null ? biggestLocation.getPopulation() : 1);
             // boolean unique = isUnique(candidates);
@@ -109,10 +112,6 @@ class LocationFeatureExtractor {
             // double geoDiversity = getGeoDiversity(candidates, largestDistance);
 
             for (Location location : candidates) {
-
-                // all locations except the current one
-                Set<Location> others = new HashSet<Location>(allLocations);
-                others.remove(location);
 
                 Long population = location.getPopulation();
 
@@ -168,7 +167,7 @@ class LocationFeatureExtractor {
                 //fv.add(new NumericFeature("num(descendant)", descendantCount(location, others)));
                 //fv.add(new NumericFeature("num(sibling)", siblingCount(location, others)));
                 //fv.add(new NumericFeature("numLocIn(10)", countLocationsInDistance(location, others, 10)));
-                fv.add(new NumericFeature("numLocIn(50)", countLocationsInDistance(location, others, 50)));
+                fv.add(new NumericFeature("numLocIn(50)", countLocationsInDistance(location, otherLocations, 50)));
                 //fv.add(new NumericFeature("numLocIn(100)", countLocationsInDistance(location, others, 100)));
                 //fv.add(new NumericFeature("numLocIn(250)", countLocationsInDistance(location, others, 250)));
                 //fv.add(new NumericFeature("distLoc(1m)", getDistanceToPopulation(location, others, 1000000)));
@@ -176,7 +175,7 @@ class LocationFeatureExtractor {
                 //fv.add(new NumericFeature("distLoc(10k)", getDistanceToPopulation(location, others, 10000)));
                 //fv.add(new NumericFeature("distLoc(1k)", getDistanceToPopulation(location, others, 1000)));
                 //fv.add(new NumericFeature("popIn(10)", getPopulationInRadius(location, others, 10)));
-                fv.add(new NumericFeature("popIn(50)", getPopulationInRadius(location, others, 50)));
+                fv.add(new NumericFeature("popIn(50)", getPopulationInRadius(location, otherLocations, 50)));
                 //fv.add(new NumericFeature("popIn(100)", getPopulationInRadius(location, others, 100)));
                 //fv.add(new NumericFeature("popIn(250)", getPopulationInRadius(location, others, 250)));
                 //fv.add(new BooleanFeature("locSentence(10)", sentenceProximities.get(location) <= 10));
@@ -197,12 +196,12 @@ class LocationFeatureExtractor {
                 //fv.add(new BooleanFeature("hasLoc(10k,10)", getDistanceToPopulation(location, others, 10000) < 10));// +
                 //fv.add(new BooleanFeature("hasLoc(1k,10)", getDistanceToPopulation(location, others, 1000) < 10));// +
                 //fv.add(new BooleanFeature("hasLoc(1m,50)", getDistanceToPopulation(location, others, 1000000) < 50));// +
-                fv.add(new BooleanFeature("hasLoc(100k,50)", getDistanceToPopulation(location, others, 100000) < 50));// +
+                fv.add(new BooleanFeature("hasLoc(100k,50)", getDistanceToPopulation(location, otherLocations, 100000) < 50));// +
                 //fv.add(new BooleanFeature("hasLoc(10k,50)", getDistanceToPopulation(location, others, 10000) < 50));// +
                 //fv.add(new BooleanFeature("hasLoc(1k,50)", getDistanceToPopulation(location, others, 1000) < 50));// +
                 //fv.add(new BooleanFeature("hasLoc(1m,100)", getDistanceToPopulation(location, others, 1000000) < 100));// +
                 //fv.add(new BooleanFeature("hasLoc(100k,100)", getDistanceToPopulation(location, others, 100000) < 100));// +
-                fv.add(new BooleanFeature("hasLoc(10k,100)", getDistanceToPopulation(location, others, 10000) < 100));// +
+                fv.add(new BooleanFeature("hasLoc(10k,100)", getDistanceToPopulation(location, otherLocations, 10000) < 100));// +
                 //fv.add(new BooleanFeature("hasLoc(1k,100)", getDistanceToPopulation(location, others, 1000) < 100));// +
                 //fv.add(new BooleanFeature("hasLoc(1m,250)", getDistanceToPopulation(location, others, 1000000) < 250));// +
                 //fv.add(new BooleanFeature("hasLoc(100k,250)", getDistanceToPopulation(location, others, 100000) < 250));// +
@@ -222,7 +221,7 @@ class LocationFeatureExtractor {
                 //fv.add(new BooleanFeature("hasLoc2(10k,100)", getDistanceToPopulation2(location, others, 10000) < 100));// +
                 //fv.add(new BooleanFeature("hasLoc2(1k,100)", getDistanceToPopulation2(location, others, 1000) < 100));// +
                 //fv.add(new BooleanFeature("hasLoc2(1m,250)", getDistanceToPopulation2(location, others, 1000000) < 250));// +
-                fv.add(new BooleanFeature("hasLoc2(100k,250)", getDistanceToPopulation2(location, others, 100000) < 250));// +
+                fv.add(new BooleanFeature("hasLoc2(100k,250)", getDistanceToPopulation2(location, otherLocations, 100000) < 250));// +
                 //fv.add(new BooleanFeature("hasLoc2(10k,250)", getDistanceToPopulation2(location, others, 10000) < 250));// +
                 //fv.add(new BooleanFeature("hasLoc2(1k,250)", getDistanceToPopulation2(location, others, 1000) < 250));// +
                 fv.add(new NumericFeature("popIn2(10)", getPopulationInRadius(location, allLocations, 10)));// +
@@ -443,17 +442,7 @@ class LocationFeatureExtractor {
         if (location.getPopulation() != null && location.getPopulation() >= population) {
             return 0;
         }
-        int distance = Integer.MAX_VALUE;
-        GeoCoordinate locationCoordinate = location.getCoordinate();
-        if (locationCoordinate != null) {
-            for (Location other : others) {
-                GeoCoordinate otherCoordinate = other.getCoordinate();
-                if (otherCoordinate != null && other.getPopulation() >= population) {
-                    distance = (int)Math.min(distance, otherCoordinate.distance(locationCoordinate));
-                }
-            }
-        }
-        return distance;
+        return getDistanceToPopulation(location, others, population);
     }
 
     private static int countLocationsInDistance(Location location, Collection<Location> others, double distance) {

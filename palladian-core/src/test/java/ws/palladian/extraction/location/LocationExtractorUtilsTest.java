@@ -67,6 +67,16 @@ public class LocationExtractorUtilsTest {
         coordinates = CollectionHelper.convertList(locations, LOCATION_COORDINATE_FUNCTION);
         assertEquals(Double.MAX_VALUE, LocationExtractorUtils.getLargestDistance(coordinates), 0);
         assertFalse(LocationExtractorUtils.largestDistanceBelow(50, coordinates));
+
+        locations = Arrays.asList(l1);
+        coordinates = CollectionHelper.convertList(locations, LOCATION_COORDINATE_FUNCTION);
+        assertEquals(0, LocationExtractorUtils.getLargestDistance(coordinates), 0);
+        assertTrue(LocationExtractorUtils.largestDistanceBelow(50, coordinates));
+
+        locations = Arrays.asList(l7);
+        coordinates = CollectionHelper.convertList(locations, LOCATION_COORDINATE_FUNCTION);
+        assertEquals(0, LocationExtractorUtils.getLargestDistance(coordinates), 0);
+        assertTrue(LocationExtractorUtils.largestDistanceBelow(50, coordinates));
     }
 
 }

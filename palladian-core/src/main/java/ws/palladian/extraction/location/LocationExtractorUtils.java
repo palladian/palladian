@@ -127,10 +127,10 @@ public final class LocationExtractorUtils {
      */
     public static double getLargestDistance(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notNull(coordinates, "coordinates must not be null");
-        double largestDistance = 0;
-        if (coordinates.contains(null)) {
+        if (coordinates.contains(null) && coordinates.size() > 1) { // multiple null coordinates?
             return Double.MAX_VALUE;
         }
+        double largestDistance = 0;
         List<GeoCoordinate> temp = new ArrayList<GeoCoordinate>(coordinates);
         for (int i = 0; i < temp.size(); i++) {
             GeoCoordinate c1 = temp.get(i);
@@ -156,7 +156,7 @@ public final class LocationExtractorUtils {
     public static boolean largestDistanceBelow(double distance, Collection<? extends GeoCoordinate> coordinates) {
         Validate.isTrue(distance >= 0, "distance must be greater/equal zero.");
         Validate.notNull(coordinates, "coordinates must not be null");
-        if (coordinates.contains(null)) {
+        if (coordinates.contains(null) && coordinates.size() > 1) {
             return false;
         }
         List<GeoCoordinate> temp = new ArrayList<GeoCoordinate>(coordinates);
