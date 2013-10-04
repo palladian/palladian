@@ -3,9 +3,6 @@ package ws.palladian.retrieval.search.socialmedia;
 import java.util.Date;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +11,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -82,11 +82,11 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
             }
 
             try {
-                JSONObject jsonData = new JSONObject(stringResult).getJSONObject("data");
-                JSONArray jsonChildren = jsonData.getJSONArray("children");
-                for (int i = 0; i < jsonChildren.length(); i++) {
-                    JSONObject jsonChild = jsonChildren.getJSONObject(i);
-                    JSONObject jsonChildData = jsonChild.getJSONObject("data");
+                JsonObject jsonData = new JsonObject(stringResult).getJsonObject("data");
+                JsonArray jsonChildren = jsonData.getJsonArray("children");
+                for (int i = 0; i < jsonChildren.size(); i++) {
+                    JsonObject jsonChild = jsonChildren.getJsonObject(i);
+                    JsonObject jsonChildData = jsonChild.getJsonObject("data");
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
                     builder.setTitle(jsonChildData.getString("title"));
                     builder.setSummary(jsonChildData.getString("selftext"));
@@ -101,7 +101,7 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
                 if (pagingAfter == null) {
                     break;
                 }
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException(
                         "Error while parsing JSON response '" + stringResult + "': " + e.toString(), e);
             }
