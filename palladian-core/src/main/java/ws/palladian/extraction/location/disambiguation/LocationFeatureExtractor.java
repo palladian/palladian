@@ -186,7 +186,7 @@ class LocationFeatureExtractor {
                 //fv.add(new BooleanFeature("uniqueIn(10)", countLocationsInDistance(location, uniqLocations, 10) > 0));
                 //fv.add(new BooleanFeature("uniqueIn(50)", countLocationsInDistance(location, uniqLocations, 50) > 0));
                 //fv.add(new BooleanFeature("uniqueIn(100)", countLocationsInDistance(location, uniqLocations, 100) > 0));
-                fv.add(new BooleanFeature("uniqueIn(250)", hasLocationsInDistance(location, uniqLocations, 250)));
+                fv.add(new BooleanFeature("uniqueIn(250)", countLocationsInDistance(location, uniqLocations, 250) > 0));
                 //fv.add(new BooleanFeature("primaryName", value.equals(location.getPrimaryName()))); // + AusDM
                 //fv.add(new NumericFeature("distLoc2(1m)", getDistanceToPopulation2(location, others, 1000000))); // +
                 //fv.add(new NumericFeature("distLoc2(100k)", getDistanceToPopulation2(location, others, 100000)));// +
@@ -473,19 +473,19 @@ class LocationFeatureExtractor {
         return CollectionHelper.filterSet(others, new LocationRadiusFilter(locationCoordinate, distance)).size();
     }
     
-    private static boolean hasLocationsInDistance(Location location, Set<Location> others, double distance) {
-        GeoCoordinate locationCoordinate = location.getCoordinate();
-        if (locationCoordinate == null) {
-            return false;
-        }
-        for (Location other : others) {
-            GeoCoordinate otherCoordinate = other.getCoordinate();
-            if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) < distance) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private static boolean hasLocationsInDistance(Location location, Set<Location> others, double distance) {
+//        GeoCoordinate locationCoordinate = location.getCoordinate();
+//        if (locationCoordinate == null) {
+//            return false;
+//        }
+//        for (Location other : others) {
+//            GeoCoordinate otherCoordinate = other.getCoordinate();
+//            if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) < distance) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
 //    private static int childCount(Location location, Collection<Location> others) {
 //        int count = 0;
