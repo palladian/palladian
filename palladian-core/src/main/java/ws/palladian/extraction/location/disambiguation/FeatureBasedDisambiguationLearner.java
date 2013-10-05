@@ -56,7 +56,8 @@ public class FeatureBasedDisambiguationLearner {
     
     private final QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
 
-    private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor();
+    private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor(
+            FeatureBasedDisambiguation.CONTEXT_SIZE);
 
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 
