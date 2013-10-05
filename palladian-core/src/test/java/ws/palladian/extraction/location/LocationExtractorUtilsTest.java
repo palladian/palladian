@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class LocationExtractorUtilsTest {
@@ -77,6 +78,14 @@ public class LocationExtractorUtilsTest {
         coordinates = CollectionHelper.convertList(locations, LOCATION_COORDINATE_FUNCTION);
         assertEquals(0, LocationExtractorUtils.getLargestDistance(coordinates), 0);
         assertTrue(LocationExtractorUtils.largestDistanceBelow(50, coordinates));
+    }
+
+    @Test
+    public void testLocationRangeFilter() {
+        LocationRadiusFilter filter = new LocationRadiusFilter(l1.getCoordinate(), 50);
+        assertTrue(filter.accept(l2));
+        assertFalse(filter.accept(l3));
+        assertFalse(filter.accept(l7));
     }
 
 }
