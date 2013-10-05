@@ -27,6 +27,7 @@ import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 
 /**
  * <p>
@@ -85,7 +86,7 @@ class LocationFeatureExtractor {
         // Set<Location> countries = CollectionHelper.filterSet(allLocations, new LocationTypeFilter(COUNTRY));
         // Set<Location> units = CollectionHelper.filterSet(allLocations, new LocationTypeFilter(UNIT));
         DisambiguationContext context = new DisambiguationContext(locations);
-
+        
         for (ClassifiedAnnotation annotation : locations.keySet()) {
             
             Collection<Location> allLocations = context.getLocations(annotation, contextSize);
@@ -185,7 +186,7 @@ class LocationFeatureExtractor {
                 //fv.add(new BooleanFeature("uniqueIn(10)", countLocationsInDistance(location, uniqLocations, 10) > 0));
                 //fv.add(new BooleanFeature("uniqueIn(50)", countLocationsInDistance(location, uniqLocations, 50) > 0));
                 //fv.add(new BooleanFeature("uniqueIn(100)", countLocationsInDistance(location, uniqLocations, 100) > 0));
-                fv.add(new BooleanFeature("uniqueIn(250)", countLocationsInDistance(location, uniqLocations, 250) > 0));
+                fv.add(new BooleanFeature("uniqueIn(250)", hasLocationsInDistance(location, uniqLocations, 250)));
                 //fv.add(new BooleanFeature("primaryName", value.equals(location.getPrimaryName()))); // + AusDM
                 //fv.add(new NumericFeature("distLoc2(1m)", getDistanceToPopulation2(location, others, 1000000))); // +
                 //fv.add(new NumericFeature("distLoc2(100k)", getDistanceToPopulation2(location, others, 100000)));// +
@@ -408,14 +409,25 @@ class LocationFeatureExtractor {
     }
 
     private static int getPopulationInRadius(Location location, Collection<Location> others, double distance) {
-        int population = 0;
         GeoCoordinate locationCoordinate = location.getCoordinate();
-        if (locationCoordinate != null) {
-            for (Location other : others) {
-                GeoCoordinate otherCoordinate = other.getCoordinate();
-                if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) <= distance) {
-                    population += other.getPopulation();
-                }
+        if (locationCoordinate == null) {
+            return 0;
+        }
+        int population = 0;
+//        if (locationCoordinate != null) {
+//            for (Location other : others) {
+//                GeoCoordinate otherCoordinate = other.getCoordinate();
+//                Long otherPopulation = other.getPopulation();
+//                if (otherCoordinate != null && otherPopulation != null && otherPopulation > 0
+//                        && locationCoordinate.distance(otherCoordinate) <= distance) {
+//                    population += otherPopulation;
+//                }
+//            }
+//        }
+        for (Location other : CollectionHelper.filterSet(others, new LocationRadiusFilter(locationCoordinate, distance))) {
+            Long otherPopulation = other.getPopulation();
+            if (otherPopulation != null) {
+                population += otherPopulation;
             }
         }
         return population;
@@ -450,14 +462,29 @@ class LocationFeatureExtractor {
         if (locationCoordinate == null) {
             return 0;
         }
-        int count = 0;
+//        int count = 0;
+//        for (Location other : others) {
+//            GeoCoordinate otherCoordinate = other.getCoordinate();
+//            if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) < distance) {
+//                count++;
+//            }
+//        }
+//        return count;
+        return CollectionHelper.filterSet(others, new LocationRadiusFilter(locationCoordinate, distance)).size();
+    }
+    
+    private static boolean hasLocationsInDistance(Location location, Set<Location> others, double distance) {
+        GeoCoordinate locationCoordinate = location.getCoordinate();
+        if (locationCoordinate == null) {
+            return false;
+        }
         for (Location other : others) {
             GeoCoordinate otherCoordinate = other.getCoordinate();
             if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) < distance) {
-                count++;
+                return true;
             }
         }
-        return count;
+        return false;
     }
 
 //    private static int childCount(Location location, Collection<Location> others) {
