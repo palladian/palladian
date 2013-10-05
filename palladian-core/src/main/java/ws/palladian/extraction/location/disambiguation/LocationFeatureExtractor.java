@@ -27,6 +27,7 @@ import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 
 /**
  * <p>
@@ -408,16 +409,25 @@ class LocationFeatureExtractor {
     }
 
     private static int getPopulationInRadius(Location location, Collection<Location> others, double distance) {
-        int population = 0;
         GeoCoordinate locationCoordinate = location.getCoordinate();
-        if (locationCoordinate != null) {
-            for (Location other : others) {
-                GeoCoordinate otherCoordinate = other.getCoordinate();
-                Long otherPopulation = other.getPopulation();
-                if (otherCoordinate != null && otherPopulation != null && otherPopulation > 0
-                        && locationCoordinate.distance(otherCoordinate) <= distance) {
-                    population += otherPopulation;
-                }
+        if (locationCoordinate == null) {
+            return 0;
+        }
+        int population = 0;
+//        if (locationCoordinate != null) {
+//            for (Location other : others) {
+//                GeoCoordinate otherCoordinate = other.getCoordinate();
+//                Long otherPopulation = other.getPopulation();
+//                if (otherCoordinate != null && otherPopulation != null && otherPopulation > 0
+//                        && locationCoordinate.distance(otherCoordinate) <= distance) {
+//                    population += otherPopulation;
+//                }
+//            }
+//        }
+        for (Location other : CollectionHelper.filterSet(others, new LocationRadiusFilter(locationCoordinate, distance))) {
+            Long otherPopulation = other.getPopulation();
+            if (otherPopulation != null) {
+                population += otherPopulation;
             }
         }
         return population;
@@ -452,14 +462,15 @@ class LocationFeatureExtractor {
         if (locationCoordinate == null) {
             return 0;
         }
-        int count = 0;
-        for (Location other : others) {
-            GeoCoordinate otherCoordinate = other.getCoordinate();
-            if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) < distance) {
-                count++;
-            }
-        }
-        return count;
+//        int count = 0;
+//        for (Location other : others) {
+//            GeoCoordinate otherCoordinate = other.getCoordinate();
+//            if (otherCoordinate != null && locationCoordinate.distance(otherCoordinate) < distance) {
+//                count++;
+//            }
+//        }
+//        return count;
+        return CollectionHelper.filterSet(others, new LocationRadiusFilter(locationCoordinate, distance)).size();
     }
     
     private static boolean hasLocationsInDistance(Location location, Set<Location> others, double distance) {
