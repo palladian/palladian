@@ -1,8 +1,7 @@
 package ws.palladian.retrieval.search.images;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.BaseGoogleSearcher;
@@ -22,7 +21,7 @@ public final class GoogleImageSearcher extends BaseGoogleSearcher<WebImage> {
     }
 
     @Override
-    protected WebImage parseResult(JSONObject resultData) throws JSONException {
+    protected WebImage parseResult(JsonObject resultData) throws JsonException {
         BasicWebImage.Builder builder = new BasicWebImage.Builder();
         builder.setUrl(resultData.getString("originalContextUrl"));
         builder.setImageUrl(resultData.getString("unescapedUrl"));

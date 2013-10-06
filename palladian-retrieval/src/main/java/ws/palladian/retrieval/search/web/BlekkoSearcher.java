@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
@@ -16,6 +13,9 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -105,18 +105,18 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 jsonString = httpResult.getStringContent();
-                JSONObject jsonObject = new JSONObject(jsonString);
+                JsonObject jsonObject = new JsonObject(jsonString);
 
-                if (!jsonObject.has("RESULT")) {
+                if (jsonObject.get("RESULT") == null) {
                     continue;
                 }
 
-                JSONArray jsonResults = jsonObject.getJSONArray("RESULT");
+                JsonArray jsonResults = jsonObject.getJsonArray("RESULT");
 
-                for (int j = 0; j < jsonResults.length(); j++) {
-                    JSONObject jsonResult = jsonResults.getJSONObject(j);
+                for (int j = 0; j < jsonResults.size(); j++) {
+                    JsonObject jsonResult = jsonResults.getJsonObject(j);
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
-                    if (jsonResult.has("snippet")) {
+                    if (jsonResult.get("snippet") != null) {
                         builder.setSummary(jsonResult.getString("snippet"));
                     }
                     builder.setUrl(jsonResult.getString("url"));
@@ -132,7 +132,7 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
                     + e.getMessage(), e);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
                     + getName() + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
         }
@@ -174,11 +174,11 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
             jsonString = httpResult.getStringContent();
-            JSONObject jsonObject = new JSONObject(jsonString);
+            JsonObject jsonObject = new JsonObject(jsonString);
 
             // System.out.println(jsonObject.toString(2));
 
-            if (jsonObject != null && jsonObject.has("universal_total_results")) {
+            if (jsonObject != null && jsonObject.get("universal_total_results") != null) {
                 String string = jsonObject.getString("universal_total_results");
                 string = string.replace("K", "000");
                 string = string.replace("M", "000000");
@@ -192,7 +192,7 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while searching total result count for \"" + query + "\" with "
                     + getName() + ": " + e.getMessage(), e);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new SearcherException("Error parsing the JSON response while searching total result count for \""
                     + query + "\" with " + getName() + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\".", e);
         }

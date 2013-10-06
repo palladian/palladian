@@ -4,9 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.FileNotFoundException;
-
-import org.json.JSONException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -15,7 +12,7 @@ public class GoogleSpellCheckerTest {
 
     @Ignore
     @Test
-    public void testSpellCheck() throws FileNotFoundException, JSONException {
+    public void testSpellCheck() {
 
         GoogleSpellChecker gsc = new GoogleSpellChecker();
 
@@ -25,8 +22,9 @@ public class GoogleSpellCheckerTest {
         assertFalse(gsc.containsErrors("no errors here"));
         assertFalse(gsc.containsErrors("zero problem in this beautifully written text"));
 
-        assertEquals("This is how the text is supposed to be",gsc.autoCorrect("Thas is hoow the etxt is sopossed to be"));
-        assertEquals("Cool, it seems to work",gsc.autoCorrect("Coool, il seamss to workk"));
+        assertEquals("This is how the text is supposed to be",
+                gsc.autoCorrect("Thas is hoow the etxt is sopossed to be"));
+        assertEquals("Cool, it seems to work", gsc.autoCorrect("Coool, il seamss to workk"));
     }
 
 }

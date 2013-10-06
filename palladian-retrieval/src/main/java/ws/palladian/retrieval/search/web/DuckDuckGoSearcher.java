@@ -7,9 +7,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +18,9 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -83,12 +83,12 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
             try {
-                JSONArray jsonArray = new JSONArray(jsonContent);
+                JsonArray jsonArray = new JsonArray(jsonContent);
 
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject object = jsonArray.getJSONObject(i);
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JsonObject object = jsonArray.getJsonObject(i);
 
-                    if (!object.has("u")) {
+                    if (object.get("u") == null) {
                         continue; // if object in array contains no URL, it is paging information
                     }
 
@@ -105,7 +105,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
                         break paging;
                     }
                 }
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()
                         + " (request URL: \"" + requestUrl + "\", result String: \"" + content + "\"): "
                         + e.getMessage(), e);
