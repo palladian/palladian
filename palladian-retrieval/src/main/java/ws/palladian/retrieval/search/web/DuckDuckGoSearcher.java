@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
@@ -35,6 +37,9 @@ import ws.palladian.retrieval.search.SearcherException;
  */
 public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DuckDuckGoSearcher.class);
+
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /** The number of entries which are returned for each page. */
@@ -42,7 +47,10 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
     /** Prevent over penetrating the searcher. */
     private static final RequestThrottle THROTTLE = new RequestThrottle(1000);
-    
+
+    /** The JavaScript URL for the search results. */
+    private static final String URL = "https://duckduckgo.com/d.js?q=%s&t=A&l=us-en&p=1&s=%s";
+
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
@@ -53,8 +61,8 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
         paging: for (int page = 0; page <= 999; page++) {
 
-            String requestUrl = "http://duckduckgo.com/d.js?l=us-en&p=1&s=" + ENTRIES_PER_PAGE * page + "&q="
-                    + UrlHelper.encodeParameter(query);
+            String requestUrl = String.format(URL, UrlHelper.encodeParameter(query), ENTRIES_PER_PAGE * page);
+            LOGGER.debug("Request URL = {}", requestUrl);
 
             HttpResult httpResult;
             try {

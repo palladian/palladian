@@ -38,7 +38,7 @@ public class RankingServicesIT {
 
     private final RankingService rankingService;
 
-    @Parameters
+    @Parameters(name = "{0}")
     public static Collection<Object[]> rankers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
         List<Object[]> rankers = CollectionHelper.newArrayList();

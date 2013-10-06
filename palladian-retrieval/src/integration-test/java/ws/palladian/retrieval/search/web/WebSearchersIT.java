@@ -50,7 +50,7 @@ public class WebSearchersIT {
 
     private final Searcher<?> searcher;
 
-    @Parameters
+    @Parameters(name = "{0}")
     public static Collection<Object[]> searchers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
         List<Object[]> searchers = CollectionHelper.newArrayList();

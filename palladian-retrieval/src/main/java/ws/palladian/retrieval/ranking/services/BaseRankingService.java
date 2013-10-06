@@ -92,5 +92,10 @@ public abstract class BaseRankingService implements RankingService {
     @Override
     public void resetBlocked() {
     }
+    
+    @Override
+    public String toString() {
+        return getServiceId();
+    }
 
 }
