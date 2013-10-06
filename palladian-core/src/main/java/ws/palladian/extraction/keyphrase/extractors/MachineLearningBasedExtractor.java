@@ -14,10 +14,12 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.dt.BaggedDecisionTreeClassifier;
-import ws.palladian.classification.dt.BaggedDecisionTreeModel;
+import ws.palladian.classification.dt.QuickDtClassifier;
+import ws.palladian.classification.dt.QuickDtLearner;
+import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
@@ -69,8 +71,9 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private final StemmerAnnotator stemmer;
     private int trainCount;
     private final Map<PipelineDocument<String>, Set<String>> trainDocuments;
-    private BaggedDecisionTreeClassifier classifier;
-    private BaggedDecisionTreeModel model;
+    private final QuickDtLearner learner=new QuickDtLearner(new RandomForestBuilder().numTrees(10));
+    private final QuickDtClassifier classifier=new QuickDtClassifier();
+    private QuickDtModel model;
 
     public MachineLearningBasedExtractor() {
         termCorpus = new TermCorpus();
@@ -78,7 +81,6 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         cooccurrenceMatrix = new CooccurrenceMatrix<String>();
         trainCount = 0;
         trainDocuments = new HashMap<PipelineDocument<String>, Set<String>>();
-        classifier = createClassifier();
 
         corpusGenerationPipeline = new PerformanceCheckProcessingPipeline();
         corpusGenerationPipeline.add(new HtmlCleaner());
@@ -119,11 +121,6 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
             }
         });
 
-    }
-
-    private BaggedDecisionTreeClassifier createClassifier() {
-        BaggedDecisionTreeClassifier baggedClassifier = new BaggedDecisionTreeClassifier();
-        return baggedClassifier;
     }
 
     @Override
@@ -204,7 +201,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         System.out.println("# positive samples: " + posSamples);
         System.out.println("% positive sample rate: " + (double)posSamples / (negSamples + posSamples));
         System.out.println("building classifier ...");
-        this.model = classifier.train(instances);
+        this.model = learner.train(instances);
         System.out.println(model.toString());
         System.out.println("... finished building classifier.");
     }
@@ -327,7 +324,6 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         cooccurrenceMatrix.reset();
         trainCount = 0;
         trainDocuments.clear();
-        classifier = createClassifier();
         super.reset();
     }
 
