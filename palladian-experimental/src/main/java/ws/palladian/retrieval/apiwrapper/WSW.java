@@ -8,9 +8,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -18,6 +15,9 @@ import org.xml.sax.SAXException;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 public class WSW {
 
@@ -81,7 +81,7 @@ public class WSW {
     // public void call(String wswPath, int profileID, HashSet<ParameterBinding>
     // parameterBindings) {
 
-    public OutputObject callProfile(int profileID, HashSet<ParameterBinding> parameterBindings) throws JSONException {
+    public OutputObject callProfile(int profileID, HashSet<ParameterBinding> parameterBindings) throws JsonException {
 
         OutputObject oo = new OutputObject();
 
@@ -95,14 +95,14 @@ public class WSW {
         return oo;
     }
 
-    public OutputObject callWebService(int webServiceID, HashSet<ParameterBinding> parameterBindings) throws JSONException {
+    public OutputObject callWebService(int webServiceID, HashSet<ParameterBinding> parameterBindings) throws JsonException {
 
         OutputObject oo = new OutputObject();
 
         String url = createQueryURL(webServiceID, parameterBindings);
 
         DocumentRetriever c = new DocumentRetriever();
-        JSONObject jsonOBJ = c.getJSONObject(url);
+        JsonObject jsonOBJ = c.getJsonObject(url);
 
         HashSet<ParameterBinding> outputParameterBindings = new HashSet<ParameterBinding>();
 
@@ -121,7 +121,7 @@ public class WSW {
                 if (types[i].equalsIgnoreCase("o")) {
 
                     if (lastType.equalsIgnoreCase("o")) {
-                        lastObject = ((JSONObject) lastObject).getJSONObject(parameter[i]);
+                        lastObject = ((JsonObject) lastObject).getJsonObject(parameter[i]);
                     } else {
                         // lastObject =
                         // ((JSONArray)lastObject).getJSONObject(1);
@@ -131,15 +131,15 @@ public class WSW {
 
                 } else if (types[i].equalsIgnoreCase("a")) {
 
-                    lastObject = ((JSONObject) lastObject).getJSONArray(parameter[i]);
+                    lastObject = ((JsonObject) lastObject).getJsonArray(parameter[i]);
                     lastType = "a";
 
                 } else if (types[i].equalsIgnoreCase("v")) {
 
                     if (lastType.equalsIgnoreCase("a")) {
-                        JSONArray ja = ((JSONArray) lastObject);
-                        for (int j = 0; j < ja.length(); j++) {
-                            value = ja.getJSONObject(j).getString(parameter[i]);
+                        JsonArray ja = ((JsonArray) lastObject);
+                        for (int j = 0; j < ja.size(); j++) {
+                            value = ja.getJsonObject(j).getString(parameter[i]);
                             ParameterBinding opb = new ParameterBinding(term, value);
                             outputParameterBindings.add(opb);
                         }

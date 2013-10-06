@@ -6,15 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -68,25 +68,25 @@ public final class RedditStats extends BaseRankingService implements RankingServ
 
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet(GET_INFO + encUrl);
-            JSONObject json = new JSONObject(httpResult.getStringContent());
+            JsonObject json = new JsonObject(httpResult.getStringContent());
 
-            JSONArray children = json.getJSONObject("data").getJSONArray("children");
+            JsonArray children = json.getJsonObject("data").getJsonArray("children");
             float votes = 0;
             float comments = 0;
-            for (int i = 0; i < children.length(); i++) {
-                JSONObject child = children.getJSONObject(i);
+            for (int i = 0; i < children.size(); i++) {
+                JsonObject child = children.getJsonObject(i);
                 // all post have "kind" : "t3" -- there is no documentation, what this means,
                 // but for robustness sake we check here
                 if (child.getString("kind").equals("t3")) {
-                    votes += child.getJSONObject("data").getInt("score");
-                    comments += child.getJSONObject("data").getInt("num_comments");
+                    votes += child.getJsonObject("data").getInt("score");
+                    comments += child.getJsonObject("data").getInt("num_comments");
                 }
             }
             results.put(VOTES, votes);
             results.put(COMMENTS, comments);
             LOGGER.trace("Reddit stats for " + url + " : " + results);
 
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {

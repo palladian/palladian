@@ -7,9 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +16,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -94,14 +94,14 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
             }
 
             try {
-                JSONObject jsonResult = new JSONObject(stringResult);
+                JsonObject jsonResult = new JsonObject(stringResult);
                 totalResultCount = jsonResult.getLong("count");
-                JSONArray photosJson = jsonResult.getJSONArray("photos");
-                if (photosJson.length() == 0) {
+                JsonArray photosJson = jsonResult.getJsonArray("photos");
+                if (photosJson.size() == 0) {
                     break;
                 }
-                for (int i = 0; i < photosJson.length(); i++) {
-                    JSONObject photoJson = photosJson.getJSONObject(i);
+                for (int i = 0; i < photosJson.size(); i++) {
+                    JsonObject photoJson = photosJson.getJsonObject(i);
                     BasicWebImage.Builder builder = new BasicWebImage.Builder();
                     builder.setTitle(photoJson.getString("photo_title"));
                     builder.setUrl(photoJson.getString("photo_url"));
@@ -117,7 +117,7 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
                         break;
                     }
                 }
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error while parsing the JSON string '" + stringResult + "': "
                         + e.toString(), e);
             }

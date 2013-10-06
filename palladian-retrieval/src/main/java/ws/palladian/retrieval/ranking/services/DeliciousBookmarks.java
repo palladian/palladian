@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -69,15 +69,15 @@ public final class DeliciousBookmarks extends BaseRankingService implements Rank
             HttpResult httpResult = retriever.httpGet("http://feeds.delicious.com/v2/json/urlinfo/" + md5Url);
             String jsonString = httpResult.getStringContent();
             LOGGER.trace("JSON=" + jsonString);
-            JSONArray json = new JSONArray(jsonString);
+            JsonArray json = new JsonArray(jsonString);
 
             result = 0f;
-            if (json.length() > 0) {
-                result = (float) json.getJSONObject(0).getInt("total_posts");
+            if (json.size() > 0) {
+                result = (float) json.getJsonObject(0).getInt("total_posts");
             }
             LOGGER.trace("Delicious bookmarks for " + url + " : " + result);
 
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new RankingServiceException(e);
         } catch (HttpException e) {
             throw new RankingServiceException(e);

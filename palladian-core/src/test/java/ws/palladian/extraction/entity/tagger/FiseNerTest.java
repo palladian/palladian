@@ -6,17 +6,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.json.JSONException;
 import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.retrieval.parser.json.JsonException;
 
 public class FiseNerTest {
 
     @Test
-    public void testParseJson() throws FileNotFoundException, JSONException {
+    public void testParseJson() throws FileNotFoundException, JsonException {
         String text = "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.";
         File jsonFile = ResourceHelper.getResourceFile("/apiResponse/fiseNer.json");
         String json = FileHelper.readFileToString(jsonFile);

@@ -8,9 +8,6 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +19,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -103,27 +103,27 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
             String jsonString = httpResult.getStringContent();
 
             try {
-                JSONObject jsonResult = new JSONObject(jsonString);
-                JSONArray dataArray = jsonResult.getJSONArray("data");
+                JsonObject jsonResult = new JsonObject(jsonString);
+                JsonArray dataArray = jsonResult.getJsonArray("data");
 
-                for (int i = 0; i < dataArray.length(); i++) {
-                    JSONObject data = dataArray.getJSONObject(i);
+                for (int i = 0; i < dataArray.size(); i++) {
+                    JsonObject data = dataArray.getJsonObject(i);
                     BasicWebImage.Builder builder = new BasicWebImage.Builder();
 
                     builder.setUrl(data.getString("link"));
                     builder.setPublished(new Date(data.getLong("created_time") * 1000));
 
-                    JSONObject imageData = data.getJSONObject("images").getJSONObject("standard_resolution");
+                    JsonObject imageData = data.getJsonObject("images").getJsonObject("standard_resolution");
                     builder.setImageUrl(imageData.getString("url"));
                     builder.setWidth(imageData.getInt("width"));
                     builder.setHeight(imageData.getInt("height"));
 
-                    if (data.has("caption") && !data.getString("caption").equals("null")) {
-                        builder.setTitle(data.getJSONObject("caption").getString("text"));
+                    if (data.get("caption") != null) {
+                        builder.setTitle(data.getJsonObject("caption").getString("text"));
                     }
-                    if (data.has("location") && !"null".equals(data.getString("location"))) {
-                        JSONObject jsonLocaiton = data.getJSONObject("location");
-                        if (jsonLocaiton.has("longitude") && jsonLocaiton.has("latitude")) {
+                    if (data.get("location") != null) {
+                        JsonObject jsonLocaiton = data.getJsonObject("location");
+                        if (jsonLocaiton.get("longitude") != null && jsonLocaiton.get("latitude") != null) {
                             double longitude = jsonLocaiton.getDouble("longitude");
                             double latitude = jsonLocaiton.getDouble("latitude");
                             builder.setCoordinate(new ImmutableGeoCoordinate(latitude, longitude));
@@ -137,16 +137,16 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
 
                 }
 
-                if (!jsonResult.has("pagination")) {
+                if (jsonResult.get("pagination") == null) {
                     break;
                 }
-                JSONObject paginationJson = jsonResult.getJSONObject("pagination");
-                if (!paginationJson.has("next_url")) {
+                JsonObject paginationJson = jsonResult.getJsonObject("pagination");
+                if (paginationJson.get("next_url") == null) {
                     break;
                 }
                 queryUrl = paginationJson.getString("next_url");
 
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Parse exception while parsing JSON data: \"" + jsonString + "\"", e);
             }
 

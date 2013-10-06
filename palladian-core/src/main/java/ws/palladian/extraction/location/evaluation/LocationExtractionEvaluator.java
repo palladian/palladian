@@ -431,29 +431,29 @@ public final class LocationExtractionEvaluator {
     public static void main(String[] args) {
 
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-        evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
+        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
         // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation");
         // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/2-validation");
 
-        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/3-test");
-        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test");
-        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/3-test");
+        evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/3-test");
+        evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test");
+        evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/3-test");
 
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new BaselineDisambiguation()));
-        // evaluator.addExtractor(new PalladianLocationExtractor(database, new HeuristicDisambiguation()));
+        evaluator.addExtractor(new PalladianLocationExtractor(database, new HeuristicDisambiguation()));
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_tud_train_1375884663191.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_lgl_train_1375884760443.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_clust_train_1375885091622.model");
         QuickDtModel model;
-        // model = FileHelper.deserialize("data/temp/location_disambiguation_1377440795471.model");
+        // model = FileHelper.deserialize("data/temp/location_disambiguation_tud.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
-        // model = FileHelper.deserialize("data/temp/location_disambiguation_1377440979286.model");
+        // model = FileHelper.deserialize("data/temp/location_disambiguation_lgl.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
-        // model = FileHelper.deserialize("data/temp/location_disambiguation_1377441648409.model");
+        model = FileHelper.deserialize("data/temp/location_disambiguation_clust.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
-        model = FileHelper.deserialize("data/temp/location_disambiguation_all_train_1377442726898.model");
-        evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
+        // model = FileHelper.deserialize("data/temp/location_disambiguation_all.model");
+        // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new CombinedDisambiguation(model)));
 
         // perform threshold analysis ////////////////////////////////
