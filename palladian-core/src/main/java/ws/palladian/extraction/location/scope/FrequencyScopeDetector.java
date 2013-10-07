@@ -22,7 +22,7 @@ public final class FrequencyScopeDetector implements ScopeDetector {
         Location selectedLocation = null;
 
         for (Location location : new HashSet<Location>(locations)) {
-            if (location.getLatitude() == null || location.getLongitude() == null) {
+            if (location.getCoordinate() == null) {
                 continue;
             }
             int count = Collections.frequency(locations, location);

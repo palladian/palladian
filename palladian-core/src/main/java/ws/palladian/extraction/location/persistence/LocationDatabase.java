@@ -216,11 +216,12 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
     @Override
     public void save(Location location) {
         List<Object> args = CollectionHelper.newArrayList();
+        GeoCoordinate coordinate = location.getCoordinate();
         args.add(location.getId());
         args.add(location.getType().toString());
         args.add(location.getPrimaryName());
-        args.add(location.getLongitude());
-        args.add(location.getLatitude());
+        args.add(coordinate != null ? coordinate.getLongitude() : null);
+        args.add(coordinate != null ? coordinate.getLatitude() : null);
         args.add(location.getPopulation());
         int generatedLocationId = runInsertReturnId(ADD_LOCATION, args);
 
@@ -312,7 +313,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
         return id != null ? id : 0;
     }
 
-    // @Override
+    @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         Collection<Collection<Location>> result = getLocationsInternal(null, null, coordinate, distance).values();
         return new ArrayList<Location>(CollectionHelper.getFirst(result));
