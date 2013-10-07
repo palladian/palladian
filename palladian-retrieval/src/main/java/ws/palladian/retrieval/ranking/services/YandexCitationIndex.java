@@ -37,7 +37,7 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
     /** The ranking value types of this service **/
     public static final RankingType CITATIONINDEX = new RankingType("citationindex", "Yandex Citation Index",
             "The Yandex Citation Index value from Yandex");
-    
+
     /** All available ranking types by {@link YandexCitationIndex}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(CITATIONINDEX);
 
@@ -62,16 +62,24 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
 
             if (response != null) {
                 citationIndex = 0;
-                // result stays 0 if response empty -> url not found
-                String citationIndexString = StringHelper.getSubstringBetween(response,"b-cy_error-cy\">","</p>");
-                
-                citationIndexString = StringHelper.trim(citationIndexString.replaceAll(".*? — ", ""));
-                
+
+                String leftBorder = UrlHelper.getDomain(url).replace("http://", "").replace("www.", "")
+                        + "/\" target=\"_blank\">";
+                String citationIndexString = StringHelper.getSubstringBetween(response, leftBorder, "</td>\n</tr>");
+
+                if (citationIndexString.isEmpty()) {
+                    // result stays 0 if response empty -> url not found
+                    citationIndexString = StringHelper.getSubstringBetween(response, "b-cy_error-cy\">", "</p>");
+                    citationIndexString = StringHelper.trim(citationIndexString.replaceAll(".*? — ", ""));
+                } else {
+                    citationIndexString = StringHelper.getSubstringBetween(citationIndexString, "<td>", null);
+                }
+
                 citationIndex = Integer.valueOf(citationIndexString);
-                
+
                 LOGGER.trace("Yandex Citation Index for " + url + " : " + citationIndex);
             }
-            
+
         } catch (Exception e) {
             checkBlocked();
             throw new RankingServiceException("Exception " + e.getMessage(), e);
@@ -138,10 +146,10 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
         YandexCitationIndex tic = new YandexCitationIndex();
         Ranking ranking = tic.getRanking("http://cinefreaks.com");
         System.out.println(ranking);
-        
+
         ranking = tic.getRanking("http://en.wikipedia.org/Wiki/Germany");
         System.out.println(ranking);
-        
+
         ranking = tic.getRanking("http://google.com");
         System.out.println(ranking);
     }
