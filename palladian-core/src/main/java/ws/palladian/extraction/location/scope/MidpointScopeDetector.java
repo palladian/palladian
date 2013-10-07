@@ -27,7 +27,7 @@ public final class MidpointScopeDetector implements ScopeDetector {
         double smallestDistance = Double.MAX_VALUE;
         Location selectedCoordinate = null;
         for (Location location : locations) {
-            if (location.getLatitude() == null || location.getLongitude() == null) {
+            if (location.getCoordinate() == null) {
                 continue;
             }
             double distance = midpoint.distance(location.getCoordinate());
