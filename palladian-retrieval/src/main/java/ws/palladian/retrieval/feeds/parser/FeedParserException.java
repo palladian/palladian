@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.feeds.parser;
 
-public class FeedParserException extends Exception {
+import ws.palladian.retrieval.parser.ParserException;
+
+public class FeedParserException extends ParserException {
 
     private static final long serialVersionUID = -8787100315945118852L;
 
