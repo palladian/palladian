@@ -1,11 +1,11 @@
 package ws.palladian.retrieval.search.web;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
@@ -51,7 +51,7 @@ public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebContent> {
     }
 
     @Override
-    protected WebContent parseResult(JSONObject currentResult) throws JSONException {
+    protected WebContent parseResult(JsonObject currentResult) throws JsonException {
         BasicWebContent.Builder builder = new BasicWebContent.Builder();
         builder.setUrl(currentResult.getString("url"));
         builder.setTitle(currentResult.getString("title"));

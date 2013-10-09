@@ -2,14 +2,10 @@ package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,54 +21,54 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 final class UnlockTextMockExtractor extends LocationExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UnlockTextMockExtractor.class);
 
-    static List<Location> parseLocations(String jsonInput) throws JSONException {
+    static List<Location> parseLocations(String jsonInput) throws JsonException {
         List<Location> locations = CollectionHelper.newArrayList();
-        JSONArray resultArray = new JSONArray(jsonInput);
-        JSONObject placesJson = null;
-        for (int i = 0; i < resultArray.length(); i++) {
-            JSONObject temp = resultArray.getJSONObject(i);
-            if (temp.has("places")) {
-                placesJson = temp.getJSONObject("places");
+        JsonArray resultArray = new JsonArray(jsonInput);
+        JsonObject placesJson = null;
+        for (int i = 0; i < resultArray.size(); i++) {
+            JsonObject temp = resultArray.getJsonObject(i);
+            if (temp.get("places") != null) {
+                placesJson = temp.getJsonObject("places");
                 break;
             }
         }
         if (placesJson == null) {
             throw new IllegalStateException("No places found.");
         }
-        @SuppressWarnings("unchecked")
-        Iterator<String> keyIterator = placesJson.keys();
-        while (keyIterator.hasNext()) {
-            String name = keyIterator.next();
+        for (String name  : placesJson.keySet()) {
             GeoCoordinate coordinate = null;
             Long pop = null;
             int id = -1;
             List<AlternativeName> altNames = CollectionHelper.newArrayList();
 
-            JSONArray locationJson = placesJson.getJSONArray(name);
-            for (int i = 0; i < locationJson.length(); i++) {
-                JSONObject locationObj = locationJson.getJSONObject(i);
-                if (locationObj.has("id")) {
+            JsonArray locationJson = placesJson.getJsonArray(name);
+            for (int i = 0; i < locationJson.size(); i++) {
+                JsonObject locationObj = locationJson.getJsonObject(i);
+                if (locationObj.get("id") != null) {
                     // use internal ID here, this means, IDs are not unique for multiple requests
                     id = Integer.valueOf(locationObj.getString("id").replace("rb", ""));
-                    String abbrevName = locationObj.optString("abbrev-for", null);
+                    String abbrevName = locationObj.tryGetString("abbrev-for");
                     if (abbrevName != null) {
                         altNames.add(new AlternativeName(abbrevName, null));
                     }
-                    String altName = locationObj.optString("altname", null);
+                    String altName = locationObj.tryGetString("altname");
                     if (altName != null) {
                         altNames.add(new AlternativeName(altName, null));
                     }
                 }
-                if (locationObj.has("pop")) {
+                if (locationObj.get("pop") != null) {
                     pop = locationObj.getLong("pop");
                 }
-                if (locationObj.has("long")) {
+                if (locationObj.get("long") != null) {
                     Double lng = locationObj.getDouble("long");
                     Double lat = locationObj.getDouble("lat");
                     coordinate = new ImmutableGeoCoordinate(lat, lng);
@@ -84,7 +80,7 @@ final class UnlockTextMockExtractor extends LocationExtractor {
         return locations;
     }
 
-    static List<LocationAnnotation> createAnnotations(String jsonResponse, String text) throws JSONException {
+    static List<LocationAnnotation> createAnnotations(String jsonResponse, String text) throws JsonException {
         Annotations<LocationAnnotation> annotations = new Annotations<LocationAnnotation>();
         List<Location> locations = parseLocations(jsonResponse);
         for (Location location : locations) {
@@ -114,7 +110,7 @@ final class UnlockTextMockExtractor extends LocationExtractor {
             try {
                 List<LocationAnnotation> annotations = createAnnotations(jsonResponse, text);
                 data.put(text.hashCode(), annotations);
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 LOGGER.warn("Error while parsing JSON for result file {}", jsonFile);
                 data.put(text.hashCode(), Collections.<LocationAnnotation> emptyList());
             }

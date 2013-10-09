@@ -4,9 +4,6 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +14,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -115,7 +115,7 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
             String jsonString = httpResult.getStringContent();
             try {
                 results.addAll(parse(jsonString));
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error parsing the response from URL \"" + searchUrl + "\" (JSON was: \""
                         + jsonString + "\"): " + e.getMessage(), e);
             }
@@ -149,12 +149,12 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
     }
 
     /** default visibility for unit testing. */
-    static List<WebContent> parse(String jsonString) throws JSONException {
+    static List<WebContent> parse(String jsonString) throws JsonException {
         List<WebContent> result = CollectionHelper.newArrayList();
-        JSONObject jsonObject = new JSONObject(jsonString);
-        JSONArray jsonItems = jsonObject.getJSONArray("items");
-        for (int i = 0; i < jsonItems.length(); i++) {
-            JSONObject jsonItem = jsonItems.getJSONObject(i);
+        JsonObject jsonObject = new JsonObject(jsonString);
+        JsonArray jsonItems = jsonObject.getJsonArray("items");
+        for (int i = 0; i < jsonItems.size(); i++) {
+            JsonObject jsonItem = jsonItems.getJsonObject(i);
             BasicWebContent.Builder builder = new BasicWebContent.Builder();
             builder.setTitle(jsonItem.getString("title"));
             builder.setUrl(jsonItem.getString("link"));
@@ -177,16 +177,16 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
         String jsonString = httpResult.getStringContent();
         try {
             return parseResultCount(jsonString);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new SearcherException("Error parsing the response from URL \"" + requestUrl + "\" (JSON was: \""
                     + jsonString + "\"): " + e.getMessage(), e);
         }
     }
 
     /** default visibility for unit testing. */
-    static long parseResultCount(String jsonString) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonString);
-        return jsonObject.getJSONObject("searchInformation").getLong("totalResults");
+    static long parseResultCount(String jsonString) throws JsonException {
+        JsonObject jsonObject = new JsonObject(jsonString);
+        return jsonObject.getJsonObject("searchInformation").getLong("totalResults");
     }
 
 }

@@ -13,9 +13,6 @@ import java.util.Set;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +23,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -198,12 +198,12 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             // TODO implement checking for error codes.
             String jsonString = httpResult.getStringContent();
             try {
-                JSONObject resultJson = new JSONObject(jsonString);
-                JSONObject photosJson = resultJson.getJSONObject("photos");
+                JsonObject resultJson = new JsonObject(jsonString);
+                JsonObject photosJson = resultJson.getJsonObject("photos");
                 availableResults = photosJson.getLong("total");
-                JSONArray photoJsonArray = photosJson.getJSONArray("photo");
-                for (int i = 0; i < photoJsonArray.length(); i++) {
-                    JSONObject photoJson = photoJsonArray.getJSONObject(i);
+                JsonArray photoJsonArray = photosJson.getJsonArray("photo");
+                for (int i = 0; i < photoJsonArray.size(); i++) {
+                    JsonObject photoJson = photoJsonArray.getJsonObject(i);
                     BasicWebImage.Builder builder = new BasicWebImage.Builder();
 
                     String farmId = photoJson.getString("farm");
@@ -215,17 +215,21 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                     builder.setTitle(photoJson.getString("title"));
                     builder.setImageUrl(buildImageUrl(farmId, serverId, id, secret));
                     builder.setUrl(buildPageUrl(id, userId));
-                    builder.setSummary(photoJson.getJSONObject("description").getString("_content"));
+                    builder.setSummary(photoJson.getJsonObject("description").getString("_content"));
                     builder.setPublished(parseDate(photoJson.getString("datetaken")));
                     builder.setCoordinate(parseCoordinate(photoJson));
 
                     // List<String> tags = Arrays.asList(photoJson.getString("tags").split("\\s"));
                     // License license = License.get(photoJson.getInt("license"));
-                    builder.setWidth(photoJson.optInt("o_width", -1));
-                    builder.setHeight(photoJson.optInt("o_height", -1));
+                    Integer width = photoJson.tryGetInt("o_width");
+                    Integer height = photoJson.tryGetInt("o_height");
+                    if (width != null && height != null) {
+                        builder.setWidth(width);
+                        builder.setHeight(height);
+                    }
                     result.add(builder.create());
                 }
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()
                         + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
             }
@@ -233,7 +237,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         return new SearchResults<WebImage>(result, availableResults);
     }
 
-    private static final GeoCoordinate parseCoordinate(JSONObject photoJson) throws JSONException {
+    private static final GeoCoordinate parseCoordinate(JsonObject photoJson) throws JsonException {
         double lat = photoJson.getDouble("latitude");
         double lng = photoJson.getDouble("longitude");
         if (lat == 0.0 && lng == 0.0) {

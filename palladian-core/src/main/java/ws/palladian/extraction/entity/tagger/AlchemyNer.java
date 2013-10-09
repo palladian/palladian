@@ -7,15 +7,13 @@ import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
@@ -23,6 +21,9 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * 
@@ -449,22 +450,22 @@ public class AlchemyNer extends NamedEntityRecognizer {
                     LOGGER.warn("--- LIMIT EXCEEDED ---");
                     break;
                 }
-                JSONObject json = new JSONObject(response);
+                JsonObject json = new JsonObject(response);
 
-                JSONArray entities = json.getJSONArray("entities");
-                for (int i = 0; i < entities.length(); i++) {
+                JsonArray entities = json.getJsonArray("entities");
+                for (int i = 0; i < entities.size(); i++) {
 
-                    JSONObject entity = entities.getJSONObject(i);
+                    JsonObject entity = entities.getJsonObject(i);
 
                     String entityName = entity.getString("text");
                     String entityType = entity.getString("type");
 
                     List<String> subTypeList = CollectionHelper.newArrayList();
-                    if (entity.has("disambiguated")) {
-                        JSONObject disambiguated = entity.getJSONObject("disambiguated");
-                        if (disambiguated.has("subType")) {
-                            JSONArray subTypes = disambiguated.getJSONArray("subType");
-                            for (int j = 0; j < subTypes.length(); j++) {
+                    if (entity.get("disambiguated") != null) {
+                        JsonObject disambiguated = entity.getJsonObject("disambiguated");
+                        if (disambiguated.get("subType") != null) {
+                            JsonArray subTypes = disambiguated.getJsonArray("subType");
+                            for (int j = 0; j < subTypes.size(); j++) {
                                 subTypeList.add(subTypes.getString(j));
                             }
                         }
@@ -485,7 +486,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
                 }
             } catch (HttpException e) {
                 LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 LOGGER.error(getName() + " could not parse JSON '" + response + "':" + e.getMessage());
             }
         }

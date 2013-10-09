@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.wikipedia;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +10,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,17 +205,14 @@ public final class WikipediaUtil {
         String stringResult = httpResult.getStringContent();
 
         try {
-            JSONObject jsonResult = new JSONObject(stringResult);
-            JSONObject queryJson = jsonResult.getJSONObject("query");
-            JSONObject pagesJson = queryJson.getJSONObject("pages");
-            @SuppressWarnings("rawtypes")
-            Iterator keys = pagesJson.keys();
-            while (keys.hasNext()) {
-                String key = (String)keys.next();
-                JSONObject pageJson = pagesJson.getJSONObject(key);
+            JsonObject jsonResult = new JsonObject(stringResult);
+            JsonObject queryJson = jsonResult.getJsonObject("query");
+            JsonObject pagesJson = queryJson.getJsonObject("pages");
+            for (String key : pagesJson.keySet()) {
+                JsonObject pageJson = pagesJson.getJsonObject(key);
                 // System.out.println(pageJson);
 
-                if (pageJson.has("missing")) {
+                if (pageJson.containsKey("missing")) {
                     return null;
                 }
 
@@ -227,13 +220,13 @@ public final class WikipediaUtil {
                 int namespaceId = pageJson.getInt("ns");
                 int pageId = pageJson.getInt("pageid");
 
-                JSONArray revisionsJson = pageJson.getJSONArray("revisions");
-                JSONObject firstRevision = revisionsJson.getJSONObject(0);
+                JsonArray revisionsJson = pageJson.getJsonArray("revisions");
+                JsonObject firstRevision = revisionsJson.getJsonObject(0);
                 String pageText = firstRevision.getString("*");
                 return new WikipediaPage(pageId, namespaceId, pageTitle, pageText);
             }
             return null;
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
                     + stringResult + "'", e);
         }

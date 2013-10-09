@@ -5,17 +5,17 @@ import static org.junit.Assert.assertEquals;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.json.JSONException;
 import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.resources.WebContent;
 
 public class GoogleCustomSearcherTest {
     
     @Test
-    public void testParsing() throws FileNotFoundException, JSONException {
+    public void testParsing() throws FileNotFoundException, JsonException {
         String jsonString = FileHelper.readFileToString(ResourceHelper.getResourceFile("/apiresponse/googleCustomSearchResponse.json"));
         List<WebContent> results = GoogleCustomSearcher.parse(jsonString);
         assertEquals(10, results.size());
