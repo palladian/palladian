@@ -29,8 +29,7 @@ public class UsageExamples {
 
         // search feeds for "Porsche 911"
         String discoveredFeedsFile = "data/foundFeeds.txt";
-        FeedDiscovery feedDiscovery = new FeedDiscovery();
-        feedDiscovery.setSearchEngine(new GoogleSearcher());
+        FeedDiscovery feedDiscovery = new FeedDiscovery(new GoogleSearcher());
         feedDiscovery.setResultFilePath(discoveredFeedsFile);
         feedDiscovery.addQuery("Porsche 911");
         feedDiscovery.setNumResults(100);

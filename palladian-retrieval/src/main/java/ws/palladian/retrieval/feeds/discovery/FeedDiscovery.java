@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -32,7 +33,6 @@ import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
-import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -65,24 +65,22 @@ public final class FeedDiscovery {
             + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "
             + "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]";
 
-    private static final int DEFAULT_NUM_THREADS = 10;
-
     /** DocumentRetriever for downloading pages. */
-    private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+    private static final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
-    private Searcher<WebContent> webSearcher = null;
+    private final Searcher<?> searcher;
 
     /** The parser used for parsing HTML pages. */
-    private final DocumentParser parser = ParserFactory.createHtmlParser();
+    private static final DocumentParser parser = ParserFactory.createHtmlParser();
 
-    private int numThreads = DEFAULT_NUM_THREADS;
+    private final int numThreads;
 
     /** Store all urls for which we will do the autodiscovery. */
     private final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>();
 
     /** The path of the file where the discovered feeds should be written to. */
-    private String resultFilePath = null;
+    private final File resultFilePath;
 
     /** Store a collection of all queries that are used to retrieve urlQueue from a search engine. */
     private final BlockingQueue<String> queryQueue = new LinkedBlockingQueue<String>();
@@ -100,13 +98,29 @@ public final class FeedDiscovery {
     private StopWatch stopWatch;
 
     /** Number of search engine results to retrieve for each query. */
-    private int numResults = 10;
+    private final int numResults;
 
     /** Whether to output full CSVs with feeds' meta data, instead of only URLs. */
-    private boolean csvOutput = false;
+    private final boolean csvOutput;
 
-    public FeedDiscovery() {
-
+    /**
+     * @param searcher The searcher to use, not <code>null</code>.
+     * @param resultFilePath The path for the result file. If file already exists, new entries will be appended. The
+     *            result file will be written continuously. If <code>null</code>, no result file will be written.
+     * @param numThreads The maximum number of concurrent autodiscovery requests.
+     * @param numResults The number of results to retrieve for each query.
+     * @param csvOutput <code>true</code> to output full CSVs with additional information, like feed title, type, page
+     *            link, <code>false</code> to only write feed URL.
+     */
+    public FeedDiscovery(Searcher<?> searcher, File resultFilePath, int numThreads, int numResults, boolean csvOutput) {
+        Validate.notNull(searcher, "webSearcher must not be null");
+        Validate.isTrue(numThreads > 0, "numThreads must be greater zero");
+        Validate.isTrue(numResults > 0, "numResults must be greater zero");
+        this.searcher = searcher;
+        this.resultFilePath = resultFilePath;
+        this.numThreads = numThreads;
+        this.numResults = numResults;
+        this.csvOutput = csvOutput;
     }
 
     /**
@@ -119,22 +133,15 @@ public final class FeedDiscovery {
      * @return
      */
     private Set<String> searchSites(String query, int totalResults) {
-
-        if (webSearcher == null) {
-            throw new IllegalStateException("No WebSearcher defined.");
-        }
-
         Set<String> sites = new HashSet<String>();
         try {
-            List<String> resultUrls = webSearcher.searchUrls(query, totalResults, Language.ENGLISH);
+            List<String> resultUrls = searcher.searchUrls(query, totalResults, Language.ENGLISH);
             for (String resultUrl : resultUrls) {
                 sites.add(UrlHelper.getDomain(resultUrl));
             }
         } catch (SearcherException e) {
             LOGGER.error("Searcher Exception: " + e.getMessage());
         }
-
-
         return sites;
     }
 
@@ -147,7 +154,7 @@ public final class FeedDiscovery {
      * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if page could not
      *         be parsed.
      */
-    public List<DiscoveredFeed> discoverFeeds(String pageUrl) {
+    public static List<DiscoveredFeed> discoverFeeds(String pageUrl) {
 
         List<DiscoveredFeed> result = null;
         Document document = null;
@@ -179,7 +186,7 @@ public final class FeedDiscovery {
      * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if the document could
      *         not be parsed.
      */
-    public List<DiscoveredFeed> discoverFeeds(File file) {
+    public static List<DiscoveredFeed> discoverFeeds(File file) {
         List<DiscoveredFeed> result = null;
         try {
             Document document = parser.parse(file);
@@ -398,26 +405,10 @@ public final class FeedDiscovery {
     private synchronized void writeDiscoveredFeeds(List<DiscoveredFeed> discoveredFeeds) {
         if (discoveredFeeds != null) {
             for (DiscoveredFeed feed : discoveredFeeds) {
-                String writeLine = isCsvOutput() ? feed.toCsv() : feed.getFeedLink();
-                FileHelper.appendFile(getResultFilePath(), writeLine + "\n");
+                String writeLine = csvOutput ? feed.toCsv() : feed.getFeedLink();
+                FileHelper.appendFile(resultFilePath.getPath(), writeLine + "\n");
             }
         }
-    }
-
-    /**
-     * <p>
-     * Specify the path for the result file. If file already exists, new entries will be appended. The result file will
-     * be written continuously. If <code>null</code>, no result file will be written.
-     * </p>
-     * 
-     * @param resultFilePath
-     */
-    public void setResultFilePath(String resultFilePath) {
-        this.resultFilePath = resultFilePath;
-    }
-
-    public String getResultFilePath() {
-        return resultFilePath;
     }
 
     /**
@@ -452,49 +443,6 @@ public final class FeedDiscovery {
     public void addQueries(String filePath) {
         List<String> queries = FileHelper.readFileToArray(filePath);
         addQueries(queries);
-    }
-
-    /**
-     * <p>
-     * Set max number of concurrent autodiscovery requests.
-     * </p>
-     * 
-     * @param maxThreads
-     */
-    public void setNumThreads(int numThreads) {
-        this.numThreads = numThreads;
-    }
-
-    /**
-     * <p>
-     * Set number of results to retrieve for each query.
-     * </p>
-     * 
-     * @param numResults The number of results for one query.
-     */
-    public void setNumResults(int numResults) {
-        this.numResults = numResults;
-    }
-
-    /**
-     * <p>
-     * Set the search engine to use. See {@link WebSearcherManager} for available constants.
-     * </p>
-     * 
-     * @param webSearcher
-     */
-    public void setSearchEngine(Searcher<WebContent> webSearcher) {
-        LOGGER.trace("using " + webSearcher.getName());
-        this.webSearcher = webSearcher;
-    }
-
-//    public void setSearchEngine(String webSearcherName) {
-//        Configuration config = ConfigHolder.getInstance().getConfig();
-//        setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
-//    }
-
-    public Searcher<WebContent> getSearchEngine() {
-        return webSearcher;
     }
 
     /**
@@ -552,22 +500,6 @@ public final class FeedDiscovery {
         queryQueue.clear();
         queryQueue.addAll(combinedQueries);
 
-    }
-
-    /**
-     * <p>
-     * Set to <code>true</code> to write a full CSV file with additional information, like feed title, type, page link.
-     * If <code>false</code> only the feed's URL will be written.
-     * </p>
-     * 
-     * @param csvOutput
-     */
-    public void setCsvOutput(boolean csvOutput) {
-        this.csvOutput = csvOutput;
-    }
-
-    public boolean isCsvOutput() {
-        return csvOutput;
     }
 
 //    @SuppressWarnings("static-access")
