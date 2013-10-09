@@ -3,10 +3,6 @@ package ws.palladian.extraction.entity.tagger;
 import java.util.Collections;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Annotation;
@@ -17,6 +13,9 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -61,7 +60,7 @@ public class ExtractivNer extends NamedEntityRecognizer {
                 annotations.addAll(currentAnnotations);
             }
 
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new IllegalStateException("Exception while parsing the JSON response: " + e.getMessage()
                     + ", JSON was '" + response + "'", e);
         } catch (HttpException e) {
@@ -82,14 +81,14 @@ public class ExtractivNer extends NamedEntityRecognizer {
      * @return List of {@link Annotation} objects.
      * @throws JSONException in case JSON could not be parsed.
      */
-    static List<Annotation> parse(String response, String inputText) throws JSONException {
+    static List<Annotation> parse(String response, String inputText) throws JsonException {
         List<Annotation> annotations = CollectionHelper.newArrayList();
 
-        JSONObject jsonResponse = new JSONObject(response);
-        JSONArray jsonEntities = jsonResponse.getJSONArray("entities");
+        JsonObject jsonResponse = new JsonObject(response);
+        JsonArray jsonEntities = jsonResponse.getJsonArray("entities");
 
-        for (int i = 0; i < jsonEntities.length(); i++) {
-            JSONObject jsonEntity = jsonEntities.getJSONObject(i);
+        for (int i = 0; i < jsonEntities.size(); i++) {
+            JsonObject jsonEntity = jsonEntities.getJsonObject(i);
             String type = jsonEntity.getString("type");
             String text = jsonEntity.getString("text");
             int offset = jsonEntity.getInt("offset");

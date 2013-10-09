@@ -8,15 +8,15 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -98,14 +98,14 @@ public final class PlurkPosts extends BaseRankingService implements RankingServi
             HttpResult httpResult = retriever.httpGet("http://www.plurk.com/API/PlurkSearch/search?api_key="
                     + getApiKey() + "&query=" + encUrl);
 
-            JSONObject json = new JSONObject(httpResult.getStringContent());
+            JsonObject json = new JsonObject(httpResult.getStringContent());
 
-            JSONArray plurks = json.getJSONArray("plurks");
-            float result = plurks.length();
+            JsonArray plurks = json.getJsonArray("plurks");
+            float result = plurks.size();
             results.put(POSTS, result);
             LOGGER.trace("Plurk.com posts for " + url + " : " + result);
 
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {

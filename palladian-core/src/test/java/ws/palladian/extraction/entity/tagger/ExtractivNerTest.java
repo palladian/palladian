@@ -6,17 +6,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.json.JSONException;
 import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.retrieval.parser.json.JsonException;
 
 public class ExtractivNerTest {
 
     @Test
-    public void testExtractivNer() throws FileNotFoundException, JSONException {
+    public void testExtractivNer() throws FileNotFoundException, JsonException {
         File sampleTextFile = ResourceHelper.getResourceFile("/NewsSampleText.txt");
         File jsonResponseFile = ResourceHelper.getResourceFile("/apiResponse/ExtractivResponse.json");
 

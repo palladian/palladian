@@ -9,8 +9,6 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +18,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -119,13 +119,13 @@ public final class BibsonomyBookmarks extends BaseRankingService implements Rank
             String response = getResult.getStringContent();
 
             // create JSON-Object from response
-            JSONObject json = null;
+            JsonObject json = null;
             if (response.length() > 0) {
-                json = new JSONObject(response);
+                json = new JsonObject(response);
             }
 
             if (json != null) {
-                float result = json.getJSONObject("posts").getInt("end");
+                float result = json.getJsonObject("posts").getInt("end");
                 results.put(BOOKMARKS, result);
                 LOGGER.trace("Bibsonomy bookmarks for " + url + " : " + result);
             } else {
@@ -133,7 +133,7 @@ public final class BibsonomyBookmarks extends BaseRankingService implements Rank
                 LOGGER.trace("Bibsonomy bookmarks for " + url + " could not be fetched");
             }
 
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             checkBlocked();
             throw new RankingServiceException(e);
         } catch (IOException e) {

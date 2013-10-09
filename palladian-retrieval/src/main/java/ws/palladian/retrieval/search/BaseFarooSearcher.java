@@ -6,15 +6,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 
@@ -87,17 +87,17 @@ public abstract class BaseFarooSearcher extends AbstractSearcher<WebContent> {
         String jsonString = httpResult.getStringContent();
 
         try {
-            JSONObject jsonObject = new JSONObject(jsonString);
-            if (!jsonObject.has("results")) {
+            JsonObject jsonObject = new JsonObject(jsonString);
+            if (jsonObject.get("results") == null) {
                 return webResults;
             }
 
-            JSONArray jsonResults = jsonObject.getJSONArray("results");
+            JsonArray jsonResults = jsonObject.getJsonArray("results");
 
-            for (int j = 0; j < jsonResults.length(); j++) {
-                JSONObject jsonResult = jsonResults.getJSONObject(j);
+            for (int j = 0; j < jsonResults.size(); j++) {
+                JsonObject jsonResult = jsonResults.getJsonObject(j);
                 BasicWebContent.Builder builder = new BasicWebContent.Builder();
-                if (jsonResult.has("kwic")) {
+                if (jsonResult.get("kwic") != null) {
                     builder.setSummary(jsonResult.getString("kwic"));
                 }
                 builder.setUrl(jsonResult.getString("url"));
@@ -108,7 +108,7 @@ public abstract class BaseFarooSearcher extends AbstractSearcher<WebContent> {
                 }
             }
 
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
                     + getName() + ": " + e.getMessage() + ", JSON \"" + jsonString + "\"", e);
         }

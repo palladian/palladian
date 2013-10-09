@@ -16,9 +16,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
@@ -261,75 +258,75 @@ public class DocumentRetriever {
         return json;
     }
 
-    /**
-     * @deprecated Use getJsonObject
-     */
-    @Deprecated
-    public JSONObject getJSONObject(String url) {
-        String json = getText(url);
-
-        if (json != null) {
-            json = json.trim();
-
-            // delicous feeds return the whole JSON object wrapped in [square brackets],
-            // altough this seems to be valid, our parser doesn't like this, so we remove
-            // those brackets before parsing -- Philipp, 2010-07-04
-
-            // this was stupid, therefore removed it again. Clients should use getJsonArray instead --
-            // Philipp, 2011-12-29
-
-            /*if (json.startsWith("[") && json.endsWith("]")) {
-                json = json.substring(1, json.length() - 1);
-            }*/
-
-            JSONObject jsonOBJ = null;
-
-            if (!json.isEmpty()) {
-                try {
-                    jsonOBJ = new JSONObject(json);
-                } catch (JSONException e) {
-                    LOGGER.error(url + ", " + e.getMessage(), e);
-                }
-            }
-
-            return jsonOBJ;
-        }
-        return null;
-    }
-
-    /**
-     * <p>
-     * Get a JSON array from a URL. The retrieved contents must return a valid JSON array.
-     * </p>
-     * 
-     * @param url the URL pointing to the JSON string.
-     * @return the JSON array, or <code>null</code> in case of any error.
-     *         FIXME this should return a Palladian JsonArray
-     */
-    public JSONArray getJsonArray(String url) {
-        String json = getText(url);
-
-        // since we know this string should be an JSON array,
-        // we will directly parse it
-        if (json != null) {
-            json = json.trim();
-
-            JSONArray jsonAR = null;
-
-            if (json.length() > 0) {
-                try {
-                    jsonAR = new JSONArray(json);
-                } catch (JSONException e) {
-                    LOGGER.error(url + ", " + e.getMessage(), e);
-                }
-            }
-
-            return jsonAR;
-
-        }
-        return null;
-
-    }
+//    /**
+//     * @deprecated Use getJsonObject
+//     */
+//    @Deprecated
+//    public JSONObject getJSONObject(String url) {
+//        String json = getText(url);
+//
+//        if (json != null) {
+//            json = json.trim();
+//
+//            // delicous feeds return the whole JSON object wrapped in [square brackets],
+//            // altough this seems to be valid, our parser doesn't like this, so we remove
+//            // those brackets before parsing -- Philipp, 2010-07-04
+//
+//            // this was stupid, therefore removed it again. Clients should use getJsonArray instead --
+//            // Philipp, 2011-12-29
+//
+//            /*if (json.startsWith("[") && json.endsWith("]")) {
+//                json = json.substring(1, json.length() - 1);
+//            }*/
+//
+//            JSONObject jsonOBJ = null;
+//
+//            if (!json.isEmpty()) {
+//                try {
+//                    jsonOBJ = new JSONObject(json);
+//                } catch (JSONException e) {
+//                    LOGGER.error(url + ", " + e.getMessage(), e);
+//                }
+//            }
+//
+//            return jsonOBJ;
+//        }
+//        return null;
+//    }
+//
+//    /**
+//     * <p>
+//     * Get a JSON array from a URL. The retrieved contents must return a valid JSON array.
+//     * </p>
+//     * 
+//     * @param url the URL pointing to the JSON string.
+//     * @return the JSON array, or <code>null</code> in case of any error.
+//     *         FIXME this should return a Palladian JsonArray
+//     */
+//    public JSONArray getJsonArray(String url) {
+//        String json = getText(url);
+//
+//        // since we know this string should be an JSON array,
+//        // we will directly parse it
+//        if (json != null) {
+//            json = json.trim();
+//
+//            JSONArray jsonAR = null;
+//
+//            if (json.length() > 0) {
+//                try {
+//                    jsonAR = new JSONArray(json);
+//                } catch (JSONException e) {
+//                    LOGGER.error(url + ", " + e.getMessage(), e);
+//                }
+//            }
+//
+//            return jsonAR;
+//
+//        }
+//        return null;
+//
+//    }
 
     // ////////////////////////////////////////////////////////////////
     // method for retrieving plain text
