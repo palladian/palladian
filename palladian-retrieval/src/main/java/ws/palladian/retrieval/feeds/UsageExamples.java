@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -26,13 +27,10 @@ import ws.palladian.retrieval.search.web.GoogleSearcher;
 public class UsageExamples {
 
     public static void main(String[] args) throws FeedParserException {
-
         // search feeds for "Porsche 911"
-        String discoveredFeedsFile = "data/foundFeeds.txt";
-        FeedDiscovery feedDiscovery = new FeedDiscovery(new GoogleSearcher());
-        feedDiscovery.setResultFilePath(discoveredFeedsFile);
+        File discoveredFeedsFile = new File("data/foundFeeds.txt");
+        FeedDiscovery feedDiscovery = new FeedDiscovery(new GoogleSearcher(), discoveredFeedsFile, 10, 100, false);
         feedDiscovery.addQuery("Porsche 911");
-        feedDiscovery.setNumResults(100);
         feedDiscovery.findFeeds();
 
         // download a feed
@@ -47,7 +45,7 @@ public class UsageExamples {
 
         // add some feed URLs to the database
         FeedImporter feedImporter = new FeedImporter(feedStore);
-        feedImporter.addFeedsFromFile(discoveredFeedsFile);
+        feedImporter.addFeedsFromFile(discoveredFeedsFile.getPath());
 
         // specify what to do, when feed contains new items; here we simply add them to the database
         FeedProcessingAction feedProcessingAction = new DefaultFeedProcessingAction() {
