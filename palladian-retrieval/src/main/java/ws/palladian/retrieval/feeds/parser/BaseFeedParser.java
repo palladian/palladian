@@ -13,6 +13,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.Feed;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -30,7 +31,7 @@ public abstract class BaseFeedParser implements FeedParser {
     @Override
     public Feed getFeed(File file, boolean serializedGzip) throws FeedParserException {
         if (serializedGzip) {
-            HttpResult httpResult = HttpRetriever.loadSerializedHttpResult(file);
+            HttpResult httpResult = HttpHelper.loadSerializedHttpResult(file);
             if (httpResult == null) {
                 throw new FeedParserException("Error loading serialized file from \"" + file + "\"");
             }

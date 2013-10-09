@@ -9,9 +9,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections15.bag.HashBag;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class EvaluationSchedulerTask extends TimerTask {
     /**
      * If wake up interval exceeds this time, do some warning.
      */
-    private static final long SCHEDULER_INTERVAL_WARNING_TIME_MS = 2 * DateHelper.MINUTE_MS;
+    private static final long SCHEDULER_INTERVAL_WARNING_TIME_MS = TimeUnit.MINUTES.toMillis(2);
 
     /** Count the number of processed feeds per scheduler iteration. */
     private int processedCounter = 0;
@@ -111,7 +112,7 @@ public class EvaluationSchedulerTask extends TimerTask {
 
 
         // configure monitoring and logging
-        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        Configuration config = ConfigHolder.getInstance().getConfig();
         if (config != null) {
             maxSlowPercentage = config.getInt("schedulerTask.maxSlowPercentage", MAX_SLOW_PERCENTAGE_DEFAULT);
             maxUnreachablePercentage = config.getInt("schedulerTask.maxUnreachablePercentage",
@@ -123,7 +124,8 @@ public class EvaluationSchedulerTask extends TimerTask {
 
         // on average, one thread has 5 minutes to process a feed. This is very long but in some algorithms we simulate
         // more than 10k polls
-        HIGH_LOAD_THROUGHPUT = (int) (0.2 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / DateHelper.MINUTE_MS));
+        HIGH_LOAD_THROUGHPUT = (int)(0.2 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / TimeUnit.MINUTES
+                .toMillis(1)));
     }
 
     /*
@@ -162,7 +164,7 @@ public class EvaluationSchedulerTask extends TimerTask {
         // monitoring and logging
         String wakeupInterval = "first start";
         if (lastWakeUpTime != null) {
-            wakeupInterval = DateHelper.getRuntime(lastWakeUpTime, currentWakeupTime);
+            wakeupInterval = DateHelper.formatDuration(lastWakeUpTime, currentWakeupTime);
         }
 
         int success = feedResults.getCount(FeedTaskResult.SUCCESS);
@@ -227,7 +229,7 @@ public class EvaluationSchedulerTask extends TimerTask {
         } else {
             LOGGER.info(" " + logMsg); // whitespace required to align lines in log file.
         }
-        
+
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Scheduled feed tasks for feedIDs " + scheduledFeedIDs.toString());
             if (alreadyScheduledFeedCount > 0) {
@@ -247,7 +249,7 @@ public class EvaluationSchedulerTask extends TimerTask {
             ((EvaluationFeedDatabase) feedReader.getFeedStore()).processBatchInsertQueue();
 
             LOGGER.info("All EvaluationFeedTasks done.");
-            feedReader.setStopped(true);
+            feedReader.stopContinuousReading();
         }
     }
 
@@ -272,7 +274,7 @@ public class EvaluationSchedulerTask extends TimerTask {
      */
     private Boolean needsLookup(final Feed feed) {
         long lastSimulatedPollTime = feed.getLastPollTime().getTime();
-        long nextSimulatedPollTime = lastSimulatedPollTime + feed.getUpdateInterval() * DateHelper.MINUTE_MS;
+        long nextSimulatedPollTime = lastSimulatedPollTime + feed.getUpdateInterval() * TimeUnit.MINUTES.toMillis(1);
 
         Boolean needsLookup = nextSimulatedPollTime <= FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND
                 && !feed.isBlocked();
@@ -288,10 +290,11 @@ public class EvaluationSchedulerTask extends TimerTask {
                 + nextSimulatedPollTime
                 + "\nUpdateInterval: "
                 + feed.getUpdateInterval()
-                * DateHelper.MINUTE_MS
+                * TimeUnit.MINUTES.toMillis(1)
                 + (feed.getLastPollTime() != null ? "\nnow - lastPollTime: " + (now - feed.getLastPollTime().getTime())
                         + "\nUpdate Interval Exceeded "
-                        + (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS)
+                        + (now - feed.getLastPollTime().getTime() > feed.getUpdateInterval()
+                                * TimeUnit.MINUTES.toMillis(1))
                         : ""));
 
         if (needsLookup == true) {

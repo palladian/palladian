@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import ws.palladian.processing.features.SequentialPattern;
+
 /**
  * <p>
- * 
+ * Extraction strategy for LSPs, which are all sequences of subsequences from a text or sentence.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -19,14 +21,14 @@ import java.util.List;
 public final class LabeledSequentialPatternExtractionStrategy implements SpanExtractionStrategy {
 
     @Override
-    public List<SequentialPattern> extract(final String featureIdentifier, final String[] tokenList,
+    public List<SequentialPattern> extract(final String[] tokenList,
             final Integer minPatternSize, final Integer maxPatternSize) {
         List<SequentialPattern> extractedPatterns = new ArrayList<SequentialPattern>();
         Collection<List<String>> patterns = ws.palladian.extraction.token.Tokenizer.getAllSpans(tokenList,
                 maxPatternSize);
 
         for (List<String> pattern : patterns) {
-            SequentialPattern lspFeature = new SequentialPattern(featureIdentifier, pattern);
+            SequentialPattern lspFeature = new SequentialPattern(pattern);
             extractedPatterns.add(lspFeature);
         }
 

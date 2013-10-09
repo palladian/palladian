@@ -6,8 +6,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -35,6 +37,43 @@ public final class MathHelper {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
 
+    private static final Map<Double, String> FRACTION_MAP;
+
+    static {
+        FRACTION_MAP = new HashMap<Double, String>();
+        FRACTION_MAP.put(0.5, "1/2");
+        FRACTION_MAP.put(0.3333, "1/3");
+        FRACTION_MAP.put(0.6667, "2/3");
+        FRACTION_MAP.put(0.25, "1/4");
+        FRACTION_MAP.put(0.75, "3/4");
+        FRACTION_MAP.put(0.2, "1/5");
+        FRACTION_MAP.put(0.4, "2/5");
+        FRACTION_MAP.put(0.6, "3/5");
+        FRACTION_MAP.put(0.8, "4/5");
+        FRACTION_MAP.put(0.1667, "1/6");
+        FRACTION_MAP.put(0.8333, "5/6");
+        FRACTION_MAP.put(0.1429, "1/7");
+        FRACTION_MAP.put(0.2857, "2/7");
+        FRACTION_MAP.put(0.4286, "3/7");
+        FRACTION_MAP.put(0.5714, "4/7");
+        FRACTION_MAP.put(0.7143, "5/7");
+        FRACTION_MAP.put(0.8571, "6/7");
+        FRACTION_MAP.put(0.125, "1/8");
+        FRACTION_MAP.put(0.375, "3/8");
+        FRACTION_MAP.put(0.625, "5/8");
+        FRACTION_MAP.put(0.875, "7/8");
+        FRACTION_MAP.put(0.1111, "1/9");
+        FRACTION_MAP.put(0.2222, "2/9");
+        FRACTION_MAP.put(0.4444, "4/9");
+        FRACTION_MAP.put(0.5556, "5/9");
+        FRACTION_MAP.put(0.7778, "7/9");
+        FRACTION_MAP.put(0.8889, "8/9");
+        FRACTION_MAP.put(0.1, "1/10");
+        FRACTION_MAP.put(0.3, "3/10");
+        FRACTION_MAP.put(0.7, "7/10");
+        FRACTION_MAP.put(0.9, "9/10");
+    }
+
     private MathHelper() {
         // no instances.
     }
@@ -60,7 +99,6 @@ public final class MathHelper {
         Set<T> union = CollectionHelper.newHashSet();
         union.addAll(setA);
         union.addAll(setB);
-
 
         return (double)intersection.size() / union.size();
     }
@@ -141,6 +179,9 @@ public final class MathHelper {
     }
 
     public static double round(double number, int digits) {
+        if (Double.isNaN(number)) {
+            return Double.NaN;
+        }
         double numberFactor = Math.pow(10.0, digits);
         return Math.round(numberFactor * number) / numberFactor;
     }
@@ -209,7 +250,9 @@ public final class MathHelper {
      * 
      * @param values The values for which to get the median.
      * @return The median.
+     * @deprecated Use {@link Stats} instead.
      */
+    @Deprecated
     public static double getMedian(double[] values) {
         int numValues = values.length;
         Arrays.sort(values);
@@ -220,6 +263,8 @@ public final class MathHelper {
         }
     }
 
+    /** @deprecated Use {@link Stats} instead. */
+    @Deprecated
     public static double getMedian(long[] values) {
         int numValues = values.length;
         Arrays.sort(values);
@@ -230,6 +275,8 @@ public final class MathHelper {
         }
     }
 
+    /** @deprecated Use {@link Stats} instead. */
+    @Deprecated
     public static double getAverage(double[] values) {
         double sum = 0;
         for (double value : values) {
@@ -238,6 +285,8 @@ public final class MathHelper {
         return sum / values.length;
     }
 
+    /** @deprecated Use {@link Stats} instead. */
+    @Deprecated
     public static double getAverage(long[] values) {
         double sum = 0;
         for (long value : values) {
@@ -246,10 +295,6 @@ public final class MathHelper {
         return sum / values.length;
     }
 
-    /**
-     * @deprecated Use {@link #getDistances(Collection)}, then {@link #getMedian(Collection)} instead.
-     */
-    @Deprecated
     public static long getMedianDifference(long[] sortedList) {
         long[] distances = getDistances(sortedList);
         return (long)getMedian(distances);
@@ -264,7 +309,9 @@ public final class MathHelper {
      * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
      *            <code>false</code> the <i>standard deviation of the sample</i>.
      * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     * @deprecated Use {@link Stats} instead.
      */
+    @Deprecated
     public static double getStandardDeviation(double[] values, boolean biasCorrection) {
         if (values.length == 0) {
             return Double.NaN;
@@ -287,10 +334,13 @@ public final class MathHelper {
     /**
      * <p>
      * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
+     * </p>
      * 
      * @param values The values for which to get the standard deviation.
      * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     * @deprecated Use {@link Stats} instead.
      */
+    @Deprecated
     public static double getStandardDeviation(double[] values) {
         return getStandardDeviation(values, true);
     }
@@ -304,7 +354,9 @@ public final class MathHelper {
      * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
      *            <code>false</code> the <i>standard deviation of the sample</i>.
      * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+     * @deprecated Use {@link Stats} instead.
      */
+    @Deprecated
     public static double getStandardDeviation(long[] values, boolean biasCorrection) {
         if (values.length == 0) {
             return Double.NaN;
@@ -324,6 +376,8 @@ public final class MathHelper {
         }
     }
 
+    /** @deprecated Use {@link Stats} instead. */
+    @Deprecated
     public static double getStandardDeviation(long[] values) {
         return getStandardDeviation(values, true);
     }
@@ -348,7 +402,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Check whether two numeric intervals overlap.
+     * </p>
      * 
      * @param start1 The start1.
      * @param end1 The end1.
@@ -382,6 +438,10 @@ public final class MathHelper {
         return computeRootMeanSquareError(values);
     }
 
+    /**
+     * @deprecated Use the {@link Stats} instead.
+     */
+    @Deprecated
     public static double computeRootMeanSquareError(List<double[]> values) {
         double sum = 0.0;
         for (double[] d : values) {
@@ -464,7 +524,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Transform an IP address to a number.
+     * </p>
      * 
      * @param ipAddress The IP address given in w.x.y.z notation.
      * @return The integer of the IP address.
@@ -481,7 +543,9 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
      * Transform a number into an IP address.
+     * </p>
      * 
      * @param number The integer to be transformed.
      * @return The IP address.
@@ -491,7 +555,26 @@ public final class MathHelper {
     }
 
     /**
+     * <p>
+     * Return a random entry from a given collection.
+     * </p>
+     * 
+     * @param collection The collection from we want to sample from.
+     * @return A random entry from the collection.
+     */
+    public static <T> T randomEntry(Collection<T> collection) {
+        Collection<T> randomSample = randomSample(collection, 1);
+        if (!randomSample.isEmpty()) {
+            return randomSample.iterator().next();
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>
      * Create a random sample from a given collection.
+     * </p>
      * 
      * @param collection The collection from we want to sample from.
      * @param sampleSize The size of the sample.
@@ -563,7 +646,8 @@ public final class MathHelper {
         Set<Integer> randomNumbers = new HashSet<Integer>();
 
         if (max - min < numbers) {
-            LOGGER.warn("the range between min ({}) and max ({}) is not enough to create enough random numbers", min, max);
+            LOGGER.warn("the range between min ({}) and max ({}) is not enough to create enough random numbers", min,
+                    max);
             return randomNumbers;
         }
         Random random = new Random();
@@ -581,11 +665,12 @@ public final class MathHelper {
 
     /**
      * <p>
+     * Returns a random number in the interval [low,high].
      * </p>
      * 
-     * @param low The minimum number that the random number
-     * @param high
-     * @return
+     * @param low The minimum number.
+     * @param high The maximum number.
+     * @return The random number within the interval.
      */
     public static int getRandomIntBetween(int low, int high) {
         int hl = high - low;
@@ -723,31 +808,59 @@ public final class MathHelper {
         return ret;
     }
 
-    /**
-     * <p>
-     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
-     * </p>
-     * 
-     * @param lat1 The latitude of the first place.
-     * @param lng1 The longitude of the first place.
-     * @param lat2 The latitude of the second place.
-     * @param lng2 The longitude of the second place.
-     * @return The distance between the points in kilometers.
-     */
-    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
-        double earthRadius = 6384;
-        double lat1Rad = Math.toRadians(lat1);
-        double lat2Rad = Math.toRadians(lat2);
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lng2 - lng1);
-        double sindLat = Math.sin(dLat / 2);
-        double sindLng = Math.sin(dLng / 2);
-        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = earthRadius * c;
+//    /**
+//     * <p>
+//     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
+//     * </p>
+//     * 
+//     * @param lat1 The latitude of the first place.
+//     * @param lng1 The longitude of the first place.
+//     * @param lat2 The latitude of the second place.
+//     * @param lng2 The longitude of the second place.
+//     * @return The distance between the points in kilometers.
+//     * @deprecated Use <code>GeoUtils#getDistance</code> in palladian-core package
+//     */
+//    @Deprecated
+//    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
+//        double earthRadius = 6371;
+//        return 2
+//                * earthRadius
+//                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
+//                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+//                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
+//    }
 
-        return distance;
-    }
+    // public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
+    // double earthRadius = 6371;
+    // double lat1Rad = Math.toRadians(lat1);
+    // double lat2Rad = Math.toRadians(lat2);
+    // double dLat = Math.toRadians(lat2 - lat1);
+    // double dLng = Math.toRadians(lng2 - lng1);
+    // double sindLat = Math.sin(dLat / 2);
+    // double sindLng = Math.sin(dLng / 2);
+    // double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
+    // double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    // double distance = earthRadius * c;
+    //
+    // return distance;
+    // }
+    //
+    // public static double _computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2)
+    // {
+    // double earthRadius = 6371;
+    // double lat1Rad = Math.toRadians(lat1);
+    // double lat2Rad = Math.toRadians(lat2);
+    // double lng1Rad = Math.toRadians(lng1);
+    // double lng2Rad = Math.toRadians(lng2);
+    // // double dLat = Math.toRadians(lat2 - lat1);
+    // // double dLng = Math.toRadians(lng2 - lng1);
+    //
+    // double distance = Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad)
+    // * Math.cos(lng2Rad - lng1Rad))
+    // * earthRadius;
+    //
+    // return distance;
+    // }
 
     /**
      * <p>
@@ -786,6 +899,108 @@ public final class MathHelper {
         double denominator = Math.sqrt(denominatorX * denominatorY);
 
         return nominator / denominator;
+    }
+
+    /**
+     * <p>
+     * Try to translate a number into a fraction, e.g. 0.333 = 1/3.
+     * </p>
+     * 
+     * @parameter number A number between 0 and 1.
+     * @return The fraction of the number if it was possible to transform, otherwise the number as a string.
+     */
+    public static String numberToFraction(Double number) {
+        String fraction = "";
+
+        double minMargin = 1;
+        for (Entry<Double, String> fractionEntry : FRACTION_MAP.entrySet()) {
+
+            double margin = Math.abs(fractionEntry.getKey() - number);
+
+            if (margin < minMargin) {
+                fraction = fractionEntry.getValue();
+                minMargin = margin;
+            }
+
+        }
+
+        if (number < 0.05 && number >= 0) {
+            fraction = "0";
+        } else if (number > 0.95 && number <= 1) {
+            fraction = "1";
+        }
+
+        if (fraction.isEmpty() || number > 1 || number < 0) {
+            fraction = String.valueOf(number);
+        }
+
+        return fraction;
+    }
+
+    /**
+     * <p>
+     * Calculate all combinations for a given array of items.
+     * </p>
+     * <p>
+     * For example, the string "a b c" will return 7 combinations (2^3=8 but all empty is not allowed, hence 7):
+     * 
+     * <pre>
+     * a b c
+     * a b
+     * a c
+     * b c
+     * c
+     * b
+     * a
+     * </pre>
+     * 
+     * </p>
+     * 
+     * @param string A tokenized string to get the spans for.
+     * @return A collection of spans.
+     */
+    public static Collection<List<Object>> computeAllCombinations(Object[] items) {
+
+        // create bitvector (all bit combinations other than all zeros)
+        int bits = items.length;
+        List<List<Object>> combinations = new ArrayList<List<Object>>();
+
+        int max = (int)Math.pow(2, bits);
+        for (long i = 1; i < max; i++) {
+            List<Object> combination = new LinkedList<Object>();
+            if (computeCombinationRecursive(i, items, combination, 0)) {
+                combinations.add(combination);
+            }
+        }
+
+        return combinations;
+    }
+
+    /**
+     * <p>
+     * Recursive computation function for combinations.
+     * </p>
+     * 
+     * @param bitPattern The pattern describing the indices in the list of {@code items} to include in the resulting
+     *            combination.
+     * @param items The list of items to construct combinations from.
+     * @param combination The result combination will be constructed into this list.
+     * @param currentIndex The current index in the list of items. For this call the algorithm needs to decide whether
+     *            to include the item at that position in the combination or not based on whether the value in
+     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
+     * @return {@code true} if the computed combination was computed successfully.
+     */
+    private static Boolean computeCombinationRecursive(Long bitPattern, Object[] items, List<Object> combination,
+            Integer currentIndex) {
+        if (bitPattern % 2 != 0) {
+            combination.add(items[currentIndex]);
+        }
+        Long nextBitPattern = bitPattern / 2;
+        if (nextBitPattern < 1) {
+            return true;
+        } else {
+            return computeCombinationRecursive(nextBitPattern, items, combination, ++currentIndex);
+        }
     }
 
     /**
@@ -896,6 +1111,16 @@ public final class MathHelper {
         }
 
         return value;
+    }
+
+    public static int getOrderOfMagnitude(long number) {
+        int orderOfMagnitude = 0;
+        long temp = number;
+        while (temp >= 10) {
+            temp /= 10;
+            orderOfMagnitude++;
+        }
+        return orderOfMagnitude;
     }
 
 }

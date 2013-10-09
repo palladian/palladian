@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedReader;
@@ -142,7 +142,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * Warn if processing of a feed takes longer than this.
      * TODO: align warning time to the feed's number of items in the dataset.
      */
-    public static final long EXECUTION_WARN_TIME = 10 * DateHelper.MINUTE_MS;
+    public static final long EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(10);
 
     /**
      * Creates a new retrieval task for a provided feed.
@@ -168,7 +168,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * 
      */
     private void setSimulatedPollTime(Feed feed) {
-        simulatedCurrentPollTime = feed.getLastPollTime().getTime() + feed.getUpdateInterval() * DateHelper.MINUTE_MS;
+        simulatedCurrentPollTime = feed.getLastPollTime().getTime() + feed.getUpdateInterval()
+                * TimeUnit.MINUTES.toMillis(1);
     }
 
     /**
@@ -429,7 +430,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                  * interval.
                  */
                 long nextSimulatedPollTime = feed.getLastPollTime().getTime() + feed.getUpdateInterval()
-                        * DateHelper.MINUTE_MS;
+                        * TimeUnit.MINUTES.toMillis(1);
                 Boolean noMorePolls = nextSimulatedPollTime > FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
                 Integer pendingItems = null;
                 if (noMorePolls) {
@@ -522,7 +523,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                     lastRealPollTime);
 
         }
-        
+
 
         // In few cases, we don't have any PollMetaInformation. This happens for feeds that were unparsable at all
         // polls.

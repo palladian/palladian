@@ -1,19 +1,22 @@
 package ws.palladian.extraction.entity.evaluation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -162,7 +165,7 @@ public class EvaluationResult {
      * 
      * @param goldStandard The gold standard, not <code>null</code>.
      */
-    public EvaluationResult(List<Annotation> goldStandard) {
+    public EvaluationResult(List<? extends Annotation> goldStandard) {
         Validate.notNull(goldStandard, "goldStandard must not be null");
         this.assignments = LazyMap.create(new Factory<CountMap<ResultType>>() {
             @Override
@@ -170,12 +173,12 @@ public class EvaluationResult {
                 return CountMap.create();
             }
         });
-        this.resultAnnotations = MultiMap.create();
+        this.resultAnnotations = DefaultMultiMap.createWithList();
         this.confusionMatrix = new ConfusionMatrix();
         this.actualAssignments = CountMap.create();
         this.possibleAssignments = CountMap.create();
         for (Annotation annotation : goldStandard) {
-            possibleAssignments.add(annotation.getTargetClass());
+            possibleAssignments.add(annotation.getTag());
         }
     }
 
@@ -455,8 +458,10 @@ public class EvaluationResult {
                 results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
             }
             results.append("\n");
-            for (Annotation annotation : resultAnnotations.get(resultType)) {
-                results.append("  ").append(annotation).append("\n");
+            if (getResultTypeCount(resultType) > 0) {
+                for (Annotation annotation : resultAnnotations.get(resultType)) {
+                    results.append("  ").append(annotation).append("\n");
+                }
             }
         }
 
@@ -466,13 +471,14 @@ public class EvaluationResult {
     private CountMap<String> getAnnotationCount(ResultType resultType) {
         CountMap<String> counts = CountMap.create();
         for (Annotation annotation : getAnnotations(resultType)) {
-            counts.add(annotation.getMostLikelyTagName());
+            counts.add(annotation.getTag());
         }
         return counts;
     }
 
     int getResultTypeCount(ResultType resultType) {
-        return resultAnnotations.get(resultType).size();
+        Collection<Annotation> annotations = resultAnnotations.get(resultType);
+        return annotations != null ? annotations.size() : 0;
     }
 
     int getActualAssignments() {
@@ -495,9 +501,10 @@ public class EvaluationResult {
         return assignments.get(tagName).getCount(resultType);
     }
 
-    public List<Annotation> getAnnotations(ResultType resultType) {
-        List<Annotation> annotations = resultAnnotations.get(resultType);
-        return annotations != null ? Collections.unmodifiableList(annotations) : Collections.<Annotation> emptyList();
+    public Collection<Annotation> getAnnotations(ResultType resultType) {
+        Collection<Annotation> annotations = resultAnnotations.get(resultType);
+        return annotations != null ? Collections.unmodifiableCollection(annotations) : Collections
+                .<Annotation> emptyList();
     }
 
     /**
@@ -520,23 +527,43 @@ public class EvaluationResult {
             case ERROR3:
             case ERROR4:
             case ERROR5:
-                actualAssignments.add(nerAnnotation.getMostLikelyTagName());
+                actualAssignments.add(nerAnnotation.getTag());
                 resultAnnotations.add(resultType, nerAnnotation);
-                assignments.get(realAnnotation.getTargetClass()).add(resultType);
-                confusionMatrix.add(realAnnotation.getTargetClass(), nerAnnotation.getMostLikelyTagName());
+                assignments.get(realAnnotation.getTag()).add(resultType);
+                confusionMatrix.add(realAnnotation.getTag(), nerAnnotation.getTag());
                 break;
             case ERROR1:
-                actualAssignments.add(nerAnnotation.getMostLikelyTagName());
+                actualAssignments.add(nerAnnotation.getTag());
                 resultAnnotations.add(resultType, nerAnnotation);
-                assignments.get(nerAnnotation.getMostLikelyTagName()).add(resultType);
-                confusionMatrix.add(OTHER_MARKER, nerAnnotation.getMostLikelyTagName());
+                assignments.get(nerAnnotation.getTag()).add(resultType);
+                confusionMatrix.add(OTHER_MARKER, nerAnnotation.getTag());
                 break;
             case ERROR2:
                 resultAnnotations.add(resultType, realAnnotation);
-                assignments.get(realAnnotation.getTargetClass()).add(resultType);
+                assignments.get(realAnnotation.getTag()).add(resultType);
                 break;
             default:
                 throw new IllegalStateException();
+        }
+    }
+
+    public void merge(EvaluationResult result) {
+        this.resultAnnotations.addAll(result.resultAnnotations);
+        this.actualAssignments.addAll(result.actualAssignments);
+        this.possibleAssignments.addAll(result.possibleAssignments);
+
+        // merge assignments
+        for (String assignment : result.assignments.keySet()) {
+            CountMap<ResultType> counts = result.assignments.get(assignment);
+            this.assignments.get(assignment).addAll(counts);
+        }
+        // merge confusion matrix
+        Set<String> categories = result.confusionMatrix.getCategories();
+        for (String realCategory : categories) {
+            for (String predictedCategory : categories) {
+                int count = result.confusionMatrix.getConfusions(realCategory, predictedCategory);
+                this.confusionMatrix.add(realCategory, predictedCategory, count);
+            }
         }
     }
 

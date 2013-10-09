@@ -20,11 +20,13 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
@@ -34,7 +36,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="http://blog.hakia.com/?p=312">hakia Semantic Search – Now Available for Syndication [...]</a>
  * @author Philipp Katz
  */
-public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
+public abstract class BaseHakiaSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseHakiaSearcher.class);
@@ -49,6 +51,8 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
     private final String apiKey;
 
     private final DocumentParser xmlParser;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -61,6 +65,7 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
         xmlParser = ParserFactory.createXmlParser();
+        retriever = HttpRetrieverFactory.getHttpRetriever(); 
     }
 
     /**
@@ -76,7 +81,7 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
         String requestUrl = buildRequestUrl(query, resultCount);
         LOGGER.debug("Requesting {}", requestUrl);
@@ -134,32 +139,33 @@ public abstract class BaseHakiaSearcher extends WebSearcher<WebResult> {
      * @return
      * @throws SearcherException
      */
-    private List<WebResult> extractWebResults(Document resultDocument, int resultCount) throws SearcherException {
+    private List<WebContent> extractWebResults(Document resultDocument, int resultCount) throws SearcherException {
         // TODO need to set correct TimeZone?
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
-        List<WebResult> webResults = new ArrayList<WebResult>();
+        List<WebContent> webResults = new ArrayList<WebContent>();
         List<Node> resultNodes = XPathHelper.getNodes(resultDocument, "//Result");
 
         for (Node resultNode : resultNodes) {
 
-            String url = XPathHelper.getNode(resultNode, "Url").getTextContent();
-            String title = XPathHelper.getNode(resultNode, "Title").getTextContent();
-            String summary = XPathHelper.getNode(resultNode, "Paragraph").getTextContent();
+            BasicWebContent.Builder builder = new BasicWebContent.Builder();
+            builder.setUrl(XPathHelper.getNode(resultNode, "Url").getTextContent());
+            builder.setTitle(XPathHelper.getNode(resultNode, "Title").getTextContent());
+            builder.setSummary(XPathHelper.getNode(resultNode, "Paragraph").getTextContent());
 
             // date is only available for hakia news
             Node dateNode = XPathHelper.getNode(resultNode, "Date");
-            Date date = null;
             if (dateNode != null) {
                 String dateString = dateNode.getTextContent();
                 try {
-                    date = dateFormat.parse(dateString);
+                    Date date = dateFormat.parse(dateString);
+                    builder.setPublished(date);
                 } catch (ParseException e) {
                     throw new SearcherException("Error parsing the search result's date (" + dateString + ") at "
                             + getName() + ": " + e.getMessage(), e);
                 }
             }
 
-            WebResult webResult = new WebResult(url, title, summary, date);
+            WebContent webResult = builder.create();
             LOGGER.debug("hakia retrieved {}", webResult);
             webResults.add(webResult);
 

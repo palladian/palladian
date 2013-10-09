@@ -9,8 +9,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -30,7 +28,9 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
 /**
@@ -446,7 +446,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<WebImage> filteredImages = new ArrayList<WebImage>();
         String ftSmall = fileType.toLowerCase();
         for (WebImage webImage : getImages()) {
-            if (webImage.getType().toLowerCase().equalsIgnoreCase(ftSmall)) {
+            if (webImage.getFileType().toLowerCase().equalsIgnoreCase(ftSmall)) {
                 filteredImages.add(webImage);
             }
         }
@@ -484,33 +484,31 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         for (Node node : imageNodes) {
             try {
 
-                WebImage webImage = new WebImage();
-
                 NamedNodeMap nnm = node.getAttributes();
+                BasicWebImage.Builder builder = new BasicWebImage.Builder();
                 String imageUrl = nnm.getNamedItem("src").getTextContent();
 
                 if (!imageUrl.startsWith("http")) {
                     imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
                 }
-
-                webImage.setUrl(imageUrl);
+                builder.setImageUrl(imageUrl);
 
                 if (nnm.getNamedItem("alt") != null) {
-                    webImage.setAlt(nnm.getNamedItem("alt").getTextContent());
+                    builder.setSummary(nnm.getNamedItem("alt").getTextContent());
                 }
                 if (nnm.getNamedItem("title") != null) {
-                    webImage.setTitle(nnm.getNamedItem("title").getTextContent());
+                    builder.setTitle(nnm.getNamedItem("title").getTextContent());
                 }
                 if (nnm.getNamedItem("width") != null) {
                     String w = nnm.getNamedItem("width").getTextContent();
-                    webImage.setWidth(getImageSize(w));
+                    builder.setWidth(getImageSize(w));
                 }
                 if (nnm.getNamedItem("height") != null) {
                     String h = nnm.getNamedItem("height").getTextContent();
-                    webImage.setHeight(getImageSize(h));
+                    builder.setHeight(getImageSize(h));
                 }
-
-                imageURLs.add(webImage);
+                
+                imageURLs.add(builder.create());
 
             } catch (NumberFormatException e) {
                 LOGGER.debug(e.getMessage());
@@ -604,15 +602,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public void analyzeImages() {
 
+        List<WebImage> temp = CollectionHelper.newArrayList();
+
         for (WebImage webImage : getImages()) {
             if (webImage.getWidth() == 0 || webImage.getHeight() == 0) {
                 BufferedImage image = ImageHandler.load(webImage.getUrl());
                 if (image != null) {
-                    webImage.setWidth(image.getWidth());
-                    webImage.setHeight(image.getHeight());
+                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setWebImage(webImage);
+                    builder.setWidth(image.getWidth());
+                    builder.setHeight(image.getHeight());
+                    temp.add(builder.create());
+                } else {
+                    temp.add(webImage);
                 }
+            } else {
+                temp.add(webImage);
             }
         }
+
+        imageURLs = temp;
 
     }
 
@@ -629,14 +638,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         String url = "http://webknox.com/api/webpage/author?url=" + getDocument().getDocumentURI()
                 + "&language=en&apiKey=" + apiKey;
         DocumentRetriever retriever = new DocumentRetriever();
-        JSONArray authors = retriever.getJsonArray(url);
-        if (authors != null && authors.length() > 0) {
+        // changed to palladian JSON, but untested. Philipp, 2013-09-22
+        String authorsJson = retriever.getText(url);
+        if (authorsJson != null && authorsJson.length() > 0) {
             try {
-                author = new JsonObjectWrapper(authors.getJSONObject(0)).getString("name");
-            } catch (JSONException e) {
+                return new JsonArray(authorsJson).getJsonObject(0).getString("name");
+            } catch (JsonException e) {
             }
         }
-
         return author;
     }
 

@@ -9,14 +9,10 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.images.ImageType;
-import ws.palladian.retrieval.search.images.WebImageResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -26,7 +22,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @author David Urbansky
  * @see <a href="http://www.photoxpress.com/Services/API/Documentation">PhotoXpress API</a>
  */
-public class PhotoXpressSearcher extends WebSearcher<WebImageResult> {
+public class PhotoXpressSearcher extends AbstractSearcher<WebImage> {
 
     /**
      * Identifier for the API key when supplied via {@link Configuration}.
@@ -61,8 +57,8 @@ public class PhotoXpressSearcher extends WebSearcher<WebImageResult> {
     }
 
     @Override
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImageResult> results = CollectionHelper.newArrayList();
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+        List<WebImage> results = CollectionHelper.newArrayList();
 
         // FIXME pagination not done yet
         // resultCount = Math.min(1000, resultCount);
@@ -77,7 +73,7 @@ public class PhotoXpressSearcher extends WebSearcher<WebImageResult> {
         HttpResult httpPost;
         try {
             httpPost = HttpRetrieverFactory.getHttpRetriever().httpPost("http://www.photoxpress.com/Xmlrpc", content);
-            String resultContent = HttpHelper.getStringContent(httpPost);
+            String resultContent = httpPost.getStringContent();
             System.out.println(resultContent);
         } catch (HttpException e) {
             // TODO Auto-generated catch block
@@ -187,7 +183,7 @@ public class PhotoXpressSearcher extends WebSearcher<WebImageResult> {
      */
     public static void main(String[] args) throws SearcherException {
         PhotoXpressSearcher pixabaySearcher = new PhotoXpressSearcher("qhhsJoCG92Uj9qwbooua2Xyti97mGfbx");
-        List<WebImageResult> results = pixabaySearcher.search("car", 101);
+        List<WebImage> results = pixabaySearcher.search("car", 101);
         CollectionHelper.print(results);
     }
 }

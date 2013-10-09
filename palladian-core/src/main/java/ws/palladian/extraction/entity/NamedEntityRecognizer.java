@@ -11,15 +11,16 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
+import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
+import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.PositionAnnotationFactory;
 
@@ -30,22 +31,23 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * 
  * @author David Urbansky
  */
-public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor {
+public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor implements Tagger {
 
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
-
+    
     public static final String PROVIDED_FEATURE = "ws.palladian.processing.entity.ner";
 
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
 
-    public abstract Annotations getAnnotations(String inputText);
+    @Override
+    public abstract List<? extends Annotation> getAnnotations(String inputText);
 
     public String tag(String inputText) {
         StopWatch stopWatch = new StopWatch();
 
-        Annotations annotations = getAnnotations(inputText);
+        List<? extends Annotation> annotations = getAnnotations(inputText);
         String taggedText = tagText(inputText, annotations);
 
         LOGGER.debug("tagged text in {}", stopWatch.getElapsedTimeString(false));
@@ -53,67 +55,8 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         return taggedText;
     }
 
-    protected String tagText(String inputText, Annotations annotations) {
-
-        StringBuilder taggedText = new StringBuilder();
-
-        int lastEndIndex = 0;
-
-        // we need to sort in ascending order first
-        annotations.sort();
-
-        Annotation lastAnnotation = null;
-        for (Annotation annotation : annotations) {
-
-            // ignore nested annotations
-            if (annotation.getOffset() < lastEndIndex) {
-                continue;
-            }
-
-            String tagName = annotation.getMostLikelyTagName();
-
-            taggedText.append(inputText.substring(lastEndIndex, annotation.getOffset()));
-
-            String correctText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
-
-            if (!correctText.equalsIgnoreCase(annotation.getEntity()) && correctText.indexOf("\n") == -1) {
-                StringBuilder errorString = new StringBuilder();
-                errorString.append("alignment error, the annotation candidates don't match the text:\n");
-                errorString.append("found: " + correctText + "\n");
-                errorString.append("instead of: " + annotation.getEntity() + "(" + annotation + ")\n");
-                errorString.append("last annotation: " + lastAnnotation);
-                throw new IllegalStateException(errorString.toString());
-            }
-
-            if (taggingFormat == TaggingFormat.XML) {
-
-                taggedText.append("<").append(tagName).append(">");
-                taggedText.append(annotation.getEntity());
-                taggedText.append("</").append(tagName).append(">");
-
-            } else if (taggingFormat == TaggingFormat.BRACKETS) {
-
-                taggedText.append("[").append(tagName).append(" ");
-                taggedText.append(annotation.getEntity());
-                taggedText.append(" ]");
-
-            } else if (taggingFormat == TaggingFormat.SLASHES) {
-
-                List<String> tokens = Tokenizer.tokenize(annotation.getEntity());
-                for (String token : tokens) {
-                    taggedText.append(token).append("/").append(tagName).append(" ");
-                }
-
-            }
-
-            lastEndIndex = annotation.getEndIndex();
-            lastAnnotation = annotation;
-        }
-
-        taggedText.append(inputText.substring(lastEndIndex));
-
-        return taggedText.toString();
-
+    protected String tagText(String inputText, List<? extends Annotation> annotations) {
+        return NerHelper.tag(inputText, annotations, taggingFormat);
     }
 
     /**
@@ -148,22 +91,25 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format, Set<String> ignore) {
 
         // get the correct annotations from the testing file
-        Annotations goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
+        Annotations<ContextAnnotation> goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
         goldStandard.sort();
-        goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
+        // goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
 
         // get the annotations of the NER
-        Annotations nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
-        nerAnnotations.removeNestedAnnotations();
-        nerAnnotations.sort();
-        String inputFile = FileHelper.getFileName(testingFilePath);
-        nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + inputFile + "_"
-                + getName().replace(" ", "") + DateHelper.getCurrentDatetime() + ".txt");
+        List<? extends Annotation> nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
+        Annotations<Annotation> annotations = new Annotations<Annotation>(nerAnnotations);
+        annotations.removeNested();
+        annotations.sort();
+        // String inputFile = FileHelper.getFileName(testingFilePath);
+        // nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult_" + inputFile + "_"
+        // + getName().replace(" ", "") + DateHelper.getCurrentDatetime() + ".txt");
 
-        return evaluate(goldStandard, nerAnnotations, ignore);
+        return evaluate(goldStandard, annotations, ignore);
     }
 
-    public static EvaluationResult evaluate(Annotations goldStandard, Annotations nerResult, Set<String> ignore) {
+    public static EvaluationResult evaluate(List<? extends Annotation> goldStandard,
+            List<? extends Annotation> nerResult,
+            Set<String> ignore) {
 
         EvaluationResult evaluationResult = new EvaluationResult(goldStandard);
         Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
@@ -175,7 +121,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         for (Annotation nerAnnotation : nerResult) {
 
             // skip "O" tags, XXX should this really be done here in this method?
-            if (nerAnnotation.getMostLikelyTagName().equalsIgnoreCase("o")) {
+            if (nerAnnotation.getTag().equalsIgnoreCase("o")) {
                 continue;
             }
 
@@ -188,12 +134,12 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
                 // skip ignored annotations for error cases 2,3,4, and 5, however, leave the possibility for error 1
                 // (tagged something that should not have been tagged)
-                if (ignore.contains(goldStandardAnnotation.getEntity())
-                        && !(nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex() && !taggedOverlap)) {
+                if (ignore.contains(goldStandardAnnotation.getValue())
+                        && !(nerAnnotation.getStartPosition() < goldStandardAnnotation.getEndPosition() && !taggedOverlap)) {
                     continue;
                 }
 
-                if (nerAnnotation.matches(goldStandardAnnotation)) {
+                if (nerAnnotation.congruent(goldStandardAnnotation)) {
                     // exact match
                     taggedAnnotations.add(goldStandardAnnotation);
                     if (nerAnnotation.sameTag(goldStandardAnnotation)) {
@@ -215,7 +161,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
                         evaluationResult.add(ResultType.ERROR5, goldStandardAnnotation, nerAnnotation);
                     }
                     taggedOverlap = true;
-                } else if (nerAnnotation.getOffset() < goldStandardAnnotation.getEndIndex()
+                } else if (nerAnnotation.getStartPosition() < goldStandardAnnotation.getEndPosition()
                         || counter == goldStandard.size()) {
                     if (!taggedOverlap) {
                         // tagged something that should not have been tagged (error1)
@@ -248,22 +194,22 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         // FileHelper.writeToFile(evaluationFile, evaluationDetails);
         return evaluationResult;
     }
-
+    
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         String content = document.getContent();
         // TODO merge annotation classes
-        Annotations annotations = getAnnotations(content);
+        List<? extends Annotation> annotations = getAnnotations(content);
 
-        FeatureVector featureVector = document.getFeatureVector();
-
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(PROVIDED_FEATURE, document);
+        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
+        ListFeature<PositionAnnotation> processedAnnotations = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
         for (Annotation nerAnnotation : annotations) {
-            PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getOffset(),
-                    nerAnnotation.getEndIndex());
-            featureVector.add(procAnnotation);
+            PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getStartPosition(),
+                    nerAnnotation.getEndPosition());
+            processedAnnotations.add(procAnnotation);
 
         }
+        document.add(processedAnnotations);
     }
 
     public abstract String getName();

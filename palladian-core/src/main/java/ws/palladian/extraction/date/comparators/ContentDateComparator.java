@@ -17,6 +17,13 @@ import ws.palladian.extraction.date.dates.ContentDate;
  */
 public class ContentDateComparator implements Comparator<ContentDate> {
 
+    /** The singleton instance. */
+    public static final ContentDateComparator INSTANCE = new ContentDateComparator();
+
+    private ContentDateComparator() {
+        // singleton instance.
+    }
+
     @Override
     public int compare(ContentDate date1, ContentDate date2) {
 

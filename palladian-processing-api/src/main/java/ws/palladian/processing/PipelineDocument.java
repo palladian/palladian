@@ -2,7 +2,7 @@ package ws.palladian.processing;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.BasicFeatureVector;
 
 /**
  * <p>
@@ -14,15 +14,9 @@ import ws.palladian.processing.features.FeatureVector;
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
+ * @version 2.0
  */
-public abstract class PipelineDocument<T> implements Classifiable {
-
-    /**
-     * <p>
-     * A vector of all features extracted for this document.
-     * </p>
-     */
-    private final FeatureVector featureVector;
+public abstract class PipelineDocument<T> extends BasicFeatureVector {
 
     /**
      * <p>
@@ -41,20 +35,7 @@ public abstract class PipelineDocument<T> implements Classifiable {
      */
     protected PipelineDocument(T content) {
         Validate.notNull(content);
-        this.featureVector = new FeatureVector();
         this.content = content;
-    }
-
-    /**
-     * <p>
-     * Provides a special structured representation of a document as used by classifiers or clusterers.
-     * </p>
-     * 
-     * @return A vector of all features extracted for this document by some pipeline.
-     */
-    @Override
-    public FeatureVector getFeatureVector() {
-        return featureVector;
     }
 
     /**
@@ -71,36 +52,31 @@ public abstract class PipelineDocument<T> implements Classifiable {
 
     /**
      * <p>
-     * Resets this documents content completely overwriting any previous original content.
+     * Resets this documents content completely overwriting any previous content.
      * </p>
      * 
-     * @param originalContent The new unmodified original content representing the document.
+     * @param content The new content representing the document.
      */
-    public void setContent(final T content) {
+    public void setContent(T content) {
         Validate.notNull(content);
-
         this.content = content;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("PipelineDocument [featureVector=");
-        builder.append(featureVector);
-        builder.append(", content=");
-        builder.append(getContent());
-        builder.append("]");
-        return builder.toString();
+        return "PipelineDocument [content=" + content + ", getAll()=" + getAll() + "]";
     }
 
+    // Adapted method. Do not change if you don't know what you are doing.
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
-        result = prime * result + ((featureVector == null) ? 0 : featureVector.hashCode());
+        int result = super.hashCode();
+        result = prime * result + ((content == null) ? 0 : content.hashCode());
         return result;
     }
 
+    // Adapted method. Do not change if you don't know what you are doing.
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -110,10 +86,13 @@ public abstract class PipelineDocument<T> implements Classifiable {
         if (getClass() != obj.getClass())
             return false;
         PipelineDocument<?> other = (PipelineDocument<?>)obj;
-        if (featureVector == null) {
-            if (other.featureVector != null)
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (content == null) {
+            if (other.content != null)
                 return false;
-        } else if (!featureVector.equals(other.featureVector))
+        } else if (!content.equals(other.content))
             return false;
         return true;
     }

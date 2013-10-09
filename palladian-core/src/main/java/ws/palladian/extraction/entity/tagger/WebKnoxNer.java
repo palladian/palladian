@@ -1,5 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.util.List;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
@@ -8,16 +10,16 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.entity.Annotation;
-import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -47,16 +49,16 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
         request.addParameter("text", inputText);
 
-        Annotations annotations = new Annotations();
+        List<Annotation> annotations = CollectionHelper.newArrayList();
         String content;
         try {
             HttpResult httpResult = httpRetriever.execute(request);
-            content = HttpHelper.getStringContent(httpResult);
+            content = httpResult.getStringContent();
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP error while accessing the service: " + e.getMessage(), e);
         }
@@ -69,7 +71,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
                     int offset = currentItem.getInt("offset");
                     String entity = currentItem.getString("entity");
                     String type = currentItem.getString("type");
-                    annotations.add(new Annotation(offset, entity, type));
+                    annotations.add(new ImmutableAnnotation(offset, entity, type));
                 } else {
                     LOGGER.debug("Ignore malformed entry in JSON response.");
                     /**

@@ -1,14 +1,17 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 
@@ -23,6 +26,9 @@ import ws.palladian.helper.collection.CountMatrix;
 public final class DictionaryModel implements Model {
 
     private static final long serialVersionUID = 1L;
+
+    /** The optional name of the model. */
+    private String name = "NONAME";
 
     /** Term-category combinations with their counts. */
     private final CountMatrix<String> termCategories = CountMatrix.create();
@@ -41,24 +47,37 @@ public final class DictionaryModel implements Model {
         this.featureSetting = featureSetting;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public FeatureSetting getFeatureSetting() {
         return featureSetting;
     }
 
     public void updateTerm(String term, String category) {
-        termCategories.add(category, term);
+        termCategories.add(category, new String(term));
     }
 
     public CategoryEntries getCategoryEntries(String term) {
-        CategoryEntries categoryFrequencies = new CategoryEntries();
-        int sum = termCategories.getRowSum(term);
-        if (sum > 0) {
-            for (String category : getCategories()) {
-                double probability = (double)termCategories.getCount(category, term) / sum;
-                categoryFrequencies.add(new CategoryEntry(category, probability));
-            }
+        CategoryEntriesMap categoryFrequencies = new CategoryEntriesMap();
+        List<Pair<String, Integer>> termRow = termCategories.getRow(term);
+        int sum = 0;
+        for (Pair<String, Integer> categoryValue : termRow) {
+            sum += categoryValue.getValue();
+        }
+        for (Pair<String, Integer> categoryValue : termRow) {
+            categoryFrequencies.set(categoryValue.getKey(), (double)categoryValue.getValue() / sum);
         }
         return categoryFrequencies;
+    }
+
+    public int getTermCount(String term) {
+        return termCategories.getRowSum(term);
     }
 
     public int getNumTerms() {
@@ -85,6 +104,14 @@ public final class DictionaryModel implements Model {
         return (double)categories.getCount(category) / categories.totalSize();
     }
 
+    public Map<String, Double> getPriors() {
+        Map<String, Double> result = CollectionHelper.newHashMap();
+        for (String category : categories) {
+            result.put(category, (double)categories.getCount(category) / categories.totalSize());
+        }
+        return result;
+    }
+
     /**
      * <p>
      * Dump the {@link DictionaryModel} as CSV format to a {@link PrintStream}. This is more memory efficient than
@@ -108,16 +135,16 @@ public final class DictionaryModel implements Model {
             CategoryEntries frequencies = getCategoryEntries(term);
             boolean first = true;
             for (String category : categories) {
-                CategoryEntry categoryEntry = frequencies.getCategoryEntry(category);
+                Double probability = frequencies.getProbability(category);
                 if (!first) {
                     printStream.print(",");
                 } else {
                     first = false;
                 }
-                if (categoryEntry == null) {
+                if (probability == null) {
                     printStream.print("0.0");
                 } else {
-                    printStream.print(categoryEntry.getProbability());
+                    printStream.print(probability);
                 }
             }
             printStream.print("\n");

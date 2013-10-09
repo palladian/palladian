@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.closeTo;
 
 import org.junit.Test;
 
@@ -50,17 +51,17 @@ public class ConfusionMatrixTest {
         assertEquals(5. / 7, confusionMatrix.getPrecision("cat"), DELTA);
         assertEquals(5. / 8, confusionMatrix.getRecall("cat"), DELTA);
         assertEquals(22. / 27, confusionMatrix.getAccuracy("cat"), DELTA);
-        assertEquals(2 * 5. / 7 * 5. / 8 / (5. / 7 + 5. / 8), confusionMatrix.getF("cat", 0.5), DELTA);
+        assertEquals(2 * 5. / 7 * 5. / 8 / (5. / 7 + 5. / 8), confusionMatrix.getF(1.0, "cat"), DELTA);
 
         assertEquals(3. / 8, confusionMatrix.getPrecision("dog"), DELTA);
         assertEquals(3. / 6, confusionMatrix.getRecall("dog"), DELTA);
         assertEquals(19. / 27, confusionMatrix.getAccuracy("dog"), DELTA);
-        assertEquals(2 * 3. / 8 * 3. / 6 / (3. / 8 + 3. / 6), confusionMatrix.getF("dog", 0.5), DELTA);
+        assertEquals(2 * 3. / 8 * 3. / 6 / (3. / 8 + 3. / 6), confusionMatrix.getF(1.0, "dog"), DELTA);
 
         assertEquals(11. / 12, confusionMatrix.getPrecision("rabbit"), DELTA);
         assertEquals(11. / 13, confusionMatrix.getRecall("rabbit"), DELTA);
         assertEquals(24. / 27, confusionMatrix.getAccuracy("rabbit"), DELTA);
-        assertEquals(2 * 11. / 12 * 11. / 13 / (11. / 12 + 11. / 13), confusionMatrix.getF("rabbit", 0.5), DELTA);
+        assertEquals(2 * 11. / 12 * 11. / 13 / (11. / 12 + 11. / 13), confusionMatrix.getF(1.0, "rabbit"), DELTA);
 
         assertEquals(8. / 27, confusionMatrix.getPrior("cat"), DELTA);
         assertEquals(6. / 27, confusionMatrix.getPrior("dog"), DELTA);
@@ -69,11 +70,13 @@ public class ConfusionMatrixTest {
         assertEquals((5. / 7 + 3. / 8 + 11. / 12) / 3, confusionMatrix.getAveragePrecision(false), DELTA);
         assertEquals((5. / 8 + 3. / 6 + 11. / 13) / 3, confusionMatrix.getAverageRecall(false), DELTA);
 
-        assertEquals(8. / 27 * 5. / 7 + 6. / 27 * 3. / 8 + 13. / 27 * 11. / 12, confusionMatrix.getAveragePrecision(true), DELTA);
-        assertEquals(8. / 27 * 5. / 8 + 6. / 27 * 3. / 6 + 13. / 27 * 11. / 13, confusionMatrix.getAverageRecall(true), DELTA);
+        assertEquals(8. / 27 * 5. / 7 + 6. / 27 * 3. / 8 + 13. / 27 * 11. / 12,
+                confusionMatrix.getAveragePrecision(true), DELTA);
+        assertEquals(8. / 27 * 5. / 8 + 6. / 27 * 3. / 6 + 13. / 27 * 11. / 13, confusionMatrix.getAverageRecall(true),
+                DELTA);
 
         // TODO test for superiority
-        
+
         // System.out.println(confusionMatrix);
 
     }
@@ -88,6 +91,52 @@ public class ConfusionMatrixTest {
         assertEquals(0.2, confusionMatrix.getPrior("c2"), DELTA);
 
         // System.out.println(confusionMatrix);
+    }
+
+    @Test
+    public void testConfusionMatrix_issue125() {
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("false", "true");
+        assertEquals(1.0, confusionMatrix.getRecall("true"), DELTA);
+        assertEquals(0.75, confusionMatrix.getPrecision("true"), DELTA);
+        assertEquals(1.0, confusionMatrix.getSensitivity("true"), DELTA);
+        assertEquals(0.0, confusionMatrix.getSpecificity("true"), DELTA);
+        assertEquals(0.8571428, confusionMatrix.getF(1.0, "true"), DELTA);
+
+        assertEquals(0, confusionMatrix.getRecall("false"), DELTA);
+        assertTrue(Double.isNaN(confusionMatrix.getPrecision("false")));
+        assertEquals(0.0, confusionMatrix.getSensitivity("false"), DELTA);
+        assertEquals(1.0, confusionMatrix.getSpecificity("false"), DELTA);
+        assertTrue(Double.isNaN(confusionMatrix.getF(1.0, "false")));
+
+        // System.out.println(confusionMatrix);
+    }
+    
+    @Test
+    public void testWeightedFMeasure() throws Exception {
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("false", "true");
+        confusionMatrix.add("true", "false");
+        confusionMatrix.add("true", "false");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "false");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        confusionMatrix.add("true", "true");
+        
+        assertThat(confusionMatrix.getF(0.5,"true"),closeTo(0.895522388,DELTA));
+        assertThat(confusionMatrix.getF(2.0, "true"),closeTo(0.821917808,DELTA));
     }
 
 }

@@ -18,11 +18,11 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.SearcherFactory;
 import ws.palladian.retrieval.search.news.HakiaNewsSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 public class HakiaDateGetter {
     
@@ -50,12 +50,12 @@ public class HakiaDateGetter {
     private ExtractedDate getDateFromHakia() {
         ExtractedDate date = null;
         // modified for new Palladian's new search API and untested -- 2011-11-26, Philipp
-        WebSearcher<WebResult> webSearcher = SearcherFactory.createSearcher(HakiaNewsSearcher.class, ConfigHolder.getInstance().getConfig());
+        Searcher<WebContent> webSearcher = SearcherFactory.createSearcher(HakiaNewsSearcher.class, ConfigHolder.getInstance().getConfig());
         try {
-            List<WebResult> webResults = webSearcher.search(title, 100);
+            List<WebContent> webResults = webSearcher.search(title, 100);
 
             for (int i = 0; i < webResults.size(); i++) {
-                WebResult result = webResults.get(i);
+                WebContent result = webResults.get(i);
                 String requestUrl = result.getUrl();
                 List<String> redirectUrls = httpRetriever.getRedirectUrls(requestUrl);
                 if (!redirectUrls.isEmpty()){
@@ -63,7 +63,7 @@ public class HakiaDateGetter {
                 }
                 if (requestUrl != null && requestUrl.equalsIgnoreCase(url)) {
                     DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
-                    String dateString = dateFormat.format(result.getDate());
+                    String dateString = dateFormat.format(result.getPublished());
                     date = DateParser.findDate(dateString, RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
                     break;
                 }

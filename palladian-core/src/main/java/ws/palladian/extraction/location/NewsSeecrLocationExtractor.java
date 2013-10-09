@@ -1,20 +1,22 @@
 package ws.palladian.extraction.location;
 
+import java.util.List;
+
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -33,8 +35,8 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
     /** The name of this extractor. */
     private static final String EXTRACTOR_NAME = "Palladian/NewsSeecr";
 
-    // private static final String BASE_URL = "http://localhost:8080/api/locations/extract";
-    private static final String BASE_URL = "https://qqilihq-newsseecr.p.mashape.com/locations/extract";
+    // private static final String BASE_URL = "http://localhost:8080/api/locations/extractor";
+    private static final String BASE_URL = "https://qqilihq-newsseecr.p.mashape.com/locations/extractor";
 
     private final String mashapeKey;
 
@@ -53,7 +55,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<LocationAnnotation> getAnnotations(String inputText) {
         HttpRequest request = new HttpRequest(HttpMethod.POST, BASE_URL);
         request.addParameter("text", inputText);
         request.addHeader("X-Mashape-Authorization", mashapeKey);
@@ -63,26 +65,51 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP exception while accessing the web service: " + e.getMessage(), e);
         }
-        String resultString = HttpHelper.getStringContent(result);
+        String resultString = result.getStringContent();
         checkError(result);
         LOGGER.debug("Result JSON: {}", resultString);
         try {
-            Annotations annotations = new Annotations();
-            JSONObject jsonResult = new JSONObject(resultString);
-            JSONArray resultArray = jsonResult.getJSONArray("results");
-            for (int i = 0; i < resultArray.length(); i++) {
-                JSONObject currentResult = resultArray.getJSONObject(i);
+            List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
+            JsonObject jsonResult = new JsonObject(resultString);
+            JsonArray resultArray = jsonResult.getJsonArray("results");
+            for (int i = 0; i < resultArray.size(); i++) {
+                JsonObject currentResult = resultArray.getJsonObject(i);
                 int startPos = currentResult.getInt("startPosition");
-                int endPos = currentResult.getInt("endPosition");
-                String name = currentResult.getString("name");
-                LocationType type = LocationType.valueOf(currentResult.getString("type"));
-                Double lat = currentResult.optDouble("latitude");
-                Double lng = currentResult.optDouble("longitude");
-                annotations.add(new LocationAnnotation(startPos, endPos, name, type, lat, lng));
+                String name = currentResult.getString("value");
+
+                JsonObject locationJson = currentResult.getJsonObject("location");
+                int locationId = locationJson.getInt("id");
+                String primaryName = locationJson.getString("primaryName");
+                LocationType type = LocationType.valueOf(locationJson.getString("type"));
+
+                GeoCoordinate coordinate = null;
+                if (locationJson.get("coordinate") != null) {
+                    double lat = locationJson.queryDouble("coordinate/latitude");
+                    double lng = locationJson.queryDouble("coordinate/longitude");
+                    coordinate = new ImmutableGeoCoordinate(lat, lng);
+                }
+                Long population = locationJson.tryGetLong("population");
+                List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
+                JsonArray altNamesJson = locationJson.getJsonArray("alternativeNames");
+                for (int j = 0; j < altNamesJson.size(); j++) {
+                    JsonObject altNameJson = altNamesJson.getJsonObject(j);
+                    String altName = altNameJson.getString("name");
+                    Language altLng = Language.getByIso6391(altNameJson.getString("language"));
+                    alternativeNames.add(new AlternativeName(altName, altLng));
+                }
+                List<Integer> ancestorIds = CollectionHelper.newArrayList();
+                JsonArray ancestorJson = locationJson.getJsonArray("ancestorIds");
+                for (int j = 0; j < ancestorJson.size(); j++) {
+                    ancestorIds.add(ancestorJson.getInt(j));
+                }
+
+                Location location = new ImmutableLocation(locationId, primaryName, alternativeNames, type, coordinate,
+                        population, ancestorIds);
+                annotations.add(new LocationAnnotation(startPos, name, location));
 
             }
             return annotations;
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON: "
                     + resultString, e);
         }
@@ -99,11 +126,11 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         if (result.getStatusCode() >= 300) {
             // try to get the message
             try {
-                JSONObject json = new JSONObject(HttpHelper.getStringContent(result));
+                JsonObject json = new JsonObject(result.getStringContent());
                 String message = json.getString("message");
                 throw new IllegalStateException("Error while accessing the web service: " + message
                         + ", response code: " + result.getStatusCode());
-            } catch (JSONException ignore) {
+            } catch (JsonException ignore) {
                 // no message could be extracted
             }
             throw new IllegalStateException("Error while accessing the web service, response code: "

@@ -5,18 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import quickdt.Attributes;
+import quickdt.HashMapAttributes;
 import quickdt.Leaf;
-import quickdt.Node;
+import quickdt.Tree;
 import quickdt.TreeBuilder;
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -24,8 +24,10 @@ import ws.palladian.processing.features.FeatureVector;
  * </p>
  * 
  * @author Philipp Katz
+ * @deprecated Use {@link QuickDtClassifier} instead.
  */
-public final class DecisionTreeClassifier implements Classifier<DecisionTreeModel> {
+@Deprecated
+public final class DecisionTreeClassifier implements Learner<DecisionTreeModel>, Classifier<DecisionTreeModel> {
 
     private final int maxDepth;
 
@@ -54,19 +56,22 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
     }
 
     @Override
-    public DecisionTreeModel train(List<Instance> instances) {
+    public DecisionTreeModel train(Iterable<? extends Trainable> trainables) {
         Set<quickdt.Instance> trainingInstances = CollectionHelper.newHashSet();
-        for (Instance instance : instances) {
+        Set<String> classes = CollectionHelper.newHashSet();
+        for (Trainable instance : trainables) {
             Serializable[] input = getInput(instance.getFeatureVector());
-            trainingInstances.add(Attributes.create(input).classification(instance.getTargetClass()));
+            trainingInstances.add(HashMapAttributes.create(input).classification(instance.getTargetClass()));
+            classes.add(instance.getTargetClass());
         }
-        Node tree = new TreeBuilder().buildTree(trainingInstances, maxDepth, minProbability);
-        return new DecisionTreeModel(tree);
+        Tree tree = new TreeBuilder().maxDepth(maxDepth).minProbability(minProbability)
+                .buildPredictiveModel(trainingInstances);
+        return new DecisionTreeModel(tree, classes);
     }
 
-    private Serializable[] getInput(FeatureVector featureVector) {
+    private Serializable[] getInput(Classifiable classifiable) {
         List<Serializable> inputs = new ArrayList<Serializable>();
-        for (Feature<?> feature : featureVector.toArray()) {
+        for (Feature<?> feature : classifiable.getFeatureVector()) {
             String featureName = feature.getName();
             Serializable featureValue = (Serializable)feature.getValue();
             inputs.add(featureName);
@@ -76,17 +81,14 @@ public final class DecisionTreeClassifier implements Classifier<DecisionTreeMode
     }
 
     @Override
-    public CategoryEntries classify(FeatureVector featureVector, DecisionTreeModel decisionTreeModel) {
-        Leaf leaf = decisionTreeModel.getTree().getLeaf(Attributes.create(getInput(featureVector)));
-        CategoryEntries categoryEntries = new CategoryEntries();
-        categoryEntries.add(new CategoryEntry((String)leaf.classification, leaf.probability));
+    public CategoryEntries classify(Classifiable classifiable, DecisionTreeModel decisionTreeModel) {
+        Leaf leaf = decisionTreeModel.getTree().node.getLeaf(HashMapAttributes.create(getInput(classifiable)));
+        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
+        for (String targetClass : decisionTreeModel.getClasses()) {
+            categoryEntries.set(targetClass, leaf.getProbability(targetClass));
+        }
+        categoryEntries.sort();
         return categoryEntries;
-    }
-
-    @Override
-    public DecisionTreeModel train(Dataset dataset) {
-        // FIXME
-        return null;
     }
 
 }

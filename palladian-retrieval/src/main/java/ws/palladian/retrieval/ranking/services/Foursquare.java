@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -18,10 +18,13 @@ import ws.palladian.retrieval.ranking.RankingType;
 
 /**
  * <p>
- * RankingService implementation to find the number of checkins and likes for a location on foursquare.
+ * {@link RankingService} implementation to find the number of checkins and likes for a location on <a
+ * href="https://foursquare.com>foursquare</a>. <b>Important:</b> This does not conform to the other ranking
+ * implementations as it does not reveive URLs, but vanue IDs as parameter.
  * </p>
  * 
  * @author David Urbansky
+ * @see <a href="https://developer.foursquare.com">foursquare for Developers</a>
  */
 public final class Foursquare extends BaseRankingService implements RankingService {
 
@@ -37,7 +40,7 @@ public final class Foursquare extends BaseRankingService implements RankingServi
     /** The ranking value types of this service **/
     public static final RankingType FOURSQUARE_CHECKINS = new RankingType("checkins", "Foursquare Checkins",
             "The number of foursquare checkins of the location.");
-    
+
     public static final RankingType FOURSQUARE_LIKES = new RankingType("likes", "Foursquare Likes",
             "The number of foursquare likes of the location.");
 
@@ -45,16 +48,16 @@ public final class Foursquare extends BaseRankingService implements RankingServi
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(FOURSQUARE_CHECKINS, FOURSQUARE_LIKES);
 
     private final String clientId;
+    
     private final String clientSecret;
 
     /**
      * <p>
-     * Create a new {@link MajesticSeo} ranking service.
+     * Create a new {@link Foursquare} ranking service.
      * </p>
      * 
-     * @param configuration The configuration which must provide an API key (<tt>api.majestic.key</tt>) for accessing
-     *            the
-     *            service.
+     * @param configuration The configuration which must provide {@value #CONFIG_CLIENT_ID} and
+     *            {@value #CONFIG_CLIENT_SECRET} for accessing the service.
      */
     public Foursquare(Configuration configuration) {
         this(configuration.getString(CONFIG_CLIENT_ID), configuration.getString(CONFIG_CLIENT_SECRET));
@@ -62,10 +65,11 @@ public final class Foursquare extends BaseRankingService implements RankingServi
 
     /**
      * <p>
-     * Create a new {@link MajesticSeo} ranking service.
+     * Create a new {@link Foursquare} ranking service.
      * </p>
      * 
-     * @param clientId The required API key for accessing the service.
+     * @param clientId The required client key for accessing the service, not <code>null</code> or empty.
+     * @param clientSecret The required client secret for accessing the service, not <code>null</code> or empty.
      */
     public Foursquare(String clientId, String clientSecret) {
         Validate.notEmpty(clientId);
@@ -73,11 +77,10 @@ public final class Foursquare extends BaseRankingService implements RankingServi
         this.clientId = clientId;
         this.clientSecret = clientSecret;
     }
-    
+
     @Override
     public Ranking getRanking(String venueId) throws RankingServiceException {
         Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, venueId, results);
 
         double checkins = 0.;
         double likes = 0.;
@@ -86,12 +89,11 @@ public final class Foursquare extends BaseRankingService implements RankingServi
         try {
 
             HttpResult httpGet = retriever.httpGet(requestUrl);
-            JsonObjectWrapper json = new JsonObjectWrapper(new String(httpGet.getContent()));
+            JsonObject json = new JsonObject(httpGet.getStringContent());
 
-            JsonObjectWrapper venue = json.getJSONObject("response").getJSONObject("venue");
-            checkins = venue.getJSONObject("stats").getDouble("checkinsCount");
-            likes = venue.getJSONObject("likes").getDouble("count");
-            
+            JsonObject venue = json.queryJsonObject("response/venue");
+            checkins = venue.queryDouble("stats/checkinsCount");
+            likes = venue.queryDouble("likes/count");
 
         } catch (Exception e) {
             throw new RankingServiceException(e);
@@ -99,7 +101,7 @@ public final class Foursquare extends BaseRankingService implements RankingServi
 
         results.put(FOURSQUARE_CHECKINS, (float)checkins);
         results.put(FOURSQUARE_LIKES, (float)likes);
-        return ranking;
+        return new Ranking(this, venueId, results);
     }
 
     /**
@@ -111,13 +113,8 @@ public final class Foursquare extends BaseRankingService implements RankingServi
      * @return The request URL.
      */
     private String buildRequestUrl(String venueId) {
-        String requestUrl = "https://api.foursquare.com/v2/venues/";
-        requestUrl += venueId;
-        requestUrl += "?v=20120321";
-        requestUrl += "&client_id=" + clientId;
-        requestUrl += "&client_secret=" + clientSecret;
-        
-        return requestUrl;
+        return String.format("https://api.foursquare.com/v2/venues/%s?v=20120321&client_id=%s&client_secret=%s",
+                venueId, clientId, clientSecret);
     }
 
     @Override

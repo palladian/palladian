@@ -15,6 +15,7 @@ import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -59,8 +60,7 @@ public final class ProcessingApiTest {
         nerProcessor.processDocument(document);
 
         // Checking results
-        List<PositionAnnotation> extractedEntities = document
-                .getFeatureVector().getAll(PositionAnnotation.class, NamedEntityRecognizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> extractedEntities = document.get(ListFeature.class, NamedEntityRecognizer.PROVIDED_FEATURE);
 
         assertThat(extractedEntities.size(), Matchers.is(5));
         for (PositionAnnotation nerAnnotation : extractedEntities) {

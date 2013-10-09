@@ -10,9 +10,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -21,11 +23,11 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * 
  * @author David Urbansky
  */
-public class PublicDomainImageSearcher extends WebSearcher<WebImageResult> {
+public class PublicDomainImageSearcher extends AbstractSearcher<WebImage> {
 
     @Override
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImageResult> results = CollectionHelper.newArrayList();
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+        List<WebImage> results = CollectionHelper.newArrayList();
 
         resultCount = Math.min(1000, resultCount);
 
@@ -44,24 +46,20 @@ public class PublicDomainImageSearcher extends WebSearcher<WebImageResult> {
 
             for (Node node : imageNodes) {
 
-                String summary = node.getAttributes().getNamedItem("alt").getTextContent();
+                BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                builder.setSummary(node.getAttributes().getNamedItem("alt").getTextContent());
                 String imageUrl = node.getAttributes().getNamedItem("src").getTextContent();
                 String thumbImageUrl = imageUrl;
                 imageUrl = imageUrl.replace("cache/", "public-domain-images-pictures-free-stock-photos/");
                 imageUrl = imageUrl.replace("_85_thumb", "");
                 imageUrl = "http://www.public-domain-image.com" + imageUrl;
                 thumbImageUrl = "http://www.public-domain-image.com" + thumbImageUrl;
-
-                WebImageResult webImageResult = new WebImageResult(imageUrl, imageUrl, summary, summary, -1, -1, null,
-                        null);
-                webImageResult.setThumbImageUrl(thumbImageUrl);
-
-                webImageResult.setLicense(License.PUBLIC_DOMAIN);
-                webImageResult.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
-                webImageResult.setImageType(ImageType.PHOTO);
-
-                results.add(webImageResult);
-
+                builder.setImageUrl(imageUrl);
+                builder.setThumbnailUrl(thumbImageUrl);
+                builder.setLicense(License.PUBLIC_DOMAIN);
+                builder.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
+                builder.setImageType(ImageType.PHOTO);
+                results.add(builder.create());
                 if (results.size() >= resultCount) {
                     break ol;
                 }
@@ -89,7 +87,7 @@ public class PublicDomainImageSearcher extends WebSearcher<WebImageResult> {
      */
     public static void main(String[] args) throws SearcherException {
         PublicDomainImageSearcher searcher = new PublicDomainImageSearcher();
-        List<WebImageResult> results = searcher.search("car", 10);
+        List<WebImage> results = searcher.search("car", 10);
         CollectionHelper.print(results);
     }
 }

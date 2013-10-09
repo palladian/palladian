@@ -22,6 +22,9 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -32,7 +35,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
+public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleScraperSearcher.class);
@@ -59,9 +62,9 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> result = new ArrayList<WebResult>();
+        List<WebContent> result = new ArrayList<WebContent>();
 
         try {
 
@@ -81,7 +84,7 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
                 Document document = parser.parse(httpResult);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
                 
-                List<WebResult> webResults = parseHtml(document);
+                List<WebContent> webResults = parseHtml(document);
                 result.addAll(webResults);
 
             }
@@ -98,9 +101,9 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
 
     }
     
-    static List<WebResult> parseHtml(Document document) throws SearcherException {
+    static List<WebContent> parseHtml(Document document) throws SearcherException {
         
-        List<WebResult> result = CollectionHelper.newArrayList();
+        List<WebContent> result = CollectionHelper.newArrayList();
         
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, LINK_XPATH);
         List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, INFORMATION_XPATH);
@@ -124,17 +127,21 @@ public final class GoogleScraperSearcher extends WebSearcher<WebResult> {
             if (url.startsWith("/search")) {
                 continue;
             }
-            String extractedUrl = extractUrl(url);
             
-            String title = linkNode.getTextContent();
+            BasicWebContent.Builder builder = new BasicWebContent.Builder();
+            
+            builder.setUrl(extractUrl(url));
+            
+            builder.setTitle(linkNode.getTextContent());
 
             // the summary needs some cleaning; what we want is between "quotes",
             // we also remove double whitespaces
             String summary = infoNode.getTextContent();
             summary = StringHelper.trim(summary);
             summary = StringHelper.removeDoubleWhitespaces(summary);
+            builder.setSummary(summary);
 
-            result.add(new WebResult(extractedUrl, title, summary, SEARCHER_NAME));
+            result.add(builder.create());
             
 //            if (result.size() >= resultCount) {
 //                break paging;

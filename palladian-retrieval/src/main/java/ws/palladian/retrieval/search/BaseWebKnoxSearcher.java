@@ -15,9 +15,10 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
@@ -27,7 +28,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="http://webknox.com/api">WebKnox API</a>
  * @author David Urbansky
  */
-public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearcher<R> {
+public abstract class BaseWebKnoxSearcher<R extends WebContent> extends AbstractSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseWebKnoxSearcher.class);
@@ -39,6 +40,8 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
     public static final String CONFIG_API_KEY = "api.webknox.apiKey";
 
     protected final String apiKey;
+    
+    private final HttpRetriever retriever;
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
@@ -52,6 +55,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
     public BaseWebKnoxSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "api key must not be empty");
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -81,7 +85,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
             HttpResult httpResult = retriever.httpGet(requestUrl);
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             JSONObject jsonObject = new JSONObject(jsonString);
 
             if (!jsonObject.has("results")) {
@@ -115,7 +119,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
 
     /**
      * <p>
-     * Parse the {@link JSONObject} to the desired type of {@link WebResult}.
+     * Parse the {@link JSONObject} to the desired type of {@link BasicWebContent}.
      * </p>
      * 
      * @param currentResult
@@ -138,7 +142,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebResult> extends WebSearch
     protected abstract String buildRequestUrl(String query, Language language, int offset, int count);
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Getting the total result count is not supported in the new WebKnox API.");
     }
 

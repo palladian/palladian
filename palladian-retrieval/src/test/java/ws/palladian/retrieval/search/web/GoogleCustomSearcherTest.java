@@ -10,20 +10,21 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.resources.WebContent;
 
 public class GoogleCustomSearcherTest {
     
     @Test
     public void testParsing() throws FileNotFoundException, JSONException {
         String jsonString = FileHelper.readFileToString(ResourceHelper.getResourceFile("/apiresponse/googleCustomSearchResponse.json"));
-        List<WebResult> results = GoogleCustomSearcher.parse(jsonString);
+        List<WebContent> results = GoogleCustomSearcher.parse(jsonString);
         assertEquals(10, results.size());
         
         assertEquals("Palladian architecture - Wikipedia, the free encyclopedia", results.get(0).getTitle());
         assertEquals("http://en.wikipedia.org/wiki/Palladian_architecture", results.get(0).getUrl());
         assertEquals("Palladian architecture is a European style of architecture derived from the   designs of the Venetian architect Andrea Palladio (1508–1580). The term \"  Palladian\" ...", results.get(0).getSummary());
         
-        int resultCount = GoogleCustomSearcher.parseResultCount(jsonString);
+        long resultCount = GoogleCustomSearcher.parseResultCount(jsonString);
         assertEquals(147000, resultCount);
     }
 

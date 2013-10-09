@@ -6,6 +6,8 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
 
 /**
@@ -18,7 +20,7 @@ import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
  * @see http://webknox.com/api#!/index/search_GET
  * @author David Urbansky
  */
-public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebResult> {
+public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebContent> {
 
     /**
      * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(String)
@@ -49,13 +51,11 @@ public class WebKnoxSearcher extends BaseWebKnoxSearcher<WebResult> {
     }
 
     @Override
-    protected WebResult parseResult(JSONObject currentResult) throws JSONException {
-        String summary = null;
-        String url = currentResult.getString("url");
-        String title = currentResult.getString("title");
-        WebResult webResult = new WebResult(url, title, summary, getName());
-
-        return webResult;
+    protected WebContent parseResult(JSONObject currentResult) throws JSONException {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(currentResult.getString("url"));
+        builder.setTitle(currentResult.getString("title"));
+        return builder.create();
     }
 
     @Override

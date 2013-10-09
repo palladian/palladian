@@ -2,6 +2,8 @@ package ws.palladian.retrieval.search.images;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -10,9 +12,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -21,11 +25,14 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * 
  * @author David Urbansky
  */
-public class StockXchngSearcher extends WebSearcher<WebImageResult> {
+public class StockXchngSearcher extends AbstractSearcher<WebImage> {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(StockXchngSearcher.class);
 
     @Override
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImageResult> results = CollectionHelper.newArrayList();
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+        List<WebImage> results = CollectionHelper.newArrayList();
 
         resultCount = Math.min(1000, resultCount);
 
@@ -45,40 +52,34 @@ public class StockXchngSearcher extends WebSearcher<WebImageResult> {
 
             for (Node node : targetNodes) {
 
+                BasicWebImage.Builder builder = new BasicWebImage.Builder();
                 Node dimensionNode = XPathHelper.getXhtmlNode(node, ".//li[@class='t_size']");
-                int width = -1;
-                int height = -1;
                 if (dimensionNode != null) {
                     String[] split = dimensionNode.getTextContent().split("\\*");
-                    width = Integer.parseInt(split[0]);
-                    height = Integer.parseInt(split[1]);
+                    builder.setWidth(Integer.parseInt(split[0]));
+                    builder.setHeight(Integer.parseInt(split[1]));
                 }
-                String title = "";
                 Node titleNode = XPathHelper.getXhtmlNode(node, ".//li[@class='t_title0']");
                 if (titleNode != null) {
-                    title = titleNode.getTextContent();
+                    builder.setTitle(titleNode.getTextContent());
                 }
 
                 Node imageNode = XPathHelper.getXhtmlNode(node, ".//img/@src");
-                String imageThumbUrl = "";
                 if (imageNode != null) {
-                    imageThumbUrl = "http://www.sxc.hu/" + imageNode.getTextContent();
+                    builder.setThumbnailUrl("http://www.sxc.hu/" + imageNode.getTextContent());
                 }
 
                 String imageUrl = XPathHelper.getXhtmlNode(node, ".//a/@href").getTextContent();
-                String url = "http://www.sxc.hu/" + imageUrl;
+                builder.setUrl("http://www.sxc.hu/" + imageUrl);
                 imageUrl = imageUrl.replace("photo/", "");
                 imageUrl = "http://www.sxc.hu/browse.phtml?f=download&id=" + imageUrl;
+                builder.setImageUrl(imageUrl);
 
-                WebImageResult webImageResult = new WebImageResult(url, imageUrl, title, title, width, height, null,
-                        null);
+                builder.setLicense(License.ATTRIBUTION);
+                builder.setLicenseLink("http://www.sxc.hu/help/7_2");
+                builder.setImageType(ImageType.PHOTO);
 
-                webImageResult.setThumbImageUrl(imageThumbUrl);
-                webImageResult.setLicense(License.ATTRIBUTION);
-                webImageResult.setLicenseLink("http://www.sxc.hu/help/7_2");
-                webImageResult.setImageType(ImageType.PHOTO);
-
-                results.add(webImageResult);
+                results.add(builder.create());
 
                 if (results.size() >= resultCount) {
                     break ol;
@@ -105,7 +106,7 @@ public class StockXchngSearcher extends WebSearcher<WebImageResult> {
         String url = "http://www.sxc.hu/browse.phtml?f=advanced_search&q1=" + q1 + "&q2=" + q2 + "&q3=" + q3
                 + "&cat=0&r=0&t=0&p=" + page;
 
-        System.out.println(url);
+        LOGGER.debug(url);
 
         return url;
     }
@@ -121,8 +122,8 @@ public class StockXchngSearcher extends WebSearcher<WebImageResult> {
      */
     public static void main(String[] args) throws SearcherException {
         StockXchngSearcher searcher = new StockXchngSearcher();
-        List<WebImageResult> results = searcher.search("planet earth", 10);
+        List<WebImage> results = searcher.search("planet earth", 10);
         CollectionHelper.print(results);
-        System.out.println(results.get(0).getThumbImageUrl());
+        System.out.println(results.get(0).getThumbnailUrl());
     }
 }

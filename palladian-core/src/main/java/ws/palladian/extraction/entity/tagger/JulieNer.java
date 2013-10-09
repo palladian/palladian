@@ -4,24 +4,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotation;
 import de.julielab.jnet.tagger.JNETException;
 import de.julielab.jnet.tagger.NETagger;
 import de.julielab.jnet.tagger.Sentence;
@@ -140,8 +135,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations = new Annotations();
+    public List<Annotation> getAnnotations(String inputText) {
 
         FileHelper.writeToFile("data/temp/julieInputText.txt", inputText);
         FileFormatParser.textToColumn("data/temp/julieInputText.txt", "data/temp/julieInputTextColumn.txt", " ");
@@ -177,13 +171,15 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
         }
-        annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
-
-        annotations.instanceCategoryToClassified();
+        // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
+        String alignedContent = NerHelper.alignContentText(FileHelper.readFileToString(outFile.getPath()), inputText);
+        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
+        annotations.removeNested();
+        annotations.sort();
 
         FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
 
-        return annotations;
+        return Collections.<Annotation> unmodifiableList(annotations);
     }
 
     /**
@@ -279,92 +275,9 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
      * @param args
      * @throws Exception
      */
-    @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
 
         JulieNer tagger = new JulieNer();
-
-        if (args.length > 0) {
-
-            Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("mode").withDescription("whether to tag or train a model")
-                    .create());
-
-            OptionGroup modeOptionGroup = new OptionGroup();
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tg").withLongOpt("tag").withDescription("tag a text")
-                    .create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tr").withLongOpt("train")
-                    .withDescription("train a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate")
-                    .withDescription("evaluate a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("dm").withLongOpt("demo")
-                    .withDescription("demo mode of the tagger").create());
-            modeOptionGroup.setRequired(true);
-            options.addOptionGroup(modeOptionGroup);
-
-            options.addOption(OptionBuilder.withLongOpt("trainingFile")
-                    .withDescription("the path and name of the training file for the tagger (only if mode = train)")
-                    .hasArg().withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder
-                    .withLongOpt("testFile")
-                    .withDescription(
-                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
-                    .hasArg().withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("configFile")
-                    .withDescription("the path and name of the config file for the tagger").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("inputText")
-                    .withDescription("the text that should be tagged (only if mode = tag)").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("outputFile")
-                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            HelpFormatter formatter = new HelpFormatter();
-
-            CommandLineParser parser = new PosixParser();
-            CommandLine cmd = null;
-            try {
-                cmd = parser.parse(options, args);
-
-                if (cmd.hasOption("tag")) {
-
-                    tagger.loadModel(cmd.getOptionValue("configFile"));
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
-
-                    if (cmd.hasOption("outputFile")) {
-                        FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
-                    } else {
-                        System.out.println("No output file given so tagged text will be printed to the console:");
-                        System.out.println(taggedText);
-                    }
-
-                } else if (cmd.hasOption("train")) {
-
-                    tagger.train(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"));
-
-                } else if (cmd.hasOption("evaluate")) {
-
-                    tagger.loadModel(cmd.getOptionValue("configFile"));
-                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
-                    System.out.println(evResult);
-
-                } else if (cmd.hasOption("demo")) {
-
-                    tagger.demo(cmd.getOptionValue("inputText"));
-
-                }
-
-            } catch (ParseException e) {
-                LOGGER.debug("Command line arguments could not be parsed!");
-                formatter.printHelp("JulieNER", options);
-            }
-
-        }
 
         // // HOW TO USE (some functions require the models in
         // data/models/juliener) ////

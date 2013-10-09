@@ -1,22 +1,31 @@
 package ws.palladian.extraction.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotation;
 
 /**
+ * <p>
  * A list of {@link Annotation}s.
+ * </p>
  * 
  * @author David Urbansky
- * 
  */
-public class Annotations extends ArrayList<Annotation> {
+public class Annotations<T extends Annotation> extends ArrayList<T> implements List<T> {
 
-    private static final long serialVersionUID = -628839540653937643L;
+    private static final long serialVersionUID = 1L;
+
+    public Annotations() {
+    }
+
+    public Annotations(Collection<? extends T> c) {
+        super(c);
+    }
 
     /**
      * Save the annotation list to a file.
@@ -24,11 +33,8 @@ public class Annotations extends ArrayList<Annotation> {
      * @param outputFilePath The path where the annotation list should be saved to.
      */
     public void save(String outputFilePath) {
-
         String output = toString();
-
         FileHelper.writeToFile(outputFilePath, output);
-
     }
 
     @Override
@@ -36,66 +42,47 @@ public class Annotations extends ArrayList<Annotation> {
         sort();
         StringBuilder output = new StringBuilder();
         for (Annotation annotation : this) {
-            output.append(annotation.getOffset()).append(";");
-            output.append(annotation.getLength()).append(";");
-            output.append(annotation.getEndIndex()).append(";");
-            output.append(annotation.getEntity()).append(";");
-            output.append(annotation.getMostLikelyTagName()).append("\n");
+            output.append(annotation.getStartPosition()).append(";");
+            output.append(annotation.getValue().length()).append(";");
+            output.append(annotation.getEndPosition()).append(";");
+            output.append(annotation.getValue()).append(";");
+            output.append(annotation.getTag()).append("\n");
         }
         return output.toString();
     }
 
-    public void removeNestedAnnotations() {
-        Annotations removedNested = new Annotations();
-
+    public void removeNested() {
         sort();
-
+        Iterator<T> iterator = iterator();
         int lastEndIndex = 0;
-        for (Annotation annotation : this) {
-
+        while (iterator.hasNext()) {
+            T annotation = iterator.next();
             // ignore nested annotations
-            if (annotation.getOffset() < lastEndIndex) {
+            if (annotation.getStartPosition() < lastEndIndex) {
+                iterator.remove();
                 continue;
             }
-
-            removedNested.add(annotation);
-            lastEndIndex = annotation.getEndIndex();
+            lastEndIndex = annotation.getEndPosition();
         }
-
-        clear();
-        this.addAll(removedNested);
     }
 
     /**
+     * <p>
      * The order of annotations is important. Annotations are sorted by their offsets in ascending order.
+     * </p>
      */
     public void sort() {
-        Comparator<Annotation> c = new Comparator<Annotation>() {
-
-            @Override
-            public int compare(Annotation a1, Annotation a2) {
-                return a1.getOffset() - a2.getOffset();
-            }
-        };
-
-        Collections.sort(this, c);
+        Collections.sort(this);
     }
 
     @Override
-    public boolean add(Annotation e) {
+    public boolean add(T e) {
         for (Annotation a : this) {
-            if (a.getOffset() == e.getOffset()) {
+            if (a.getStartPosition() == e.getStartPosition()) {
                 return false;
             }
         }
         return super.add(e);
     }
 
-    public void instanceCategoryToClassified() {
-        for (Annotation annotation : this) {
-            CategoryEntries ces = new CategoryEntries();
-            ces.add(new CategoryEntry(annotation.getTargetClass(), 1));
-            annotation.setTags(ces);
-        }
-    }
 }

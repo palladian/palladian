@@ -143,6 +143,7 @@ public class DatabaseManager {
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
+            rollback(connection);
             Object[] args = null;
             if (data != null) {
                 args = data.toArray();
@@ -230,6 +231,7 @@ public class DatabaseManager {
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
+            rollback(connection);
             logError(e, sql);
         } finally {
             close(connection, ps);
@@ -388,6 +390,24 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
+        return runQuery(callback, converter, new BasicQuery(sql, args));
+    }
+
+    /**
+     * <p>
+     * Run a query operation on the database, process the result using a callback.
+     * </p>
+     * 
+     * @param <T> Type of the processed objects.
+     * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return Number of processed results.
+     */
+    public final <T> int runQuery(ResultCallback<T> callback, RowConverter<T> converter, Query query) {
+        Validate.notNull(callback, "callback must not be null");
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notNull(query, "query must not be null");
 
         Connection connection = null;
         PreparedStatement ps = null;
@@ -397,8 +417,8 @@ public class DatabaseManager {
         try {
             connection = getConnection();
 
-            ps = connection.prepareStatement(sql);
-            fillPreparedStatement(ps, args);
+            ps = connection.prepareStatement(query.getSql());
+            fillPreparedStatement(ps, query.getArgs());
             rs = ps.executeQuery();
 
             while (rs.next() && callback.isLooping()) {
@@ -407,7 +427,7 @@ public class DatabaseManager {
             }
 
         } catch (SQLException e) {
-            logError(e, sql, args);
+            logError(e, query.getSql(), query.getArgs());
         } finally {
             close(connection, ps, rs);
         }
@@ -447,7 +467,7 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runQuery(converter, sql, args.toArray());
+        return runQuery(converter, new BasicQuery(sql, args));
     }
 
     /**
@@ -465,6 +485,22 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
+        return runQuery(converter, new BasicQuery(sql, args));
+    }
+
+    /**
+     * <p>
+     * Run a query operation on the database, return the result as List.
+     * </p>
+     * 
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return List with results.
+     */
+    public final <T> List<T> runQuery(RowConverter<T> converter, Query query) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notNull(query, "query must not be null");
 
         final List<T> result = new ArrayList<T>();
 
@@ -477,7 +513,7 @@ public class DatabaseManager {
 
         };
 
-        runQuery(callback, converter, sql, args);
+        runQuery(callback, converter, query);
         return result;
     }
 
@@ -503,7 +539,7 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runQueryWithIterator(converter, sql, args.toArray());
+        return runQueryWithIterator(converter, new BasicQuery(sql, args));
     }
 
     /**
@@ -527,6 +563,28 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
+        return runQueryWithIterator(converter, new BasicQuery(sql, args));
+    }
+    
+    /**
+     * <p>
+     * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
+     * not allow modifications, so invoking {@link ResultIterator#remove()} will cause an
+     * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
+     * element has been retrieved. If you break the iteration loop, you <b>must</b> manually call
+     * {@link ResultIterator#close()}. In general, you should prefer using
+     * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
+     * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
+     * </p>
+     * 
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return Iterator for iterating over results.
+     */
+    public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, Query query) {
+        Validate.notNull(converter, "converter must not be null");
+        Validate.notNull(query, "query must not be null");
 
         @SuppressWarnings("unchecked")
         ResultIterator<T> result = ResultIterator.NULL_ITERATOR;
@@ -537,21 +595,23 @@ public class DatabaseManager {
         try {
 
             connection = getConnection();
-            ps = connection.prepareStatement(sql);
 
-            // do not buffer the whole ResultSet in memory, but use streaming to save memory
-            // http://webmoli.com/2009/02/01/jdbc-performance-tuning-with-optimal-fetch-size/
-            // TODO make this a global option?
-            // ps.setFetchSize(Integer.MIN_VALUE);
-            ps.setFetchSize(1);
+            // do not buffer the whole ResultSet in memory, but use streaming to save memory; see:
+            // http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html
+            ps = connection.prepareStatement(query.getSql(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            try {
+                ps.setFetchSize(Integer.MIN_VALUE);
+            } catch (SQLException e) {
+                LOGGER.warn("Exception at Statement#setFetchSize(Integer.MIN_VALUE). This is caused, when the database is not MySQL.");
+            }
 
-            fillPreparedStatement(ps, args);
+            fillPreparedStatement(ps, query.getArgs());
 
             resultSet = ps.executeQuery();
             result = new ResultIterator<T>(connection, ps, resultSet, converter);
 
         } catch (SQLException e) {
-            logError(e, sql, args);
+            logError(e, query.getSql(), query.getArgs());
             close(connection, ps, resultSet);
         }
 
@@ -573,7 +633,7 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notNull(sql, "sql must not be null");
         Validate.notNull(args, "args must not be null");
-        return runSingleQuery(converter, sql, args.toArray());
+        return runSingleQuery(converter, new BasicQuery(sql, args));
     }
 
     /**
@@ -587,12 +647,25 @@ public class DatabaseManager {
      * @param args (Optional) arguments for parameter markers in query, not <code>null</code>.
      * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
-    @SuppressWarnings("unchecked")
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, Object... args) {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
+        return runSingleQuery(converter, new BasicQuery(sql, args));
+    }
 
+    /**
+     * <p>
+     * Run a query operation for a single item in the database.
+     * </p>
+     * 
+     * @param <T> Type of the processed object.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
+     */
+    @SuppressWarnings("unchecked")
+    public final <T> T runSingleQuery(RowConverter<T> converter, Query query) {
         final Object[] result = new Object[1];
 
         ResultCallback<T> callback = new ResultCallback<T>() {
@@ -604,7 +677,7 @@ public class DatabaseManager {
             }
         };
 
-        runQuery(callback, converter, sql, args);
+        runQuery(callback, converter, query.getSql(), query.getArgs());
         return (T)result[0];
     }
 
@@ -620,7 +693,7 @@ public class DatabaseManager {
     public final int runUpdate(String sql, List<? extends Object> args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runUpdate(sql, args.toArray());
+        return runUpdate(new BasicQuery(sql, args));
     }
 
     /**
@@ -635,6 +708,19 @@ public class DatabaseManager {
     public final int runUpdate(String sql, Object... args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
+        return runUpdate(new BasicQuery(sql, args));
+    }
+
+    /**
+     * <p>
+     * Run an update operation and return the number of affected rows.
+     * </p>
+     * 
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return The number of affected rows, or -1 if an error occurred.
+     */
+    public final int runUpdate(Query query) {
+        Validate.notNull(query, "query must not be null");
 
         int affectedRows;
         Connection connection = null;
@@ -643,13 +729,13 @@ public class DatabaseManager {
         try {
 
             connection = getConnection();
-            ps = connection.prepareStatement(sql);
-            fillPreparedStatement(ps, args);
+            ps = connection.prepareStatement(query.getSql());
+            fillPreparedStatement(ps, query.getArgs());
 
             affectedRows = ps.executeUpdate();
 
         } catch (SQLException e) {
-            logError(e, sql, args);
+            logError(e, query.getSql(), query.getArgs());
             affectedRows = -1;
         } finally {
             close(connection, ps);
@@ -678,7 +764,8 @@ public class DatabaseManager {
         if (args != null && args.length > 0) {
             errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
         }
-        LOGGER.error(errorLog.toString(), exception);
+        LOGGER.error(errorLog.toString());
+        LOGGER.debug(errorLog.toString(), exception); // only print stack trace in DEBUG mode
     }
 
     /**
@@ -783,6 +870,23 @@ public class DatabaseManager {
         // the answer is likely: yes, we do!
         for (int i = 0; i < args.length; i++) {
             ps.setObject(i + 1, args[i]);
+        }
+    }
+
+    /**
+     * <p>
+     * Rollback the connection.
+     * </p>
+     * 
+     * @param connection The connection, or <code>null</code>.
+     */
+    protected static final void rollback(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                LOGGER.error("Error while rollback: {}", e);
+            }
         }
     }
 

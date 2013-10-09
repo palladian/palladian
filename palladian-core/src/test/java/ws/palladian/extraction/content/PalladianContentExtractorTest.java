@@ -1,10 +1,12 @@
 package ws.palladian.extraction.content;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.io.ResourceHelper;
@@ -13,14 +15,16 @@ import ws.palladian.retrieval.resources.WebImage;
 public class PalladianContentExtractorTest {
 
     @Test
+    @Ignore
+    // FIXME
     public void testPalladianContentExtractor() throws PageContentExtractorException, FileNotFoundException {
         PalladianContentExtractor extractor = new PalladianContentExtractor();
 
         String text = extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test001.html"))
                 .getResultText();
         // System.out.println(DigestUtils.md5Hex(text));
-        // FIXME
-        // Assert.assertEquals("80eff9d14c83b529212bd64e78bc1fe4", DigestUtils.md5Hex(text));
+
+        assertEquals("80eff9d14c83b529212bd64e78bc1fe4", DigestUtils.md5Hex(text));
 
     }
 
@@ -33,8 +37,8 @@ public class PalladianContentExtractorTest {
         // System.out.println(extractor.getResultText());
 
         List<WebImage> images = extractor.getImages();
-        Assert.assertEquals(2, images.size());
-        Assert.assertEquals(0, images.get(0).getWidth());
+        assertEquals(2, images.size());
+        assertEquals(0, images.get(0).getWidth());
 
         // TODO this should not access the web
         // extractor.analyzeImages();
@@ -44,8 +48,8 @@ public class PalladianContentExtractorTest {
         extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test020.html"));
         images = extractor.getImages();
 
-        Assert.assertEquals(4, images.size());
-        Assert.assertEquals(624, images.get(1).getWidth());
+        assertEquals(4, images.size());
+        assertEquals(624, images.get(1).getWidth());
 
         // CollectionHelper.print(images);
     }

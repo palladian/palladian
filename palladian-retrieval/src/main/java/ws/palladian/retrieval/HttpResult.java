@@ -1,6 +1,7 @@
 package ws.palladian.retrieval;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -117,6 +118,49 @@ public class HttpResult implements Serializable {
      */
     public long getTransferedBytes() {
         return transferedBytes;
+    }
+
+    /**
+     * <p>
+     * Get the content of the supplied {@link HttpResult} as string. For conversion, the "Content-Type" HTTP header with
+     * a specified charset is considered. If no default encoding is specified, <i>ISO-8859-1</i> is assumed.
+     * </p>
+     * 
+     * @see <a href="http://www.w3.org/International/O-HTTP-charset.en.php">Setting the HTTP charset parameter</a>.
+     * @return The string value of the supplied HttpResult.
+     */
+    public String getStringContent() {
+        String foundCharset = getCharset();
+        Charset charset;
+        if (foundCharset != null && Charset.isSupported(foundCharset)) {
+            charset = Charset.forName(foundCharset);
+        } else {
+            charset = Charset.forName("ISO-8859-1");
+        }
+        return new String(getContent(), charset);
+    }
+
+    /**
+     * <p>
+     * Retrieve the encoding from the supplied {@link HttpResult}, if it is specified in the "Content-Type" HTTP header.
+     * </p>
+     * 
+     * @return The encoding of the HttpResult, nor <code>null</code> if no encoding was specified explicitly.
+     */
+    public String getCharset() {
+        String ret = null;
+        List<String> contentTypeValues = getHeader("Content-Type");
+        if (contentTypeValues != null) {
+            for (String contentTypeValue : contentTypeValues) {
+                int index = contentTypeValue.indexOf("charset=");
+                if (index != -1) {
+                    ret = contentTypeValue.substring(index + "charset=".length(), contentTypeValue.length());
+                    ret = ret.replace("\"", "");
+                    break;
+                }
+            }
+        }
+        return ret;
     }
 
     /*

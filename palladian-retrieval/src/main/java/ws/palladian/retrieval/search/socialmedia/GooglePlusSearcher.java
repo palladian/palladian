@@ -7,20 +7,21 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.parser.JsonHelper;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -30,7 +31,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="https://developers.google.com/+/api/latest/activities/search">API documentation for search</a>
  * @author Philipp Katz
  */
-public final class GooglePlusSearcher extends WebSearcher<WebResult> {
+public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
 
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "Google+";
@@ -43,6 +44,8 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
 
     /** The API key for accessing Google+ API. */
     private final String apiKey;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -54,6 +57,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
     public GooglePlusSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -65,8 +69,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
      *            {@value #CONFIG_API_KEY}, not <code>null</code>.
      */
     public GooglePlusSearcher(Configuration configuration) {
-        Validate.notNull(configuration, "configuration must not be null");
-        this.apiKey = configuration.getString(CONFIG_API_KEY);
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override
@@ -75,9 +78,9 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> results = CollectionHelper.newArrayList();
+        List<WebContent> results = CollectionHelper.newArrayList();
 
         String nextPageToken = null;
 
@@ -91,27 +94,28 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
                         + e.getMessage(), e);
             }
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             try {
-                JSONObject jsonResult = new JSONObject(jsonString);
-                JSONArray jsonItems = jsonResult.getJSONArray("items");
-                nextPageToken = JsonHelper.getString(jsonResult, "nextPageToken");
+                JsonObject jsonResult = new JsonObject(jsonString);
+                JsonArray jsonItems = jsonResult.getJsonArray("items");
+                nextPageToken = jsonResult.tryGetString("nextPageToken");
                 if (nextPageToken == null) {
                     break;
                 }
-                for (int i = 0; i < jsonItems.length(); i++) {
-                    JSONObject jsonItem = jsonItems.getJSONObject(i);
+                for (int i = 0; i < jsonItems.size(); i++) {
+                    JsonObject jsonItem = jsonItems.getJsonObject(i);
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
 
-                    String url = JsonHelper.getString(jsonItem, "url");
-                    String title = JsonHelper.getString(jsonItem, "title");
-                    String content = JsonHelper.getString(jsonItem, "content");
-                    Date date = getCreationDate(JsonHelper.getString(jsonItem, "published"));
-                    results.add(new WebResult(url, title, content, date, SEARCHER_NAME));
+                    builder.setUrl(jsonItem.tryGetString("url"));
+                    builder.setTitle(jsonItem.tryGetString("title"));
+                    builder.setSummary(jsonItem.tryGetString("content"));
+                    builder.setPublished(getCreationDate(jsonItem.tryGetString("published")));
+                    results.add(builder.create());
                     if (results.size() == resultCount) {
                         break out;
                     }
                 }
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error parsing the JSON response from \"" + requestUrl + "\": "
                         + jsonString, e);
             }
@@ -145,7 +149,7 @@ public final class GooglePlusSearcher extends WebSearcher<WebResult> {
 
     public static void main(String[] args) throws SearcherException {
         GooglePlusSearcher searcher = new GooglePlusSearcher("AIzaSyDPsLByNcOyrAFPlsldd8B2SoBHH3sywmo");
-        List<WebResult> result = searcher.search("cat", 1000);
+        List<WebContent> result = searcher.search("cat", 1000);
         CollectionHelper.print(result);
     }
 

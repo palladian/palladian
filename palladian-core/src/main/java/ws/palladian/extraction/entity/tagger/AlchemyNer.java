@@ -1,39 +1,28 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.MapBuilder;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * 
@@ -375,6 +364,26 @@ import ws.palladian.retrieval.helper.HttpHelper;
  */
 public class AlchemyNer extends NamedEntityRecognizer {
 
+    /**
+     * <p>
+     * Specific {@link Annotation}, which provides access to the sub types delivered from Alchemy.
+     * </p>
+     */
+    public static final class AlchemyAnnotation extends ImmutableAnnotation {
+
+        private final List<String> subtypes;
+
+        public AlchemyAnnotation(int startPosition, String value, String tag, List<String> subtypes) {
+            super(startPosition, value, tag);
+            this.subtypes = subtypes;
+        }
+
+        public List<String> getSubtypes() {
+            return Collections.unmodifiableList(subtypes);
+        }
+
+    }
+
     /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.alchemy.key";
 
@@ -419,9 +428,9 @@ public class AlchemyNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<AlchemyAnnotation> getAnnotations(String inputText) {
 
-        Annotations annotations = new Annotations();
+        Annotations<AlchemyAnnotation> annotations = new Annotations<AlchemyAnnotation>();
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
         LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
@@ -429,10 +438,12 @@ public class AlchemyNer extends NamedEntityRecognizer {
         Set<String> checkedEntities = new HashSet<String>();
         for (String textChunk : textChunks) {
 
+            String response = null;
+
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = HttpHelper.getStringContent(httpResult);
+                response = httpResult.getStringContent();
 
                 if (response.contains("daily-transaction-limit-exceeded")) {
                     LOGGER.warn("--- LIMIT EXCEEDED ---");
@@ -465,23 +476,17 @@ public class AlchemyNer extends NamedEntityRecognizer {
                     }
 
                     // get locations of named entity
-                    String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
-                    Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
-                            + escapedEntity + "(?=\\s)", Pattern.DOTALL);
+                    List<Integer> entityOffsets = NerHelper.getEntityOffsets(inputText, entityName);
 
-                    Matcher matcher = pattern.matcher(inputText);
-                    while (matcher.find()) {
-                        int offset = matcher.start();
-                        Annotation annotation = new Annotation(offset, entityName, entityType);
-                        annotation.addSubTypes(subTypeList);
-                        annotations.add(annotation);
+                    for (Integer offset : entityOffsets) {
+                        annotations.add(new AlchemyAnnotation(offset, entityName, entityType, subTypeList));
                     }
 
                 }
-            } catch (JSONException e) {
-                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
             } catch (HttpException e) {
                 LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.error(getName() + " could not parse JSON '" + response + "':" + e.getMessage());
             }
         }
 
@@ -497,55 +502,22 @@ public class AlchemyNer extends NamedEntityRecognizer {
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
-
-        Map<String, String> headers = new MapBuilder<String, String>().add("Content-Type",
-                "application/x-www-form-urlencoded; charset=UTF-8").add("Accept", "application/json");
-
-        Map<String, String> content = new MapBuilder<String, String>().add("text", inputText).add("apikey", apiKey)
-                .add("outputMode", "json").add("disambiguate", "1").add("maxRetrieve", "500");
-
-        content.put("coreference", coreferenceResolution ? "1" : "0");
-
-        return httpRetriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities", headers,
-                content);
+        HttpRequest request = new HttpRequest(HttpMethod.POST,
+                "http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities");
+        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.addHeader("Accept", "application/json");
+        request.addParameter("text", inputText);
+        request.addParameter("apikey", apiKey);
+        request.addParameter("outputMode", "json");
+        request.addParameter("disambiguate", "1");
+        request.addParameter("maxRetrieve", "500");
+        request.addParameter("coreference", coreferenceResolution ? "1" : "0");
+        return httpRetriever.execute(request);
     }
 
-    @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
         AlchemyNer tagger = new AlchemyNer("");
-
-        if (args.length > 0) {
-
-            Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("inputText").withDescription("the text that should be tagged")
-                    .hasArg().withArgName("text").withType(String.class).create());
-            options.addOption(OptionBuilder.withLongOpt("outputFile")
-                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            HelpFormatter formatter = new HelpFormatter();
-
-            CommandLineParser parser = new PosixParser();
-            CommandLine cmd = null;
-            try {
-                cmd = parser.parse(options, args);
-
-                String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
-
-                if (cmd.hasOption("outputFile")) {
-                    FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
-                } else {
-                    System.out.println("No output file given so tagged text will be printed to the console:");
-                    System.out.println(taggedText);
-                }
-
-            } catch (ParseException e) {
-                LOGGER.debug("Command line arguments could not be parsed!");
-                formatter.printHelp("FeedChecker", options);
-            }
-
-        }
 
         // // HOW TO USE ////
         System.out

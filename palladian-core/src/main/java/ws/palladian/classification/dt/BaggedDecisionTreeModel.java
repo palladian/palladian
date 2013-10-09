@@ -1,13 +1,14 @@
 package ws.palladian.classification.dt;
 
 import java.util.List;
+import java.util.Set;
 
 import ws.palladian.classification.Model;
 
 public class BaggedDecisionTreeModel implements Model {
 
-    private static final long serialVersionUID = 1L;
-    
+    private static final long serialVersionUID = 2L;
+
     private final List<DecisionTreeModel> models;
 
     BaggedDecisionTreeModel(List<DecisionTreeModel> models) {
@@ -29,6 +30,11 @@ public class BaggedDecisionTreeModel implements Model {
             buildToString.append('\n');
         }
         return buildToString.toString();
+    }
+
+    @Override
+    public Set<String> getCategories() {
+        throw new UnsupportedOperationException("Not supported, migrate to QuickDtClassifier.");
     }
 
 }

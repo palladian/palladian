@@ -8,9 +8,9 @@ import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -22,7 +22,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see http://webknox.com/api#!/news/search_GET
  * @author David Urbansky
  */
-public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
+public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebContent> {
 
     /** If true, only news are returned, that contain the search term exactly as given in their titles. */
     private final boolean onlyExactMatchesInTitle;
@@ -90,21 +90,19 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebResult> {
     }
 
     @Override
-    protected WebResult parseResult(JSONObject currentResult) throws JSONException {
-        String url = currentResult.getString("url");
-        String title = currentResult.getString("title");
-        String summary = currentResult.getString("summary");
-        Date date = null;
+    protected WebContent parseResult(JSONObject currentResult) throws JSONException {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(currentResult.getString("url"));
+        builder.setTitle(currentResult.getString("title"));
+        builder.setSummary(currentResult.getString("summary"));
         String publishTimestamp = currentResult.getString("timestamp");
         if (!publishTimestamp.isEmpty()) {
             try {
-                date = new Date(Long.valueOf(publishTimestamp) * 1000);
+                builder.setPublished(new Date(Long.valueOf(publishTimestamp) * 1000));
             } catch (Exception e) {
             }
         }
-        WebResult webResult = new WebResult(url, title, summary, date, getName());
-
-        return webResult;
+        return builder.create();
     }
 
     @Override

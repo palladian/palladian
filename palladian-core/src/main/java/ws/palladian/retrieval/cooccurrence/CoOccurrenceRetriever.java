@@ -11,11 +11,10 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -32,12 +31,12 @@ public class CoOccurrenceRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoOccurrenceRetriever.class);
 
     /** Specify how far or close the terms must be to count the co-occurrence. */
-    private CoOccurrenceContext coOccurrenceContext;
+    private final CoOccurrenceContext coOccurrenceContext;
 
     /** The number of results to analyze per searcher. */
     private int numberOfResults = 10;
     
-    private Language language;
+    private final Language language;
 
     public CoOccurrenceRetriever(CoOccurrenceContext coOccurrenceContext, int numberOfResults,
             Language language) {
@@ -47,14 +46,14 @@ public class CoOccurrenceRetriever {
     }
 
     public CoOccurrenceStatistics getCoOccurrenceStatistics(String term1, String term2,
-            Collection<WebSearcher<WebResult>> searchers, boolean caseInsensitive) {
+            Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
 
         return getCoOccurrenceStatistics(term1, term2, new HashSet<String>(), searchers, caseInsensitive);
 
     }
 
     public CoOccurrenceStatistics getCoOccurrenceStatistics(String term1, String term2,
-            Collection<String> contextTerms, Collection<WebSearcher<WebResult>> searchers, boolean caseInsensitive) {
+            Collection<String> contextTerms, Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
 
         CoOccurrenceStatistics coOccurrenceStatistics = new CoOccurrenceStatistics(term1, term2);
 
@@ -62,12 +61,12 @@ public class CoOccurrenceRetriever {
 
         String query = buildQuery(term1, term2, contextTerms);
         
-        for (WebSearcher<WebResult> searcher : searchers) {
+        for (Searcher<WebContent> searcher : searchers) {
             
             try {
-                List<WebResult> webResults = searcher.search(query, numberOfResults, language);
+                List<WebContent> webResults = searcher.search(query, numberOfResults, language);
                 
-                for (WebResult webResult : webResults) {
+                for (WebContent webResult : webResults) {
 
                     String pageText = webResult.getSummary();
 
@@ -98,7 +97,7 @@ public class CoOccurrenceRetriever {
         return query;
     }
 
-    private void findCoOccurrences(String pageText, CoOccurrenceStatistics stats, WebSearcher<WebResult> searcher,
+    private void findCoOccurrences(String pageText, CoOccurrenceStatistics stats, Searcher<WebContent> searcher,
             boolean caseInsensitive) {
         
         String term1 = stats.getTerm1();
@@ -160,9 +159,9 @@ public class CoOccurrenceRetriever {
         CoOccurrenceRetriever coOccurrenceRetriever = new CoOccurrenceRetriever(CoOccurrenceContext.CONTEXT_200_CHARS,
                 10, Language.GERMAN);
         
-        Collection<WebSearcher<WebResult>> searchers = new HashSet<WebSearcher<WebResult>>();
+        Collection<Searcher<WebContent>> searchers = new HashSet<Searcher<WebContent>>();
         searchers.add(new GoogleSearcher());
-        searchers.add(new TwitterSearcher());
+        // searchers.add(new TwitterSearcher());
         
         // CoOccurrenceStatistics stats = coOccurrenceRetriever.getCoOccurrenceStatistics("Hugo Cabret", "oscar",
         // searchers, true);

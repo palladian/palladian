@@ -1,11 +1,11 @@
 package ws.palladian.retrieval.search.news;
 
+import org.apache.commons.configuration.Configuration;
+
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.search.BaseFarooSearcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -21,6 +21,13 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @author David Urbansky
  */
 public final class FarooNewsSearcher extends BaseFarooSearcher {
+
+    public FarooNewsSearcher(String key) {
+        super(key);
+    }
+    public FarooNewsSearcher(Configuration configuration) {
+        super(configuration);
+    }
 
     @Override
     protected String getRequestUrl(String query, int resultCount, Language language) {
@@ -40,13 +47,13 @@ public final class FarooNewsSearcher extends BaseFarooSearcher {
 
         return urlBuilder.toString();
     }
-    
+
     @Override
     public String getName() {
         return "Faroo News";
     }
 
     public static void main(String[] args) throws SearcherException {
-        CollectionHelper.print(new FarooNewsSearcher().search("iphone", 10));
+        // CollectionHelper.print(new FarooNewsSearcher("TODO").search("iphone", 10));
     }
 }

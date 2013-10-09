@@ -9,10 +9,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ws.palladian.extraction.TagAnnotation;
-import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.ChunkFactory;
@@ -298,14 +299,14 @@ public final class LingPipePhraseChunker implements PhraseChunker {
 //    }
     
     @Override
-    public TagAnnotations chunk(String sentence) {
+    public List<Annotation> chunk(String sentence) {
       char[] characters = Strings.toCharArray(sentence);
       Chunking chunking = this.chunk(characters, 0, characters.length);
-      TagAnnotations tagAnnotations = new TagAnnotations();
+      List<Annotation> tagAnnotations = CollectionHelper.newArrayList();
       for (Chunk chunk : chunking.chunkSet()) {
-          TagAnnotation tagAnnotation = new TagAnnotation(chunk.start(), chunk.type(), sentence.substring(chunk
-                  .start(), chunk.end()));
-          tagAnnotations.add(tagAnnotation);
+            Annotation tagAnnotation = new ImmutableAnnotation(chunk.start(), sentence.substring(chunk.start(),
+                    chunk.end()), chunk.type());
+            tagAnnotations.add(tagAnnotation);
       }
       return tagAnnotations;
     }

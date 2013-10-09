@@ -13,6 +13,7 @@ import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.AbstractFeatureProvider;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -33,8 +34,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
     public static final String INPUT_PORT_ONE_IDENTIFIER = "input1";
     public static final String INPUT_PORT_TWO_IDENTIFIER = "input2";
 
-    private final String input1FeatureIdentifier;
-    private final String input2FeatureIdentifier;
+    private final String input1FeatureName;
+    private final String input2FeatureName;
 
     /**
      * <p>
@@ -55,8 +56,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
         super(new InputPort[] {new InputPort(INPUT_PORT_ONE_IDENTIFIER), new InputPort(INPUT_PORT_TWO_IDENTIFIER)},
                 new OutputPort[] {new OutputPort(PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}, featureDescriptor);
 
-        this.input1FeatureIdentifier = input1FeatureIdentifier;
-        this.input2FeatureIdentifier = input2FeatureIdentifier;
+        this.input1FeatureName = input1FeatureIdentifier;
+        this.input2FeatureName = input2FeatureIdentifier;
     }
 
     @Override
@@ -64,14 +65,10 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
         PipelineDocument<?> document1 = getInputPort(INPUT_PORT_ONE_IDENTIFIER).poll();
         PipelineDocument<?> document2 = getInputPort(INPUT_PORT_TWO_IDENTIFIER).poll();
 
-        // AnnotationFeature feature1 = document1.getFeature(input1FeatureDescriptor);
-        // Validate.notNull(feature1, "No feature found for feature descriptor " + input1FeatureDescriptor);
-        final List<PositionAnnotation> input1Annotations = document1.getFeatureVector().getAll(
-                PositionAnnotation.class, input1FeatureIdentifier);
-        // AnnotationFeature feature2 = document2.getFeature(input2FeatureDescriptor);
-        // Validate.notNull(feature2, "No feature found for feature descriptor " + input2FeatureDescriptor);
-        final List<PositionAnnotation> input2Annotations = document2.getFeatureVector().getAll(
-                PositionAnnotation.class, input2FeatureIdentifier);
+        final List<PositionAnnotation> input1Annotations = document1.get(
+                ListFeature.class, input1FeatureName);
+        final List<PositionAnnotation> input2Annotations = document2.get(
+                ListFeature.class, input2FeatureName);
 
         Set<String> setOfInput1 = new HashSet<String>();
         Set<String> setOfInput2 = new HashSet<String>();
@@ -95,7 +92,7 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
         // System.out.println("+++++++++++++++++");
         // }
 
-        document1.getFeatureVector().add(new NumericFeature(getCreatedFeatureName(), jaccardSimilarity));
+        document1.add(new NumericFeature(getCreatedFeatureName(), jaccardSimilarity));
         getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document1);
     }
 }

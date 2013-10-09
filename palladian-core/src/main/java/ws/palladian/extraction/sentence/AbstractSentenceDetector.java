@@ -1,10 +1,6 @@
-/**
- *
- */
 package ws.palladian.extraction.sentence;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
@@ -13,6 +9,7 @@ import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureProvider;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -133,8 +130,8 @@ public abstract class AbstractSentenceDetector extends TextDocumentPipelineProce
 
         detect(document.getContent());
         PositionAnnotation[] sentences = getSentences();
-        List<PositionAnnotation> sentencesList = Arrays.asList(sentences);
-        document.getFeatureVector().addAll(sentencesList);
+        ListFeature<PositionAnnotation> sentencesList = new ListFeature<PositionAnnotation>(getCreatedFeatureName(), Arrays.asList(sentences));
+        document.add(sentencesList);
     }
 
     @Override

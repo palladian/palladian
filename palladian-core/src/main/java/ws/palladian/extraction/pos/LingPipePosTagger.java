@@ -189,7 +189,7 @@ public final class LingPipePosTagger extends BasePosTagger {
                 total++;
             }
 
-            ProgressHelper.showProgress(c++, testFiles.length, 1);
+            ProgressHelper.printProgress(c++, testFiles.length, 1);
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
@@ -212,7 +212,7 @@ public final class LingPipePosTagger extends BasePosTagger {
 
     public static void main(String[] args) {
 
-        final File modelFile = new File("pos-en-general-brown.HiddenMarkovModel");
+        // final File modelFile = new File("pos-en-general-brown.HiddenMarkovModel");
 
         // PipelineDocument document = new PipelineDocument("I'm here to say that we're about to do that.");
         // ProcessingPipeline pipeline = new ProcessingPipeline();
@@ -225,8 +225,8 @@ public final class LingPipePosTagger extends BasePosTagger {
         //
         // System.exit(0);
 
-        BasePosTagger tagger = new LingPipePosTagger(modelFile);
-        System.out.println(tagger.tag("I'm here to say that we're about to do that.").getTaggedString());
+        // BasePosTagger tagger = new LingPipePosTagger(modelFile);
+        // System.out.println(tagger.tag("I'm here to say that we're about to do that.").getTaggedString());
         // System.out.println(tagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
         // tagger.evaluate("data/datasets/pos/testSmall/",
         // "data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");

@@ -7,10 +7,11 @@ import java.util.List;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
-import ws.palladian.extraction.TagAnnotation;
-import ws.palladian.extraction.TagAnnotations;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.helper.Cache;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 public final class OpenNlpPhraseChunker implements PhraseChunker {
     
@@ -43,9 +44,9 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
 //    }
     
     @Override
-    public TagAnnotations chunk(String sentence) {
-        TagAnnotations tagAnnotations = tagger.tag(sentence);
-        return chunk(sentence, tagAnnotations.getTokenList(), tagAnnotations.getTagList());
+    public List<Annotation> chunk(String sentence) {
+        List<Annotation> tagAnnotations = tagger.getAnnotations(sentence);
+        return chunk(sentence, tagAnnotations);
     }
 
     @Override
@@ -60,17 +61,23 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
      * @param tokenList
      * @param posList
      */
-    private TagAnnotations chunk(final String sentence, List<String> tokenList, List<String> posList) {
+    private List<Annotation> chunk(String sentence, List<Annotation> annotations) {
 
         // List<String> chunkList = model.chunk(tokenList, posList);
-        String[] toks = tokenList.toArray(new String[tokenList.size()]);
-        String[] tags = posList.toArray(new String[posList.size()]);
+        String[] toks = new String[annotations.size()];
+        for (int i = 0; i < annotations.size(); i++) {
+            toks[i] = annotations.get(i).getValue();
+        }
+        String[] tags = new String[annotations.size()];
+        for (int i = 0; i < annotations.size(); i++) {
+            tags[i] = annotations.get(i).getTag();
+        }
         String[] chunks = model.chunk(toks, tags);
 
         String tag = "";
         StringBuilder token = new StringBuilder();
 
-        TagAnnotations tagAnnotations = new TagAnnotations();
+        List<Annotation> tagAnnotations = CollectionHelper.newArrayList();
 
         // joining Tags
         for (int i = 0; i < chunks.length; i++) {
@@ -79,16 +86,16 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
 
             if (chunk.contains("B-")) {
                 tag = chunk.substring(2);
-                token.replace(0, token.length(), tokenList.get(i));
+                token.replace(0, token.length(), toks[i]);
 
             } else if (chunk.contains("I-")) {
-                token.append(' ').append(tokenList.get(i));
+                token.append(' ').append(toks[i]);
                 tag = chunk.substring(2);
 
             }
             if (i + 1 < chunks.length && chunks[i + 1].contains("B-") || i == chunks.length - 1) {
 
-                tagAnnotations.add(new TagAnnotation(sentence.indexOf(token.toString()), tag, token.toString()));
+                tagAnnotations.add(new ImmutableAnnotation(sentence.indexOf(token.toString()), token.toString(), tag));
             }
         }
         return tagAnnotations;

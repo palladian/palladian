@@ -184,16 +184,16 @@ public class WiktionaryPosTagger extends BasePosTagger {
      */
     public static void main(String[] args) {
 
-        String sentence = "The quick brown fox jumps over the lazy dog. I did this as fast as you and was as happy as 1000$ could make one.";
+        // String sentence = "The quick brown fox jumps over the lazy dog. I did this as fast as you and was as happy as 1000$ could make one.";
         // LingPipe: The/AT quick/JJ brown/JJ fox/NN jumps/NNS over/IN the/AT lazy/JJ dog/NN ./. I/PPSS did/DOD this/DT
         // as/QL fast/RB as/CS you/PPSS and/CC was/BEDZ as/QL happy/JJ as/CS 1000/CD $/NNS could/MD make/VB one/CD ./.
 
         // Wiktionary: The/AT quick/JJ brown/NN fox/NN jumps/NN over/JJ the/AT lazy/JJ dog/NN ./. I/PPSS did/DOD this/DT
         // as/NN fast/VB as/NN you/PPSS and/CC was/BEDZ as/NN happy/JJ as/NN 1000/CD $/$ could/VB make/VB one/PPS ./.
 
-        BasePosTagger tagger = new WiktionaryPosTagger();
+        // BasePosTagger tagger = new WiktionaryPosTagger();
         // tagger = new LingPipePOSTagger();
-        LOGGER.info(tagger.tag(sentence).getTaggedString());
+        // LOGGER.info(tagger.tag(sentence).getTaggedString());
     }
 
     @Override

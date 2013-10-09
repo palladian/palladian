@@ -11,12 +11,13 @@ import org.junit.Test;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
-import ws.palladian.classification.text.evaluation.ClassifierEvaluation;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
 /**
@@ -50,21 +51,25 @@ public class NaiveBayesClassifierTest {
 
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier(1);
         NaiveBayesModel model = bayesClassifier.train(instances);
+        assertEquals(2, model.getCategories().size());
+        assertTrue(model.getCategories().contains("yes"));
+        assertTrue(model.getCategories().contains("no"));
+        
         FeatureVector featureVector = new InstanceBuilder().set("outlook", "sunny").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
-        assertEquals(0.262, categoryEntries.getCategoryEntry("yes").getProbability(), 0.001);
-        assertEquals(0.738, categoryEntries.getCategoryEntry("no").getProbability(), 0.001);
+        assertEquals(0.262, categoryEntries.getProbability("yes"), 0.001);
+        assertEquals(0.738, categoryEntries.getProbability("no"), 0.001);
 
         featureVector = new InstanceBuilder().set("outlook", "overcast").set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         categoryEntries = bayesClassifier.classify(featureVector, model);
-        assertEquals(0.703, categoryEntries.getCategoryEntry("yes").getProbability(), 0.001);
-        assertEquals(0.297, categoryEntries.getCategoryEntry("no").getProbability(), 0.001);
+        assertEquals(0.703, categoryEntries.getProbability("yes"), 0.001);
+        assertEquals(0.297, categoryEntries.getProbability("no"), 0.001);
 
         // missing values
         featureVector = new InstanceBuilder().set("temp", "cool").set("humidity", "high").set("windy", "true").create();
         categoryEntries = bayesClassifier.classify(featureVector, model);
-        assertEquals(0.426, categoryEntries.getCategoryEntry("yes").getProbability(), 0.001);
-        assertEquals(0.574, categoryEntries.getCategoryEntry("no").getProbability(), 0.001);
+        assertEquals(0.426, categoryEntries.getProbability("yes"), 0.001);
+        assertEquals(0.574, categoryEntries.getProbability("no"), 0.001);
         // @formatter:on
     }
 
@@ -85,13 +90,13 @@ public class NaiveBayesClassifierTest {
         FeatureVector featureVector = new InstanceBuilder().set("f", 16.0).create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
 
-        assertEquals(0.944, MathHelper.round(categoryEntries.getMostLikelyCategoryEntry().getProbability(), 3), 0.01);
-        assertEquals("Case", categoryEntries.getMostLikelyCategoryEntry().getName());
+        assertEquals(0.944, MathHelper.round(categoryEntries.getProbability(categoryEntries.getMostLikelyCategory()), 3), 0.01);
+        assertEquals("Case", categoryEntries.getMostLikelyCategory());
     }
 
     @Test
     public void testNaiveBayesWithAdultIncomeData() throws FileNotFoundException {
-        List<Instance> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/adultData.txt"), false);
         double accuracy = testWithSplit(instances);
         assertTrue(accuracy > 0.77);
@@ -99,21 +104,21 @@ public class NaiveBayesClassifierTest {
 
     @Test
     public void testNaiveBayesWithDiabetesData() throws FileNotFoundException {
-        List<Instance> instances = ClassificationUtils.createInstances(
+        List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/diabetesData.txt"), false);
         double accuracy = testWithSplit(instances);
         assertTrue(accuracy > 0.77);
     }
 
-    private double testWithSplit(List<Instance> instances) {
-        List<Instance> train = instances.subList(0, instances.size() / 2);
-        List<Instance> test = instances.subList(instances.size() / 2, instances.size() - 1);
+    private double testWithSplit(List<Trainable> instances) {
+        List<Trainable> train = instances.subList(0, instances.size() / 2);
+        List<Trainable> test = instances.subList(instances.size() / 2, instances.size() - 1);
 
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
         NaiveBayesModel bayesModel = bayesClassifier.train(train);
         
-        ConfusionMatrix evaluationResult = ClassifierEvaluation.evaluate(bayesClassifier, bayesModel, test);
-        System.out.println(evaluationResult);
+        ConfusionMatrix evaluationResult = ClassifierEvaluation.evaluate(bayesClassifier, test, bayesModel);
+        // System.out.println(evaluationResult);
         return evaluationResult.getAccuracy();
     }
 

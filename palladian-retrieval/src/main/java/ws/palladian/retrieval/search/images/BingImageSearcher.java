@@ -1,9 +1,11 @@
 package ws.palladian.retrieval.search.images;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONException;
-import org.json.JSONObject;
 
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.BaseBingSearcher;
 
 /**
@@ -13,7 +15,7 @@ import ws.palladian.retrieval.search.BaseBingSearcher;
  * 
  * @author Philipp Katz
  */
-public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
+public final class BingImageSearcher extends BaseBingSearcher<WebImage> {
 
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
@@ -35,13 +37,14 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
     }
 
     @Override
-    protected WebImageResult parseResult(JSONObject currentResult) throws JSONException {
-        String pageUrl = currentResult.getString("SourceUrl");
-        String imageUrl = currentResult.getString("MediaUrl");
-        int width = currentResult.getInt("Width");
-        int height = currentResult.getInt("Height");
-        String title = currentResult.getString("Title");
-        return new WebImageResult(pageUrl, imageUrl, title, null, width, height, null, null);
+    protected WebImage parseResult(JsonObject currentResult) throws JsonException {
+        BasicWebImage.Builder builder = new BasicWebImage.Builder();
+        builder.setUrl(currentResult.getString("SourceUrl"));
+        builder.setImageUrl(currentResult.getString("MediaUrl"));
+        builder.setWidth(currentResult.getInt("Width"));
+        builder.setHeight(currentResult.getInt("Height"));
+        builder.setTitle(currentResult.getString("Title"));
+        return builder.create();
     }
 
     @Override
@@ -51,7 +54,7 @@ public final class BingImageSearcher extends BaseBingSearcher<WebImageResult> {
 
     @Override
     protected int getDefaultFetchSize() {
-        return 25;
+        return 50;
     }
 
 }

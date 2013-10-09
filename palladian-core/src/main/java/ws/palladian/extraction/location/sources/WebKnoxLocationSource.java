@@ -1,27 +1,29 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
-public class WebKnoxLocationSource extends SingleQueryLocationSource implements LocationSource {
+public class WebKnoxLocationSource extends SingleQueryLocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxLocationSource.class);
@@ -41,6 +43,7 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource implements 
     private final String apiKey;
 
     public WebKnoxLocationSource(String apiKey) {
+        Validate.notEmpty(apiKey, "apiKey must not be empty or null");
         this.apiKey = apiKey;
     }
 
@@ -55,33 +58,39 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource implements 
         List<Location> locations = CollectionHelper.newArrayList();
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
-        String url = "http://webknox.com/api/entities/search?entityName=" + UrlHelper.encodeParameter(locationName)
-                + "&apiKey=" + apiKey;
+        String url = String.format("http://webknox.com/api/entities/search?entityName=%s&apiKey=%s",
+                UrlHelper.encodeParameter(locationName), apiKey);
         LOGGER.debug("check {}", url);
-        JSONArray locationCandidates = documentRetriever.getJsonArray(url);
-        if (locationCandidates == null) {
-            throw new IllegalStateException("Null return from DocumentRetriever");
+        String jsonString = documentRetriever.getText(url);
+        if (jsonString == null) {
+            throw new IllegalStateException("Error while retrieving " + url);
         }
+        try {
+            JsonArray locationCandidates = new JsonArray(jsonString);
 
-        for (int i = 0; i < locationCandidates.length(); i++) {
-            try {
-                JsonObjectWrapper locationCandidate = new JsonObjectWrapper(locationCandidates.getJSONObject(i));
+            for (int i = 0; i < locationCandidates.size(); i++) {
+                JsonObject locationCandidate = locationCandidates.getJsonObject(i);
                 String concept = locationCandidate.getString("concept");
-                Double confidence = locationCandidate.getDouble("confidence");
-                if ((concept.equalsIgnoreCase("city") || concept.equalsIgnoreCase("country")) && confidence > 0.999) {
-                    JSONObject jsonObject = documentRetriever.getJsonObject("http://webknox.com/api/entities/"
-                            + locationCandidate.getString("id") + "?apiKey=" + apiKey);
-                    JsonObjectWrapper json = new JsonObjectWrapper(jsonObject);
+                double confidence = locationCandidate.getDouble("confidence");
 
+                if (Arrays.asList("city", "country").contains(concept.toLowerCase()) && confidence > 0.999) {
+                    int id = locationCandidate.getInt("id");
+                    String entityUrl = String.format("http://webknox.com/api/entities/%s?apiKey=%s", id, apiKey);
+                    String entityJson = documentRetriever.getText(entityUrl);
+                    if (entityJson == null) {
+                        throw new IllegalStateException("Error while retrieving " + entityUrl);
+                    }
+
+                    JsonObject jsonObject = new JsonObject(entityJson);
                     String primaryName = locationCandidate.getString("name");
                     LocationType locationType = LOCATION_MAPPING.get(concept);
                     Double latitude = null;
                     Double longitude = null;
                     Long population = null;
 
-                    JSONArray facts = json.getJSONArray("facts");
-                    for (int j = 0; j < facts.length(); j++) {
-                        JsonObjectWrapper fact = new JsonObjectWrapper(facts.getJSONObject(j));
+                    JsonArray facts = jsonObject.getJsonArray("facts");
+                    for (int j = 0; j < facts.size(); j++) {
+                        JsonObject fact = facts.getJsonObject(j);
                         String key = fact.getString("key");
                         String value = fact.getString("value");
 
@@ -93,12 +102,15 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource implements 
                             population = Long.valueOf(value);
                         }
                     }
-                    locations
-                            .add(new ImmutableLocation(-1, primaryName, locationType, latitude, longitude, population));
+                    GeoCoordinate coordinate = null;
+                    if (latitude != null && longitude != null) {
+                        coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+                    }
+                    locations.add(new ImmutableLocation(id, primaryName, locationType, coordinate, population));
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
+        } catch (JsonException e) {
+            throw new IllegalStateException("Error while parsing JSON: " + e.getMessage(), e);
         }
 
         return locations;

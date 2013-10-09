@@ -1,10 +1,6 @@
 package ws.palladian.extraction.entity;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -15,7 +11,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @see http://factoryjoe.com/projects/emoticons/
  * @see http://bscw.rediris.es/pub/bscw.cgi/d3323568/impactoemoticones.pdf
  */
-public class SmileyTagger {
+public class SmileyTagger extends RegExTagger {
 
     /** The tag name for smileys. */
     public static final String SMILEY_TAG_NAME = "SMILEY";
@@ -29,39 +25,23 @@ public class SmileyTagger {
     private static final String S_CRY = ";(";
     private static final String S_CRY2 = ";-(";
 
-    private final Pattern smileyPattern;
+    private static final Pattern SMILEY_PATTERN = createPattern();
+
+    private static final Pattern createPattern() {
+        StringBuilder smileyPatternRegEx = new StringBuilder();
+        smileyPatternRegEx.append(Pattern.quote(S_HAPPY)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_HAPPY2)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_WINK)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_WINK2)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_SAD)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_SAD2)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_CRY)).append("|");
+        smileyPatternRegEx.append(Pattern.quote(S_CRY2));
+        return Pattern.compile(smileyPatternRegEx.toString());
+    }
 
     public SmileyTagger() {
-        StringBuilder smileyPatterhRegEx = new StringBuilder();
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_HAPPY)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_HAPPY2)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_WINK)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_WINK2)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_SAD)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_SAD2)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_CRY)).append("|");
-        smileyPatterhRegEx.append(StringHelper.escapeForRegularExpression(S_CRY2));
-        smileyPattern = Pattern.compile(smileyPatterhRegEx.toString());
+        super(SMILEY_PATTERN, SMILEY_TAG_NAME);
     }
 
-    public Annotations tagSmileys(String inputText) {
-
-        Annotations annotations = new Annotations();
-
-        Matcher matcher = smileyPattern.matcher(inputText);
-
-        while (matcher.find()) {
-            Annotation annotation = new Annotation(matcher.start(), matcher.group(0), SMILEY_TAG_NAME, annotations);
-            annotations.add(annotation);
-        }
-
-        return annotations;
-    }
-
-    public static void main(String[] args) {
-        String text = "This is a nice day :) and the sun shines ;)";
-        SmileyTagger smileyTagger = new SmileyTagger();
-        Annotations annotations = smileyTagger.tagSmileys(text);
-        CollectionHelper.print(annotations);
-    }
 }

@@ -1,18 +1,17 @@
 package ws.palladian.extraction.location;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.Tagger;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -21,45 +20,57 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  * @author Philipp Katz
  */
-public final class AddressTagger {
+public final class AddressTagger implements Tagger {
 
-    /** The assigned entity type for street names. */
-    public static final String STREET_ANNOTATION_NAME = "STREET";
+    public static final Pattern STREET_PATTERN = Pattern
+            .compile(
+                    ".+\\sstreet$|.+\\sroad$|.+avenue$|.+ave\\.|.+boulevard$|.+straße$|.+strasse$|.+gasse$|^rue\\s.+|via\\s.+|viale\\s.+|.+straat|.+drive|.+\\sst\\.|.+\\strafficway",
+                    Pattern.CASE_INSENSITIVE);
 
-    /** The assigned entity type for house numbers. */
-    public static final String STREET_NR_ANNOTATION_NAME = "STREETNR";
-
-    public static final Pattern STREET_PATTERN = Pattern.compile(
-            ".*street$|.*road$|.*avenue$|.*straße$|.*strasse$|.*gasse$|^rue\\s.*|via\\s.*|viale\\s.*|.*straat",
-            Pattern.CASE_INSENSITIVE);
-
-    public static List<Annotation> tag(String text) {
-        List<Annotation> ret = CollectionHelper.newArrayList();
+    @Override
+    public List<LocationAnnotation> getAnnotations(String text) {
+        List<LocationAnnotation> ret = CollectionHelper.newArrayList();
 
         // TODO StringTagger is too strict here, e.g. the following candidate is not recognized:
         // Viale di Porta Ardeatine -- use dedicted regex here?
-        Annotations annotations = StringTagger.getTaggedEntities(text);
+        Annotations<ContextAnnotation> annotations = StringTagger.getTaggedEntities(text);
+        // CollectionHelper.print(annotations);
 
         // step one: match tagged annotations using street pattern
         for (Annotation annotation : annotations) {
-            Matcher matcher = STREET_PATTERN.matcher(annotation.getEntity());
+            String value = annotation.getValue();
+
+            // XXX ugly; in case of "Bla St", check, if following character is a . and extend annotation, as the . was
+            // swallowed by StringTagger
+            if (value.endsWith(" St") && text.length() >= annotation.getEndPosition()
+                    && text.charAt(annotation.getEndPosition()) == '.') {
+                value += ".";
+            }
+
+            Matcher matcher = STREET_PATTERN.matcher(value);
             if (matcher.matches()) {
                 // System.out.println("street : " + annotation.getEntity());
-                ret.add(new Annotation(annotation.getOffset(), annotation.getEntity(), STREET_ANNOTATION_NAME));
+                Annotation newAnnotation = new ImmutableAnnotation(annotation.getStartPosition(), value,
+                        LocationType.STREET.toString());
+                ret.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, value, LocationType.STREET,
+                        null, null)));
             }
         }
 
         // step two: look for street numbers before or after
-        List<Annotation> streetNumbers = CollectionHelper.newArrayList();
+        List<LocationAnnotation> streetNumbers = CollectionHelper.newArrayList();
         for (Annotation annotation : ret) {
-            String regEx = StringHelper.escapeForRegularExpression(annotation.getEntity());
+            String regEx = Pattern.quote(annotation.getValue());
 
             // try number as suffix
             Pattern suffixRegEx = Pattern.compile(regEx + "\\s(\\d+)");
             Matcher matcher = suffixRegEx.matcher(text);
             while (matcher.find()) {
                 // System.out.println("suffix: " + matcher.group(1));
-                streetNumbers.add(new Annotation(matcher.start(), matcher.group(1), STREET_NR_ANNOTATION_NAME));
+                Annotation newAnnotation = new ImmutableAnnotation(matcher.start(1), matcher.group(1),
+                        LocationType.STREETNR.toString());
+                streetNumbers.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, matcher.group(1),
+                        LocationType.STREETNR, null, null)));
             }
 
             // try number as prefix
@@ -67,7 +78,10 @@ public final class AddressTagger {
             matcher = prefixRegEx.matcher(text);
             while (matcher.find()) {
                 // System.out.println("prefix: " + matcher.group(1));
-                streetNumbers.add(new Annotation(matcher.start(), matcher.group(1), STREET_NR_ANNOTATION_NAME));
+                Annotation newAnnotation = new ImmutableAnnotation(matcher.start(1), matcher.group(1),
+                        LocationType.STREETNR.toString());
+                streetNumbers.add(new LocationAnnotation(newAnnotation, new ImmutableLocation(0, matcher.group(1),
+                        LocationType.STREETNR, null, null)));
             }
         }
 
@@ -76,25 +90,9 @@ public final class AddressTagger {
         ret.addAll(streetNumbers);
 
         // sort by offset
-        Collections.sort(ret, new Comparator<Annotation>() {
-            @Override
-            public int compare(Annotation a0, Annotation a1) {
-                return Integer.valueOf(a0.getOffset()).compareTo(a1.getOffset());
-            }
-        });
+        Collections.sort(ret);
 
         return ret;
-    }
-
-    private AddressTagger() {
-        // no instance.
-    }
-
-    public static void main(String[] args) {
-        String text = FileHelper.readFileToString("/Users/pk/Desktop/LocationLab/LocationExtractionDataset/text2.txt");
-        text = HtmlHelper.stripHtmlTags(text);
-        List<Annotation> result = tag(text);
-        CollectionHelper.print(result);
     }
 
 }

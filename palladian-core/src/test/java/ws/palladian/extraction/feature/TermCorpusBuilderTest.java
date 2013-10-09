@@ -45,11 +45,8 @@ public class TermCorpusBuilderTest {
         assertEquals(4, termCorpus.getCount("duck"));
         assertEquals(2, termCorpus.getCount("rabbit"));
 
-        assertEquals(1, termCorpus.getIdf("duck"), 0);
-        assertEquals(5. / 3, termCorpus.getIdf("rabbit"), 0);
-        assertEquals(5. / 1, termCorpus.getIdf("giraffe"), 0);
-        // assertEquals(0, termCorpus.getIdf("duck"), 0);
-        // assertEquals(Math.log10(5. / 3), termCorpus.getIdf("rabbit"), 0);
-        // assertEquals(Math.log10(5. / 1), termCorpus.getIdf("giraffe"), 0);
+        assertEquals(6. / 5, termCorpus.getIdf("duck", true), 0);
+        assertEquals(6. / 3, termCorpus.getIdf("rabbit", true), 0);
+        assertEquals(6. / 1, termCorpus.getIdf("giraffe", true), 0);
     }
 }

@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -59,7 +58,7 @@ public class WebKnoxPosTagger extends BasePosTagger {
         String url = "http://webknox.com/api/text/posTags?text=";
         url += UrlHelper.encodeParameter(text.toString().trim());
         url += "&apiKey=" + apiKey;
-        JSONObject result = retriever.getJsonObject(url);
+        JSONObject result = retriever.getJSONObject(url);
 
         String taggedText = "";
         try {
@@ -88,8 +87,8 @@ public class WebKnoxPosTagger extends BasePosTagger {
     }
 
     public static void main(String[] args) {
-        WebKnoxPosTagger palladianPosTagger = new WebKnoxPosTagger(ConfigHolder.getInstance().getConfig());
-        System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
+        // WebKnoxPosTagger palladianPosTagger = new WebKnoxPosTagger(ConfigHolder.getInstance().getConfig());
+        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
 }

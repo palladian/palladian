@@ -1,5 +1,6 @@
 package ws.palladian.classification.numeric;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,12 +10,14 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
-import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryValueComparator;
+import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -29,7 +32,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class KnnClassifier implements Classifier<KnnModel> {
+public final class KnnClassifier implements Learner<KnnModel>, Classifier<KnnModel> {
 
     /**
      * <p>
@@ -62,16 +65,16 @@ public final class KnnClassifier implements Classifier<KnnModel> {
     }
 
     @Override
-    public KnnModel train(List<Instance> instances) {
-        return new KnnModel(instances);
+    public KnnModel train(Iterable<? extends Trainable> trainables) {
+        return new KnnModel(trainables);
     }
 
     @Override
-    public CategoryEntries classify(FeatureVector vector, KnnModel model) {
+    public CategoryEntries classify(Classifiable classifiable, KnnModel model) {
 
         // we need to normalize the new instance if the training instances were also normalized
         if (model.isNormalized()) {
-            model.normalize(vector);
+            model.normalize(classifiable.getFeatureVector());
         }
 
         Set<String> categories = getPossibleCategories(model.getTrainingExamples());
@@ -83,20 +86,20 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         }
 
         // find k nearest neighbors, compare instance to every known instance
-        List<Pair<Instance, Double>> neighbors = CollectionHelper.newArrayList();
-        for (Instance example : model.getTrainingExamples()) {
-            double distance = getDistanceBetween(vector, example.getFeatureVector());
+        List<Pair<Trainable, Double>> neighbors = CollectionHelper.newArrayList();
+        for (Trainable example : model.getTrainingExamples()) {
+            double distance = getDistanceBetween(classifiable.getFeatureVector(), example.getFeatureVector());
             neighbors.add(Pair.of(example, distance));
         }
 
         // sort near neighbor map by distance
-        Collections.sort(neighbors, EntryValueComparator.<Instance, Double> ascending());
+        Collections.sort(neighbors, EntryValueComparator.<Trainable, Double> ascending());
 
         // if there are several instances at the same distance we take all of them into the voting, k might get bigger
         // in those cases
         double lastDistance = -1;
         int ck = 0;
-        for (Pair<Instance, Double> neighbor : neighbors) {
+        for (Pair<Trainable, Double> neighbor : neighbors) {
 
             if (ck >= k && neighbor.getValue() != lastDistance) {
                 break;
@@ -111,9 +114,10 @@ public final class KnnClassifier implements Classifier<KnnModel> {
             ck++;
         }
 
-        CategoryEntries categoryEntries = new CategoryEntries();
+        // XXX currently the results are not normalized; is there a reason for that?
+        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
         for (Entry<String, Double> entry : relevances.entrySet()) {
-            categoryEntries.add(new CategoryEntry(entry.getKey(), entry.getValue()));
+            categoryEntries.set(entry.getKey(), entry.getValue());
         }
         return categoryEntries;
     }
@@ -125,9 +129,9 @@ public final class KnnClassifier implements Classifier<KnnModel> {
      * 
      * @param instances The {@code List} of {@code NominalInstance}s to extract the {@code Categories} from.
      */
-    private Set<String> getPossibleCategories(List<Instance> instances) {
+    private Set<String> getPossibleCategories(List<Trainable> instances) {
         Set<String> categories = CollectionHelper.newHashSet();
-        for (Instance instance : instances) {
+        for (Trainable instance : instances) {
             categories.add(instance.getTargetClass());
         }
         return categories;
@@ -149,20 +153,15 @@ public final class KnnClassifier implements Classifier<KnnModel> {
 
         double squaredSum = 0;
 
-        List<NumericFeature> instanceFeatures = vector.getAll(NumericFeature.class);
+        Collection<NumericFeature> instanceFeatures = vector.getAll(NumericFeature.class);
 
         for (NumericFeature instanceFeature : instanceFeatures) {
             squaredSum += Math.pow(
                     instanceFeature.getValue()
-                            - featureVector.getFeature(NumericFeature.class, instanceFeature.getName()).getValue(), 2);
+                            - featureVector.get(NumericFeature.class, instanceFeature.getName()).getValue(), 2);
         }
 
         return Math.sqrt(squaredSum);
     }
 
-    @Override
-    public KnnModel train(Dataset dataset) {
-        // FIXME
-        return null;
-    }
 }

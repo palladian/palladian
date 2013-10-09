@@ -4,9 +4,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -21,16 +24,16 @@ import ws.palladian.helper.constants.Language;
 abstract class SingleQueryLocationSource implements LocationSource {
 
     @Override
-    public Collection<Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
-        Collection<Location> locations = CollectionHelper.newHashSet();
+    public final MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
+        MultiMap<String, Location> locationMap = DefaultMultiMap.createWithSet();
         for (String locationName : locationNames) {
-            locations.addAll(getLocations(locationName, languages));
+            locationMap.put(locationName, getLocations(locationName, languages));
         }
-        return locations;
+        return locationMap;
     }
 
     @Override
-    public List<Location> getLocations(List<Integer> locationIds) {
+    public final List<Location> getLocations(List<Integer> locationIds) {
         List<Location> locations = CollectionHelper.newArrayList();
         for (Integer locationId : locationIds) {
             Location location = getLocation(locationId);
@@ -39,6 +42,11 @@ abstract class SingleQueryLocationSource implements LocationSource {
             }
         }
         return locations;
+    }
+    
+    @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
 
 }

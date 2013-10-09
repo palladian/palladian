@@ -7,12 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntry;
+import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
-import ws.palladian.classification.text.evaluation.FeatureSetting;
+import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -22,7 +25,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * 
  */
-public class PalladianLangDetect extends LanguageClassifier {
+public class PalladianLangDetect implements LanguageClassifier {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianLangDetect.class);
@@ -35,8 +38,8 @@ public class PalladianLangDetect extends LanguageClassifier {
     private Set<String> possibleClasses = null;
 
     public PalladianLangDetect(String modelPath) {
-        textClassifier = new PalladianTextClassifier();
         dictionaryModel = FileHelper.deserialize(modelPath);
+        textClassifier = new PalladianTextClassifier(dictionaryModel.getFeatureSetting());
     }
 
     public Set<String> getPossibleClasses() {
@@ -69,35 +72,28 @@ public class PalladianLangDetect extends LanguageClassifier {
         // take the time for the learning
         StopWatch stopWatch = new StopWatch();
 
-        // create a classifier mananger object
-        // ClassifierManager classifierManager = new ClassifierManager();
-
-        // create a text classifier by giving a name and a path where it should be saved to
-        PalladianTextClassifier classifier = new PalladianTextClassifier();
-        // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
 
         // specify feature settings that should be used by the classifier
         FeatureSetting featureSetting = fs;
 
         if (featureSetting == null) {
-            featureSetting = new FeatureSetting();
-
             // we want to create character-level n-grams
-            featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-
             // the minimum length of our n-grams should be 4
-            featureSetting.setMinNGramLength(4);
-
             // the maximum length of our n-grams should be 7
-            featureSetting.setMaxNGramLength(7);
+            featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 4, 7);
         }
+        
+        // create a text classifier by giving a name and a path where it should be saved to
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
+        // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
 
         // now we can train the classifier using the given dataset
         // classifier.train(dataset);
         // classifier.save(classifierPath);
         // classifierManager.trainClassifier(dataset, classifier);
 
-        DictionaryModel trainedModel = classifier.train(dataset, featureSetting);
+        TextDatasetIterator datasetIterator = TextDatasetIterator.createIterator(dataset);
+        DictionaryModel trainedModel = classifier.train(datasetIterator);
 
         // test the classifier
         // Dataset testDataset = new Dataset();
@@ -116,8 +112,9 @@ public class PalladianLangDetect extends LanguageClassifier {
     }
 
     @Override
-    public String classify(String text) {
-        return classifyAsCategoryEntry(text).getMostLikelyCategoryEntry().getName();
+    public Language classify(String text) {
+        String lanugageString = classifyAsCategoryEntry(text).getMostLikelyCategory();
+        return Language.getByIso6391(lanugageString);
     }
 
     public CategoryEntries classifyAsCategoryEntry(String text) {
@@ -130,12 +127,13 @@ public class PalladianLangDetect extends LanguageClassifier {
         if (possibleClasses == null) {
             return categoryEntries;
         }
-        CategoryEntries narrowedCategories = new CategoryEntries();
-        for (CategoryEntry categoryEntry : categoryEntries) {
-            if (possibleClasses.contains(categoryEntry.getName())) {
-                narrowedCategories.add(categoryEntry);
+        CategoryEntriesMap narrowedCategories = new CategoryEntriesMap();
+        for (String categoryName : categoryEntries) {
+            if (possibleClasses.contains(categoryName)) {
+                narrowedCategories.set(categoryName, categoryEntries.getProbability(categoryName));
             }
         }
+        narrowedCategories.sort();
         return narrowedCategories;
     }
 

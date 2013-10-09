@@ -7,6 +7,11 @@ target/
 bin
 .pmd
 
+# these file are individual and should not be in the repository;
+# there are templates in /config/*.default
+palladian.properties
+log4j.properties
+
 # LaTeX specific files which are created during typesetting.
 *.log
 *.out
@@ -17,26 +22,7 @@ bin
 *.toc
 *.fdb_latexmk
 
-# /data/
+**/data
+
 /data/datasets
-/data/knowledgeBase
-/data/logs
-/data/models
-/data/queue
-/data/status
-/data/temp
-/data/test
-
-# /data/evaluation/
-/data/evaluation/feedPaper
-
-# /src/main/resources/
-/src/main/resources/palladian.properties
-/src/main/resources/log4j.properties
-
-/test_dictionary.h2.db
-/test_dictionary.trace.db
-
-**/data/temp
-**/data/test
-/palladian-core/data
+/data

@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -20,21 +23,21 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * 
  */
-public class CascadingSearcher extends WebSearcher<WebResult> {
+public class CascadingSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CascadingSearcher.class);
 
-    private List<WebSearcher<WebResult>> searchers;
+    private List<Searcher<WebContent>> searchers;
 
-    public CascadingSearcher(List<WebSearcher<WebResult>> searchers) {
+    public CascadingSearcher(List<Searcher<WebContent>> searchers) {
         this.searchers = searchers;
         if (searchers == null) {
-            searchers = new ArrayList<WebSearcher<WebResult>>();
+            searchers = new ArrayList<Searcher<WebContent>>();
         }
     }
 
-    public void addSearcher(WebSearcher<WebResult> searcher) {
+    public void addSearcher(Searcher<WebContent> searcher) {
         this.searchers.add(searcher);
     }
 
@@ -44,11 +47,11 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) {
+    public List<WebContent> search(String query, int resultCount, Language language) {
 
-        List<WebResult> webResults = new ArrayList<WebResult>();
+        List<WebContent> webResults = new ArrayList<WebContent>();
 
-        for (WebSearcher<WebResult> searcher : searchers) {
+        for (Searcher<WebContent> searcher : searchers) {
 
             // some searchers go haywire if something goes wrong, so we catch the exception and try the next one
             try {
@@ -76,7 +79,7 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
      * @throws SearcherException
      */
     public static void main(String[] args) throws SearcherException {
-        List<WebSearcher<WebResult>> searchers = new ArrayList<WebSearcher<WebResult>>();
+        List<Searcher<WebContent>> searchers = new ArrayList<Searcher<WebContent>>();
         // searchers.add(new YandexSearcher(
         // "http://xmlsearch.yandex.ru/xmlsearch?user=pkatz&key=03.156690494:67abdff20756319b24dc308f8d216e22")); // 2.2
         // searchers.add(new HakiaSearcher(ConfigHolder.getInstance().getConfig())); // 6s
@@ -89,7 +92,7 @@ public class CascadingSearcher extends WebSearcher<WebResult> {
         StopWatch stopWatch = new StopWatch();
         CascadingSearcher cs = new CascadingSearcher(searchers);
         for (int i = 0; i < 1; i++) {
-            List<WebResult> results = cs.search("\"Sony Ericsson T230i\" \"talk time\"", 10);
+            List<WebContent> results = cs.search("\"Sony Ericsson T230i\" \"talk time\"", 10);
             CollectionHelper.print(results);
         }
         System.out.println(stopWatch.getElapsedTimeString());

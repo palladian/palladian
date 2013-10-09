@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds.updates;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
      * interval than ttl. <br />
      * If set to 2, use it as checkInterval, and do not calculate interval from feed. <br />
      */
-    private static int rssTTLmode;
+    private final int rssTTLmode;
 
     /**
      * Create MAVSync strategy ignoring RSS ttl element.
@@ -94,18 +95,20 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
         long intervalLengthMillisecond = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
         int windowIntervalMinutes = 0;
         if (entries.size() >= 2 && intervalLengthMillisecond > 0) {
-            windowIntervalMinutes = (int) (intervalLengthMillisecond / ((entries.size() - 1) * DateHelper.MINUTE_MS));
+            windowIntervalMinutes = (int)(intervalLengthMillisecond / ((entries.size() - 1) * TimeUnit.MINUTES
+                    .toMillis(1)));
         }
 
         // check whether synchronization is possible
         // the time of the next poll
         long synchronizedPollTime = 0L;
         if (intervalStopTime != null) { // activity pattern Empty
-            synchronizedPollTime = intervalStopTime.getTime() + windowIntervalMinutes * DateHelper.MINUTE_MS;
+            synchronizedPollTime = intervalStopTime.getTime() + windowIntervalMinutes * TimeUnit.MINUTES.toMillis(1);
         }
 
         // the resulting checkInterval between last and next poll
-        checkIntervalMinutes = (int) ((synchronizedPollTime - feed.getLastPollTime().getTime()) / DateHelper.MINUTE_MS);
+        checkIntervalMinutes = (int)((synchronizedPollTime - feed.getLastPollTime().getTime()) / TimeUnit.MINUTES
+                .toMillis(1));
 
         // If checkInterval is within bounds, we can use it, otherwise we use alternative calculation
         if (checkIntervalMinutes == getAllowedUpdateInterval(checkIntervalMinutes)) {
@@ -120,7 +123,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
             intervalStopTime = feed.getLastPollTime();
             intervalLengthMillisecond = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
             if (entries.size() >= 1 && intervalLengthMillisecond > 0) {
-                checkIntervalMinutes = (int) (intervalLengthMillisecond / (entries.size() * DateHelper.MINUTE_MS));
+                checkIntervalMinutes = (int)(intervalLengthMillisecond / (entries.size() * TimeUnit.MINUTES.toMillis(1)));
             }
 
         }

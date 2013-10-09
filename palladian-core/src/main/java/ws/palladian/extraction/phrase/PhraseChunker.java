@@ -1,6 +1,8 @@
 package ws.palladian.extraction.phrase;
 
-import ws.palladian.extraction.TagAnnotations;
+import java.util.List;
+
+import ws.palladian.processing.features.Annotation;
 
 /**
  * @author Martin Wunderwald
@@ -13,7 +15,7 @@ public interface PhraseChunker {
      * 
      * @param sentence The sentence to chunk.
      */
-    TagAnnotations chunk(String sentence);
+    List<Annotation> chunk(String sentence);
     
     /**
      * <p>Get the name of this chunker.</p>

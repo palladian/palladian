@@ -5,7 +5,9 @@ package ws.palladian.classification;
 
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,16 +17,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
-
 /**
  * <p>
  * Tests whether the Palladian wrapper for the Libsvm classifier works correctly or not.
@@ -39,10 +40,10 @@ public class LibSvmPredictorTest {
     @Test
     public void test() {
         List<Instance> instances = new ArrayList<Instance>();
-        FeatureVector featureVector1 = new FeatureVector();
+        FeatureVector featureVector1 = new BasicFeatureVector();
         featureVector1.add(new NominalFeature("a", "a"));
         featureVector1.add(new NumericFeature("b", 0.9));
-        FeatureVector featureVector2 = new FeatureVector();
+        FeatureVector featureVector2 = new BasicFeatureVector();
         featureVector2.add(new NominalFeature("a", "b"));
         featureVector2.add(new NumericFeature("b", 0.1));
         Instance instance1 = new Instance("A", featureVector1);
@@ -50,20 +51,18 @@ public class LibSvmPredictorTest {
         instances.add(instance1);
         instances.add(instance2);
 
-        List<String> normalFeaturePaths = new ArrayList<String>();
-        normalFeaturePaths.add("a");
-        normalFeaturePaths.add("b");
-        List<String> sparseFeaturePaths = new ArrayList<String>();
-
-        LibSvmPredictor predictor = new LibSvmPredictor(new LinearKernel(1.0d), normalFeaturePaths, sparseFeaturePaths);
+        LibSvmPredictor predictor = new LibSvmPredictor(new LinearKernel(1.0d));
         LibSvmModel model = predictor.train(instances);
-        Assert.assertThat(model, Matchers.is(Matchers.notNullValue()));
+        assertThat(model, Matchers.is(Matchers.notNullValue()));
+        assertEquals(2, model.getCategories().size());
+        assertTrue(model.getCategories().contains("A"));
+        assertTrue(model.getCategories().contains("B"));
 
-        FeatureVector classificationVector = new FeatureVector();
+        FeatureVector classificationVector = new BasicFeatureVector();
         classificationVector.add(new NominalFeature("a", "a"));
         classificationVector.add(new NumericFeature("b", 0.8));
         CategoryEntries result = predictor.classify(classificationVector, model);
-        Assert.assertThat(result.getMostLikelyCategoryEntry().getName(), Matchers.is("A"));
+        assertThat(result.getMostLikelyCategory(), Matchers.is("A"));
     }
 
     /**
@@ -76,21 +75,16 @@ public class LibSvmPredictorTest {
      */
     @Test
     public void testRealDataSet() throws FileNotFoundException {
-        List<String> normalFeaturePaths = new ArrayList<String>();
-        List<String> sparseFeaturePaths = new ArrayList<String>();
-        List<Instance> instances = readInstances("/train.1", normalFeaturePaths, sparseFeaturePaths);
+        List<Instance> instances = readInstances("/train.1");
 
-        LibSvmPredictor predictor = new LibSvmPredictor(new RBFKernel(2.0d, 2.0d), normalFeaturePaths,
-                sparseFeaturePaths);
+        LibSvmPredictor predictor = new LibSvmPredictor(new RBFKernel(2.0d, 2.0d));
         LibSvmModel model = predictor.train(instances);
 
-        normalFeaturePaths.clear();
-        sparseFeaturePaths.clear();
-        List<Instance> test = readInstances("/test.1", normalFeaturePaths, sparseFeaturePaths);
+        List<Instance> test = readInstances("/test.1");
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
         for (Instance instance : test) {
             CategoryEntries result = predictor.classify(instance.getFeatureVector(), model);
-            confusionMatrix.add(instance.getTargetClass(), result.getMostLikelyCategoryEntry().getName());
+            confusionMatrix.add(instance.getTargetClass(), result.getMostLikelyCategory());
         }
 
         assertThat(confusionMatrix.getAverageAccuracy(false), is(closeTo(0.954, 0.0001)));
@@ -99,8 +93,7 @@ public class LibSvmPredictorTest {
         assertThat(confusionMatrix.getAverageF(0.5, false), is(closeTo(0.954, 0.0001)));
     }
 
-    private List<Instance> readInstances(String resource, List<String> normalFeaturePaths,
-            List<String> sparseFeaturePaths) throws FileNotFoundException {
+    private List<Instance> readInstances(String resource) throws FileNotFoundException {
         File contentFile = ResourceHelper.getResourceFile(resource);
         List<String> lines = FileHelper.readFileToArray(contentFile);
         List<Instance> ret = new ArrayList<Instance>(lines.size());
@@ -108,7 +101,7 @@ public class LibSvmPredictorTest {
         for (String line : lines) {
             String[] elements = line.split("\\s");
             String targetClass = elements[0];
-            FeatureVector featureVector = new FeatureVector();
+            FeatureVector featureVector = new BasicFeatureVector();
             for (int i = 1; i < elements.length; i++) {
                 String[] element = elements[i].split(":");
                 String name = element[0];
@@ -119,7 +112,6 @@ public class LibSvmPredictorTest {
             Instance newInstance = new Instance(targetClass, featureVector);
             ret.add(newInstance);
         }
-        normalFeaturePaths.addAll(normalFeaturePathsSet);
         return ret;
     }
 
@@ -131,7 +123,7 @@ public class LibSvmPredictorTest {
         normalization.add(new NumericFeature("test", 2));
 
         double result = normalization.apply(5.0d);
-        Assert.assertThat(result, Matchers.is(0.75));
+        assertThat(result, is(0.75));
     }
 
     @Test
@@ -141,7 +133,7 @@ public class LibSvmPredictorTest {
         normalization.add(new NumericFeature("test", 0.9d));
 
         double result = normalization.apply(5.0d);
-        Assert.assertThat(result, Matchers.is(4.1));
+        assertThat(result, is(4.1));
     }
 
 }

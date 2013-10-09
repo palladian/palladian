@@ -13,7 +13,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -38,7 +37,7 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
     /** The ranking value types of this service **/
     public static final RankingType CITATIONINDEX = new RankingType("citationindex", "Yandex Citation Index",
             "The Yandex Citation Index value from Yandex");
-    
+
     /** All available ranking types by {@link YandexCitationIndex}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(CITATIONINDEX);
 
@@ -59,20 +58,28 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
         try {
             String requestUrl = buildRequestUrl(url);
             HttpResult httpResult = retriever.httpGet(requestUrl);
-            String response = HttpHelper.getStringContent(httpResult);
+            String response = httpResult.getStringContent();
 
             if (response != null) {
                 citationIndex = 0;
-                // result stays 0 if response empty -> url not found
-                String citationIndexString = StringHelper.getSubstringBetween(response,"b-cy_error-cy\">","</p>");
-                
-                citationIndexString = StringHelper.trim(citationIndexString.replaceAll(".*? — ", ""));
-                
+
+                String leftBorder = UrlHelper.getDomain(url).replace("http://", "").replace("www.", "")
+                        + "/\" target=\"_blank\">";
+                String citationIndexString = StringHelper.getSubstringBetween(response, leftBorder, "</td>\n</tr>");
+
+                if (citationIndexString.isEmpty()) {
+                    // result stays 0 if response empty -> url not found
+                    citationIndexString = StringHelper.getSubstringBetween(response, "b-cy_error-cy\">", "</p>");
+                    citationIndexString = StringHelper.trim(citationIndexString.replaceAll(".*? — ", ""));
+                } else {
+                    citationIndexString = StringHelper.getSubstringBetween(citationIndexString, "<td>", null);
+                }
+
                 citationIndex = Integer.valueOf(citationIndexString);
-                
+
                 LOGGER.trace("Yandex Citation Index for " + url + " : " + citationIndex);
             }
-            
+
         } catch (Exception e) {
             checkBlocked();
             throw new RankingServiceException("Exception " + e.getMessage(), e);
@@ -139,10 +146,10 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
         YandexCitationIndex tic = new YandexCitationIndex();
         Ranking ranking = tic.getRanking("http://cinefreaks.com");
         System.out.println(ranking);
-        
+
         ranking = tic.getRanking("http://en.wikipedia.org/Wiki/Germany");
         System.out.println(ranking);
-        
+
         ranking = tic.getRanking("http://google.com");
         System.out.println(ranking);
     }

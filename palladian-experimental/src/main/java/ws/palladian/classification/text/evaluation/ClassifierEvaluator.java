@@ -12,7 +12,7 @@
 //import ws.palladian.classification.DatasetManager;
 //import ws.palladian.classification.text.PalladianTextClassifier;
 //import ws.palladian.helper.StopWatch;
-//import ws.palladian.helper.collection.Matrix;
+//import ws.palladian.helper.collection.MapMatrix;
 //import ws.palladian.helper.io.FileHelper;
 //import ws.palladian.helper.math.ConfusionMatrix;
 //
@@ -46,10 +46,10 @@
 //        datasets.add(dataset);
 //    }
 //
-//    public Matrix runEvaluation(String evaluationOutputPath) throws IOException {
+//    public MapMatrix runEvaluation(String evaluationOutputPath) throws IOException {
 //        StopWatch stopWatch = new StopWatch();
 //
-//        Matrix evaluationMatrix = new Matrix();
+//        MapMatrix evaluationMatrix = new MapMatrix();
 //
 //        // loop through all classifiers
 //        for (PalladianTextClassifier classifier : classifiers) {

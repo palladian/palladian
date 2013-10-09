@@ -71,7 +71,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_CACHE_ITEMS_BY_ID = "SELECT * FROM feed_item_cache WHERE id = ?";
     private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
 
-    public static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
+    private static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
 
     /**
      * @param dataSource
@@ -304,11 +304,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         List<Object> parameters = new ArrayList<Object>();
         parameters.add(entry.getFeedId());
         parameters.add(entry.getTitle());
-        parameters.add(entry.getLink());
+        parameters.add(entry.getUrl());
         parameters.add(entry.getRawId());
         parameters.add(SqlHelper.getTimestamp(entry.getPublished()));
         parameters.add(entry.getAuthors());
-        parameters.add(entry.getDescription());
+        parameters.add(entry.getSummary());
         parameters.add(entry.getText());
         parameters.add(entry.getHash());
         return parameters;

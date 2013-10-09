@@ -5,6 +5,8 @@ package ws.palladian.processing.features;
 
 import org.junit.Test;
 
+import ws.palladian.processing.features.utils.FeatureUtils;
+
 /**
  * <p>
  * 
@@ -18,15 +20,15 @@ public class FeatureUtilsTest {
 
     /**
      * Test method for
-     * {@link ws.palladian.processing.features.FeatureUtils#find(ws.palladian.processing.features.Feature, ws.palladian.processing.features.FeatureVector)}
+     * {@link ws.palladian.processing.features.utils.FeatureUtils#find(ws.palladian.processing.features.Feature, ws.palladian.processing.features.FeatureVector)}
      * .
      */
     @Test
     public void testFind() {
-        FeatureVector fv = new FeatureVector();
+        FeatureVector fv = new BasicFeatureVector();
         fv.add(new NominalFeature("test", "test"));
-        fv.add(new PositionAnnotation("pos", 0, 2, 0, "ab"));
+        fv.add(new PositionAnnotation("ab", 0));
         FeatureUtils.find(new NominalFeature("test", "test"), fv);
-        FeatureUtils.find(new PositionAnnotation("pos", 0, 2, 0, "ab"), fv);
+        FeatureUtils.find(new PositionAnnotation("ab", 0), fv);
     }
 }

@@ -2,34 +2,25 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.helper.ConfigHolder;
-import ws.palladian.helper.collection.MapBuilder;
-import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -126,9 +117,9 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
 
-        Annotations annotations = new Annotations();
+        Annotations<Annotation> annotations = new Annotations<Annotation>();
 
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 
@@ -139,10 +130,12 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         int cumulatedOffset = 0;
         for (String textChunk : textChunks) {
 
+            String response = null;
+
             try {
 
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                String response = HttpHelper.getStringContent(httpResult);
+                response = httpResult.getStringContent();
 
                 JSONObject json = new JSONObject(response);
 
@@ -168,17 +161,18 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                                 // co-reference resolution instances
                                 if (instance.getInt("length") == entityName.length()) {
                                     int offset = instance.getInt("offset");
-                                    annotations.add(new Annotation(cumulatedOffset + offset, entityName, entityTag));
+                                    annotations.add(new ImmutableAnnotation(cumulatedOffset + offset, entityName,
+                                            entityTag));
                                 }
                             }
                         }
                     }
                 }
 
-            } catch (JSONException e) {
-                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
             } catch (HttpException e) {
-                LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
+                LOGGER.error("Error performing HTTP POST: {}", e.getMessage());
+            } catch (JSONException e) {
+                LOGGER.error("Could not parse the JSON response: {}, exception: {}", response, e.getMessage());
             }
 
             cumulatedOffset += textChunk.length();
@@ -191,17 +185,15 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
-
-        Map<String, String> headers = new MapBuilder<String, String>().add("x-calais-licenseID", apiKey)
-                .add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                .add("Accept", "application/json");
-
-        Map<String, String> content = new MapBuilder<String, String>()
-                .add("content", inputText)
-                .add("paramsXML",
-                        "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
-
-        return httpRetriever.httpPost("http://api.opencalais.com/tag/rs/enrich", headers, content);
+        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://api.opencalais.com/tag/rs/enrich");
+        request.addHeader("x-calais-licenseID", apiKey);
+        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.addHeader("Accept", "application/json");
+        request.addParameter("content", inputText);
+        request.addParameter(
+                "paramsXML",
+                "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
+        return httpRetriever.execute(request);
     }
 
     @Override
@@ -209,42 +201,9 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         return "OpenCalais NER";
     }
 
-    @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        OpenCalaisNer tagger = new OpenCalaisNer(ConfigHolder.getInstance().getConfig());
-
-        if (args.length > 0) {
-
-            Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("inputText").withDescription("the text that should be tagged")
-                    .hasArg().withArgName("text").withType(String.class).create());
-            options.addOption(OptionBuilder.withLongOpt("outputFile")
-                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            HelpFormatter formatter = new HelpFormatter();
-
-            CommandLineParser parser = new PosixParser();
-            CommandLine cmd = null;
-            try {
-                cmd = parser.parse(options, args);
-
-                String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
-
-                if (cmd.hasOption("outputFile")) {
-                    FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
-                } else {
-                    System.out.println("No output file given so tagged text will be printed to the console:");
-                    System.out.println(taggedText);
-                }
-
-            } catch (ParseException e) {
-                LOGGER.debug("Command line arguments could not be parsed!");
-                formatter.printHelp("FeedChecker", options);
-            }
-
-        }
+        OpenCalaisNer tagger = new OpenCalaisNer("");
 
         // HOW TO USE ////
         System.out

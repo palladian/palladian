@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.retrieval.search.images.BingImageSearcher;
 import ws.palladian.retrieval.search.images.FlickrSearcher;
@@ -26,12 +27,9 @@ import ws.palladian.retrieval.search.images.PixabaySearcher;
 import ws.palladian.retrieval.search.images.PublicDomainImageSearcher;
 import ws.palladian.retrieval.search.images.StockXchngSearcher;
 import ws.palladian.retrieval.search.news.BingNewsSearcher;
-import ws.palladian.retrieval.search.news.FarooNewsSearcher;
-import ws.palladian.retrieval.search.news.HakiaNewsSearcher;
-import ws.palladian.retrieval.search.news.NewsSeecrSearcher;
 import ws.palladian.retrieval.search.news.WebKnoxNewsSearcher;
-import ws.palladian.retrieval.search.socialmedia.FacebookSearcher;
-import ws.palladian.retrieval.search.socialmedia.InstagramTagSearcher;
+import ws.palladian.retrieval.search.socialmedia.InstagramSearcher;
+import ws.palladian.retrieval.search.socialmedia.RedditSearcher;
 import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
 import ws.palladian.retrieval.search.videos.BingVideoSearcher;
 import ws.palladian.retrieval.search.videos.VimeoSearcher;
@@ -50,9 +48,9 @@ public class WebSearchersIT {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSearchersIT.class);
 
-    private final WebSearcher<?> searcher;
+    private final Searcher<?> searcher;
 
-    @Parameters
+    @Parameters(name = "{0}")
     public static Collection<Object[]> searchers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
         List<Object[]> searchers = CollectionHelper.newArrayList();
@@ -61,7 +59,7 @@ public class WebSearchersIT {
         searchers.add(new Object[] {new BingSearcher(configuration)});
         searchers.add(new Object[] {new BlekkoSearcher()});
         searchers.add(new Object[] {new DuckDuckGoSearcher()});
-        searchers.add(new Object[] {new FarooSearcher()});
+        // searchers.add(new Object[] {new FarooSearcher()}); // FIXME
         searchers.add(new Object[] {new GoogleSearcher()});
         // searchers.add(new Object[] {new GoogleImageSearcher()});
         // searchers.add(new Object[] {new GoogleBlogsSearcher()});
@@ -69,23 +67,24 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new GooglePlusSearcher(configuration)});
         // searchers.add(new Object[] {new GoogleCustomSearcher(configuration)});
         searchers.add(new Object[] {new GoogleScraperSearcher()});
-        searchers.add(new Object[] {new HakiaSearcher(configuration)});
+        // searchers.add(new Object[] {new HakiaSearcher(configuration)}); // FIXME
         searchers.add(new Object[] {new TopsySearcher(configuration)});
         // searchers.add(new Object[] {new TopsyUrlSearcher(configuration)});
         searchers.add(new Object[] {new WebKnoxSearcher(configuration)});
         searchers.add(new Object[] {new WikipediaSearcher()});
 
         // social media searchers
-        searchers.add(new Object[] {new InstagramTagSearcher(configuration)});
-        searchers.add(new Object[] {new FacebookSearcher()});
-        searchers.add(new Object[] {new TwitterSearcher()});
+        searchers.add(new Object[] {new InstagramSearcher(configuration)});
+        // searchers.add(new Object[] {new FacebookSearcher(configuration)});
+        searchers.add(new Object[] {new TwitterSearcher(configuration)});
+        searchers.add(new Object[] {new RedditSearcher()});
 
         // news searchers
-        searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
+        // searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
         searchers.add(new Object[] {new BingNewsSearcher(configuration)});
         searchers.add(new Object[] {new WebKnoxNewsSearcher(configuration)});
-        searchers.add(new Object[] {new HakiaNewsSearcher(configuration)});
-        searchers.add(new Object[] {new FarooNewsSearcher()});
+        // searchers.add(new Object[] {new HakiaNewsSearcher(configuration)});
+        // searchers.add(new Object[] {new FarooNewsSearcher()});
 
         // video searchers
         searchers.add(new Object[] {new VimeoSearcher(configuration)});
@@ -106,7 +105,7 @@ public class WebSearchersIT {
         return new PropertiesConfiguration(ResourceHelper.getResourceFile("/palladian-test.properties"));
     }
 
-    public WebSearchersIT(WebSearcher<?> searcher) {
+    public WebSearchersIT(Searcher<?> searcher) {
         this.searcher = searcher;
     }
 

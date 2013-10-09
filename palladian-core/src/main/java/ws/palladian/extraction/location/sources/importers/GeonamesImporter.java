@@ -15,14 +15,16 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MultiMap;
@@ -389,8 +391,8 @@ public final class GeonamesImporter {
      */
     private void importHierarchy(InputStream inputStream, final int numLines) {
         LOGGER.info("Importing hierarchy, {} lines to read", numLines);
-        final StopWatch stopWatch = new StopWatch();
-        final MultiMap<Integer, Integer> childParents = MultiMap.create();
+        final ProgressMonitor monitor = new ProgressMonitor(numLines, 1);
+        final MultiMap<Integer, Integer> childParents = DefaultMultiMap.createWithSet();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -407,7 +409,7 @@ public final class GeonamesImporter {
                 if (type == null || type.equals("ADM")) {
                     childParents.add(childId, parentId);
                 }
-                String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
+                String progress = monitor.incrementAndGetProgress();
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
                 }
@@ -415,12 +417,12 @@ public final class GeonamesImporter {
         });
         // only add relation, if unambiguous
         for (Integer childId : childParents.keySet()) {
-            List<Integer> parentIds = childParents.get(childId);
+            Collection<Integer> parentIds = childParents.get(childId);
             if (parentIds.size() == 1) {
-                hierarchyMappings.put(childId, parentIds.get(0));
+                hierarchyMappings.put(childId, CollectionHelper.getFirst(parentIds));
             }
         }
-        LOGGER.info("Finished importing hierarchy in {}", stopWatch.getTotalElapsedTimeString());
+        LOGGER.info("Finished importing hierarchy in {}", monitor.getTotalElapsedTimeString());
     }
 
     /**
@@ -433,11 +435,11 @@ public final class GeonamesImporter {
      */
     private void importAlternativeNames(InputStream inputStream, final int numLines) {
         LOGGER.info("Importing alternative names, {} lines to read", numLines);
-        final StopWatch stopWatch = new StopWatch();
+        final ProgressMonitor monitor = new ProgressMonitor(numLines, 1);
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String progress = ProgressHelper.getProgress(lineNumber, numLines, 1, stopWatch);
+                String progress = monitor.incrementAndGetProgress();
                 if (!progress.isEmpty()) {
                     LOGGER.info(progress);
                 }
@@ -460,57 +462,7 @@ public final class GeonamesImporter {
                 locationStore.addAlternativeNames(geonameid, Collections.singletonList(name));
             }
         });
-        LOGGER.info("Finished importing alternative names in {}", stopWatch.getTotalElapsedTimeString());
-    }
-
-    /**
-     * <pre>
-     *   The main 'geoname' table has the following fields :
-     *   ---------------------------------------------------
-     *   geonameid         : integer id of record in geonames database
-     *   name              : name of geographical point (utf8) varchar(200)
-     *   asciiname         : name of geographical point in plain ascii characters, varchar(200)
-     *   alternatenames    : alternatenames, comma separated varchar(5000)
-     *   latitude          : latitude in decimal degrees (wgs84)
-     *   longitude         : longitude in decimal degrees (wgs84)
-     *   feature class     : see http://www.geonames.org/export/codes.html, char(1)
-     *   feature code      : see http://www.geonames.org/export/codes.html, varchar(10)
-     *   country code      : ISO-3166 2-letter country code, 2 characters
-     *   cc2               : alternate country codes, comma separated, ISO-3166 2-letter country code, 60 characters
-     *   admin1 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
-     *   admin2 code       : code for the second administrative division, a county in the US, see file admin2Codes.txt; varchar(80) 
-     *   admin3 code       : code for third level administrative division, varchar(20)
-     *   admin4 code       : code for fourth level administrative division, varchar(20)
-     *   population        : bigint (8 byte int) 
-     *   elevation         : in meters, integer
-     *   dem               : digital elevation model, srtm3 or gtopo30, average elevation of 3''x3'' (ca 90mx90m) or 30''x30'' (ca 900mx900m) area in meters, integer. srtm processed by cgiar/ciat.
-     *   timezone          : the timezone id (see file timeZone.txt) varchar(40)
-     *   modification date : date of last modification in yyyy-MM-dd format
-     * </pre>
-     * 
-     * @param line The line to parse, not <code>null</code>.
-     * @return The parsed {@link GeonameLocation}.
-     */
-    protected static GeonameLocation parse(String line) {
-        String[] parts = line.split("\\t");
-        if (parts.length != 19) {
-            throw new IllegalStateException("Exception while parsing, expected 19 elements, but was " + parts.length
-                    + "('" + line + "')");
-        }
-        GeonameLocation location = new GeonameLocation();
-        location.geonamesId = Integer.valueOf(parts[0]);
-        location.longitude = Double.valueOf(parts[5]);
-        location.latitude = Double.valueOf(parts[4]);
-        location.primaryName = stringOrNull(parts[1]);
-        location.population = Long.valueOf(parts[14]);
-        location.featureClass = stringOrNull(parts[6]);
-        location.featureCode = stringOrNull(parts[7]);
-        location.countryCode = stringOrNull(parts[8]);
-        location.admin1Code = stringOrNull(parts[10]);
-        location.admin2Code = stringOrNull(parts[11]);
-        location.admin3Code = stringOrNull(parts[12]);
-        location.admin4Code = stringOrNull(parts[13]);
-        return location;
+        LOGGER.info("Finished importing alternative names in {}", monitor.getTotalElapsedTimeString());
     }
 
     /**
@@ -532,40 +484,87 @@ public final class GeonamesImporter {
 
     private static final void readLocations(InputStream inputStream, final int totalLines,
             final LocationLineCallback callback) {
-        final StopWatch stopWatch = new StopWatch();
+        final ProgressMonitor monitor = new ProgressMonitor(totalLines, 1);
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 if (line.isEmpty()) {
                     return;
                 }
-                GeonameLocation geonameLocation = parse(line);
+                GeonameLocation geonameLocation = new GeonameLocation(line);
                 callback.readLocation(geonameLocation);
-                String progress = ProgressHelper.getProgress(lineNumber, totalLines, 1, stopWatch);
+                String progress = monitor.incrementAndGetProgress();
                 if (progress.length() > 0) {
                     LOGGER.info(progress);
                 }
             }
         });
-        LOGGER.debug("Finished processing, took {}", stopWatch.getTotalElapsedTimeString());
+        LOGGER.debug("Finished processing, took {}", monitor.getTotalElapsedTimeString());
     }
 
     /**
      * Temporally hold locations after parsing. This class basically just resembles the structure of the GeoNames data.
      */
-    private static final class GeonameLocation implements Location {
-        int geonamesId;
-        double longitude;
-        double latitude;
-        String primaryName;
-        long population;
-        String featureClass;
-        String featureCode;
-        String countryCode;
-        String admin1Code;
-        String admin2Code;
-        String admin3Code;
-        String admin4Code;
+    private static final class GeonameLocation extends AbstractLocation {
+        final int geonamesId;
+        final GeoCoordinate coordinate;
+        final String primaryName;
+        final long population;
+        final String featureClass;
+        final String featureCode;
+        final String countryCode;
+        final String admin1Code;
+        final String admin2Code;
+        final String admin3Code;
+        final String admin4Code;
+        
+        /**
+         * <pre>
+         *   The main 'geoname' table has the following fields :
+         *   ---------------------------------------------------
+         *   geonameid         : integer id of record in geonames database
+         *   name              : name of geographical point (utf8) varchar(200)
+         *   asciiname         : name of geographical point in plain ascii characters, varchar(200)
+         *   alternatenames    : alternatenames, comma separated varchar(5000)
+         *   latitude          : latitude in decimal degrees (wgs84)
+         *   longitude         : longitude in decimal degrees (wgs84)
+         *   feature class     : see http://www.geonames.org/export/codes.html, char(1)
+         *   feature code      : see http://www.geonames.org/export/codes.html, varchar(10)
+         *   country code      : ISO-3166 2-letter country code, 2 characters
+         *   cc2               : alternate country codes, comma separated, ISO-3166 2-letter country code, 60 characters
+         *   admin1 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
+         *   admin2 code       : code for the second administrative division, a county in the US, see file admin2Codes.txt; varchar(80) 
+         *   admin3 code       : code for third level administrative division, varchar(20)
+         *   admin4 code       : code for fourth level administrative division, varchar(20)
+         *   population        : bigint (8 byte int) 
+         *   elevation         : in meters, integer
+         *   dem               : digital elevation model, srtm3 or gtopo30, average elevation of 3''x3'' (ca 90mx90m) or 30''x30'' (ca 900mx900m) area in meters, integer. srtm processed by cgiar/ciat.
+         *   timezone          : the timezone id (see file timeZone.txt) varchar(40)
+         *   modification date : date of last modification in yyyy-MM-dd format
+         * </pre>
+         * 
+         * @param line The line to parse, not <code>null</code>.
+         */
+        GeonameLocation (String line) {
+            String[] parts = line.split("\\t");
+            if (parts.length != 19) {
+                throw new IllegalStateException("Exception while parsing, expected 19 elements, but was " + parts.length
+                        + "('" + line + "')");
+            }
+            this.geonamesId = Integer.valueOf(parts[0]);
+            double longitude = Double.valueOf(parts[5]);
+            double latitude = Double.valueOf(parts[4]);
+            this.coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+            this.primaryName = stringOrNull(parts[1]);
+            this.population = Long.valueOf(parts[14]);
+            this.featureClass = stringOrNull(parts[6]);
+            this.featureCode = stringOrNull(parts[7]);
+            this.countryCode = stringOrNull(parts[8]);
+            this.admin1Code = stringOrNull(parts[10]);
+            this.admin2Code = stringOrNull(parts[11]);
+            this.admin3Code = stringOrNull(parts[12]);
+            this.admin4Code = stringOrNull(parts[13]);
+        }
 
         String getCodeCombined() {
             return StringUtils.join(getCodeParts(), '.');
@@ -654,10 +653,8 @@ public final class GeonamesImporter {
             StringBuilder builder = new StringBuilder();
             builder.append("GeonameLocation [geonamesId=");
             builder.append(geonamesId);
-            builder.append(", longitude=");
-            builder.append(longitude);
-            builder.append(", latitude=");
-            builder.append(latitude);
+            builder.append(", coordinate=");
+            builder.append(coordinate);
             builder.append(", primaryName=");
             builder.append(primaryName);
             builder.append(", population=");
@@ -699,15 +696,10 @@ public final class GeonamesImporter {
         public LocationType getType() {
             return GeonamesUtil.mapType(featureClass, featureCode);
         }
-
+        
         @Override
-        public Double getLatitude() {
-            return latitude;
-        }
-
-        @Override
-        public Double getLongitude() {
-            return longitude;
+        public GeoCoordinate getCoordinate() {
+            return coordinate;
         }
 
         @Override

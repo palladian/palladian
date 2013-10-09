@@ -8,13 +8,13 @@ package ws.palladian.processing.features;
  * @version 1.0
  * @since 0.1.7
  */
-public class BooleanFeature extends Feature<Boolean> {
+public class BooleanFeature extends AbstractFeature<Boolean> {
 
     /**
      * @param name
      * @param value
      */
-    public BooleanFeature(String name, Boolean value) {
+    public BooleanFeature(String name, boolean value) {
         super(name, value);
     }
 

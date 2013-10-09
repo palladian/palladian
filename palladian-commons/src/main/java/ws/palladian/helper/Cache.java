@@ -25,6 +25,12 @@ public class Cache {
     /** List of objects in the cache. */
     private Map<String, Object> dataObjects = new HashMap<String, Object>();
 
+    /**
+     * Size of the objects in the cache. This is a lower estimate and only works if the sizes are given when a new
+     * object is put into the cache.
+     */
+    private long cacheSize = 0L;
+
     static class SingletonHolder {
         static Cache instance = new Cache();
     }
@@ -85,6 +91,29 @@ public class Cache {
 
     public void putDataObject(String identifier, Object object) {
         dataObjects.put(identifier, object);
+    }
+
+    public void putDataObject(String identifier, Object object, long size) {
+        putDataObject(identifier, object);
+        cacheSize += size;
+    }
+
+    public long getCacheSize() {
+        return cacheSize;
+    }
+    
+    
+    /**
+     * <p>
+     * Explicit remove data object from cache
+     * </p>
+     * 
+     * @param identifier The identifier of the object in the cache.
+     * 
+     * @return 
+     */
+    public void removeDataObject(String cacheName) {
+        dataObjects.remove(cacheName);        
     }
 
 }

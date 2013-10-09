@@ -2,15 +2,19 @@ package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.MinMaxNormalization;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Trainable;
+import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -57,21 +61,19 @@ public final class KnnModel implements Model {
      * 
      * @param trainingInstances The {@link Instance}s this model is based on.
      */
-    public KnnModel(List<Instance> trainingInstances) {
-        super();
-
+    public KnnModel(Iterable<? extends Trainable> trainingInstances) {
         this.trainingExamples = initTrainingInstances(trainingInstances);
         this.isNormalized = false;
     }
 
-    private List<TrainingExample> initTrainingInstances(List<Instance> instances) {
-        List<TrainingExample> ret = new ArrayList<TrainingExample>(instances.size());
-        for (Instance instance : instances) {
+    private List<TrainingExample> initTrainingInstances(Iterable<? extends Trainable> instances) {
+        List<TrainingExample> ret = new ArrayList<TrainingExample>();
+        for (Trainable instance : instances) {
             TrainingExample trainingInstance = new TrainingExample();
 
             trainingInstance.targetClass = instance.getTargetClass();
             trainingInstance.features = new HashMap<String, Double>();
-            List<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
+            Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
             for (NumericFeature feature : numericFeatures) {
                 trainingInstance.features.put(feature.getName(), feature.getValue());
             }
@@ -85,15 +87,15 @@ public final class KnnModel implements Model {
      * @return The training instances underlying this {@link KnnModel}. They are used by the {@code KnnClassifier} to
      *         make a classification decision.
      */
-    public List<Instance> getTrainingExamples() {
+    public List<Trainable> getTrainingExamples() {
         return convertTrainingInstances(trainingExamples);
     }
 
-    private List<Instance> convertTrainingInstances(List<TrainingExample> instances) {
-        List<Instance> nominalInstances = new ArrayList<Instance>(instances.size());
+    private List<Trainable> convertTrainingInstances(List<TrainingExample> instances) {
+        List<Trainable> nominalInstances = new ArrayList<Trainable>(instances.size());
 
         for (TrainingExample instance : trainingExamples) {
-            FeatureVector featureVector = new FeatureVector();
+            FeatureVector featureVector = new BasicFeatureVector();
             for (Entry<String, Double> feature : instance.features.entrySet()) {
                 featureVector.add(new NumericFeature(feature.getKey(), feature.getValue()));
             }
@@ -110,8 +112,8 @@ public final class KnnModel implements Model {
      * </p>
      */
     public void normalize() {
-        List<Instance> nominalInstances = convertTrainingInstances(trainingExamples);
-        normalizationInformation = ClassificationUtils.calculateMinMaxNormalization(nominalInstances);
+        List<Trainable> nominalInstances = convertTrainingInstances(trainingExamples);
+        normalizationInformation = new MinMaxNormalization(nominalInstances);
         normalizationInformation.normalize(nominalInstances);
         trainingExamples = initTrainingInstances(nominalInstances);
         isNormalized = true;
@@ -150,6 +152,16 @@ public final class KnnModel implements Model {
         toStringBuilder.append("]");
         return toStringBuilder.toString();
     }
+
+    @Override
+    public Set<String> getCategories() {
+        Set<String> categories = CollectionHelper.newHashSet();
+        for (TrainingExample example : trainingExamples) {
+            categories.add(example.targetClass);
+        }
+        return categories;
+    }
+    
 }
 
 class TrainingExample implements Serializable {

@@ -10,6 +10,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -37,7 +39,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @see <a href="http://www.geonames.org/export/web-services.html">Web Service documentation</a>
  * @author Philipp Katz
  */
-public class GeonamesLocationSource extends SingleQueryLocationSource implements LocationSource {
+public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesLocationSource.class);
@@ -126,7 +128,8 @@ public class GeonamesLocationSource extends SingleQueryLocationSource implements
             population = Long.valueOf(populationString);
         }
         LocationType locationType = GeonamesUtil.mapType(featureClass, featureCode);
-        return new ImmutableLocation(geonameId, primaryName, locationType, latitude, longitude, population);
+        GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+        return new ImmutableLocation(geonameId, primaryName, locationType, coordinate, population);
     }
 
     private List<Integer> getHierarchy(int locationId) {

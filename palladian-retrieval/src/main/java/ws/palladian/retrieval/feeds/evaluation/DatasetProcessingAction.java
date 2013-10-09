@@ -10,9 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
@@ -23,16 +21,16 @@ import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 class DatasetProcessingAction extends DefaultFeedProcessingAction {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetProcessingAction.class);
-    
+
     private final FeedStore feedStore;
-    
+
     DatasetProcessingAction(FeedStore feedStore) {
         this.feedStore = feedStore;
     }
-    
+
     @Override
     public boolean performAction(Feed feed, HttpResult httpResult) {
 
@@ -99,14 +97,14 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         if (!metadata) {
             success = false;
         }
-        
+
         LOGGER.debug("added " + newItems + " new posts to file " + csvFilePath + " (feed: " + feed.getId() + ")");
 
         return success;
     }
 
     private static String buildCsvLine(FeedItem item) {
-        
+
         // build csv line for new entry
         StringBuilder fileEntry = new StringBuilder();
 
@@ -128,16 +126,16 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
             fileEntry.append(DatasetCreator.NO_TITLE_REPLACEMENT).append(";");
         } else {
             fileEntry.append("\"");
-            fileEntry.append(StringHelper.cleanStringToCsv(item.getTitle()));
+            fileEntry.append(item.getTitle().replace("\"", "'")); // TODO clean string?
             fileEntry.append("\";");
         }
 
         // item link
-        if (item.getLink() == null || item.getLink().length() == 0) {
+        if (item.getUrl() == null || item.getUrl().length() == 0) {
             fileEntry.append(DatasetCreator.NO_LINK_REPLACEMENT).append(";");
         } else {
             fileEntry.append("\"");
-            fileEntry.append(StringHelper.cleanStringToCsv(item.getLink()));
+            fileEntry.append(item.getUrl().replace("\"", "'")); // TODO clean string?
             fileEntry.append("\";");
         }
 
@@ -197,7 +195,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
     private boolean writeGZ(HttpResult httpResult, String folderPath, long pollTimestamp, String special) {
         String gzPath = folderPath + pollTimestamp + "_" + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp)
                 + special + ".gz";
-        boolean gzWritten = HttpRetriever.saveToFile(httpResult, gzPath, true);
+        boolean gzWritten = HttpHelper.saveToFile(httpResult, gzPath, true);
         if (gzWritten) {
             LOGGER.debug("Saved " + special + " feed to: " + gzPath);
         } else {
@@ -205,7 +203,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         }
         return gzWritten;
     }
-    
+
     /**
      * Put data to PollMetaInformation, write to database.
      * 
@@ -231,7 +229,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
 
         return feedStore.addFeedPoll(pollMetaInfo);
     }
-    
+
 
     public static void main(String[] args) throws Exception {
         FeedParser fr = new RomeFeedParser();

@@ -17,8 +17,9 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -80,7 +81,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
             try {
                 HttpResult httpResult = retriever.httpGet(requestUrl);
 
-                JSONArray jsonArray = new JSONArray(HttpHelper.getStringContent(httpResult));
+                JSONArray jsonArray = new JSONArray(httpResult.getStringContent());
                 if (jsonArray.length() == 1) {
                     json = jsonArray.getJSONObject(0);
                 }
@@ -125,13 +126,13 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 }
             }
 
-            Map<String, String> postData = new HashMap<String, String>();
-            postData.put("format", "json");
-            postData.put("query", "select total_count,like_count,comment_count,share_count from link_stat where "
-                    + encUrls);
+            HttpRequest postRequest = new HttpRequest(HttpMethod.POST, "https://api.facebook.com/method/fql.query");
+            postRequest.addParameter("format", "json");
+            postRequest.addParameter("query",
+                    "select total_count,like_count,comment_count,share_count from link_stat where " + encUrls);
 
-            HttpResult response = retriever.httpPost("https://api.facebook.com/method/fql.query", postData);
-            String content = HttpHelper.getStringContent(response);
+            HttpResult response = retriever.execute(postRequest);
+            String content = response.getStringContent();
             JSONArray json = null;
             if (content.length() > 0) {
                 try {

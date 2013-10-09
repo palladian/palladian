@@ -3,12 +3,12 @@ package ws.palladian.retrieval.search.news;
 import java.util.Date;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import ws.palladian.retrieval.parser.JsonHelper;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseBingSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
 
 /**
  * <p>
@@ -16,9 +16,8 @@ import ws.palladian.retrieval.search.web.WebResult;
  * </p>
  * 
  * @author Philipp Katz
- * 
  */
-public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
+public final class BingNewsSearcher extends BaseBingSearcher<WebContent> {
 
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
@@ -63,17 +62,17 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
 //    }
 
     @Override
-    protected WebResult parseResult(JSONObject currentResult) throws JSONException {
-        String url = currentResult.getString("Url");
-        String title = JsonHelper.getString(currentResult, "Title");
-        String summary = JsonHelper.getString(currentResult, "Description");
-        Date date = null;
-        if (currentResult.has("Date")) {
+    protected WebContent parseResult(JsonObject currentResult) throws JsonException {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(currentResult.getString("Url"));
+        builder.setTitle(currentResult.tryGetString("Title"));
+        builder.setSummary(currentResult.tryGetString("Description"));
+        if (currentResult.get("Date") != null) {
             String dateString = currentResult.getString("Date");
-            date = parseDate(dateString);
+            Date date = parseDate(dateString);
+            builder.setPublished(date);
         }
-        WebResult webResult = new WebResult(url, title, summary, date);
-        return webResult;
+        return builder.create();
     }
 
     /**
@@ -81,7 +80,7 @@ public final class BingNewsSearcher extends BaseBingSearcher<WebResult> {
      */
     @Override
     protected int getDefaultFetchSize() {
-        return 10;
+        return 15;
     }
 
 }

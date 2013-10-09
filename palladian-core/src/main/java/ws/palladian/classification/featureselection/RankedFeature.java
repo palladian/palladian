@@ -9,10 +9,9 @@ package ws.palladian.classification.featureselection;
  * @since 0.2.0
  */
 public final class RankedFeature {
-    private String identifier;
-
-    private double score;
-    private String value;
+    private final String identifier;
+    private final double score;
+    private final String value;
 
     public RankedFeature(String identifier, String value, double score) {
         this.identifier = identifier;
@@ -43,6 +42,37 @@ public final class RankedFeature {
         builder.append(value);
         builder.append("]");
         return builder.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RankedFeature other = (RankedFeature)obj;
+        if (identifier == null) {
+            if (other.identifier != null)
+                return false;
+        } else if (!identifier.equals(other.identifier))
+            return false;
+        if (value == null) {
+            if (other.value != null)
+                return false;
+        } else if (!value.equals(other.value))
+            return false;
+        return true;
     }
 
 }

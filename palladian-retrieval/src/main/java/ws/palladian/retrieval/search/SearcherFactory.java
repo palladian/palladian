@@ -6,14 +6,13 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
 import ws.palladian.retrieval.search.web.BingSearcher;
 import ws.palladian.retrieval.search.web.BlekkoSearcher;
 import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.HakiaSearcher;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -44,7 +43,7 @@ public final class SearcherFactory {
      *             failed.
      */
     @SuppressWarnings("unchecked")
-    public static <S extends WebSearcher<? extends SearchResult>> S createSearcher(Class<S> searcherType,
+    public static <S extends Searcher<? extends WebContent>> S createSearcher(Class<S> searcherType,
             Configuration config) {
 
         Validate.notNull(searcherType, "searcherType must not be null");
@@ -105,7 +104,7 @@ public final class SearcherFactory {
      * @throws IllegalStateException In case no searcher with the specified name could be found, or the instantiation
      *             failed.
      */
-    private static <S extends WebSearcher<R>, R extends WebResult> S createSearcher(String searcherTypeName,
+    private static <S extends Searcher<R>, R extends WebContent> S createSearcher(String searcherTypeName,
             Class<R> resultType, Configuration config) {
         Validate.notEmpty(searcherTypeName, "searcherTypeName must not be empty");
         Validate.notNull(config, "config must not be null");
@@ -134,8 +133,8 @@ public final class SearcherFactory {
      * @throws IllegalStateException In case no searcher with the specified name could be found, or the instantiation
      *             failed.
      */
-    public static WebSearcher<WebResult> createWebSearcher(String searcherTypeName, Configuration config) {
-        return SearcherFactory.<WebSearcher<WebResult>, WebResult> createSearcher(searcherTypeName, WebResult.class,
+    public static Searcher<WebContent> createWebSearcher(String searcherTypeName, Configuration config) {
+        return SearcherFactory.<Searcher<WebContent>, WebContent> createSearcher(searcherTypeName, WebContent.class,
                 config);
     }
 

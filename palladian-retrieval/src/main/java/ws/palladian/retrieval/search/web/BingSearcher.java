@@ -1,11 +1,11 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.Date;
-
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONException;
-import org.json.JSONObject;
 
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseBingSearcher;
 
 /**
@@ -15,7 +15,7 @@ import ws.palladian.retrieval.search.BaseBingSearcher;
  * 
  * @author Philipp Katz
  */
-public final class BingSearcher extends BaseBingSearcher<WebResult> {
+public final class BingSearcher extends BaseBingSearcher<WebContent> {
 
     /**
      * @see BaseBingSearcher#BaseBingSearcher(String)
@@ -42,28 +42,25 @@ public final class BingSearcher extends BaseBingSearcher<WebResult> {
     }
 
     @Override
-    protected WebResult parseResult(JSONObject currentResult) throws JSONException {
-        String url = currentResult.getString("Url");
-        String title = null;
-        if (currentResult.has("Title")) {
-            title = currentResult.getString("Title");
+    protected WebContent parseResult(JsonObject currentResult) throws JsonException {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(currentResult.getString("Url"));
+        if (currentResult.containsKey("Title")) {
+            builder.setTitle(currentResult.getString("Title"));
         }
-        String summary = null;
-        if (currentResult.has("Description")) {
-            summary = currentResult.getString("Description");
+        if (currentResult.containsKey("Description")) {
+            builder.setSummary(currentResult.getString("Description"));
         }
-        Date date = null;
-        if (currentResult.has("DateTime")) {
+        if (currentResult.containsKey("DateTime")) {
             String dateString = currentResult.getString("DateTime");
-            date = parseDate(dateString);
+            builder.setPublished(parseDate(dateString));
         }
-        WebResult webResult = new WebResult(url, title, summary, date);
-        return webResult;
+        return builder.create();
     }
 
     @Override
     protected int getDefaultFetchSize() {
-        return 25;
+        return 50;
     }
 
 }

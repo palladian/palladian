@@ -23,13 +23,13 @@ public final class FeatureRanking {
     private final class FeatureRankingComparator implements Comparator<RankedFeature> {
         @Override
         public int compare(RankedFeature o1, RankedFeature o2) {
-            return Double.compare(o1.getScore(), o2.getScore());
+            return Double.compare(o2.getScore(), o1.getScore());
         }
     }
 
     private boolean isSorted;
 
-    private List<RankedFeature> rankedFeatures;
+    private final List<RankedFeature> rankedFeatures;
 
     public FeatureRanking() {
         this.rankedFeatures = new LinkedList<RankedFeature>();
@@ -39,7 +39,6 @@ public final class FeatureRanking {
     public void add(String featureIdentifier, double score) {
         rankedFeatures.add(new RankedFeature("feature", featureIdentifier, score));
         isSorted = false;
-
     }
 
     public void addSparse(String featureIdentifier, String featureValue, double score) {
@@ -73,7 +72,7 @@ public final class FeatureRanking {
      * @return The top percent of the ranked features.
      */
     public List<RankedFeature> getTopPercent(float percent) {
-        int n = Math.round((float)rankedFeatures.size() * percent / 100.0f);
+        int n = Math.round(rankedFeatures.size() * percent / 100.0f);
         return getTopN(n);
     }
 
@@ -84,6 +83,10 @@ public final class FeatureRanking {
             Collections.sort(rankedFeatures, new FeatureRankingComparator());
             isSorted = true;
         }
+    }
+
+    public int size() {
+        return rankedFeatures.size();
     }
 
     @Override

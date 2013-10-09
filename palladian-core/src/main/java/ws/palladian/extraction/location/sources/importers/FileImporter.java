@@ -7,8 +7,9 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
-import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
@@ -66,16 +67,14 @@ public final class FileImporter {
             if (parts.length > 1) {
                 locationType = LocationType.valueOf(parts[1]);
             }
-            Double latitude = null;
-            if (parts.length > 2) {
-                latitude = Double.valueOf(parts[2]);
-            }
-            Double longitude = null;
+            GeoCoordinate coordinate = null;
             if (parts.length > 3) {
-                longitude = Double.valueOf(parts[3]);
+                double latitude = Double.valueOf(parts[2]);
+                double longitude = Double.valueOf(parts[3]);
+                coordinate = new ImmutableGeoCoordinate(latitude, longitude);
             }
             int id = maxId + idOffset;
-            locationStore.save(new ImmutableLocation(id, locationName, locationType, latitude, longitude, null));
+            locationStore.save(new ImmutableLocation(id, locationName, locationType, coordinate, null));
             idOffset++;
         }
 

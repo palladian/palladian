@@ -15,7 +15,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -31,7 +35,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="http://www.google.com/cse>Google Custom Search settings</a>
  * @see <a href="http://support.google.com/customsearch/bin/answer.py?hl=en&answer=1210656">Search the entire web</a>
  */
-public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
+public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCustomSearcher.class);
@@ -50,6 +54,8 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
 
     /** The identifier of the Google Custom Search engine. */
     private final String searchEngineIdentifier;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -65,6 +71,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
 
         this.apiKey = apiKey;
         this.searchEngineIdentifier = searchEngineIdentifier;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -85,9 +92,9 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> results = CollectionHelper.newArrayList();
+        List<WebContent> results = CollectionHelper.newArrayList();
 
         // Google Custom Search gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
         double numChunks = Math.min(10, Math.ceil((double)resultCount / 10));
@@ -105,7 +112,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
                         + searchUrl + "\": " + e.getMessage(), e);
             }
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             try {
                 results.addAll(parse(jsonString));
             } catch (JSONException e) {
@@ -142,23 +149,23 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
     }
 
     /** default visibility for unit testing. */
-    static List<WebResult> parse(String jsonString) throws JSONException {
-        List<WebResult> result = CollectionHelper.newArrayList();
+    static List<WebContent> parse(String jsonString) throws JSONException {
+        List<WebContent> result = CollectionHelper.newArrayList();
         JSONObject jsonObject = new JSONObject(jsonString);
         JSONArray jsonItems = jsonObject.getJSONArray("items");
         for (int i = 0; i < jsonItems.length(); i++) {
             JSONObject jsonItem = jsonItems.getJSONObject(i);
-            String title = jsonItem.getString("title");
-            String link = jsonItem.getString("link");
-            String snippet = jsonItem.getString("snippet");
-            result.add(new WebResult(link, title, snippet, SEARCHER_NAME));
-
+            BasicWebContent.Builder builder = new BasicWebContent.Builder();
+            builder.setTitle(jsonItem.getString("title"));
+            builder.setUrl(jsonItem.getString("link"));
+            builder.setSummary(jsonItem.getString("snippet"));
+            result.add(builder.create());
         }
         return result;
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         String requestUrl = createRequestUrl(query, 1, 1, language);
         HttpResult httpResult;
         try {
@@ -167,7 +174,7 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
             throw new SearcherException("HTTP exception while accessing Google Custom Search with URL \"" + requestUrl
                     + "\": " + e.getMessage(), e);
         }
-        String jsonString = HttpHelper.getStringContent(httpResult);
+        String jsonString = httpResult.getStringContent();
         try {
             return parseResultCount(jsonString);
         } catch (JSONException e) {
@@ -177,9 +184,9 @@ public final class GoogleCustomSearcher extends WebSearcher<WebResult> {
     }
 
     /** default visibility for unit testing. */
-    static int parseResultCount(String jsonString) throws JSONException {
+    static long parseResultCount(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
-        return jsonObject.getJSONObject("searchInformation").getInt("totalResults");
+        return jsonObject.getJSONObject("searchInformation").getLong("totalResults");
     }
 
 }

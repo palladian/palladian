@@ -2,10 +2,12 @@ package ws.palladian.extraction.location;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
- * This interface defines a geographic location, like a city, country, continent, etc.
+ * This interface defines a geographic location, like a city, country, continent, etc. Use {@link AbstractLocation} for
+ * your own implementation.
  * </p>
  * 
  * @author Philipp Katz
@@ -35,6 +37,7 @@ public interface Location {
      * 
      * @return Alternative names for this location, or an empty {@link Collection} if no such names exist. Never
      *         <code>null</code>.
+     * @see #collectAlternativeNames()
      */
     Collection<AlternativeName> getAlternativeNames();
 
@@ -43,16 +46,6 @@ public interface Location {
      *         <code>null</code>.
      */
     LocationType getType();
-
-    /**
-     * @return The geographical latitude of this location, or <code>null</code> if no coordinates exist.
-     */
-    Double getLatitude();
-
-    /**
-     * @return The geographical longitude of this location, or <code>null</code> if no coordinates exist.
-     */
-    Double getLongitude();
 
     /**
      * @return The population of this location, or <code>null</code> if no population values exist.
@@ -71,5 +64,67 @@ public interface Location {
      *         <code>null</code>.
      */
     List<Integer> getAncestorIds();
+
+    /**
+     * <p>
+     * Determine, whether this location is hierarchical descendant of the given location.
+     * </p>
+     * 
+     * @param other The other location, not <code>null</code>.
+     * @return <code>true</code> in case this location is descendant of the specified one, <code>false</code> otherwise.
+     * @see #getAncestorIds()
+     */
+    boolean descendantOf(Location other);
+
+    /**
+     * <p>
+     * Determine, whether this location is hierarchical child of the given location.
+     * </p>
+     * 
+     * @param other The other location, not <code>null</code>.
+     * @return <code>true</code> in case this location is child of the specified one, <code>false</code> otherwise.
+     * @see #getAncestorIds()
+     */
+    boolean childOf(Location other);
+
+    /**
+     * <p>
+     * Determine, whether this location and the given one share a common name. Names are normalized according to the
+     * rules given in {@link LocationExtractorUtils#normalizeName(String)}.
+     * </p>
+     * 
+     * @param other The other location, not <code>null</code>.
+     * @return <code>true</code> in case at least one common name exists, <code>false</code> otherwise.
+     */
+    boolean commonName(Location other);
+
+    /**
+     * <p>
+     * Get a {@link Set} of all names for this location, i.e. the primary name and all alternative names.
+     * </p>
+     * 
+     * @return {@link Set} with all alternative names.
+     * @see #getAlternativeNames()
+     */
+    Set<String> collectAlternativeNames();
+
+    /**
+     * @return The geographical latitude of this location, or <code>null</code> if no coordinates exist.
+     * @deprecated Use {@link #getCoordinate()} instead.
+     */
+    @Deprecated
+    Double getLatitude();
+
+    /**
+     * @return The geographical longitude of this location, or <code>null</code> if no coordinates exist.
+     * @deprecated Use {@link #getCoordinate()} instead.
+     */
+    @Deprecated
+    Double getLongitude();
+
+    /**
+     * @return The geographical coordinate for this location, or <code>null</code> in case no coordinates exist.
+     */
+    GeoCoordinate getCoordinate();
 
 }

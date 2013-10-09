@@ -16,7 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -727,7 +727,7 @@ public class PageSegmenter {
      * </p>
      */
     public final void loadConfig() {
-        final PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        final Configuration config = ConfigHolder.getInstance().getConfig();
         PageSegmenter.lengthOfQGrams = config.getInt("pageSegmentation.lengthOfQGrams", DEFAULT_LENGTH_OF_Q_GRAMS);
         PageSegmenter.amountOfQGrams = config.getInt("pageSegmentation.amountOfQGrams", DEFAULT_AMOUNT_OF_Q_GRAMS);
         PageSegmenter.similarityNeed = config.getDouble("pageSegmentation.similarityNeed", DEFAULT_SIMILARITY_NEED);

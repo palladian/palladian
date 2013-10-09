@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
@@ -29,6 +28,7 @@ import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -57,13 +57,13 @@ public final class Tokenizer {
             | Pattern.CASE_INSENSITIVE);
 
     private static final DateFormat[] ALL_DATES_WITH_DOTS = new DateFormat[] {RegExp.DATE_EU_D_MM,
-            RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
-            RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
-            RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
+        RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
+        RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
+        RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
 
-    private static UrlTagger urlTagger = new UrlTagger();
-    private static DateAndTimeTagger dateAndTimeTagger = new DateAndTimeTagger();
-    private static SmileyTagger smileyTagger = new SmileyTagger();
+    private static final UrlTagger URL_TAGGER = new UrlTagger();
+    private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger(ALL_DATES_WITH_DOTS);
+    private static final SmileyTagger SMILEY_TAGGER = new SmileyTagger();
 
     /**
      * <p>
@@ -181,11 +181,12 @@ public final class Tokenizer {
     public static Set<String> calculateCharNGrams(String string, int n) {
         Set<String> nGrams = new HashSet<String>();
 
-        if (string.length() < n) {
+        int sl = string.length();
+        if (sl < n) {
             return nGrams;
         }
 
-        for (int i = 0; i <= string.length() - n; i++) {
+        for (int i = 0; i <= sl - n; i++) {
 
             StringBuilder nGram = new StringBuilder();
             for (int j = i; j < i + n; j++) {
@@ -446,35 +447,35 @@ public final class Tokenizer {
     public static List<String> getSentences(String inputText, boolean onlyRealSentences, Pattern pattern) {
 
         // recognize URLs so we don't break them
-        Annotations taggedUrls = urlTagger.tagUrls(inputText);
+        List<Annotation> taggedUrls = URL_TAGGER.getAnnotations(inputText);
         int uCount = 1;
         Map<String, String> urlMapping = new HashMap<String, String>();
         for (Annotation annotation : taggedUrls) {
             String replacement = "URL" + uCount;
-            inputText = inputText.replace(annotation.getEntity(), replacement);
-            urlMapping.put(replacement, annotation.getEntity());
+            inputText = inputText.replace(annotation.getValue(), replacement);
+            urlMapping.put(replacement, annotation.getValue());
             uCount++;
         }
 
         // recognize dates so we don't break them
-        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText, ALL_DATES_WITH_DOTS);
+        List<Annotation> taggedDates = DATE_TIME_TAGGER.getAnnotations(inputText);
         int dCount = 1;
         Map<String, String> dateMapping = new HashMap<String, String>();
         for (Annotation annotation : taggedDates) {
             String replacement = "DATE" + dCount;
-            inputText = inputText.replace(annotation.getEntity(), replacement);
-            dateMapping.put(replacement, annotation.getEntity());
+            inputText = inputText.replace(annotation.getValue(), replacement);
+            dateMapping.put(replacement, annotation.getValue());
             dCount++;
         }
 
         // recognize smileys so we don't break them
-        Annotations taggedSmileys = smileyTagger.tagSmileys(inputText);
+        List<Annotation> taggedSmileys = SMILEY_TAGGER.getAnnotations(inputText);
         int sCount = 1;
         Map<String, String> smileyMapping = new HashMap<String, String>();
         for (Annotation annotation : taggedSmileys) {
             String replacement = "SMILEY" + sCount;
-            inputText = inputText.replace(annotation.getEntity(), replacement);
-            smileyMapping.put(replacement, annotation.getEntity());
+            inputText = inputText.replace(annotation.getValue(), replacement);
+            smileyMapping.put(replacement, annotation.getValue());
             sCount++;
         }
 
@@ -567,7 +568,7 @@ public final class Tokenizer {
      * @param mask The mask to add. This should be something that will never occur within the text itself.
      * @return The {@code maskedText} with the additional masks added during this run of the method.
      */
-    private static String maskAnnotations(TextDocument document, Annotations annotations, String mask,
+    private static String maskAnnotations(TextDocument document, List<Annotation> annotations, String mask,
             List<PositionAnnotation> annotationsForMaskedText, String maskedText) {
         List<PositionAnnotation> tags = convert(document, annotations);
         for (PositionAnnotation annotation : tags) {
@@ -634,15 +635,15 @@ public final class Tokenizer {
         String maskedText = inputDocument.getContent();
 
         // recognize URLs so we don't break them
-        Annotations taggedUrlsAnnotations = urlTagger.tagUrls(inputText);
+        List<Annotation> taggedUrlsAnnotations = URL_TAGGER.getAnnotations(inputText);
         maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
 
         // recognize dates so we don't break them
-        Annotations taggedDates = dateAndTimeTagger.tagDateAndTime(inputText);
+        List<Annotation> taggedDates = DATE_TIME_TAGGER.getAnnotations(inputText);
         maskedText = maskAnnotations(inputDocument, taggedDates, mask, masks, maskedText);
 
         // recognize smileys so we don't break them
-        Annotations taggedSmileys = smileyTagger.tagSmileys(inputText);
+        List<Annotation> taggedSmileys = SMILEY_TAGGER.getAnnotations(inputText);
         maskedText = maskAnnotations(inputDocument, taggedSmileys, mask, masks, maskedText);
 
         List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>();
@@ -650,7 +651,6 @@ public final class Tokenizer {
         // pattern to find the end of a sentence
         Matcher matcher = pattern.matcher(maskedText);
         int lastIndex = 0;
-        int index = 0;
 
         while (matcher.find()) {
             int endPosition = matcher.end();
@@ -661,11 +661,10 @@ public final class Tokenizer {
             String value = StringHelper.rtrim(leftTrimmedValue);
 
             int leftIndex = lastIndex + leftOffset;
-            int rightIndex = leftIndex + value.length();
-            PositionAnnotation sentence = new PositionAnnotation(featureName, leftIndex, rightIndex, index, value);
+//            int rightIndex = leftIndex + value.length();
+            PositionAnnotation sentence = new PositionAnnotation(value, leftIndex);
             sentences.add(sentence);
             lastIndex = endPosition;
-            index++;
         }
 
         // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
@@ -680,9 +679,8 @@ public final class Tokenizer {
             // Since there often is a line break at the end of a file this should not be added here.
             if (!value.isEmpty()) {
                 int leftIndex = lastIndex + leftOffset;
-                int rightIndex = leftIndex + value.length();
-                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(featureName, leftIndex, rightIndex,
-                        index, value);
+//                int rightIndex = leftIndex + value.length();
+                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(value, leftIndex);
                 sentences.add(lastSentenceAnnotation);
             }
         }
@@ -752,8 +750,7 @@ public final class Tokenizer {
 
             String transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
                     originalEndPosition));
-            PositionAnnotation transformedSentence = new PositionAnnotation(featureName, originalStartPosition,
-                    originalEndPosition, sentence.getIndex(), transformedValue);
+            PositionAnnotation transformedSentence = new PositionAnnotation(transformedValue, originalStartPosition);
             ret.add(transformedSentence);
             lastOriginalEndPosition = originalEndPosition;
             lastEndPosition = sentence.getEndPosition();
@@ -772,16 +769,16 @@ public final class Tokenizer {
      * @return A list of {@link PositionAnnotation}s representing the provided {@link Annotations} on the provided
      *         {@link TextDocument}.
      */
-    private static List<PositionAnnotation> convert(TextDocument document, Annotations annotations) {
+    private static List<PositionAnnotation> convert(TextDocument document, List<Annotation> annotations) {
         List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
 
         for (Annotation annotation : annotations) {
-            int index = annotations.indexOf(annotation);
-            String value = annotation.getEntity();
-            int startPosition = annotation.getOffset();
-            int endPosition = annotation.getOffset() + annotation.getLength();
-            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
-                    index, value);
+            String value = annotation.getValue();
+            int startPosition = annotation.getStartPosition();
+//            int endPosition = annotation.getStartPosition() + annotation.getValue().length();
+//            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
+//                    value);
+            PositionAnnotation positionAnnotation = new PositionAnnotation(value, startPosition);
 
             ret.add(positionAnnotation);
         }
@@ -973,7 +970,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 

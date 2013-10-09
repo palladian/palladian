@@ -23,6 +23,18 @@ public class CaseInsensitiveMap<V> implements Map<String, V>, Serializable {
     private final Map<String, V> map;
 
     /**
+     * <p>
+     * Create a new {@link CaseInsensitiveMap} from the given {@link Map}.
+     * </p>
+     * 
+     * @param map The map from which to copy data to the {@link CaseInsensitiveMap}.
+     * @return The {@link CaseInsensitiveMap} with the content from the supplied map.
+     */
+    public static <T> CaseInsensitiveMap<T> from(Map<String, T> map) {
+        return new CaseInsensitiveMap<T>(map);
+    }
+
+    /**
      * @param map
      */
     public CaseInsensitiveMap(Map<String, V> map) {

@@ -33,6 +33,38 @@ public class MathHelperTest {
     }
 
     @Test
+    public void testNumberToFraction() {
+        assertEquals("-12.5", MathHelper.numberToFraction(-12.5));
+        assertEquals("0", MathHelper.numberToFraction(0.04));
+        assertEquals("1.005", MathHelper.numberToFraction(1.005));
+        assertEquals("1/2", MathHelper.numberToFraction(0.5));
+        assertEquals("1/3", MathHelper.numberToFraction(0.33));
+        assertEquals("1/4", MathHelper.numberToFraction(0.25));
+        assertEquals("1/5", MathHelper.numberToFraction(0.2));
+        assertEquals("1/6", MathHelper.numberToFraction(0.16));
+        assertEquals("1/7", MathHelper.numberToFraction(0.143));
+        assertEquals("1/8", MathHelper.numberToFraction(0.13));
+        assertEquals("1/9", MathHelper.numberToFraction(0.11));
+        assertEquals("1/10", MathHelper.numberToFraction(0.105));
+        assertEquals("1", MathHelper.numberToFraction(0.96));
+        assertEquals("31.0", MathHelper.numberToFraction(31.));
+    }
+
+    @Test
+    public void testComputeAllCombinations() {
+
+        String[] items = new String[] {"a", "b", "c"};
+        Collection<List<Object>> allCombinations = MathHelper.computeAllCombinations(items);
+        CollectionHelper.print(allCombinations);
+        assertEquals(7, allCombinations.size());
+
+        items = new String[] {"a"};
+        allCombinations = MathHelper.computeAllCombinations(items);
+        CollectionHelper.print(allCombinations);
+        assertEquals(1, allCombinations.size());
+    }
+
+    @Test
     public void testComputeCosineSimilarity() {
         Double[] vector1 = {10.0, 50.0};
         Double[] vector2 = {8.0, 66.0};
@@ -58,7 +90,6 @@ public class MathHelperTest {
         assertEquals(3948348538l, MathHelper.getMedian(new long[] {1l, 2l, 3948348538l, 3948348539l, 3948348540l}), 0);
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testGetMedianDifference() {
         assertEquals(5l, MathHelper.getMedianDifference(new long[] {1l, 2l, 4l, 9l, 16l, 24l}));
@@ -202,7 +233,6 @@ public class MathHelperTest {
         y.add(122.);
         y.add(66.);
         y.add(58.);
-        // System.out.println(MathHelper.computePearsonCorrelationCoefficient(x, y));
         assertEquals(0.9661943464912911, MathHelper.computePearsonCorrelationCoefficient(x, y), 0.01);
     }
 
@@ -214,6 +244,21 @@ public class MathHelperTest {
         assertEquals(3.125, MathHelper.parseStringNumber("3 1/8 bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1½ bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1 ½ bla"), 0.001);
+    }
+
+    @Test
+    public void testGetOrderOfMagnitude() {
+        assertEquals(0, MathHelper.getOrderOfMagnitude(1));
+        assertEquals(1, MathHelper.getOrderOfMagnitude(10));
+        assertEquals(2, MathHelper.getOrderOfMagnitude(100));
+        // assertEquals(-1, MathHelper.getOrderOfMagnitude(0.1));
+        // assertEquals(-2, MathHelper.getOrderOfMagnitude(0.01));
+    }
+
+    @Test
+    public void testRound() {
+        assertEquals(0.333, MathHelper.round(1. / 3, 3), 0.);
+        assertTrue(Double.isNaN(MathHelper.round(Double.NaN, 2)));
     }
 
 }

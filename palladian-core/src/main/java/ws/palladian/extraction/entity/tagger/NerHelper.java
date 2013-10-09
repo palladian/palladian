@@ -4,18 +4,27 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.FileFormatParser;
+import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotation;
 
-final class NerHelper {
+public final class NerHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NerHelper.class);
+
+    private NerHelper() {
+        // no instances.
+    }
 
     public static List<String> createSentenceChunks(String text, int maxChunkLength) {
         // we need to build chunks of texts because we can not send very long texts at once to open calais
@@ -145,8 +154,87 @@ final class NerHelper {
         return alignedContent;
     }
 
-    private NerHelper() {
-        // no instances.
+    public static String tag(String inputText, List<? extends Annotation> annotations, TaggingFormat taggingFormat) {
+        StringBuilder taggedText = new StringBuilder();
+
+        int lastEndIndex = 0;
+
+        // we need to sort in ascending order first
+        Collections.sort(annotations);
+
+        Annotation lastAnnotation = null;
+        for (Annotation annotation : annotations) {
+
+            // ignore nested annotations
+            if (annotation.getStartPosition() < lastEndIndex) {
+                continue;
+            }
+
+            String tagName = annotation.getTag();
+
+            String previousAppend = inputText.substring(lastEndIndex, annotation.getStartPosition());
+            taggedText.append(previousAppend);
+
+            String correctText = inputText.substring(annotation.getStartPosition(), annotation.getEndPosition());
+
+            if (!correctText.equalsIgnoreCase(annotation.getValue()) && correctText.indexOf("\n") == -1) {
+                StringBuilder errorString = new StringBuilder();
+                errorString.append("alignment error, the annotation candidates don't match the text:\n");
+                errorString.append("found: " + correctText + "\n");
+                errorString.append("instead of: " + annotation.getValue() + "(" + annotation + ")\n");
+                errorString.append("last annotation: " + lastAnnotation);
+                throw new IllegalStateException(errorString.toString());
+            }
+
+            if (taggingFormat == TaggingFormat.XML) {
+
+                taggedText.append("<").append(tagName).append(">");
+                taggedText.append(annotation.getValue());
+                taggedText.append("</").append(tagName).append(">");
+
+            } else if (taggingFormat == TaggingFormat.BRACKETS) {
+
+                taggedText.append("[").append(tagName).append(" ");
+                taggedText.append(annotation.getValue());
+                taggedText.append(" ]");
+
+            } else if (taggingFormat == TaggingFormat.SLASHES) {
+
+                List<String> tokens = Tokenizer.tokenize(annotation.getValue());
+                int i = 1;
+                if (!previousAppend.equals(" ") && lastAnnotation != null) {
+                    taggedText.append(" ");
+                }
+                for (String token : tokens) {
+                    taggedText.append(token).append("/").append(tagName);
+                    if (i < tokens.size()) {
+                        taggedText.append(" ");
+                    }
+                    i++;
+                }
+
+            }
+
+            lastEndIndex = annotation.getEndPosition();
+            lastAnnotation = annotation;
+        }
+
+        taggedText.append(inputText.substring(lastEndIndex));
+
+        return taggedText.toString();
+    }
+
+    public static List<Integer> getEntityOffsets(String text, String entityName) {
+        String escapedEntity = Pattern.quote(entityName);
+        Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
+                + escapedEntity + "(?=\\s)", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(text);
+        List<Integer> offsets = CollectionHelper.newArrayList();
+        while (matcher.find()) {
+            int offset = matcher.start();
+            offsets.add(offset);
+        }
+        return offsets;
     }
 
 }

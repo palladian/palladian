@@ -17,6 +17,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
  * 
@@ -54,7 +55,7 @@ public final class YahooTermExtraction extends KeyphraseExtractor {
         content.put("q", queryBuilder.toString());
         content.put("format", "json");
         
-        HttpRetriever retriever = new HttpRetriever();
+        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         String response = null;
         try {
             HttpResult postResult = retriever.httpPost("http://query.yahooapis.com/v1/public/yql", headers, content);

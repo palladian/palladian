@@ -20,7 +20,36 @@ import org.junit.Test;
 public class StringHelperTest {
 
     @Test
+    public void testNumberToWord() {
+        assertEquals(null, StringHelper.numberToWord(3.57));
+        assertEquals(null, StringHelper.numberToWord(-1.));
+        assertEquals("three", StringHelper.numberToWord(3.));
+        assertEquals("seven", StringHelper.numberToWord(7.));
+        assertEquals("twelve", StringHelper.numberToWord(12.));
+    }
+
+    @Test
+    public void testFirstWord() {
+        assertEquals("samsung", StringHelper.getFirstWord("samsung galaxy s4"));
+        assertEquals("samsung", StringHelper.getFirstWord("samsung"));
+        assertEquals("galaxy s4", StringHelper.removeFirstWord("samsung galaxy s4"));
+        assertEquals("", StringHelper.removeFirstWord("samsung"));
+    }
+
+    @Test
+    public void testRemoveBrackets() {
+        assertEquals("samsung s4", StringHelper.removeBrackets("samsung (galaxy) s4"));
+        assertEquals("samsung s4", StringHelper.removeBrackets("samsung [galaxy] s4"));
+        assertEquals("samsung s4", StringHelper.removeBrackets("samsung {galaxy} s4"));
+        assertEquals("samsung s4 a", StringHelper.removeBrackets("samsung {galaxy} s4 (cool!) a {123}"));
+        assertEquals("samsung s4 a", StringHelper.removeBrackets("samsung{galaxy} s4 (cool!)a {123}"));
+        // TODO, nested, would require looping
+        // assertEquals("samsung s4", StringHelper.removeBrackets("samsung (galaxy (pretty)) s4"));
+    }
+
+    @Test
     public void testContainsWord() {
+
 
         assertEquals(true, StringHelper.containsWord("test", "a test b"));
         assertEquals(true, StringHelper.containsWord("test", "test"));
@@ -30,6 +59,13 @@ public class StringHelperTest {
         assertEquals(true, StringHelper.containsWord("there", "Yes, he went there."));
         assertEquals(true, StringHelper.containsWord("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
         assertEquals(false, StringHelper.containsWord("cab", "Copacabana, he went there."));
+
+        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "a test b"));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("test", "a Test b"));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "test"));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("Test", "test"));
+        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "abtester ist test"));
+        assertEquals(false, StringHelper.containsWordCaseSensitive("tester", "abtester ist test"));
 
         assertEquals(true, StringHelper.containsWordRegExp("test", "a test b"));
         assertEquals(true, StringHelper.containsWordRegExp("test", "test"));
@@ -141,15 +177,6 @@ public class StringHelperTest {
         assertEquals(false, StringHelper.containsNumber("A-1 GB"));
     }
 
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testRemoveStopWords() {
-        assertEquals("...neighborhoodthe ofrocking.",
-                StringHelper.removeStopWords("...The neighborhoodthe is ofrocking of."));
-        assertEquals("neighborhood; REALLY; rocking!",
-                StringHelper.removeStopWords("The neighborhood is; IS REALLY; rocking of!"));
-    }
-
     @Test
     public void testTrim() {
         // System.out.println(StringHelper.trim("'80GB'))"));
@@ -168,6 +195,7 @@ public class StringHelperTest {
         // assertEquals(StringHelper.trim("2\""),"2\"");
     }
 
+    @Deprecated
     @Test
     public void testEscapeForRegularExpression() {
         assertEquals("\\(2008\\)", StringHelper.escapeForRegularExpression("(2008)"));
@@ -269,10 +297,20 @@ public class StringHelperTest {
 
     @Test
     public void testIsNumber() {
+        assertEquals(true, StringHelper.isNumber("-2,3"));
+        assertEquals(true, StringHelper.isNumber("100"));
+        assertEquals(false, StringHelper.isNumber("100.000.00"));
         assertEquals(false, StringHelper.isNumber("44.000."));
         assertEquals(false, StringHelper.isNumber("44 000"));
         assertEquals(true, StringHelper.isNumber("44.000"));
         assertEquals(true, StringHelper.isNumber("41"));
+        assertEquals(true, StringHelper.isNumber("-1"));
+        assertEquals(true, StringHelper.isNumber("-1.3"));
+        assertEquals(true, StringHelper.isNumber("-8787545,3"));
+        assertEquals(true, StringHelper.isNumber("-8787545.3"));
+        assertEquals(true, StringHelper.isNumber("-8787545,798435"));
+        assertEquals(true, StringHelper.isNumber("-8787545.798435"));
+        assertEquals(true, StringHelper.isNumber("3.4359738368E11"));
         assertEquals(true, StringHelper.isNumberOrNumberWord("45"));
         assertEquals(true, StringHelper.isNumberOrNumberWord("one"));
         assertEquals(true, StringHelper.isNumberOrNumberWord("two"));
@@ -320,7 +358,7 @@ public class StringHelperTest {
         assertEquals("The Fog", StringHelper.putArticleInFront("Fog,the"));
         assertEquals("Los Amigos", StringHelper.putArticleInFront("Amigos, Los"));
     }
-    
+
     @Test
     public void testContainsAny() {
         assertTrue(StringHelper.containsAny("the quick brown fox", Arrays.asList("cat", "dog", "fox")));
@@ -335,6 +373,18 @@ public class StringHelperTest {
     @Test
     public void testTrimLines() {
         assertEquals("line1\nline2\nline3", StringHelper.trimLines("\n\nline1\n     line2\n \n \n \n \nline3"));
+    }
+
+    @Test
+    public void testNormalizeQuotes() {
+        assertEquals("This is a sample text with \"different\" \"quotation\" \"marks\"",
+                StringHelper.normalizeQuotes("This is a sample text with »different« „quotation“ “marks”"));
+        assertEquals(
+                "This text's purpose is to test apostrophes normalized by StringHelper's normalizeQuotes",
+                StringHelper
+                .normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
+        assertEquals("This text contains longer dashes - like this - and this",
+                StringHelper.normalizeQuotes("This text contains longer dashes – like this — and this"));
     }
 
 }

@@ -3,25 +3,25 @@ package ws.palladian.extraction.entity.tagger;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
-import ws.palladian.extraction.entity.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.HttpHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -69,11 +69,11 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
-        Annotations annotations;
+    public List<Annotation> getAnnotations(String inputText) {
+        List<Annotation> annotations;
         try {
             HttpResult httpResult = performRequest(inputText);
-            String resultString = HttpHelper.getStringContent(httpResult);
+            String resultString = httpResult.getStringContent();
             if (resultString.contains("<error msg=")) {
                 throw new IllegalStateException("Error from the web service: " + resultString);
             }
@@ -87,16 +87,19 @@ public final class WikimetaNer extends NamedEntityRecognizer {
     }
 
     private HttpResult performRequest(String inputText) throws HttpException {
-        Map<String, String> headers = new MapBuilder<String, String>().add("Accept", "application/xml");
-        Map<String, String> content = new MapBuilder<String, String>().add("contenu", inputText).add("api", apiKey)
-                .add("semtag", "0").add("lng", "EN"); // hard coded English language for now
-        return httpRetriever.httpPost("http://www.wikimeta.com/wapi/service", headers, content);
+        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://www.wikimeta.com/wapi/service");
+        request.addHeader("Accept", "application/xml");
+        request.addParameter("contenu", inputText);
+        request.addParameter("api", apiKey);
+        request.addParameter("semtag", "0");
+        request.addParameter("lng", "EN");// hard coded English language for now
+        return httpRetriever.execute(request);
     }
 
     /** Package-private for unit-testing. */
-    Annotations parseXml(InputSource inputSource, String inputText) throws ParserException {
+    List<Annotation> parseXml(InputSource inputSource, String inputText) throws ParserException {
 
-        Annotations annotations = new Annotations();
+        Annotations<Annotation> annotations = new Annotations<Annotation>();
         Document doc = xmlParser.parse(inputSource);
 
         List<String> tokens = getCdataContent(doc);
@@ -135,7 +138,11 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             Integer tokenCharIndex = tokenPositions.get(tokenIndex);
             // the actual character index might be later
             tokenCharIndex = inputText.indexOf(value, tokenCharIndex);
-            annotations.add(new Annotation(tokenCharIndex, value, type, annotations));
+            if (tokenCharIndex >= 0) {
+                annotations.add(new ImmutableAnnotation(tokenCharIndex, value, type));
+            } else {
+                LOGGER.warn("Could not find {}/{} (idx:{},char:{})", value, type, tokenIndex, tokenCharIndex);
+            }
         }
 
         return annotations;
@@ -153,7 +160,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
      */
     private List<String> getCdataContent(Document document) {
         String stringRepresentation = HtmlHelper.xmlToString(document);
-        LOGGER.debug("xml data:\n" + stringRepresentation);
+        LOGGER.trace("xml data:\n" + stringRepresentation);
         String[] lines = stringRepresentation.split("\n");
         List<String> items = new ArrayList<String>();
         int index;
@@ -174,7 +181,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
 
     /** Overridden, intended for unit-testing only. */
     @Override
-    protected String tagText(String inputText, Annotations annotations) {
+    protected String tagText(String inputText, List<? extends Annotation> annotations) {
         return super.tagText(inputText, annotations);
     }
 

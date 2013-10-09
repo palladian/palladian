@@ -1,19 +1,11 @@
 package ws.palladian.extraction.content;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -270,24 +262,26 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        // postprocessing, replace <p style="display:inline"> with normal Text nodes again -- Philipp.
-        NodeList pElements = result.getElementsByTagName("p");
-        for (int i = pElements.getLength() - 1; i >= 0; i--) {
-            Element element = (Element) pElements.item(i);
-            if (element.getAttribute("style").equals("display:inline")) {
-                Text textNode = result.createTextNode(element.getTextContent());
-                element.getParentNode().replaceChild(textNode, element);
+        if (result != null) {
+            // postprocessing, replace <p style="display:inline"> with normal Text nodes again -- Philipp.
+            NodeList pElements = result.getElementsByTagName("p");
+            for (int i = pElements.getLength() - 1; i >= 0; i--) {
+                Element element = (Element)pElements.item(i);
+                if (element.getAttribute("style").equals("display:inline")) {
+                    Text textNode = result.createTextNode(element.getTextContent());
+                    element.getParentNode().replaceChild(textNode, element);
+                }
+            }
+
+            // strip out class+readability attributes, as we dont need them
+            NodeList elements = result.getElementsByTagName("*");
+            for (int i = 0; i < elements.getLength(); i++) {
+                Element element = (Element)elements.item(i);
+                element.removeAttribute("class");
+                element.removeAttribute(READABILITY_ATTR);
             }
         }
 
-        // strip out class+readability attributes, as we dont need them
-        NodeList elements = result.getElementsByTagName("*");
-        for (int i = 0; i < elements.getLength(); i++) {
-            Element element = (Element) elements.item(i);
-            element.removeAttribute("class");
-            element.removeAttribute(READABILITY_ATTR);
-        }
-        
         return result;
     }
 
@@ -1013,80 +1007,80 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     // return result;
     // }
 
-    // //////////////////////////////////////////////////////////////////////////
-    // main method for command line usage
-    // //////////////////////////////////////////////////////////////////////////
-    @SuppressWarnings("static-access")
-    public static void main(String[] args) throws Exception {
-
-        ReadabilityContentExtractor pageContentExtractor = new ReadabilityContentExtractor();
-        String outputfile = null;
-
-        CommandLineParser parser = new BasicParser();
-
-        Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write dump of parsed page").create());
-        options.addOption(OptionBuilder.withLongOpt("output").withDescription("save result to xml file").hasArg().withArgName("fileName").create());
-
-        try {
-
-            if (args.length < 1) {
-                // no arguments given, print usage help in catch clause.
-                throw new ParseException(null);
-            }
-
-            CommandLine cmd = parser.parse(options, args);
-
-            if (cmd.hasOption("dump")) {
-                pageContentExtractor.setWriteDump(true);
-            }
-            if (cmd.hasOption("output")) {
-                outputfile = cmd.getOptionValue("output");
-            }
-
-            if (cmd.getArgs().length == 1) {
-
-                pageContentExtractor.setDocument(cmd.getArgs()[0]);
-
-                System.out.println(pageContentExtractor.getResultTitle());
-                System.out.println("================================");
-                System.out.println(pageContentExtractor.getResultText());
-
-                if (outputfile != null) {
-                    HtmlHelper.writeToFile(pageContentExtractor.getResultNode(), new File(outputfile));
-                }
-
-
-            } else {
-                throw new ParseException(null);
-            }
-
-        } catch (ParseException e) {
-            // print usage help
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
-
-            WebPageContentExtractor extractor = new ReadabilityContentExtractor();
-
-            // this method is heavily overloaded and accepts various types of input
-            String url = "http://www.ccc.govt.nz/cityleisure/recreationsport/sportsrecreationguide/orienteering.aspx";
-            url = "http://www.abc.net.au/news/tag/cricket/";
-            url = "http://www.lynchburg.edu/equestrian.xml";
-            url = "http://manteno.govoffice.com/index.asp?Type=B_BASIC&SEC={0D9936D0-B3A8-4614-9140-4EAAACCDE62B}&DE={5C4D155C-AC28-409D-9CE8-87735F1AC462}";
-
-            extractor.setDocument(new URL(url));
-
-            // get the main content as text representation
-            String contentText = extractor.getResultText();
-
-            // get the title
-            String title = extractor.getResultTitle();
-
-            System.out.println("title: " + title);
-            System.out.println("content: " + contentText);
-        }
-
-    }
+//    // //////////////////////////////////////////////////////////////////////////
+//    // main method for command line usage
+//    // //////////////////////////////////////////////////////////////////////////
+//    @SuppressWarnings("static-access")
+//    public static void main(String[] args) throws Exception {
+//
+//        ReadabilityContentExtractor pageContentExtractor = new ReadabilityContentExtractor();
+//        String outputfile = null;
+//
+//        CommandLineParser parser = new BasicParser();
+//
+//        Options options = new Options();
+//        options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write dump of parsed page").create());
+//        options.addOption(OptionBuilder.withLongOpt("output").withDescription("save result to xml file").hasArg().withArgName("fileName").create());
+//
+//        try {
+//
+//            if (args.length < 1) {
+//                // no arguments given, print usage help in catch clause.
+//                throw new ParseException(null);
+//            }
+//
+//            CommandLine cmd = parser.parse(options, args);
+//
+//            if (cmd.hasOption("dump")) {
+//                pageContentExtractor.setWriteDump(true);
+//            }
+//            if (cmd.hasOption("output")) {
+//                outputfile = cmd.getOptionValue("output");
+//            }
+//
+//            if (cmd.getArgs().length == 1) {
+//
+//                pageContentExtractor.setDocument(cmd.getArgs()[0]);
+//
+//                System.out.println(pageContentExtractor.getResultTitle());
+//                System.out.println("================================");
+//                System.out.println(pageContentExtractor.getResultText());
+//
+//                if (outputfile != null) {
+//                    HtmlHelper.writeToFile(pageContentExtractor.getResultNode(), new File(outputfile));
+//                }
+//
+//
+//            } else {
+//                throw new ParseException(null);
+//            }
+//
+//        } catch (ParseException e) {
+//            // print usage help
+//            HelpFormatter formatter = new HelpFormatter();
+//            formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
+//
+//            WebPageContentExtractor extractor = new ReadabilityContentExtractor();
+//
+//            // this method is heavily overloaded and accepts various types of input
+//            String url = "http://www.ccc.govt.nz/cityleisure/recreationsport/sportsrecreationguide/orienteering.aspx";
+//            url = "http://www.abc.net.au/news/tag/cricket/";
+//            url = "http://www.lynchburg.edu/equestrian.xml";
+//            url = "http://manteno.govoffice.com/index.asp?Type=B_BASIC&SEC={0D9936D0-B3A8-4614-9140-4EAAACCDE62B}&DE={5C4D155C-AC28-409D-9CE8-87735F1AC462}";
+//
+//            extractor.setDocument(new URL(url));
+//
+//            // get the main content as text representation
+//            String contentText = extractor.getResultText();
+//
+//            // get the title
+//            String title = extractor.getResultTitle();
+//
+//            System.out.println("title: " + title);
+//            System.out.println("content: " + contentText);
+//        }
+//
+//    }
 
 
 }

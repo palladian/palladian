@@ -10,21 +10,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
@@ -34,7 +37,7 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @see <a href="https://datamarket.azure.com/dataset/bing/search">Bing Search API on Windows Azure Marketplace</a>
  * @author Philipp Katz
  */
-public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<R> {
+public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseBingSearcher.class);
@@ -50,6 +53,8 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     protected final String accountKey;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -59,9 +64,9 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      * @param accountKey The account key for accessing Bing.
      */
     public BaseBingSearcher(String accountKey) {
-        super();
         Validate.notEmpty(accountKey, "accountKey must not be empty");
         this.accountKey = accountKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -70,8 +75,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      * </p>
      * 
      * @param configuration The configuration which must provide an account key for accessing Bing, which must be
-     *            provided
-     *            as string via key <tt>api.bing.key</tt> in the configuration.
+     *            provided as string via key <tt>api.bing.key</tt> in the configuration.
      */
     public BaseBingSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_ACCOUNT_KEY));
@@ -89,18 +93,22 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
 
             String sourceType = getSourceType();
             String requestUrl = buildRequestUrl(query, sourceType, language, offset, getDefaultFetchSize());
+            String jsonString = null;
 
             try {
 
-                JSONObject responseData = getResponseData(requestUrl, accountKey);
+                jsonString = getResponseData(requestUrl, accountKey);
+
+                JsonObject jsonObject = new JsonObject(jsonString);
+                JsonObject responseData = jsonObject.getJsonObject("d");
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
-                JSONArray results = responseData.getJSONArray("results");
-                int numResults = results.length();
+                JsonArray results = responseData.getJsonArray("results");
+                int numResults = results.size();
                 offset += numResults;
 
                 for (int j = 0; j < numResults; j++) {
-                    JSONObject currentResult = results.getJSONObject(j);
+                    JsonObject currentResult = results.getJsonObject(j);
                     R webResult = parseResult(currentResult);
                     webResults.add(webResult);
 
@@ -109,16 +117,17 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
                     }
                 }
 
-                if (!responseData.has("__next")) {
+                if (responseData.get("__next") == null) {
                     break;
                 }
 
             } catch (HttpException e) {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
                         + e.getMessage(), e);
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error parsing the JSON response while searching for \"" + query
-                        + "\" with " + getName() + ": " + e.getMessage() + ", url: \"" + requestUrl + "\"", e);
+                        + "\" with " + getName() + ": " + e.getMessage() + ", url: \"" + requestUrl + "\", json: \""
+                        + jsonString + "\"", e);
             }
         }
 
@@ -129,14 +138,14 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
 
     /**
      * <p>
-     * Parse the {@link JSONObject} to the desired type of {@link WebResult}.
+     * Parse the {@link JSONObject} to the desired type of {@link BasicWebContent}.
      * </p>
      * 
      * @param currentResult
      * @return
-     * @throws JSONException
+     * @throws JsonException
      */
-    protected abstract R parseResult(JSONObject currentResult) throws JSONException;
+    protected abstract R parseResult(JsonObject currentResult) throws JsonException;
 
     /**
      * <p>
@@ -158,21 +167,20 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
 
     /**
      * <p>
-     * Perform the HTTP request and return the relevant JSON result.
+     * Perform the HTTP request and return the JSON result string.
      * </p>
      * 
      * @param requestUrl
      * @return
      * @throws HttpException
-     * @throws JSONException
+     * @throws JsonException
      */
-    private JSONObject getResponseData(String requestUrl, String accountKey) throws HttpException, JSONException {
+    private String getResponseData(String requestUrl, String accountKey) throws HttpException, JsonException {
         String basicAuthentication = "Basic " + StringHelper.encodeBase64(":" + accountKey);
-        MapBuilder<String, String> headers = new MapBuilder<String, String>().add("Authorization", basicAuthentication);
-        HttpResult httpResult = retriever.httpGet(requestUrl, headers);
-        String jsonString = new String(HttpHelper.getStringContent(httpResult));
-        JSONObject jsonObject = new JSONObject(jsonString);
-        return jsonObject.getJSONObject("d");
+        HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, requestUrl);
+        httpRequest.addHeader("Authorization", basicAuthentication);
+        HttpResult httpResult = retriever.execute(httpRequest);
+        return httpResult.getStringContent();
     }
 
     /**
@@ -189,7 +197,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
      */
     protected String buildRequestUrl(String query, String sourceType, Language language, int offset, int count) {
         StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append(BASE_SERVICE_URL);
+        queryBuilder.append(getBaseServiceUrl());
         queryBuilder.append(sourceType);
         queryBuilder.append("?Query=%27").append(UrlHelper.encodeParameter(query)).append("%27");
         queryBuilder.append("&$top=").append(count);
@@ -204,8 +212,16 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     }
 
     /**
+     * @return Get the base service URL.
+     */
+    protected String getBaseServiceUrl() {
+        return BASE_SERVICE_URL;
+    }
+
+    /**
      * <p>
-     * Transform the {@link Language} into a string identifier. See Bing API documentation for available language codes.
+     * Transform the {@link Language} into a string identifier. See <a
+     * href="http://msdn.microsoft.com/en-us/library/dd251064.aspx">here</a> available language codes.
      * </p>
      * 
      * @param language
@@ -222,7 +238,7 @@ public abstract class BaseBingSearcher<R extends WebResult> extends WebSearcher<
     }
 
     @Override
-    public int getTotalResultCount(String query, Language language) throws SearcherException {
+    public long getTotalResultCount(String query, Language language) throws SearcherException {
         throw new SearcherException("Getting the total result count is not supported in the new Bing API.");
     }
 

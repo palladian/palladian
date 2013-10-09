@@ -19,7 +19,6 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.constants.SizeUnit;
@@ -34,7 +33,6 @@ import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.services.SemRush;
-import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
 
 /**
  * <p>
@@ -76,10 +74,10 @@ public class SitemapAnalyzer {
         this.numThreads = numThreads;
     }
 
-    private static void pause() {
-        long milliseconds = TimeUnit.SECONDS.toMillis((long)(Math.random() * 5 + 1));
-        ThreadHelper.deepSleep(milliseconds);
-    }
+    // private static void pause() {
+    // long milliseconds = TimeUnit.SECONDS.toMillis((long)(Math.random() * 5 + 1));
+    // ThreadHelper.deepSleep(milliseconds);
+    // }
 
     public void analyzeSitemap(String sitemapUrl, String analysisResultFilePath) {
 
@@ -90,8 +88,6 @@ public class SitemapAnalyzer {
         final int totalCount = urls.size();
 
         final AtomicInteger count = new AtomicInteger(1);
-
-        final GoogleScraperSearcher googleSearcher = new GoogleScraperSearcher();
 
         RetrieverCallback<Document> retrieverCallback = new RetrieverCallback<Document>() {
 
@@ -155,7 +151,7 @@ public class SitemapAnalyzer {
 
                 resultTable.put(document.getDocumentURI(), map);
 
-                ProgressHelper.showProgress(count.intValue(), totalCount, .2, stopWatch);
+                ProgressHelper.printProgress(count.intValue(), totalCount, .2, stopWatch);
                 count.incrementAndGet();
             }
         };
@@ -184,7 +180,7 @@ public class SitemapAnalyzer {
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(analysisResultFilePath, true),
                     "UTF-8"));
-            writer.append("page;accessible;in-int,out-int,in-ext,out-ext,#words;size KB;indexed\n");
+            writer.append("page;accessible;in-int;out-int;in-ext;out-ext;#words;size KB;indexed\n");
             for (Entry<String, Map<String, Object>> entry : resultTable.entrySet()) {
                 writer.append(entry.getKey() + ";");
                 writer.append(entry.getValue().get("accessible") + ";");

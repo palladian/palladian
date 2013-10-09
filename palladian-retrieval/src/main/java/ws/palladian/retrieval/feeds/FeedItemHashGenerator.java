@@ -30,13 +30,13 @@ public abstract class FeedItemHashGenerator {
 
             StringBuilder hash = new StringBuilder();
             hash.append(feedItem.getTitle());
-            hash.append(UrlHelper.removeSessionId(feedItem.getLink()));
+            hash.append(UrlHelper.removeSessionId(feedItem.getUrl()));
             hash.append(UrlHelper.removeSessionId(feedItem.getRawId()));
             // if (getFeed().getActivityPattern() != FeedClassifier.CLASS_UNKNOWN
             // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
             // hash.append(getPublished().toString());
             // }
-            if (feedItem.getTitle() != null || feedItem.getLink() != null || feedItem.getRawId() != null) {
+            if (feedItem.getTitle() != null || feedItem.getUrl() != null || feedItem.getRawId() != null) {
                 newHash = StringHelper.sha1(hash.toString());
 
             } else {

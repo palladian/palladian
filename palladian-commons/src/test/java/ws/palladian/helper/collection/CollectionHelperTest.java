@@ -5,13 +5,16 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 /**
@@ -49,6 +52,66 @@ public class CollectionHelperTest {
     }
 
     @Test
+    public void testRoundRobinList() {
+        RoundRobinList<String> rrl = new RoundRobinList<String>();
+        rrl.add("a");
+        rrl.add("b");
+        rrl.add("c");
+
+        assertEquals("a", rrl.getNextItem());
+        assertEquals("b", rrl.getNextItem());
+        assertEquals("c", rrl.getNextItem());
+        assertEquals("a", rrl.getNextItem());
+        assertEquals("b", rrl.getNextItem());
+        assertEquals(true, rrl.remove("a"));
+        assertEquals("c", rrl.getNextItem());
+    }
+
+    @Test
+    public void testJoinReadable() {
+        assertEquals("a", CollectionHelper.joinReadable(Arrays.asList("a")));
+        assertEquals("a and b", CollectionHelper.joinReadable(Arrays.asList("a", "b")));
+        assertEquals("a, b, and c", CollectionHelper.joinReadable(Arrays.asList("a", "b", "c")));
+    }
+
+    @Test
+    public void testFunction() {
+
+        // strings
+        Collection<NameObject> set = new HashSet<NameObject>();
+        set.add(new NameObject("A"));
+        set.add(new NameObject("B"));
+
+        Collection<String> names = CollectionHelper.convertSet(set, new Function<NameObject, String>() {
+            @Override
+            public String compute(NameObject item) {
+                return item.getName();
+            }
+        });
+        // CollectionHelper.print(names);
+        assertTrue(names.contains("A"));
+        assertTrue(names.contains("B"));
+        assertEquals(2, names.size());
+
+        // integers
+        set = new HashSet<NameObject>();
+        set.add(new NameObject(1));
+        set.add(new NameObject(2));
+
+        Collection<Integer> ages = CollectionHelper.convertSet(set, new Function<NameObject, Integer>() {
+            @Override
+            public Integer compute(NameObject item) {
+                return item.getAge();
+            }
+        });
+        // CollectionHelper.print(ages);
+        assertTrue(ages.contains(1));
+        assertTrue(ages.contains(2));
+        assertEquals(2, names.size());
+
+    }
+
+    @Test
     public void removeNulls() {
         List<Integer> list = new ArrayList<Integer>(Arrays.asList(null, 1, 2, 3, 4, null));
         boolean removed = CollectionHelper.removeNulls(list);
@@ -75,9 +138,18 @@ public class CollectionHelperTest {
     }
 
     @Test
-    public void testFilter() {
+    public void testGetFirst() {
+        List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c"));
+
+        assertEquals("a", CollectionHelper.getFirst(items));
+        assertEquals("a,b", StringUtils.join(CollectionHelper.getFirst(items, 2), ","));
+        assertEquals("a,b,c", StringUtils.join(CollectionHelper.getFirst(items, 4), ","));
+    }
+
+    @Test
+    public void testRemove() {
         List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
-        boolean filtered = CollectionHelper.filter(items, new Filter<String>() {
+        boolean filtered = CollectionHelper.remove(items, new Filter<String>() {
             @Override
             public boolean accept(String item) {
                 return item.equals("a") || item.equals("b");
@@ -102,4 +174,27 @@ public class CollectionHelperTest {
         assertTrue(groupedResult.get(5).containsAll(Arrays.asList("three")));
     }
 
+    private class NameObject {
+        private String name;
+        private int age;
+
+        public NameObject(String name) {
+            super();
+            this.name = name;
+        }
+
+        public NameObject(int age) {
+            super();
+            this.age = age;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+    }
 }

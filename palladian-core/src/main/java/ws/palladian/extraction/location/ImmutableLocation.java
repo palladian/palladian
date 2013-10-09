@@ -13,14 +13,13 @@ import org.apache.commons.lang3.Validate;
  * 
  * @author Philipp Katz
  */
-public final class ImmutableLocation implements Location {
+public final class ImmutableLocation extends AbstractLocation {
 
     private final int id;
     private final String primaryName;
     private final Collection<AlternativeName> alternativeNames;
     private final LocationType type;
-    private final Double latitude;
-    private final Double longitude;
+    private final GeoCoordinate coordinate;
     private final Long population;
     private final List<Integer> ancestorIds;
 
@@ -34,21 +33,19 @@ public final class ImmutableLocation implements Location {
      * @param alternativeNames A list of potential alternative names for the location, may be <code>null</code>, if no
      *            alternative names exist.
      * @param type The type of the location, not <code>null</code>.
-     * @param latitude The latitude, or <code>null</code> if no coordinates exist.
-     * @param longitude The longitude, or <code>null</code> if no coordinates exist.
+     * @param coordinate The geographical coordinate, or <code>null</code> if no coordinates exist.
      * @param population The population, or <code>null</code> if no population values exist.
      * @param ancestorIds The IDs of ancestor {@link ImmutableLocation}s, or <code>null</code> if no ancestors exist.
      */
-    public ImmutableLocation(int id, String primaryName, Collection<AlternativeName> alternativeNames, LocationType type,
-            Double latitude, Double longitude, Long population, List<Integer> ancestorIds) {
+    public ImmutableLocation(int id, String primaryName, Collection<AlternativeName> alternativeNames,
+            LocationType type, GeoCoordinate coordinate, Long population, List<Integer> ancestorIds) {
         Validate.notNull(primaryName, "primaryName must not be null");
         Validate.notNull(type, "type must not be null");
         this.id = id;
         this.primaryName = primaryName;
         this.alternativeNames = alternativeNames != null ? alternativeNames : Collections.<AlternativeName> emptyList();
         this.type = type;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.coordinate = coordinate;
         this.population = population;
         this.ancestorIds = ancestorIds != null ? ancestorIds : Collections.<Integer> emptyList();
     }
@@ -61,12 +58,11 @@ public final class ImmutableLocation implements Location {
      * @param id The unique identifier of the location.
      * @param primaryName The primary name of the location, not <code>null</code>.
      * @param type The type of the location, not <code>null</code>.
-     * @param latitude The latitude, or <code>null</code> if no coordinates exist.
-     * @param longitude The longitude, or <code>null</code> if no coordinates exist.
+     * @param coordinate The geographical coordinate, or <code>null</code> if no coordinates exist.
      * @param population The population, or <code>null</code> if no population values exist.
      */
-    public ImmutableLocation(int id, String primaryName, LocationType type, Double latitude, Double longitude, Long population) {
-        this(id, primaryName, null, type, latitude, longitude, population, null);
+    public ImmutableLocation(int id, String primaryName, LocationType type, GeoCoordinate coordinate, Long population) {
+        this(id, primaryName, null, type, coordinate, population, null);
     }
 
     /**
@@ -80,8 +76,8 @@ public final class ImmutableLocation implements Location {
      * @param ancestorIds The IDs of ancestor {@link ImmutableLocation}s, or <code>null</code> if no ancestors exist.
      */
     public ImmutableLocation(Location location, Collection<AlternativeName> alternativeNames, List<Integer> ancestorIds) {
-        this(location.getId(), location.getPrimaryName(), alternativeNames, location.getType(), location.getLatitude(),
-                location.getLongitude(), location.getPopulation(), ancestorIds);
+        this(location.getId(), location.getPrimaryName(), alternativeNames, location.getType(), location
+                .getCoordinate(), location.getPopulation(), ancestorIds);
     }
 
     /*
@@ -122,24 +118,6 @@ public final class ImmutableLocation implements Location {
 
     /*
      * (non-Javadoc)
-     * @see ws.palladian.extraction.location.Location#getLatitude()
-     */
-    @Override
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.location.Location#getLongitude()
-     */
-    @Override
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    /*
-     * (non-Javadoc)
      * @see ws.palladian.extraction.location.Location#getPopulation()
      */
     @Override
@@ -157,6 +135,11 @@ public final class ImmutableLocation implements Location {
     }
 
     @Override
+    public GeoCoordinate getCoordinate() {
+        return coordinate;
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("Location [id=");
@@ -167,10 +150,8 @@ public final class ImmutableLocation implements Location {
         // builder.append(alternativeNames);
         builder.append(", type=");
         builder.append(type);
-        builder.append(", latitude=");
-        builder.append(latitude);
-        builder.append(", longitude=");
-        builder.append(longitude);
+        builder.append(", coordinate=");
+        builder.append(coordinate);
         builder.append(", population=");
         builder.append(population);
         // builder.append(", ancestorIds=");

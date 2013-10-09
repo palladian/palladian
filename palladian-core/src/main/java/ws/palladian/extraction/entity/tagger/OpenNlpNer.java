@@ -26,23 +26,13 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -223,12 +213,11 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText) {
+    public List<Annotation> getAnnotations(String inputText) {
         if (finders == null || tags == null) {
             throw new IllegalStateException("No model available; make sure to load an existing model.");
         }
 
-        Annotations annotations = new Annotations();
 
         String taggedText = "";
         try {
@@ -237,15 +226,12 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
             LOGGER.error("could not tag text with {}, {}", getName(), e.getMessage());
         }
 
-        String taggedTextFilePath = "data/test/ner/openNLPOutput_tmp.txt";
-        FileHelper.writeToFile(taggedTextFilePath, taggedText);
-        annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
-
-        annotations.instanceCategoryToClassified();
-
-        FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
-
-        return annotations;
+        // String taggedTextFilePath = "data/test/ner/openNLPOutput_tmp.txt";
+        // FileHelper.writeToFile(taggedTextFilePath, taggedText);
+        // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
+        // FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
+        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
+        return Collections.<Annotation> unmodifiableList(annotations);
     }
 
     @Override
@@ -397,86 +383,9 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
      * @param args
      * @throws Exception
      */
-    @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
 
-        OpenNlpNer tagger = new OpenNlpNer();
-
-        if (args.length > 0) {
-
-            Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("mode").withDescription("whether to tag or train a model")
-                    .create());
-
-            OptionGroup modeOptionGroup = new OptionGroup();
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tg").withLongOpt("tag").withDescription("tag a text")
-                    .create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tr").withLongOpt("train")
-                    .withDescription("train a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate")
-                    .withDescription("evaluate a model").create());
-            modeOptionGroup.setRequired(true);
-            options.addOptionGroup(modeOptionGroup);
-
-            options.addOption(OptionBuilder.withLongOpt("trainingFile")
-                    .withDescription("the path and name of the training file for the tagger (only if mode = train)")
-                    .hasArg().withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder
-                    .withLongOpt("testFile")
-                    .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
-                    .hasArg().withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("configFile")
-                    .withDescription("the path and name of the config file for the tagger").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("inputText")
-                    .withDescription("the text that should be tagged (only if mode = tag)").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            options.addOption(OptionBuilder.withLongOpt("outputFile")
-                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
-                    .withArgName("text").withType(String.class).create());
-
-            HelpFormatter formatter = new HelpFormatter();
-
-            CommandLineParser parser = new PosixParser();
-            CommandLine cmd = null;
-            try {
-                cmd = parser.parse(options, args);
-
-                if (cmd.hasOption("tag")) {
-
-                    tagger.loadModel(cmd.getOptionValue("configFile"));
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"));
-
-                    if (cmd.hasOption("outputFile")) {
-                        FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
-                    } else {
-                        System.out.println("No output file given so tagged text will be printed to the console:");
-                        System.out.println(taggedText);
-                    }
-
-                } else if (cmd.hasOption("train")) {
-
-                    tagger.train(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"));
-
-                } else if (cmd.hasOption("evaluate")) {
-
-                    tagger.loadModel(cmd.getOptionValue("configFile"));
-                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"), TaggingFormat.XML);
-                    System.out.println(evResult);
-
-                }
-
-            } catch (ParseException e) {
-                LOGGER.debug("Command line arguments could not be parsed!");
-                formatter.printHelp("OpenNLPNER", options);
-            }
-
-        }
+        // OpenNlpNer tagger = new OpenNlpNer();
 
         // // HOW TO USE (some functions require the models in
         // data/models/opennlp) ////

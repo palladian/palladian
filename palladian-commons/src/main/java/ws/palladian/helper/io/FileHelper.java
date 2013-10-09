@@ -37,13 +37,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
 /**
@@ -72,10 +72,10 @@ public final class FileHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
 
     /** The encoding used by this class, instead of relying on the System's default encoding. */
-    private static final String DEFAULT_ENCODING = "UTF-8";
+    public static final String DEFAULT_ENCODING = "UTF-8";
 
     /** Constant for new line character. */
-    private static final String NEWLINE_CHARACTER = "\n";
+    public static final String NEWLINE_CHARACTER = "\n";
 
     /** Constant for image file extensions. */
     public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif");
@@ -206,10 +206,12 @@ public final class FileHelper {
     }
 
     /**
-     * Gets the file type.
+     * <p>
+     * Gets the file type of a URI.
+     * </p>
      * 
-     * @param path the path
-     * @return the file type
+     * @param path The path of the file
+     * @return The file type without the period. E.g. abc.jpg => "jpg".
      */
     public static String getFileType(String path) {
         String fileType = "";
@@ -250,6 +252,13 @@ public final class FileHelper {
         return readFileToString(new File(path));
     }
 
+    public static String readFileToString(String path, String encoding) {
+        return readFileToString(new File(path), encoding);
+    }
+
+    public static String readFileToString(InputStream is) {
+        return StringUtils.join(readFileToArray(is), "\n");
+    }
     /**
      * Read file to string.
      * 
@@ -258,12 +267,17 @@ public final class FileHelper {
      */
     // TODO throw exception if file cannot be accessed.
     public static String readFileToString(File file) {
+        return readFileToString(file, DEFAULT_ENCODING);
+    }
+
+    // FIXME return null on error
+    public static String readFileToString(File file, String encoding) {
 
         StringBuilder contents = new StringBuilder();
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), DEFAULT_ENCODING));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
 
             String line = null;
             while ((line = reader.readLine()) != null) {
@@ -486,6 +500,20 @@ public final class FileHelper {
      * Perform an action on every line of the provided input file.
      * </p>
      * 
+     * @param file The File which should be processed line by line, not <code>null</code>.
+     * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
+     * @return The number of lines processed, <code>-1</code> in case of errors.
+     */
+    public static int performActionOnEveryLine(File file, LineAction lineAction) {
+        Validate.notNull(file, "file must not be null");
+        return performActionOnEveryLine(file.getPath(), lineAction);
+    }
+
+    /**
+     * <p>
+     * Perform an action on every line of the provided input file.
+     * </p>
+     * 
      * @param filePath The path to the file which should be processed line by line, not <code>null</code>.
      * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
      * @return The number of lines processed, <code>-1</code> in case of errors.
@@ -586,10 +614,11 @@ public final class FileHelper {
      * 
      * @param filePath The file path where the contents should be saved to.
      * @param string The string to save.
+     * @param encoding The encoding in which the file should be written.
      * @return <tt>False</tt> if any IOException occurred. It is likely that {@link string} has not been written to
      *         {@link filePath}. See error log for details (Exceptions).
      */
-    public static boolean writeToFile(String filePath, CharSequence string) {
+    public static boolean writeToFile(String filePath, CharSequence string, String encoding) {
 
         String fileType = getFileType(filePath);
         if (fileType.equalsIgnoreCase("gz") || fileType.equalsIgnoreCase("gzip")) {
@@ -605,7 +634,7 @@ public final class FileHelper {
         Writer writer = null;
 
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), DEFAULT_ENCODING));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
             writer.write(string.toString());
             success = true;
         } catch (IOException e) {
@@ -615,6 +644,10 @@ public final class FileHelper {
         }
 
         return success;
+    }
+
+    public static boolean writeToFile(String filePath, CharSequence string) {
+        return writeToFile(filePath, string, DEFAULT_ENCODING);
     }
 
     public static void writeToFile(InputStream inputStream, String fileTargetLocation) {
@@ -840,11 +873,12 @@ public final class FileHelper {
      * @param obj The obj to serialize.
      * @param filePath The file path where the object should be serialized to.
      */
-    public static void serialize(Serializable obj, String filePath) {
+    public static boolean serialize(Serializable obj, String filePath) {
+
+        boolean success = true;
 
         if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            serializeCompress(obj, filePath);
-            return;
+            return serializeCompress(obj, filePath);
         }
 
         ObjectOutputStream out = null;
@@ -859,14 +893,18 @@ public final class FileHelper {
             out.writeObject(obj);
         } catch (IOException e) {
             LOGGER.error("could not serialize object, " + e.getMessage() + ", " + e.getCause());
+            success = false;
         } catch (OutOfMemoryError e) {
             LOGGER.error("could not serialize object, " + e.getMessage() + ", exiting now!");
-            System.exit(1);
+            success = false;
         } catch (Exception e) {
             LOGGER.error("could not serialize object, " + e.getMessage());
+            success = false;
         } finally {
             close(out);
         }
+
+        return success;
     }
 
     /**
@@ -875,7 +913,9 @@ public final class FileHelper {
      * @param obj The obj to serialize and compress.
      * @param filePath The file path where the object should be serialized to.
      */
-    private static void serializeCompress(Serializable obj, String filePath) {
+    private static boolean serializeCompress(Serializable obj, String filePath) {
+        boolean success = true;
+
         ObjectOutputStream out = null;
         try {
 
@@ -888,14 +928,18 @@ public final class FileHelper {
             out.writeObject(obj);
         } catch (IOException e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage(), e);
+            success = false;
         } catch (OutOfMemoryError e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage() + ", exiting now!");
-            System.exit(1);
+            success = false;
         } catch (Exception e) {
             LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage());
+            success = false;
         } finally {
             close(out);
         }
+
+        return success;
     }
 
     /**
@@ -910,8 +954,7 @@ public final class FileHelper {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
-        String newPath = fullPath.replaceAll(StringHelper.escapeForRegularExpression(oldName) + "\\.",
-                StringHelper.escapeForRegularExpression(newName) + ".");
+        String newPath = fullPath.replaceAll(Pattern.quote(oldName) + "\\.", newName + ".");
 
         return newPath;
     }
@@ -933,36 +976,65 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Copy a file.
+     * </p>
      * 
-     * @param sourceFile The file to copy.
-     * @param destinationFile The destination of the file.
+     * @param sourceFile Path to the file to copy.
+     * @param destinationFile The destination path of the file.
      */
-    public static void copyFile(String sourceFile, String destinationFile) {
+    public static boolean copyFile(String sourceFile, String destinationFile) {
         InputStream in = null;
         OutputStream out = null;
+        boolean success = false;
         try {
-
             File outputFile = new File(FileHelper.getFilePath(destinationFile));
             if (!outputFile.exists()) {
                 outputFile.mkdirs();
             }
-
             in = new FileInputStream(new File(sourceFile));
             out = new FileOutputStream(new File(destinationFile));
-
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-        } catch (FileNotFoundException ex) {
-            LOGGER.error(ex.getMessage());
+            copy(in, out);
+            success = true;
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
             close(in, out);
         }
+        return success;
+    }
+
+    static void copy(InputStream in, OutputStream out) throws IOException {
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+    }
+
+    /**
+     * <p>
+     * Copy a file to the specified directory, keep the original name.
+     * </p>
+     * 
+     * @param source That path to the source file, not <code>null</code>.
+     * @param destinationDirectory The path to the destination directory, not <code>null</code>. In case the directory
+     *            does not exist, it will be created.
+     * @return <code>true</code> in case copying worked, <code>false</code> otherwise.
+     */
+    public static boolean copyFileToDirectory(File source, File destinationDirectory) {
+        Validate.notNull(source, "source must not be null");
+        Validate.notNull(destinationDirectory, "destinationDirectory must not be null");
+        if (!source.isFile()) {
+            throw new IllegalArgumentException(source + " is not a file or cannot be accessed.");
+        }
+        if (!destinationDirectory.isDirectory() && !destinationDirectory.mkdirs()) {
+            throw new IllegalArgumentException("Directory " + destinationDirectory + " could not be created.");
+        }
+        File destinationFile = new File(destinationDirectory, source.getName());
+        return copyFile(source.getPath(), destinationFile.getPath());
     }
 
     /**
@@ -1007,13 +1079,7 @@ public final class FileHelper {
                     in = new FileInputStream(srcPath);
                     out = new FileOutputStream(dstPath);
 
-                    // Transfer bytes from in to out
-                    byte[] buf = new byte[1024];
-
-                    int len;
-                    while ((len = in.read(buf)) > 0) {
-                        out.write(buf, 0, len);
-                    }
+                    copy(in, out);
 
                     in.close();
                     out.close();
@@ -1037,7 +1103,7 @@ public final class FileHelper {
         File f = new File(filename);
 
         if (!f.exists()) {
-            LOGGER.error("file can not be deleted because it does not exist");
+            LOGGER.warn("file can not be deleted because it does not exist");
             return false;
         }
 
@@ -1066,7 +1132,9 @@ public final class FileHelper {
     }
 
     /**
-     * Delete.
+     * <p>
+     * Delete a file.
+     * </p>
      * 
      * @param filename The filename.
      * @return <tt>True</tt> if the deletion was successful, <tt>false</tt> otherwise.
@@ -1473,28 +1541,35 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Check whether a file exists.
+     * </p>
      * 
      * @param filePath The path to the file to check.
-     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
+     * @return <code>true</code> if the given path points to a file, <code>false</code> otherwise or in case path was
+     *         <code>null</code>.
      */
     public static boolean fileExists(String filePath) {
-        File file = new File(filePath);
-        if (file.exists() && !file.isDirectory()) {
-            return true;
+        if (filePath == null) {
+            return false;
         }
-        return false;
+        return new File(filePath).isFile();
     }
 
     /**
-     * Check if specified directory exists.
+     * <p>
+     * Check whether a directory exists.
+     * </p>
      * 
-     * @param directoryPath The path to the directory.
-     * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
+     * @param filePath The path to the directory to check.
+     * @return <code>true</code> if the given path points to a directory, <code>false</code> otherwise or in case path
+     *         was <code>null</code>.
      */
     public static boolean directoryExists(String directoryPath) {
-        File file = new File(directoryPath);
-        return file.exists() && file.isDirectory();
+        if (directoryPath == null) {
+            return false;
+        }
+        return new File(directoryPath).isDirectory();
     }
 
     /**
@@ -1508,7 +1583,9 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Creates the file and its directories if do not exist yet.
+     * </p>
      * 
      * @param filePath The file to create.
      * @return <code>true</code> if file and directories have been created, <code>false</code> otherwise or on every
@@ -1516,32 +1593,42 @@ public final class FileHelper {
      */
     public static boolean createDirectoriesAndFile(String filePath) {
         boolean success = false;
+
+        if (filePath.endsWith("/")) {
+            filePath += "del.del";
+        }
+
         File newFile = new File(filePath);
         if (!newFile.exists()) {
 
-            // FIXME fails with NPE if no parent directory is given (filePath = just the file name).
-            File directories = new File(newFile.getParent());
             boolean directoriesExists = false;
 
-            try {
-                if (directories.exists()) {
-                    directoriesExists = true;
-                } else {
-                    directoriesExists = directories.mkdirs();
-                }
+            String parent = newFile.getParent();
+            if (parent != null) {
+                File directories = new File(parent);
 
-                if (directoriesExists) {
-                    success = newFile.createNewFile();
-                } else {
-                    LOGGER.error("could not create the directories " + filePath);
+                try {
+                    if (directories.exists()) {
+                        directoriesExists = true;
+                    } else {
+                        directoriesExists = directories.mkdirs();
+                    }
+
+                    if (directoriesExists) {
+                        if (!filePath.endsWith("del.del")) {
+                            success = newFile.createNewFile();
+                        }
+                    } else {
+                        LOGGER.error("could not create the directories " + filePath);
+                        success = false;
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
+                    success = false;
+                } catch (SecurityException e) {
+                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
                     success = false;
                 }
-            } catch (IOException e) {
-                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                success = false;
-            } catch (SecurityException e) {
-                LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                success = false;
             }
         }
         return success;
@@ -1609,7 +1696,7 @@ public final class FileHelper {
      */
     public static String addTrailingSlash(String path) {
 
-        if (!path.endsWith("/")) {
+        if (!path.endsWith("/") && !path.isEmpty()) {
             return path + "/";
         }
 

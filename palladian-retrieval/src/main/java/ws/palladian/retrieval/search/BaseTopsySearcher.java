@@ -4,24 +4,26 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.helper.HttpHelper;
-import ws.palladian.retrieval.search.web.WebResult;
-import ws.palladian.retrieval.search.web.WebSearcher;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.WebContent;
 
-public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
+public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
 
     /** The identifier for the API key when provided via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.topsy.key";
 
     private final String apiKey;
+    
+    private final HttpRetriever retriever;
 
     /**
      * <p>
@@ -33,6 +35,7 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
     protected BaseTopsySearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     /**
@@ -44,14 +47,13 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
      *            <code>null</code>.
      */
     protected BaseTopsySearcher(Configuration configuration) {
-        Validate.notNull(configuration, "configuration must not be null");
-        this.apiKey = configuration.getString(CONFIG_API_KEY);
+        this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override
-    public List<WebResult> search(String query, int resultCount, Language language) throws SearcherException {
+    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebResult> result = CollectionHelper.newArrayList();
+        List<WebContent> result = CollectionHelper.newArrayList();
 
         // # of necessary requests, we fetch in chunks of 100
         int numRequests = (int)Math.ceil(resultCount / 100.);
@@ -69,16 +71,16 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
                         e);
             }
 
-            String jsonString = HttpHelper.getStringContent(httpResult);
+            String jsonString = httpResult.getStringContent();
             try {
-                JSONObject jsonResult = new JSONObject(jsonString);
-                JSONObject responseJson = jsonResult.getJSONObject("response");
-                JSONArray listJson = responseJson.getJSONArray("list");
+                JsonObject jsonResult = new JsonObject(jsonString);
+                JsonObject responseJson = jsonResult.getJsonObject("response");
+                JsonArray listJson = responseJson.getJsonArray("list");
 
-                for (int i = 0; i < listJson.length(); i++) {
+                for (int i = 0; i < listJson.size(); i++) {
 
-                    JSONObject item = listJson.getJSONObject(i);
-                    WebResult webResult = parse(item);
+                    JsonObject item = listJson.getJsonObject(i);
+                    WebContent webResult = parse(item);
                     result.add(webResult);
 
                     if (result.size() == resultCount) {
@@ -87,7 +89,7 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
 
                 }
 
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Error parsing the JSON response " + e.getMessage() + ", JSON was \""
                         + jsonString + "\"", e);
             }
@@ -105,6 +107,6 @@ public abstract class BaseTopsySearcher extends WebSearcher<WebResult> {
     /**
      * Subclass performs the parsing for each item in the JSON list.
      */
-    protected abstract WebResult parse(JSONObject item) throws JSONException;
+    protected abstract WebContent parse(JsonObject item) throws JsonException;
 
 }

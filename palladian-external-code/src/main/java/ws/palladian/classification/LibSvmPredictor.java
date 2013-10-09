@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,16 +20,18 @@ import libsvm.svm_parameter;
 import libsvm.svm_problem;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureUtils;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>
@@ -39,11 +42,9 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 1.0
  * @since 2.0
  */
-public final class LibSvmPredictor implements Classifier<LibSvmModel> {
-    private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(LibSvmPredictor.class);
+public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<LibSvmModel> {
+    private final static Logger LOGGER = LoggerFactory.getLogger(LibSvmPredictor.class);
 
-    private final List<String> normalFeaturePaths;
-    private final List<String> sparseFeaturePaths;
     private final LibSvmKernel kernel;
 
     private Map<NominalFeature, List<String>> possibleNominalValues;
@@ -53,7 +54,7 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
      * The training instances provided to the train method, stored here for convenience.
      * </p>
      */
-    private List<Instance> instances;
+    private Iterable<? extends Trainable> trainables;
 
     /**
      * <p>
@@ -61,71 +62,66 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
      * train a new model or classify unlabeled {@link FeatureVector}s.
      * </p>
      * 
-     * @param regularizationParameter The regularization parameter (in (0,infinity]); large values cause a low bias,
-     *            high variance classifier, while small ones cause high bias, low variance. The correct value can be
-     *            determined for example via grid search. This parameter is ignored for classification since the model
-     *            provides the value in this case. The parameter is often called "C" within the SVM optimization
-     *            formula.
-     * @param normalFeaturePaths The feature paths identifying the normal features, which should be considered for
-     *            training. This parameter is ignored for classification since the model provides the value in this
-     *            case.
-     * @param sparseFeaturePaths The feature paths identifying the sparse features, which should be considered for
-     *            training. This parameter is ignored for classification since the model provides the value in this
-     *            case.
+     * @param kernel The kernel to use with the SVM predictor. This implementation currently supports the
+     *            {@link LinearKernel} and the {@link RBFKernel}. The kernel is required to transfer the data to a
+     *            higher dimensional space, where it is separable. Please read on the theoretical details of SVM to
+     *            learn more. If you do not care you are probably fine using either kernel. Just try them.
+     *            // * @param normalFeaturePaths The feature paths identifying the normal features, which should be
+     *            considered for
+     *            // * training. This parameter is ignored for classification since the model provides the value in this
+     *            // * case.
+     *            // * @param sparseFeaturePaths The feature paths identifying the sparse features, which should be
+     *            considered for
+     *            // * training. This parameter is ignored for classification since the model provides the value in this
+     *            // * case.
      */
-    public LibSvmPredictor(LibSvmKernel kernel, List<String> normalFeaturePaths, List<String> sparseFeaturePaths) {
-        super();
-
-        this.normalFeaturePaths = new ArrayList<String>(normalFeaturePaths);
-        this.sparseFeaturePaths = new ArrayList<String>(sparseFeaturePaths);
+    public LibSvmPredictor(LibSvmKernel kernel) {
         this.kernel = kernel;
     }
 
     @Override
-    public LibSvmModel train(List<Instance> instances) {
-        Validate.notEmpty(instances, "Unable to train on an empty list of instances.");
+    public LibSvmModel train(Iterable<? extends Trainable> trainables) {
+        Validate.notNull(trainables, "Unable to train on an empty list of instances.");
 
         svm_parameter params = getParameter();
 
         Map<String, Integer> indices = new HashMap<String, Integer>();
-        List<String> classes = calculatePossibleClasses(instances);
-        Map<String, Normalization> normalizations = normalizeNumericFeatures(instances);
-        svm_problem problem = createProblem(instances, params, indices, classes, normalizations);
+        List<String> classes = calculatePossibleClasses(trainables);
+        if (classes.size() < 2) {
+            throw new IllegalStateException(
+                    "The training data contains less than two different classes. Training not possible on such a dataset.");
+        }
+        Map<String, Normalization> normalizations = normalizeNumericFeatures(trainables);
+        svm_problem problem = createProblem(trainables, params, indices, classes, normalizations);
         String errorMessage = svm.svm_check_parameter(problem, params);
         if (errorMessage != null) {
             throw new IllegalStateException(errorMessage);
         }
 
-        String error_msg = svm.svm_check_parameter(problem, params);
-
-        if (error_msg != null) {
-            throw new IllegalStateException(error_msg);
-        }
         svm_model model = svm.svm_train(problem, params);
 
-        return new LibSvmModel(model, normalFeaturePaths, sparseFeaturePaths, indices, classes, normalizations);
+        return new LibSvmModel(model, indices, classes, normalizations);
     }
 
-    private Map<String, Normalization> normalizeNumericFeatures(List<Instance> instances) {
+    /**
+     * <p>
+     * Normalizes numeric features to a range between 0.0 and 1.0.
+     * </p>
+     * 
+     * @param instances The instances containing the features to normalize. These instances provide the range of numbers
+     *            to normalize on.
+     * @return A mapping from feature names to {@link Normalization}s.
+     */
+    private Map<String, Normalization> normalizeNumericFeatures(Iterable<? extends Trainable> instances) {
         Map<String, Normalization> ret = new HashMap<String, Normalization>();
-        for (Instance instance : instances) {
-            for (String featurePath : normalFeaturePaths) {
-                List<NumericFeature> features = FeatureUtils.getFeaturesAtPath(instance.getFeatureVector(),
-                        NumericFeature.class, featurePath);
-
-                // since it is a normal feature it should have exactly one element, if not it was no NumericFeature and
-                // thus the iterations should continue with the next feature.
-                if (features.size() != 1) {
-                    continue;
-                }
-
-                NumericFeature numericFeature = features.get(0);
-                Normalization normalization = ret.get(featurePath);
+        for (Trainable instance : instances) {
+            for (NumericFeature feature : instance.getFeatureVector().getAll(NumericFeature.class)) {
+                Normalization normalization = ret.get(feature.getName());
                 if (normalization == null) {
                     normalization = new Normalization();
                 }
-                normalization.add(numericFeature);
-                ret.put(featurePath, normalization);
+                normalization.add(feature);
+                ret.put(feature.getName(), normalization);
             }
         }
         return ret;
@@ -137,7 +133,7 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
      * libsvm classifier.
      * </p>
      * 
-     * @param instances The Palladian instances to transform.
+     * @param trainables The Palladian instances to transform.
      * @param params The parameters for the classifier. Required to set parameter which are based on the training set.
      * @param indices The indices of the features to process in the new model.
      * @param classes The possible classes to predict to. The index in the list is the index used to convert those
@@ -145,45 +141,58 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
      * @param normalizations The normalizations to apply to {@link NumericFeature}s.
      * @return A new {@link svm_problem} ready to train a libsvm classifier.
      */
-    private svm_problem createProblem(List<Instance> instances, svm_parameter params, Map<String, Integer> indices,
-            List<String> classes, Map<String, Normalization> normalizations) {
+    private svm_problem createProblem(Iterable<? extends Trainable> trainables, svm_parameter params,
+            Map<String, Integer> indices, List<String> classes, Map<String, Normalization> normalizations) {
 
         svm_problem ret = new svm_problem();
-        this.instances = instances;
-        ret.l = this.instances.size();
+        this.trainables = trainables;
+        ret.l = 0;
+        for (Iterator<? extends Trainable> it = trainables.iterator(); it.hasNext(); it.next()) {
+            ret.l++;
+        }
         ret.x = new svm_node[ret.l][];
         ret.y = new double[ret.l];
         currentIndex = 0;
         possibleNominalValues = new HashMap<NominalFeature, List<String>>();
 
-        for (int i = 0; i < instances.size(); i++) {
-            Instance instance = this.instances.get(i);
-            ret.y[i] = classes.indexOf(instance.getTargetClass());
+        int i = 0;
+        for (Trainable trainable : trainables) {
+            ret.y[i] = classes.indexOf(trainable.getTargetClass());
 
-            ret.x[i] = transformPalladianFeatureVectorToLibsvmFeatureVector(instance.getFeatureVector(), indices, true,
-                    normalizations);
+            ret.x[i] = transformPalladianFeatureVectorToLibsvmFeatureVector(trainable.getFeatureVector(), indices,
+                    true, normalizations);
+            i++;
         }
-        // params.gamma = 1.0 / Collections.max(indices.values());
-
         return ret;
     }
 
-    private <T extends Feature<?>> double featureToDouble(T feature, List<Instance> instances,
+    /**
+     * <p>
+     * Transforms an atomic feature to a double value. This is required since LibSVM can only work with features that
+     * are double values.
+     * </p>
+     * <p>
+     * The method throws an {@link IllegalArgumentException} if the provided {@link Feature} type is not supported.
+     * </p>
+     * 
+     * @param feature The {@link Feature} to convert.
+     * @param trainables The training dataset.
+     * @param normalizations A mapping from {@link NumericFeature} feature names to {@link Normalization}s used to
+     *            normalize these {@link NumericFeature}s.
+     * @return A double value representation of the provided {@link Feature}.
+     */
+    private <T extends Feature<?>> double featureToDouble(T feature, Iterable<? extends Trainable> trainables,
             Map<String, Normalization> normalizations) {
         if (feature instanceof NumericFeature) {
             NumericFeature numericFeature = (NumericFeature)feature;
-            // TODO this will not work always, since the name is only the last part of the feature path. Should however
-            // be possible if we provide a featureDescriptor carrying the whole path and not just the name.
             Normalization normalization = normalizations.get(numericFeature.getName());
             if (normalization != null) {
                 return normalization.apply(numericFeature.getValue());
             } else {
                 return numericFeature.getValue();
             }
-        } else if (feature instanceof Classifiable) {
-            return 1.0;
         } else if (feature instanceof NominalFeature) {
-            List<String> values = getNominalValues(((NominalFeature)feature), instances);
+            List<String> values = getNominalValues(((NominalFeature)feature), trainables);
             return values.indexOf(feature.getValue());
         } else {
             throw new IllegalArgumentException("Unsupported feature type " + feature.getClass());
@@ -191,12 +200,23 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
 
     }
 
-    private List<String> getNominalValues(NominalFeature nominalFeature, List<Instance> instances) {
+    /**
+     * <p>
+     * Provides the list of values a {@link NominalFeature} can take on inside the dataset of provided
+     * {@code trainables}.
+     * </p>
+     * 
+     * @param nominalFeature The {@link NominalFeature} to get the values for.
+     * @param trainables The training set of {@link Trainable}s containing all values of the provided
+     *            {@link NominalFeature}.
+     * @return All values the provided {@link NominalFeature} can take on.
+     */
+    private List<String> getNominalValues(NominalFeature nominalFeature, Iterable<? extends Trainable> trainables) {
         if (possibleNominalValues.containsKey(nominalFeature)) {
             return possibleNominalValues.get(nominalFeature);
         } else {
             List<String> ret = new ArrayList<String>();
-            for (Instance instance : instances) {
+            for (Trainable instance : trainables) {
                 @SuppressWarnings("unchecked")
                 List<NominalFeature> features = (List<NominalFeature>)FeatureUtils.find(nominalFeature,
                         instance.getFeatureVector());
@@ -215,12 +235,12 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
      * Provides a {@link List} of all possible classes from the provided {@link Instance}s.
      * </p>
      * 
-     * @param instances The {@link Instance}s to load the classes for.
+     * @param trainables The {@link Instance}s to load the classes for.
      * @return The {@link List} of classes supported by the {@link Instance}s.
      */
-    private List<String> calculatePossibleClasses(List<Instance> instances) {
+    private List<String> calculatePossibleClasses(Iterable<? extends Trainable> trainables) {
         List<String> ret = new ArrayList<String>();
-        for (Instance instance : instances) {
+        for (Trainable instance : trainables) {
             if (!ret.contains(instance.getTargetClass())) {
                 ret.add(instance.getTargetClass());
             }
@@ -246,41 +266,31 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
     private svm_node[] transformPalladianFeatureVectorToLibsvmFeatureVector(FeatureVector vector,
             Map<String, Integer> indices, boolean trainingMode, Map<String, Normalization> normalizations) {
         Map<String, Feature<?>> features = new HashMap<String, Feature<?>>();
-        Map<String, Feature<?>> sparseFeatures = new HashMap<String, Feature<?>>();
 
-        for (String featurePath : normalFeaturePaths) {
-            List<Feature<?>> normalFeatures = FeatureUtils.getFeaturesAtPath(vector, featurePath);
-            if (normalFeatures.size() != 1) {
-                throw new IllegalStateException("Found " + normalFeatures.size() + " values for feature " + featurePath
-                        + " but expected 1.");
-            }
-            features.put(normalFeatures.get(0).getName(), normalFeatures.get(0));
-            if (trainingMode && !indices.containsKey(normalFeatures.get(0).getName())) {
-                indices.put(normalFeatures.get(0).getName(), currentIndex++);
-            }
-        }
+        for (Feature<?> feature : vector.getFeatureVector()) {
+            if (feature instanceof ListFeature) {
+                ListFeature<?> listFeature = (ListFeature<?>)feature;
+                for (Feature<?> value : listFeature.getValue()) {
+                    String featureIdentifier = listFeature.getName() + ":" + value.getName();
+                    features.put(featureIdentifier.toString(), value);
 
-        for (String featurePath : sparseFeaturePaths) {
-            List<Feature<?>> feature = FeatureUtils.getFeaturesAtPath(vector, featurePath);
-            for (Feature<?> sparseFeature : feature) {
-                sparseFeatures.put(sparseFeature.getValue().toString(), sparseFeature);
-
-                if (trainingMode) {
-                    if (!indices.containsKey(sparseFeature.getValue().toString())) {
-                        indices.put(sparseFeature.getValue().toString(), currentIndex++);
+                    if (trainingMode) {
+                        if (!indices.containsKey(featureIdentifier)) {
+                            indices.put(featureIdentifier, currentIndex++);
+                        }
                     }
+                }
+            } else {
+                features.put(feature.getName(), feature);
+                if (trainingMode && !indices.containsKey(feature.getName())) {
+                    indices.put(feature.getName(), currentIndex++);
                 }
             }
         }
-        List<svm_node> libSvmFeatureVector = new ArrayList<svm_node>();
-        for (Entry<String, Feature<?>> entry : features.entrySet()) {
-            svm_node node = new svm_node();
-            node.index = indices.get(entry.getKey());
-            node.value = featureToDouble(entry.getValue(), instances, normalizations);
-            libSvmFeatureVector.add(node);
-        }
 
-        for (Entry<String, Feature<?>> entry : sparseFeatures.entrySet()) {
+        List<svm_node> libSvmFeatureVector = new ArrayList<svm_node>();
+
+        for (Entry<String, Feature<?>> entry : features.entrySet()) {
             Integer featureIndex = indices.get(entry.getKey());
             if (featureIndex == null) {
                 LOGGER.debug("Ignoring sparse feature \"" + entry.getKey() + "\" since it was not in the training set.");
@@ -288,7 +298,7 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
             }
             svm_node node = new svm_node();
             node.index = featureIndex;
-            node.value = 1.0;
+            node.value = featureToDouble(entry.getValue(), trainables, normalizations);
             libSvmFeatureVector.add(node);
         }
         return libSvmFeatureVector.toArray(new svm_node[libSvmFeatureVector.size()]);
@@ -314,21 +324,15 @@ public final class LibSvmPredictor implements Classifier<LibSvmModel> {
     }
 
     @Override
-    public LibSvmModel train(Dataset dataset) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public CategoryEntries classify(Classifiable classifiable, LibSvmModel model) {
+        CategoryEntriesMap ret = new CategoryEntriesMap();
 
-    @Override
-    public CategoryEntries classify(FeatureVector vector, LibSvmModel model) {
-        CategoryEntries ret = new CategoryEntries();
-
-        svm_node[] libsvmFeatureVector = transformPalladianFeatureVectorToLibsvmFeatureVector(vector,
-                model.getSchema(), false, model.getNormalizations());
+        svm_node[] libsvmFeatureVector = transformPalladianFeatureVectorToLibsvmFeatureVector(
+                classifiable.getFeatureVector(), model.getSchema(), false, model.getNormalizations());
 
         double classIndex = svm.svm_predict(model.getModel(), libsvmFeatureVector);
         String className = model.transformClassToString(Double.valueOf(classIndex).intValue());
-        ret.add(new CategoryEntry(className, 1.0));
+        ret.set(className, 1.0);
 
         return ret;
     }

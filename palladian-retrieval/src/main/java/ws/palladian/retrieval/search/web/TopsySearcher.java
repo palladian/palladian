@@ -2,11 +2,12 @@ package ws.palladian.retrieval.search.web;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.retrieval.parser.JsonHelper;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseTopsySearcher;
 
 /**
@@ -46,13 +47,16 @@ public final class TopsySearcher extends BaseTopsySearcher {
         return SEARCHER_NAME;
     }
 
-    protected WebResult parse(JSONObject item) throws JSONException {
-        String url = JsonHelper.getString(item, "trackback_permalink");
-        String title = StringEscapeUtils.unescapeHtml4(JsonHelper.getString(item, "title"));
+    @Override
+    protected WebContent parse(JsonObject item) throws JsonException {
+        BasicWebContent.Builder builder = new BasicWebContent.Builder();
+        builder.setUrl(item.tryGetString("trackback_permalink"));
+        builder.setTitle(StringEscapeUtils.unescapeHtml4(item.tryGetString("title")));
         // String description = StringEscapeUtils.unescapeHtml4(JsonHelper.getString(item, "content"));
-        return new WebResult(url, title, null, SEARCHER_NAME);
+        return builder.create();
     }
 
+    @Override
     protected String buildQueryUrl(String query, int page, String apiKey) {
         StringBuilder queryUrl = new StringBuilder();
         queryUrl.append("http://otter.topsy.com/search.json");

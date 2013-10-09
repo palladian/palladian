@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -167,40 +168,47 @@ public final class HtmlHelper {
         return STRIP_ALL_TAGS.matcher(htmlText).replaceAll("");
     }
 
-    public static String stripHtmlTags(String htmlText, EnumSet<HtmlElement> htmlElements) {
+    /**
+     * @deprecated Prefer using varargs {@link #stripHtmlTags(String, HtmlElement...)} because it is shorter in code
+     *             (avoids creating {@link EnumSet}).
+     */
+    @Deprecated
+    public static String stripHtmlTags(String htmlText, Set<HtmlElement> htmlElements) {
         if (htmlText == null) {
+            return null;
+        }
+        if (htmlElements.isEmpty()) {
             return htmlText;
         }
-
-        StringBuilder regExp = new StringBuilder();
-
+        List<String> regexes = CollectionHelper.newArrayList();
         if (htmlElements.contains(HtmlElement.COMMENTS)) {
-            regExp.append("<!--.*?-->|");
+            regexes.add("<!--.*?-->");
         }
-
         if (htmlElements.contains(HtmlElement.SCRIPT)) {
-            regExp.append("<script.*?>.*?</script>|");
+            regexes.add("<script.*?>.*?</script>");
         }
-
         if (htmlElements.contains(HtmlElement.CSS)) {
-            regExp.append("<style.*?>.*?</style>|");
+            regexes.add("<style.*?>.*?</style>");
         }
-
         if (htmlElements.contains(HtmlElement.TAG)) {
-            regExp.append("<.*?>");
+            regexes.add("<.*?>");
         }
+        String regex = StringUtils.join(regexes, "|");
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        return pattern.matcher(htmlText).replaceAll("");
+    }
 
-        String r = regExp.toString();
-        if (r.isEmpty()) {
-            return htmlText;
-        }
-
-        if (r.endsWith("|")) {
-            r = r.substring(0, regExp.length() - 1);
-        }
-
-        Pattern p = Pattern.compile(r, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        return p.matcher(htmlText).replaceAll("");
+    /**
+     * <p>
+     * Remove specified parts (see {@link HtmlElement}) from HTML/XML content.
+     * </p>
+     * 
+     * @param htmlText The markup text to strip.
+     * @param htmlElements The elements to remove.
+     * @return The markup with the specified elements removed, or <code>null</code> in case input was <code>null</code>.
+     */
+    public static String stripHtmlTags(String htmlText, HtmlElement... htmlElements) {
+        return stripHtmlTags(htmlText, EnumSet.copyOf(Arrays.asList(htmlElements)));
     }
 
     public static String joinTagsAndRemoveNewLines(String htmlText) {
@@ -212,69 +220,6 @@ public final class HtmlHelper {
         htmlText = htmlText.replaceAll("\n", "");
 
         return htmlText;
-    }
-
-    /**
-     * <p>
-     * Remove all style and script tags including their content (CSS, JavaScript). Remove all other tags as well. Close
-     * gaps. The text might not be readable since all format hints are discarded. Consider using
-     * {@link HtmlHelper.htmlToReableText} in case you need formatting.
-     * </p>
-     * 
-     * @param htmlContent
-     *            the html content
-     * @param stripTags
-     *            the strip tags
-     * @param stripComments
-     *            the strip comments
-     * @param stripJSAndCSS
-     *            the strip js and css
-     * @param joinTagsAndRemoveNewlines
-     *            the join tags and remove newlines
-     * @return The text of the web page.
-     */
-    @Deprecated
-    public static String stripHtmlTags(String htmlText, boolean stripTags, boolean stripComments,
-            boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
-
-        if (htmlText == null) {
-            return htmlText;
-        }
-
-        String regExp = "";
-
-        if (joinTagsAndRemoveNewlines) {
-            htmlText = htmlText.replaceAll(">\\s*?<", "><");
-            htmlText = htmlText.replaceAll("\n", "");
-        }
-
-        if (stripComments) {
-            regExp += "<!--.*?-->|";
-        }
-
-        if (stripJSAndCSS) {
-            regExp += "<style.*?>.*?</style>|<script.*?>.*?</script>|";
-        }
-
-        if (stripTags) {
-            regExp += "<.*?>";
-        }
-
-        if (regExp.length() == 0) {
-            return htmlText;
-        }
-
-        if (regExp.endsWith("|")) {
-            regExp = regExp.substring(0, regExp.length() - 1);
-        }
-
-        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        return pattern.matcher(htmlText).replaceAll("");
-
-        // close gaps
-        // htmlText = htmlText.replaceAll("[ ]{2,}", " ");
-
-        // return htmlText.trim();
     }
 
     /**
@@ -894,8 +839,6 @@ public final class HtmlHelper {
     }
 
     /**
-     * TODO duplicate of {@link #getXmlDump(Node)}?
-     * 
      * @param document
      * @return
      */
@@ -909,6 +852,28 @@ public final class HtmlHelper {
     private static boolean isWrappingNode(Node node) {
         String nodeName = node.getNodeName().toLowerCase();
         return BLOCK_ELEMENTS.contains(nodeName);
+    }
+
+    /**
+     * <p>
+     * Get all siblings of a {@link Node}, depth-first.
+     * </p>
+     * 
+     * @param node The node, not <code>null</code>.
+     * @return A list with all siblings in depth-first order, or an empty {@link List}, but never <code>null</code>.
+     */
+    public static List<Node> getAllSiblings(Node node) {
+        Validate.notNull(node, "node must not be null");
+        List<Node> result = CollectionHelper.newArrayList();
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            result.add(childNode);
+            if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                result.addAll(getAllSiblings(childNode));
+            }
+        }
+        return result;
     }
 
 }

@@ -182,4 +182,9 @@ public final class NaiveBayesModel implements Model {
         return builder.toString();
     }
 
+    @Override
+    public Set<String> getCategories() {
+        return categories.uniqueItems();
+    }
+
 }

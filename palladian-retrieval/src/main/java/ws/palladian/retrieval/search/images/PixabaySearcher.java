@@ -4,17 +4,19 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.helper.JsonObjectWrapper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.WebSearcher;
 
 /**
  * <p>
@@ -24,15 +26,19 @@ import ws.palladian.retrieval.search.web.WebSearcher;
  * @author David Urbansky
  * @see <a href="http://pixabay.com/api/docs/">Pixabay API</a>
  */
-public class PixabaySearcher extends WebSearcher<WebImageResult> {
+public class PixabaySearcher extends AbstractSearcher<WebImage> {
 
-    /**
-     * Identifier for the API key when supplied via {@link Configuration}.
-     */
+    /** The name of this searcher. */
+    private static final String SEARCHER_NAME = "Pixabay";
+
+    /** Identifier for the API user when supplied via {@link Configuration}. */
     public static final String CONFIG_API_USER = "api.pixabay.user";
+
+    /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.pixabay.key";
 
     private final String apiUser;
+
     private final String apiKey;
 
     /**
@@ -56,8 +62,7 @@ public class PixabaySearcher extends WebSearcher<WebImageResult> {
      * </p>
      * 
      * @param configuration The configuration which must provide an API key for accessing Pixabay, which must be
-     *            provided
-     *            as string via key {@value PixabaySearcher#CONFIG_API_KEY} in the configuration.
+     *            provided as string via key {@value PixabaySearcher#CONFIG_API_KEY} in the configuration.
      */
     public PixabaySearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_USER), configuration.getString(CONFIG_API_KEY));
@@ -67,8 +72,8 @@ public class PixabaySearcher extends WebSearcher<WebImageResult> {
     /**
      * @param language Supported languages are  id, cs, de, en, es, fr, it, nl, no, hu, ru, pl, pt, ro, fi, sv, tr, ja, ko, and zh.
      */
-    public List<WebImageResult> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImageResult> results = CollectionHelper.newArrayList();
+    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+        List<WebImage> results = CollectionHelper.newArrayList();
 
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(100, resultCount);
@@ -79,32 +84,33 @@ public class PixabaySearcher extends WebSearcher<WebImageResult> {
         for (int page = 1; page <= pagesNeeded; page++) {
 
             String requestUrl = buildRequest(query, page, Math.min(100, resultCount - results.size()), language);
-            JsonObjectWrapper json = new JsonObjectWrapper(documentRetriever.getText(requestUrl));
-            JSONArray jsonArray = json.getJSONArray("hits");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                try {
-                    JsonObjectWrapper resultHit = new JsonObjectWrapper(jsonArray.getJSONObject(i));
-                    String url = resultHit.getString("pageURL");
-                    String imageUrl = resultHit.getString("webformatURL");
-                    String summary = resultHit.getString("tags");
-                    String imageTypeString = resultHit.getString("type");
-                    int width = resultHit.getInt("imageWidth");
-                    int height = resultHit.getInt("imageHeight");
-                    WebImageResult webImageResult = new WebImageResult(url, imageUrl, summary, summary, width, height,
-                            null,
-                            null);
-
-                    webImageResult.setThumbImageUrl(resultHit.getString("previewURL"));
-                    webImageResult.setLicense(License.PUBLIC_DOMAIN);
-                    webImageResult.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
-                    webImageResult.setImageType(getImageType(imageTypeString));
-
-                    results.add(webImageResult);
-
-                } catch (JSONException e) {
-                    throw new SearcherException(e.getMessage());
+            try {
+                String textResponse = documentRetriever.getText(requestUrl);
+                if (textResponse == null) {
+                    throw new SearcherException("Failed to get JSON from " + requestUrl);
+                }
+                JsonObject json = new JsonObject(textResponse);
+                JsonArray jsonArray = json.getJsonArray("hits");
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JsonObject resultHit = jsonArray.getJsonObject(i);
+                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setUrl(resultHit.getString("pageURL"));
+                    builder.setImageUrl(resultHit.getString("webformatURL"));
+                    builder.setTitle(resultHit.getString("tags"));
+                    builder.setWidth(resultHit.getInt("imageWidth"));
+                    builder.setHeight(resultHit.getInt("imageHeight"));
+                    builder.setImageType(getImageType(resultHit.getString("type")));
+                    builder.setThumbnailUrl(resultHit.getString("previewURL"));
+                    builder.setLicense(License.PUBLIC_DOMAIN);
+                    builder.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
+                    results.add(builder.create());
+                    if (results.size() >= resultCount) {
+                        break;
+                    }
                 }
 
+            } catch (JsonException e) {
+                throw new SearcherException(e.getMessage());
             }
         }
 
@@ -124,25 +130,19 @@ public class PixabaySearcher extends WebSearcher<WebImageResult> {
     }
 
     private String buildRequest(String searchTerms, int page, int resultsPerPage, Language language) {
-        searchTerms = UrlHelper.encodeParameter(searchTerms);
-        String url = "http://pixabay.com/api/?username=" + apiUser + "&key=" + apiKey + "&search_term=" + searchTerms
-                + "&image_type=all&page=" + page + "&per_page=" + resultsPerPage + "&lang=" + language.getIso6391();
-
-        return url;
+        return String.format(
+                "http://pixabay.com/api/?username=%s&key=%s&search_term=%s&image_type=all&page=%s&per_page=%s&lang=%s",
+                apiUser, apiKey, UrlHelper.encodeParameter(searchTerms), page, resultsPerPage, language.getIso6391());
     }
 
     @Override
     public String getName() {
-        return "Pixabay";
+        return SEARCHER_NAME;
     }
 
-    /**
-     * @param args
-     * @throws SearcherException
-     */
     public static void main(String[] args) throws SearcherException {
         PixabaySearcher pixabaySearcher = new PixabaySearcher("USER", "KEY");
-        List<WebImageResult> results = pixabaySearcher.search("car", 101);
+        List<WebImage> results = pixabaySearcher.search("car", 101);
         CollectionHelper.print(results);
     }
 }
