@@ -110,26 +110,47 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("BasicWebVideo [videoUrl=");
-        builder.append(videoUrl);
-        builder.append(", thumbnailUrl=");
-        builder.append(thumbnailUrl);
-        builder.append(", duration=");
-        builder.append(duration);
-        builder.append(", views=");
-        builder.append(views);
-        builder.append(", rating=");
-        builder.append(rating);
-        builder.append(", getUrl()=");
-        builder.append(getUrl());
-        builder.append(", getTitle()=");
-        builder.append(getTitle());
-        builder.append(", getSummary()=");
-        builder.append(getSummary());
-        builder.append(", getPublished()=");
-        builder.append(getPublished());
-        builder.append(", getCoordinate()=");
-        builder.append(getCoordinate());
+        builder.append("BasicWebVideo [");
+        if (videoUrl != null) {
+            builder.append("videoUrl=");
+            builder.append(videoUrl);
+        }
+        if (thumbnailUrl != null) {
+            builder.append(", thumbnailUrl=");
+            builder.append(thumbnailUrl);
+        }
+        if (duration != null) {
+            builder.append(", duration=");
+            builder.append(duration);
+        }
+        if (views != null) {
+            builder.append(", views=");
+            builder.append(views);
+        }
+        if (rating != null) {
+            builder.append(", rating=");
+            builder.append(rating);
+        }
+        if (getUrl() != null) {
+            builder.append(", url=");
+            builder.append(getUrl());
+        }
+        if (getTitle() != null) {
+            builder.append(", title=");
+            builder.append(getTitle());
+        }
+        if (getSummary() != null) {
+            builder.append(", summary=");
+            builder.append(getSummary());
+        }
+        if (getPublished() != null) {
+            builder.append(", published=");
+            builder.append(getPublished());
+        }
+        if (getCoordinate() != null) {
+            builder.append(", coordinate=");
+            builder.append(getCoordinate());
+        }
         builder.append("]");
         return builder.toString();
     }

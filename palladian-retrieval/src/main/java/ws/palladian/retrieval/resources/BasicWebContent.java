@@ -125,14 +125,27 @@ public class BasicWebContent implements WebContent {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("WebResult [url=");
-        builder.append(url);
-        builder.append(", title=");
-        builder.append(title);
-        builder.append(", summary=");
-        builder.append(summary);
-        builder.append(", date=");
-        builder.append(published);
+        builder.append("WebResult [");
+        if (url != null) {
+            builder.append("url=");
+            builder.append(url);
+        }
+        if (title != null) {
+            builder.append(", title=");
+            builder.append(title);
+        }
+        if (summary != null) {
+            builder.append(", summary=");
+            builder.append(summary);
+        }
+        if (published != null) {
+            builder.append(", published=");
+            builder.append(published);
+        }
+        if (coordinate != null) {
+            builder.append(", coordinate=");
+            builder.append(coordinate);
+        }
         builder.append("]");
         return builder.toString();
     }
