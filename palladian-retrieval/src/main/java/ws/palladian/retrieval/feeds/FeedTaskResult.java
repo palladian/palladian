@@ -2,14 +2,10 @@ package ws.palladian.retrieval.feeds;
 
 public enum FeedTaskResult {
 
-    /**
-     * The {@link FeedTask} has not been completed yet.
-     */
+    /** The {@link FeedTask} has not been completed yet. */
     OPEN,
 
-    /**
-     * The {@link FeedTask} has been completed successfully.
-     */
+    /** The {@link FeedTask} has been completed successfully. */
     SUCCESS,
 
     /**
@@ -18,23 +14,16 @@ public enum FeedTaskResult {
      */
     EXECUTION_TIME_WARNING,
 
-    /**
-     * The {@link FeedTask} has been completed, but a MISS occurred.
-     */
+    /** The {@link FeedTask} has been completed, but a MISS occurred. */
     MISS,
 
-    /**
-     * The {@link FeedTask} has been completed, but the feed was unreachable.
-     */
+    /** The {@link FeedTask} has been completed, but the feed was unreachable. */
     UNREACHABLE,
 
-    /**
-     * The {@link FeedTask} has been completed, but the feed was unparsable.
-     */
+    /** The {@link FeedTask} has been completed, but the feed was unparsable. */
     UNPARSABLE,
 
-    /**
-     * An Error occurred processing this {@link FeedTask}.
-     */
+    /** An Error occurred processing this {@link FeedTask}. */
     ERROR
+
 }

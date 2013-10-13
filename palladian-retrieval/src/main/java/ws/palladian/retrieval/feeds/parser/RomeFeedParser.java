@@ -45,7 +45,7 @@ import com.sun.syndication.io.SyndFeedInput;
  * 
  * @see <a href="http://rometools.org/">The ROME Project</a>
  */
-public class RomeFeedParser extends BaseFeedParser implements FeedParser {
+public class RomeFeedParser extends AbstractFeedParser {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(RomeFeedParser.class);

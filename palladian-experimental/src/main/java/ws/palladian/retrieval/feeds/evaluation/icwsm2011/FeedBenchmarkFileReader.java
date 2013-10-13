@@ -13,8 +13,9 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
-import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * @author David Urbansky
@@ -26,7 +27,7 @@ public class FeedBenchmarkFileReader {
     protected static final Logger LOGGER = LoggerFactory.getLogger(FeedBenchmarkFileReader.class);
 
     private Feed feed;
-    private FeedReader feedChecker;
+//    private FeedReader feedChecker;
     private List<String> historyFileLines;
     private String historyFilePath = "";
     private int totalEntries = 0;
@@ -43,9 +44,11 @@ public class FeedBenchmarkFileReader {
      */
     private int lastStartIndex = 1;
 
-    public FeedBenchmarkFileReader(Feed feed, FeedReader feedChecker) {
+    private final UpdateStrategy updateStrategy;
+
+    public FeedBenchmarkFileReader(Feed feed, UpdateStrategy updateStrategy) {
         this.feed = feed;
-        this.feedChecker = feedChecker;
+        this.updateStrategy = updateStrategy;
 
         String safeFeedName = feed.getId()
                 + "_"
@@ -73,14 +76,6 @@ public class FeedBenchmarkFileReader {
 
     public void setFeed(Feed feed) {
         this.feed = feed;
-    }
-
-    public FeedReader getFeedChecker() {
-        return feedChecker;
-    }
-
-    public void setFeedChecker(FeedReader feedChecker) {
-        this.feedChecker = feedChecker;
     }
 
     public String getHistoryFilePath() {
@@ -401,7 +396,8 @@ public class FeedBenchmarkFileReader {
             // remember the time the feed has been checked
             feed.setLastPollTime(new Date());
 
-            feedChecker.updateCheckIntervals(feed, false);
+            updateStrategy.update(feed, new FeedPostStatistics(feed), false);
+            feed.increaseChecks();
 
             pollData.setCheckInterval(feed.getUpdateInterval());
 

@@ -8,12 +8,15 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
@@ -177,8 +180,9 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSample;
 
-        UpdateStrategy[] strategies = { new FixUpdateStrategy(60), new FixUpdateStrategy(1440),
-                new FixLearnedUpdateStrategy(), new MavUpdateStrategy(), new PostRateUpdateStrategy() };
+        UpdateStrategy[] strategies = {new FixUpdateStrategy(-1, -1, 60), new FixUpdateStrategy(-1, -1, 1440),
+                new FixLearnedUpdateStrategy(-1, -1, 0), new MavUpdateStrategy(-1, -1),
+                new PostRateUpdateStrategy(-1, -1)};
 
         Integer[] policies = { BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE };
         Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
@@ -198,12 +202,12 @@ public class FeedReaderEvaluator {
 
                     setBenchmarkMode(mode);
 
-                    FeedReader fc = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig()));
-                    fc.setUpdateStrategy(strategy);
+                    FeedStore store = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
+                    FeedReader fc = new FeedReader(store, new DefaultFeedProcessingAction(), strategy);
 
                     LOGGER.info("start evaluation for strategy " + strategy.getName() + ", policy "
                             + policy + ", and mode " + mode);
-                    fc.startContinuousReading(-1);
+                    fc.start();
 
                 }
             }
@@ -222,7 +226,7 @@ public class FeedReaderEvaluator {
         // if -1 => fixed learned
         int checkInterval = 60;
 
-        UpdateStrategy updateStrategy = new FixUpdateStrategy(checkInterval);
+        AbstractUpdateStrategy updateStrategy = new FixUpdateStrategy(-1, -1, checkInterval);
 
         // updateStrategy = new MavUpdateStrategy();
         // updateStrategy = new PostRateUpdateStrategy();
@@ -230,14 +234,13 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSamplePercentage = 100; // use just a percentage of
 
-        FeedReader feedReader = new FeedReader(DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder
-                .getInstance().getConfig()));
-        feedReader.setUpdateStrategy(updateStrategy);
+        FeedStore store = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
+        FeedReader feedReader = new FeedReader(store, new DefaultFeedProcessingAction(), updateStrategy);
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
         setBenchmarkMode(BENCHMARK_POLL);
         // setBenchmarkMode(BENCHMARK_TIME);
-        feedReader.startContinuousReading(-1);
+        feedReader.start();
     }
 
 }

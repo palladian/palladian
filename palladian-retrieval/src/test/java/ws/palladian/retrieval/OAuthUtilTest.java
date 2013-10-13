@@ -20,11 +20,11 @@ public class OAuthUtilTest {
 
         String baseUrl = "https://api.twitter.com/1/statuses/update.json";
         HttpMethod httpMethod = HttpMethod.POST;
-        String consumerKey = "xvz1evFS4wEEPTGEFPHBog";
-        String token = "370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb";
+        // String consumerKey = "xvz1evFS4wEEPTGEFPHBog";
+        // String token = "370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb";
         String consumerSecret = "kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw";
         String tokenSecret = "LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE";
-        OAuthParams oAuthParams = new OAuthParams(consumerKey, consumerSecret, token, tokenSecret);
+        // OAuthParams oAuthParams = new OAuthParams(consumerKey, consumerSecret, token, tokenSecret);
         HttpRequest httpRequest = new HttpRequest(httpMethod, baseUrl);
 
         Map<String, String> params = CollectionHelper.newHashMap();
@@ -55,11 +55,11 @@ public class OAuthUtilTest {
         String signature = OAuthUtil.createSignature(signatureBaseString, signingKey);
         assertEquals("tnnArxj06cWHq44gCs1OSKk/jLY=", signature);
 
-        Map<String, String> params2 = CollectionHelper.newHashMap();
-        params2.put("include_entities", "true");
-        params2.put("status", "Hello Ladies + Gentlemen, a signed OAuth request!");
-        HttpRequest signedHttpRequest = OAuthUtil.createSignedRequest(httpRequest, oAuthParams);
-        System.out.println(signedHttpRequest.getHeaders().get("Authorization"));
+        // Map<String, String> params2 = CollectionHelper.newHashMap();
+        // params2.put("include_entities", "true");
+        // params2.put("status", "Hello Ladies + Gentlemen, a signed OAuth request!");
+        // HttpRequest signedHttpRequest = OAuthUtil.createSignedRequest(httpRequest, oAuthParams);
+        // System.out.println(signedHttpRequest.getHeaders().get("Authorization"));
     }
 
     @Test

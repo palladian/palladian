@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds.updates;
 
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
@@ -28,7 +28,6 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  */
 public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(IndHistUpdateStrategy.class);
 
@@ -36,7 +35,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      * Threshold. If, in a certain timeWindow, (number of new entries) / (number of predicted updates by IndHist)
      * exceeds threshold, use TTL, other wise use IndHist. Common value is 2.0
      */
-    private final double T_BURST;
+    private final double tBurst;
 
     /**
      * A time window in hours, used for decision which algorithm to use. Common value is 1 or 24 (1 day)
@@ -67,10 +66,10 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      *            (1 day)
      * @param adaptiveTTLWeightM Weight to be forwarded to {@link AdaptiveTTLUpdateStrategy}.
      */
-    public IndHistTTLUpdateStrategy(double thresholdTheta, FeedDatabase feedDb, double tBurst,
-            int timeWindowHours, double adaptiveTTLWeightM) {
-        super(thresholdTheta, feedDb);
-        this.T_BURST = tBurst;
+    public IndHistTTLUpdateStrategy(int lowestInterval, int highestInterval, double thresholdTheta,
+            FeedDatabase feedDb, double tBurst, int timeWindowHours, double adaptiveTTLWeightM) {
+        super(lowestInterval, highestInterval, thresholdTheta, feedDb);
+        this.tBurst = tBurst;
         this.timeWindowHours = timeWindowHours;
         this.adaptiveTTLWeightM = adaptiveTTLWeightM;
     }
@@ -94,7 +93,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
             if (feed.getLastPollTime() == null) {
                 LOGGER.error("Feed id " + feed.getId()
                         + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
-                feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
+                feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME));
 
             } else {
                 // normal case
@@ -106,7 +105,6 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
                 // 1) get the number of items predicted within this window
                 double predictedNumberItemsInWindow = calculatePredictedNumUpdates(feed);
-                
 
                 // 2) get the number of items received within this window
                 // 2a) get items seen atlast poll(s)
@@ -114,30 +112,27 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
                 // 2b) add new items of current poll
                 itemTimestamps = addNewItems(feed, itemTimestamps);
-                
+
                 // 2c) remove timestamps older than time window
                 itemTimestamps = removeOldTimestamps(feed, itemTimestamps);
-                
+
                 // 2d) set timestamps back to feed to read at next poll.
                 feed.addAdditionalData(IndHistTTL_WINDOW_IDENTIFIER, itemTimestamps);
-                
-                
+
                 // 3) now its time to select the strategy
                 int realNumberItemsInWindow = itemTimestamps.size();
                 if ((realNumberItemsInWindow > 0 && predictedNumberItemsInWindow == 0)
-                        || ((realNumberItemsInWindow / predictedNumberItemsInWindow) > getThresholdTburst())) {
+                        || ((realNumberItemsInWindow / predictedNumberItemsInWindow) > tBurst)) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Feed id " + feed.getId() + ", pollTime " + feed.getLastPollTime()
                                 + " using strategy AdaptiveTTL.");
                     }
-                    
+
                     // use Adaptive TTL
-                    AdaptiveTTLUpdateStrategy ttl = new AdaptiveTTLUpdateStrategy();
-                    ttl.setWeightM(adaptiveTTLWeightM);
-                    ttl.setHighestUpdateInterval(getHighestUpdateInterval());
-                    ttl.setLowestUpdateInterval(getLowestUpdateInterval());
+                    AdaptiveTTLUpdateStrategy ttl = new AdaptiveTTLUpdateStrategy(getLowestInterval(),
+                            getHighestInterval(), adaptiveTTLWeightM);
                     ttl.update(feed, fps, trainingMode);
-                    
+
                 } else {
                     // use IndHist
                     if (LOGGER.isDebugEnabled()) {
@@ -160,9 +155,9 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      */
     private List<Long> removeOldTimestamps(Feed feed, List<Long> itemTimestamps) {
         Iterator<Long> it = itemTimestamps.iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             Long timestamp = it.next();
-            Long windowStartTime = feed.getLastPollTime().getTime() - getTimeWindowHours() * TimeUnit.HOURS.toMillis(1);
+            Long windowStartTime = feed.getLastPollTime().getTime() - timeWindowHours * TimeUnit.HOURS.toMillis(1);
             if (timestamp < windowStartTime) {
                 it.remove();
             }
@@ -204,7 +199,9 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
         double[] hourlyRates = getModelFromFeed(feed);
         double dailyRate = getDailyRate(hourlyRates);
 
-        int pollHourOfDay = feed.getLastPollTime().getHours();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(feed.getLastPollTime());
+        int pollHourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
         int simulatedHour = pollHourOfDay;
         double predictedNumberItemsInWindow = 0.0;
 
@@ -212,7 +209,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
         int historyMinutes = 0;
 
         // number of minutes already passed in the current hour
-        int currentMinutes = feed.getLastPollTime().getMinutes() * 60;
+        int currentMinutes = calendar.get(Calendar.MINUTE) * 60;
 
         // number of new elements within currentMinutes
         // in case time window is set in minutes, modify next line if currentMinutes < timeWindow
@@ -221,23 +218,22 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
         // go backward in time
         simulatedHour = (24 + simulatedHour - 1) % 24;
-        
+
         // add full days till we would see more than the windowSize
-        while (historyMinutes + 1440 < getTimeWindowHours() * 60) {
+        while (historyMinutes + 1440 < timeWindowHours * 60) {
             historyMinutes += 1440;
             predictedNumberItemsInWindow += dailyRate;
         }
 
         // add full hours till we would see more than the windowSize
-        while (historyMinutes + 60 < getTimeWindowHours() * 60) {
+        while (historyMinutes + 60 < timeWindowHours * 60) {
             historyMinutes += 60;
             predictedNumberItemsInWindow += hourlyRates[simulatedHour];
             simulatedHour = (24 + simulatedHour - 1) % 24;
         }
-        
+
         // add part of oldest hour
-        predictedNumberItemsInWindow += ((getTimeWindowHours() * 60) - historyMinutes)
-                * (hourlyRates[simulatedHour] / 60);
+        predictedNumberItemsInWindow += ((timeWindowHours * 60) - historyMinutes) * (hourlyRates[simulatedHour] / 60);
 
         return predictedNumberItemsInWindow;
     }
@@ -250,36 +246,14 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      *         first poll.
      */
     @SuppressWarnings("unchecked")
-    private List<Long> getRecentItems(Feed feed){
+    private List<Long> getRecentItems(Feed feed) {
         List<Long> itemTimestamps = null;
         try {
-            itemTimestamps = (List<Long>) feed.getAdditionalData(IndHistTTL_WINDOW_IDENTIFIER);
+            itemTimestamps = (List<Long>)feed.getAdditionalData(IndHistTTL_WINDOW_IDENTIFIER);
         } catch (Exception e) {
             LOGGER.error("Could not load " + IndHistTTL_WINDOW_IDENTIFIER + " from feed.");
         }
         return itemTimestamps;
-    }
-
-
-    /**
-     * Threshold T_burst. If, in a certain timeWindow, (number of new entries) / (number of predicted updates by
-     * IndHist) exceeds threshold, use TTL, other wise use IndHist. Common value is 2.0
-     * 
-     * @see #getTimeWindowHours()
-     * 
-     * @return threshold set.
-     */
-    public final double getThresholdTburst() {
-        return T_BURST;
-    }
-
-    /**
-     * A time window in hours, used for decision which algorithm to use. Common value is 1 or 24
-     * 
-     * @return The time window in hours used.
-     */
-    public final int getTimeWindowHours() {
-        return timeWindowHours;
     }
 
     /**
@@ -288,9 +262,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      */
     @Override
     public String getName() {
-        return "IndHisTTL" + getThresholdTheta() + "_" + adaptiveTTLWeightM + "_" + getThresholdTburst() + "_"
-                + getTimeWindowHours();
+        return "IndHisTTL" + thresholdTheta + "_" + adaptiveTTLWeightM + "_" + tBurst + "_" + timeWindowHours;
     }
-
 
 }

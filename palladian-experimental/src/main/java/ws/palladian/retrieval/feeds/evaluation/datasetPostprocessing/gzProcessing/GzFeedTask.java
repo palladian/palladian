@@ -21,13 +21,14 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
-import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.meta.MetaInformationExtractor;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
@@ -63,12 +64,6 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
     private int initialTotalItems = 0;
 
     /**
-     * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
-     * strategies to a true strategy pattern.
-     */
-    private final FeedReader feedReader;
-
-    /**
      * Warn if processing of a feed takes longer than this.
      */
     public static final long EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
@@ -77,23 +72,28 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
      * All items that have ever been seen in this feed. Remember to call {@link FeedItem#freeMemory()} on all items
      * since there may be MANY items.
      */
-    List<FeedItem> allItems = new ArrayList<FeedItem>();
+    private final List<FeedItem> allItems = new ArrayList<FeedItem>();
 
+    private final FeedStore feedStore;
+
+    /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
+    private final Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
+    
+    private final FeedProcessingAction action;
+    
     /**
      * Creates a new gz processing task for a provided feed.
      * 
      * @param feed The feed retrieved by this task.
      */
-    public GzFeedTask(Feed dbFeed, FeedReader feedChecker) {
+    public GzFeedTask(Feed dbFeed, FeedStore feedStore, FeedProcessingAction action) {
         this.initialMisses = dbFeed.getMisses();
         this.initialChecks = dbFeed.getChecks();
         this.initialTotalItems = dbFeed.getNumberOfItemsReceived();
         this.correctedFeed = copyRequiredFeedProperties(dbFeed);
-        this.feedReader = feedChecker;
+        this.feedStore = feedStore;
+        this.action = action;
     }
-
-    /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
-    private final Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
 
     @Override
     public FeedTaskResult call() throws Exception {
@@ -164,9 +164,9 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                     LOGGER.error("Could not get Document for feed id " + correctedFeed.getId()
                             + ". Server returned HTTP status code " + gzHttpResult.getStatusCode());
 
-                    boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnError(
-                            correctedFeed, gzHttpResult);
-                    if (!actionSuccess) {
+                    try {
+                        action.onError(correctedFeed, gzHttpResult);
+                    } catch (Exception e) {
                         resultSet.add(FeedTaskResult.ERROR);
                     }
 
@@ -177,9 +177,9 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                         // feedReader.updateCheckIntervals(correctedFeed);
                         correctedFeed.setLastSuccessfulCheckTime(correctedFeed.getLastPollTime());
                         correctedFeed.increaseChecks();
-                        boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnUnmodifiedFeed(
-                                correctedFeed, gzHttpResult);
-                        if (!actionSuccess) {
+                        try {
+                            action.onUnmodified(correctedFeed, gzHttpResult);
+                        } catch (Exception e) {
                             resultSet.add(FeedTaskResult.ERROR);
                         }
 
@@ -212,9 +212,9 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
                         // perform actions on this feeds entries.
                         LOGGER.debug("Performing action on feed: " + correctedFeed.getId() + "("
                                 + correctedFeed.getFeedUrl() + ")");
-                        boolean actionSuccess = feedReader.getFeedProcessingAction().performAction(correctedFeed,
-                                gzHttpResult);
-                        if (!actionSuccess) {
+                        try {
+                            action.onModified(correctedFeed, gzHttpResult);
+                        } catch (Exception e) {
                             resultSet.add(FeedTaskResult.ERROR);
                         }
 
@@ -431,7 +431,7 @@ public class GzFeedTask implements Callable<FeedTaskResult> {
      * @param storeMetadata
      */
     private void updateFeed(boolean storeMetadata) {
-        boolean dbSuccess = feedReader.updateFeed(correctedFeed, correctedFeed.hasNewItem());
+        boolean dbSuccess = feedStore.updateFeed(correctedFeed, correctedFeed.hasNewItem());
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
         }

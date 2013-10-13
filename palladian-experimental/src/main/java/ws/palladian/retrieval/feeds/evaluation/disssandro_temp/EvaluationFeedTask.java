@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
-import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
@@ -24,6 +24,7 @@ import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollData;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
@@ -53,12 +54,6 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * The feed processed by this task.
      */
     private Feed feed = null;
-
-    /**
-     * The feed checker calling this task. NOTE: This is a workaround. Can be fixed by externalizing update
-     * strategies to a true strategy pattern.
-     */
-    private final FeedReader feedReader;
 
     /**
      * Direct access to the {@link FeedDatabase} is required to not extend the {@link FeedStore} interface by
@@ -138,6 +133,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      */
     private int currentPollLowestItemSequenceNumber = 0;
 
+    private final UpdateStrategy updateStrategy;
+
     /**
      * Warn if processing of a feed takes longer than this.
      * TODO: align warning time to the feed's number of items in the dataset.
@@ -149,7 +146,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
      * 
      * @param feed The feed retrieved by this task.
      */
-    public EvaluationFeedTask(Feed feed, FeedReader feedChecker) {
+    public EvaluationFeedTask(Feed feed, UpdateStrategy updateStrategy, EvaluationFeedDatabase feedDatabase) {
         // setName("FeedTask:" + feed.getFeedUrl());
         this.feed = feed;
 
@@ -159,8 +156,8 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
 
         backupFeed();
 
-        this.feedReader = feedChecker;
-        this.feedDatabase = (EvaluationFeedDatabase) feedReader.getFeedStore();
+        this.updateStrategy = updateStrategy;
+        this.feedDatabase = feedDatabase;
     }
 
     /**
@@ -214,7 +211,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
     private double downloadSize;
 
     /**
-     * Some update strategies require an explicit training phase. If set to <code>true</code>, {@link UpdateStrategy} is
+     * Some update strategies require an explicit training phase. If set to <code>true</code>, {@link AbstractUpdateStrategy} is
      * in training mode, if <code>false</code>, in normal mode.
      */
     private boolean trainingMode = false;
@@ -227,7 +224,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             Feed trainingFeed = new Feed();
 
             // do training if required by update strategy.
-            if (feedReader.getUpdateStrategy().hasExplicitTrainingMode()) {
+            if (updateStrategy.hasExplicitTrainingMode()) {
 
                 trainingMode = true;
 
@@ -265,7 +262,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                     trainingFeed.setLastSuccessfulCheckTime(trainingFeed.getLastPollTime());
                     trainingFeed.setWindowSize(downloadedFeed.getItems().size());
 
-                    feedReader.updateCheckIntervals(trainingFeed, trainingMode);
+                    updateCheckIntervals(trainingFeed, trainingMode);
 
                     // estimate time of next poll
                     setSimulatedPollTime(trainingFeed);
@@ -363,7 +360,7 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
                 }
 
 
-                feedReader.updateCheckIntervals(feed, trainingMode);
+                updateCheckIntervals(feed, trainingMode);
 
                 LOGGER.debug("New checkinterval: " + feed.getUpdateInterval());
 
@@ -501,6 +498,12 @@ public class EvaluationFeedTask implements Callable<FeedTaskResult> {
             doFinalLogging(timer);
             return getResult();
         }
+    }
+
+    private void updateCheckIntervals(Feed feed, boolean trainingMode) {
+        FeedPostStatistics fps = new FeedPostStatistics(feed);
+        updateStrategy.update(feed, fps, trainingMode);
+        feed.increaseChecks();
     }
 
     /**
