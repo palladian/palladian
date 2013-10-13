@@ -27,7 +27,7 @@ import ws.palladian.retrieval.feeds.FeedItem;
  * @author Philipp Katz
  * @see http://www.davidpashley.com/projects/eddie.html
  */
-public final class EddieFeedParser extends BaseFeedParser implements FeedParser {
+public final class EddieFeedParser extends AbstractFeedParser implements FeedParser {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(EddieFeedParser.class);

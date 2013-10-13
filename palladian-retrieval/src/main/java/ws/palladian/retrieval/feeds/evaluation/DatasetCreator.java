@@ -50,7 +50,6 @@ import ws.palladian.retrieval.feeds.updates.MavStrategyDatasetCreation;
  */
 public class DatasetCreator {
 
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetCreator.class);
 
@@ -75,8 +74,6 @@ public class DatasetCreator {
     public DatasetCreator() {
         detectSystemLimitations();
     }
-
-
 
     /**
      * Cleaning up performs the following steps:
@@ -184,7 +181,7 @@ public class DatasetCreator {
 
                 // System.out.println("cleansed " + file.getName());
                 if (c % 500 == 0) {
-                    LOGGER.info(MathHelper.round((double) 100 * c / fileCount, 2) + "% of the files cleansed");
+                    LOGGER.info(MathHelper.round((double)100 * c / fileCount, 2) + "% of the files cleansed");
                 }
 
             }
@@ -242,7 +239,7 @@ public class DatasetCreator {
             }
 
             c++;
-            LOGGER.info("percent done: " + MathHelper.round(100 * c / (double) files.length, 2));
+            LOGGER.info("percent done: " + MathHelper.round(100 * c / (double)files.length, 2));
         }
 
         try {
@@ -283,20 +280,15 @@ public class DatasetCreator {
      */
     public void createDataset() {
 
-        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
+        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance()
+                .getConfig());
 
         // all feeds need to be classified in advance to filter them accordingly
         // FeedClassifier.classifyFeedInStore(feedStore);
 
-        FeedReader feedChecker = new FeedReader(feedStore);
-
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
-        MavStrategyDatasetCreation updateStrategy = new MavStrategyDatasetCreation();
-
-        updateStrategy.setHighestUpdateInterval(360); // 6hrs
-        updateStrategy.setLowestUpdateInterval(0);
-        feedChecker.setUpdateStrategy(updateStrategy);
+        MavStrategyDatasetCreation updateStrategy = new MavStrategyDatasetCreation(0, 360);
 
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
         // Collection<Integer> updateClasses = new HashSet<Integer>();
@@ -310,10 +302,10 @@ public class DatasetCreator {
         // feedChecker.filterFeeds(updateClasses);
 
         FeedProcessingAction fpa = new DatasetProcessingAction(feedStore);
-        feedChecker.setFeedProcessingAction(fpa);
+        FeedReader feedReader = new FeedReader(feedStore, fpa, updateStrategy);
 
         LOGGER.debug("start reading feeds");
-        feedChecker.startContinuousReading();
+        feedReader.start();
     }
 
     /**
@@ -347,7 +339,7 @@ public class DatasetCreator {
      * @return Math.floor(feedID / 1000.0)
      */
     public static int getSlice(int feedID) {
-        return (int) Math.floor(feedID / 1000.0);
+        return (int)Math.floor(feedID / 1000.0);
     }
 
     /**
@@ -442,7 +434,7 @@ public class DatasetCreator {
             // get thread pool size
             int threadPoolSize = 0;
             if (config != null) {
-                threadPoolSize = config.getInteger("feedReader.threadPoolSize", FeedReader.DEFAULT_THREAD_POOL_SIZE);
+                threadPoolSize = config.getInteger("feedReader.threadPoolSize", FeedReader.DEFAULT_NUM_THREADS);
             }
 
             /**

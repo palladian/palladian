@@ -2,12 +2,10 @@ package ws.palladian.retrieval.feeds.evaluation.datasetPostprocessing.gzProcessi
 
 import java.util.Timer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.configuration.Configuration;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
@@ -21,9 +19,6 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * 
  */
 public class SessionIdFixer {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(SessionIdFixer.class);
 
     /**
      * Schedule all {@link GzFeedTask}s
@@ -41,13 +36,10 @@ public class SessionIdFixer {
 
     public void removeFalseMisses() {
 
-        final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
-        FeedReader feedChecker = new FeedReader(feedStore);
-
+        Configuration config = ConfigHolder.getInstance().getConfig();
+        FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class, config);
         SessionIdFixProcessingAction fpa = new SessionIdFixProcessingAction(feedStore);
-        feedChecker.setFeedProcessingAction(fpa);
-
-        GzScheduler gzScheduler = new GzScheduler(feedChecker);
+        GzScheduler gzScheduler = new GzScheduler(feedStore, fpa);
         checkScheduler.schedule(gzScheduler, 0, wakeUpInterval);
 
     }

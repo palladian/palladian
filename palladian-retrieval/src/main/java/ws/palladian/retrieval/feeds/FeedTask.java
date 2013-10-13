@@ -1,10 +1,17 @@
 package ws.palladian.retrieval.feeds;
 
+import static ws.palladian.retrieval.feeds.FeedTaskResult.ERROR;
+import static ws.palladian.retrieval.feeds.FeedTaskResult.EXECUTION_TIME_WARNING;
+import static ws.palladian.retrieval.feeds.FeedTaskResult.MISS;
+import static ws.palladian.retrieval.feeds.FeedTaskResult.OPEN;
+import static ws.palladian.retrieval.feeds.FeedTaskResult.SUCCESS;
+import static ws.palladian.retrieval.feeds.FeedTaskResult.UNPARSABLE;
+import static ws.palladian.retrieval.feeds.FeedTaskResult.UNREACHABLE;
+
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -16,12 +23,16 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
@@ -34,7 +45,6 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * @author Klemens Muthmann
  * @author Sandro Reichert
  * @see FeedReader
- * 
  */
 class FeedTask implements Callable<FeedTaskResult> {
 
@@ -42,75 +52,42 @@ class FeedTask implements Callable<FeedTaskResult> {
     private final static Logger LOGGER = LoggerFactory.getLogger(FeedTask.class);
 
     /**
-     * The feed retrieved by this task.
-     */
-    private Feed feed = null;
-
-    /**
-     * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
-     * strategies to a true strategy pattern.
-     */
-    private final FeedReader feedReader;
-    
-    /**
      * The maximum file size (1 MB) which is accepted for each feed being checked. If this size is exceeded, the
      * download is stopped.
      */
     public static final long MAXIMUM_FEED_SIZE = SizeUnit.MEGABYTES.toBytes(1);
 
-    /**
-     * Warn if processing of a feed takes longer than this.
-     */
+    /** Warn if processing of a feed takes longer than this. */
     public static final long EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
 
-    /**
-     * Additional header elements used in HTTP requests.
-     */
-    private Map<String, String> requestHeaders = new HashMap<String, String>();
+    /** The feed retrieved by this task. */
+    private final Feed feed;
+
+    /** The store providing persistence for the feeds. */
+    private final FeedStore store;
+
+    /** Callback for the actions to perform when processing a feed (and various other cases). */
+    private final FeedProcessingAction action;
+
+    /** The strategy to determine a feed's update behaviour. */
+    private final UpdateStrategy updateStrategy;
+
+    /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
+    private final Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
 
     /**
      * Creates a new retrieval task for a provided feed.
      * 
      * @param feed The feed retrieved by this task.
+     * @param action
+     * @param updateStrategy
      */
-    public FeedTask(Feed feed, FeedReader feedChecker) {
-        // setName("FeedTask:" + feed.getFeedUrl());
+    public FeedTask(Feed feed, FeedStore store, FeedProcessingAction action, UpdateStrategy updateStrategy) {
         this.feed = feed;
-        this.feedReader = feedChecker;
-        createBasicRequestHeaders();
+        this.store = store;
+        this.action = action;
+        this.updateStrategy = updateStrategy;
     }
-
-    /**
-     * Create basic request headers.
-     * Set cache-control: no-cache to prevent getting cached results.
-     */
-    private void createBasicRequestHeaders() {
-        requestHeaders.put("cache-control", "no-cache");
-
-    }
-
-    /**
-     * Add a key value pair to request headers.
-     * 
-     * @param key The name of the header.
-     * @param value The header's value.
-     */
-    private void addRequestHeader(String key, String value) {
-        this.requestHeaders.put(key, value);
-    }
-
-    /**
-     * Get the headers to use in a HTTP request.
-     * 
-     * @return The headers to use in a HTTP request.
-     */
-    private Map<String, String> getRequestHeaders() {
-        return requestHeaders;
-    }
-
-    /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
-    private Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
-
 
     @Override
     public FeedTaskResult call() {
@@ -119,7 +96,6 @@ class FeedTask implements Callable<FeedTaskResult> {
             LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
             int recentMisses = feed.getMisses();
 
-            buildConditionalGetHeader();
             HttpResult httpResult = null;
             try {
                 HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
@@ -127,11 +103,12 @@ class FeedTask implements Callable<FeedTaskResult> {
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
                 // download the document (not necessarily a feed)
-                httpResult = httpRetriever.httpGet(feed.getFeedUrl(), getRequestHeaders());
+                HttpRequest request = createRequest();
+                httpResult = httpRetriever.execute(request);
             } catch (HttpException e) {
                 LOGGER.error("Could not get Document for feed id " + feed.getId() + " , " + e.getMessage());
                 feed.incrementUnreachableCount();
-                resultSet.add(FeedTaskResult.UNREACHABLE);
+                resultSet.add(UNREACHABLE);
 
                 doFinalStuff(timer);
                 return getResult();
@@ -143,12 +120,12 @@ class FeedTask implements Callable<FeedTaskResult> {
                 LOGGER.error("Could not get Document for feed id " + feed.getId()
                         + ". Server returned HTTP status code " + httpResult.getStatusCode());
                 feed.incrementUnreachableCount();
-                resultSet.add(FeedTaskResult.UNREACHABLE);
+                resultSet.add(UNREACHABLE);
 
-                boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnError(feed,
-                        httpResult);
-                if (!actionSuccess) {
-                    resultSet.add(FeedTaskResult.ERROR);
+                try {
+                    action.onError(feed, httpResult);
+                } catch (Exception e) {
+                    resultSet.add(ERROR);
                 }
 
             } else {
@@ -156,12 +133,12 @@ class FeedTask implements Callable<FeedTaskResult> {
                 // case 2: document has not been modified since last request
                 if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
 
-                    feedReader.updateCheckIntervals(feed, false);
+                    updateCheckIntervals(feed);
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
-                    boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnUnmodifiedFeed(feed,
-                            httpResult);
-                    if (!actionSuccess) {
-                        resultSet.add(FeedTaskResult.ERROR);
+                    try {
+                        action.onUnmodified(feed, httpResult);
+                    } catch (Exception e) {
+                        resultSet.add(ERROR);
                     }
 
                     // case 3: default case, try to process the feed.
@@ -180,13 +157,13 @@ class FeedTask implements Callable<FeedTaskResult> {
                     } catch (FeedParserException e) {
                         LOGGER.error("update items of feed id " + feed.getId() + " didn't work well, " + e.getMessage());
                         feed.incrementUnparsableCount();
-                        resultSet.add(FeedTaskResult.UNPARSABLE);
+                        resultSet.add(UNPARSABLE);
                         LOGGER.debug("Performing action on exception on feed: " + feed.getId() + "("
                                 + feed.getFeedUrl() + ")");
-                        boolean actionSuccess = feedReader.getFeedProcessingAction().performActionOnException(feed,
-                                httpResult);
-                        if (!actionSuccess) {
-                            resultSet.add(FeedTaskResult.ERROR);
+                        try {
+                            action.onException(feed, httpResult);
+                        } catch (Exception e2) {
+                            resultSet.add(ERROR);
                         }
 
                         doFinalStuff(timer);
@@ -207,21 +184,22 @@ class FeedTask implements Callable<FeedTaskResult> {
                     // LOGGER.debug("Milliseconds in a month: " + DateHelper.MONTH_MS);
                     // }
 
-                    feedReader.updateCheckIntervals(feed, false);
+                    updateCheckIntervals(feed);
 
                     // perform actions on this feeds entries.
                     LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
-                    boolean actionSuccess = feedReader.getFeedProcessingAction().performAction(feed, httpResult);
-                    if (!actionSuccess) {
-                        resultSet.add(FeedTaskResult.ERROR);
+                    try {
+                        action.onModified(feed, httpResult);
+                    } catch (Exception e) {
+                        resultSet.add(ERROR);
                     }
                 }
 
                 if (recentMisses < feed.getMisses()) {
-                    resultSet.add(FeedTaskResult.MISS);
+                    resultSet.add(MISS);
                 } else {
                     // finally, if no other status has been assigned, the task seems to bee successful
-                    resultSet.add(FeedTaskResult.SUCCESS);
+                    resultSet.add(SUCCESS);
                 }
             }
 
@@ -232,7 +210,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             // killed by the thread pool internals. Errors are logged only and not written to database.
         } catch (Throwable th) {
             LOGGER.error("Error processing feedID " + feed.getId() + ": " + th);
-            resultSet.add(FeedTaskResult.ERROR);
+            resultSet.add(ERROR);
             doFinalLogging(timer);
             return getResult();
         }
@@ -248,7 +226,7 @@ class FeedTask implements Callable<FeedTaskResult> {
     private void doFinalStuff(StopWatch timer) {
         if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
             LOGGER.warn("Processing feed id " + feed.getId() + " took very long: " + timer.getElapsedTimeString());
-            resultSet.add(FeedTaskResult.EXECUTION_TIME_WARNING);
+            resultSet.add(EXECUTION_TIME_WARNING);
         }
 
         // Caution. The result written to db may be wrong since we can't write a db-error to db that occurs while
@@ -266,18 +244,19 @@ class FeedTask implements Callable<FeedTaskResult> {
      * Update http request headers to use conditional requests (head requests). This is done only in case the last
      * FeedTaskResult was success, miss or execution time warning. In all other cases, no conditional header is build.
      */
-    private void buildConditionalGetHeader() {
+    private HttpRequest createRequest() {
+        HttpRequest request = new HttpRequest(HttpMethod.GET, feed.getFeedUrl());
+        request.addHeader("cache-control", "no-cache");
 
-        if (feed.getLastFeedTaskResult() == FeedTaskResult.SUCCESS
-                || feed.getLastFeedTaskResult() == FeedTaskResult.MISS
-                || feed.getLastFeedTaskResult() == FeedTaskResult.EXECUTION_TIME_WARNING) {
+        if (Arrays.asList(SUCCESS, MISS, EXECUTION_TIME_WARNING).contains(feed.getLastFeedTaskResult())) {
             if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
-                addRequestHeader("If-None-Match", feed.getLastETag());
+                request.addHeader("If-None-Match", feed.getLastETag());
             }
             if (feed.getHttpLastModified() != null) {
-                addRequestHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
+                request.addHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
             }
         }
+        return request;
     }
 
     /**
@@ -286,24 +265,21 @@ class FeedTask implements Callable<FeedTaskResult> {
      * @return The (current) result of the feed task.
      */
     private FeedTaskResult getResult() {
-        FeedTaskResult result = null;
-        if (resultSet.contains(FeedTaskResult.ERROR)) {
-            result = FeedTaskResult.ERROR;
-        } else if (resultSet.contains(FeedTaskResult.UNREACHABLE)) {
-            result = FeedTaskResult.UNREACHABLE;
-        } else if (resultSet.contains(FeedTaskResult.UNPARSABLE)) {
-            result = FeedTaskResult.UNPARSABLE;
-        } else if (resultSet.contains(FeedTaskResult.EXECUTION_TIME_WARNING)) {
-            result = FeedTaskResult.EXECUTION_TIME_WARNING;
-        } else if (resultSet.contains(FeedTaskResult.MISS)) {
-            result = FeedTaskResult.MISS;
-        } else if (resultSet.contains(FeedTaskResult.SUCCESS)) {
-            result = FeedTaskResult.SUCCESS;
+        if (resultSet.contains(ERROR)) {
+            return ERROR;
+        } else if (resultSet.contains(UNREACHABLE)) {
+            return UNREACHABLE;
+        } else if (resultSet.contains(UNPARSABLE)) {
+            return UNPARSABLE;
+        } else if (resultSet.contains(EXECUTION_TIME_WARNING)) {
+            return EXECUTION_TIME_WARNING;
+        } else if (resultSet.contains(MISS)) {
+            return MISS;
+        } else if (resultSet.contains(SUCCESS)) {
+            return SUCCESS;
         } else {
-            result = FeedTaskResult.OPEN;
+            return OPEN;
         }
-
-        return result;
     }
 
     /**
@@ -322,17 +298,26 @@ class FeedTask implements Callable<FeedTaskResult> {
         }
     }
 
-
     /**
      * Save the feed back to the database. In case of database errors, add error to {@link #resultSet}.
      * 
      * @param storeMetadata
      */
     private void updateFeed() {
-        boolean dbSuccess = feedReader.updateFeed(feed, feed.hasNewItem());
+        boolean dbSuccess = store.updateFeed(feed, feed.hasNewItem());
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
         }
+    }
+
+    /**
+     * Update the check interval depending on the chosen approach. Update the feed accordingly and return it.
+     * 
+     * @param feed The feed to update.
+     */
+    private void updateCheckIntervals(Feed feed) {
+        updateStrategy.update(feed, new FeedPostStatistics(feed), false);
+        feed.increaseChecks();
     }
 
 }

@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +27,12 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;
+import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
@@ -39,6 +40,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 
 /**
  * The FeedStatisticCreator creates a file with statistics about feeds from a feed store.
@@ -230,8 +232,9 @@ public class FeedStatisticCreator {
         Collections.sort(valueList);
         CollectionHelper.removeNulls(valueList);
 
-        long[] valueArray = ArrayUtils.toPrimitive(valueList.toArray(new Long[0]));
-        return MathHelper.getMedian(valueArray);
+        // long[] valueArray = ArrayUtils.toPrimitive(valueList.toArray(new Long[0]));
+        // return MathHelper.getMedian(valueArray);
+        return new Stats(valueList).getMedian();
     }
 
     /**
@@ -633,7 +636,7 @@ public class FeedStatisticCreator {
     public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
             throws IOException {
 
-        FeedReader fc = new FeedReader(feedStore);
+        FeedReader fc = new FeedReader(feedStore, new DefaultFeedProcessingAction());
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE);
 
         FileWriter csv = new FileWriter(statisticOutputPath);
@@ -646,7 +649,7 @@ public class FeedStatisticCreator {
             // continue;
             // }
 
-            FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, fc);
+            FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, new MavUpdateStrategy(-1, -1));
             fbfr.updateEntriesFromDisk();
             if (feed.getItems() == null || feed.getItems().size() < 1) {
                 continue;

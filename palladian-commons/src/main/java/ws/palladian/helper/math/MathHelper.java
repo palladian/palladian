@@ -1,9 +1,7 @@
 package ws.palladian.helper.math;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,7 +13,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,164 +239,164 @@ public final class MathHelper {
         return faculty;
     }
 
-    /**
-     * <p>
-     * Calculate the <a href="http://en.wikipedia.org/wiki/Median">median</a> for a list of double values. The values do
-     * not have to be in sorted order in advance.
-     * </p>
-     * 
-     * @param values The values for which to get the median.
-     * @return The median.
-     * @deprecated Use {@link Stats} instead.
-     */
-    @Deprecated
-    public static double getMedian(double[] values) {
-        int numValues = values.length;
-        Arrays.sort(values);
-        if (numValues % 2 == 0) {
-            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
-        } else {
-            return values[numValues / 2];
-        }
-    }
+//    /**
+//     * <p>
+//     * Calculate the <a href="http://en.wikipedia.org/wiki/Median">median</a> for a list of double values. The values do
+//     * not have to be in sorted order in advance.
+//     * </p>
+//     * 
+//     * @param values The values for which to get the median.
+//     * @return The median.
+//     * @deprecated Use {@link Stats} instead.
+//     */
+//    @Deprecated
+//    public static double getMedian(double[] values) {
+//        int numValues = values.length;
+//        Arrays.sort(values);
+//        if (numValues % 2 == 0) {
+//            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
+//        } else {
+//            return values[numValues / 2];
+//        }
+//    }
 
-    /** @deprecated Use {@link Stats} instead. */
-    @Deprecated
-    public static double getMedian(long[] values) {
-        int numValues = values.length;
-        Arrays.sort(values);
-        if (numValues % 2 == 0) {
-            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
-        } else {
-            return values[numValues / 2];
-        }
-    }
+//    /** @deprecated Use {@link Stats} instead. */
+//    @Deprecated
+//    public static double getMedian(long[] values) {
+//        int numValues = values.length;
+//        Arrays.sort(values);
+//        if (numValues % 2 == 0) {
+//            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
+//        } else {
+//            return values[numValues / 2];
+//        }
+//    }
 
-    /** @deprecated Use {@link Stats} instead. */
-    @Deprecated
-    public static double getAverage(double[] values) {
-        double sum = 0;
-        for (double value : values) {
-            sum += value;
-        }
-        return sum / values.length;
-    }
+//    /** @deprecated Use {@link Stats} instead. */
+//    @Deprecated
+//    public static double getAverage(double[] values) {
+//        double sum = 0;
+//        for (double value : values) {
+//            sum += value;
+//        }
+//        return sum / values.length;
+//    }
+//
+//    /** @deprecated Use {@link Stats} instead. */
+//    @Deprecated
+//    public static double getAverage(long[] values) {
+//        double sum = 0;
+//        for (long value : values) {
+//            sum += value;
+//        }
+//        return sum / values.length;
+//    }
+//
+//    public static long getMedianDifference(long[] sortedList) {
+//        long[] distances = getDistances(sortedList);
+//        return (long)getMedian(distances);
+//    }
 
-    /** @deprecated Use {@link Stats} instead. */
-    @Deprecated
-    public static double getAverage(long[] values) {
-        double sum = 0;
-        for (long value : values) {
-            sum += value;
-        }
-        return sum / values.length;
-    }
+//    /**
+//     * <p>
+//     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
+//     * </p>
+//     * 
+//     * @param values The values for which to get the standard deviation.
+//     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
+//     *            <code>false</code> the <i>standard deviation of the sample</i>.
+//     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+//     * @deprecated Use {@link Stats} instead.
+//     */
+//    @Deprecated
+//    public static double getStandardDeviation(double[] values, boolean biasCorrection) {
+//        if (values.length == 0) {
+//            return Double.NaN;
+//        }
+//        if (values.length == 1) {
+//            return 0;
+//        }
+//        double mean = getAverage(values);
+//        double deviationSum = 0;
+//        for (double value : values) {
+//            deviationSum += Math.pow(value - mean, 2);
+//        }
+//        if (biasCorrection) {
+//            return Math.sqrt(deviationSum / (values.length - 1));
+//        } else {
+//            return Math.sqrt(deviationSum / values.length);
+//        }
+//    }
 
-    public static long getMedianDifference(long[] sortedList) {
-        long[] distances = getDistances(sortedList);
-        return (long)getMedian(distances);
-    }
+//    /**
+//     * <p>
+//     * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
+//     * </p>
+//     * 
+//     * @param values The values for which to get the standard deviation.
+//     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+//     * @deprecated Use {@link Stats} instead.
+//     */
+//    @Deprecated
+//    public static double getStandardDeviation(double[] values) {
+//        return getStandardDeviation(values, true);
+//    }
 
-    /**
-     * <p>
-     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-     * </p>
-     * 
-     * @param values The values for which to get the standard deviation.
-     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
-     *            <code>false</code> the <i>standard deviation of the sample</i>.
-     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-     * @deprecated Use {@link Stats} instead.
-     */
-    @Deprecated
-    public static double getStandardDeviation(double[] values, boolean biasCorrection) {
-        if (values.length == 0) {
-            return Double.NaN;
-        }
-        if (values.length == 1) {
-            return 0;
-        }
-        double mean = getAverage(values);
-        double deviationSum = 0;
-        for (double value : values) {
-            deviationSum += Math.pow(value - mean, 2);
-        }
-        if (biasCorrection) {
-            return Math.sqrt(deviationSum / (values.length - 1));
-        } else {
-            return Math.sqrt(deviationSum / values.length);
-        }
-    }
+//    /**
+//     * <p>
+//     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
+//     * </p>
+//     * 
+//     * @param values The values for which to get the standard deviation.
+//     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
+//     *            <code>false</code> the <i>standard deviation of the sample</i>.
+//     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
+//     * @deprecated Use {@link Stats} instead.
+//     */
+//    @Deprecated
+//    public static double getStandardDeviation(long[] values, boolean biasCorrection) {
+//        if (values.length == 0) {
+//            return Double.NaN;
+//        }
+//        if (values.length == 1) {
+//            return 0;
+//        }
+//        double mean = getAverage(values);
+//        double deviationSum = 0;
+//        for (Long value : values) {
+//            deviationSum += Math.pow(value - mean, 2);
+//        }
+//        if (biasCorrection) {
+//            return Math.sqrt(deviationSum / values.length - 1);
+//        } else {
+//            return Math.sqrt(deviationSum / values.length);
+//        }
+//    }
 
-    /**
-     * <p>
-     * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-     * </p>
-     * 
-     * @param values The values for which to get the standard deviation.
-     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-     * @deprecated Use {@link Stats} instead.
-     */
-    @Deprecated
-    public static double getStandardDeviation(double[] values) {
-        return getStandardDeviation(values, true);
-    }
+//    /** @deprecated Use {@link Stats} instead. */
+//    @Deprecated
+//    public static double getStandardDeviation(long[] values) {
+//        return getStandardDeviation(values, true);
+//    }
 
-    /**
-     * <p>
-     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-     * </p>
-     * 
-     * @param values The values for which to get the standard deviation.
-     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
-     *            <code>false</code> the <i>standard deviation of the sample</i>.
-     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-     * @deprecated Use {@link Stats} instead.
-     */
-    @Deprecated
-    public static double getStandardDeviation(long[] values, boolean biasCorrection) {
-        if (values.length == 0) {
-            return Double.NaN;
-        }
-        if (values.length == 1) {
-            return 0;
-        }
-        double mean = getAverage(values);
-        double deviationSum = 0;
-        for (Long value : values) {
-            deviationSum += Math.pow(value - mean, 2);
-        }
-        if (biasCorrection) {
-            return Math.sqrt(deviationSum / values.length - 1);
-        } else {
-            return Math.sqrt(deviationSum / values.length);
-        }
-    }
-
-    /** @deprecated Use {@link Stats} instead. */
-    @Deprecated
-    public static double getStandardDeviation(long[] values) {
-        return getStandardDeviation(values, true);
-    }
-
-    /**
-     * <p>
-     * Get the largest gap in a {@link Collection} of {@link Number}s. E.g. for a Collection of [2,3,7,10] the value 4
-     * is returned.
-     * </p>
-     * 
-     * @param values The Collection of Numbers, not <code>null</code>.
-     * @return The largest distance between subsequent Numbers, or -1 when an empty collection or a collection of size 1
-     *         was supplied.
-     */
-    public static long getLongestGap(long[] values) {
-        long longestGap = -1;
-        if (values.length > 1) {
-            long[] distances = getDistances(values);
-            longestGap = Collections.max(Arrays.asList(ArrayUtils.toObject(distances)));
-        }
-        return longestGap;
-    }
+//    /**
+//     * <p>
+//     * Get the largest gap in a {@link Collection} of {@link Number}s. E.g. for a Collection of [2,3,7,10] the value 4
+//     * is returned.
+//     * </p>
+//     * 
+//     * @param values The Collection of Numbers, not <code>null</code>.
+//     * @return The largest distance between subsequent Numbers, or -1 when an empty collection or a collection of size 1
+//     *         was supplied.
+//     */
+//    public static long getLongestGap(long[] values) {
+//        long longestGap = -1;
+//        if (values.length > 1) {
+//            long[] distances = getDistances(values);
+//            longestGap = Collections.max(Arrays.asList(ArrayUtils.toObject(distances)));
+//        }
+//        return longestGap;
+//    }
 
     /**
      * <p>
@@ -784,83 +781,29 @@ public final class MathHelper {
         return crossTotal(s / 10) + s % 10;
     }
 
-    /**
-     * <p>
-     * Compute distances between subsequent {@link Longs}s in a {@link Collection}. E.g. for a Collection of [2,3,7,10]
-     * a result of [1,4,3] is returned.
-     * </p>
-     * 
-     * @param values The Collection of Numbers, not <code>null</code>.
-     * @return The distances between the subsequent Numbers in the Collection, or empty array for empty input array or
-     *         arrays of size 1.
-     */
-    public static long[] getDistances(long[] values) {
-        Validate.notNull(values, "values must not be null");
-
-        if (values.length < 1) {
-            return new long[0];
-        }
-
-        long[] ret = new long[values.length - 1];
-        for (int i = 1; i < values.length; i++) {
-            ret[i - 1] = values[i] - values[i - 1];
-        }
-        return ret;
-    }
-
 //    /**
 //     * <p>
-//     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
+//     * Compute distances between subsequent {@link Longs}s in a {@link Collection}. E.g. for a Collection of [2,3,7,10]
+//     * a result of [1,4,3] is returned.
 //     * </p>
 //     * 
-//     * @param lat1 The latitude of the first place.
-//     * @param lng1 The longitude of the first place.
-//     * @param lat2 The latitude of the second place.
-//     * @param lng2 The longitude of the second place.
-//     * @return The distance between the points in kilometers.
-//     * @deprecated Use <code>GeoUtils#getDistance</code> in palladian-core package
+//     * @param values The Collection of Numbers, not <code>null</code>.
+//     * @return The distances between the subsequent Numbers in the Collection, or empty array for empty input array or
+//     *         arrays of size 1.
 //     */
-//    @Deprecated
-//    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
-//        double earthRadius = 6371;
-//        return 2
-//                * earthRadius
-//                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
-//                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-//                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
+//    public static long[] getDistances(long[] values) {
+//        Validate.notNull(values, "values must not be null");
+//
+//        if (values.length < 1) {
+//            return new long[0];
+//        }
+//
+//        long[] ret = new long[values.length - 1];
+//        for (int i = 1; i < values.length; i++) {
+//            ret[i - 1] = values[i] - values[i - 1];
+//        }
+//        return ret;
 //    }
-
-    // public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
-    // double earthRadius = 6371;
-    // double lat1Rad = Math.toRadians(lat1);
-    // double lat2Rad = Math.toRadians(lat2);
-    // double dLat = Math.toRadians(lat2 - lat1);
-    // double dLng = Math.toRadians(lng2 - lng1);
-    // double sindLat = Math.sin(dLat / 2);
-    // double sindLng = Math.sin(dLng / 2);
-    // double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
-    // double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    // double distance = earthRadius * c;
-    //
-    // return distance;
-    // }
-    //
-    // public static double _computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2)
-    // {
-    // double earthRadius = 6371;
-    // double lat1Rad = Math.toRadians(lat1);
-    // double lat2Rad = Math.toRadians(lat2);
-    // double lng1Rad = Math.toRadians(lng1);
-    // double lng2Rad = Math.toRadians(lng2);
-    // // double dLat = Math.toRadians(lat2 - lat1);
-    // // double dLng = Math.toRadians(lng2 - lng1);
-    //
-    // double distance = Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad)
-    // * Math.cos(lng2Rad - lng1Rad))
-    // * earthRadius;
-    //
-    // return distance;
-    // }
 
     /**
      * <p>

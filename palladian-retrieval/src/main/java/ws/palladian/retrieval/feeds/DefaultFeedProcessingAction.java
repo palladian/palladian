@@ -5,32 +5,27 @@ import ws.palladian.retrieval.HttpResult;
 /**
  * <p>
  * Default implementation for a {@link FeedProcessingAction}. Usually, one is only interested in implementing
- * {@link #performAction(Feed, HttpResult)}.
+ * {@link #onModified(Feed, HttpResult)}.
  * </p>
  * 
  * @author Philipp Katz
- * 
  */
 public class DefaultFeedProcessingAction implements FeedProcessingAction {
 
     @Override
-    public boolean performAction(Feed feed, HttpResult httpResult) {
-        return true;
+    public void onModified(Feed feed, HttpResult httpResult) {
     }
 
     @Override
-    public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
-        return true;
+    public void onUnmodified(Feed feed, HttpResult httpResult) {
     }
 
     @Override
-    public boolean performActionOnException(Feed feed, HttpResult httpResult) {
-        return true;
+    public void onException(Feed feed, HttpResult httpResult) {
     }
 
     @Override
-    public boolean performActionOnError(Feed feed, HttpResult httpResult) {
-        return true;
+    public void onError(Feed feed, HttpResult httpResult) {
     }
 
 }
