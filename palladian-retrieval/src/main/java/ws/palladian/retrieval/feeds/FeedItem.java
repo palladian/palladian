@@ -97,11 +97,12 @@ public class FeedItem implements WebContent {
         this.link = link;
     }
 
-    public String getRawId() {
+    @Override
+    public String getIdentifier() {
         return rawId;
     }
 
-    public void setRawId(String rawId) {
+    public void setIdentifier(String rawId) {
         this.rawId = rawId;
     }
 

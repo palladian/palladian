@@ -286,6 +286,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         BasicWebContent.Builder builder = new BasicWebContent.Builder();
         builder.setTitle(StringEscapeUtils.unescapeHtml4(jsonResult.getString("text")));
         builder.setPublished(parseDate(jsonResult.getString("created_at")));
+        builder.setIdentifier(jsonResult.getString("id_str"));
 
         JsonObject jsonUser = jsonResult.getJsonObject("user");
         builder.setUrl(createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str")));

@@ -59,7 +59,7 @@ public final class EddieFeedParser extends BaseFeedParser implements FeedParser 
 
             feedItem.setDescription(entry.getSummary().getValue());
             feedItem.setPublished(entry.getModified());
-            feedItem.setRawId(entry.get("guid"));
+            feedItem.setIdentifier(entry.get("guid"));
             feedItem.setTitle(entry.getTitle().getValue());
             feedItem.setLink(entry.get("link"));
 

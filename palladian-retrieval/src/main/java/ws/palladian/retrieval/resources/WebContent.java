@@ -38,5 +38,10 @@ public interface WebContent {
 	 * @return The geographic coordinate assigned with this content.
 	 */
 	GeoCoordinate getCoordinate();
+	
+	/**
+	 * @return A source-specific identifier of this content.
+	 */
+	String getIdentifier();
 
 }

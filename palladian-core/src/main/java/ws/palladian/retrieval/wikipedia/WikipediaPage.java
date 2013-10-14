@@ -220,7 +220,7 @@ public class WikipediaPage extends WikipediaPageReference {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("WikipediaPage [pageId=");
-        builder.append(getPageId());
+        builder.append(getIdentifier());
         builder.append(", namespaceId=");
         builder.append(getNamespaceId());
         builder.append(", title=");
