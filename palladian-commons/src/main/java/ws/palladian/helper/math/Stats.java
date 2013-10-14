@@ -55,6 +55,9 @@ public class Stats {
 
     public double getStandardDeviation() {
         if (values.isEmpty()) {
+            return Double.NaN;
+        }
+        if (values.size() == 1) {
             return 0.;
         }
         double mean = getMean();

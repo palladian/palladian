@@ -51,7 +51,9 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * 
  * @see <a href="http://tools.ietf.org/id/draft-snell-atompub-autodiscovery-00.txt">Atom Feed Autodiscovery</a>
- * @see <a href="http://web.archive.org/web/20110608053313/http://diveintomark.org/archives/2003/12/19/atom-autodiscovery">Notes on Atom autodiscovery</a>
+ * @see <a
+ *      href="http://web.archive.org/web/20110608053313/http://diveintomark.org/archives/2003/12/19/atom-autodiscovery">Notes
+ *      on Atom autodiscovery</a>
  */
 public final class FeedDiscovery {
 
@@ -140,7 +142,7 @@ public final class FeedDiscovery {
                 sites.add(UrlHelper.getDomain(resultUrl));
             }
         } catch (SearcherException e) {
-            LOGGER.error("Searcher Exception: " + e.getMessage());
+            LOGGER.error("Searcher Exception: {}", e.getMessage());
         }
         return sites;
     }
@@ -166,7 +168,7 @@ public final class FeedDiscovery {
 
         } catch (Throwable t) {
             // NekoHTML produces various types of Exceptions, just catch them all here and log them.
-            LOGGER.error("error retrieving " + pageUrl + " : " + t.toString() + " ; " + t.getMessage());
+            LOGGER.error("Error retrieving {} : {} ; {}", pageUrl, t.toString(), t.getMessage());
         }
 
         if (document != null) {
@@ -192,7 +194,7 @@ public final class FeedDiscovery {
             Document document = parser.parse(file);
             result = discoverFeeds(document);
         } catch (ParserException e) {
-            LOGGER.error("error parsing file " + file, e);
+            LOGGER.error("Error parsing file {}", file, e);
         }
         return result;
     }
@@ -276,7 +278,7 @@ public final class FeedDiscovery {
 
         }
 
-        LOGGER.debug(result.size() + " feeds for " + pageUrl);
+        LOGGER.debug("{} feeds for {}", result.size(), pageUrl);
         return result;
 
     }
@@ -290,9 +292,9 @@ public final class FeedDiscovery {
 
         stopWatch = new StopWatch();
 
-        LOGGER.info("start finding feeds with " + queryQueue.size() + " queries and " + numResults
-                + " results per query = max. " + numResults * queryQueue.size()
-                + " URLs to check for feeds; number of threads = " + numThreads);
+        LOGGER.info(
+                "Start finding feeds with {} queries and {} results per query = max. {} URLs to check for feeds; number of threads = {}",
+                queryQueue.size(), numResults, numResults * queryQueue.size(), numThreads);
 
         // prevent running through the discovery step when no search results are available yet.
         final Object lock = new Object();
@@ -316,12 +318,11 @@ public final class FeedDiscovery {
                     currentQuery++;
                     float percentage = (float)100 * currentQuery / totalQueries;
                     float querySpeed = TimeUnit.MINUTES.toMillis(currentQuery / stopWatch.getElapsedTime());
-                    LOGGER.info("queried " + currentQuery + "/" + totalQueries + ": '" + query + "'; # results: "
-                            + foundSites.size() + "; progress: " + percentage + "%" + "; query speed: " + querySpeed
-                            + " queries/min");
+                    LOGGER.info("Queried {}/{}: '{}'; # results: {}; progress: {}%; query speed: {} queries/min",
+                            currentQuery, totalQueries, query, foundSites.size(), percentage, querySpeed);
 
                 }
-                LOGGER.info("finished queries in " + stopWatch.getElapsedTimeString());
+                LOGGER.info("Finished queries in {}", stopWatch.getElapsedTimeString());
                 synchronized (lock) {
                     lock.notify();
                 }
@@ -374,11 +375,11 @@ public final class FeedDiscovery {
                                 float elapsedMinutes = (float)stopWatch.getElapsedTime() / TimeUnit.MINUTES.toMillis(1);
                                 float pageThroughput = pageCounter.get() / elapsedMinutes;
                                 float feedThroughput = feedCounter.get() / elapsedMinutes;
-                                LOGGER.info("# checked pages: " + pageCounter.intValue() + "; # discovered feeds: "
-                                        + feedCounter.intValue() + "; # errors: " + errorCounter.intValue()
-                                        + "; elapsed time: " + stopWatch.getElapsedTimeString() + "; throughput: "
-                                        + pageThroughput + " pages/min" + "; discovery speed: " + feedThroughput
-                                        + " feeds/min" + "; url queue size: " + urlQueue.size());
+                                LOGGER.info(
+                                        "# checked pages: {}; # discovered feeds: {}; # errors: {}; elapsed time: {}; throughput: {} pages/min; discovery speed: {} feeds/min; url queue size: {}",
+                                        pageCounter.intValue(), feedCounter.intValue(), errorCounter.intValue(),
+                                        stopWatch.getElapsedTimeString(), pageThroughput, feedThroughput,
+                                        urlQueue.size());
                             }
 
                         } catch (Throwable t) {
@@ -501,97 +502,5 @@ public final class FeedDiscovery {
         queryQueue.addAll(combinedQueries);
 
     }
-
-//    @SuppressWarnings("static-access")
-//    public static void main(String[] args) {
-//
-//        FeedDiscovery discovery = new FeedDiscovery();
-//
-//        CommandLineParser parser = new BasicParser();
-//
-//        Options options = new Options();
-//        options.addOption(OptionBuilder.withLongOpt("numResults").withDescription("maximum results per query").hasArg()
-//                .withArgName("nn").withType(Number.class).create());
-//        options.addOption(OptionBuilder.withLongOpt("threads")
-//                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn")
-//                .withType(Number.class).create());
-//        options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription("output file for results").hasArg()
-//                .withArgName("filename").create());
-//        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg()
-//                .withArgName("query1[,query2,...]").create());
-//        options.addOption(OptionBuilder.withLongOpt("queryFile")
-//                .withDescription("runs the specified queries from the file (one query per line)").hasArg()
-//                .withArgName("filename").create());
-//        options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
-//                .withArgName("url").create());
-//        options.addOption(OptionBuilder.withLongOpt("combineQueries")
-//                .withDescription("combine single queries to create more mixed queries").hasArg().withArgName("nn")
-//                .withType(Number.class).create());
-//        options.addOption(OptionBuilder.withLongOpt("searchEngine")
-//                .withDescription("fully qualified class name of the search engine to use").hasArg().withArgName("n")
-//                .create());
-//        options.addOption(OptionBuilder.withLongOpt("csvOutput")
-//                .withDescription("write full output with additional data as CSV file instead of only URLs").create());
-//
-//        try {
-//
-//            if (args.length < 1) {
-//                // no options supplied, go to catch clause, print help.
-//                throw new ParseException(null);
-//            }
-//
-//            CommandLine cmd = parser.parse(options, args);
-//
-//            if (cmd.hasOption("numResults")) {
-//                discovery.setNumResults(((Number)cmd.getParsedOptionValue("numResults")).intValue());
-//            }
-//            if (cmd.hasOption("threads")) {
-//                discovery.setNumThreads(((Number)cmd.getParsedOptionValue("threads")).intValue());
-//            }
-//            if (cmd.hasOption("outputFile")) {
-//                discovery.setResultFilePath(cmd.getOptionValue("outputFile"));
-//            }
-//            if (cmd.hasOption("query")) {
-//
-//                List<String> queries = Arrays.asList(cmd.getOptionValue("query").replace("+", " ").split(","));
-//                discovery.addQueries(queries);
-//
-//            }
-//            if (cmd.hasOption("queryFile")) {
-//                discovery.addQueries(cmd.getOptionValue("queryFile"));
-//            }
-//            if (cmd.hasOption("combineQueries")) {
-//                int targetCount = ((Number)cmd.getParsedOptionValue("combineQueries")).intValue();
-//                discovery.combineQueries(targetCount);
-//            }
-//            if (cmd.hasOption("searchEngine")) {
-//                String searchEngine = cmd.getOptionValue("searchEngine");
-//                discovery.setSearchEngine(searchEngine);
-//            }
-//            if (cmd.hasOption("csvOutput")) {
-//                discovery.setCsvOutput(true);
-//            }
-//
-//            discovery.findFeeds();
-//
-//            if (cmd.hasOption("check")) {
-//                List<DiscoveredFeed> feeds = discovery.discoverFeeds(cmd.getOptionValue("check"));
-//                if (feeds.size() > 0) {
-//                    CollectionHelper.print(feeds);
-//                } else {
-//                    LOGGER.info("no feeds found");
-//                }
-//            }
-//
-//            // done, exit.
-//            return;
-//
-//        } catch (ParseException e) {
-//            // print usage help
-//            HelpFormatter formatter = new HelpFormatter();
-//            formatter.printHelp("FeedDiscovery [options]", options);
-//        }
-//
-//    }
 
 }

@@ -19,10 +19,14 @@ import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
  * @author Sandro Reichert
  * 
  */
-public class MavStrategyDatasetCreation extends UpdateStrategy {
+public class MavStrategyDatasetCreation extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MavStrategyDatasetCreation.class);
+    
+    public MavStrategyDatasetCreation(int lowestInterval, int highestInterval) {
+        super(lowestInterval, highestInterval);
+    }
 
     /**
      * <p>
@@ -61,7 +65,7 @@ public class MavStrategyDatasetCreation extends UpdateStrategy {
 
                 // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
             } else {
-                minCheckInterval = getHighestUpdateInterval();
+                minCheckInterval = getHighestInterval();
             }
         } else if (hasNewItem) {
             minCheckInterval = (int) (averagePostGap / TimeUnit.MINUTES.toMillis(1));
@@ -85,7 +89,7 @@ public class MavStrategyDatasetCreation extends UpdateStrategy {
         // minCheckInterval -= (fps.getDelayToNewestPost() / DateHelper.MINUTE_MS);
 
         // if (feed.getUpdateMode() == Feed.MIN_DELAY) {
-        feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
+        feed.setUpdateInterval(getAllowedInterval(minCheckInterval));
         // } else {
         // feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
         // }
@@ -116,13 +120,13 @@ public class MavStrategyDatasetCreation extends UpdateStrategy {
      * @return The computed interval if it is in the limit.
      */
     @Override
-    int getAllowedUpdateInterval(int updateInterval) {
+    protected int getAllowedInterval(int updateInterval) {
         int allowedInterval = updateInterval;
-        if (getHighestUpdateInterval() != -1 && getHighestUpdateInterval() <= updateInterval) {
-            allowedInterval = getHighestUpdateInterval() - getRandomOffset(getHighestUpdateInterval() / 2);
+        if (getHighestInterval() != -1 && getHighestInterval() <= updateInterval) {
+            allowedInterval = getHighestInterval() - getRandomOffset(getHighestInterval() / 2);
         }
-        if (getLowestUpdateInterval() != -1 && getLowestUpdateInterval() > updateInterval) {
-            allowedInterval = getLowestUpdateInterval();
+        if (getLowestInterval() != -1 && getLowestInterval() > updateInterval) {
+            allowedInterval = getLowestInterval();
         }
         return allowedInterval;
     }

@@ -44,22 +44,20 @@ public class UsageExamples {
         final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, config);
 
         // add some feed URLs to the database
-        FeedImporter feedImporter = new FeedImporter(feedStore);
-        feedImporter.addFeedsFromFile(discoveredFeedsFile.getPath());
+        FeedImporter feedImporter = new FeedImporter(feedStore, true, true);
+        feedImporter.addFeedsFromFile(discoveredFeedsFile.getPath(), 10);
 
         // specify what to do, when feed contains new items; here we simply add them to the database
         FeedProcessingAction feedProcessingAction = new DefaultFeedProcessingAction() {
             @Override
-            public boolean performAction(Feed feed, HttpResult httpResult) {
-                List<FeedItem> items = feed.getItems();
+            public void onModified(Feed feed, HttpResult httpResult) {
+                List<FeedItem> items = feed.getNewItems();
                 feedStore.addFeedItems(items);
-                return true;
             }
         };
         // start reading feeds
-        FeedReader feedReader = new FeedReader(feedStore);
-        feedReader.setFeedProcessingAction(feedProcessingAction);
-        feedReader.startContinuousReading();
+        FeedReader feedReader = new FeedReader(feedStore, feedProcessingAction);
+        feedReader.start();
 
     }
 
