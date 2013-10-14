@@ -125,9 +125,9 @@ public final class NewsSeecrSearcher extends AbstractMultifacetSearcher<WebConte
                     JsonObject resultObject = resultArray.getJsonObject(i);
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
                     builder.setTitle(resultObject.queryString("/title"));
-                    builder.setUrl(resultObject.queryString("/link"));
-                    builder.setSummary(resultObject.queryString("/text"));
-                    Date date = parseDate(resultObject.queryString("/publishedDate"));
+                    builder.setUrl(resultObject.queryString("/url"));
+                    builder.setSummary(resultObject.queryString("/summary"));
+                    Date date = parseDate(resultObject.queryString("/published"));
                     builder.setPublished(date);
                     webResults.add(builder.create());
                     if (webResults.size() == resultCount) {
