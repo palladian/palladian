@@ -71,7 +71,11 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
      */
     @Override
     public SearchResults<R> search(MultifacetQuery query) throws SearcherException {
-        return new SearchResults<R>(search(query.getText(), query.getResultCount(), query.getLanguage()));
+        String queryText = query.getText();
+        if (queryText == null || queryText.isEmpty()) {
+            throw new SearcherException("For this searcher, the query must provide text.");
+        }
+        return new SearchResults<R>(search(queryText, query.getResultCount(), query.getLanguage()));
     }
 
     @Override

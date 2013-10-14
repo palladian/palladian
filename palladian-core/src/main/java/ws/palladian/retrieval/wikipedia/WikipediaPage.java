@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.wikipedia;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -214,6 +216,11 @@ public class WikipediaPage extends WikipediaPageReference {
     @Override
     public GeoCoordinate getCoordinate() {
         return CollectionHelper.getFirst(WikipediaUtil.extractCoordinateTag(text));
+    }
+    
+    @Override
+    public Set<String> getTags() {
+        return new HashSet<String>(getCategories());
     }
 
     @Override

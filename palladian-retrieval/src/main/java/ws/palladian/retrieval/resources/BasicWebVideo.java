@@ -110,7 +110,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("BasicWebVideo [");
+        builder.append("WebVideo [");
         if (videoUrl != null) {
             builder.append("videoUrl=");
             builder.append(videoUrl);

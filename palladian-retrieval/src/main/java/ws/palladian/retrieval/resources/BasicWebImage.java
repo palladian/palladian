@@ -179,7 +179,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("BasicWebImage [");
+        builder.append("WebImage [");
         if (imageUrl != null) {
             builder.append("imageUrl=");
             builder.append(imageUrl);

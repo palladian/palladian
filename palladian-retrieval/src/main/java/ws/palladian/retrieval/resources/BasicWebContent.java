@@ -1,8 +1,12 @@
 package ws.palladian.retrieval.resources;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
 
 /**
@@ -30,6 +34,7 @@ public class BasicWebContent implements WebContent {
         protected Date published;
         protected GeoCoordinate coordinate;
         protected String identifier;
+        protected Set<String> tags = CollectionHelper.newHashSet();
 
         public Builder setUrl(String url) {
             this.url = url;
@@ -55,9 +60,19 @@ public class BasicWebContent implements WebContent {
             this.coordinate = coordinate;
             return this;
         }
-        
+
         public Builder setIdentifier(String identifier) {
             this.identifier = identifier;
+            return this;
+        }
+
+        public Builder setTags(Set<String> tags) {
+            this.tags = tags != null ? new HashSet<String>(tags) : Collections.<String> emptySet();
+            return this;
+        }
+
+        public Builder addTag(String tag) {
+            this.tags.add(tag);
             return this;
         }
 
@@ -67,6 +82,8 @@ public class BasicWebContent implements WebContent {
             this.summary = webContent.getSummary();
             this.published = webContent.getPublished();
             this.coordinate = webContent.getCoordinate();
+            this.identifier = webContent.getIdentifier();
+            this.tags = new HashSet<String>(webContent.getTags());
             return this;
         }
 
@@ -88,6 +105,8 @@ public class BasicWebContent implements WebContent {
     private final GeoCoordinate coordinate;
     
     private final String identifier;
+    
+    private final Set<String> tags;
 
     protected BasicWebContent(WebContent webResult) {
         this.url = webResult.getUrl();
@@ -96,6 +115,7 @@ public class BasicWebContent implements WebContent {
         this.published = webResult.getPublished();
         this.coordinate = webResult.getCoordinate();
         this.identifier = webResult.getIdentifier();
+        this.tags = new HashSet<String>(webResult.getTags());
     }
 
     protected BasicWebContent(Builder builder) {
@@ -105,6 +125,7 @@ public class BasicWebContent implements WebContent {
         this.published = builder.published;
         this.coordinate = builder.coordinate;
         this.identifier = builder.identifier;
+        this.tags = builder.tags;
     }
 
     @Override
@@ -135,6 +156,11 @@ public class BasicWebContent implements WebContent {
     @Override
     public String getIdentifier() {
         return identifier;
+    }
+    
+    @Override
+    public Set<String> getTags() {
+        return Collections.unmodifiableSet(tags);
     }
 
     @Override
