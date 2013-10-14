@@ -305,7 +305,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(entry.getFeedId());
         parameters.add(entry.getTitle());
         parameters.add(entry.getUrl());
-        parameters.add(entry.getRawId());
+        parameters.add(entry.getIdentifier());
         parameters.add(SqlHelper.getTimestamp(entry.getPublished()));
         parameters.add(entry.getAuthors());
         parameters.add(entry.getSummary());

@@ -17,7 +17,7 @@ public class FeedItemRowConverter implements RowConverter<FeedItem> {
         entry.setFeedId(resultSet.getInt("feedId"));
         entry.setTitle(resultSet.getString("title"));
         entry.setLink(resultSet.getString("link"));
-        entry.setRawId(resultSet.getString("rawId"));
+        entry.setIdentifier(resultSet.getString("rawId"));
         entry.setPublished(resultSet.getTimestamp("published"));
         entry.setDescription(resultSet.getString("description"));
         entry.setText(resultSet.getString("text"));

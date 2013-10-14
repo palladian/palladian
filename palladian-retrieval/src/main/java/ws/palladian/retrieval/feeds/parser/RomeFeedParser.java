@@ -168,7 +168,7 @@ public class RomeFeedParser extends BaseFeedParser implements FeedParser {
             item.setText(entryText);
 
             String rawId = getEntryRawId(syndEntry);
-            item.setRawId(rawId);
+            item.setIdentifier(rawId);
 
             String authors = getEntryAuthors(syndFeed, syndEntry);
             item.setAuthors(authors);

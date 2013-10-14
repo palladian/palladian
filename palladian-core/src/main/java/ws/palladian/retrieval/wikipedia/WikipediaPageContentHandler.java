@@ -120,7 +120,7 @@ public class WikipediaPageContentHandler extends DefaultHandler {
 
             @Override
             public void callback(WikipediaPage page) {
-                if (page.getPageId() == 27394805) {
+                if (page.getIdentifier().equals("27394805")) {
                     System.out.println(page);
                     System.exit(0);
                 }

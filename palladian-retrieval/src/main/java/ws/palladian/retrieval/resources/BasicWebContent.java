@@ -29,6 +29,7 @@ public class BasicWebContent implements WebContent {
         protected String summary;
         protected Date published;
         protected GeoCoordinate coordinate;
+        protected String identifier;
 
         public Builder setUrl(String url) {
             this.url = url;
@@ -52,6 +53,11 @@ public class BasicWebContent implements WebContent {
 
         public Builder setCoordinate(GeoCoordinate coordinate) {
             this.coordinate = coordinate;
+            return this;
+        }
+        
+        public Builder setIdentifier(String identifier) {
+            this.identifier = identifier;
             return this;
         }
 
@@ -80,6 +86,8 @@ public class BasicWebContent implements WebContent {
     private final Date published;
 
     private final GeoCoordinate coordinate;
+    
+    private final String identifier;
 
     protected BasicWebContent(WebContent webResult) {
         this.url = webResult.getUrl();
@@ -87,6 +95,7 @@ public class BasicWebContent implements WebContent {
         this.summary = webResult.getSummary();
         this.published = webResult.getPublished();
         this.coordinate = webResult.getCoordinate();
+        this.identifier = webResult.getIdentifier();
     }
 
     protected BasicWebContent(Builder builder) {
@@ -95,6 +104,7 @@ public class BasicWebContent implements WebContent {
         this.summary = builder.summary;
         this.published = builder.published;
         this.coordinate = builder.coordinate;
+        this.identifier = builder.identifier;
     }
 
     @Override
@@ -121,11 +131,16 @@ public class BasicWebContent implements WebContent {
     public GeoCoordinate getCoordinate() {
         return coordinate;
     }
+    
+    @Override
+    public String getIdentifier() {
+        return identifier;
+    }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("WebResult [");
+        builder.append("WebContent [");
         if (url != null) {
             builder.append("url=");
             builder.append(url);
