@@ -1,7 +1,5 @@
 package ws.palladian.retrieval.feeds.evaluation.disssandro_temp;
 
-import java.util.Collection;
-
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,12 +7,14 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
@@ -23,10 +23,9 @@ import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LIHZUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LRU2UpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
- * Starting Point to evaluate an {@link UpdateStrategy} on a dataset such as TUDCS6
+ * Starting Point to evaluate an {@link AbstractUpdateStrategy} on a dataset such as TUDCS6
  * (http://areca.co/10/Feed-Item-Dataset-TUDCS6)
  * 
  * <p>
@@ -54,10 +53,7 @@ public class DatasetEvaluator {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetCreator.class);
 
-    /**
-     * The feed checker.
-     */
-    private final FeedReader feedReader;
+    private EvaluationFeedDatabase feedStore;
 
     /**
      * The name of the database table to write simulated poll data to. This name is specific for an update strategy,
@@ -65,11 +61,13 @@ public class DatasetEvaluator {
      */
     private static String simulatedPollsDbTable;
 
+    private FeedReader feedReader;
+
     public DatasetEvaluator(EvaluationFeedDatabase feedStore) {
         // important: reseting the table has to be done >before< creating the FeedReader since the FeedReader reads the
         // table in it's constructor. Any subsequent changes are ignored...
         feedStore.resetTableFeeds();
-        feedReader = new FeedReader(feedStore);
+        this.feedStore = feedStore;
     }
 
     /**
@@ -80,13 +78,13 @@ public class DatasetEvaluator {
     public static String getSimulatedPollsDbTableName() {
         return simulatedPollsDbTable;
     }
-
+    
     /**
      * Run evaluation of the given strategy on dataset TUDCS6.
      */
     public void runEvaluation() {
         LOGGER.debug("start reading feeds");
-        feedReader.startContinuousReading();
+        feedReader.start();
     }
 
     /**
@@ -99,7 +97,7 @@ public class DatasetEvaluator {
      * <li>
      * Set benchmark policy.</li>
      * <li>
-     * Set {@link UpdateStrategy}.</li>
+     * Set {@link AbstractUpdateStrategy}.</li>
      * <li>
      * Set (database) table name to store evaluation information into.</li>
      * <li>
@@ -109,27 +107,25 @@ public class DatasetEvaluator {
      * @return The current timestamp added to the table's name.
      */
     protected String initialize(int benchmarkPolicy, int benchmarkMode, int benchmarkSampleSize,
-            UpdateStrategy updateStrategy, long wakeUpInterval) {
-        Collection<Feed> feeds = ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
-        for (Feed feed : feeds) {
-        // feed.setNumberOfItemsReceived(0);
-        // feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
-        // feed.setUpdateInterval(0);
-        }
+            AbstractUpdateStrategy updateStrategy, long wakeUpInterval) {
+        // Collection<Feed> feeds = (feedStore).getFeedsWithTimestamps();
+        // for (Feed feed : feeds) {
+            // feed.setNumberOfItemsReceived(0);
+            // feed.setLastPollTime(new Date(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND));
+            // feed.setUpdateInterval(0);
+        // }
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
-        feedReader.setUpdateStrategy(updateStrategy);
-        feedReader.setWakeUpInterval(wakeUpInterval);
+        feedReader = new FeedReader(feedStore, new DefaultFeedProcessingAction(), updateStrategy,
+                FeedReader.DEFAULT_NUM_THREADS, wakeUpInterval);
 
         String timestamp = DateHelper.getCurrentDatetime();
 
-        simulatedPollsDbTable = "eval_" + feedReader.getUpdateStrategy().getName() + "_"
-                + updateStrategy.getLowestUpdateInterval() + "_" + updateStrategy.getHighestUpdateInterval() + "_"
-                + timestamp;
+        simulatedPollsDbTable = "eval_" + updateStrategy.getName() + "_" + updateStrategy.getLowestInterval() + "_"
+                + updateStrategy.getHighestInterval() + "_" + timestamp;
 
-        boolean created = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .createEvaluationBaseTable(getSimulatedPollsDbTableName());
+        boolean created = ((EvaluationFeedDatabase)feedStore).createEvaluationBaseTable(getSimulatedPollsDbTableName());
         if (!created) {
             LOGGER.error("Database table " + getSimulatedPollsDbTableName()
                     + " could not be created. Evaluation is impossible. Processing aborted.");
@@ -145,21 +141,20 @@ public class DatasetEvaluator {
      */
     protected void generateEvaluationSummary() {
         LOGGER.info("Start generating evaluation summary. This may take a while. Seriously!");
-        boolean dataWritten = ((EvaluationFeedDatabase) feedReader.getFeedStore())
-                .generateEvaluationSummary(getSimulatedPollsDbTableName());
+        boolean dataWritten = feedStore.generateEvaluationSummary(getSimulatedPollsDbTableName());
         if (dataWritten) {
             LOGGER.info("Evaluation results have been written to database.");
         } else {
             LOGGER.error("Evaluation results have NOT been written to database!");
         }
         ChartCreator chartCreator = new ChartCreator(200, 200);
-        String[] dbTable = { getSimulatedPollsDbTableName() };
-        chartCreator.transferVolumeCreator((EvaluationFeedDatabase) feedReader.getFeedStore(), dbTable);
+        String[] dbTable = {getSimulatedPollsDbTableName()};
+        chartCreator.transferVolumeCreator((EvaluationFeedDatabase)feedStore, dbTable);
 
     }
 
     /**
-     * Start evaluation of an {@link UpdateStrategy}.
+     * Start evaluation of an {@link AbstractUpdateStrategy}.
      * 
      * @param args
      */
@@ -167,12 +162,12 @@ public class DatasetEvaluator {
 
         // load configuration from palladian.properies
         Configuration config = ConfigHolder.getInstance().getConfig();
-        UpdateStrategy updateStrategy = null;
+        AbstractUpdateStrategy updateStrategy = null;
         int benchmarkMode = -1;
         boolean fatalErrorOccurred = false;
         StringBuilder logMsg = new StringBuilder();
         logMsg.append("Initialize DatasetEvaluator. Evaluating strategy ");
-        
+
         final EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, config);
 
         try {
@@ -180,6 +175,19 @@ public class DatasetEvaluator {
             // read interval bounds
             int minInterval = config.getInt("datasetEvaluator.minCheckInterval");
             int maxInterval = config.getInt("datasetEvaluator.maxCheckInterval");
+
+            // validate interval bounds
+            if (minInterval >= maxInterval || minInterval < 1 || maxInterval < 1) {
+                fatalErrorOccurred = true;
+                LOGGER.error("Please set interval bounds bounds properly.");
+            }
+            // set interval bounds
+            else {
+                logMsg.append(", minCheckInterval = ");
+                logMsg.append(minInterval);
+                logMsg.append(", maxCheckInterval = ");
+                logMsg.append(maxInterval);
+            }
 
             // read update strategy and interval in case of "Fix"
             String strategy = config.getString("datasetEvaluator.updateStrategy");
@@ -193,32 +201,30 @@ public class DatasetEvaluator {
                     LOGGER.error("Defined fixInterval and interval bounds have conflict! "
                             + "Make sure minInterval <= fixInterval <= maxInterval.");
                 }
-                updateStrategy = new FixUpdateStrategy(fixInterval);
+                updateStrategy = new FixUpdateStrategy(minInterval, maxInterval, fixInterval);
                 logMsg.append(updateStrategy.getName());
             }
             // Fix Learned
             else if (strategy.equalsIgnoreCase("FixLearned")) {
-                updateStrategy = new FixLearnedUpdateStrategy();
                 int fixLearnedMode = config.getInt("datasetEvaluator.fixLearnedMode");
-                ((FixLearnedUpdateStrategy) updateStrategy).setFixLearnedMode(fixLearnedMode);
+                updateStrategy = new FixLearnedUpdateStrategy(minInterval, maxInterval, fixLearnedMode);
                 logMsg.append(updateStrategy.getName());
             }
             // Adaptive TTL
             else if (strategy.equalsIgnoreCase("AdaptiveTTL")) {
-                updateStrategy = new AdaptiveTTLUpdateStrategy();
                 double weightM = config.getDouble("datasetEvaluator.adaptiveTTLweightM");
-                ((AdaptiveTTLUpdateStrategy) updateStrategy).setWeightM(weightM);
+                updateStrategy = new AdaptiveTTLUpdateStrategy(minInterval, maxInterval, weightM);
                 logMsg.append(updateStrategy.getName());
             }
             // LRU-2
             else if (strategy.equalsIgnoreCase("LRU2")) {
-                updateStrategy = new LRU2UpdateStrategy();
+                updateStrategy = new LRU2UpdateStrategy(-1, -1);
                 logMsg.append(updateStrategy.getName());
             }
             // MAVSync
             else if (strategy.equalsIgnoreCase("MAVSync")) {
                 int rssTTLmode = config.getInt("datasetEvaluator.rssTTLMode");
-                updateStrategy = new MAVSynchronizationUpdateStrategy(rssTTLmode);
+                updateStrategy = new MAVSynchronizationUpdateStrategy(minInterval, maxInterval, rssTTLmode);
                 logMsg.append(updateStrategy.getName());
 
                 // TODO: read feedItemBufferSize from config
@@ -227,7 +233,7 @@ public class DatasetEvaluator {
             // IndHist
             else if (strategy.equalsIgnoreCase("IndHist")) {
                 double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
-                updateStrategy = new IndHistUpdateStrategy(indHistTheta, feedStore);
+                updateStrategy = new IndHistUpdateStrategy(minInterval, maxInterval, indHistTheta, feedStore);
                 logMsg.append(updateStrategy.getName());
 
             }
@@ -237,14 +243,15 @@ public class DatasetEvaluator {
                 double tBurst = config.getDouble("datasetEvaluator.indHistTTLburst");
                 int timeWindowHours = config.getInt("datasetEvaluator.indHistTTLtimeWindowHours");
                 double weightM = config.getDouble("datasetEvaluator.adaptiveTTLweightM");
-                updateStrategy = new IndHistTTLUpdateStrategy(indHistTheta, feedStore, tBurst, timeWindowHours, weightM);
+                updateStrategy = new IndHistTTLUpdateStrategy(minInterval, maxInterval, indHistTheta, feedStore,
+                        tBurst, timeWindowHours, weightM);
                 logMsg.append(updateStrategy.getName());
 
             }
             // LIHZUpdateStrategy
             else if (strategy.equalsIgnoreCase("LIHZ")) {
                 double indHistTheta = config.getDouble("datasetEvaluator.indHistTheta");
-                updateStrategy = new LIHZUpdateStrategy(indHistTheta);
+                updateStrategy = new LIHZUpdateStrategy(minInterval, maxInterval, indHistTheta);
                 logMsg.append(updateStrategy.getName());
 
             }
@@ -253,22 +260,6 @@ public class DatasetEvaluator {
             else {
                 fatalErrorOccurred = true;
                 LOGGER.error("Cant read updateStrategy from config.");
-            }
-
-
-            // validate interval bounds
-            if (minInterval >= maxInterval || minInterval < 1 || maxInterval < 1) {
-                fatalErrorOccurred = true;
-                LOGGER.error("Please set interval bounds bounds properly.");
-            }
-            // set interval bounds
-            else {
-            updateStrategy.setLowestUpdateInterval(minInterval);
-            updateStrategy.setHighestUpdateInterval(maxInterval);
-                logMsg.append(", minCheckInterval = ");
-                logMsg.append(minInterval);
-                logMsg.append(", maxCheckInterval = ");
-                logMsg.append(maxInterval);
             }
 
             // read and set benchmark mode
@@ -283,7 +274,7 @@ public class DatasetEvaluator {
             }
             logMsg.append(", benchmarkMode = ");
             logMsg.append(mode);
-            
+
         } catch (Exception e) {
             fatalErrorOccurred = true;
             LOGGER.error("Could not load DatasetEvaluator configuration: " + e.getLocalizedMessage());

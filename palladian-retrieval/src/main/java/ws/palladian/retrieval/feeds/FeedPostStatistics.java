@@ -1,19 +1,16 @@
 package ws.palladian.retrieval.feeds;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.math.Stats;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 
 /**
@@ -28,16 +25,11 @@ import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
  */
 public class FeedPostStatistics {
 
-    /**
-     * Record a list of checkInterval values for each feed: <minuteOfDay : number of posts in that minute.
-     */
-    private Map<Integer, Integer> postDistribution = new LinkedHashMap<Integer, Integer>();
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedPostStatistics.class);
 
     /** The delay to the newest post. */
     private long delayToNewestItem = -1;
-
-    /** The interval between the last two items. */
-    private long lastInterval = -1;
 
     /** The timestamp of the oldest post. */
     private long timeOldestItem = -1;
@@ -47,9 +39,6 @@ public class FeedPostStatistics {
 
     /** The median time gap between subsequent posts. */
     private long medianPostInterval = -1;
-
-//    /** The median time gap between subsequent posts. */
-//    private long medianPostInterval2 = -1;
 
     /** The average time gap between subsequent posts. */
     private double averagePostInterval = -1;
@@ -72,15 +61,9 @@ public class FeedPostStatistics {
     /** The timestamp of the feed's most recent poll. */
     private Long lastPollTime = null;
 
-    /** The httpDate from the header of the feed's most recent poll. */
-    private Long lastPollHttpDate = null;
-
     public FeedPostStatistics(Feed feed) {
         if (feed.getLastPollTime() != null) {
             lastPollTime = feed.getLastPollTime().getTime();
-        }
-        if (feed.getHttpDateLastPoll() != null) {
-            lastPollHttpDate = feed.getHttpDateLastPoll().getTime();
         }
         calculateStatistics(feed);
     }
@@ -96,21 +79,13 @@ public class FeedPostStatistics {
         // keep a list of times to find out the median of the time differences between posts, average is not good since
         // one very old post can bias the value
         List<Long> timeList = new ArrayList<Long>();
-//        List<Long> timeList2 = new ArrayList<Long>();
 
         if (feedPubdates == null) {
             return;
         }
 
         StringBuilder warnings = new StringBuilder();
-        int c = 0;
         for (Date correctedPubDate : feedPubdates) {
-            c++;
-
-            if (c <= feedPubdates.size() - 5) {
-                // continue;
-            }
-
             long pubTime = correctedPubDate.getTime();
             if (pubTime > timeNewestEntry) {
                 timeSecondNewestEntry = timeNewestEntry;
@@ -123,29 +98,15 @@ public class FeedPostStatistics {
                 timeOldestEntry = pubTime;
             }
             timeList.add(pubTime);
-
-//            if (timeList.size() > 1) {
-//                timeList2.add(pubTime);
-//            }
         }
 
-//        if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
-//            timeList2.add(feed.getBenchmarkLookupTime());
-//        } else {
-//            timeList2.add(System.currentTimeMillis());
-//        }
-
-        // fill list with interval
-//        intervals = new ArrayList<Long>();
         Collections.sort(timeList);
-//        Collections.sort(timeList2);
-        CollectionHelper.removeNulls(timeList);
 
-//        for (int i = 0; i < timeList.size() - 1; i++) {
-//            intervals.add(timeList.get(i + 1) - timeList.get(i));
-//        }
-        long[] timeArray = ArrayUtils.toPrimitive(timeList.toArray(new Long[0]));
-        intervals = Arrays.asList(ArrayUtils.toObject(MathHelper.getDistances(timeArray)));
+        intervals = new ArrayList<Long>();
+        for (int i = 1; i < timeList.size(); i++) {
+            intervals.add(timeList.get(i) - timeList.get(i - 1));
+        }
+        Stats timeDistanceStats = new Stats(intervals);
 
         // FIXME: do we really need to set these fake values? In case the feed has an empty window, we set two fake
         // timestamps and calculate some statistics that are not valid. I think this code is very old. In the past, we
@@ -166,12 +127,12 @@ public class FeedPostStatistics {
             }
 
             if (warnings.length() > 0) {
-                FeedReader.LOGGER.warn(warnings.toString());
+                LOGGER.warn(warnings.toString());
             }
 
             // in benchmark mode we simulate the lookup time, otherwise it's the current time
             if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
-                setDelayToNewestPost(feed.getBenchmarkLookupTime() - timeNewestEntry);
+                delayToNewestItem = feed.getBenchmarkLookupTime() - timeNewestEntry;
             } else {
                 long pollTime = 0;
                 if (feed.getLastPollTime() != null) {
@@ -179,50 +140,36 @@ public class FeedPostStatistics {
                 } else {
                     pollTime = System.currentTimeMillis();
                 }
-                setDelayToNewestPost(pollTime - timeNewestEntry);
+                delayToNewestItem = pollTime - timeNewestEntry;
             }
 
-            setLastInterval(timeNewestEntry - timeSecondNewestEntry);
-            setTimeNewestPost(timeNewestEntry);
-            setTimeOldestPost(timeOldestEntry);
+            timeNewestItem = timeNewestEntry;
+            timeOldestItem = timeOldestEntry;
 
             if (timeList.size() > 1) {
-                setMedianPostGap(MathHelper.getMedianDifference(timeArray));
-//                setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
-                setAveragePostGap(getTimeRange() / ((double)feedPubdates.size() - 1));
-                setPostGapStandardDeviation((long)MathHelper.getStandardDeviation(timeArray));
-//                setLongestPostGap(MathHelper.getLongestGap(new TreeSet<Long>(timeList)));
-                setLongestPostGap(MathHelper.getLongestGap(timeArray));
-                setValidStatistics(true);
+                medianPostInterval = (long)timeDistanceStats.getMedian();
+                averagePostInterval = getTimeRange() / ((double)feedPubdates.size() - 1);
+                // XXX this was the code before, but this calculates the standard deviation for the timestamps, not the
+                // intervals! I changed it, test work fine. -- Philipp, 2013-10-13
+                // postIntervalStandardDeviation = (long)MathHelper.getStandardDeviation(timeArray);
+                postIntervalStandardDeviation = (long)timeDistanceStats.getStandardDeviation();
+                longestPostInterval = (long)timeDistanceStats.getMax();
+                validStatistics = true;
             }
         }
 
-        double avgEntriesPerDay = -1;
-        avgEntriesPerDay = (double)feedPubdates.size() / (double)getTimeRangeInDays();
-        setAvgEntriesPerDay(avgEntriesPerDay);
-    }
-
-    private void setDelayToNewestPost(long delayToNewestPost) {
-        this.delayToNewestItem = delayToNewestPost;
+        avgItemsPerDay = (double)feedPubdates.size() / (double)getTimeRangeInDays();
     }
 
     public long getDelayToNewestPost() {
         return delayToNewestItem;
     }
 
-    private void setLastInterval(long lastInterval) {
-        this.lastInterval = lastInterval;
-    }
-
-    public long getLastInterval() {
-        return lastInterval;
-    }
-
-    private long getTimeRange() {
+    long getTimeRange() {
         return timeNewestItem - timeOldestItem;
     }
 
-    private int getTimeRangeInDays() {
+    int getTimeRangeInDays() {
         return Math.max(1, (int)(getTimeRange() / TimeUnit.DAYS.toMillis(1)));
     }
 
@@ -234,7 +181,7 @@ public class FeedPostStatistics {
      * @return The difference between the publish date of the newest item and the current system time.
      * @see #getTimeDifferenceNewestPostToLastPollTime()
      */
-    public long getTimeDifferenceNewestPostToCurrentTime() {
+    private long getTimeDifferenceNewestPostToCurrentTime() {
         return System.currentTimeMillis() - timeNewestItem;
     }
 
@@ -254,107 +201,36 @@ public class FeedPostStatistics {
         }
     }
 
-    /**
-     * The difference between the publish date of the newest item and the http header's date value of the last poll.
-     * This is safe when processing persisted data. In case the http date is unknown or was not set by the server,
-     * {@link #getTimeDifferenceNewestPostToLastPollTime()} is returned for convenience.
-     * 
-     * @return The difference between the publish date of the newest item and the time of the last poll or the value
-     *         returned by {@link #getTimeDifferenceNewestPostToLastPollTime()}.
-     */
-    public long getTimeDifferenceNewestPostToLastPollHttpDate() {
-        if (lastPollHttpDate == null) {
-            return getTimeDifferenceNewestPostToLastPollTime();
-        } else {
-            return lastPollHttpDate - timeNewestItem;
-        }
-    }
-
-//    private Map<Integer, Integer> getPostDistribution() {
-//        return postDistribution;
-//    }
-
-//    private void setPostDistribution(final Map<Integer, Integer> postDistribution) {
-//        this.postDistribution = postDistribution;
-//    }
-
     public long getTimeOldestPost() {
         return timeOldestItem;
-    }
-
-    private void setTimeOldestPost(final long timeOldestPost) {
-        this.timeOldestItem = timeOldestPost;
     }
 
     public long getTimeNewestPost() {
         return timeNewestItem;
     }
 
-    private void setTimeNewestPost(final long timeNewestPost) {
-        this.timeNewestItem = timeNewestPost;
-    }
-
     public long getMedianPostGap() {
         return medianPostInterval;
     }
 
-    private void setMedianPostGap(final long medianPostGap) {
-        this.medianPostInterval = medianPostGap;
-    }
-
-//    private long getMedianPostGap2() {
-//        return medianPostInterval2;
-//    }
-
-//    private void setMedianPostGap2(final long medianPostGap2) {
-//        this.medianPostInterval2 = medianPostGap2;
-//    }
-
     public double getAveragePostGap() {
         return averagePostInterval;
-    }
-
-    /**
-     * @param averagePostGap arithmet. average
-     */
-    private void setAveragePostGap(double averagePostGap) {
-        this.averagePostInterval = averagePostGap;
     }
 
     public List<Long> getIntervals() {
         return intervals;
     }
 
-//    private void setIntervals(List<Long> intervals) {
-//        this.intervals = intervals;
-//    }
-
-    private void setPostGapStandardDeviation(final long postGapStandardDeviation) {
-        this.postIntervalStandardDeviation = postGapStandardDeviation;
-    }
-
     public long getPostGapStandardDeviation() {
         return postIntervalStandardDeviation;
-    }
-
-    private void setLongestPostGap(long longestPostGap) {
-        this.longestPostInterval = longestPostGap;
     }
 
     public long getLongestPostGap() {
         return longestPostInterval;
     }
 
-    private void setAvgEntriesPerDay(double avgEntriesPerDay) {
-        this.avgItemsPerDay = avgEntriesPerDay;
-    }
-
     public double getAvgEntriesPerDay() {
         return avgItemsPerDay;
-    }
-
-    private void setValidStatistics(boolean validStatistics) {
-        this.validStatistics = validStatistics;
     }
 
     public boolean isValidStatistics() {
@@ -370,9 +246,7 @@ public class FeedPostStatistics {
         builder.append((double)medianPostInterval / TimeUnit.MINUTES.toMillis(1));
         builder.append("min. , time to newest post=");
         builder.append((double)getTimeDifferenceNewestPostToCurrentTime() / TimeUnit.MINUTES.toMillis(1));
-        builder.append("min. , postDistribution=");
-        builder.append(postDistribution);
-        builder.append(", postGapStandardDeviation=");
+        builder.append("min. , postGapStandardDeviation=");
         builder.append(postIntervalStandardDeviation);
         builder.append(", timeNewestPost=");
         builder.append(timeNewestItem);

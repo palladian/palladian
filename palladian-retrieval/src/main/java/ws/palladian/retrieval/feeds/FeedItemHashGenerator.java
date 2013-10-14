@@ -17,8 +17,6 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public abstract class FeedItemHashGenerator {
 
-    // XXX Setting this via static field is not nice, necessary changes for making this nice would be too big for now.
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedItemHashGenerator.class);
 
@@ -26,25 +24,17 @@ public abstract class FeedItemHashGenerator {
     public static FeedItemHashGenerator STRATEGY = new FeedItemHashGenerator() {
         @Override
         public String hash(FeedItem feedItem) {
-            String newHash = null;
-
             StringBuilder hash = new StringBuilder();
             hash.append(feedItem.getTitle());
             hash.append(UrlHelper.removeSessionId(feedItem.getUrl()));
             hash.append(UrlHelper.removeSessionId(feedItem.getIdentifier()));
-            // if (getFeed().getActivityPattern() != FeedClassifier.CLASS_UNKNOWN
-            // && getFeed().getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
-            // hash.append(getPublished().toString());
-            // }
             if (feedItem.getTitle() != null || feedItem.getUrl() != null || feedItem.getIdentifier() != null) {
-                newHash = StringHelper.sha1(hash.toString());
-
+                return StringHelper.sha1(hash.toString());
             } else {
                 LOGGER.error("Could not generate custom item hash, all values are null or empty. Feed id {}",
                         feedItem.getFeedId());
+                return null;
             }
-
-            return newHash;
         }
     };
 
@@ -63,7 +53,7 @@ public abstract class FeedItemHashGenerator {
     //
     // Strategy method to be overridden.
     //
-    
+
     /**
      * <p>
      * Calculate a hash for the specified {@link FeedItem}. The implementation needs to be <b>Thread-safe</b>!

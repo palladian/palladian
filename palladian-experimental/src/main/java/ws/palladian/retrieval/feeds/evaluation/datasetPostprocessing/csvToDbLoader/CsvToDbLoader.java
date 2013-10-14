@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds.evaluation.datasetPostprocessing.csvToDbLoa
 
 import java.util.Timer;
 
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,6 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
  * TUDCS6 specific.<br />
@@ -40,11 +40,10 @@ public class CsvToDbLoader {
 
     public void loadDataToDb() {
 
-        final FeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class,
-                ConfigHolder.getInstance().getConfig());
+        Configuration config = ConfigHolder.getInstance().getConfig();
+        EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, config);
 
-        FeedReader feedChecker = new FeedReader(feedStore);
-        CsvToDbScheduler csvToDbScheduler = new CsvToDbScheduler(feedChecker);
+        CsvToDbScheduler csvToDbScheduler = new CsvToDbScheduler(feedStore, FeedReader.DEFAULT_NUM_THREADS);
         checkScheduler.schedule(csvToDbScheduler, 0, wakeUpInterval);
     }
 

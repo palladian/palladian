@@ -22,12 +22,8 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseFeedParser implements FeedParser {
+public abstract class AbstractFeedParser implements FeedParser {
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.retrieval.feeds.parser.FeedParser#getFeed(java.io.File, boolean)
-     */
     @Override
     public Feed getFeed(File file, boolean serializedGzip) throws FeedParserException {
         if (serializedGzip) {
@@ -49,19 +45,11 @@ public abstract class BaseFeedParser implements FeedParser {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.retrieval.feeds.parser.FeedParser#getFeed(java.io.File)
-     */
     @Override
     public Feed getFeed(File file) throws FeedParserException {
         return getFeed(file, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.retrieval.feeds.parser.FeedParser#getFeed(java.lang.String)
-     */
     @Override
     public Feed getFeed(String feedUrl) throws FeedParserException {
         try {
@@ -73,10 +61,6 @@ public abstract class BaseFeedParser implements FeedParser {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.retrieval.feeds.parser.FeedParser#getFeed(ws.palladian.retrieval.HttpResult)
-     */
     @Override
     public Feed getFeed(HttpResult httpResult) throws FeedParserException {
         Feed feed = getFeed(new ByteArrayInputStream(httpResult.getContent()));

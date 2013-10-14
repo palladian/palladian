@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
@@ -20,10 +19,14 @@ import ws.palladian.retrieval.feeds.FeedUpdateMode;
  * 
  * @author Sandro Reichert
  */
-public class LRU2UpdateStrategy extends UpdateStrategy {
+public class LRU2UpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LRU2UpdateStrategy.class);
+
+    public LRU2UpdateStrategy(int lowestInterval, int highestInterval) {
+        super(lowestInterval, highestInterval);
+    }
 
     /**
      * <p>
@@ -44,7 +47,7 @@ public class LRU2UpdateStrategy extends UpdateStrategy {
         int checkInterval = 0;
 
         // set default value to be used if we cant compute an interval from feed (e.g. feed has no items)
-        checkInterval = FeedReader.DEFAULT_CHECK_TIME;
+        checkInterval = DEFAULT_CHECK_TIME;
 
         Date lowerBoundOfInterval = feed.getLastButOneFeedEntry();
         Date upperBoundOfInterval = feed.getLastFeedEntry();
@@ -57,12 +60,12 @@ public class LRU2UpdateStrategy extends UpdateStrategy {
         // make sure we have an interval > 0, do not set checkInterval to 0 if the last two items have the same
         // (corrected) publish date
         if (intervalLength > 0) {
-            checkInterval = (int) (intervalLength / TimeUnit.MINUTES.toMillis(1));
+            checkInterval = (int)(intervalLength / TimeUnit.MINUTES.toMillis(1));
         }
 
         // set the (new) check interval to feed
         if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
-            feed.setUpdateInterval(getAllowedUpdateInterval(checkInterval));
+            feed.setUpdateInterval(getAllowedInterval(checkInterval));
         }
     }
 

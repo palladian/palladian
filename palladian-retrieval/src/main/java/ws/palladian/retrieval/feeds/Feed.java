@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
@@ -23,9 +26,9 @@ import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
  * 
  */
 public class Feed {
-
+    
     /** The logger for this class. */
-    // private static final Logger LOGGER = Logger.getLogger(Feed.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Feed.class);
 
     /** Internal database identifier. */
     private int id = -1;
@@ -62,12 +65,6 @@ public class Feed {
      * unknown.
      */
     private Boolean variableWindowSize = null;
-
-    /**
-     * For benchmarking purposes we need to know when the history file was read completely, that is the case if the last
-     * entry has been read.
-     */
-//    private boolean historyFileCompletelyRead = false;
 
     /**
      * Keep track of the timestamp for the lookup in the history file. We start with the minimum value to get the
@@ -128,11 +125,6 @@ public class Feed {
 
     /** The HTTP header's date value of the last poll (The current system time of the feed server) */
     private Date httpDateLastPoll = null;
-
-//    /**
-//     * Record statistics about poll data for evaluation purposes.
-//     */
-//    private PollDataSeries pollDataSeries = new PollDataSeries();
 
     /**
      * Number of item that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
@@ -363,7 +355,7 @@ public class Feed {
             pubDate = new Date(pollTime);
         }
         if (logWarnings && warnings.length() > 0) {
-            FeedReader.LOGGER.warn(warnings.toString());
+            LOGGER.warn(warnings.toString());
         }
 
         return pubDate;
@@ -702,37 +694,6 @@ public class Feed {
         return meticulousPostDistribution;
     }
 
-//    /**
-//     * Check whether the checked entries in the feed were spread over at least one day yet. That means in every minute
-//     * of the day the chances field should be
-//     * greater of equal to one.
-//     * 
-//     * @return True, if the entries span at least one day, false otherwise.
-//     */
-//    public Boolean oneFullDayHasBeenSeen() {
-//
-//        // if we have calculated this value, just return it
-//        if (oneFullDayOfItemsSeen != null) {
-//            return oneFullDayOfItemsSeen;
-//        }
-//
-//        oneFullDayOfItemsSeen = true;
-//
-//        for (Entry<Integer, int[]> entry : meticulousPostDistribution.entrySet()) {
-//            // if feed had no chance of having a post entry in any minute of the day, no full day has been seen yet
-//            if (entry.getValue()[1] == 0) {
-//                oneFullDayOfItemsSeen = false;
-//                break;
-//            }
-//        }
-//
-//        if (meticulousPostDistribution.isEmpty()) {
-//            oneFullDayOfItemsSeen = false;
-//        }
-//
-//        return oneFullDayOfItemsSeen;
-//    }
-
     public void setActivityPattern(FeedActivityPattern activityPattern) {
         if (activityPattern != null) {
             this.activityPattern = activityPattern;
@@ -769,8 +730,6 @@ public class Feed {
         builder.append(windowSize);
         builder.append(", variableWindowSize=");
         builder.append(variableWindowSize);
-//        builder.append(", historyFileCompletelyRead=");
-//        builder.append(historyFileCompletelyRead);
         builder.append(", benchmarkLookupTime=");
         builder.append(benchmarkLookupTime);
         builder.append(", benchmarkLastLookupTime=");
@@ -890,7 +849,6 @@ public class Feed {
         result = prime * result + checks;
         result = prime * result + ((feedMetaInfo == null) ? 0 : feedMetaInfo.hashCode());
         result = prime * result + ((feedUrl == null) ? 0 : feedUrl.hashCode());
-//        result = prime * result + (historyFileCompletelyRead ? 1231 : 1237);
         result = prime * result + ((httpLastModified == null) ? 0 : httpLastModified.hashCode());
         result = prime * result + id;
         result = prime * result + ((items == null) ? 0 : items.hashCode());
@@ -955,8 +913,6 @@ public class Feed {
                 return false;
         } else if (!feedUrl.equals(other.feedUrl))
             return false;
-//        if (historyFileCompletelyRead != other.historyFileCompletelyRead)
-//            return false;
         if (httpLastModified == null) {
             if (other.httpLastModified != null)
                 return false;
@@ -1069,21 +1025,6 @@ public class Feed {
     public Integer getWindowSize() {
         return windowSize;
     }
-
-//    /**
-//     * Find out whether the history file has been read completely, a file is considered to be read completely when the
-//     * window reached the last feed post in the file.
-//     * This function is for benchmarking purposes only.
-//     * 
-//     * @return True if the window has read the last post entry of the history file, false otherwise.
-//     */
-//    public boolean historyFileCompletelyRead() {
-//        return historyFileCompletelyRead;
-//    }
-
-//    public void setHistoryFileCompletelyRead(boolean b) {
-//        historyFileCompletelyRead = b;
-//    }
 
     public void addToBenchmarkLookupTime(long checkInterval) {
         setBenchmarkLastLookupTime(benchmarkLookupTime);

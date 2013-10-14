@@ -1,12 +1,12 @@
 package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.junit.Test;
-
 
 public class StatsTest {
 
@@ -39,6 +39,25 @@ public class StatsTest {
         assertEquals(3, stats.getMean(), 0);
         stats.add(5);
         assertEquals(4, stats.getMean(), 0);
+    }
+
+    @Test
+    public void testMedian() {
+        assertEquals(2.5, new Stats(Arrays.asList(1., 1., 2., 3., 1035., 89898.68)).getMedian(), 0);
+        assertEquals(2., new Stats(Arrays.asList(0., 1., 2., 3., 4.)).getMedian(), 0);
+        assertEquals(2.5, new Stats(Arrays.asList(0., 1., 2., 3., 4., 5.)).getMedian(), 0);
+        assertEquals(7., new Stats(Arrays.asList(9., 7., 2.)).getMedian(), 0.00001);
+        assertEquals(0., new Stats(Arrays.asList(0., 0., 0., 1.)).getMedian(), 0);
+        assertEquals(3948348538l, new Stats(Arrays.asList(1l, 2l, 3948348538l, 3948348539l, 3948348540l)).getMedian(),
+                0);
+    }
+    
+    @Test
+    public void testStandardDeviation() {
+        assertEquals(2.14, new Stats(Arrays.asList(2., 4., 4., 4., 5., 5., 7., 9.)).getStandardDeviation(), 0.01);
+        assertEquals(2.24, new Stats(Arrays.asList(4, 2, 5, 8, 6)).getStandardDeviation(), 0.01);
+        assertEquals(0, new Stats(Arrays.asList(1)).getStandardDeviation(), 0);
+        assertTrue(Double.isNaN(new Stats().getStandardDeviation()));
     }
 
 }
