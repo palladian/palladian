@@ -7,28 +7,29 @@ import java.util.HashSet;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationAnnotation;
 
 public final class FrequencyScopeDetector implements ScopeDetector {
 
     private static final String NAME = "Frequency";
 
     @Override
-    public Location getScope(Collection<? extends Location> locations) {
-        Validate.notNull(locations, "locations must not be null");
-        if (locations.isEmpty()) {
+    public Location getScope(Collection<LocationAnnotation> annotations) {
+        Validate.notNull(annotations, "locations must not be null");
+        if (annotations.isEmpty()) {
             return null;
         }
         double maxCount = 0;
         Location selectedLocation = null;
 
-        for (Location location : new HashSet<Location>(locations)) {
-            if (location.getCoordinate() == null) {
+        for (LocationAnnotation annotation : new HashSet<LocationAnnotation>(annotations)) {
+            if (annotation.getLocation().getCoordinate() == null) {
                 continue;
             }
-            int count = Collections.frequency(locations, location);
+            int count = Collections.frequency(annotations, annotation);
             if (count >= maxCount || selectedLocation == null) {
                 maxCount = count;
-                selectedLocation = location;
+                selectedLocation = annotation.getLocation();
             }
         }
 
