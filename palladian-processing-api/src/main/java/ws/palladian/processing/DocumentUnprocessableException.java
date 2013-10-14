@@ -12,7 +12,7 @@ package ws.palladian.processing;
  * @version 1.0
  * @since 0.1.7
  */
-public final class DocumentUnprocessableException extends Exception {
+public final class DocumentUnprocessableException extends RuntimeException {
 
     /**
      * <p>

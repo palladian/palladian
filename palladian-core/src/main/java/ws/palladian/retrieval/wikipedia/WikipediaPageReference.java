@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.wikipedia;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
 
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.retrieval.resources.WebContent;
@@ -92,6 +94,11 @@ public class WikipediaPageReference implements WebContent {
     @Override
     public GeoCoordinate getCoordinate() {
         return null;
+    }
+
+    @Override
+    public Set<String> getTags() {
+        return Collections.emptySet();
     }
 
 }

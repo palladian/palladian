@@ -98,7 +98,10 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         return SEARCHER_NAME;
     }
 
-    private String getRequestUrl(MultifacetQuery query) {
+    private String getRequestUrl(MultifacetQuery query) throws SearcherException {
+        if (query.getText() == null || query.getText().isEmpty()) {
+            throw new SearcherException("The query must supply a text.");
+        }
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("https://gdata.youtube.com/feeds/api/videos?q=");
         urlBuilder.append(UrlHelper.encodeParameter(query.getText()));
@@ -115,6 +118,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
             urlBuilder.append("&lr=").append(language.getIso6391());
         }
         // TODO geo search is currently not available.
+        // see: https://code.google.com/p/gdata-issues/issues/detail?id=4234
         return urlBuilder.toString();
     }
 
@@ -196,6 +200,9 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
                 builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
             }
         }
+        
+        // no tags available ): 
+        // see: http://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
 
         return builder.create();
     }

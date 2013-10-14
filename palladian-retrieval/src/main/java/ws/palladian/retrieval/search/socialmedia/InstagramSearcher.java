@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -53,7 +54,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
     private static final String SEARCHER_NAME = "Instagram";
 
     private final String accessToken;
-    
+
     private final HttpRetriever retriever;
 
     /**
@@ -128,6 +129,14 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                             double latitude = jsonLocaiton.getDouble("latitude");
                             builder.setCoordinate(new ImmutableGeoCoordinate(latitude, longitude));
                         }
+                    }
+                    if (data.get("tags") != null) {
+                        JsonArray tagArray = data.getJsonArray("tags");
+                        Set<String> tagSet = CollectionHelper.newHashSet();
+                        for (int j = 0; j < tagArray.size(); j++) {
+                            tagSet.add(tagArray.getString(j));
+                        }
+                        builder.setTags(tagSet);
                     }
                     result.add(builder.create());
 

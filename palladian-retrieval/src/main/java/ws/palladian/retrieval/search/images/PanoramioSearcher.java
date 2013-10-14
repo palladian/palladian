@@ -36,40 +36,13 @@ import ws.palladian.retrieval.search.SearcherException;
  */
 public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage> {
 
-//    public class PanoramioImageResult extends BasicWebImage {
-//
-//        private final GeoCoordinate imageCoordinate;
-//
-//        public PanoramioImageResult(String pageUrl, String imageUrl, String title, int width, int height, Date date,
-//                GeoCoordinate imageCoordinate) {
-//            super(pageUrl, imageUrl, title, null, width, height, date);
-//            this.imageCoordinate = imageCoordinate;
-//        }
-//
-//        public GeoCoordinate getImageCoordinate() {
-//            return imageCoordinate;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            StringBuilder builder = new StringBuilder();
-//            builder.append("PanoramioImageResult [imageCoordinate=");
-//            builder.append(imageCoordinate);
-//            builder.append(", toString()=");
-//            builder.append(super.toString());
-//            builder.append("]");
-//            return builder.toString();
-//        }
-//
-//    }
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PanoramioSearcher.class);
 
     private static final String REQUEST_URL = "http://www.panoramio.com/map/get_panoramas.php?set=%s&from=%s&to=%s&minx=%s&miny=%s&maxx=%s&maxy=%s&size=%s&mapfilter=%s";
 
     private static final String DATE_PARSE_FORMAT = "d MMM y";
-    
+
     private static final String NAME = "Panoramio";
 
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
@@ -80,7 +53,7 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
 
         Long totalResultCount = null;
         double[] boundingBox = query.getCoordinate().getBoundingBox(query.getRadius());
-        
+
         for (int offset = 0; result.size() < query.getResultCount(); offset += 100) {
             String requestUrl = getRequestUrl(offset, boundingBox);
             LOGGER.debug("Requesting {}", requestUrl);
@@ -142,7 +115,7 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
             return null;
         }
     }
-    
+
     @Override
     public String getName() {
         return NAME;

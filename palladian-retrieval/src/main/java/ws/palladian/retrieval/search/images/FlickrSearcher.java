@@ -134,11 +134,10 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         }
     }
 
-    /**
-     * Identifier for the API key when supplied via {@link Configuration}.
-     */
+    /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.flickr.key";
 
+    /** The API key for accessing flickr. */
     private final String apiKey;
 
     /**
@@ -187,7 +186,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
 
         for (int p = 0; p < neccessaryPages; p++) {
             String requestUrl = buildRequestUrl(query, resultsPerPage, p);
-            LOGGER.info("Requesting page {} with {}", p, requestUrl);
+            LOGGER.debug("Requesting page {} with {}", p, requestUrl);
             HttpResult httpResult;
             try {
                 httpResult = retriever.httpGet(requestUrl);
@@ -197,10 +196,13 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             }
             // TODO implement checking for error codes.
             String jsonString = httpResult.getStringContent();
+            
             try {
                 JsonObject resultJson = new JsonObject(jsonString);
                 JsonObject photosJson = resultJson.getJsonObject("photos");
-                availableResults = photosJson.getLong("total");
+                if (photosJson.get("total") != null) {
+                    availableResults = photosJson.getLong("total");
+                }
                 JsonArray photoJsonArray = photosJson.getJsonArray("photo");
                 for (int i = 0; i < photoJsonArray.size(); i++) {
                     JsonObject photoJson = photoJsonArray.getJsonObject(i);
@@ -211,6 +213,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                     String id = photoJson.getString("id");
                     String secret = photoJson.getString("secret");
                     String userId = photoJson.getString("owner");
+                    String tags = photoJson.getString("tags");
 
                     builder.setTitle(photoJson.getString("title"));
                     builder.setImageUrl(buildImageUrl(farmId, serverId, id, secret));
@@ -219,7 +222,6 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                     builder.setPublished(parseDate(photoJson.getString("datetaken")));
                     builder.setCoordinate(parseCoordinate(photoJson));
 
-                    // List<String> tags = Arrays.asList(photoJson.getString("tags").split("\\s"));
                     // License license = License.get(photoJson.getInt("license"));
                     Integer width = photoJson.tryGetInt("o_width");
                     Integer height = photoJson.tryGetInt("o_height");
@@ -227,6 +229,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                         builder.setWidth(width);
                         builder.setHeight(height);
                     }
+                    builder.setTags(new HashSet<String>(Arrays.asList(tags.split("\\s"))));
                     result.add(builder.create());
                 }
             } catch (JsonException e) {
