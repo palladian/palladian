@@ -102,11 +102,11 @@ public class TokenizerTest {
                 "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"),
                 "Although, many of them (30.2%) are good");
-//        assertEquals(Tokenizer.getSentence(
-//                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
-//                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
-//        assertEquals(Tokenizer.getSentence(
-//                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
+        //        assertEquals(Tokenizer.getSentence(
+        //                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
+        //                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
+        //        assertEquals(Tokenizer.getSentence(
+        //                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
         // "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 10),
                 "Although, many of them (30.2%) are good.");
@@ -132,6 +132,11 @@ public class TokenizerTest {
         // http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html
         String inputText = "";
         List<String> sentences;
+
+        inputText = "A 7.2 magnitude earthquake struck in the central Philippines Tuesday morning, killing at least four people and damaging buildings.";
+        sentences = Tokenizer.getSentences(inputText);
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
 
         inputText = "\"Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.\"";
         sentences = Tokenizer.getSentences(inputText);
