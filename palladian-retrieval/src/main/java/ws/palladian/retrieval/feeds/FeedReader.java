@@ -127,7 +127,6 @@ public final class FeedReader {
         LOGGER.debug(
                 "Scheduled task, wake up every {} milliseconds to check all feeds whether they need to be read or not",
                 wakeUpInterval);
-
     }
 
     /**
