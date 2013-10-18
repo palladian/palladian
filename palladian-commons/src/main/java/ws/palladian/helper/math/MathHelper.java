@@ -104,6 +104,7 @@ public final class MathHelper {
      * <p>
      * Calculate the overlap coefficient between two sets.
      * <code>Overlap(A, B) = |A intersection B| / min(|A|, |B|)</code>.
+     * </p>
      * 
      * @param setA The first set.
      * @param setB The second set.
