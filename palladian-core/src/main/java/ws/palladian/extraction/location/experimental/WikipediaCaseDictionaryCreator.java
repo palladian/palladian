@@ -124,11 +124,6 @@ class WikipediaCaseDictionaryCreator {
         }
     }
 
-    /** Used to break the callback. */
-    private static final class StopException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
-    }
-
     public static void clean(File caseDictionaryInput, File caseDictionaryOutput) {
         final Writer[] writer = new Writer[1];
         final int[] counter = new int[] {0};
