@@ -804,12 +804,12 @@ public final class HtmlHelper {
             // currentLink = makeFullURL(url, currentLink);
             currentLink = UrlHelper.makeFullUrl(url, baseHref, currentLink);
 
-            if (currentLink.length() == 0) {
+            if (currentLink.isEmpty()) {
                 continue;
             }
 
             String currentDomain = UrlHelper.getDomain(currentLink, false);
-            currentDomain = currentDomain.replaceFirst("[a-zA-Z-_]+\\.(?=[a-z]+\\.)", "");
+            // currentDomain = currentDomain.replaceFirst("[a-zA-Z-_]+\\.(?=[a-z]+\\.)", "");
 
             boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
 
