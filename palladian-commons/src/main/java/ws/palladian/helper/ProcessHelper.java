@@ -21,7 +21,9 @@ public final class ProcessHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessHelper.class);
 
     /**
+     * <p>
      * Run a command on the console/terminal.
+     * </p>
      * 
      * @param consoleCommand The command to run.
      * @return The console output that was read after executing the command.
@@ -56,13 +58,20 @@ public final class ProcessHelper {
         return result.toString();
     }
 
+    /**
+     * <p>
+     * Get the amount of free/usable heap memory.
+     * </p>
+     * 
+     * @return Free memory in bytes.
+     */
     public static final long getFreeMemory() {
         Runtime runtime = Runtime.getRuntime();
         return runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
     }
 
     private ProcessHelper() {
-
+        // utility, no instances.
     }
 
 }
