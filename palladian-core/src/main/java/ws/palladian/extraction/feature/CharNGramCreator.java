@@ -1,6 +1,5 @@
 package ws.palladian.extraction.feature;
 
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;

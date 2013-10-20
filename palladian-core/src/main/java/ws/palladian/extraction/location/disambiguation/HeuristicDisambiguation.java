@@ -288,14 +288,20 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         while (lassoLocations.size() > 1) {
             List<GeoCoordinate> coordinates = CollectionHelper
                     .convertList(lassoLocations, LOCATION_COORDINATE_FUNCTION);
+            CollectionHelper.removeNulls(coordinates);
+            if (coordinates.isEmpty()) {
+                break;
+            }
             GeoCoordinate midpoint = GeoUtils.getMidpoint(coordinates);
             double maxDistance = Double.MIN_VALUE;
             Location farthestLocation = null;
             for (Location location : lassoLocations) {
-                double distance = location.getCoordinate().distance(midpoint);
-                if (distance > maxDistance) {
-                    maxDistance = distance;
-                    farthestLocation = location;
+                if (location.getCoordinate() != null) {
+                    double distance = location.getCoordinate().distance(midpoint);
+                    if (distance > maxDistance) {
+                        maxDistance = distance;
+                        farthestLocation = location;
+                    }
                 }
             }
             if (maxDistance < lassoDistanceThreshold) {
