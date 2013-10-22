@@ -25,6 +25,7 @@ import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
 import ws.palladian.extraction.feature.IdfAnnotator;
 import ws.palladian.extraction.feature.LengthTokenRemover;
+import ws.palladian.extraction.feature.MapTermCorpus;
 import ws.palladian.extraction.feature.NGramCreator;
 import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
@@ -65,8 +66,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     // private final int TRAIN_DOC_LIMIT = 150;
     private final ProcessingPipeline corpusGenerationPipeline;
     private final ProcessingPipeline candidateGenerationPipeline;
-    private final TermCorpus termCorpus;
-    private final TermCorpus keyphraseCorpus;
+    private final MapTermCorpus termCorpus;
+    private final MapTermCorpus keyphraseCorpus;
     private final CooccurrenceMatrix<String> cooccurrenceMatrix;
     private final StemmerAnnotator stemmer;
     private int trainCount;
@@ -76,8 +77,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private QuickDtModel model;
 
     public MachineLearningBasedExtractor() {
-        termCorpus = new TermCorpus();
-        keyphraseCorpus = new TermCorpus();
+        termCorpus = new MapTermCorpus();
+        keyphraseCorpus = new MapTermCorpus();
         cooccurrenceMatrix = new CooccurrenceMatrix<String>();
         trainCount = 0;
         trainDocuments = new HashMap<PipelineDocument<String>, Set<String>>();

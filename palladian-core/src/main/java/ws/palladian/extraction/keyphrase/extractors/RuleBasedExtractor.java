@@ -14,12 +14,12 @@ import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
 import ws.palladian.extraction.feature.IdfAnnotator;
 import ws.palladian.extraction.feature.LengthTokenRemover;
+import ws.palladian.extraction.feature.MapTermCorpus;
 import ws.palladian.extraction.feature.NGramCreator;
 import ws.palladian.extraction.feature.RegExTokenRemover;
 import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
 import ws.palladian.extraction.feature.StopTokenRemover;
-import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
@@ -43,14 +43,14 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
     
     private final ProcessingPipeline trainingPipeline;
     private final ProcessingPipeline extractionPipeline;
-    private final TermCorpus termCorpus;
-    private final TermCorpus keyphraseCorpus;
+    private final MapTermCorpus termCorpus;
+    private final MapTermCorpus keyphraseCorpus;
     private final CooccurrenceMatrix<String> cooccurrenceMatrix;
     private StemmerAnnotator stemmer;
 
     public RuleBasedExtractor() {
-        termCorpus = new TermCorpus();
-        keyphraseCorpus = new TermCorpus();
+        termCorpus = new MapTermCorpus();
+        keyphraseCorpus = new MapTermCorpus();
         cooccurrenceMatrix = new CooccurrenceMatrix<String>();
 
         trainingPipeline = new PerformanceCheckProcessingPipeline();
