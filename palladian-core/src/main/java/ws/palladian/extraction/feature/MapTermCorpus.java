@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -35,7 +37,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * </p>
      */
     public MapTermCorpus() {
-        this(CountMap.<String>create(), 0);
+        this(CountMap.<String> create(), 0);
     }
 
     /**
@@ -63,7 +65,8 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         numDocs++;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.extraction.feature.ITermCorpus#getCount(java.lang.String)
      */
     @Override
@@ -71,7 +74,8 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         return terms.getCount(term);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.extraction.feature.ITermCorpus#getNumDocs()
      */
     @Override
@@ -79,7 +83,8 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         return numDocs;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.extraction.feature.ITermCorpus#getNumTerms()
      */
     @Override
@@ -87,7 +92,8 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         return terms.totalSize();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.extraction.feature.ITermCorpus#getNumUniqueTerms()
      */
     @Override
@@ -95,36 +101,57 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         return terms.uniqueSize();
     }
 
-    private void setDf(String term, int df) {
-        terms.set(term, df);
-    }
-
-    public void load(String fileName) throws IOException {
+    /**
+     * <p>
+     * Load a serialized {@link MapTermCorpus} from the given path.
+     * </p>
+     * 
+     * @param filePath The path to the file with the corpus, not <code>null</code>.
+     * @throws IOException In case the file could not be read.
+     */
+    public static void load(File filePath) throws IOException {
+        Validate.notNull(filePath, "filePath must not be null");
         InputStream inputStream = null;
         try {
-            inputStream = new GZIPInputStream(new FileInputStream(new File(fileName)));
-            FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
-                @Override
-                public void performAction(String text, int number) {
-                    if (number != 0 && number % 100000 == 0) {
-                        System.out.println(number);
-                    }
-                    if (number > 1) {
-                        String[] split = text.split(SEPARATOR);
-                        if (split.length != 2) {
-                            // System.err.println(text);
-                            return;
-                        }
-                        setDf(split[0], Integer.parseInt(split[1]));
-                    } else if (text.startsWith("numDocs" + SEPARATOR)) {
-                        String[] split = text.split(SEPARATOR);
-                        numDocs = Integer.parseInt(split[1]);
-                    }
-                }
-            });
+            inputStream = new GZIPInputStream(new FileInputStream(filePath));
+            load(inputStream);
         } finally {
             FileHelper.close(inputStream);
         }
+    }
+
+    /**
+     * <p>
+     * Load a serialized {@link MapTermCorpus} from the given input stream.
+     * </p>
+     * 
+     * @param inputStream The input stream providing the serialized data, not <code>null</code>.
+     * @return A {@link MapTermCorpus} with the deserialized corpus.
+     */
+    public static MapTermCorpus load(InputStream inputStream) {
+        Validate.notNull(inputStream, "inputStream must not be null");
+        final int[] numDocs = new int[0];
+        final CountMap<String> counts = CountMap.create();
+        FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
+            @Override
+            public void performAction(String text, int number) {
+                if (number != 0 && number % 100000 == 0) {
+                    System.out.println(number);
+                }
+                if (number > 1) {
+                    String[] split = text.split(SEPARATOR);
+                    if (split.length != 2) {
+                        // System.err.println(text);
+                        return;
+                    }
+                    counts.add(split[0], Integer.parseInt(split[1]));
+                } else if (text.startsWith("numDocs" + SEPARATOR)) {
+                    String[] split = text.split(SEPARATOR);
+                    numDocs[0] = Integer.parseInt(split[1]);
+                }
+            }
+        });
+        return new MapTermCorpus(counts, numDocs[0]);
     }
 
     public void save(File file) throws IOException {
