@@ -20,6 +20,14 @@ public interface ProxyProvider {
         public Proxy getProxy(String url) throws HttpException {
             return null;
         }
+
+        @Override
+        public void removeProxy(Proxy proxy) {
+        }
+
+        @Override
+        public void promoteProxy(Proxy proxy) {
+        }
     };
 
     /**
@@ -33,4 +41,21 @@ public interface ProxyProvider {
      */
     Proxy getProxy(String url) throws HttpException;
 
+    /**
+     * <p>
+     * Tell the proxy provider to remove a proxy (e.g. because of malfunction).
+     * </p>
+     * 
+     * @param proxy The proxy to remove.
+     */
+    void removeProxy(Proxy proxy);
+
+    /**
+     * <p>
+     * Tell the proxy provider that the given proxy worked.
+     * </p>
+     * 
+     * @param proxy The proxy to promote.
+     */
+    void promoteProxy(Proxy proxy);
 }

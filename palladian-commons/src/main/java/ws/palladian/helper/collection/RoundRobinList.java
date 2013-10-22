@@ -19,7 +19,6 @@ public class RoundRobinList<E> extends ArrayList<E> {
 
     @Override
     public boolean remove(Object o) {
-
         Boolean remove = super.remove(o);
         if (remove && index > 0) {
             index--;

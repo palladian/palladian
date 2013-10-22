@@ -36,7 +36,10 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRouteParams;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.DecompressingHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -197,15 +200,15 @@ public class HttpRetriever {
     }
 
 
-     /**
-       * <p>
-       * Add a cookie to the header.
-       * </p>
-       *
-       * @param key The name of the cookie.
-       * @param value The value of the cookie.
-      *
-      */
+    /**
+     * <p>
+     * Add a cookie to the header.
+     * </p>
+     *
+     * @param key The name of the cookie.
+     * @param value The value of the cookie.
+     *
+     */
     public void addCookie(String key, String value) {
         cookieStore.put(key, value);
     }
@@ -473,7 +476,7 @@ public class HttpRetriever {
 
         AbstractHttpClient backend = createHttpClient();
 
-        setProxy(url, request, backend);
+        Proxy proxyUsed = setProxy(url, request, backend);
 
         try {
 
@@ -524,9 +527,13 @@ public class HttpRetriever {
 
             addDownload(receivedBytes);
 
+            proxyProvider.promoteProxy(proxyUsed);
+
         } catch (IllegalStateException e) {
+            proxyProvider.removeProxy(proxyUsed);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } catch (IOException e) {
+            proxyProvider.removeProxy(proxyUsed);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } finally {
             FileHelper.close(in);
@@ -536,10 +543,10 @@ public class HttpRetriever {
         return result;
     }
 
-    private void setProxy(String url, HttpUriRequest request, AbstractHttpClient backend) throws HttpException {
+    private Proxy setProxy(String url, HttpUriRequest request, AbstractHttpClient backend) throws HttpException {
         Proxy proxy = proxyProvider.getProxy(url);
         if (proxy == null) {
-            return;
+            return null;
         }
         HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
         backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
@@ -554,6 +561,8 @@ public class HttpRetriever {
             String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
             request.setHeader("Proxy-Authorization", "Basic " + encoded);
         }
+
+        return proxy;
     }
 
     /**
