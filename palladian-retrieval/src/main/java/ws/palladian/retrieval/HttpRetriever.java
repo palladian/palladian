@@ -4,11 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
@@ -160,6 +156,8 @@ public class HttpRetriever {
 
     /** Hook for http* methods. */
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
+
+    private Set<Integer> proxyRemoveStatusCodes = CollectionHelper.newHashSet();
 
     // ////////////////////////////////////////////////////////////////
     // constructor
@@ -529,6 +527,11 @@ public class HttpRetriever {
 
             proxyProvider.promoteProxy(proxyUsed);
 
+            if(proxyRemoveStatusCodes.contains(statusCode)) {
+                proxyProvider.removeProxy(proxyUsed);
+            }
+
+
         } catch (IllegalStateException e) {
             proxyProvider.removeProxy(proxyUsed);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
@@ -799,6 +802,10 @@ public class HttpRetriever {
         this.proxyProvider = proxyProvider;
     }
 
+    public ProxyProvider getProxyProvider() {
+        return proxyProvider;
+    }
+
     public void setConnectionTimeoutRedirects(long connectionTimeoutRedirects) {
         this.connectionTimeoutRedirects = connectionTimeoutRedirects;
     }
@@ -806,5 +813,14 @@ public class HttpRetriever {
     public void setSocketTimeoutRedirects(long socketTimeoutRedirects) {
         this.socketTimeoutRedirects = socketTimeoutRedirects;
     }
+
+    public Set<Integer> getProxyRemoveStatusCodes() {
+        return proxyRemoveStatusCodes;
+    }
+
+    public void setProxyRemoveStatusCodes(Set<Integer> proxyRemoveStatusCodes) {
+        this.proxyRemoveStatusCodes = proxyRemoveStatusCodes;
+    }
+
 
 }
