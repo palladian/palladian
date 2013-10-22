@@ -107,14 +107,15 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * </p>
      * 
      * @param filePath The path to the file with the corpus, not <code>null</code>.
+     * @return A {@link MapTermCorpus} with the deserialized corpus.
      * @throws IOException In case the file could not be read.
      */
-    public static void load(File filePath) throws IOException {
+    public static MapTermCorpus load(File filePath) throws IOException {
         Validate.notNull(filePath, "filePath must not be null");
         InputStream inputStream = null;
         try {
             inputStream = new GZIPInputStream(new FileInputStream(filePath));
-            load(inputStream);
+            return load(inputStream);
         } finally {
             FileHelper.close(inputStream);
         }
