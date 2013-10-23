@@ -320,8 +320,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public void reset() {
-        termCorpus.reset();
-        keyphraseCorpus.reset();
+        termCorpus.clear();
+        keyphraseCorpus.clear();
         cooccurrenceMatrix.reset();
         trainCount = 0;
         trainDocuments.clear();
