@@ -131,7 +131,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      */
     public static MapTermCorpus load(InputStream inputStream) {
         Validate.notNull(inputStream, "inputStream must not be null");
-        final int[] numDocs = new int[0];
+        final int[] numDocs = new int[1];
         final CountMap<String> counts = CountMap.create();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
@@ -139,15 +139,14 @@ public final class MapTermCorpus extends AbstractTermCorpus {
                 if (number != 0 && number % 100000 == 0) {
                     System.out.println(number);
                 }
+                String[] split = text.split(SEPARATOR);
                 if (number > 1) {
-                    String[] split = text.split(SEPARATOR);
                     if (split.length != 2) {
                         // System.err.println(text);
                         return;
                     }
                     counts.add(split[0], Integer.parseInt(split[1]));
                 } else if (text.startsWith("numDocs" + SEPARATOR)) {
-                    String[] split = text.split(SEPARATOR);
                     numDocs[0] = Integer.parseInt(split[1]);
                 }
             }
