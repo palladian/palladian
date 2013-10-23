@@ -51,13 +51,27 @@ public class StatsTest {
         assertEquals(3948348538l, new Stats(Arrays.asList(1l, 2l, 3948348538l, 3948348539l, 3948348540l)).getMedian(),
                 0);
     }
-    
+
     @Test
     public void testStandardDeviation() {
         assertEquals(2.14, new Stats(Arrays.asList(2., 4., 4., 4., 5., 5., 7., 9.)).getStandardDeviation(), 0.01);
         assertEquals(2.24, new Stats(Arrays.asList(4, 2, 5, 8, 6)).getStandardDeviation(), 0.01);
         assertEquals(0, new Stats(Arrays.asList(1)).getStandardDeviation(), 0);
         assertTrue(Double.isNaN(new Stats().getStandardDeviation()));
+    }
+
+    @Test
+    public void testNoValues() {
+        Stats stats = new Stats();
+        assertEquals(0, stats.getCount());
+        assertTrue(Double.isNaN(stats.getMax()));
+        assertTrue(Double.isNaN(stats.getMin()));
+        assertTrue(Double.isNaN(stats.getMedian()));
+        assertTrue(Double.isNaN(stats.getMean()));
+        assertTrue(Double.isNaN(stats.getStandardDeviation()));
+        assertEquals(0, stats.getSum(), 0);
+        assertTrue(Double.isNaN(stats.getMse()));
+        assertTrue(Double.isNaN(stats.getRmse()));
     }
 
 }

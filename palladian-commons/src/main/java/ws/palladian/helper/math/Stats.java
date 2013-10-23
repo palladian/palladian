@@ -49,10 +49,16 @@ public class Stats {
         values.add(value.doubleValue());
     }
 
+    /**
+     * @return The mean of the provided numbers, or {@link Double#NaN} in case no numbers were provided.
+     */
     public double getMean() {
         return getSum() / getCount();
     }
 
+    /**
+     * @return The standard deviation of the provided numbers, or {@link Double#NaN} in case no numbers were provided.
+     */
     public double getStandardDeviation() {
         if (values.isEmpty()) {
             return Double.NaN;
@@ -70,6 +76,9 @@ public class Stats {
         return standardDeviation;
     }
 
+    /**
+     * @return The median of the provided numbers, or {@link Double#NaN} in case no numbers were provided.
+     */
     public double getMedian() {
         if (values.isEmpty()) {
             return Double.NaN;
@@ -93,20 +102,35 @@ public class Stats {
         });
     }
 
+    /**
+     * @return The number of values present in this {@link Stats} collection.
+     */
     public int getCount() {
         return values.size();
     }
 
     public double getMin() {
-        Double min = Collections.min(getDoubleValues());
-        return min != null ? min : Double.NaN;
+        if (values.isEmpty()) {
+            return Double.NaN;
+        }
+        return Collections.min(getDoubleValues());
     }
 
+    /**
+     * @return The maximum value in this {@link Stats} collection, or {@link Double#NaN} in case no numbers were
+     *         provided.
+     */
     public double getMax() {
-        Double max = Collections.max(getDoubleValues());
-        return max != null ? max : Double.NaN;
+        if (values.isEmpty()) {
+            return Double.NaN;
+        }
+        return Collections.max(getDoubleValues());
     }
 
+    /**
+     * @return The minimum value in this {@link Stats} collection, or {@link Double#NaN} in case no numbers were
+     *         provided.
+     */
     public double getSum() {
         double sum = 0;
         for (Number value : values) {
