@@ -117,7 +117,7 @@ public class DatasetCreator {
             // check file
             else {
 
-                String raw = FileHelper.readFileToString(file);
+                String raw = FileHelper.tryReadFileToString(file);
                 // String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
                 // .replaceAll("(\n)(?=.)", "");
 

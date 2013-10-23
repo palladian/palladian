@@ -3,6 +3,7 @@ package ws.palladian.retrieval.wikipedia;
 import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -139,7 +140,7 @@ public class WikipediaUtilTest {
     }
 
     @Test
-    public void testExtractCoordinateMarkupFromPages() throws FileNotFoundException {
+    public void testExtractCoordinateMarkupFromPages() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/San_Francisco_Bay_Area.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "San Francisco Bay Area", markup);
@@ -165,7 +166,7 @@ public class WikipediaUtilTest {
     }
 
     @Test
-    public void testExtractCoordinatesFromInfobox() throws FileNotFoundException {
+    public void testExtractCoordinatesFromInfobox() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
         Set<GeoCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
@@ -228,7 +229,7 @@ public class WikipediaUtilTest {
     }
 
     @Test
-    public void testStripMarkup() throws FileNotFoundException {
+    public void testStripMarkup() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         String cleanText = WikipediaUtil.stripMediaWikiMarkup(markup);
         // System.out.println(cleanText);

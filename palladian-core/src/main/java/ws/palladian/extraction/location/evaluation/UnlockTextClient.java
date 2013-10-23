@@ -237,7 +237,7 @@ class UnlockTextClient {
     public static void writeCleanTexts(String inputDir, String outputDir) {
         File[] files = FileHelper.getFiles(inputDir);
         for (File file : files) {
-            String taggedText = FileHelper.readFileToString(file);
+            String taggedText = FileHelper.tryReadFileToString(file);
             String strippedText = HtmlHelper.stripHtmlTags(taggedText);
             FileHelper.writeToFile(new File(new File(outputDir), file.getName()).getPath(), strippedText);
         }

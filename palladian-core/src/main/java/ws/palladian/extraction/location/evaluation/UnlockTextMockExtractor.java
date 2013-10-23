@@ -104,9 +104,9 @@ final class UnlockTextMockExtractor extends LocationExtractor {
 
         File[] textFiles = FileHelper.getFiles(pathToTexts.getPath(), "text");
         for (File textFile : textFiles) {
-            String text = FileHelper.readFileToString(textFile);
+            String text = FileHelper.tryReadFileToString(textFile);
             File jsonFile = new File(pathToJsonResults, textFile.getName().replace(".txt", ".json"));
-            String jsonResponse = FileHelper.readFileToString(jsonFile);
+            String jsonResponse = FileHelper.tryReadFileToString(jsonFile);
             try {
                 List<LocationAnnotation> annotations = createAnnotations(jsonResponse, text);
                 data.put(text.hashCode(), annotations);
