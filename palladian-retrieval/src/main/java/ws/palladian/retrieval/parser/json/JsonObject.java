@@ -338,7 +338,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @throws JsonException
      */
     public String getString(String key) throws JsonException {
-        return JsonUtil.parseString(this.get(key));
+        if (containsKey(key)) {
+            return JsonUtil.parseString(this.get(key));
+        } else {
+            throw new JsonException("No key: " + key);
+        }
     }
 
     public String tryGetString(String key) {

@@ -1862,13 +1862,11 @@ public final class StringHelper {
      * to be inserted in (older) MySQL databases, as four byte characters cause trouble.
      * </p>
      * 
-     * @deprecated Does this use anybody or was that Sandro's?
      * @param string The string from which to remove four byte characters.
      * @return The string with four byte characters removed, or <code>null</code> if input was <code>null</code>.
      * @see <a href="http://mzsanford.com/blog/mysql-and-unicode">MySQL and Unicode</a>
      * @see <a href="http://stackoverflow.com/a/3220210/388827>Code snippet on Stack Overflow</a>
      */
-    @Deprecated
     public static String removeFourByteChars(String string) {
         if (string == null) {
             return null;

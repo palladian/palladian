@@ -168,7 +168,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         TOTAL_REQUEST_COUNT.incrementAndGet();
 
         int statusCode = httpResult.getStatusCode();
-        if (statusCode == 420) {
+        if (statusCode == 429) { // changed to v1.1 without verifying
             throw new SearcherException("Twitter is currently blocked due to rate limit");
         }
         if (statusCode >= 400) {
@@ -308,6 +308,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
             JsonObject hashTagObject = hashTagsArray.getJsonObject(i);
             builder.addTag(hashTagObject.getString("text"));
         }
+        builder.setSource(SEARCHER_NAME);
 
         WebContent result = builder.create();
         return result;

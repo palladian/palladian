@@ -19,6 +19,8 @@ public class WikipediaPageReference implements WebContent {
 
     /** The id of the main namespace with articles. Other namespaces contain meta pages, like discussions etc. */
     public static final int MAIN_NAMESPACE = 0;
+    
+    private static final String SOURCE_NAME = "MediaWiki";
 
     private final int pageId;
     private final int namespaceId;
@@ -99,6 +101,11 @@ public class WikipediaPageReference implements WebContent {
     @Override
     public Set<String> getTags() {
         return Collections.emptySet();
+    }
+    
+    @Override
+    public String getSource() {
+        return SOURCE_NAME;
     }
 
 }

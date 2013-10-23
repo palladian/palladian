@@ -82,9 +82,11 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
                     builder.setWidth(photoJson.getInt("width"));
                     builder.setHeight(photoJson.getInt("height"));
                     builder.setPublished(parseDate(photoJson.getString("upload_date")));
+                    builder.setIdentifier(photoJson.getString("id"));
                     double lng = photoJson.getDouble("longitude");
                     double lat = photoJson.getDouble("latitude");
                     builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
+                    builder.setSource(NAME);
                     result.add(builder.create());
                     if (result.size() >= query.getResultCount()) {
                         break;

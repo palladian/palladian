@@ -221,6 +221,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                     builder.setSummary(photoJson.getJsonObject("description").getString("_content"));
                     builder.setPublished(parseDate(photoJson.getString("datetaken")));
                     builder.setCoordinate(parseCoordinate(photoJson));
+                    builder.setIdentifier(id);
 
                     // License license = License.get(photoJson.getInt("license"));
                     Integer width = photoJson.tryGetInt("o_width");
@@ -230,6 +231,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                         builder.setHeight(height);
                     }
                     builder.setTags(new HashSet<String>(Arrays.asList(tags.split("\\s"))));
+                    builder.setSource(SEARCHER_NAME);
                     result.add(builder.create());
                 }
             } catch (JsonException e) {

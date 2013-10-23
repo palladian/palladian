@@ -317,7 +317,10 @@ public class DatabaseManager {
     public final int runInsertReturnId(String sql, Object... args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-
+        return runInsertReturnId(new BasicQuery(sql, args));
+    }
+    
+    public final int runInsertReturnId(Query query) {
         int generatedId;
         Connection connection = null;
         PreparedStatement ps = null;
@@ -326,8 +329,8 @@ public class DatabaseManager {
         try {
 
             connection = getConnection();
-            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            fillPreparedStatement(ps, args);
+            ps = connection.prepareStatement(query.getSql(), Statement.RETURN_GENERATED_KEYS);
+            fillPreparedStatement(ps, query.getArgs());
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
@@ -338,7 +341,7 @@ public class DatabaseManager {
             }
 
         } catch (SQLException e) {
-            logError(e, sql, args);
+            logError(e, query.getSql(), query.getArgs());
             generatedId = -1;
         } finally {
             close(connection, ps, rs);
