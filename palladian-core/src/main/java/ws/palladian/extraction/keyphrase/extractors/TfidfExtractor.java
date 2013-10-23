@@ -87,7 +87,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
     
     @Override
     public void reset() {
-        termCorpus.reset();
+        termCorpus.clear();
         super.reset();
     }
 
