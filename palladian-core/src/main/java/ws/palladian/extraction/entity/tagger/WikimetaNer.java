@@ -192,7 +192,7 @@ public final class WikimetaNer extends NamedEntityRecognizer {
 
     public static void main(String[] args) {
         WikimetaNer ner = new WikimetaNer("useYourOwn!");
-        String text = FileHelper.readFileToString("src/test/resources/NewsSampleText.txt");
+        String text = FileHelper.tryReadFileToString("src/test/resources/NewsSampleText.txt");
         System.out.println(ner.tag(text));
     }
 

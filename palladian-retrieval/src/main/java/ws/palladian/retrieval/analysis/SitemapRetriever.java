@@ -42,7 +42,7 @@ public class SitemapRetriever {
             FileHelper.ungzipFile(downloadPath, unzippedPath);
 
             // read
-            String sitemapText = FileHelper.readFileToString(unzippedPath);
+            String sitemapText = FileHelper.tryReadFileToString(unzippedPath);
             List<String> sitemapUrls = StringHelper.getRegexpMatches(locRegexp, sitemapText);
             pageUrls.addAll(sitemapUrls);
 

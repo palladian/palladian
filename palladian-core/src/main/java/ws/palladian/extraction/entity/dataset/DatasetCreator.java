@@ -229,7 +229,7 @@ public class DatasetCreator {
                 }
                 for (String seedEntity : conceptSeedEntry.getValue()) {
 
-                    String fileContent = FileHelper.readFileToString(markedUpFile);
+                    String fileContent = FileHelper.tryReadFileToString(markedUpFile);
 
                     // count occurrences of the seed entity
                     Pattern pattern = Pattern.compile("<.*?>\\s?" + seedEntity + "\\s?</.*?>", Pattern.MULTILINE);
@@ -307,7 +307,7 @@ public class DatasetCreator {
             LOGGER.info("start processing seed entity {} ({})", seedEntity, seedFileName);
 
             seedFileCopy.append(seedEntity).append("###")
-                    .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
+            .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
 
             List<String> urls = getWebPages(seedEntity, seedFileName);
 
@@ -437,7 +437,7 @@ public class DatasetCreator {
             FileHelper.writeToFile(
                     new File(datasetLocation, seedFileName + "/html/"
                             + StringHelper.makeSafeName(UrlHelper.getCleanUrl(webPage.getDocumentURI()), 30) + ".html")
-                            .getPath(), webPageContent);
+                    .getPath(), webPageContent);
             LOGGER.debug("saved html file");
         }
 
@@ -484,7 +484,7 @@ public class DatasetCreator {
                         continue;
                     }
 
-                    String content = FileHelper.readFileToString(taggedFile);
+                    String content = FileHelper.tryReadFileToString(taggedFile);
 
                     String cleansedText = cleanText(content, conceptName);
 
@@ -693,7 +693,7 @@ public class DatasetCreator {
         postProcessDataset(seedEntityDirectory, datasetLocation);
 
         // replace "new document" and "new concept" with proper string "docstart" and "" respectively
-        String content = FileHelper.readFileToString(new File(datasetLocation, "all.xml"));
+        String content = FileHelper.tryReadFileToString(new File(datasetLocation, "all.xml"));
         content = content.replaceAll("-+ NEW CONCEPT.*", "");
         content = content.replaceAll("-+ NEW DOCUMENT .#.*", "=-<DOCSTART>-");
 
@@ -719,7 +719,7 @@ public class DatasetCreator {
         FileFormatParser.xmlToColumn(cleansedXmlFile, finalColumnTaggedFile, "\t");
 
         // get the broken DOCSTART lines correct
-        content = FileHelper.readFileToString(finalColumnTaggedFile);
+        content = FileHelper.tryReadFileToString(finalColumnTaggedFile);
         content = content.replaceAll("=-\tO\nDOCSTART\tO\n-\tO", "=-DOCSTART-\tO");
 
         FileHelper.writeToFile(finalColumnTaggedFile, content);

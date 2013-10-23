@@ -1,5 +1,6 @@
 package ws.palladian.classification.language.evaluation;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class LanguageDetectionEvaluation {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LanguageDetectionEvaluation.class);
-    
+
     private static final String PALLADIAN_MODEL_PATH = "";
 
     /**
@@ -28,8 +29,9 @@ public class LanguageDetectionEvaluation {
      * string to classify ### language
      * 
      * @param evaluationFilePath The file with the evaluation data.
+     * @throws IOException
      */
-    public void evaluate(Dataset dataset, Set<String> possibleClasses, Integer documentLength) {
+    public void evaluate(Dataset dataset, Set<String> possibleClasses, Integer documentLength) throws IOException {
 
         LOGGER.info("evaluate JLangDetect vs. Google vs. Alchemy vs. Palladian");
         StopWatch sw = new StopWatch();
@@ -138,10 +140,11 @@ public class LanguageDetectionEvaluation {
 
     /**
      * @param args
+     * @throws IOException
      */
-    public static void main(String[] args) {
-        
-        
+    public static void main(String[] args) throws IOException {
+
+
         /**
          * 
          * 2010-12-13 12:35:14,027 INFO [    main] tud.iir.classification.language.evaluation.LanguageDetectionEvaluation.evaluate(LanguageDetectionEvaluation.java:143) : Accuracy JLangDetect: 87.91% (1100 classified)

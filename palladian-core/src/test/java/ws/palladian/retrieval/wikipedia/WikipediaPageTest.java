@@ -2,7 +2,7 @@ package ws.palladian.retrieval.wikipedia;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -14,7 +14,7 @@ import ws.palladian.helper.io.ResourceHelper;
 public class WikipediaPageTest {
 
     @Test
-    public void testWikipediaPage() throws FileNotFoundException {
+    public void testWikipediaPage() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
         assertEquals("german location", page.getInfoboxes().get(0).getName());
@@ -23,7 +23,7 @@ public class WikipediaPageTest {
     }
 
     @Test
-    public void testGetInfoboxes() throws FileNotFoundException {
+    public void testGetInfoboxes() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dry Fork (Cheat River)", markup);
@@ -33,7 +33,7 @@ public class WikipediaPageTest {
     }
 
     @Test
-    public void testInfoboxExtraction() throws FileNotFoundException {
+    public void testInfoboxExtraction() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
         List<WikipediaTemplate> infoboxes = page.getInfoboxes();
@@ -75,7 +75,7 @@ public class WikipediaPageTest {
     }
 
     @Test
-    public void testGetSections() throws FileNotFoundException {
+    public void testGetSections() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
         List<String> sections = page.getSections();

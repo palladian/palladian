@@ -216,7 +216,7 @@ class LocalGlobalLexiconConverter {
         Set<Integer> deduplication = CollectionHelper.newHashSet();
         int annotated = 0;
         for (File file : files) {
-            String fileContent = FileHelper.readFileToString(file);
+            String fileContent = FileHelper.tryReadFileToString(file);
             if (deduplication.add(fileContent.hashCode())) {
                 Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(fileContent);
                 if (annotations.size() > 0) {

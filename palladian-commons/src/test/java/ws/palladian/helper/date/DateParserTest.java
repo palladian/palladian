@@ -3,7 +3,7 @@ package ws.palladian.helper.date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Ignore;
@@ -24,7 +24,7 @@ public class DateParserTest {
      */
     @Test
     public void testFindDate1() {
-        
+
         // others
         assertEquals("2010-07-02 19:07:49", DateParser.findDate("Tue, 02 Jul 2010 19:07:49 GMT").getNormalizedDateString());
         assertEquals("2010-07-23 15:35:58", DateParser.findDate("7/23/2010 3:35:58 PM").getNormalizedDateString());
@@ -56,9 +56,9 @@ public class DateParserTest {
         assertEquals("2007-08-12", DateParser.findDate("2007-August-12").getNormalizedDateString());
         assertEquals("2010-07-02", DateParser.findDate("2010/07/02").getNormalizedDateString());
         assertEquals("2007-08-12", DateParser.findDate("August 12, 2007").getNormalizedDateString());
-        
+
         assertEquals("2011-04-18 16:16:00", DateParser.findDate("Mon, 18 Apr 2011 09:16:00 GMT-0700").getNormalizedDateString());
-        
+
         // dates from feeds
         assertEquals("2011-01-28 15:45:15", DateParser.findDate("Fri, 28 Jan 2011 10:45:15 -0500").getNormalizedDateString());
         // assertEquals("2011-02-02 09:36", DateParser.findDate("Wed, 2, Feb 2011 9:36").getNormalizedDateString());
@@ -83,7 +83,7 @@ public class DateParserTest {
         assertEquals("2011-02-02 14:12:43", DateParser.findDate("Wed, 02 Feb 2011 09:12:43 -0500").getNormalizedDateString());
         // assertEquals("2011-02-02 10:00", DateParser.findDate("2011-02-2T10:00").getNormalizedDateString());
         assertEquals("2011-02-02", DateParser.findDate("Feb 2, 2011").getNormalizedDateString());
-        
+
         // old dates from DateNormalizerTest
         assertEquals("1956-01-17",DateParser.findDate("17.01.1956").getNormalizedDateString());
         assertEquals("1956-01-17", DateParser.findDate("17.1.1956").getNormalizedDateString());
@@ -108,19 +108,19 @@ public class DateParserTest {
         assertEquals("1956-01-03", DateParser.findDate("January 3, 1956").getNormalizedDateString());
         assertEquals("2007-03-12 23:13:05", DateParser.findDate("Mon, 12 Mar 2007 23:13:05 GMT").getNormalizedDateString());
         assertEquals("2008-10-13 01:28:26", DateParser.findDate("Mon, 13 Oct 2008 01:28:26 GMT").getNormalizedDateString());
-        
+
         // TODO old DateNormalizer was converting TZ
         assertEquals("2008-10-10 16:34:01", DateParser.findDate("10 Oct 2008 16:34:01 EST").getNormalizedDateString());
         assertEquals("2008-10-27 19:00", DateParser.findDate("Mon, 27 Oct 2008 19:00 GMT").getNormalizedDateString());
         assertEquals("2008-10-10 16:34:01", DateParser.findDate("10 Oct 2008 16:34:01 EST").getNormalizedDateString());
-        assertEquals("2009-02-12 01:56:22", DateParser.findDate("Thu Feb 12 01:56:22 CET 2009").getNormalizedDateString()); 
-        
+        assertEquals("2009-02-12 01:56:22", DateParser.findDate("Thu Feb 12 01:56:22 CET 2009").getNormalizedDateString());
+
         assertEquals("2008-11-23", DateParser.findDate("Sun, 23 Nov 2008").getNormalizedDateString());
         assertEquals("2006-05-16 06:04:54", DateParser.findDate("Tue, 16 May 2006 15:04:54 +0900").getNormalizedDateString());
         assertEquals("2009-02-12 00:00:00", DateParser.findDate("2009-02-12 00:00:00").getNormalizedDateString());
         assertEquals("2009-02-12", DateParser.findDate("2009-02-12").getNormalizedDateString());
         assertEquals("2012-12-09 15:45", DateParser.findDate("2012-12-09T15:45GMT").getNormalizedDateString());
-        
+
         // Last updated: 10:09:03 AM GMT(+03) Saturday, 12, November, 2011
         assertEquals("2011-11-12",DateParser.findDate("Saturday, 12, November, 2011").getNormalizedDateString());
 
@@ -348,14 +348,14 @@ public class DateParserTest {
         assertEquals("2008-09-20", date.getNormalizedDateString());
         date = DateParser.findDate("11-12-2010 19:48:00", RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
         assertEquals("2010-11-12 19:48:00", date.getNormalizedDateString());
-        
+
         // Year
         assertEquals("2012", DateParser.findDate("it happened in 2012", RegExp.DATE_CONTEXT_YYYY).getNormalizedDateString());
-        
+
         // date with line break
         assertEquals("2006-02-06", DateParser.findDate("06. Feb\n06", RegExp.DATE_EU_D_MMMM_Y).getNormalizedDateString());
     }
-    
+
     @Test
     public void testFindDates() {
         assertEquals("2010-01", DateParser.findDates("Januar 2010").get(0).getNormalizedDateString());
@@ -474,19 +474,19 @@ public class DateParserTest {
         String[] result = DateParserLogic.splitTimeZone("22:10  UTC");
         assertEquals("22:10 ", result[0]);
         assertEquals("UTC", result[1]);
-        
+
         result = DateParserLogic.splitTimeZone("22:10 UTC");
         assertEquals("22:10 ", result[0]);
         assertEquals("UTC", result[1]);
-        
+
         result = DateParserLogic.splitTimeZone("22:10 GMT");
         assertEquals("22:10 ", result[0]);
         assertEquals("GMT", result[1]);
-        
+
         result = DateParserLogic.splitTimeZone("Wed, 02 Feb 2011 09:00:00 EST");
         assertEquals("Wed, 02 Feb 2011 09:00:00 ", result[0]);
         assertEquals("EST", result[1]);
-        
+
         result = DateParserLogic.splitTimeZone("22:10");
         assertNull(result);
     }
@@ -502,7 +502,7 @@ public class DateParserTest {
         assertEquals("\\.", DateParserLogic.getSeparatorRegEx("2010.05.06"));
         assertEquals("/", DateParserLogic.getSeparatorRegEx("2010/05/06"));
     }
-    
+
     @Test
     public void testSetTimeDiff() {
         DateParserLogic dateParserLogic = new DateParserLogic();
@@ -515,10 +515,10 @@ public class DateParserTest {
         assertEquals(dateParserLogic.hour, 19);
         assertEquals(dateParserLogic.minute, 0);
     }
-    
+
     @Test
     @Ignore // make this faster!
-    public void testExtractFromText() throws FileNotFoundException {
+    public void testExtractFromText() throws IOException {
         final int count = 25;
         final ProgressMonitor monitor = new ProgressMonitor(count, 1);
         String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("/wikipedia_2011_Egyptian_revolution.txt"));
