@@ -104,6 +104,11 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         public Set<String> getTags() {
             return Collections.emptySet();
         }
+        
+        @Override
+        public String getSource() {
+            return SEARCHER_NAME;
+        }
 
     }
 

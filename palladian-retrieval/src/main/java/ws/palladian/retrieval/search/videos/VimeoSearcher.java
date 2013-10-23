@@ -185,6 +185,8 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
                     builder.addTag(normalizedTag);
                 }
             }
+            builder.setSource(SEARCHER_NAME);
+            builder.setIdentifier(jsonVideo.getString("id"));
             result.add(builder.create());
         }
         return result;

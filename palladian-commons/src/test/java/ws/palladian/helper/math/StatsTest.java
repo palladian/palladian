@@ -23,6 +23,7 @@ public class StatsTest {
         assertEquals(119.833, stats.getMse(), 0.001);
         assertEquals(10.947, stats.getRmse(), 0.001);
         assertEquals(0.5, stats.getCumulativeProbability(6), 0.001);
+        assertEquals(22, stats.getRange(), 0);
         // System.out.println(stats);
     }
 
@@ -72,6 +73,7 @@ public class StatsTest {
         assertEquals(0, stats.getSum(), 0);
         assertTrue(Double.isNaN(stats.getMse()));
         assertTrue(Double.isNaN(stats.getRmse()));
+        assertTrue(Double.isNaN(stats.getRange()));
     }
 
 }

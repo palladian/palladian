@@ -128,6 +128,17 @@ public class Stats {
     }
 
     /**
+     * @return Get the range for the given values in this {@link Stats} collection, i.e. the difference between the
+     *         maximum and the minimum value, or {@link Double#NaN} in case no numbers were provided.
+     */
+    public double getRange() {
+        if (values.isEmpty()) {
+            return Double.NaN;
+        }
+        return getMax() - getMin();
+    }
+
+    /**
      * @return The minimum value in this {@link Stats} collection, or {@link Double#NaN} in case no numbers were
      *         provided.
      */
@@ -197,6 +208,8 @@ public class Stats {
         builder.append(getMin());
         builder.append(", max=");
         builder.append(getMax());
+        builder.append(", range=");
+        builder.append(getRange());
         builder.append(", sum=");
         builder.append(getSum());
         builder.append(", MSE=");
