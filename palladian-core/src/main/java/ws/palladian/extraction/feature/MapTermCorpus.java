@@ -182,6 +182,25 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         terms.clear();
     }
 
+    /**
+     * <p>
+     * Get a new filtered {@link TermCorpus} with high frequency terms only.
+     * </p>
+     * 
+     * @param minOccurrenceCount The minimum occurrence count, greater/equal zero.
+     * @return The filtered {@link TermCorpus}.
+     */
+    public MapTermCorpus getFilteredCorpus(int minOccurrenceCount) {
+        CountMap<String> resultTerms = CountMap.create();
+        for (String term : terms.uniqueItems()) {
+            int count = terms.getCount(term);
+            if (count >= minOccurrenceCount) {
+                resultTerms.add(term, count);
+            }
+        }
+        return new MapTermCorpus(resultTerms, numDocs);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
