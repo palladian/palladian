@@ -138,7 +138,7 @@ public class EventfulSearcher extends EventSearcher {
                         events.add(event);
                     }
                 } catch (Exception e) {
-                    LOGGER.error(e.getMessage());
+                    LOGGER.warn(e.getMessage());
                 }
             }
 
@@ -177,7 +177,7 @@ public class EventfulSearcher extends EventSearcher {
         } catch (Exception e) {
             // HtmlHelper.printDom(node);
             // System.out.println(HtmlHelper.getInnerXml(node));
-            LOGGER.error(e.getMessage());
+            LOGGER.warn(e.getMessage());
         }
         return field;
     }

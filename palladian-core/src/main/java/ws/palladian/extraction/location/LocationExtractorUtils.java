@@ -207,7 +207,7 @@ public final class LocationExtractorUtils {
             public LocationDocument next() {
                 monitor.incrementAndPrintProgress();
                 File currentFile = fileIterator.next();
-                String fileContent = FileHelper.readFileToString(currentFile);
+                String fileContent = FileHelper.tryReadFileToString(currentFile);
                 String rawText = fileContent.replace(" role=\"main\"", "");
                 String cleanText = HtmlHelper.stripHtmlTags(rawText);
                 Map<Integer, GeoCoordinate> currentCoordinates = coordinates.get(currentFile.getName());

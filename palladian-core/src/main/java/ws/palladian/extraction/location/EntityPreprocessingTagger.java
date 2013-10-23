@@ -283,7 +283,7 @@ public class EntityPreprocessingTagger implements Tagger {
     public static void main(String[] args) {
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
         List<Annotation> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper
-                .readFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1/text27.txt")));
+                .tryReadFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1/text27.txt")));
         CollectionHelper.print(annotations);
     }
 

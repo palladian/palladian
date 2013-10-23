@@ -53,7 +53,7 @@ final class DatasetCheck {
         if (datasetFiles.length == 0) {
             throw new IllegalStateException("No text files found in '" + datasetDirectory + "'");
         }
-        
+
         // keep tag -> values
         Map<String, CountMap<String>> assignedTagCounts = LazyMap.create(new Factory<CountMap<String>>() {
             @Override
@@ -67,7 +67,7 @@ final class DatasetCheck {
         for (File file : datasetFiles) {
             String filePath = file.getAbsolutePath();
             String fileName = file.getName();
-            String stringContent = FileHelper.readFileToString(filePath);
+            String stringContent = FileHelper.tryReadFileToString(filePath);
             Matcher matcher = TAG_REGEX.matcher(stringContent);
 
             // keep value -> assigned tags
@@ -107,12 +107,12 @@ final class DatasetCheck {
                 if (!allowedTags.contains(openingTag)) {
                     System.out.println("[error] unknown tag " + openingTag + " in " + fileName);
                 }
-                
+
                 // check if text in between is rather long
                 if (content.length() > 50) {
                     System.out.println("[warn] " + content + " seems rather long for an annotation in " + fileName);
                 }
-                
+
                 // annotation value should not start/end with punctuation
                 if (StringHelper.isPunctuation(content.charAt(0))) {
                     System.out.println("[warn] '" + content + "' starts with punctuation in " + fileName);
@@ -120,7 +120,7 @@ final class DatasetCheck {
                 if (StringHelper.isPunctuation(content.charAt(content.length() - 1))) {
                     System.out.println("[warn] '" + content + "' ends with punctuation in " + fileName);
                 }
-                
+
                 // annotation value should not start/end with white space
                 if (Character.isWhitespace(content.charAt(0))) {
                     System.out.println("[warn] '" + content + "' starts with white space in " + fileName);
@@ -164,7 +164,7 @@ final class DatasetCheck {
             }
 
         }
-        
+
         System.out.println('\n');
         System.out.println("Assigned tags:");
         int totalTags = 0;
@@ -197,7 +197,7 @@ final class DatasetCheck {
 
         File[] files = FileHelper.getFiles(datasetPath.getPath(), "text");
         for (File file : files) {
-            String inputText = FileHelper.readFileToString(file);
+            String inputText = FileHelper.tryReadFileToString(file);
             inputText = inputText.replace(" role=\"main\"", "");
             Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(inputText);
             for (ContextAnnotation annotation : annotations) {

@@ -189,7 +189,7 @@ public class PageSegmenterTrainer {
      * @param place The filename of the site to save
      */
     public static void saveURLToDisc(String URL, String place) throws TransformerFactoryConfigurationError,
-            TransformerException, IOException {
+    TransformerException, IOException {
 
         URL url = new URL(URL);
         BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()));
@@ -236,7 +236,7 @@ public class PageSegmenterTrainer {
      * @param limit The limit of URLs to save
      */
     public static void saveAllURLsToDisc(String URL, int limit) throws TransformerFactoryConfigurationError,
-            TransformerException, IOException {
+    TransformerException, IOException {
         DocumentRetriever c = new DocumentRetriever();
         String domain = UrlHelper.getDomain(URL);
         Document d = c.getWebDocument(domain);
@@ -268,7 +268,7 @@ public class PageSegmenterTrainer {
             LOGGER.info(title + "\n" + label);
 
             if (labelOfURL.equals(label)
-            /* && URL.length()>=currentElement.length()-1 && URL.length()<=currentElement.length()+1 */) {
+                    /* && URL.length()>=currentElement.length()-1 && URL.length()<=currentElement.length()+1 */) {
                 place = "test\\aehnlich\\" + title;
                 LOGGER.info("-->ähnlich");
             } else {
@@ -286,7 +286,7 @@ public class PageSegmenterTrainer {
      * Saves defined URLs to local disc.
      */
     public static void saveChosenURLsToDisc() throws TransformerFactoryConfigurationError, TransformerException,
-            IOException {
+    IOException {
 
         String[] collectionOfURL = {
                 "http://www.wer-weiss-was.de",
@@ -308,7 +308,7 @@ public class PageSegmenterTrainer {
                 "http://www.amazon.com",
                 "http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=mouse",
                 "http://wissen.de/wde/generator/wissen/ressorts/geschichte/was_geschah_am/index.html?day=13&month=10&year=1900&suchen=Suchen",
-                "http://maps.google.de" };
+        "http://maps.google.de" };
 
         for (int i = 0; i < collectionOfURL.length; i++) {
             String title = collectionOfURL[i].substring(7);
@@ -432,7 +432,7 @@ public class PageSegmenterTrainer {
         List<String> result = new ArrayList<String>();
         result.add(place + name + ".html");
         for (int i = 0; i < 5; i++) {
-            if (FileHelper.readFileToString(place + name + "a" + (i + 1) + ".html").length() > 0) {
+            if (FileHelper.tryReadFileToString(place + name + "a" + (i + 1) + ".html").length() > 0) {
                 result.add(place + name + "a" + (i + 1) + ".html");
             }
         }
@@ -454,7 +454,7 @@ public class PageSegmenterTrainer {
         String fullPlace = place + label + "\\" + name + "\\";
         String mainFile = place + "\\" + "evaluation.csv";
 
-        List<String> liste = (ArrayList<String>) FileHelper.readFileToArray(fullPlace + name + ".csv");
+        List<String> liste = FileHelper.readFileToArray(fullPlace + name + ".csv");
         String sep = ";";
         String[] vals = liste.get(1).split(sep);
         String URL = vals[0];
@@ -555,7 +555,7 @@ public class PageSegmenterTrainer {
 
         FileHelper.writeToFile(fullPlace + name + "_ausgewertet.csv", liste);
 
-        List<String> mainListe = (ArrayList<String>) FileHelper.readFileToArray(mainFile);
+        List<String> mainListe = FileHelper.readFileToArray(mainFile);
         boolean foundEntry = false;
         for (int i = 1; i < mainListe.size(); i++) {
             if (mainListe.get(i).split(sep)[0].equals(liste.get(1).split(sep)[0])) {

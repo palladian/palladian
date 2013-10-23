@@ -38,7 +38,7 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
     public static TextDatasetIterator createIterator(Dataset dataset) {
         return new TextDatasetIterator(dataset);
     }
-    
+
     public static TextDatasetIterator createIterator(String filePath, String separator, boolean firstFieldLink) {
         return new TextDatasetIterator(filePath, separator, firstFieldLink);
     }
@@ -67,7 +67,7 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
 
                 String learningText;
                 if (isFirstFieldLink) {
-                    learningText = FileHelper.readFileToString(datasetRootPath + parts[0]);
+                    learningText = FileHelper.tryReadFileToString(datasetRootPath + parts[0]);
                 } else {
                     learningText = new String(parts[0]);
                 }

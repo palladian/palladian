@@ -3,7 +3,7 @@ package ws.palladian.extraction.entity.tagger;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -16,7 +16,7 @@ import ws.palladian.retrieval.parser.json.JsonException;
 public class ExtractivNerTest {
 
     @Test
-    public void testExtractivNer() throws FileNotFoundException, JsonException {
+    public void testExtractivNer() throws JsonException, IOException {
         File sampleTextFile = ResourceHelper.getResourceFile("/NewsSampleText.txt");
         File jsonResponseFile = ResourceHelper.getResourceFile("/apiResponse/ExtractivResponse.json");
 
