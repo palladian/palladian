@@ -36,10 +36,10 @@ public class JLangDetect implements LanguageClassifier {
 
     /** The confidence threshold for a language. This is the minimal percentage of n-grams which have to match. */
     private static final float THRESHOLD = 0.0f;
-    
+
     /** The wrapped language detector. */
     private final LangDetector langDetector;
-    
+
     /**
      * <p>
      * Instantiate a new {@link JLangDetect} using the supplied implementation of {@link LangDetector}.
@@ -119,7 +119,7 @@ public class JLangDetect implements LanguageClassifier {
             String[] parts = line.split(" ");
             String language = parts[1];
             String link = parts[0];
-            String text = FileHelper.readFileToString(dataset.getRootPath() + link);
+            String text = FileHelper.tryReadFileToString(dataset.getRootPath() + link);
             treeBuilders.get(language).learn(text);
         }
 

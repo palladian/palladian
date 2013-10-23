@@ -121,8 +121,8 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
                     if (tagOpen
                             && (nameOutcomes[fi][ti].endsWith(NameFinderME.START) || nameOutcomes[fi][ti]
                                     .endsWith(NameFinderME.OTHER))
-                            && (nameOutcomes[fi][ti - 1].endsWith(NameFinderME.START) || nameOutcomes[fi][ti - 1]
-                                    .endsWith(NameFinderME.CONTINUE))) {
+                                    && (nameOutcomes[fi][ti - 1].endsWith(NameFinderME.START) || nameOutcomes[fi][ti - 1]
+                                            .endsWith(NameFinderME.CONTINUE))) {
                         output.append("</").append(openTag).append(">");
                         tagOpen = false;
                     }
@@ -251,7 +251,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
 
     private String[] getUsedTags(String filePath) {
         Set<String> tags = new HashSet<String>();
-        String inputString = FileHelper.readFileToString(filePath);
+        String inputString = FileHelper.tryReadFileToString(filePath);
         Pattern pattern = Pattern.compile("</?(.*?)>");
         Matcher matcher = pattern.matcher(inputString);
         while (matcher.find()) {
@@ -290,9 +290,9 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
             // XXX this is for the TUD dataset, for some reason opennlp does not find some concepts when they're only in
             // few places, so we delete all lines with no tags for the concepts with few mentions
             if (!isConllEvaluation()/*
-                                     * conceptName.equalsIgnoreCase("mouse") || conceptName.equalsIgnoreCase("car")
-                                     * || conceptName.equalsIgnoreCase("actor")|| conceptName.equalsIgnoreCase("phone")
-                                     */) {
+             * conceptName.equalsIgnoreCase("mouse") || conceptName.equalsIgnoreCase("car")
+             * || conceptName.equalsIgnoreCase("actor")|| conceptName.equalsIgnoreCase("phone")
+             */) {
 
                 List<String> array = FileHelper.readFileToArray(tempTrainingFile);
 
@@ -308,7 +308,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
                 FileHelper.copyFile(tempTrainingFile, tempTrainingFile2);
             }
 
-            String content = FileHelper.readFileToString(tempTrainingFile2);
+            String content = FileHelper.tryReadFileToString(tempTrainingFile2);
 
             // we need to use the tag style <START:tagname> blabla <END>
             content = content.replaceAll("<" + tag + ">", "<START:" + tag.toLowerCase() + "> ");

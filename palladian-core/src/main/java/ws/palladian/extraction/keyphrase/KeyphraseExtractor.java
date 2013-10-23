@@ -13,7 +13,7 @@ public abstract class KeyphraseExtractor {
 
     /** Maximum number of keyphrases to assign. */
     private int keyphraseCount = 10;
-    
+
     public final void train(Dataset2 dataset) {
         startTraining();
         int i = 0;
@@ -22,18 +22,18 @@ public abstract class KeyphraseExtractor {
             System.out.println(i + "/" + dataset.size() + ":" + item.getFile().getAbsolutePath());
             String[] categories = item.getCategories();
             String text;
-//            try {
-                text = FileHelper.readFileToString(item.getFile());
-                // in case we have HTML files, strip HTML tags and unescape. Added to allow easy processing of HTML
-                // files, would be better to let the extractors decide how to work with the supplied data though, e.g.
-                // special HTML feature extraction in the future.
-//                if (item.getFile().getName().endsWith(".html")) {
-//                    text = HtmlHelper.stripHtmlTags(text);
-//                    text = StringEscapeUtils.unescapeHtml(text);
-//                }
-//            } catch (IOException e) {
-//                throw new IllegalStateException(e);
-//            }
+            //            try {
+            text = FileHelper.tryReadFileToString(item.getFile());
+            // in case we have HTML files, strip HTML tags and unescape. Added to allow easy processing of HTML
+            // files, would be better to let the extractors decide how to work with the supplied data though, e.g.
+            // special HTML feature extraction in the future.
+            //                if (item.getFile().getName().endsWith(".html")) {
+            //                    text = HtmlHelper.stripHtmlTags(text);
+            //                    text = StringEscapeUtils.unescapeHtml(text);
+            //                }
+            //            } catch (IOException e) {
+            //                throw new IllegalStateException(e);
+            //            }
             train(text, new HashSet<String>(Arrays.asList(categories)));
         }
         endTraining();
@@ -95,12 +95,12 @@ public abstract class KeyphraseExtractor {
     public void startExtraction() {
 
     }
-    
+
     public abstract String getExtractorName();
 
     public void reset() {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

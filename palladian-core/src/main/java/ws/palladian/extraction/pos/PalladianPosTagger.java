@@ -95,7 +95,7 @@ public class PalladianPosTagger extends BasePosTagger {
         File[] trainingFiles = FileHelper.getFiles(folderPath);
         for (File file : trainingFiles) {
 
-            String content = FileHelper.readFileToString(file);
+            String content = FileHelper.tryReadFileToString(file);
 
             String[] wordsAndTagPairs = content.split("\\s");
 
@@ -192,7 +192,7 @@ public class PalladianPosTagger extends BasePosTagger {
         File[] testFiles = FileHelper.getFiles(folderPath);
         for (File file : testFiles) {
 
-            String content = FileHelper.readFileToString(file);
+            String content = FileHelper.tryReadFileToString(file);
 
             String[] wordsAndTagPairs = content.split("\\s");
 

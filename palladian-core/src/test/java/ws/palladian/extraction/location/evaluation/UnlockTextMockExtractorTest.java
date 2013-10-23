@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -18,7 +18,7 @@ import ws.palladian.retrieval.parser.json.JsonException;
 public class UnlockTextMockExtractorTest {
 
     @Test
-    public void testParse() throws FileNotFoundException, JsonException {
+    public void testParse() throws JsonException, IOException {
         File jsonFile = ResourceHelper.getResourceFile("/apiResponse/unlockTextApiResponse.json");
         File txtFile = ResourceHelper.getResourceFile("/testText.txt");
         String jsonString = FileHelper.readFileToString(jsonFile);

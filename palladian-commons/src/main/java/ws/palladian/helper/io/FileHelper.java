@@ -242,36 +242,63 @@ public final class FileHelper {
         return fileType;
     }
 
+    public static String tryReadFileToString(String path) {
+        try {
+            return readFileToString(new File(path));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String tryReadFileToString(File file) {
+        try {
+            return readFileToString(file);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String tryReadFileToString(String path, String encoding) {
+        try {
+            return readFileToString(new File(path), encoding);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /**
+     * <p>
      * Read file to string.
+     * </p>
      * 
      * @param path The path to the file that should be read.
      * @return The string content of the file.
+     * @throws IOException
      */
-    public static String readFileToString(String path) {
+    public static String readFileToString(String path) throws IOException {
         return readFileToString(new File(path));
     }
 
-    public static String readFileToString(String path, String encoding) {
+    public static String readFileToString(String path, String encoding) throws IOException {
         return readFileToString(new File(path), encoding);
     }
 
     public static String readFileToString(InputStream is) {
         return StringUtils.join(readFileToArray(is), "\n");
     }
+
     /**
      * Read file to string.
      * 
      * @param file The file that should be read.
      * @return The string content of the file.
+     * @throws IOException
      */
-    // TODO throw exception if file cannot be accessed.
-    public static String readFileToString(File file) {
+    public static String readFileToString(File file) throws IOException {
         return readFileToString(file, DEFAULT_ENCODING);
     }
 
-    // FIXME return null on error
-    public static String readFileToString(File file, String encoding) {
+    public static String readFileToString(File file, String encoding) throws IOException {
 
         StringBuilder contents = new StringBuilder();
         BufferedReader reader = null;
@@ -284,10 +311,6 @@ public final class FileHelper {
                 contents.append(line).append(NEWLINE_CHARACTER);
             }
 
-        } catch (FileNotFoundException e) {
-            LOGGER.error(file + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(file + ", " + e.getMessage());
         } finally {
             close(reader);
         }

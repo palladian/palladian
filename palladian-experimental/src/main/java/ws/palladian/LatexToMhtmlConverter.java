@@ -80,7 +80,8 @@ public class LatexToMhtmlConverter {
         Matcher matcher = Pattern.compile("(?<=[^%])\\\\include\\{(.*?)\\}").matcher(latex);
 
         while (matcher.find()) {
-            latex = latex.replace(matcher.group(), FileHelper.readFileToString(basePath + matcher.group(1) + ".tex"));
+            latex = latex
+                    .replace(matcher.group(), FileHelper.tryReadFileToString(basePath + matcher.group(1) + ".tex"));
         }
 
         FileHelper.writeToFile(basePath + "merged.tex", latex);
@@ -122,7 +123,7 @@ public class LatexToMhtmlConverter {
         converted = converted.replaceAll(NLB + "\\\\begin\\{enumerate\\}", "<ol>");
         converted = converted.replaceAll(NLB + "\\\\end\\{enumerate\\}", "</ol>");
         converted = converted.replaceAll(NLB + "\\\\item", "<li>");
-        
+
         converted = converted.replaceAll("\\\\begin\\{verbatim\\}", "<pre>");
         converted = converted.replaceAll("\\\\end\\{verbatim\\}", "</pre>");
 
@@ -148,7 +149,7 @@ public class LatexToMhtmlConverter {
 
         // footnote
         converted = converted.replaceAll("([^\\s]+)\\\\footnote\\{(.*?)\\}",
-                        "<span class=\"footnote\" onmouseover=\"showFootnote(this);\" onmouseout=\"hideFootnote(this);\">$1</span><span class=\"footnoteText\">$2</span>");
+                "<span class=\"footnote\" onmouseover=\"showFootnote(this);\" onmouseout=\"hideFootnote(this);\">$1</span><span class=\"footnoteText\">$2</span>");
 
         // images TODO use fancy zoom http://www.dfc-e.com/metiers/multimedia/opensource/jquery-fancyzoom/
         // converted = converted.replaceAll(
@@ -158,15 +159,15 @@ public class LatexToMhtmlConverter {
                 .compile(
                         "\\\\begin\\{figure\\}(\\[.*?\\])?(.{0,60}?)\\\\includegraphics[^{]*?\\{([^.]{1,50}?\\.pdf)\\}(.*?)\\\\end\\{figure\\}",
                         Pattern.DOTALL | Pattern.CASE_INSENSITIVE)
-                .matcher(converted)
-                .replaceAll(
-                        "$2\n<div class=\"pdfContainer\"><object type=\"application/pdf\" data=\"$3#zoom=85&scrollbar=0&toolbar=0&navpanes=0\" class=\"pdfObject\"></object></div>\n$4");
+                        .matcher(converted)
+                        .replaceAll(
+                                "$2\n<div class=\"pdfContainer\"><object type=\"application/pdf\" data=\"$3#zoom=85&scrollbar=0&toolbar=0&navpanes=0\" class=\"pdfObject\"></object></div>\n$4");
 
         converted = Pattern
                 .compile(
                         "\\\\begin\\{figure\\}.{0,60}?\\\\includegraphics[^{]*?\\{([^.]{1,50}?\\.(png|jpg|gif))\\}.*?(<a.*?a>).*?\\\\end\\{figure\\}",
                         Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted)
-                .replaceAll("$3\n<div class=\"imgContainer\"><img src=\"$1\" class=\"figure\"/></div>");
+                        .replaceAll("$3\n<div class=\"imgContainer\"><img src=\"$1\" class=\"figure\"/></div>");
 
         // tables
         converted = Pattern
@@ -180,7 +181,7 @@ public class LatexToMhtmlConverter {
         converted = Pattern
                 .compile("\\\\begin\\{equation\\}.*?(<a.*?a>\n)(.*?)\\\\end\\{equation\\}",
                         Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted)
-                .replaceAll("$1\n<div class=\"equation\" lang=\"latex\">\n $2</div>");
+                        .replaceAll("$1\n<div class=\"equation\" lang=\"latex\">\n $2</div>");
 
         // captions
         converted = converted.replaceAll("\\\\caption\\{(.*?)\\}", "<div class=\"caption\">$1</div>");
@@ -310,7 +311,7 @@ public class LatexToMhtmlConverter {
     }
 
     public void convert(String latexFilePath, String cssFilePath, String jsFilePath) throws MessagingException,
-            IOException {
+    IOException {
 
         String targetFolderPath = FileHelper.getFilePath(latexFilePath);
 

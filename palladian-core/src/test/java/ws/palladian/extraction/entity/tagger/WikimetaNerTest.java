@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -17,12 +18,12 @@ import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.parser.ParserException;
 
 public class WikimetaNerTest {
-    
+
     private static String ORIGINAL_TEXT;
     private static File XML_FILE;
 
     @BeforeClass
-    public static void loadData() throws FileNotFoundException {
+    public static void loadData() throws IOException {
         ORIGINAL_TEXT = FileHelper.readFileToString(ResourceHelper.getResourceFile("/NewsSampleText.txt"));
         XML_FILE = ResourceHelper.getResourceFile("/apiResponse/WikimetaResponse.xml");
     }
@@ -42,7 +43,7 @@ public class WikimetaNerTest {
         assertEquals(21, annotations.get(2).getValue().length());
 
     }
-    
+
     @Test
     public void testTagging() throws FileNotFoundException, ParserException {
         WikimetaNer wikimetaNer = new WikimetaNer();

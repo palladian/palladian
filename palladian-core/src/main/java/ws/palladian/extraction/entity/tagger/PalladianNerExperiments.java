@@ -71,7 +71,7 @@ public class PalladianNerExperiments {
         taggedText = taggedText.replaceAll("\\</(" + typeString + ")\\>", "</span>");
         taggedText = taggedText.replace("\n", "<br>");
 
-        String html = FileHelper.readFileToString("data/temp/raw.html");
+        String html = FileHelper.tryReadFileToString("data/temp/raw.html");
         html = html.replace("XXX", taggedText);
 
         FileHelper.writeToFile("data/temp/tagged_" + fileName + "_" + taggerName + ".html", html);
@@ -99,7 +99,7 @@ public class PalladianNerExperiments {
         // Map<String, Double> results = evaluator.evaluateAll(new YahooLocationExtractor(), DATASET_LOCATION);
         PalladianLocationExtractor ex = new PalladianLocationExtractor(database);
         PalladianNerExperiments exp = new PalladianNerExperiments();
-        exp.tag(HtmlHelper.stripHtmlTags(FileHelper.readFileToString(DATASET_LOCATION + "\\text14.txt")), "XXX", ex);
+        exp.tag(HtmlHelper.stripHtmlTags(FileHelper.tryReadFileToString(DATASET_LOCATION + "\\text14.txt")), "XXX", ex);
         //
         // File[] files = FileHelper.getFiles("C:\\Users\\Sky\\Desktop\\LocationExtractionDataset", "text");
         // for (File file : files) {

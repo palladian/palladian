@@ -160,7 +160,7 @@ public final class LingPipePosTagger extends BasePosTagger {
         File[] testFiles = FileHelper.getFiles(folderPath);
         for (File file : testFiles) {
 
-            String content = FileHelper.readFileToString(file);
+            String content = FileHelper.tryReadFileToString(file);
 
             String[] wordsAndTagPairs = content.split("\\s");
 
