@@ -178,7 +178,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * Reset this {@link MapTermCorpus}, i.e. clear all terms and reset the number of documents to zero.
      * </p>
      */
-    public void reset() {
+    public void clear() {
         numDocs = 0;
         terms.clear();
     }

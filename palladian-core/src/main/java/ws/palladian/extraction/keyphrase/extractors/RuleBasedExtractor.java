@@ -124,8 +124,8 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
 
     @Override
     public void reset() {
-        termCorpus.reset();
-        keyphraseCorpus.reset();
+        termCorpus.clear();
+        keyphraseCorpus.clear();
         cooccurrenceMatrix.reset();
         super.reset();
     }
