@@ -35,6 +35,7 @@ public class BasicWebContent implements WebContent {
         protected GeoCoordinate coordinate;
         protected String identifier;
         protected Set<String> tags = CollectionHelper.newHashSet();
+        protected String source;
 
         public Builder setUrl(String url) {
             this.url = url;
@@ -75,6 +76,11 @@ public class BasicWebContent implements WebContent {
             this.tags.add(tag);
             return this;
         }
+        
+        public Builder setSource(String source) {
+            this.source = source;
+            return this;
+        }
 
         public Builder setWebContent(WebContent webContent) {
             this.url = webContent.getUrl();
@@ -84,6 +90,7 @@ public class BasicWebContent implements WebContent {
             this.coordinate = webContent.getCoordinate();
             this.identifier = webContent.getIdentifier();
             this.tags = new HashSet<String>(webContent.getTags());
+            this.source = webContent.getSource();
             return this;
         }
 
@@ -107,6 +114,8 @@ public class BasicWebContent implements WebContent {
     private final String identifier;
     
     private final Set<String> tags;
+    
+    private final String source;
 
     protected BasicWebContent(WebContent webResult) {
         this.url = webResult.getUrl();
@@ -116,6 +125,7 @@ public class BasicWebContent implements WebContent {
         this.coordinate = webResult.getCoordinate();
         this.identifier = webResult.getIdentifier();
         this.tags = new HashSet<String>(webResult.getTags());
+        this.source = webResult.getSource();
     }
 
     protected BasicWebContent(Builder builder) {
@@ -126,6 +136,7 @@ public class BasicWebContent implements WebContent {
         this.coordinate = builder.coordinate;
         this.identifier = builder.identifier;
         this.tags = builder.tags;
+        this.source = builder.source;
     }
 
     @Override
@@ -162,6 +173,11 @@ public class BasicWebContent implements WebContent {
     public Set<String> getTags() {
         return Collections.unmodifiableSet(tags);
     }
+    
+    @Override
+    public String getSource() {
+        return source;
+    }
 
     @Override
     public String toString() {
@@ -186,6 +202,18 @@ public class BasicWebContent implements WebContent {
         if (coordinate != null) {
             builder.append(", coordinate=");
             builder.append(coordinate);
+        }
+        if (identifier != null) {
+            builder.append(", identifier=");
+            builder.append(identifier);
+        }
+        if (tags != null && tags.size() > 0) {
+            builder.append(", tags=");
+            builder.append(tags);
+        }
+        if (source != null) {
+            builder.append(", source");
+            builder.append(source);
         }
         builder.append("]");
         return builder.toString();

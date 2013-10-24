@@ -50,16 +50,22 @@ public class JsonParserTest {
             assertEquals("Illegal index: 3", e.getMessage());
         }
         try {
-            assertEquals(null, jsonObject.query("entry/b[2]/g"));
+            jsonObject.query("entry/b[2]/g");
             fail();
         } catch (JsonException e) {
             assertEquals("No key: g", e.getMessage());
         }
         try {
-            assertEquals(null, jsonObject.query("entry1/b[3]/g"));
+            jsonObject.query("entry1/b[3]/g");
             fail();
         } catch (JsonException e) {
             assertEquals("No key: entry1", e.getMessage());
+        }
+        try {
+            jsonObject.getString("test");
+            fail();
+        } catch (JsonException e) {
+            assertEquals("No key: test", e.getMessage());
         }
     }
 

@@ -18,6 +18,8 @@ import ws.palladian.retrieval.resources.WebContent;
  * @author Sandro Reichert
  */
 public class FeedItem implements WebContent {
+    
+    private static final String SOURCE_NAME = "Feed";
 
     private int id = -1;
 
@@ -285,6 +287,11 @@ public class FeedItem implements WebContent {
     @Override
     public Set<String> getTags() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public String getSource() {
+        return SOURCE_NAME;
     }
 
 }

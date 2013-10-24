@@ -50,4 +50,9 @@ public interface WebContent {
      */
     Set<String> getTags();
 
+    /**
+     * @return Name of the source, from which this {@link WebContent} was acquired.
+     */
+    String getSource();
+
 }

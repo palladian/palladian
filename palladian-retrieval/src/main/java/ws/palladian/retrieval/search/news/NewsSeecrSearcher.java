@@ -129,6 +129,7 @@ public final class NewsSeecrSearcher extends AbstractMultifacetSearcher<WebConte
                     builder.setSummary(resultObject.queryString("/summary"));
                     Date date = parseDate(resultObject.queryString("/published"));
                     builder.setPublished(date);
+                    builder.setSource(SEARCHER_NAME);
                     webResults.add(builder.create());
                     if (webResults.size() == resultCount) {
                         break;
