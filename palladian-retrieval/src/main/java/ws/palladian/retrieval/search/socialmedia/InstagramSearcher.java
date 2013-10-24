@@ -138,6 +138,8 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                         }
                         builder.setTags(tagSet);
                     }
+                    builder.setIdentifier(data.getString("id"));
+                    builder.setSource(SEARCHER_NAME);
                     result.add(builder.create());
 
                     if (result.size() == resultCount) {

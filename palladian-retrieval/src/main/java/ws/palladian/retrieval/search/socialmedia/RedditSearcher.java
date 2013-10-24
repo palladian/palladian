@@ -92,6 +92,12 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
                     builder.setSummary(jsonChildData.getString("selftext"));
                     builder.setUrl(jsonChildData.getString("url"));
                     builder.setPublished(new Date((long)jsonChildData.getInt("created_utc") * 1000));
+                    builder.setSource(SEARCHER_NAME);
+                    
+                    // create "fullname"; see http://www.reddit.com/dev/api
+                    String fullName = jsonChild.getString("kind") + "_" + jsonChildData.getString("id");
+                    builder.setIdentifier(fullName);
+                    
                     result.add(builder.create());
                     if (result.size() == query.getResultCount()) {
                         break paging;

@@ -204,6 +204,8 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         // no tags available ): 
         // see: http://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
 
+        builder.setSource(SEARCHER_NAME);
+        builder.setIdentifier(entry.queryString("id/$t"));
         return builder.create();
     }
 
