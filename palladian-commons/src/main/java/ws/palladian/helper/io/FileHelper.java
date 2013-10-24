@@ -259,8 +259,12 @@ public final class FileHelper {
     }
 
     public static String tryReadFileToString(String path, String encoding) {
+        return tryReadFileToString(new File(path), encoding);
+    }
+
+    public static String tryReadFileToString(File file, String encoding) {
         try {
-            return readFileToString(new File(path), encoding);
+            return readFileToString(file, encoding);
         } catch (Exception e) {
             return null;
         }

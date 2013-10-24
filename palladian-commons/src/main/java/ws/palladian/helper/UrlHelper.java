@@ -38,17 +38,17 @@ public final class UrlHelper {
 
     /** RegEx pattern defining a session ID. */
     private static final Pattern SESSION_ID_PATTERN = Pattern
-            .compile("(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[a-f0-9]{32}(?!\\w)");
-    
+            .compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{32,200}(?!\\w)");
+
     /** List of top level domains. */
     private static final String TOP_LEVEL_DOMAINS = "ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|as|asia|at|au|aw|ax|az|ba|bb|bd|be|" +
-    		"bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|" +
-    		"cz|dd|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|" +
-    		"gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|" +
-    		"ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|" +
-    		"my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|" +
-    		"ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|" +
-    		"travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|yu|za|zm|zw";
+            "bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|" +
+            "cz|dd|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|" +
+            "gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|" +
+            "ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|" +
+            "my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|" +
+            "ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|" +
+            "travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|yu|za|zm|zw";
 
     // adapted version from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
     // this is able to match URLs, containing (brackets), but does not include trailing brackets
@@ -57,7 +57,7 @@ public final class UrlHelper {
                     "\\b(?:https?://)?([0-9a-zäöü-]{1,63}?\\.)+(?:"
                             + TOP_LEVEL_DOMAINS
                             + ")(?:[?/](?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s()<>\\[\\]\"']{0,255})+(?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s.,;!?:()<>\\[\\]\"'])|/|\\b)",
-                    Pattern.CASE_INSENSITIVE);
+                            Pattern.CASE_INSENSITIVE);
 
     private UrlHelper() {
         // prevent instantiation.
@@ -76,7 +76,7 @@ public final class UrlHelper {
         if (originalUrl == null) {
             return null;
         }
-        return SESSION_ID_PATTERN.matcher(originalUrl).replaceAll("");
+        return SESSION_ID_PATTERN.matcher(originalUrl).replaceAll("").replaceAll("\\?$", "").replaceAll("\\?&", "?");
     }
 
     /**
@@ -269,11 +269,11 @@ public final class UrlHelper {
             String[] query = null;
             if (urlObj.getQuery() != null) {
                 query = urlObj.getQuery().split("&");
-                
+
                 // sort query parts alphabetically
                 Arrays.sort(query);
             }
-            
+
 
             // correct path to eliminate ".." and recreate path accordingly
             String[] parts = path.split("/");
@@ -303,11 +303,11 @@ public final class UrlHelper {
                 }
                 // delete index.* if there is no query
                 if (parts[parts.length - 1].contains("index") && query == null) {
-                        path = path.replaceAll("index\\..+$", "");
+                    path = path.replaceAll("index\\..+$", "");
                 }
 
             }
-            
+
             String queryPart = query != null ? "?" + StringUtils.join(query, "&") : "";
             return protocol + "://" + port + host + path + queryPart;
 
