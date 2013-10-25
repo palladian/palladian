@@ -1293,11 +1293,7 @@ public final class StringHelper {
      * @return The reversed string.
      */
     public static String reverseString(String string) {
-        StringBuilder reversedString = new StringBuilder();
-        for (int i = string.length() - 1; i >= 0; i--) {
-            reversedString.append(string.charAt(i));
-        }
-        return reversedString.toString();
+        return new StringBuilder(string).reverse().toString();
     }
 
     /**

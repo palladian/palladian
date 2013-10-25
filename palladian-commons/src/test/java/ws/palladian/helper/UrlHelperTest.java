@@ -81,10 +81,10 @@ public class UrlHelperTest {
             assertEquals("", UrlHelper.makeFullUrl(null, null, "/page.html"));
             fail();
         } catch (NullPointerException e) {
-            
+
         }
     }
-    
+
     @Test
     public void testExtractUrls() throws FileNotFoundException {
 
@@ -95,9 +95,9 @@ public class UrlHelperTest {
         assertThat(urls, hasItem("google.com"));
         assertThat(urls, hasItem("www.tu-dresden.de"));
         assertThat(urls, hasItem("http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars"));
-        
+
         // test URLs from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
-        
+
         assertEquals("http://foo.com/blah_blah", UrlHelper.extractUrls("http://foo.com/blah_blah").get(0));
         assertEquals("http://foo.com/blah_blah/", UrlHelper.extractUrls("http://foo.com/blah_blah/").get(0));
         assertEquals("http://foo.com/blah_blah", UrlHelper.extractUrls("(Something like http://foo.com/blah_blah)").get(0));
@@ -118,18 +118,18 @@ public class UrlHelperTest {
         assertEquals("www.example.com", UrlHelper.extractUrls("Just a www.example.com link.").get(0));
         assertEquals("http://example.com/something?with,commas,in,url", UrlHelper.extractUrls("http://example.com/something?with,commas,in,url, but not at end").get(0));
         assertEquals("bit.ly/foo", UrlHelper.extractUrls("bit.ly/foo").get(0));
-//        assertEquals("is.gd/foo/", UrlHelper.extractUrls("“is.gd/foo/”").get(0));
+        //        assertEquals("is.gd/foo/", UrlHelper.extractUrls("“is.gd/foo/”").get(0));
         assertEquals("WWW.EXAMPLE.COM", UrlHelper.extractUrls("WWW.EXAMPLE.COM").get(0));
-////        assertEquals("http://www.asianewsphoto.com/(S(neugxif4twuizg551ywh3f55))/Web_ENG/View_DetailPhoto.aspx?PicId=752", UrlHelper.extractUrls("http://www.asianewsphoto.com/(S(neugxif4twuizg551ywh3f55))/Web_ENG/View_DetailPhoto.aspx?PicId=752").get(0));
-////        assertEquals("http://www.asianewsphoto.com/(S(neugxif4twuizg551ywh3f55))", UrlHelper.extractUrls("http://www.asianewsphoto.com/(S(neugxif4twuizg551ywh3f55))").get(0));
-////        assertEquals("http://lcweb2.loc.gov/cgi-bin/query/h?pp/horyd:@field(NUMBER+@band(thc+5a46634))", UrlHelper.extractUrls("http://lcweb2.loc.gov/cgi-bin/query/h?pp/horyd:@field(NUMBER+@band(thc+5a46634))").get(0));
+        ////        assertEquals("http://www.asianewsphoto.com/(S(neugxif4twuizg551ywh3f55))/Web_ENG/View_DetailPhoto.aspx?PicId=752", UrlHelper.extractUrls("http://www.asianewsphoto.com/(S(neugxif4twuizg551ywh3f55))/Web_ENG/View_DetailPhoto.aspx?PicId=752").get(0));
+        ////        assertEquals("http://www.asianewsphoto.com/(S(neugxif4twuizg551ywh3f55))", UrlHelper.extractUrls("http://www.asianewsphoto.com/(S(neugxif4twuizg551ywh3f55))").get(0));
+        ////        assertEquals("http://lcweb2.loc.gov/cgi-bin/query/h?pp/horyd:@field(NUMBER+@band(thc+5a46634))", UrlHelper.extractUrls("http://lcweb2.loc.gov/cgi-bin/query/h?pp/horyd:@field(NUMBER+@band(thc+5a46634))").get(0));
         assertEquals("http://example.com/quotes-are-“part”", UrlHelper.extractUrls("http://example.com/quotes-are-“part”").get(0));
         assertEquals("example.com", UrlHelper.extractUrls("example.com").get(0));
         assertEquals("example.com/", UrlHelper.extractUrls("example.com/").get(0));
         assertThat(UrlHelper.extractUrls("[url=http://foo.com/blah_blah]http://foo.com/blah_blah[/url]"), hasItem("http://foo.com/blah_blah"));
         assertEquals("http://foo.com/blah_blah", UrlHelper.extractUrls("'http://foo.com/blah_blah'").get(0));
         assertEquals("http://foo.com/blah_blah", UrlHelper.extractUrls("\"http://foo.com/blah_blah\"").get(0));
-        
+
         assertEquals("cinefreaks.com/coolstuff.zip", UrlHelper.extractUrls("You can download it here: cinefreaks.com/coolstuff.zip but be aware of the size.").get(0));
         assertEquals("1-2-3.net/auctions-Are-out.jpg", UrlHelper.extractUrls("You can download it here: 1-2-3.net/auctions-Are-out.jpg but be aware of the size.").get(0));
         assertEquals("http://www.cinefreaks.com/coolstuff.zip", UrlHelper.extractUrls("You can download it here: http://www.cinefreaks.com/coolstuff.zip but be aware of the size.").get(0));
@@ -153,16 +153,26 @@ public class UrlHelperTest {
         assertEquals(0, UrlHelper.extractUrls("09.Sep.11").size());
         assertEquals(0, UrlHelper.extractUrls("Environment.CurrentDirectory").size());
         assertEquals(0, UrlHelper.extractUrls("zipProcess.StandardOutput.ReadToEnd()").size());
-        
+
         assertEquals(0, UrlHelper.extractUrls("check_lang.sh").size());
     }
-    
+
     @Test
     public void testRemoveSessionId() {
-        assertEquals("http://brbb.freeforums.org/viewforum.php?f=3&", UrlHelper.removeSessionId(
+        assertEquals("http://brbb.freeforums.org/viewforum.php?f=3", UrlHelper.removeSessionId(
                 "http://brbb.freeforums.org/viewforum.php?f=3&sid=5c2676a9f621ffbadb6962da7e0c50d4"));
+        assertEquals("http://brbb.freeforums.org/viewforum.php", UrlHelper.removeSessionId(
+                "http://brbb.freeforums.org/viewforum.php?sid=5c2676a9f621ffbadb6962da7e0c50d4"));
+        assertEquals("http://brbb.freeforums.org/viewforum.php?f=3", UrlHelper.removeSessionId(
+                "http://brbb.freeforums.org/viewforum.php?sid=5c2676a9f621ffbadb6962da7e0c50d4&f=3"));
+        assertEquals("http://brbb.freeforums.org/viewforum.php?f=3", UrlHelper.removeSessionId(
+                "http://brbb.freeforums.org/viewforum.php?f=3;sid=5c2676a9f621ffbadb6962da7e0c50d4"));
+        assertEquals("http://www.hagebau.de/Garten-und-Freizeit/Pavillons/sh3391862", UrlHelper.removeSessionId(
+                "http://www.hagebau.de/Garten-und-Freizeit/Pavillons/sh3391862;sid=QyZVAH0QUTdSAC95WwlCaREaDHk7KDmlYK6T5C8iB5N2iJYpHCTsIwPsB5N2iA1M7nBXWZ_h"));
+        assertEquals("http://www.hagebau.de/Haus-und-Wohnen/Bodenbelaege/sh3643539", UrlHelper.removeSessionId(
+                "http://www.hagebau.de/Haus-und-Wohnen/Bodenbelaege/sh3643539;sid=9mu2ltD6VX66loKT7-yh_7zwuTTYvjkytL1-x8VEst6VHl1dpMdkY4dIst6VHts2TAsZslNV"));
     }
-    
+
     @Test
     public void testGetCanonicalUrl() {
         assertEquals("http://www.funs.co.uk/comic/",
@@ -170,21 +180,21 @@ public class UrlHelperTest {
         assertEquals(
                 "http://sourceforge.net/tracker/?aid=1954302&atid=377408&func=detail&group_id=23067",
                 UrlHelper
-                        .getCanonicalUrl("http://sourceforge.net/tracker/?func=detail&aid=1954302&group_id=23067&atid=377408"));
+                .getCanonicalUrl("http://sourceforge.net/tracker/?func=detail&aid=1954302&group_id=23067&atid=377408"));
         assertEquals("http://sourceforge.net/", UrlHelper.getCanonicalUrl("http://sourceforge.net/"));
         assertEquals(
                 "http://sourceforge.net/tracker/?aid=3492945&atid=377408&func=detail&group_id=23067",
                 UrlHelper
-                        .getCanonicalUrl("http://sourceforge.net/tracker/?func=detail&aid=3492945&group_id=23067&atid=377408#artifact_comment_6199621"));
+                .getCanonicalUrl("http://sourceforge.net/tracker/?func=detail&aid=3492945&group_id=23067&atid=377408#artifact_comment_6199621"));
     }
-    
+
     @Test
     public void testMakeAbsoluteUrls() throws Exception {
         Document document = ParseUtil.parseXhtml(ResourceHelper.getResourceFile("/w3c_xhtml_strict.html"));
         document.setDocumentURI("http://www.w3.org/TR/xhtml1/");
-        
+
         UrlHelper.makeAbsoluteUrls(document);
-        
+
         NodeList aNodes = document.getElementsByTagName("a");
         Node aNode = aNodes.item(8);
         assertEquals("http://www.w3.org/TR/xhtml1/xhtml1-diff.html", aNode.getAttributes().getNamedItem("href").getTextContent());
