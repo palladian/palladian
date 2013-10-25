@@ -20,7 +20,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  */
 public final class IdfAnnotator extends AbstractTokenProcessor {
 
-    public static final String PROVIDED_FEATURE = "ws.palladian.preprocessing.tokens.idf";
+    public static final String IDF = "ws.palladian.preprocessing.tokens.idf";
 
     private final TermCorpus termCorpus;
 
@@ -32,7 +32,7 @@ public final class IdfAnnotator extends AbstractTokenProcessor {
     @Override
     protected void processToken(PositionAnnotation annotation) {
         double idf = Math.log10(termCorpus.getIdf(annotation.getValue().toLowerCase(), true));
-        annotation.getFeatureVector().add(new NumericFeature(PROVIDED_FEATURE, idf));
+        annotation.getFeatureVector().add(new NumericFeature(IDF, idf));
     }
 
 }

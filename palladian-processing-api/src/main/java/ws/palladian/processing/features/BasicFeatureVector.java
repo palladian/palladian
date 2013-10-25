@@ -108,11 +108,12 @@ public class BasicFeatureVector implements FeatureVector {
 
     @Override
     public Feature<?> get(String name) {
-        Feature<?> ret = features.get(name);
-        if (ret == null) {
-            LOGGER.warn("Unable to find feature with name " + name);
-        }
-        return ret;
+//        Feature<?> ret = features.get(name);
+//        if (ret == null) {
+//            LOGGER.warn("Unable to find feature with name " + name);
+//        }
+//        return ret;
+        return features.get(name);
     }
 
     @Override
