@@ -213,8 +213,6 @@ public class EventfulSearcher extends EventSearcher {
         url += "&page_size=100";
         url += "&sort_direction=ascending";
 
-        System.out.println(url);
-
         return url;
     }
 
