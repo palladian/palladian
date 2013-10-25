@@ -141,7 +141,8 @@ public class CountMatrix<K> implements Matrix<K, Integer>, Serializable {
 
     @Override
     public Integer get(K x, K y) {
-        return matrix.get(x, y);
+        Integer result = matrix.get(x, y);
+        return result != null ? result : 0;
     }
 
     @Override

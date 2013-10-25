@@ -108,7 +108,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
         List<Pair<String, Double>> keywords = new ArrayList<Pair<String,Double>>();
         for (PositionAnnotation annotation : annotations) {
             String value = annotation.getValue();
-            double tfidf = annotation.getFeatureVector().get(NumericFeature.class, TfIdfAnnotator.PROVIDED_FEATURE).getValue();
+            double tfidf = annotation.getFeatureVector().get(NumericFeature.class, TfIdfAnnotator.TFIDF).getValue();
             keywords.add(new ImmutablePair<String, Double>(value, tfidf));
         }
         Collections.sort(keywords, new Comparator<Pair<String, Double>>() {
