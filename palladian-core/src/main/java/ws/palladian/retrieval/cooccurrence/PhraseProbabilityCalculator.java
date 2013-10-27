@@ -85,11 +85,11 @@ public class PhraseProbabilityCalculator {
     public static void convert() throws FileNotFoundException, IOException {
         final CooccurrenceMatrix counts = new CooccurrenceMatrix();
         FileHelper.performActionOnEveryLine(new GZIPInputStream(new FileInputStream(
-                "/Users/pk/Dropbox/Uni/Datasets/TermCorpora/bigrams25min.gz")), new LineAction() {
+                "/Users/pk/Dropbox/Uni/Datasets/TermCorpora/wikipediaBigramsStemmed25min.gz")), new LineAction() {
             @Override
             public void performAction(String text, int number) {
                 String[] split = text.split("#");
-                if (number <= 1 || split.length != 2) {
+                if (number > 1 && split.length == 2) {
                     String[] tokens = split[0].split("\\s");
                     counts.set(tokens[0], tokens[1], Integer.parseInt(split[1]));
                 }
@@ -100,21 +100,23 @@ public class PhraseProbabilityCalculator {
             @Override
             public void performAction(String text, int number) {
                 String[] split = text.split("#");
-                if (number <= 1 || split.length != 2) {
+                if (number > 1 && split.length == 2) {
                     counts.set(split[0], Integer.parseInt(split[1]));
                 }
             }
         });
-        OutputStream stream = new GZIPOutputStream(new FileOutputStream("matrix.gz"));
+        OutputStream stream = new GZIPOutputStream(new FileOutputStream("matrixNew.gz"));
         counts.save(stream);
     }
 
     public static void main(String[] args) throws IOException {
-        String s1 = "parts still contain an old village core";
-        String s2 = "core still village contain parts old an";
-        PhraseProbabilityCalculator probs = new PhraseProbabilityCalculator(new File("matrix.gz"), Language.ENGLISH);
-        System.out.println(s1 + " : " + probs.getProbability(s1));
-        System.out.println(s2 + " : " + probs.getProbability(s2));
+        convert();
+        // String s1 = "parts still contain an old village core";
+        // String s2 = "core still village contain parts old an";
+        // PhraseProbabilityCalculator probs = new PhraseProbabilityCalculator(new File("matrixNew.gz"),
+        // Language.ENGLISH);
+        // System.out.println(s1 + " : " + probs.getProbability(s1));
+        // System.out.println(s2 + " : " + probs.getProbability(s2));
     }
 
 }

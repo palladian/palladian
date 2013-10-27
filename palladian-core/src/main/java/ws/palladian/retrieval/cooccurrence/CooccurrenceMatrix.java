@@ -144,7 +144,8 @@ public final class CooccurrenceMatrix implements Serializable {
     public void save(OutputStream stream) {
         PrintWriter writer = null;
         try {
-            int totalCount = items.uniqueItems().size() + pairs.getRowKeys().size() * pairs.getColumnKeys().size();
+            long totalCount = (long)items.uniqueItems().size();
+            totalCount += (long)pairs.getRowKeys().size() * pairs.getColumnKeys().size();
             ProgressMonitor monitor = new ProgressMonitor(totalCount);
             writer = new PrintWriter(stream);
             writer.println(FREQ_HEADER);

@@ -39,7 +39,7 @@ public final class ProgressMonitor {
      * 
      * @param totalCount The total iterations to perform.
      */
-    public ProgressMonitor(int totalCount) {
+    public ProgressMonitor(long totalCount) {
         this(totalCount, 1);
     }
 
@@ -51,7 +51,7 @@ public final class ProgressMonitor {
      * @param totalCount The total iterations to perform.
      * @param showEveryPercent Step size for outputting the progress.
      */
-    public ProgressMonitor(int totalCount, double showEveryPercent) {
+    public ProgressMonitor(long totalCount, double showEveryPercent) {
         this(totalCount, showEveryPercent, null);
     }
 
@@ -64,7 +64,7 @@ public final class ProgressMonitor {
      * @param showEveryPercent Step size for outputting the progress.
      * @param processName The name of the process, for identification purposes when outputting the bar.
      */
-    public ProgressMonitor(int totalCount, double showEveryPercent, String processName) {
+    public ProgressMonitor(long totalCount, double showEveryPercent, String processName) {
         this.totalCount = totalCount;
         this.showEveryPercent = showEveryPercent;
         this.processName = processName;
