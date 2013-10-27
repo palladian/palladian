@@ -8,4 +8,9 @@ public abstract class AbstractTermCorpus implements TermCorpus {
         return (double)(getNumDocs() + s) / (getCount(term) + s);
     }
 
+    @Override
+    public double getProbability(String term) {
+        return (double)getCount(term) / getNumDocs();
+    }
+
 }

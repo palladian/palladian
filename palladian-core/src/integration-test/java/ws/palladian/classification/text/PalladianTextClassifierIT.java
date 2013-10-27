@@ -1,7 +1,7 @@
 package ws.palladian.classification.text;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.helper.ProcessHelper;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
@@ -35,12 +37,19 @@ public class PalladianTextClassifierIT {
     private static PropertiesConfiguration config;
 
     @BeforeClass
-    public static void loadConfig() throws ConfigurationException {
+    public static void ignition() throws ConfigurationException {
         try {
             config = new PropertiesConfiguration(ResourceHelper.getResourceFile("/palladian-test.properties"));
         } catch (FileNotFoundException e) {
             LOGGER.warn("palladian-test.properties not found; test is skipped!");
-            assumeTrue(false);
+            // assumeTrue(false);
+            fail();
+        }
+        // make sure, we have enough heap
+        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
+            LOGGER.warn("Not enough memory. This test requires at least 1 GB heap memory.");
+            // assumeTrue(false);
+            fail();
         }
     }
 
@@ -141,8 +150,9 @@ public class PalladianTextClassifierIT {
             LOGGER.warn(
                     "Dataset for {} is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.",
                     datasetName);
+            fail();
         }
-        assumeTrue(runTest);
+        // assumeTrue(runTest);
     }
 
 }

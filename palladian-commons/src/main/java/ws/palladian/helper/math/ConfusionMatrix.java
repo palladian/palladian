@@ -101,7 +101,7 @@ public class ConfusionMatrix {
      * @return Number of documents classified in the given category.
      */
     public int getClassifiedDocuments(String category) {
-        return confusionMatrix.getColumnSum(category);
+        return confusionMatrix.getColumn(category).getSum();
     }
 
     /**
@@ -113,7 +113,7 @@ public class ConfusionMatrix {
      * @return Number of documents in the given category.
      */
     public int getRealDocuments(String category) {
-        return confusionMatrix.getRowSum(category);
+        return confusionMatrix.getRow(category).getSum();
     }
 
     /**
@@ -137,7 +137,7 @@ public class ConfusionMatrix {
      * @return The categories in the data set.
      */
     public Set<String> getCategories() {
-        return confusionMatrix.getKeysY();
+        return confusionMatrix.getRowKeys();
     }
 
     /**
@@ -149,8 +149,8 @@ public class ConfusionMatrix {
      */
     public int getTotalDocuments() {
         int total = 0;
-        for (String value : confusionMatrix.getKeysY()) {
-            total += confusionMatrix.getRowSum(value);
+        for (String value : confusionMatrix.getRowKeys()) {
+            total += confusionMatrix.getRow(value).getSum();
         }
         return total;
     }
@@ -165,8 +165,8 @@ public class ConfusionMatrix {
      */
     public double getHighestPrior() {
         int max = 0;
-        for (String value : confusionMatrix.getKeysX()) {
-            max = Math.max(max, confusionMatrix.getRowSum(value));
+        for (String value : confusionMatrix.getColumnKeys()) {
+            max = Math.max(max, confusionMatrix.getRow(value).getSum());
         }
         int sum = getTotalDocuments();
         if (sum == 0) {

@@ -46,7 +46,7 @@ public final class NominalClassifier implements Learner<NominalClassifierModel>,
         Map<String, Double> scores = LazyMap.create(ConstantFactory.create(0.));
 
         // category names
-        Set<String> categories = cooccurrenceMatrix.getKeysX();
+        Set<String> categories = cooccurrenceMatrix.getColumnKeys();
 
         for (NominalFeature nominalFeature : classifiable.getFeatureVector().getAll(NominalFeature.class)) {
 
@@ -54,7 +54,7 @@ public final class NominalClassifier implements Learner<NominalClassifierModel>,
 
                 String featureValue = nominalFeature.getValue();
                 int cooccurrences = cooccurrenceMatrix.getCount(category, featureValue);
-                int rowSum = cooccurrenceMatrix.getRowSum(featureValue);
+                int rowSum = cooccurrenceMatrix.getRow(featureValue).getSum();
 
                 double score = (double)cooccurrences / rowSum;
                 scores.put(category, scores.get(category) + score);
