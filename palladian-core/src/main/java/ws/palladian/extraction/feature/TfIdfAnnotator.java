@@ -1,5 +1,7 @@
 package ws.palladian.extraction.feature;
 
+import static ws.palladian.extraction.feature.IdfAnnotator.IDF;
+import static ws.palladian.extraction.feature.TokenMetricsCalculator.FREQUENCY;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
@@ -25,14 +27,11 @@ public final class TfIdfAnnotator extends AbstractTokenProcessor {
         NumericFeature tfFeature = annotation.getFeatureVector().get(NumericFeature.class,
                 TokenMetricsCalculator.FREQUENCY);
         if (tfFeature == null) {
-            throw new DocumentUnprocessableException("The required feature \"" + TokenMetricsCalculator.FREQUENCY
-                    + "\" is missing.");
+            throw new DocumentUnprocessableException("The required feature \"" + FREQUENCY + "\" is missing.");
         }
-        NumericFeature idfFeature = annotation.getFeatureVector().get(NumericFeature.class,
-                IdfAnnotator.IDF);
+        NumericFeature idfFeature = annotation.getFeatureVector().get(NumericFeature.class, IDF);
         if (idfFeature == null) {
-            throw new DocumentUnprocessableException("The required feature \"" + IdfAnnotator.IDF
-                    + "\" is missing.");
+            throw new DocumentUnprocessableException("The required feature \"" + IDF + "\" is missing.");
         }
         double tf = tfFeature.getValue();
         double idf = idfFeature.getValue();

@@ -1,35 +1,91 @@
 package ws.palladian.helper.collection;
 
-import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.tuple.Pair;
-
+/**
+ * <p>
+ * A data matrix. The data can have arbitrary types for keys (i.e. indices for rows/columns) and cell content.
+ * </p>
+ * 
+ * @author pk
+ * 
+ * @param <K> Type of the indices.
+ * @param <V> Type of the data.
+ */
 public interface Matrix<K, V> {
 
-    public abstract V get(K x, K y);
+    /**
+     * <p>
+     * Get data at the specified x/y position.
+     * </p>
+     * 
+     * @param x Key/index of the column.
+     * @param y Key/index of the row.
+     * @return The value.
+     */
+    V get(K x, K y);
 
-    public abstract void set(K x, K y, V value);
+    /**
+     * <p>
+     * Set data at the specified x/y position.
+     * </p>
+     * 
+     * @param x Key/index of the column.
+     * @param y Key/index of the row.
+     * @param value The value.
+     */
+    void set(K x, K y, V value);
 
-    public abstract Set<K> getKeysX();
+    /**
+     * @return The column keys in this matrix.
+     */
+    Set<K> getColumnKeys();
 
-    public abstract Set<K> getKeysY();
+    /**
+     * @return The row keys in this matrix.
+     */
+    Set<K> getRowKeys();
 
-    public abstract int sizeY();
+    /**
+     * @return The number of columns in this matrix.
+     */
+    int columnCount();
 
-    public abstract int sizeX();
-
-    public abstract String asCsv();
+    /**
+     * @return The number of rows in this matrix.
+     */
+    int rowCount();
 
     /**
      * <p>
      * Clears the matrix of all existing entries.
      * </p>
      */
-    public abstract void clear();
-    
-    public abstract List<Pair<K, V>> getRow(K y);
-    
-    public abstract List<Pair<K, V>> getColumn(K x);
- 
+    void clear();
+
+    /**
+     * <p>
+     * Get a row from this matrix.
+     * </p>
+     * 
+     * @param y Key/index of the row, not <code>null</code>.
+     * @return The row.
+     */
+    Vector<K, V> getRow(K y);
+
+    /**
+     * <p>
+     * Get a column from this matrix.
+     * </p>
+     * 
+     * @param x Key/index of the column, not <code>null</code>.
+     * @return The column.
+     */
+    Vector<K, V> getColumn(K x);
+
+    /**
+     * @return A CSV representation of this matrix.
+     */
+    String toCsv();
+
 }
