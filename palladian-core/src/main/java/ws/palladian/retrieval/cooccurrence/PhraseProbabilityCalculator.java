@@ -91,7 +91,7 @@ public class PhraseProbabilityCalculator {
                 String[] split = text.split("#");
                 if (number <= 1 || split.length != 2) {
                     String[] tokens = split[0].split("\\s");
-                    counts.add(tokens[0], tokens[1], Integer.parseInt(split[1]));
+                    counts.set(tokens[0], tokens[1], Integer.parseInt(split[1]));
                 }
             }
         });
