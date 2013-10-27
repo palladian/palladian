@@ -10,6 +10,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.PairMatrix;
@@ -50,9 +51,9 @@ public final class CooccurrenceMatrix implements Serializable {
     }
 
     public CooccurrenceMatrix add(String itemA, String itemB, int count) {
-        pairs.add(itemA, itemB, count);
-        items.add(itemA, count);
-        items.add(itemB, count);
+        pairs.add(itemB, itemA, count);
+//        items.add(itemA, count);
+//        items.add(itemB, count);
         return this;
     }
 
@@ -81,7 +82,7 @@ public final class CooccurrenceMatrix implements Serializable {
     }
 
     public int getCount(String itemA, String itemB) {
-        return pairs.get(itemA, itemB);
+        return pairs.get(itemB, itemA);
     }
 
     public int getNumItems() {
@@ -143,10 +144,13 @@ public final class CooccurrenceMatrix implements Serializable {
     public void save(OutputStream stream) {
         PrintWriter writer = null;
         try {
+            int totalCount = items.uniqueItems().size() + pairs.getRowKeys().size() * pairs.getColumnKeys().size();
+            ProgressMonitor monitor = new ProgressMonitor(totalCount);
             writer = new PrintWriter(stream);
             writer.println(FREQ_HEADER);
             for (String term : items.uniqueItems()) {
                 writer.println(term + SEPARATOR + items.getCount(term));
+                monitor.incrementAndPrintProgress();
             }
             writer.println(COOC_HEADER);
             for (String term1 : pairs.getRowKeys()) {
@@ -155,6 +159,7 @@ public final class CooccurrenceMatrix implements Serializable {
                     if (count != 0) {
                         writer.println(term1 + SEPARATOR + term2 + SEPARATOR + count);
                     }
+                    monitor.incrementAndPrintProgress();
                 }
             }
         } finally {
@@ -210,6 +215,19 @@ public final class CooccurrenceMatrix implements Serializable {
         builder.append(", numPairs=");
         builder.append(getNumPairs());
         builder.append("]");
+        return builder.toString();
+    }
+    
+    public String toVerboseString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("numItems: ").append(getNumItems()).append('\n');
+        builder.append("numUniqueItems: ").append(getNumUniqueItems()).append('\n');
+        builder.append("numPairs: ").append(getNumPairs()).append('\n').append('\n');
+        for (String item : items.uniqueItems()) {
+            builder.append(item).append(" : ").append(items.getCount(item)).append('\n');
+        }
+        builder.append('\n').append('\n');
+        builder.append(pairs);
         return builder.toString();
     }
 
