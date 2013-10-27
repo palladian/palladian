@@ -32,13 +32,15 @@ import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil;
 
-public class WikipediaTermCorpusCreator {
+class WikipediaTermCorpusCreator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaTermCorpusCreator.class);
 
-    private static final MapTermCorpus corpus = new MapTermCorpus();
-    
+//    private static final MapTermCorpus corpus = new MapTermCorpus();
+
+    private static final MapTermCorpus bigramCorpus = new MapTermCorpus();
+
     private static final StemmerAnnotator stemmer = new StemmerAnnotator(Language.ENGLISH);
 
     /**
@@ -46,14 +48,15 @@ public class WikipediaTermCorpusCreator {
      * @param outputFile File name and path of the resulting corpus.
      * @param limit Number of pages to read.
      */
-    public static void createCorpus(File wikipediaDump, File outputFile, final int limit) {
+    public static void createCorpus(File wikipediaDump, File outputPath, final int limit) {
         if (!wikipediaDump.isFile()) {
             throw new IllegalArgumentException(wikipediaDump + " is not a file or could not be accessed.");
         }
         Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
-        Validate.notNull(outputFile, "outputFile must not be null");
+        Validate.notNull(outputPath, "outputPath must not be null");
         Validate.isTrue(limit > 0, "limit must be greater zero");
-        corpus.clear();
+//        corpus.clear();
+        bigramCorpus.clear();
         try {
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
             SAXParser parser = saxParserFactory.newSAXParser();
@@ -91,56 +94,64 @@ public class WikipediaTermCorpusCreator {
             throw new IllegalStateException(e);
         }
         try {
-            corpus.save(outputFile);
+//            corpus.save(new File(outputPath, "unigrams.gz"));
+            bigramCorpus.save(new File(outputPath, "bigrams.gz"));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
     private static void addCounts(String pageText) {
-        List<String> tokens = Tokenizer.tokenize(pageText);
-        Set<String> tokenSet = CollectionHelper.newHashSet();
-        for (String token : tokens) {
-            String stemmed = stemmer.stem(token.toLowerCase());
-            tokenSet.add(new String(stemmed));
-        }
-        corpus.addTermsFromDocument(tokenSet);
+//        Set<String> tokenSet = CollectionHelper.newHashSet();
+//
+//        for (String token : Tokenizer.tokenize(pageText)) {
+//            String stemmed = stemmer.stem(token.toLowerCase());
+//            tokenSet.add(new String(stemmed));
+//        }
+//        corpus.addTermsFromDocument(tokenSet);
+
+        Set<String> bigramSet = makeBigrams(pageText);
+        bigramCorpus.addTermsFromDocument(bigramSet);
     }
 
-//    public static void clean(File fileName, File outputFileName, final int minOccurCount) {
-//        final Writer[] writer = new Writer[1];
-//        try {
-//            final ProgressMonitor monitor = new ProgressMonitor(FileHelper.getNumberOfLines(fileName));
-//            writer[0] = new BufferedWriter(new FileWriter(outputFileName));
-//            FileHelper.performActionOnEveryLine(fileName, new LineAction() {
-//
-//                @Override
-//                public void performAction(String line, int lineNumber) {
-//                    monitor.incrementAndPrintProgress();
-//                    String[] split = line.split("\\t");
-//                    if (split.length != 2) {
-//                        return;
-//                    }
-//                    if (Integer.valueOf(split[1]) >= minOccurCount) {
-//                        try {
-//                            writer[0].write(line);
-//                            writer[0].write("\n");
-//                        } catch (IOException e) {
-//                            throw new IllegalStateException(e);
-//                        }
-//                    }
-//                }
-//            });
-//        } catch (IOException e) {
-//            throw new IllegalStateException(e);
-//        } finally {
-//            FileHelper.close(writer);
-//        }
-//    }
+    private static Set<String> makeBigrams(String text) {
+        Set<String> bigramSet = CollectionHelper.newHashSet();
+        List<String> tokens = Tokenizer.tokenize(text);
+        outer: for (int i = 0; i <= tokens.size() - 2; i++) {
+            StringBuilder builder = new StringBuilder();
+            for (int j = i; j < i + 2; j++) {
+                String value = tokens.get(j).toLowerCase();
+                if (value.length() == 1 && StringHelper.isPunctuation(value.charAt(0))) {
+                    continue outer;
+                }
+                String stemmed = normalize(value);
+                builder.append(stemmed).append(' ');
+            }
+            bigramSet.add(builder.toString().trim());
+        }
+        return bigramSet;
+    }
 
-    public static void main(String[] args) {
+    /**
+     * <p>
+     * Stem values, replace digits by 0s. (e.g. 60ies becomes 00ies becomes 00i, 345,678 becomes 000,000).
+     * </p>
+     * 
+     * @param value
+     * @return
+     */
+    private static String normalize(String value) {
+        String stem = stemmer.stem(value);
+//        stem = stem.replaceAll("\\d", "0");
+        return stem;
+    }
+
+    public static void main(String[] args) throws IOException {
+        // Set<String> biGrams = makeBigrams(FileHelper.readFileToString("src/test/resources/NewsSampleText.txt"));
+        // CollectionHelper.print(biGrams);
+        // System.exit(0);
         File wikipediaDump = new File("/Volumes/iMac HD/temp/enwiki-20130503-pages-articles.xml.bz2");
-        File outputPath = new File("/Users/pk/Desktop/wikipediaTermCorpusStemmedFull.gz");
+        File outputPath = new File("/Users/pk/Desktop");
         createCorpus(wikipediaDump, outputPath, Integer.MAX_VALUE);
     }
 
