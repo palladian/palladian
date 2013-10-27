@@ -27,8 +27,8 @@ public final class ProgressMonitor {
     private final static char PROGRESS_CHAR = '■';
     private final StopWatch stopWatch = new StopWatch();
     private final String processName;
-    private int currentCount = 0;
-    private final int totalCount;
+    private long currentCount = 0;
+    private final long totalCount;
     private final double showEveryPercent;
     private boolean compactRemaining = false;
 
@@ -87,7 +87,7 @@ public final class ProgressMonitor {
      * 
      * @param counter Counter for current iteration in a loop.
      */
-    public void printProgress(int counter) {
+    public void printProgress(long counter) {
         String progress = getProgress(counter);
         if (!progress.isEmpty()) {
             System.out.println(progress);
@@ -137,7 +137,7 @@ public final class ProgressMonitor {
      * 
      * @param counter Counter for current iteration in a loop.
      */
-    public String getProgress(int counter) {
+    public String getProgress(long counter) {
         StringBuilder progressString = new StringBuilder();
         try {
             if (showEveryPercent == 0 || counter % (showEveryPercent * totalCount / 100.0) < 1) {
@@ -189,11 +189,11 @@ public final class ProgressMonitor {
     }
 
     public static void main(String[] args) {
-        int totalCount = 10;
+        int totalCount = 1759600335;
         ProgressMonitor pm = new ProgressMonitor(totalCount, .5, "My Progress");
         pm.setCompactRemaining(true);
         for (int i = 1; i <= totalCount; i++) {
-            ThreadHelper.deepSleep(200);
+            // ThreadHelper.deepSleep(200);
             pm.incrementAndPrintProgress();
         }
     }
