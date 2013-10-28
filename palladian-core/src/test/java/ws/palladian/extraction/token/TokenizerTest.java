@@ -6,9 +6,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -39,6 +41,7 @@ public class TokenizerTest {
         assertEquals(2, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 4).size());
         assertEquals(1, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 5).size());
         assertEquals(0, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 6).size());
+        assertEquals(4, Tokenizer.calculateWordNGrams("all the lilacs\n\n\nin   ohio", 2).size());
     }
 
     /**

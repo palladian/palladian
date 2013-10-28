@@ -10,8 +10,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
@@ -30,9 +28,6 @@ import ws.palladian.helper.math.ConfusionMatrix;
  */
 public class PalladianTextClassifierIT {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianTextClassifierIT.class);
-
     /** The configuration with the paths to the datasets. */
     private static PropertiesConfiguration config;
 
@@ -41,15 +36,11 @@ public class PalladianTextClassifierIT {
         try {
             config = new PropertiesConfiguration(ResourceHelper.getResourceFile("/palladian-test.properties"));
         } catch (FileNotFoundException e) {
-            LOGGER.warn("palladian-test.properties not found; test is skipped!");
-            // assumeTrue(false);
-            fail();
+            fail("palladian-test.properties not found; test is skipped!");
         }
         // make sure, we have enough heap
         if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
-            LOGGER.warn("Not enough memory. This test requires at least 1 GB heap memory.");
-            // assumeTrue(false);
-            fail();
+            fail("Not enough memory. This test requires at least 1 GB heap memory.");
         }
     }
 
@@ -69,7 +60,7 @@ public class PalladianTextClassifierIT {
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy char jrc: " + evaluation.getAccuracy());
-        assertTrue(evaluation.getAccuracy() >= 0.983);
+        assertTrue(evaluation.getAccuracy() >= 0.99);
     }
 
     @Test
@@ -88,7 +79,7 @@ public class PalladianTextClassifierIT {
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy word jrc: " + evaluation.getAccuracy());
-        assertTrue(evaluation.getAccuracy() >= 0.935);
+        assertTrue(evaluation.getAccuracy() >= 0.98);
     }
 
     @Test
@@ -107,7 +98,7 @@ public class PalladianTextClassifierIT {
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy char ng: " + evaluation.getAccuracy());
-        assertTrue(evaluation.getAccuracy() >= 0.8893436410489617); // 0.8882825526754585
+        assertTrue(evaluation.getAccuracy() >= 0.88);
     }
 
     @Test
@@ -126,8 +117,7 @@ public class PalladianTextClassifierIT {
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy word ng: " + evaluation.getAccuracy());
-        // assertTrue(evaluation.getAccuracy() >= 0.6030013642564802); // 0.17735334242837653
-        assertTrue(evaluation.getAccuracy() >= 0.5);
+        assertTrue(evaluation.getAccuracy() >= 0.9);
     }
 
     /**
@@ -147,12 +137,8 @@ public class PalladianTextClassifierIT {
             }
         }
         if (!runTest) {
-            LOGGER.warn(
-                    "Dataset for {} is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.",
-                    datasetName);
-            fail();
+            fail("Dataset for '" + datasetName + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.");
         }
-        // assumeTrue(runTest);
     }
 
 }
