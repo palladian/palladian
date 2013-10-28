@@ -157,7 +157,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
 //            if (annotation instanceof AnnotationGroup) {
 //                idf = Math.log10(termCorpus.getNumDocs());
 //            } else {
-                idf = annotationFeatureVector.get(NumericFeature.class, IdfAnnotator.PROVIDED_FEATURE).getValue();
+                idf = annotationFeatureVector.get(NumericFeature.class, IdfAnnotator.IDF).getValue();
 //            }
             double score = frequency * idf /* phraseness */ * prior * posPenalty * spreadPenalty * Math.pow(termLength, 2);
             keywords.add(new Keyphrase(value, score));

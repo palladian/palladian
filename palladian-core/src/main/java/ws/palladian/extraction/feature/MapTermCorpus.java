@@ -12,7 +12,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -25,6 +28,9 @@ import ws.palladian.helper.io.LineAction;
  * @author Philipp Katz
  */
 public final class MapTermCorpus extends AbstractTermCorpus {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapTermCorpus.class);
 
     private static final String SEPARATOR = "#";
 
@@ -133,11 +139,12 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         Validate.notNull(inputStream, "inputStream must not be null");
         final int[] numDocs = new int[1];
         final CountMap<String> counts = CountMap.create();
+        StopWatch stopWatch = new StopWatch();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String text, int number) {
                 if (number != 0 && number % 100000 == 0) {
-                    System.out.println(number);
+                    System.out.print('.');
                 }
                 String[] split = text.split(SEPARATOR);
                 if (number > 1) {
@@ -151,6 +158,8 @@ public final class MapTermCorpus extends AbstractTermCorpus {
                 }
             }
         });
+        System.out.println();
+        LOGGER.debug("Loaded {} terms in {}", counts.uniqueSize(), stopWatch);
         return new MapTermCorpus(counts, numDocs[0]);
     }
 
