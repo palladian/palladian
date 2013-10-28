@@ -311,6 +311,12 @@ public class TokenizerTest {
         sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
+        
+        // XXX
+        // inputText = "Former National Security Agency chief Michael V. Hayden learned a lesson about eavesdropping";
+        // sentences = Tokenizer.getSentences(inputText);
+        // CollectionHelper.print(sentences);
+        // assertEquals(1, sentences.size());
     }
 
     @Test
