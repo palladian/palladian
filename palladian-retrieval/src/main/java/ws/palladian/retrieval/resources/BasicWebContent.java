@@ -28,7 +28,7 @@ public class BasicWebContent implements WebContent {
      */
     public static class Builder implements Factory<WebContent> {
 
-        protected int id;
+        protected int id = -1;
         protected String url;
         protected String title;
         protected String summary;
