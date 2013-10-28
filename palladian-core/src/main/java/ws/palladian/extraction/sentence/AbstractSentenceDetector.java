@@ -108,7 +108,7 @@ public abstract class AbstractSentenceDetector extends TextDocumentPipelineProce
      * 
      * @return the extracted sentences.
      */
-    public final PositionAnnotation[] getSentences() {
+    final PositionAnnotation[] getSentences() {
         return Arrays.copyOf(sentences, sentences.length);
     }
 
