@@ -396,7 +396,7 @@ public final class HtmlHelper {
 
     public static String htmlToReadableText(String htmlString) {
         htmlString = HTML_TO_READABLE_TEXT.matcher(htmlString).replaceAll("\n");
-        htmlString = HTML_TO_READABLE_TEXT2.matcher(htmlString).replaceAll("\n");
+        htmlString = HTML_TO_READABLE_TEXT2.matcher(htmlString).replaceAll("\n\n");
         htmlString = stripHtmlTags(htmlString);
         return htmlString;
     }
