@@ -158,7 +158,8 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                 queryUrl = paginationJson.getString("next_url");
 
             } catch (JsonException e) {
-                throw new SearcherException("Parse exception while parsing JSON data: \"" + jsonString + "\"", e);
+                throw new SearcherException("Parse exception while parsing JSON data: \"" + jsonString + "\", URL: \""
+                        + queryUrl + "\"", e);
             }
 
         }
