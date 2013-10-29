@@ -105,8 +105,8 @@ public class HeatGridGenerator {
         
         final int tileWidth = 30;
         final int tileHeight = 30;
-        final int IMAGE_WIDTH = data.sizeX() * tileWidth;
-        final int IMAGE_HEIGHT = data.sizeY() * tileHeight;
+        final int IMAGE_WIDTH = data.columnCount() * tileWidth;
+        final int IMAGE_HEIGHT = data.rowCount() * tileHeight;
         
         BufferedImage bufferedImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
@@ -116,10 +116,10 @@ public class HeatGridGenerator {
         g2.setPaint(Color.RED);
         
         int columnNumber = 0;
-        for (String column : data.getKeysX()) {
+        for (String column : data.getColumnKeys()) {
             //System.out.println("column " + columnNumber + " : " + column.getKey());
             int rowNumber = 0;
-            for (String row : data.getKeysY()) {
+            for (String row : data.getRowKeys()) {
             	//System.out.println("row " + rowNumber + " : " + row.getKey());
                 double intensity = data.get(column, row);
                 int intensityScaled = (int) (intensity * 255); 

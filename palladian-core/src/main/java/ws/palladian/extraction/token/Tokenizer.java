@@ -212,7 +212,7 @@ public final class Tokenizer {
     public static Set<String> calculateWordNGrams(String string, int n) {
         Set<String> nGrams = new HashSet<String>();
 
-        String[] words = string.split("\\s");
+        String[] words = string.split("\\s+");
 
         if (words.length < n) {
             return nGrams;
@@ -248,7 +248,7 @@ public final class Tokenizer {
     public static List<String> calculateWordNGramsAsList(String string, int n) {
         List<String> nGrams = new ArrayList<String>();
 
-        String[] words = string.split("\\s");
+        String[] words = string.split("\\s+");
         words = filterEmptyWords(words);
 
         if (words.length < n) {

@@ -38,9 +38,10 @@ public class HtmlHelperTest {
 
     @Test
     public void testHtmlToReadableText() {
-        String s = "";
-        s = "Event: Dropkick Murphys<br>Venue: Aragon Ballroom<br>Start: 2/22/2013 7:00:00 PM<br>Category: CONCERTS ALTERNATIVE";
+        String s = "Event: Dropkick Murphys<br>Venue: Aragon Ballroom<br>Start: 2/22/2013 7:00:00 PM<br>Category: CONCERTS ALTERNATIVE";
         assertEquals(4, HtmlHelper.htmlToReadableText(s).split("\n").length);
+        s = "<p class=\"standfirst\">David Cameron describes dismissal of claims that EU law gives prisoners right to vote as 'a great victory for common sense'</p><p>Two convicted murderers who argued that European Union law gave them the right to vote in UK elections have had their appeals dismissed by the supreme court at Westminster.</p>";
+        assertEquals(2, HtmlHelper.htmlToReadableText(s).split("\n\n").length);
     }
 
     @Test

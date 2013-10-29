@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import ws.palladian.helper.collection.CaseInsensitiveMap;
-import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
  * <p>
@@ -65,7 +64,7 @@ public class HttpResult implements Serializable {
     /**
      * <p>
      * Get this {@link HttpResult}'s content as byte array. For requests returning Strings, you may use
-     * {@link HttpHelper#getStringContent(HttpResult)} to convert considering the correct encoding. The usage of
+     * {@link #getStringContent()} to convert considering the correct encoding. The usage of
      * <code>new String({@link HttpResult#getContent()})</code> is discouraged, as the sytem's default encoding is used.
      * </p>
      * 
