@@ -11,7 +11,9 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
- * <p>Test cases for the {@link HtmlHelper} class.</p>
+ * <p>
+ * Test cases for the {@link HtmlHelper} class.
+ * </p>
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -42,6 +44,8 @@ public class HtmlHelperTest {
         assertEquals(4, HtmlHelper.htmlToReadableText(s).split("\n").length);
         s = "<p class=\"standfirst\">David Cameron describes dismissal of claims that EU law gives prisoners right to vote as 'a great victory for common sense'</p><p>Two convicted murderers who argued that European Union law gave them the right to vote in UK elections have had their appeals dismissed by the supreme court at Westminster.</p>";
         assertEquals(2, HtmlHelper.htmlToReadableText(s).split("\n\n").length);
+        s = "<li><b><a href=\"http://www.foxnews.com/politics/2013/10/28/white-house-grants-extension-on-obamacare-signup/\">White House grants extension for ObamaCare signup</a></b></li><li><b><a href=\"http://www.foxnews.com/politics/2013/10/28/obamacare-sites-fail-to-rate-insurance-plans/\">States balk at posting plan ratings</a></b></li><li><b><a href=\"http://www.foxnews.com/politics/2013/10/28/oh-really-healthcaregov-down-as-white-house-declares-site-up-and-running/\">HealthCare.gov 'down,' as White House declares site 'up and running'</a></b></li><li><b><a href=\"http://www.foxnews.com/politics/2013/10/28/krauthammer-obamacare-will-collapse-on-its-own/\">ObamaCare will collapse on its own, Krauthammer says</a></b></li>  <li><b><a href=\"http://www.foxnews.com/politics/2013/10/29/national-review-to-gop-lost-try-winning-some-elections/\">KURTZ: National Review to GOP: You lost! Try winning some elections</a></b></li>  <li><b><a href=\"http://www.foxnews.com/politics/2013/10/29/national-review-jimgeraghty-president-did-not-know/\">TOP TWITTER TALK: 'The president did not know...'</a></b></li>";
+        assertEquals(6, HtmlHelper.htmlToReadableText(s).split("\n").length);
     }
 
     @Test
