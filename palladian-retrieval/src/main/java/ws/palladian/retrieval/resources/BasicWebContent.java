@@ -89,6 +89,7 @@ public class BasicWebContent implements WebContent {
         }
 
         public Builder setWebContent(WebContent webContent) {
+            this.id = webContent.getId();
             this.url = webContent.getUrl();
             this.title = webContent.getTitle();
             this.summary = webContent.getSummary();
