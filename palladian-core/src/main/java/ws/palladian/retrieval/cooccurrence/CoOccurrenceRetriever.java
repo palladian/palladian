@@ -29,6 +29,10 @@ public class CoOccurrenceRetriever {
     
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CoOccurrenceRetriever.class);
+    
+    public enum CoOccurrenceContext {
+        DOCUMENT, SENTENCE, CONTEXT_200_CHARS
+    }
 
     /** Specify how far or close the terms must be to count the co-occurrence. */
     private final CoOccurrenceContext coOccurrenceContext;

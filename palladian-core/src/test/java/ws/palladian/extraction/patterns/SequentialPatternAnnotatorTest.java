@@ -1,7 +1,7 @@
 /**
  * Created on: 30.01.2012 15:22:30
  */
-package ws.palladian.extraction.feature;
+package ws.palladian.extraction.patterns;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,9 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.patterns.LabeledSequentialPatternExtractionStrategy;
-import ws.palladian.extraction.patterns.NGramPatternExtractionStrategy;
-import ws.palladian.extraction.patterns.SequentialPatternAnnotator;
+import ws.palladian.extraction.feature.LowerCaser;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.extraction.token.RegExTokenizer;
@@ -32,7 +30,6 @@ import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.SequentialPattern;
-import ws.palladian.processing.features.utils.FeatureUtils;
 
 /**
  * <p>

@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;
@@ -25,10 +23,8 @@ import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
-import ws.palladian.extraction.keyphrase.temp.CooccurrenceMatrix;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PerformanceCheckProcessingPipeline;
@@ -45,13 +41,13 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
     private final ProcessingPipeline extractionPipeline;
     private final MapTermCorpus termCorpus;
     private final MapTermCorpus keyphraseCorpus;
-    private final CooccurrenceMatrix<String> cooccurrenceMatrix;
+//    private final CooccurrenceMatrix<String> cooccurrenceMatrix;
     private StemmerAnnotator stemmer;
 
     public RuleBasedExtractor() {
         termCorpus = new MapTermCorpus();
         keyphraseCorpus = new MapTermCorpus();
-        cooccurrenceMatrix = new CooccurrenceMatrix<String>();
+//        cooccurrenceMatrix = new CooccurrenceMatrix<String>();
 
         trainingPipeline = new PerformanceCheckProcessingPipeline();
         trainingPipeline.add(new HtmlCleaner());
@@ -101,7 +97,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         }
         termCorpus.addTermsFromDocument(terms);
         keyphraseCorpus.addTermsFromDocument(stem(keyphrases));
-        cooccurrenceMatrix.addAll(stem(keyphrases));
+//        cooccurrenceMatrix.addAll(stem(keyphrases));
     }
 
     private Set<String> stem(Set<String> items) {
@@ -126,7 +122,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
     public void reset() {
         termCorpus.clear();
         keyphraseCorpus.clear();
-        cooccurrenceMatrix.reset();
+//        cooccurrenceMatrix.reset();
         super.reset();
     }
 
@@ -181,89 +177,89 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         return keywords;
     }
 
-    private int synthetesize(List<Keyphrase> keywords) {
-        Collections.sort(keywords);
-        Set<String> keyValues = new HashSet<String>();
-        for (String string : keyValues) {
-            keyValues.add(string);
-        }
-        Map<String,Keyphrase> synthetesized = CollectionHelper.newHashMap();
-        int subSize = (int) Math.sqrt(keywords.size());
-        for (Keyphrase keyphrase : keywords.subList(0, subSize)) {
-            List<Pair<String,Double>> highestPairs = cooccurrenceMatrix.getHighest(keyphrase.getValue(), 5);
-            for (Pair<String, Double> pair : highestPairs) {
-                
-            String value = pair.getLeft();
-            Double weight = pair.getRight() * 1;
-            if (keyValues.contains(value)) {
-                continue;
-            }
-            if (weight < 0.01) {
-                continue;
-            }
-            if (cooccurrenceMatrix.getCount(keyphrase.getValue(), value) < 2) {
-                continue;
-            }
-            Keyphrase synthetesizedKeyphrase;
-            if (synthetesized.containsKey(value)) {
-                synthetesizedKeyphrase= synthetesized.get(value);
-                synthetesizedKeyphrase.setWeight(synthetesizedKeyphrase.getWeight() + keyphrase.getWeight() * weight);
-            } else {
-                synthetesizedKeyphrase=new Keyphrase(value);
-                synthetesizedKeyphrase.setWeight(keyphrase.getWeight() * weight);
-                synthetesized.put(value, synthetesizedKeyphrase);
-            }
-            }
-        }
-        keywords.addAll(synthetesized.values());
-        return synthetesized.size();
-    }
+//    private int synthetesize(List<Keyphrase> keywords) {
+//        Collections.sort(keywords);
+//        Set<String> keyValues = new HashSet<String>();
+//        for (String string : keyValues) {
+//            keyValues.add(string);
+//        }
+//        Map<String,Keyphrase> synthetesized = CollectionHelper.newHashMap();
+//        int subSize = (int) Math.sqrt(keywords.size());
+//        for (Keyphrase keyphrase : keywords.subList(0, subSize)) {
+//            List<Pair<String,Double>> highestPairs = cooccurrenceMatrix.getHighest(keyphrase.getValue(), 5);
+//            for (Pair<String, Double> pair : highestPairs) {
+//                
+//            String value = pair.getLeft();
+//            Double weight = pair.getRight() * 1;
+//            if (keyValues.contains(value)) {
+//                continue;
+//            }
+//            if (weight < 0.01) {
+//                continue;
+//            }
+//            if (cooccurrenceMatrix.getCount(keyphrase.getValue(), value) < 2) {
+//                continue;
+//            }
+//            Keyphrase synthetesizedKeyphrase;
+//            if (synthetesized.containsKey(value)) {
+//                synthetesizedKeyphrase= synthetesized.get(value);
+//                synthetesizedKeyphrase.setWeight(synthetesizedKeyphrase.getWeight() + keyphrase.getWeight() * weight);
+//            } else {
+//                synthetesizedKeyphrase=new Keyphrase(value);
+//                synthetesizedKeyphrase.setWeight(keyphrase.getWeight() * weight);
+//                synthetesized.put(value, synthetesizedKeyphrase);
+//            }
+//            }
+//        }
+//        keywords.addAll(synthetesized.values());
+//        return synthetesized.size();
+//    }
 
-    /**
-     * <p>
-     * Re-calculate the weight of the list of {@link Keyphrase}s, based on their overlap. Reduce the weights of those
-     * candidates which are contained in another candidate. E.g. list contains <code>web</code> with weight
-     * <code>0.5</code> and <code>web browser</code> with weight <code>0.7</code>, then weight of <code>web</code> if
-     * re-calculated to <code>0.7 - 0.5 = 0.2</code>.
-     * </p>
-     * 
-     * @param keywords
-     */
-    private void reRankOverlaps(List<Keyphrase> keywords) {
-        for (Keyphrase keyphrase1 : keywords) {
-            if (keyphrase1.getWeight() > 0) {
-                for (Keyphrase keyphrase2 : keywords) {
-                    if (keyphrase1.getValue().equals(keyphrase2.getValue())) {
-                        continue;
-                    }
-                    if (keyphrase1.getValue().contains(keyphrase2.getValue())) {
-                        keyphrase2.setWeight(keyphrase2.getWeight() - keyphrase1.getWeight());
-                    }
-                }
-            }
-        }
-    }
+//    /**
+//     * <p>
+//     * Re-calculate the weight of the list of {@link Keyphrase}s, based on their overlap. Reduce the weights of those
+//     * candidates which are contained in another candidate. E.g. list contains <code>web</code> with weight
+//     * <code>0.5</code> and <code>web browser</code> with weight <code>0.7</code>, then weight of <code>web</code> if
+//     * re-calculated to <code>0.7 - 0.5 = 0.2</code>.
+//     * </p>
+//     * 
+//     * @param keywords
+//     */
+//    private void reRankOverlaps(List<Keyphrase> keywords) {
+//        for (Keyphrase keyphrase1 : keywords) {
+//            if (keyphrase1.getWeight() > 0) {
+//                for (Keyphrase keyphrase2 : keywords) {
+//                    if (keyphrase1.getValue().equals(keyphrase2.getValue())) {
+//                        continue;
+//                    }
+//                    if (keyphrase1.getValue().contains(keyphrase2.getValue())) {
+//                        keyphrase2.setWeight(keyphrase2.getWeight() - keyphrase1.getWeight());
+//                    }
+//                }
+//            }
+//        }
+//    }
     
-    private void reRankCooccurrences(List<Keyphrase> keywords) {
-        
-        int size = keywords.size();
-        int x = (int) Math.sqrt(size);
-        Collections.sort(keywords);
-
-        
-        for (Keyphrase k1 : keywords.subList(0, x)) {
-            String value1 = k1.getValue();
-            for (Keyphrase k2 : keywords.subList(0, x)) {
-                String value2 = k2.getValue();
-                if (value1.equals(value2)) {
-                    continue;
-                }
-                double condProb = cooccurrenceMatrix.getConditionalProbabilityLaplace(value2, value1) * 10;
-                double newWeight = k1.getWeight() + k2.getWeight() * condProb;
-                k1.setWeight(newWeight);
-            }
-        }
-    }
+//    private void reRankCooccurrences(List<Keyphrase> keywords) {
+//        
+//        int size = keywords.size();
+//        int x = (int) Math.sqrt(size);
+//        Collections.sort(keywords);
+//
+//        
+//        for (Keyphrase k1 : keywords.subList(0, x)) {
+//            String value1 = k1.getValue();
+//            for (Keyphrase k2 : keywords.subList(0, x)) {
+//                String value2 = k2.getValue();
+//                if (value1.equals(value2)) {
+//                    continue;
+//                }
+//                double condProb = cooccurrenceMatrix.getConditionalProbabilityLaplace(value2, value1) * 10;
+//                double newWeight = k1.getWeight() + k2.getWeight() * condProb;
+//                k1.setWeight(newWeight);
+//            }
+//        }
+//    }
 
     @Override
     public String getExtractorName() {

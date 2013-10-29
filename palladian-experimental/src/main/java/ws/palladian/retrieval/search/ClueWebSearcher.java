@@ -65,6 +65,11 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
             this.content = content;
             this.score = score;
         }
+        
+        @Override
+        public int getId() {
+            return -1;
+        }
 
         @Override
         public String getUrl() {
