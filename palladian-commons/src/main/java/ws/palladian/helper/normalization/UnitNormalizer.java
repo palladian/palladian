@@ -209,6 +209,7 @@ public class UnitNormalizer {
         VOLUME_UNITS.add("fl ozs.");
         VOLUME_UNITS.add("fl ounce");
         VOLUME_UNITS.add("fl ounces");
+        VOLUME_UNITS.add("cm³");
 
         for (TemperatureUnit tUnit : TemperatureUnit.values()) {
             for (String name : tUnit.getNames()) {
