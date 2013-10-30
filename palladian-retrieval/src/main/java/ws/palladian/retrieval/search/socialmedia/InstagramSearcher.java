@@ -214,6 +214,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
             allTags = Arrays.asList(query.getText().split("\\s"));
         }
         String firstTag = CollectionHelper.getFirst(allTags);
+        firstTag = firstTag.replaceAll("[^A-Za-z0-9]", ""); // remove special characters
         if (allTags.size() > 1) {
             LOGGER.warn("Query consists of multiple terms ({}), only the first one ({}) is considered!", allTags,
                     firstTag);
