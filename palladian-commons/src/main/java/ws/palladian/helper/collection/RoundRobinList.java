@@ -1,28 +1,54 @@
 package ws.palladian.helper.collection;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class RoundRobinList<E> extends ArrayList<E> {
+/**
+ * <p>
+ * A simple, thread-safe round robin list.
+ * </p>
+ * 
+ * @author David Urbansky
+ * 
+ */
+public class RoundRobinList<E> {
 
-    private static final long serialVersionUID = 8357139694464153452L;
+    private List<E> syncList = Collections.synchronizedList(new ArrayList<E>());
 
-    private int index = 0;
+    private AtomicInteger index = new AtomicInteger();
 
-    public E getNextItem() {
-        E item = get(index++);
-        if (index >= size()) {
-            index = 0;
+    public synchronized E getNextItem() {
+        E item = syncList.get(index.getAndIncrement());
+        if (index.get() >= syncList.size()) {
+            index.set(0);
         }
 
         return item;
     }
 
-    @Override
-    public boolean remove(Object o) {
-        Boolean remove = super.remove(o);
-        if (remove && index > 0) {
-            index--;
+    public synchronized boolean remove(Object o) {
+        Boolean remove = syncList.remove(o);
+        if (remove && index.get() > 0) {
+            index.decrementAndGet();
         }
         return remove;
+    }
+
+    public void add(E item) {
+        syncList.add(item);
+    }
+
+    public boolean contains(E item) {
+        return syncList.contains(item);
+    }
+
+    public boolean isEmpty() {
+        return syncList.isEmpty();
+    }
+
+    public int size() {
+        return syncList.size();
     }
 }
