@@ -1655,6 +1655,9 @@ public final class StringHelper {
      */
     public static Integer numberWordToNumber(String numberWord) {
         numberWord = numberWord.toLowerCase().trim();
+        if (numberWord.equals("zero")) {
+            return 0;
+        }
         if (numberWord.equals("one")) {
             return 1;
         }
