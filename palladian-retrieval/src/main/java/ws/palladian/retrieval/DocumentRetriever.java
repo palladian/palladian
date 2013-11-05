@@ -234,11 +234,7 @@ public class DocumentRetriever {
             JsonObject jsonObject = null;
 
             if (!json.isEmpty()) {
-                // try {
                 jsonObject = new JsonObject(json);
-                // } catch (JSONException e) {
-                // LOGGER.error(url + ", " + e.getMessage(), e);
-                // }
             }
 
             return jsonObject;
