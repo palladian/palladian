@@ -4,14 +4,26 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpConnectionMetrics;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -31,7 +43,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.*;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -515,14 +531,14 @@ public class HttpRetriever {
             proxyProvider.promoteProxy(proxyUsed);
 
             if (proxyRemoveStatusCodes.contains(statusCode)) {
-                proxyProvider.removeProxy(proxyUsed);
+                proxyProvider.removeProxy(proxyUsed, statusCode);
             }
 
         } catch (IllegalStateException e) {
-            proxyProvider.removeProxy(proxyUsed);
+            proxyProvider.removeProxy(proxyUsed, e);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } catch (IOException e) {
-            proxyProvider.removeProxy(proxyUsed);
+            proxyProvider.removeProxy(proxyUsed, e);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } finally {
             FileHelper.close(in);
