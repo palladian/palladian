@@ -527,6 +527,9 @@ public class UnitNormalizer {
             multiplier = 473.176;
         } else if (unit.equals("cups") || unit.equals("cup") || unit.equals("c") || unit.equals("cp")) {
             multiplier = 236.588;
+        } else if (unit.equals("shot") || unit.equals("shots") || unit.equals("measure") || unit.equals("measures")) {
+            // US 1.5 fl. oz (different depending on country)
+            multiplier = 44.3603;
         } else if (unit.equals("milli liters") || unit.equals("milliliters") || unit.equals("ml")) {
             multiplier = 1.;
 
