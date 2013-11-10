@@ -1698,6 +1698,23 @@ public final class StringHelper {
         return null;
     }
 
+    public static String numberWordsToNumbers(String text) {
+        text = StringHelper.replaceWord("zero", "0", text);
+        text = StringHelper.replaceWord("one", "1", text);
+        text = StringHelper.replaceWord("two", "2", text);
+        text = StringHelper.replaceWord("three", "3", text);
+        text = StringHelper.replaceWord("four", "4", text);
+        text = StringHelper.replaceWord("five", "5", text);
+        text = StringHelper.replaceWord("six", "6", text);
+        text = StringHelper.replaceWord("seven", "7", text);
+        text = StringHelper.replaceWord("eight", "8", text);
+        text = StringHelper.replaceWord("nine", "9", text);
+        text = StringHelper.replaceWord("ten", "10", text);
+        text = StringHelper.replaceWord("eleven", "11", text);
+        text = StringHelper.replaceWord("twelve", "12", text);
+        return text;
+    }
+
     public static String getRegexpMatch(String regexp, String text) {
         return getRegexpMatch(regexp, text, false, false);
     }

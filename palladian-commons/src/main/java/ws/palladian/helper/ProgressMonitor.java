@@ -1,5 +1,7 @@
 package ws.palladian.helper;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.helper.date.DateHelper;
@@ -27,8 +29,8 @@ public final class ProgressMonitor {
     private final static char PROGRESS_CHAR = '■';
     private final StopWatch stopWatch = new StopWatch();
     private final String processName;
-    private long currentCount = 0;
-    private final long totalCount;
+    private AtomicLong currentCount = new AtomicLong(0);
+    private final AtomicLong totalCount = new AtomicLong(0);
     private final double showEveryPercent;
     private boolean compactRemaining = false;
 
@@ -65,7 +67,7 @@ public final class ProgressMonitor {
      * @param processName The name of the process, for identification purposes when outputting the bar.
      */
     public ProgressMonitor(long totalCount, double showEveryPercent, String processName) {
-        this.totalCount = totalCount;
+        this.totalCount.set(totalCount);
         this.showEveryPercent = showEveryPercent;
         this.processName = processName;
     }
@@ -87,7 +89,7 @@ public final class ProgressMonitor {
      * 
      * @param counter Counter for current iteration in a loop.
      */
-    public void printProgress(long counter) {
+    public void printProgress(AtomicLong counter) {
         String progress = getProgress(counter);
         if (!progress.isEmpty()) {
             System.out.println(progress);
@@ -101,7 +103,7 @@ public final class ProgressMonitor {
      * 
      */
     public void incrementAndPrintProgress() {
-        currentCount++;
+        currentCount.incrementAndGet();
         printProgress(currentCount);
     }
     
@@ -126,7 +128,7 @@ public final class ProgressMonitor {
      * @param counter Counter for current iteration in a loop.
      */
     public String incrementAndGetProgress() {
-        currentCount++;
+        currentCount.incrementAndGet();
         return getProgress(currentCount);
     }
 
@@ -137,24 +139,24 @@ public final class ProgressMonitor {
      * 
      * @param counter Counter for current iteration in a loop.
      */
-    public String getProgress(long counter) {
+    public String getProgress(AtomicLong counter) {
         StringBuilder progressString = new StringBuilder();
         try {
-            if (showEveryPercent == 0 || counter % (showEveryPercent * totalCount / 100.0) < 1) {
+            if (showEveryPercent == 0 || counter.get() % (showEveryPercent * totalCount.get() / 100.0) < 1) {
                 if (processName != null) {
                     progressString.append(processName).append(" ");
                 }
-                double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
+                double percent = MathHelper.round(100 * counter.get() / (double)totalCount.get(), 2);
                 progressString.append(createProgressBar(percent));
                 progressString.append(" ").append(percent).append("% (");
-                progressString.append(totalCount - counter).append(" remaining");
+                progressString.append(totalCount.get() - counter.get()).append(" remaining");
                 if (stopWatch != null && percent > 0) {
                     long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
                     // if elapsed not possible (timer started long before progress helper used) =>
                     // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
                     progressString.append(", elapsed: ").append(stopWatch.getTotalElapsedTimeString());
                     progressString.append(", iteration: ").append(stopWatch.getElapsedTimeString());
-                    if (counter < totalCount) {
+                    if (counter.get() < totalCount.get()) {
                         progressString.append(", ~remaining: ").append(
                                 DateHelper.formatDuration(0, msRemaining, compactRemaining));
                     }
