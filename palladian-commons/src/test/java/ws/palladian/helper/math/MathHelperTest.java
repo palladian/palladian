@@ -1,6 +1,5 @@
 package ws.palladian.helper.math;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -34,9 +33,12 @@ public class MathHelperTest {
 
     @Test
     public void testNumberToFraction() {
-        assertEquals("-12.5", MathHelper.numberToFraction(-12.5));
+        assertEquals("1 1/2", MathHelper.numberToFraction(1.5));
+
+        assertEquals("-12 1/2", MathHelper.numberToFraction(-12.5));
         assertEquals("0", MathHelper.numberToFraction(0.04));
-        assertEquals("1.005", MathHelper.numberToFraction(1.005));
+        assertEquals("1", MathHelper.numberToFraction(1.005));
+        assertEquals("10", MathHelper.numberToFraction(10.));
         assertEquals("1/2", MathHelper.numberToFraction(0.5));
         assertEquals("1/3", MathHelper.numberToFraction(0.33));
         assertEquals("1/4", MathHelper.numberToFraction(0.25));
@@ -47,7 +49,7 @@ public class MathHelperTest {
         assertEquals("1/9", MathHelper.numberToFraction(0.11));
         assertEquals("1/10", MathHelper.numberToFraction(0.105));
         assertEquals("1", MathHelper.numberToFraction(0.96));
-        assertEquals("31.0", MathHelper.numberToFraction(31.));
+        assertEquals("31", MathHelper.numberToFraction(31.));
     }
 
     @Test
