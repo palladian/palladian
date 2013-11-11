@@ -14,7 +14,7 @@ public class RequestThrottle {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestThrottle.class);
 
     /** The time in milliseconds to wait after each request. */
-    private final long pauseInterval;
+    private long pauseInterval;
     
     /** The time stamp of the last request. */
     private long lastRequest;
@@ -41,4 +41,11 @@ public class RequestThrottle {
         lastRequest = System.currentTimeMillis();
     }
 
+    public long getPauseInterval() {
+        return pauseInterval;
+    }
+
+    public void setPauseInterval(long pauseInterval) {
+        this.pauseInterval = pauseInterval;
+    }
 }
