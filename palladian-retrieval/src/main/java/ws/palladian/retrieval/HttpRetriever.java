@@ -528,10 +528,10 @@ public class HttpRetriever {
 
             addDownload(receivedBytes);
 
-            proxyProvider.promoteProxy(proxyUsed);
-
             if (proxyRemoveStatusCodes.contains(statusCode)) {
                 proxyProvider.removeProxy(proxyUsed, statusCode);
+            }else {
+                proxyProvider.promoteProxy(proxyUsed);
             }
 
         } catch (IllegalStateException e) {
