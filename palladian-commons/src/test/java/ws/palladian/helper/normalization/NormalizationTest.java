@@ -39,6 +39,9 @@ public class NormalizationTest {
     @Test
     public void testGetNormalizedNumber() {
 
+        assertEquals(UnitNormalizer.getNormalizedNumber(1, "measure"), 44.3603, 0.1);
+        assertEquals(UnitNormalizer.getNormalizedNumber(2.5, "shots"), 110.9, 0.1);
+
         assertEquals(214, UnitNormalizer.getNormalizedNumber("214 pixel [1]"), 1);
         assertEquals(214, UnitNormalizer.getNormalizedNumber("214pixel [1]"), 1);
 
