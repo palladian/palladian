@@ -677,22 +677,22 @@ public final class FileHelper {
         return writeToFile(filePath, string, DEFAULT_ENCODING);
     }
 
-    public static void writeToFile(InputStream inputStream, String fileTargetLocation) {
+    public static void writeToFile(String filePath, InputStream inputStream) {
 
         OutputStream out = null;
         try {
-            out = new FileOutputStream(new File(fileTargetLocation));
+            out = new FileOutputStream(new File(filePath));
             int read = 0;
             byte[] bytes = new byte[1024];
 
-            out = new FileOutputStream(new File(fileTargetLocation));
+            out = new FileOutputStream(new File(filePath));
             while ((read = inputStream.read(bytes)) != -1) {
                 out.write(bytes, 0, read);
             }
             out.flush();
             out.close();
         } catch (IOException e) {
-            LOGGER.error(e.getMessage() + " : " + fileTargetLocation, e);
+            LOGGER.error(e.getMessage() + " : " + filePath, e);
         } finally {
             close(out, inputStream);
         }
