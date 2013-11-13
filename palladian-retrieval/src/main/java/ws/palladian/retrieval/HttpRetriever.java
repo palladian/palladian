@@ -710,6 +710,9 @@ public class HttpRetriever {
         boolean result = false;
         try {
             HttpResult httpResult = httpGet(url, requestHeaders);
+            if (httpResult.getStatusCode() != 200) {
+                throw new HttpException("status code != 200 for " + url);
+            }
             result = HttpHelper.saveToFile(httpResult, filePath, includeHttpResponseHeaders);
         } catch (HttpException e) {
             LOGGER.error("Error while downloading {}", url, e);
