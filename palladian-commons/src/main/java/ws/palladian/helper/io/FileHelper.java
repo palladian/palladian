@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -850,7 +851,13 @@ public final class FileHelper {
         T obj = null;
 
         try {
-            in = new ObjectInputStream(new FileInputStream(filePath));
+            InputStream stream = null;
+            if (filePath.startsWith("http://")) {
+                stream = new URL(filePath).openStream();
+            } else {
+                stream = new FileInputStream(filePath);
+            }
+            in = new ObjectInputStream(stream);
             obj = (T)in.readObject();
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
@@ -879,7 +886,13 @@ public final class FileHelper {
         T obj = null;
 
         try {
-            ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filePath)));
+            InputStream stream = null;
+            if (filePath.startsWith("http://")) {
+                stream = new URL(filePath).openStream();
+            } else {
+                stream = new FileInputStream(filePath);
+            }
+            ois = new ObjectInputStream(new GZIPInputStream(stream));
             obj = (T)ois.readObject();
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage() + ", file path:" + filePath);

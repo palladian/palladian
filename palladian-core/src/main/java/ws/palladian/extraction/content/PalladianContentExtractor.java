@@ -24,6 +24,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
@@ -60,6 +61,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     /** The detected main content node. */
     private Node resultNode;
 
+    /**
+     * The main content node but less strict, it might contain some clutter but also more images (used to find the main
+     * image).
+     */
+    private Node outerResultNode;
+
     /** All sentences in the main content. */
     private List<String> sentences = new ArrayList<String>();
 
@@ -84,13 +91,15 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     private static final int DEFAULT_IMAGE_CONTAINER_SIZE = 500;
 
-    private List<WebImage> imageURLs;
+    private List<WebImage> imageUrls;
 
     static {
         MAIN_NODE_HINTS.add("articleText");
         MAIN_NODE_HINTS.add("article_body");
         MAIN_NODE_HINTS.add("article-body");
         MAIN_NODE_HINTS.add("articleBody");
+        // TODO next hint "hfeed" not tested properly with evaluation dataset!
+        MAIN_NODE_HINTS.add("hfeed");
         // TODO more fine tuning possible here:
         // MAIN_NODE_HINTS.add("story_body");
         // MAIN_NODE_HINTS.add("single_post_content");
@@ -113,9 +122,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     @Override
     public PalladianContentExtractor setDocument(Document document) throws PageContentExtractorException {
         this.document = document;
-        imageURLs = null;
+        imageUrls = null;
 
         resultNode = null;
+        outerResultNode = null;
         sentences = new ArrayList<String>();
         comments = new ArrayList<String>();
         mainContentHtml = "";
@@ -199,6 +209,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
             textNodeCount = countDirectTextNodes();
             LOGGER.debug("direct text nodes: " + textNodeCount);
+
+            outerResultNode = resultNode;
         }
 
         fullTextContent = HtmlHelper.documentToText(document);
@@ -455,19 +467,22 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public List<WebImage> getImages() {
+        if (outerResultNode != null) {
+            return getImages(outerResultNode);
+        }
         return getImages(resultNode);
     }
 
     public List<WebImage> getImages(Node imageParentNode) {
 
-        if (imageURLs != null) {
-            return imageURLs;
+        if (imageUrls != null) {
+            return imageUrls;
         }
 
-        imageURLs = new ArrayList<WebImage>();
+        imageUrls = new ArrayList<WebImage>();
 
-        if (resultNode == null) {
-            return imageURLs;
+        if (imageParentNode == null) {
+            return imageUrls;
         }
 
         // we need to query the result document with an xpath but the name space check has to be done on the original
@@ -492,6 +507,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
                 }
                 builder.setImageUrl(imageUrl);
+                builder.setFileType(FileHelper.getFileType(imageUrl));
 
                 if (nnm.getNamedItem("alt") != null) {
                     builder.setSummary(nnm.getNamedItem("alt").getTextContent());
@@ -508,7 +524,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     builder.setHeight(getImageSize(h));
                 }
                 
-                imageURLs.add(builder.create());
+                imageUrls.add(builder.create());
 
             } catch (NumberFormatException e) {
                 LOGGER.debug(e.getMessage());
@@ -517,7 +533,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        return imageURLs;
+        return imageUrls;
     }
 
     private int getImageSize(String attributeText) throws NumberFormatException {
@@ -621,7 +637,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        imageURLs = temp;
+        imageUrls = temp;
 
     }
 
