@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.analysis;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -18,6 +19,8 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
  */
 public class SitemapRetriever {
 
+    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=loc\\>).*?(?=\\</loc)", Pattern.CASE_INSENSITIVE);
+
     public List<String> getUrls(String sitemapIndexUrl) {
         List<String> pageUrls = CollectionHelper.newArrayList();
 
@@ -27,11 +30,13 @@ public class SitemapRetriever {
         // get sitemap index page
         String sitemapIndex = documentRetriever.getText(sitemapIndexUrl);
 
-        String locRegexp = "(?<=loc\\>).*?(?=\\</loc)";
-        List<String> urls = StringHelper.getRegexpMatches(locRegexp, sitemapIndex);
+        List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapIndex);
 
         int i = 1;
         for (String sitemapUrl : urls) {
+
+            // clean url
+            sitemapUrl = normalizeUrl(sitemapUrl);
 
             // download
             String downloadPath = "data/temp/sitemap" + i + ".xml.compressed";
@@ -43,8 +48,15 @@ public class SitemapRetriever {
 
             // read
             String sitemapText = FileHelper.tryReadFileToString(unzippedPath);
-            List<String> sitemapUrls = StringHelper.getRegexpMatches(locRegexp, sitemapText);
-            pageUrls.addAll(sitemapUrls);
+            List<String> sitemapUrls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapText);
+
+            // clean
+            List<String> cleanSitemapUrls = CollectionHelper.newArrayList();
+            for (String url : sitemapUrls) {
+                cleanSitemapUrls.add(normalizeUrl(url));
+            }
+
+            pageUrls.addAll(cleanSitemapUrls);
 
             i++;
         }
@@ -52,4 +64,7 @@ public class SitemapRetriever {
         return pageUrls;
     }
 
+    protected String normalizeUrl(String url) {
+        return url.replace("<![CDATA[", "").replace("]]>", "").trim();
+    }
 }
