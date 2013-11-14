@@ -479,7 +479,7 @@ public final class CollectionHelper {
      * 
      * @param list The Iterable from which to get the element, not <code>null</code>.
      * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
-     * @return The first element, or <code>null</code> if the iterable was empty.
+     * @return The first X elements, or an empty list if the iterable was empty.
      */
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
         List<T> result = CollectionHelper.newArrayList();
@@ -490,6 +490,23 @@ public final class CollectionHelper {
             }
         }
         return result;
+    }
+
+    /**
+     * <p>
+     * Get a sublist of elements of a {@link List}.
+     * </p>
+     * 
+     * @param list The list from which to get the element, not <code>null</code>.
+     * @param offset The number of elements to skip.
+     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @return The sublist.
+     */
+    public static <T> List<T> getSublist(List<T> list, int offset, int num) {
+        Validate.notNull(list);
+        int o = Math.min(list.size(), offset);
+        int n = Math.min(num, list.size() - o);
+        return list.subList(o, o + n);
     }
 
     /**

@@ -147,6 +147,17 @@ public class CollectionHelperTest {
     }
 
     @Test
+    public void testGetSublist() {
+        List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c"));
+
+        assertEquals(1, CollectionHelper.getSublist(items, 1, 1).size());
+        assertEquals(3, CollectionHelper.getSublist(items, 0, 3).size());
+        assertEquals(0, CollectionHelper.getSublist(items, 3, 0).size());
+        assertEquals(0, CollectionHelper.getSublist(items, 10, 13).size());
+        assertEquals(3, CollectionHelper.getSublist(items, 0, 54).size());
+    }
+
+    @Test
     public void testRemove() {
         List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
         boolean filtered = CollectionHelper.remove(items, new Filter<String>() {
