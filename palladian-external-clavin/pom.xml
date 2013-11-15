@@ -1,0 +1,32 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>ws.palladian</groupId>
+		<artifactId>palladian</artifactId>
+		<version>0.2.2-SNAPSHOT</version>
+	</parent>
+	<artifactId>palladian-external-clavin</artifactId>
+	<name>Palladian: CLAVIN</name>
+	<description>Wrapper for CLAVIN (Cartographic Location And Vicinity INdexer)</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.bericotech</groupId>
+			<artifactId>clavin</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+	</dependencies>
+</project>
+
