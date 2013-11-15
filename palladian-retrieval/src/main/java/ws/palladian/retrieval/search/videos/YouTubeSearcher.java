@@ -173,7 +173,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         String published = entry.queryString("published/$t");
         builder.setPublished(parseDate(published));
         builder.setTitle(entry.queryString("title/$t"));
-        builder.setVideoUrl(entry.queryString("content/src"));
+        builder.setVideoUrl(entry.tryQueryString("content/src"));
         builder.setUrl(getPageLink(entry));
         builder.setDuration(entry.queryLong("media$group/yt$duration/seconds"));
         builder.setViews(entry.tryQueryInt("yt$statistics/viewCount"));
