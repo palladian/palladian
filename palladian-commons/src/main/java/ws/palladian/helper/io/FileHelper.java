@@ -79,7 +79,7 @@ public final class FileHelper {
     public static final String NEWLINE_CHARACTER = "\n";
 
     /** Constant for image file extensions. */
-    public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif");
+    public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif", "svg");
 
     /** Constant for video file extensions. */
     public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov",
@@ -98,6 +98,9 @@ public final class FileHelper {
         binaryFileExtensions.add("ppt");
         binaryFileExtensions.add("xls");
         binaryFileExtensions.add("zip");
+        binaryFileExtensions.add("7z");
+        binaryFileExtensions.add("rar");
+        binaryFileExtensions.add("gz");
         binaryFileExtensions.add("exe");
         binaryFileExtensions.add("msi");
         binaryFileExtensions.add("swf");

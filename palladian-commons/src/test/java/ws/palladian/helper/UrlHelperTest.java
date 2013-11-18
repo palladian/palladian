@@ -60,6 +60,15 @@ public class UrlHelperTest {
         assertEquals("http://www.xyz.de/directory/page.html",
                 UrlHelper.makeFullUrl("http://www.xyz.de/index.html", "/directory", "./page.html"));
         assertEquals("http://www.xyz.de/directory/page.html",
+                UrlHelper.makeFullUrl("http://www.xyz.de/directory/", "./page.html"));
+
+        assertEquals("http://www.xyz.de/directory/page.html", UrlHelper.makeFullUrl("http://www.xyz.de/directory/directory/", "../page.html"));
+        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de/directory/", "../page.html"));
+        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de/directory", "../page.html"));
+        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de/", "../page.html"));
+        assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de", "../page.html"));
+
+        assertEquals("http://www.xyz.de/directory/page.html",
                 UrlHelper.makeFullUrl("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
 
         assertEquals("http://www.abc.de/page.html",

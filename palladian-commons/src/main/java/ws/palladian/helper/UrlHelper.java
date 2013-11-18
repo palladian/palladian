@@ -167,6 +167,8 @@ public final class UrlHelper {
         if (contextUrl != null) {
             try {
                 result = new URL(new URL(contextUrl), linkUrl).toString();
+                result = result.replace("../", "");
+                result = result.replace("./", "");
             } catch (MalformedURLException e) {
                 // don't care
             }
