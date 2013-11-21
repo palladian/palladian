@@ -80,11 +80,14 @@ public final class MathHelper {
      * Calculate the Jaccard similarity between two sets. <code>J(A, B) = |A intersection B| / |A union B|</code>.
      * </p>
      * 
-     * @param setA The first set.
-     * @param setB The second set.
+     * @param setA The first set, not <code>null</code>.
+     * @param setB The second set, not <code>null</code>.
      * @return The Jaccard similarity in the range [0, 1].
      */
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
+        Validate.notNull(setA, "setA must not be null");
+        Validate.notNull(setB, "setB must not be null");
+        
         Set<T> intersection = CollectionHelper.newHashSet();
         intersection.addAll(setA);
         intersection.retainAll(setB);
