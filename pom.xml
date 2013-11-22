@@ -31,6 +31,7 @@
 		<module>palladian-external-code</module>
 		<module>palladian-iirmodel</module>
 		<module>palladian-processing-api</module>
+		<module>palladian-external-liblinear</module>
 	</modules>
 	<build>
 		<plugins>
