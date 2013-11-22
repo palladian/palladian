@@ -234,29 +234,20 @@ public class Stats {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Stats [mean=");
-        builder.append(getMean());
-        builder.append(", standardDeviation=");
-        builder.append(getStandardDeviation());
-        builder.append(", median=");
-        builder.append(getMedian());
-        builder.append(", count=");
-        builder.append(getCount());
-        builder.append(", min=");
-        builder.append(getMin());
-        builder.append(", max=");
-        builder.append(getMax());
-        builder.append(", range=");
-        builder.append(getRange());
-        builder.append(", sum=");
-        builder.append(getSum());
-        builder.append(", MSE=");
-        builder.append(getMse());
-        builder.append(", RMSE=");
-        builder.append(getRmse());
-        builder.append("]");
-        return builder.toString();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Min: ").append(getMin()).append("\n");
+        stringBuilder.append("Max: ").append(getMax()).append("\n");
+        stringBuilder.append("Standard Deviation: ").append(getStandardDeviation()).append("\n");
+        stringBuilder.append("Mean: ").append(getMean()).append("\n");
+        stringBuilder.append("Median: ").append(getMedian()).append("\n");
+        stringBuilder.append("Count: ").append(getCount()).append("\n");
+        stringBuilder.append("Range: ").append(getRange()).append("\n");
+        stringBuilder.append("MSE: ").append(getMse()).append("\n");
+        stringBuilder.append("RMSE: ").append(getRmse()).append("\n");
+        stringBuilder.append("Sum: ").append(getSum()).append("\n");
+
+        return stringBuilder.toString();
     }
 
 }
