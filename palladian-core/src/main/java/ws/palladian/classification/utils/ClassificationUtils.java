@@ -84,8 +84,8 @@ public final class ClassificationUtils {
 
     /**
      * <p>
-     * Create instances from a file. The instances must be given in a CSV file in the following format: feature1 ..
-     * featureN NominalClass. Each line is one training instance.
+     * Create instances from a file. The instances must be given in a CSV file in the following format:
+     * <code>feature1 .. featureN NominalClass</code>. Each line is one training instance.
      * </p>
      * <p>
      * Each field must be separated by {@code fieldSeparator} and each line must end with a line break.
@@ -308,6 +308,7 @@ public final class ClassificationUtils {
         return featureNames;
     }
 
+    // XXX nice would be to have this code as Classifier taking multiple models
     public static <M extends Model, T extends Classifiable> CategoryEntries classifyWithMultipleModels(
             Classifier<M> classifier, T classifiable, M... models) {
 

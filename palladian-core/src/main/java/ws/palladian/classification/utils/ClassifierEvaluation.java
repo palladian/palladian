@@ -32,12 +32,12 @@ public final class ClassifierEvaluation {
         // no instances.
     }
 
-    public static <M extends Model, T extends Trainable> ConfusionMatrix evaluate(Classifier<M> classifier,
-            Iterable<T> testData, M... models) {
+    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier,
+            Iterable<? extends Trainable> testData, M... models) {
 
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
-        for (T testInstance : testData) {
+        for (Trainable testInstance : testData) {
             CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier, testInstance,
                     models);
             String classifiedCategory = classification.getMostLikelyCategory();
@@ -53,12 +53,12 @@ public final class ClassifierEvaluation {
      *             classifier, Iterable<T> testData, M... models)
      * */
     @Deprecated
-    public static <M extends Model, T extends Trainable> ConfusionMatrix evaluate(Classifier<M> classifier, M model,
-            Iterable<T> testData) {
+    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, M model,
+            Iterable<? extends Trainable> testData) {
 
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
-        for (T testInstance : testData) {
+        for (Trainable testInstance : testData) {
             CategoryEntries classification = classifier.classify(testInstance, model);
             String classifiedCategory = classification.getMostLikelyCategory();
             String realCategory = testInstance.getTargetClass();
@@ -68,12 +68,36 @@ public final class ClassifierEvaluation {
         return confusionMatrix;
     }
 
-    public static <M extends Model, T extends Trainable> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier,
-            M model, Iterable<T> testData, String correctClass) {
+    /**
+     * <p>
+     * Evaluation with 50:50 split for the given {@link Learner}, {@link Classifier} combination.
+     * </p>
+     * 
+     * @param learner The learner, not <code>null</code>.
+     * @param classifier The classifier, not <code>null</code>.
+     * @param instances The dataset, not <code>null</code> or empty.
+     * @return The {@link ConfusionMatrix} with the evaluation results.
+     */
+    @SuppressWarnings("unchecked")
+    public static <M extends Model> ConfusionMatrix evaluate(Learner<M> learner, Classifier<M> classifier,
+            List<? extends Trainable> instances) {
+        Validate.notNull(learner, "learner must not be null");
+        Validate.notNull(classifier, "classifier must not be null");
+        Validate.notNull(instances, "instances must not be null");
+        Validate.isTrue(instances.size() > 2, "instances must contain at least two elements");
+
+        List<? extends Trainable> train = instances.subList(0, instances.size() / 2);
+        List<? extends Trainable> test = instances.subList(instances.size() / 2, instances.size() - 1);
+        M model = learner.train(train);
+        return evaluate(classifier, test, model);
+    }
+
+    public static <M extends Model> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier, M model,
+            Iterable<? extends Trainable> testData, String correctClass) {
 
         ThresholdAnalyzer thresholdAnalyzer = new ThresholdAnalyzer(100);
 
-        for (T testInstance : testData) {
+        for (Trainable testInstance : testData) {
             CategoryEntries classification = classifier.classify(testInstance, model);
             double probability = classification.getProbability(correctClass);
             String realCategory = testInstance.getTargetClass();

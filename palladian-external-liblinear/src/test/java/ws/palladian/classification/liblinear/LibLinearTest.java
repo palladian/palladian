@@ -3,21 +3,16 @@ package ws.palladian.classification.liblinear;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static ws.palladian.classification.utils.ClassificationUtils.readCsv;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourcePath;
 
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-import de.bwaldvogel.liblinear.Parameter;
-import de.bwaldvogel.liblinear.SolverType;
 import ws.palladian.classification.InstanceBuilder;
-import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.RegexFilter;
-import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
 
@@ -45,32 +40,19 @@ public class LibLinearTest {
     }
 
     @Test
-    public void testWithDataset() throws FileNotFoundException {
-        List<Trainable> instances = readCsv(ResourceHelper.getResourcePath("/adultData.txt"), false);
-        ConfusionMatrix confusionMatrix = testWithSplit(instances);
+    public void testWithAdultIncomeData() throws FileNotFoundException {
+        List<Trainable> instances = readCsv(getResourcePath("/adultData.txt"), false);
+        LibLinear libLinear = new LibLinear();
+        ConfusionMatrix confusionMatrix = evaluate(libLinear, libLinear, instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.779);
     }
 
     @Test
-    @Ignore
-    public void testWithMyDataset() throws FileNotFoundException {
-        List<Trainable> instances = readCsv("/Users/pk/Code/newsseecr/newsseecr/trainingData.csv", true);
-        // instances = ClassificationUtils.filterFeatures(instances, new RegexFilter("content|normalizedHausdorff|normalizedMidpoint|geoJaccard|hierarchicalGeoJaccard"));
-        instances = ClassificationUtils.filterFeatures(instances, new RegexFilter("content"));
-        ConfusionMatrix confusionMatrix = testWithSplit(instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.998);
-        assertTrue(confusionMatrix.getF(1., "true") > 0.766);
-        System.out.println(confusionMatrix);
-    }
-
-    private ConfusionMatrix testWithSplit(List<Trainable> instances) {
-        List<Trainable> train = instances.subList(0, instances.size() / 2);
-        List<Trainable> test = instances.subList(instances.size() / 2, instances.size() - 1);
-
-        LibLinear classifier = new LibLinear(new Parameter(SolverType.L2R_LR, 1.0, 0.01), 1);
-        LibLinearModel model = classifier.train(train);
-
-        return ClassifierEvaluation.evaluate(classifier, test, model);
+    public void testWithDiabetesData() throws FileNotFoundException {
+        List<Trainable> instances = readCsv(getResourcePath("/diabetesData.txt"), true);
+        LibLinear libLinear = new LibLinear();
+        ConfusionMatrix confusionMatrix = evaluate(libLinear, libLinear, instances);
+        assertTrue(confusionMatrix.getAccuracy() > 0.78);
     }
 
 }
