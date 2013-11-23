@@ -2,6 +2,9 @@ package ws.palladian.classification.nb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static ws.palladian.classification.utils.ClassificationUtils.readCsv;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourcePath;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -11,12 +14,8 @@ import org.junit.Test;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
-import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
@@ -90,36 +89,24 @@ public class NaiveBayesClassifierTest {
         FeatureVector featureVector = new InstanceBuilder().set("f", 16.0).create();
         CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
 
-        assertEquals(0.944, MathHelper.round(categoryEntries.getProbability(categoryEntries.getMostLikelyCategory()), 3), 0.01);
+        assertEquals(0.944, categoryEntries.getProbability(categoryEntries.getMostLikelyCategory()), 0.01);
         assertEquals("Case", categoryEntries.getMostLikelyCategory());
     }
 
     @Test
     public void testNaiveBayesWithAdultIncomeData() throws FileNotFoundException {
-        List<Trainable> instances = ClassificationUtils.readCsv(
-                ResourceHelper.getResourcePath("/classifier/adultData.txt"), false);
-        double accuracy = testWithSplit(instances);
-        assertTrue(accuracy > 0.77);
+        List<Trainable> instances = readCsv(getResourcePath("/classifier/adultData.txt"), false);
+        NaiveBayesClassifier naiveBayes = new NaiveBayesClassifier();
+        ConfusionMatrix matrix = evaluate(naiveBayes, naiveBayes, instances);
+        assertTrue(matrix.getAccuracy() > 0.77);
     }
 
     @Test
     public void testNaiveBayesWithDiabetesData() throws FileNotFoundException {
-        List<Trainable> instances = ClassificationUtils.readCsv(
-                ResourceHelper.getResourcePath("/classifier/diabetesData.txt"), false);
-        double accuracy = testWithSplit(instances);
-        assertTrue(accuracy > 0.77);
-    }
-
-    private double testWithSplit(List<Trainable> instances) {
-        List<Trainable> train = instances.subList(0, instances.size() / 2);
-        List<Trainable> test = instances.subList(instances.size() / 2, instances.size() - 1);
-
-        NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
-        NaiveBayesModel bayesModel = bayesClassifier.train(train);
-        
-        ConfusionMatrix evaluationResult = ClassifierEvaluation.evaluate(bayesClassifier, test, bayesModel);
-        // System.out.println(evaluationResult);
-        return evaluationResult.getAccuracy();
+        List<Trainable> instances = readCsv(getResourcePath("/classifier/diabetesData.txt"), false);
+        NaiveBayesClassifier naiveBayes = new NaiveBayesClassifier();
+        ConfusionMatrix matrix = evaluate(naiveBayes, naiveBayes, instances);
+        assertTrue(matrix.getAccuracy() > 0.77);
     }
 
 }

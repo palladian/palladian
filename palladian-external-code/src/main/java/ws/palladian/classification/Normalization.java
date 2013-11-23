@@ -12,6 +12,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @version 1.0
  * @since 0.2.0
  */
+// XXX potential duplicate of ws.palladian.classification.utils.MinMaxNormalization
 public final class Normalization implements Serializable {
 
     private static final long serialVersionUID = -2726662477802322532L;

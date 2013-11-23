@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-core</artifactId>
-			<version>0.2.2-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>de.bwaldvogel</groupId>

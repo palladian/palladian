@@ -67,6 +67,7 @@ public class LibLinear implements Learner<LibLinearModel>, Classifier<LibLinearM
 
     @Override
     public LibLinearModel train(Iterable<? extends Trainable> trainables) {
+        Validate.notNull(trainables, "trainables must not be null");
         Problem problem = new Problem();
         Set<String> featureLabels = CollectionHelper.newTreeSet();
         List<String> classIndices = CollectionHelper.newArrayList();
@@ -87,22 +88,22 @@ public class LibLinear implements Learner<LibLinearModel>, Classifier<LibLinearM
         problem.y = new double[problem.l];
         if (bias > 0) {
             LOGGER.debug("Add bias correction {}", bias);
-            problem.bias = 1; // bias feature
+            problem.bias = bias; // bias feature
             problem.n++; // add one for bias term
         }
         int index = 0;
         for (Trainable trainable : trainables) {
-            problem.x[index] = makeInstance(featureLabels, trainable);
+            problem.x[index] = makeInstance(featureLabels, trainable, bias);
             problem.y[index] = classIndices.indexOf(trainable.getTargetClass());
             index++;
         }
         LOGGER.debug("n={}, l={}", problem.n, problem.l);
         Model model = Linear.train(problem, parameter);
-        // XXX I guess we should also store the bias value in the model ...
         return new LibLinearModel(model, featureLabels, classIndices);
     }
 
-    private de.bwaldvogel.liblinear.Feature[] makeInstance(Set<String> labels, Classifiable trainable) {
+    private static de.bwaldvogel.liblinear.Feature[] makeInstance(Set<String> labels, Classifiable trainable,
+            double bias) {
         List<de.bwaldvogel.liblinear.Feature> features = CollectionHelper.newArrayList();
         int index = 0; // 1-indexed
         for (String label : labels) {
@@ -119,16 +120,19 @@ public class LibLinear implements Learner<LibLinearModel>, Classifier<LibLinearM
             features.add(new FeatureNode(index, value));
         }
         if (bias > 0) {
-            features.add(new FeatureNode(index + 1, 1)); // bias term
+            features.add(new FeatureNode(index + 1, bias)); // bias term
         }
         return features.toArray(new de.bwaldvogel.liblinear.Feature[0]);
     }
 
     @Override
     public CategoryEntries classify(Classifiable classifiable, LibLinearModel model) {
-        de.bwaldvogel.liblinear.Feature[] instance = makeInstance(model.getFeatureLabels(), classifiable);
+        Validate.notNull(classifiable, "classifiable must not be null");
+        Validate.notNull(model, "model must not be null");
+        de.bwaldvogel.liblinear.Feature[] instance = makeInstance(model.getFeatureLabels(), classifiable, model
+                .getLLModel().getBias());
         double[] probabilities = new double[model.getCategories().size()];
-        Linear.predictProbability(model.getModel(), instance, probabilities);
+        Linear.predictProbability(model.getLLModel(), instance, probabilities);
         CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
         for (int i = 0; i < probabilities.length; i++) {
             categoryEntries.add(model.getCategoryForIndex(i), probabilities[i]);
