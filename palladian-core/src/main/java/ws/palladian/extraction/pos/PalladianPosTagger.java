@@ -1,6 +1,7 @@
 package ws.palladian.extraction.pos;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -24,7 +25,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.Feature;
@@ -54,7 +54,11 @@ public class PalladianPosTagger extends BasePosTagger {
     public PalladianPosTagger(String modelFilePath) {
         model = (UniversalClassifierModel)Cache.getInstance().getDataObject(modelFilePath);
         if (model == null) {
-            model = FileHelper.deserialize(modelFilePath);
+            try {
+                model = FileHelper.deserialize(modelFilePath);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
             Cache.getInstance().putDataObject(modelFilePath, model);
         }
         tagger = getTagger();
@@ -84,7 +88,7 @@ public class PalladianPosTagger extends BasePosTagger {
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.NOMINAL), featureSetting);
     }
 
-    public void trainModel(String folderPath, String modelFilePath) {
+    public void trainModel(String folderPath, String modelFilePath) throws IOException {
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
