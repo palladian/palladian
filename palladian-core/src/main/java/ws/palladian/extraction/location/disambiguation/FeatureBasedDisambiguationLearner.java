@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.disambiguation;
 import static ws.palladian.extraction.location.PalladianLocationExtractor.LONG_ANNOTATION_SPLIT;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +73,7 @@ public class FeatureBasedDisambiguationLearner {
         this.locationSource = locationSource;
     }
 
-    public void learn(File datasetDirectory) {
+    public void learn(File datasetDirectory) throws IOException {
         learn(LocationExtractorUtils.iterateDataset(datasetDirectory));
     }
 
@@ -82,8 +83,9 @@ public class FeatureBasedDisambiguationLearner {
      * </p>
      * 
      * @param datasetDirectories The directories to the training data sets, not <code>null</code>.
+     * @throws IOException 
      */
-    public void learn(File... datasetDirectories) {
+    public void learn(File... datasetDirectories) throws IOException {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
         List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
         for (File datasetDirectory : datasetDirectories) {
@@ -92,7 +94,7 @@ public class FeatureBasedDisambiguationLearner {
         learn(new CompositeIterator<LocationDocument>(datasetIterators));
     }
 
-    public void learn(Iterator<LocationDocument> trainDocuments) {
+    public void learn(Iterator<LocationDocument> trainDocuments) throws IOException {
         Set<Trainable> trainingData = createTrainingData(trainDocuments);
         String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
         ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
@@ -153,7 +155,7 @@ public class FeatureBasedDisambiguationLearner {
         return result;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource);
         File datasetTud = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
