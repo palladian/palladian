@@ -15,6 +15,8 @@ import libsvm.svm_model;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.utils.MinMaxNormalization;
+
 /**
  * @author Klemens Muthmann
  * @version 1.0
@@ -22,7 +24,7 @@ import org.apache.commons.lang3.Validate;
  */
 public final class LibSvmModel implements Model {
 
-    private static final long serialVersionUID = 9087669834591504394L;
+    private static final long serialVersionUID = 2l;
 
     private final svm_model model;
 
@@ -36,20 +38,20 @@ public final class LibSvmModel implements Model {
 
     private final List<String> classes;
 
-    private final Map<String, Normalization> normalizations;
+    private final MinMaxNormalization normalization;
 
-    public LibSvmModel(svm_model model, Map<String, Integer> schema, List<String> classes,
-            Map<String, Normalization> normalizations) {
+    /* To be instantiated from within the package only. */
+    LibSvmModel(svm_model model, Map<String, Integer> schema, List<String> classes, MinMaxNormalization normalization) {
         Validate.notNull(model);
         Validate.notNull(schema);
         Validate.notNull(classes);
-        Validate.notNull(normalizations);
+        Validate.notNull(normalization);
 
         this.model = model;
         this.schema = new HashMap<String, Integer>();
         this.schema.putAll(schema);
         this.classes = new ArrayList<String>(classes);
-        this.normalizations = normalizations;
+        this.normalization = normalization;
     }
 
     public svm_model getModel() {
@@ -60,8 +62,8 @@ public final class LibSvmModel implements Model {
         return Collections.unmodifiableMap(schema);
     }
 
-    public Map<String, Normalization> getNormalizations() {
-        return Collections.unmodifiableMap(normalizations);
+    public MinMaxNormalization getNormalization() {
+        return normalization;
     }
 
     public String transformClassToString(int classIndex) {

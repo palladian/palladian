@@ -19,8 +19,7 @@ import ws.palladian.processing.features.NumericFeature;
 /**
  * <p>
  * This class stores minimum and maximum values for a list of numeric features. It can be used to perform a Min-Max
- * normalization. Use {@link ClassificationUtils#calculateMinMaxNormalization(List)} to calculate the normalization
- * information.
+ * normalization
  * </p>
  * 
  * @author David Urbansky
@@ -102,15 +101,29 @@ public class MinMaxNormalization implements Serializable {
         }
     }
 
-    private NumericFeature normalize(NumericFeature numericFeature) {
+    /**
+     * <p>
+     * Normalize the given {@link NumericFeature} based on the normalization information. A new {@link NumericFeature}
+     * with normalized value is returned.
+     * </p>
+     * 
+     * @param numericFeature The feature to normalize, not <code>null</code>.
+     * @return A normalized feature.
+     * @throws IllegalArgumentException in case no normalization information for the given feature name is available.
+     */
+    public NumericFeature normalize(NumericFeature numericFeature) {
+        Validate.notNull(numericFeature, "numericFeature must not be null");
         String featureName = numericFeature.getName();
         double featureValue = numericFeature.getValue();
 
-        Double minValue = minValues.get(featureName);
-        Double maxValue = maxValues.get(featureName);
-        double maxMinDifference = maxValue - minValue;
-        double normalizedValue = (featureValue - minValue) / maxMinDifference;
+        Double min = minValues.get(featureName);
+        Double max = maxValues.get(featureName);
+        if (min == null || max == null) {
+            throw new IllegalArgumentException("No normalization information for \"" + featureName + "\" available.");
+        }
 
+        double diff = max - min;
+        double normalizedValue = diff != 0 ? (featureValue - min) / diff : featureValue - min;
         return new NumericFeature(featureName, normalizedValue);
     }
 

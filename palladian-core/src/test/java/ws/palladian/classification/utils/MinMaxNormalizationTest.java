@@ -1,7 +1,10 @@
 package ws.palladian.classification.utils;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
@@ -9,6 +12,7 @@ import org.junit.Test;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.NumericFeature;
 
 public class MinMaxNormalizationTest {
@@ -35,6 +39,29 @@ public class MinMaxNormalizationTest {
         assertEquals(1, instance2.getFeatureVector().get(NumericFeature.class, "v2").getValue(), 0.001);
         assertEquals(0, instance3.getFeatureVector().get(NumericFeature.class, "v2").getValue(), 0.001);
 
+    }
+
+//    @Test
+//    public void testNormalization() throws Exception {
+//        Collection<Classifiable> instances = CollectionHelper.newArrayList();
+//        instances.add(new InstanceBuilder().set("test", -10.d).create());
+//        instances.add(new InstanceBuilder().set("test", 10.0d).create());
+//        instances.add(new InstanceBuilder().set("test", 2).create());
+//        MinMaxNormalization normalization = new MinMaxNormalization(instances);
+//
+//        double result = normalization.normalize(new NumericFeature("test", 5.0d)).getValue();
+//        assertThat(result, is(0.75));
+//    }
+
+    @Test
+    public void testNormalizationWithEqualMinMax() throws Exception {
+        Collection<Classifiable> instances = CollectionHelper.newArrayList();
+        instances.add(new InstanceBuilder().set("test", 0.9d).create());
+        instances.add(new InstanceBuilder().set("test", 0.9d).create());
+        MinMaxNormalization normalization = new MinMaxNormalization(instances);
+
+        double result = normalization.normalize(new NumericFeature("test", 5.0d)).getValue();
+        assertThat(result, is(4.1));
     }
 
 }

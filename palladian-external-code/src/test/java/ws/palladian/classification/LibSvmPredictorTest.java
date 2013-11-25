@@ -26,6 +26,7 @@ import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
+
 /**
  * <p>
  * Tests whether the Palladian wrapper for the Libsvm classifier works correctly or not.
@@ -113,27 +114,6 @@ public class LibSvmPredictorTest {
             ret.add(newInstance);
         }
         return ret;
-    }
-
-    @Test
-    public void testNormalization() throws Exception {
-        Normalization normalization = new Normalization();
-        normalization.add(new NumericFeature("test", -10.0d));
-        normalization.add(new NumericFeature("test", 10.0d));
-        normalization.add(new NumericFeature("test", 2));
-
-        double result = normalization.apply(5.0d);
-        assertThat(result, is(0.75));
-    }
-
-    @Test
-    public void testNormalizationWithEqualMinMax() throws Exception {
-        Normalization normalization = new Normalization();
-        normalization.add(new NumericFeature("test", 0.9d));
-        normalization.add(new NumericFeature("test", 0.9d));
-
-        double result = normalization.apply(5.0d);
-        assertThat(result, is(4.1));
     }
 
 }
