@@ -15,6 +15,7 @@ import static ws.palladian.extraction.location.disambiguation.HeuristicDisambigu
 import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.TOKEN_THRESHOLD;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -428,7 +429,7 @@ public final class LocationExtractionEvaluator {
         return extractors;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
         // evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");

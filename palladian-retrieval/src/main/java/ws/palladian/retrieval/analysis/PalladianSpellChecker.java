@@ -47,7 +47,7 @@ public class PalladianSpellChecker {
 
         // read the input file and create a P(w) model by counting the word occurrences
         final Set<String> uniqueWords = new HashSet<String>();
-        final Pattern p = Pattern.compile("[\\wöäüß]+");
+        final Pattern p = Pattern.compile("[\\wöäüß-]+");
         LineAction lineAction = new LineAction() {
 
             @Override
@@ -131,8 +131,23 @@ public class PalladianSpellChecker {
 
         String[] textWords = SPLIT.split(text);
         for (String word : textWords) {
+            if (word.length() < 2 || StringHelper.isNumber(word)) {
+                correctedText.append(word).append(" ");
+                continue;
+            }
+            char startOfWord = word.charAt(0);
+            char endOfWord = word.charAt(word.length() - 1);
             word = StringHelper.trim(word);
-            correctedText.append(correctWord(word)).append(" ");
+            int type = Character.getType(startOfWord);
+            if (type == Character.OTHER_PUNCTUATION) {
+                correctedText.append(startOfWord);
+            }
+            correctedText.append(correctWord(word));
+            type = Character.getType(endOfWord);
+            if (type == Character.OTHER_PUNCTUATION) {
+                correctedText.append(endOfWord);
+            }
+            correctedText.append(" ");
         }
 
         return correctedText.toString().trim();
@@ -148,7 +163,19 @@ public class PalladianSpellChecker {
      */
     public String correctWord(String word) {
 
-        boolean uppercase = StringHelper.startsUppercase(word);
+        int uppercaseCount = StringHelper.countUppercaseLetters(word);
+
+        // don't correct words with uppercase letters in the middle
+        if (uppercaseCount > 1) {
+            return word;
+        }
+
+        // don't correct words with apostrophe
+        if (word.contains("'")) {
+            return word;
+        }
+
+        boolean uppercase = uppercaseCount == 1;
         word = word.toLowerCase();
 
         // correct words don't need to be corrected
@@ -158,6 +185,7 @@ public class PalladianSpellChecker {
             }
             return word;
         }
+
 
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<Integer, String>();

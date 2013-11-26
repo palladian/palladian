@@ -835,154 +835,86 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Deserialize a serialized object. If the filepath ends with "gz" it is automatically decompressed. This generic
      * method does the cast for you, just deserialize to the appropriate type, like
      * <tt>Foo foo = FileHelper.deserialize("foo.ser");</tt>.
+     * </p>
      * 
-     * @param <T> Type of the objects.
-     * @param filePath The file path of the serialized object.
+     * @param <T> Type of the object to deserialize.
+     * @param filePath The path to the file with the serialized object, not <code>null</code> or empty.
      * @return The deserialized object.
+     * @throws IOException In case of any I/O error.
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Serializable> T deserialize(String filePath) {
-
-        if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            return (T)deserializeCompressed(filePath);
-        }
-
+    public static <T extends Serializable> T deserialize(String filePath) throws IOException {
+        Validate.notEmpty(filePath, "filePath must not be empty");
         ObjectInputStream in = null;
-        T obj = null;
 
         try {
-            InputStream stream = null;
+            InputStream stream;
             if (filePath.startsWith("http://")) {
                 stream = new URL(filePath).openStream();
             } else {
                 stream = new FileInputStream(filePath);
             }
+            if (getFileType(filePath).equalsIgnoreCase("gz")) {
+                stream = new GZIPInputStream(stream);
+            }
             in = new ObjectInputStream(stream);
-            obj = (T)in.readObject();
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
+            return (T)in.readObject();
         } catch (ClassNotFoundException e) {
-            LOGGER.error(e.getMessage());
+            throw new IllegalStateException(e);
         } finally {
             close(in);
         }
-
-        return obj;
     }
 
-    /**
-     * Deserialize a serialized object and compressed object.
-     * 
-     * @param <T> type of the objects.
-     * @param filePath The file path of the serialized object.
-     * @return The deserialized object.
-     */
-    @SuppressWarnings("unchecked")
-    private static <T extends Serializable> T deserializeCompressed(String filePath) {
-
-        ObjectInputStream ois = null;
-        T obj = null;
-
+    public static <T extends Serializable> T tryDeserialize(String filePath) {
         try {
-            InputStream stream = null;
-            if (filePath.startsWith("http://")) {
-                stream = new URL(filePath).openStream();
-            } else {
-                stream = new FileInputStream(filePath);
-            }
-            ois = new ObjectInputStream(new GZIPInputStream(stream));
-            obj = (T)ois.readObject();
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage() + ", file path:" + filePath);
+            return deserialize(filePath);
         } catch (IOException e) {
-            LOGGER.error(e.getMessage() + ", file path:" + filePath);
-        } catch (ClassNotFoundException e) {
-            LOGGER.error(e.getMessage() + ", file path:" + filePath);
-        } finally {
-            close(ois);
+            return null;
         }
-
-        return obj;
     }
 
     /**
-     * Serialize a serializable object. If the path ends with ".gz" it is automatically saved using gzip compression.
+     * <p>
+     * Serialize a serializable object. If the given path ends with <code>.gz</code> it is automatically saved using
+     * GZIP compression.
+     * </p>
      * 
-     * @param obj The obj to serialize.
-     * @param filePath The file path where the object should be serialized to.
+     * @param object The {@link Serializable} object to serialize, not <code>null</code>.
+     * @param filePath The file path where the object should be serialized to, not <code>null</code> or empty. In case,
+     *            the directories do not exist, they are created automatically.
+     * @throws IOException In case of any I/O error.
      */
-    public static boolean serialize(Serializable obj, String filePath) {
-
-        boolean success = true;
-
-        if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            return serializeCompress(obj, filePath);
-        }
-
+    public static void serialize(Serializable object, String filePath) throws IOException {
+        Validate.notNull(object, "object must not be null");
+        Validate.notEmpty(filePath, "filePath must not be empty");
         ObjectOutputStream out = null;
         try {
-
             File outputFile = new File(FileHelper.getFilePath(filePath));
             if (!outputFile.exists()) {
                 outputFile.mkdirs();
             }
-
-            out = new ObjectOutputStream(new FileOutputStream(filePath));
-            out.writeObject(obj);
-        } catch (IOException e) {
-            LOGGER.error("could not serialize object, " + e.getMessage() + ", " + e.getCause());
-            success = false;
-        } catch (OutOfMemoryError e) {
-            LOGGER.error("could not serialize object, " + e.getMessage() + ", exiting now!");
-            success = false;
-        } catch (Exception e) {
-            LOGGER.error("could not serialize object, " + e.getMessage());
-            success = false;
+            OutputStream fileOutputStream = new FileOutputStream(filePath);
+            if (getFileType(filePath).equalsIgnoreCase("gz")) {
+                fileOutputStream = new GZIPOutputStream(fileOutputStream);
+            }
+            out = new ObjectOutputStream(fileOutputStream);
+            out.writeObject(object);
         } finally {
             close(out);
         }
-
-        return success;
     }
 
-    /**
-     * Serialize a serializable object and use compression.
-     * 
-     * @param obj The obj to serialize and compress.
-     * @param filePath The file path where the object should be serialized to.
-     */
-    private static boolean serializeCompress(Serializable obj, String filePath) {
-        boolean success = true;
-
-        ObjectOutputStream out = null;
+    public static void trySerialize(Serializable object, String filePath) {
         try {
-
-            File outputFile = new File(FileHelper.getFilePath(filePath));
-            if (!outputFile.exists()) {
-                outputFile.mkdirs();
-            }
-
-            out = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filePath)));
-            out.writeObject(obj);
+            serialize(object, filePath);
         } catch (IOException e) {
-            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage(), e);
-            success = false;
-        } catch (OutOfMemoryError e) {
-            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage() + ", exiting now!");
-            success = false;
-        } catch (Exception e) {
-            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage());
-            success = false;
-        } finally {
-            close(out);
+            // ignore.
         }
-
-        return success;
     }
 
     /**

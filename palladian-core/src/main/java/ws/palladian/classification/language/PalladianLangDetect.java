@@ -38,8 +38,12 @@ public class PalladianLangDetect implements LanguageClassifier {
     private Set<String> possibleClasses = null;
 
     public PalladianLangDetect(String modelPath) {
-        dictionaryModel = FileHelper.deserialize(modelPath);
-        textClassifier = new PalladianTextClassifier(dictionaryModel.getFeatureSetting());
+        try {
+            dictionaryModel = FileHelper.deserialize(modelPath);
+            textClassifier = new PalladianTextClassifier(dictionaryModel.getFeatureSetting());
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not deserialize model from \"" + modelPath + "\"", e);
+        }
     }
 
     public Set<String> getPossibleClasses() {
@@ -106,7 +110,12 @@ public class PalladianLangDetect implements LanguageClassifier {
         //
         // System.out.println(classifier.evaluate(testDataset));
 
-        FileHelper.serialize(trainedModel, classifierPath + classifierName + ".gz");
+        String fileName = classifierPath + classifierName + ".gz";
+        try {
+            FileHelper.serialize(trainedModel, fileName);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error while serializing to \"" + fileName + "\".", e);
+        }
 
         LOGGER.info("finished training classifier in " + stopWatch.getElapsedTimeString());
     }
