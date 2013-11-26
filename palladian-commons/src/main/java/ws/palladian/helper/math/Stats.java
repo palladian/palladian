@@ -89,7 +89,22 @@ public class Stats {
      * @return The mean of the provided numbers, or {@link Double#NaN} in case no numbers were provided.
      */
     public double getMean() {
-        return getSum() / getCount();
+        // return getSum() / getCount();
+        
+        if (values.isEmpty()) {
+            return Double.NaN;
+        }
+
+        // prevent overflows; calculate iteratively as suggested in Knuth, The Art of Computer Programming Vol 2, section 4.2.2. See:
+        // http://stackoverflow.com/questions/1930454/what-is-a-good-solution-for-calculating-an-average-where-the-sum-of-all-values-e
+        
+        double mean = 0;
+        int t = 1;
+        for (double value : getDoubleValues()) {
+            mean += (value - mean) / t;
+            t++;
+        }
+        return mean;
     }
 
     /**
@@ -102,14 +117,28 @@ public class Stats {
         if (values.size() == 1) {
             return 0.;
         }
-        double mean = getMean();
-        double standardDeviation = 0;
-        for (Number value : values) {
-            standardDeviation += Math.pow(value.doubleValue() - mean, 2);
+//        double mean = getMean();
+//        double standardDeviation = 0;
+//        for (Number value : values) {
+//            standardDeviation += Math.pow(value.doubleValue() - mean, 2);
+//        }
+//        standardDeviation /= values.size() - 1;
+//        standardDeviation = Math.sqrt(standardDeviation);
+//        return standardDeviation;
+
+        // Welford's method for calculation, see:
+        // http://stackoverflow.com/questions/895929/how-do-i-determine-the-standard-deviation-stddev-of-a-set-of-values/897463#897463
+
+        double m = 0;
+        double s = 0;
+        int k = 1;
+        for (double value : getDoubleValues()) {
+            double tmpM = m;
+            m += (value - tmpM) / k;
+            s += (value - tmpM) * (value - m);
+            k++;
         }
-        standardDeviation /= values.size() - 1;
-        standardDeviation = Math.sqrt(standardDeviation);
-        return standardDeviation;
+        return Math.sqrt(s / (getCount() - 1));
     }
 
     /**
@@ -123,7 +152,8 @@ public class Stats {
         Collections.sort(temp);
         int numValues = temp.size();
         if (numValues % 2 == 0) {
-            return 0.5 * (temp.get(numValues / 2) + temp.get(numValues / 2 - 1));
+            // return 0.5 * (temp.get(numValues / 2) + temp.get(numValues / 2 - 1));
+            return 0.5 * temp.get(numValues / 2) + 0.5 * temp.get(numValues / 2 - 1);
         } else {
             return temp.get(numValues / 2);
         }
