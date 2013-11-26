@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.utils.MinMaxNormalization;
+import ws.palladian.classification.utils.Normalization;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
@@ -84,7 +85,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
             throw new IllegalStateException(
                     "The training data contains less than two different classes. Training not possible on such a dataset.");
         }
-        MinMaxNormalization normalization = new MinMaxNormalization(trainables);
+        Normalization normalization = new MinMaxNormalization(trainables);
         svm_problem problem = createProblem(trainables, params, indices, classes, normalization);
         String errorMessage = svm.svm_check_parameter(problem, params);
         if (errorMessage != null) {
@@ -135,7 +136,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
      * @return A new {@link svm_problem} ready to train a libsvm classifier.
      */
     private svm_problem createProblem(Iterable<? extends Trainable> trainables, svm_parameter params,
-            Map<String, Integer> indices, List<String> classes, MinMaxNormalization normalization) {
+            Map<String, Integer> indices, List<String> classes, Normalization normalization) {
 
         svm_problem ret = new svm_problem();
         this.trainables = trainables;
@@ -175,7 +176,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
      * @return A double value representation of the provided {@link Feature}.
      */
     private <T extends Feature<?>> double featureToDouble(T feature, Iterable<? extends Trainable> trainables,
-            MinMaxNormalization normalization) {
+            Normalization normalization) {
         if (feature instanceof NumericFeature) {
             NumericFeature numericFeature = (NumericFeature)feature;
             return normalization.normalize(numericFeature).getValue();
@@ -252,7 +253,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
      * @return An array of {@link svm_node} instances.
      */
     private svm_node[] transformPalladianFeatureVectorToLibsvmFeatureVector(FeatureVector vector,
-            Map<String, Integer> indices, boolean trainingMode, MinMaxNormalization normalization) {
+            Map<String, Integer> indices, boolean trainingMode, Normalization normalization) {
         Map<String, Feature<?>> features = new HashMap<String, Feature<?>>();
 
         for (Feature<?> feature : vector.getFeatureVector()) {
@@ -337,7 +338,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
      * @param targetFilePath The path to write the output to.
      */
     public void writeToDisk(List<Instance> instances, String targetFilePath) {
-        MinMaxNormalization normalization = new MinMaxNormalization(instances);
+        Normalization normalization = new MinMaxNormalization(instances);
         Map<String, Integer> indices = new HashMap<String, Integer>();
         List<String> possibleClasses = calculatePossibleClasses(instances);
         for (Instance instance : instances) {

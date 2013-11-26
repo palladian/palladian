@@ -3,6 +3,8 @@ package ws.palladian.helper.math;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 public class StatsTest {
@@ -69,6 +71,19 @@ public class StatsTest {
         assertTrue(Double.isNaN(stats.getMse()));
         assertTrue(Double.isNaN(stats.getRmse()));
         assertTrue(Double.isNaN(stats.getRange()));
+    }
+
+    @Test
+    public void testOverflow() {
+        Double[] temp = new Double[10000];
+        Arrays.fill(temp, Double.MAX_VALUE);
+        Stats stats = new Stats().add(temp);
+        assertEquals(Double.MAX_VALUE, stats.getMax(), 0);
+        assertEquals(Double.MAX_VALUE, stats.getMin(), 0);
+        assertEquals(Double.MAX_VALUE, stats.getMedian(), 0);
+        assertEquals(Double.MAX_VALUE, stats.getMean(), 0);
+        assertEquals(0, stats.getStandardDeviation(), 0);
+        assertEquals(10000, stats.getCount());
     }
 
 }

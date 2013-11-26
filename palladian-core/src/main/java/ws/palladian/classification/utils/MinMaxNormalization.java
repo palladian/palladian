@@ -13,7 +13,6 @@ import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -25,7 +24,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class MinMaxNormalization implements Serializable {
+public class MinMaxNormalization extends AbstractNormalization implements Serializable {
 
     private static final long serialVersionUID = 7227377881428315427L;
 
@@ -86,31 +85,11 @@ public class MinMaxNormalization implements Serializable {
         }
     }
 
-    /**
-     * <p>
-     * Normalize a {@link List} of {@link Instance}s based on the normalization information. The values are modified
-     * directly in place.
-     * </p>
-     * 
-     * @param instances The List of Instances, not <code>null</code>.
+    /*
+     * (non-Javadoc)
+     * @see ws.palladian.classification.utils.Normalization#normalize(ws.palladian.processing.features.NumericFeature)
      */
-    public void normalize(List<? extends Classifiable> instances) {
-        Validate.notNull(instances, "instances must not be null");
-        for (Classifiable instance : instances) {
-            normalize(instance);
-        }
-    }
-
-    /**
-     * <p>
-     * Normalize the given {@link NumericFeature} based on the normalization information. A new {@link NumericFeature}
-     * with normalized value is returned.
-     * </p>
-     * 
-     * @param numericFeature The feature to normalize, not <code>null</code>.
-     * @return A normalized feature.
-     * @throws IllegalArgumentException in case no normalization information for the given feature name is available.
-     */
+    @Override
     public NumericFeature normalize(NumericFeature numericFeature) {
         Validate.notNull(numericFeature, "numericFeature must not be null");
         String featureName = numericFeature.getName();
@@ -125,27 +104,6 @@ public class MinMaxNormalization implements Serializable {
         double diff = max - min;
         double normalizedValue = diff != 0 ? (featureValue - min) / diff : featureValue - min;
         return new NumericFeature(featureName, normalizedValue);
-    }
-
-    /**
-     * <p>
-     * Normalize a {@link FeatureVector} based in the normalization information. The values are modified directly in
-     * place.
-     * </p>
-     * 
-     * @param featureVector The FeatureVector to normalize, not <code>null</code>.
-     * @return
-     */
-    public void normalize(Classifiable classifiable) {
-        Validate.notNull(classifiable, "classifiable must not be null");
-        FeatureVector featureVector = classifiable.getFeatureVector();
-        for (Feature<?> feature : featureVector) {
-            if (feature instanceof NumericFeature) {
-                NumericFeature numericFeature = (NumericFeature)feature;
-                // replace value.
-                featureVector.add(normalize(numericFeature));
-            }
-        }
     }
 
     @Override

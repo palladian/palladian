@@ -12,6 +12,7 @@ import java.util.Set;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.utils.MinMaxNormalization;
+import ws.palladian.classification.utils.Normalization;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;
@@ -52,7 +53,7 @@ public final class KnnModel implements Model {
      * {@link #trainingExamples}.
      * </p>
      */
-    private MinMaxNormalization normalizationInformation;
+    private Normalization normalizationInformation;
 
     /**
      * <p>

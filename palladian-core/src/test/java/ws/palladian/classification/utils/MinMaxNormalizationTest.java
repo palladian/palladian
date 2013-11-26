@@ -27,7 +27,7 @@ public class MinMaxNormalizationTest {
         instances.add(instance2);
         instances.add(instance3);
 
-        MinMaxNormalization minMaxNormalize = new MinMaxNormalization(instances);
+        Normalization minMaxNormalize = new MinMaxNormalization(instances);
 
         minMaxNormalize.normalize(instances);
 
@@ -58,7 +58,7 @@ public class MinMaxNormalizationTest {
         Collection<Classifiable> instances = CollectionHelper.newArrayList();
         instances.add(new InstanceBuilder().set("test", 0.9d).create());
         instances.add(new InstanceBuilder().set("test", 0.9d).create());
-        MinMaxNormalization normalization = new MinMaxNormalization(instances);
+        Normalization normalization = new MinMaxNormalization(instances);
 
         double result = normalization.normalize(new NumericFeature("test", 5.0d)).getValue();
         assertThat(result, is(4.1));

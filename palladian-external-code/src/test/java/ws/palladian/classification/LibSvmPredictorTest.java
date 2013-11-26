@@ -19,6 +19,7 @@ import java.util.Set;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -82,11 +83,7 @@ public class LibSvmPredictorTest {
         LibSvmModel model = predictor.train(instances);
 
         List<Instance> test = readInstances("/test.1");
-        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
-        for (Instance instance : test) {
-            CategoryEntries result = predictor.classify(instance.getFeatureVector(), model);
-            confusionMatrix.add(instance.getTargetClass(), result.getMostLikelyCategory());
-        }
+        ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(predictor, test, model);
 
         assertThat(confusionMatrix.getAverageAccuracy(false), is(closeTo(0.954, 0.0001)));
         assertThat(confusionMatrix.getAverageRecall(false), is(closeTo(0.954, 0.0001)));
