@@ -168,6 +168,8 @@ public class UrlHelperTest {
 
     @Test
     public void testRemoveSessionId() {
+        assertEquals("http://www.idealo.de/preisvergleich/OffersOfProduct/3914600_-lumia-925-16gb-white-nokia.html", UrlHelper.removeSessionId(
+                "http://www.idealo.de/preisvergleich/OffersOfProduct/3914600_-lumia-925-16gb-white-nokia.html;jsessionid=a1jUi00AR7u-"));
         assertEquals("http://brbb.freeforums.org/viewforum.php?f=3", UrlHelper.removeSessionId(
                 "http://brbb.freeforums.org/viewforum.php?f=3&sid=5c2676a9f621ffbadb6962da7e0c50d4"));
         assertEquals("http://brbb.freeforums.org/viewforum.php", UrlHelper.removeSessionId(
