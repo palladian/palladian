@@ -1,5 +1,6 @@
 package ws.palladian.classification.sentiment;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,13 +19,9 @@ import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
- * German Sentiment Classifier that uses SentiWS: http://wortschatz.informatik.uni-leipzig.de/download/sentiws.html
- * </p>
- * <p>
- * The model uses this dictionary and imports it from the file.
- * </p>
- * <p>
- * Texts can be classified into positive and negative.
+ * German Sentiment Classifier that uses <a
+ * href="http://wortschatz.informatik.uni-leipzig.de/download/sentiws.html">SentiWS</a>. The model uses this dictionary
+ * and imports it from the file. Texts can be classified into positive and negative.
  * </p>
  * 
  * @author David Urbansky
@@ -33,7 +30,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GermanSentimentClassifier.class);
-    
+
     /** Serial Version UID. */
     private static final long serialVersionUID = 3611658830894765273L;
 
@@ -41,19 +38,25 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     private Map<String, Double> sentimentMap = new HashMap<String, Double>();
 
     /** Some words can emphasize the sentiment. In this map we store these words and their multiplier. */
-    private Map<String, Double> emphasizeMap = new HashMap<String, Double>();
+    private static final Map<String, Double> emphasizeMap = new HashMap<String, Double>();
 
-    public GermanSentimentClassifier(String modelPath) {
-        GermanSentimentClassifier gsc = FileHelper.deserialize(modelPath);
-        this.sentimentMap = gsc.sentimentMap;
-
+    static {
         emphasizeMap.put("bisschen", 0.9);
         emphasizeMap.put("sehr", 2.0);
         emphasizeMap.put("deutlich", 2.0);
         emphasizeMap.put("unheimlich", 3.0);
         emphasizeMap.put("absolut", 3.0);
-        emphasizeMap.put("vollkommen",3.0);
+        emphasizeMap.put("vollkommen", 3.0);
         emphasizeMap.put("extrem", 3.0);
+    }
+
+    public GermanSentimentClassifier(String modelPath) {
+        try {
+            GermanSentimentClassifier gsc = FileHelper.deserialize(modelPath);
+            this.sentimentMap = gsc.sentimentMap;
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not deserialize model from \"" + modelPath + "\"", e);
+        }
     }
 
     /**
@@ -64,7 +67,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     public GermanSentimentClassifier() {
     }
 
-    public void buildModel(String dictionaryFilePath, String modelPath) {
+    public void buildModel(String dictionaryFilePath, String modelPath) throws IOException {
         loadDictionary(dictionaryFilePath);
         saveDictionary(modelPath);
     }
@@ -110,7 +113,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         }
     }
 
-    private void saveDictionary(String modelPath) {
+    private void saveDictionary(String modelPath) throws IOException {
         FileHelper.serialize(this, modelPath);
     }
  
@@ -215,7 +218,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         return categoryEntries.getMostLikelyCategoryEntry();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         GermanSentimentClassifier gsc = null;
         
         // build the model

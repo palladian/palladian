@@ -13,6 +13,12 @@ import ws.palladian.extraction.location.GeoCoordinate;
  * @author Philipp Katz
  */
 public interface WebContent {
+    
+    /**
+     * @return Internal identifier of this content, used in case this item is stored in a database, or <code>-1</code>,
+     *         in case no identifier exists or the item has not been persisted.
+     */
+    int getId();
 
     /**
      * @return The URL pointing to this content.

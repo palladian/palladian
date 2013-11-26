@@ -38,7 +38,7 @@ public final class UrlHelper {
 
     /** RegEx pattern defining a session ID. */
     private static final Pattern SESSION_ID_PATTERN = Pattern
-            .compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{32,200}(?!\\w)");
+            .compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{12,200}(?!\\w)");
 
     /** List of top level domains. */
     private static final String TOP_LEVEL_DOMAINS = "ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|as|asia|at|au|aw|ax|az|ba|bb|bd|be|" +
@@ -167,6 +167,8 @@ public final class UrlHelper {
         if (contextUrl != null) {
             try {
                 result = new URL(new URL(contextUrl), linkUrl).toString();
+                result = result.replace("../", "");
+                result = result.replace("./", "");
             } catch (MalformedURLException e) {
                 // don't care
             }

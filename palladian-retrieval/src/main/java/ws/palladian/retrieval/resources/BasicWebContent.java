@@ -28,6 +28,7 @@ public class BasicWebContent implements WebContent {
      */
     public static class Builder implements Factory<WebContent> {
 
+        protected int id = -1;
         protected String url;
         protected String title;
         protected String summary;
@@ -36,6 +37,11 @@ public class BasicWebContent implements WebContent {
         protected String identifier;
         protected Set<String> tags = CollectionHelper.newHashSet();
         protected String source;
+
+        public Builder setId(int id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder setUrl(String url) {
             this.url = url;
@@ -83,6 +89,7 @@ public class BasicWebContent implements WebContent {
         }
 
         public Builder setWebContent(WebContent webContent) {
+            this.id = webContent.getId();
             this.url = webContent.getUrl();
             this.title = webContent.getTitle();
             this.summary = webContent.getSummary();
@@ -100,6 +107,8 @@ public class BasicWebContent implements WebContent {
         }
 
     }
+    
+    private final int id;
 
     private final String url;
 
@@ -118,6 +127,7 @@ public class BasicWebContent implements WebContent {
     private final String source;
 
     protected BasicWebContent(WebContent webResult) {
+        this.id = webResult.getId();
         this.url = webResult.getUrl();
         this.title = webResult.getTitle();
         this.summary = webResult.getSummary();
@@ -129,6 +139,7 @@ public class BasicWebContent implements WebContent {
     }
 
     protected BasicWebContent(Builder builder) {
+        this.id = builder.id;
         this.url = builder.url;
         this.title = builder.title;
         this.summary = builder.summary;
@@ -137,6 +148,11 @@ public class BasicWebContent implements WebContent {
         this.identifier = builder.identifier;
         this.tags = builder.tags;
         this.source = builder.source;
+    }
+    
+    @Override
+    public int getId() {
+        return id;
     }
 
     @Override
@@ -183,6 +199,10 @@ public class BasicWebContent implements WebContent {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("WebContent [");
+        if (id != -1) {
+            builder.append("id=");
+            builder.append(id);
+        }
         if (url != null) {
             builder.append("url=");
             builder.append(url);

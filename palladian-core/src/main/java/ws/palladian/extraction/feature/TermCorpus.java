@@ -26,6 +26,16 @@ public interface TermCorpus {
 
     /**
      * <p>
+     * Get the probability for the given term.
+     * </p>
+     * 
+     * @param term The term.
+     * @return The probability.
+     */
+    double getProbability(String term);
+
+    /**
+     * <p>
      * Get the number of documents in this corpus.
      * </p>
      * 

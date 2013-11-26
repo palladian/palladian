@@ -68,6 +68,7 @@ public class FeedItem implements WebContent {
      */
     private Date correctedPublishedDate = null;
 
+    @Override
     public int getId() {
         return id;
     }

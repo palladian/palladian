@@ -302,7 +302,7 @@ public class DatabaseManager {
     public final int runInsertReturnId(String sql, List<? extends Object> args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runInsertReturnId(sql, args.toArray());
+        return runInsertReturnId(null, sql, args.toArray());
     }
 
     /**
@@ -315,20 +315,49 @@ public class DatabaseManager {
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
     public final int runInsertReturnId(String sql, Object... args) {
+        return runInsertReturnId(null, sql, args);
+    }
+    public final int runInsertReturnId(Connection connection, String sql, Object... args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runInsertReturnId(new BasicQuery(sql, args));
+        return runInsertReturnId(connection, new BasicQuery(sql, args));
     }
-    
+
     public final int runInsertReturnId(Query query) {
+        return runInsertReturnId(null, query);
+    }
+
+    /**
+     * <p>
+     * Run an insert operation and return the generated insert ID.
+     * </p>
+     * <p>
+     * NOTE: If a connection is given, you <b>must</b> close it yourself or reuse it.
+     * </p>
+     * 
+     * @param connection The connection to use for the update or <code>null</code> if a new connection should be
+     *            retrieved from the pool.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args (Optional) arguments for parameter markers in update statement.
+     * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
+     */
+    public final int runInsertReturnId(Connection connection, Query query) {
         int generatedId;
-        Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
+        boolean closeConnection = false;
+        if (connection == null) {
+            closeConnection = true;
+        }
+
         try {
 
-            connection = getConnection();
+            if (connection == null) {
+                connection = getConnection();
+            }
+
+            // connection = getConnection();
             ps = connection.prepareStatement(query.getSql(), Statement.RETURN_GENERATED_KEYS);
             fillPreparedStatement(ps, query.getArgs());
             ps.executeUpdate();
@@ -340,11 +369,16 @@ public class DatabaseManager {
                 generatedId = 0;
             }
 
+
         } catch (SQLException e) {
             logError(e, query.getSql(), query.getArgs());
             generatedId = -1;
         } finally {
-            close(connection, ps, rs);
+            if (closeConnection) {
+                close(connection, ps, rs);
+            } else {
+                close(null, ps, rs);
+            }
         }
 
         return generatedId;
@@ -568,7 +602,7 @@ public class DatabaseManager {
         Validate.notNull(args, "args must not be null");
         return runQueryWithIterator(converter, new BasicQuery(sql, args));
     }
-    
+
     /**
      * <p>
      * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
@@ -699,39 +733,83 @@ public class DatabaseManager {
         return runUpdate(new BasicQuery(sql, args));
     }
 
-    /**
-     * <p>
-     * Run an update operation and return the number of affected rows.
-     * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in updateStatement.
-     * @return The number of affected rows, or -1 if an error occurred.
-     */
+
     public final int runUpdate(String sql, Object... args) {
-        Validate.notEmpty(sql, "sql must not be empty");
-        Validate.notNull(args, "args must not be null");
-        return runUpdate(new BasicQuery(sql, args));
+        return runUpdate(null, sql, args);
     }
 
     /**
      * <p>
      * Run an update operation and return the number of affected rows.
      * </p>
+     * <p>
+     * NOTE: If a connection is given, you <b>must</b> close it yourself or reuse it.
+     * </p>
      * 
+     * @param connection The connection to use for the update or <code>null</code> if a new connection should be
+     *            retrieved from the pool.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
+     * @return The number of affected rows, or -1 if an error occurred.
+     */
+    public final int runUpdate(Connection connection, String sql, List<? extends Object> args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
+        return runUpdate(connection, new BasicQuery(sql, args));
+    }
+
+    /**
+     * <p>
+     * Run an update operation and return the number of affected rows.
+     * </p>
+     * <p>
+     * NOTE: If a connection is given, you <b>must</b> close it yourself or reuse it.
+     * </p>
+     * 
+     * @param connection The connection to use for the update or <code>null</code> if a new connection should be
+     *            retrieved from the pool.
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args (Optional) arguments for parameter markers in updateStatement.
+     * @return The number of affected rows, or -1 if an error occurred.
+     */
+    public final int runUpdate(Connection connection, String sql, Object... args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
+        return runUpdate(connection, new BasicQuery(sql, args));
+    }
+
+    public final int runUpdate(Query query) {
+        return runUpdate(null, query);
+    }
+
+    /**
+     * <p>
+     * Run an update operation and return the number of affected rows.
+     * </p>
+     * <p>
+     * NOTE: If a connection is given, you <b>must</b> close it yourself or reuse it.
+     * </p>
+     * 
+     * @param connection The connection to use for the update or <code>null</code> if a new connection should be
+     *            retrieved from the pool.
      * @param query The query including the (optional) arguments, not <code>null</code>.
      * @return The number of affected rows, or -1 if an error occurred.
      */
-    public final int runUpdate(Query query) {
+    public final int runUpdate(Connection connection, Query query) {
         Validate.notNull(query, "query must not be null");
 
         int affectedRows;
-        Connection connection = null;
         PreparedStatement ps = null;
+        boolean closeConnection = false;
+        if (connection == null) {
+            closeConnection = true;
+        }
 
         try {
 
-            connection = getConnection();
+            if (connection == null) {
+                connection = getConnection();
+            }
             ps = connection.prepareStatement(query.getSql());
             fillPreparedStatement(ps, query.getArgs());
 
@@ -741,7 +819,11 @@ public class DatabaseManager {
             logError(e, query.getSql(), query.getArgs());
             affectedRows = -1;
         } finally {
-            close(connection, ps);
+            if (closeConnection) {
+                close(connection, ps);
+            } else {
+                close(ps);
+            }
         }
 
         return affectedRows;
@@ -781,6 +863,30 @@ public class DatabaseManager {
      */
     protected static final void close(Connection connection) {
         close(connection, null, null);
+    }
+
+    /**
+     * <p>
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
+     * </p>
+     * 
+     * @param resultSet The {@link ResultSet}, or <code>null</code>.
+     */
+    protected static final void close(ResultSet resultSet) {
+        close(null, null, resultSet);
+    }
+
+    /**
+     * <p>
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
+     * </p>
+     * 
+     * @param statement The {@link Statement}, or <code>null</code>.
+     */
+    protected static final void close(Statement statement) {
+        close(null, statement, null);
     }
 
     /**

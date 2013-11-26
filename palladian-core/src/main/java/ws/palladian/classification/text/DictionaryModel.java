@@ -1,12 +1,10 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
@@ -14,6 +12,7 @@ import ws.palladian.classification.Model;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
+import ws.palladian.helper.collection.Vector;
 
 /**
  * <p>
@@ -65,35 +64,34 @@ public final class DictionaryModel implements Model {
 
     public CategoryEntries getCategoryEntries(String term) {
         CategoryEntriesMap categoryFrequencies = new CategoryEntriesMap();
-        List<Pair<String, Integer>> termRow = termCategories.getRow(term);
-        int sum = 0;
-        for (Pair<String, Integer> categoryValue : termRow) {
-            sum += categoryValue.getValue();
-        }
-        for (Pair<String, Integer> categoryValue : termRow) {
-            categoryFrequencies.set(categoryValue.getKey(), (double)categoryValue.getValue() / sum);
+        Vector<String, Integer> termRow = termCategories.getRow(term);
+        int sum = termCategories.getRow(term).getSum();
+        if (sum > 0) {
+            for (String category : termCategories.getColumnKeys()) {
+                categoryFrequencies.set(category, (double)termRow.get(category) / sum);
+            }
         }
         return categoryFrequencies;
     }
 
     public int getTermCount(String term) {
-        return termCategories.getRowSum(term);
+        return termCategories.getRow(term).getSum();
     }
 
     public int getNumTerms() {
-        return termCategories.sizeY();
+        return termCategories.rowCount();
     }
 
     public int getNumCategories() {
-        return termCategories.sizeX();
+        return termCategories.columnCount();
     }
 
     public Set<String> getCategories() {
-        return termCategories.getKeysX();
+        return termCategories.getColumnKeys();
     }
 
     public Set<String> getTerms() {
-        return termCategories.getKeysY();
+        return termCategories.getRowKeys();
     }
 
     public void addCategory(String catgegory) {
@@ -128,7 +126,7 @@ public final class DictionaryModel implements Model {
         printStream.print("\n");
 
         // one word per line with term frequencies per category
-        for (String term : termCategories.getKeysY()) {
+        for (String term : termCategories.getRowKeys()) {
             printStream.print(term);
             printStream.print(",");
             // get word frequency for each category and current term

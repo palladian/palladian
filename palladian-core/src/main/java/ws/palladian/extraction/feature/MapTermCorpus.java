@@ -71,37 +71,21 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         numDocs++;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.feature.ITermCorpus#getCount(java.lang.String)
-     */
     @Override
     public int getCount(String term) {
         return terms.getCount(term);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.feature.ITermCorpus#getNumDocs()
-     */
     @Override
     public int getNumDocs() {
         return numDocs;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.feature.ITermCorpus#getNumTerms()
-     */
     @Override
     public int getNumTerms() {
         return terms.totalSize();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.feature.ITermCorpus#getNumUniqueTerms()
-     */
     @Override
     public int getNumUniqueTerms() {
         return terms.uniqueSize();

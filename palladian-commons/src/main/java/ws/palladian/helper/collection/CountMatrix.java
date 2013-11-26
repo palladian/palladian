@@ -1,11 +1,9 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * <p>
@@ -18,11 +16,20 @@ import org.apache.commons.lang3.tuple.Pair;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class CountMatrix<K> implements Matrix<K, Integer>, Serializable {
+public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serializable {
 
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
     
+    public static interface NumberVector<K> extends Vector<K, Integer> {
+        
+        /**
+         * @return The sum of all values in this {@link Vector}.
+         */
+        public int getSum();
+        
+    }
+
     private final Matrix<K, Integer> matrix;
 
     /**
@@ -54,7 +61,6 @@ public class CountMatrix<K> implements Matrix<K, Integer>, Serializable {
     public void add(K x, K y) {
         Validate.notNull(x, "x must not be null");
         Validate.notNull(y, "y must not be null");
-
         add(x, y, 1);
     }
 
@@ -70,7 +76,6 @@ public class CountMatrix<K> implements Matrix<K, Integer>, Serializable {
     public void add(K x, K y, int value) {
         Validate.notNull(x, "x must not be null");
         Validate.notNull(y, "y must not be null");
-
         Integer count = get(x, y);
         if (count == null) {
             count = 0;
@@ -81,62 +86,15 @@ public class CountMatrix<K> implements Matrix<K, Integer>, Serializable {
 
     /**
      * <p>
-     * Get the count of the specified cell.
+     * Same as {@link #get(Object, Object)}, just to be consistent to CountMap's method.
      * </p>
      * 
-     * @param x The column, not <code>null</code>.
-     * @param y The row, not <code>null</code>.
-     * @return The count fo the specified cell.
+     * @param x
+     * @param y
+     * @return
      */
-    // FIXME -- this should overwrite get(K, K)
     public int getCount(K x, K y) {
-        Validate.notNull(x, "x must not be null");
-        Validate.notNull(y, "y must not be null");
-
-        Integer count = get(x, y);
-        if (count == null) {
-            return 0;
-        }
-        return count;
-    }
-
-    /**
-     * <p>
-     * Get the sum of all cells in the specified column.
-     * </p>
-     * 
-     * @param x The column, not <code>null</code>.
-     * @return The sum of all cells in the column.
-     */
-    public int getColumnSum(K x) {
-        Validate.notNull(x, "x must not be null");
-
-        int sum = 0;
-        for (K y : getKeysY()) {
-            sum += getCount(x, y);
-        }
-        return sum;
-    }
-
-    /**
-     * <p>
-     * Get the sum of all cells in the specified row.
-     * </p>
-     * 
-     * @param y The row, not <code>null</code>.
-     * @return The sum of all cells in the row.
-     */
-    public int getRowSum(K y) {
-        Validate.notNull(y, "y must not be null");
-
-        int sum = 0;
-//        for (K x : getKeysX()) {
-//            sum += getCount(x, y);
-//        }
-        for (Pair<K, Integer> entry : getRow(y)) {
-            sum += entry.getValue();
-        }
-        return sum;
+        return get(x, y);
     }
 
     @Override
@@ -151,28 +109,13 @@ public class CountMatrix<K> implements Matrix<K, Integer>, Serializable {
     }
 
     @Override
-    public Set<K> getKeysX() {
-        return matrix.getKeysX();
+    public Set<K> getColumnKeys() {
+        return matrix.getColumnKeys();
     }
 
     @Override
-    public Set<K> getKeysY() {
-        return matrix.getKeysY();
-    }
-
-    @Override
-    public int sizeY() {
-        return matrix.sizeY();
-    }
-
-    @Override
-    public int sizeX() {
-        return matrix.sizeX();
-    }
-
-    @Override
-    public String asCsv() {
-        return matrix.asCsv();
+    public Set<K> getRowKeys() {
+        return matrix.getRowKeys();
     }
 
     @Override
@@ -181,18 +124,51 @@ public class CountMatrix<K> implements Matrix<K, Integer>, Serializable {
     }
 
     @Override
-    public List<Pair<K, Integer>> getRow(K y) {
-        return matrix.getRow(y);
+    public NumberVector<K> getRow(final K y) {
+        Validate.notNull(y, "y must not be null");
+        return new NumberVector<K>() {
+            @Override
+            public Integer get(K x) {
+                return CountMatrix.this.get(x, y);
+            }
+
+            @Override
+            public int getSum() {
+                int sum = 0;
+                for (K x : getColumnKeys()) {
+                    sum += get(x);
+                }
+                return sum;
+            }
+        };
     }
 
     @Override
-    public List<Pair<K, Integer>> getColumn(K x) {
-        return matrix.getColumn(x);
+    public NumberVector<K> getColumn(final K x) {
+        Validate.notNull(x, "x must not be null");
+        return new NumberVector<K>() {
+            @Override
+            public Integer get(K y) {
+                return CountMatrix.this.get(x, y);
+            }
+
+            @Override
+            public int getSum() {
+                int sum = 0;
+                for (K y : getRowKeys()) {
+                    sum += get(y);
+                }
+                return sum;
+            }
+        };
+    }
+
+    public int getSum() {
+        int totalSize = 0;
+        for (K y : getRowKeys()) {
+            totalSize += getRow(y).getSum();
+        }
+        return totalSize;
     };
-
-    @Override
-    public String toString() {
-        return matrix.toString();
-    }
 
 }

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.Callback;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HtmlHelper;
@@ -56,11 +57,10 @@ public class Crawler {
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
     private Set<String> urlStack = null;
-    private final Set<String> visitedURLs = new HashSet<String>();
+    private final Set<String> visitedUrls = new HashSet<String>();
 
     /** All urls that have been visited or extracted. */
     private final Set<String> seenUrls = new HashSet<String>();
-
 
     private final Set<String> urlRules = new HashSet<String>();
     private final Set<String> urlDump = new HashSet<String>();
@@ -72,6 +72,10 @@ public class Crawler {
         documentRetriever = new DocumentRetriever();
     }
 
+    public Crawler(DocumentRetriever documentRetriever) {
+        this.documentRetriever = documentRetriever;
+    }
+
     /**
      * Visit a certain web page and grab URLs.
      * 
@@ -79,15 +83,17 @@ public class Crawler {
      */
     protected void crawl(String currentURL) {
 
-        LOGGER.info("catch from stack: {}", currentURL);
+        LOGGER.debug("catch from stack: {}", currentURL);
 
         // System.out.println("process "+currentURL+" \t stack size: "+urlStack.size()+" dump size: "+urlDump.size());
         Document document = documentRetriever.getWebDocument(currentURL);
 
         Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain);
 
-        LOGGER.info("retrieved {} links from {} || stack size: {} dump size: {}, visited: {}",
-                new Object[] {links.size(), currentURL, urlStack.size(), urlDump.size(), visitedURLs.size()});
+        if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
+            LOGGER.info("retrieved {} links from {} || stack size: {} dump size: {}, visited: {}",
+                    new Object[] {links.size(), currentURL, urlStack.size(), urlDump.size(), visitedUrls.size()});
+        }
 
         addUrlsToStack(links, currentURL);
     }
@@ -122,7 +128,7 @@ public class Crawler {
         // crawl
         final ThreadGroup tg = new ThreadGroup("crawler threads");
 
-        while (!urlStack.isEmpty() && (stopCount == -1 || visitedURLs.size() < stopCount)) {
+        while (!urlStack.isEmpty() && (stopCount == -1 || visitedUrls.size() < stopCount)) {
 
             int maxThreadsNow = getMaxThreads();
             if (urlStack.size() <= maxThreads) {
@@ -226,7 +232,7 @@ public class Crawler {
 
     private synchronized void removeUrlFromStack(String url) {
         urlStack.remove(url);
-        visitedURLs.add(url);
+        visitedUrls.add(url);
     }
 
     public void setStopCount(int number) {
@@ -251,10 +257,19 @@ public class Crawler {
         }
     }
 
+    private String cleanUrl(String url) {
+        url = UrlHelper.removeSessionId(url);
+        url = UrlHelper.removeAnchors(url);
+        url = url.replaceAll("\\?.*", "");
+        return url;
+    }
+
     private synchronized void addUrlToStack(String url, String sourceUrl) {
 
+        url = cleanUrl(url);
+
         // check URL first
-        if (url != null && url.length() < 400 && !visitedURLs.contains(url)) {
+        if (url != null && url.length() < 400 && !visitedUrls.contains(url)) {
 
             boolean follow = true;
 
