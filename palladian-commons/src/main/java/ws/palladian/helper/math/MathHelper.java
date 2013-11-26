@@ -114,6 +114,10 @@ public final class MathHelper {
      * @return The overlap coefficient in the range [0, 1].
      */
     public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
+        if (setA.size() == 0 || setB.size() == 0) {
+            return 0;
+        }
+
         Set<T> intersection = CollectionHelper.newHashSet();
         intersection.addAll(setA);
         intersection.retainAll(setB);
@@ -243,165 +247,6 @@ public final class MathHelper {
         return faculty;
     }
 
-//    /**
-//     * <p>
-//     * Calculate the <a href="http://en.wikipedia.org/wiki/Median">median</a> for a list of double values. The values do
-//     * not have to be in sorted order in advance.
-//     * </p>
-//     *
-//     * @param values The values for which to get the median.
-//     * @return The median.
-//     * @deprecated Use {@link Stats} instead.
-//     */
-//    @Deprecated
-//    public static double getMedian(double[] values) {
-//        int numValues = values.length;
-//        Arrays.sort(values);
-//        if (numValues % 2 == 0) {
-//            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
-//        } else {
-//            return values[numValues / 2];
-//        }
-//    }
-
-//    /** @deprecated Use {@link Stats} instead. */
-//    @Deprecated
-//    public static double getMedian(long[] values) {
-//        int numValues = values.length;
-//        Arrays.sort(values);
-//        if (numValues % 2 == 0) {
-//            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
-//        } else {
-//            return values[numValues / 2];
-//        }
-//    }
-
-//    /** @deprecated Use {@link Stats} instead. */
-//    @Deprecated
-//    public static double getAverage(double[] values) {
-//        double sum = 0;
-//        for (double value : values) {
-//            sum += value;
-//        }
-//        return sum / values.length;
-//    }
-//
-//    /** @deprecated Use {@link Stats} instead. */
-//    @Deprecated
-//    public static double getAverage(long[] values) {
-//        double sum = 0;
-//        for (long value : values) {
-//            sum += value;
-//        }
-//        return sum / values.length;
-//    }
-//
-//    public static long getMedianDifference(long[] sortedList) {
-//        long[] distances = getDistances(sortedList);
-//        return (long)getMedian(distances);
-//    }
-
-//    /**
-//     * <p>
-//     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-//     * </p>
-//     *
-//     * @param values The values for which to get the standard deviation.
-//     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
-//     *            <code>false</code> the <i>standard deviation of the sample</i>.
-//     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-//     * @deprecated Use {@link Stats} instead.
-//     */
-//    @Deprecated
-//    public static double getStandardDeviation(double[] values, boolean biasCorrection) {
-//        if (values.length == 0) {
-//            return Double.NaN;
-//        }
-//        if (values.length == 1) {
-//            return 0;
-//        }
-//        double mean = getAverage(values);
-//        double deviationSum = 0;
-//        for (double value : values) {
-//            deviationSum += Math.pow(value - mean, 2);
-//        }
-//        if (biasCorrection) {
-//            return Math.sqrt(deviationSum / (values.length - 1));
-//        } else {
-//            return Math.sqrt(deviationSum / values.length);
-//        }
-//    }
-
-//    /**
-//     * <p>
-//     * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-//     * </p>
-//     *
-//     * @param values The values for which to get the standard deviation.
-//     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-//     * @deprecated Use {@link Stats} instead.
-//     */
-//    @Deprecated
-//    public static double getStandardDeviation(double[] values) {
-//        return getStandardDeviation(values, true);
-//    }
-
-//    /**
-//     * <p>
-//     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-//     * </p>
-//     *
-//     * @param values The values for which to get the standard deviation.
-//     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
-//     *            <code>false</code> the <i>standard deviation of the sample</i>.
-//     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-//     * @deprecated Use {@link Stats} instead.
-//     */
-//    @Deprecated
-//    public static double getStandardDeviation(long[] values, boolean biasCorrection) {
-//        if (values.length == 0) {
-//            return Double.NaN;
-//        }
-//        if (values.length == 1) {
-//            return 0;
-//        }
-//        double mean = getAverage(values);
-//        double deviationSum = 0;
-//        for (Long value : values) {
-//            deviationSum += Math.pow(value - mean, 2);
-//        }
-//        if (biasCorrection) {
-//            return Math.sqrt(deviationSum / values.length - 1);
-//        } else {
-//            return Math.sqrt(deviationSum / values.length);
-//        }
-//    }
-
-//    /** @deprecated Use {@link Stats} instead. */
-//    @Deprecated
-//    public static double getStandardDeviation(long[] values) {
-//        return getStandardDeviation(values, true);
-//    }
-
-//    /**
-//     * <p>
-//     * Get the largest gap in a {@link Collection} of {@link Number}s. E.g. for a Collection of [2,3,7,10] the value 4
-//     * is returned.
-//     * </p>
-//     *
-//     * @param values The Collection of Numbers, not <code>null</code>.
-//     * @return The largest distance between subsequent Numbers, or -1 when an empty collection or a collection of size 1
-//     *         was supplied.
-//     */
-//    public static long getLongestGap(long[] values) {
-//        long longestGap = -1;
-//        if (values.length > 1) {
-//            long[] distances = getDistances(values);
-//            longestGap = Collections.max(Arrays.asList(ArrayUtils.toObject(distances)));
-//        }
-//        return longestGap;
-//    }
-
     /**
      * <p>
      * Check whether two numeric intervals overlap.
@@ -417,40 +262,40 @@ public final class MathHelper {
         return Math.max(start1, start2) < Math.min(end1, end2);
     }
 
-    public static double computeRootMeanSquareError(String inputFile, final String columnSeparator) {
-        // array with correct and predicted values
-        final List<double[]> values = new ArrayList<double[]>();
+//    public static double computeRootMeanSquareError(String inputFile, final String columnSeparator) {
+//        // array with correct and predicted values
+//        final List<double[]> values = new ArrayList<double[]>();
+//
+//        LineAction la = new LineAction() {
+//            @Override
+//            public void performAction(String line, int lineNumber) {
+//                String[] parts = line.split(columnSeparator);
+//
+//                double[] pair = new double[2];
+//                pair[0] = Double.valueOf(parts[0]);
+//                pair[1] = Double.valueOf(parts[1]);
+//
+//                values.add(pair);
+//            }
+//        };
+//
+//        FileHelper.performActionOnEveryLine(inputFile, la);
+//
+//        return computeRootMeanSquareError(values);
+//    }
 
-        LineAction la = new LineAction() {
-            @Override
-            public void performAction(String line, int lineNumber) {
-                String[] parts = line.split(columnSeparator);
-
-                double[] pair = new double[2];
-                pair[0] = Double.valueOf(parts[0]);
-                pair[1] = Double.valueOf(parts[1]);
-
-                values.add(pair);
-            }
-        };
-
-        FileHelper.performActionOnEveryLine(inputFile, la);
-
-        return computeRootMeanSquareError(values);
-    }
-
-    /**
-     * @deprecated Use the {@link Stats} instead.
-     */
-    @Deprecated
-    public static double computeRootMeanSquareError(List<double[]> values) {
-        double sum = 0.0;
-        for (double[] d : values) {
-            sum += Math.pow(d[0] - d[1], 2);
-        }
-
-        return Math.sqrt(sum / values.size());
-    }
+//    /**
+//     * @deprecated Use the {@link Stats} instead.
+//     */
+//    @Deprecated
+//    public static double computeRootMeanSquareError(List<double[]> values) {
+//        double sum = 0.0;
+//        for (double[] d : values) {
+//            sum += Math.pow(d[0] - d[1], 2);
+//        }
+//
+//        return Math.sqrt(sum / values.size());
+//    }
 
     /**
      * Calculate similarity of two lists of the same size.
@@ -475,7 +320,7 @@ public final class MathHelper {
         int summedRealDistance = 0;
         int summedRealSquaredDistance = 0;
         int position1 = 0;
-        List<double[]> positionValues = new ArrayList<double[]>();
+        Stats stats = new Stats();
 
         for (String entry1 : list1) {
 
@@ -488,7 +333,7 @@ public final class MathHelper {
                     double[] values = new double[2];
                     values[0] = position1;
                     values[1] = position2;
-                    positionValues.add(values);
+                    stats.add(Math.abs(position1-position2));
                     break;
                 }
                 position2++;
@@ -499,7 +344,7 @@ public final class MathHelper {
 
         double similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
         double squaredShiftSimilarity = 1 - (double)summedRealSquaredDistance / (double)summedMaxSquaredDistance;
-        double rootMeanSquareError = computeRootMeanSquareError(positionValues);
+        double rootMeanSquareError = stats.getRmse();
 
         return new ListSimilarity(similarity, squaredShiftSimilarity, rootMeanSquareError);
     }
@@ -785,30 +630,6 @@ public final class MathHelper {
         return crossTotal(s / 10) + s % 10;
     }
 
-//    /**
-//     * <p>
-//     * Compute distances between subsequent {@link Longs}s in a {@link Collection}. E.g. for a Collection of [2,3,7,10]
-//     * a result of [1,4,3] is returned.
-//     * </p>
-//     *
-//     * @param values The Collection of Numbers, not <code>null</code>.
-//     * @return The distances between the subsequent Numbers in the Collection, or empty array for empty input array or
-//     *         arrays of size 1.
-//     */
-//    public static long[] getDistances(long[] values) {
-//        Validate.notNull(values, "values must not be null");
-//
-//        if (values.length < 1) {
-//            return new long[0];
-//        }
-//
-//        long[] ret = new long[values.length - 1];
-//        for (int i = 1; i < values.length; i++) {
-//            ret[i - 1] = values[i] - values[i - 1];
-//        }
-//        return ret;
-//    }
-
     /**
      * <p>
      * Compute the Pearson's correlation coefficient between to variables.
@@ -1075,14 +896,22 @@ public final class MathHelper {
         return value;
     }
 
-    public static int getOrderOfMagnitude(long number) {
-        int orderOfMagnitude = 0;
-        long temp = number;
-        while (temp >= 10) {
-            temp /= 10;
-            orderOfMagnitude++;
+    /**
+     * <p>
+     * Calculate the <a href="http://en.wikipedia.org/wiki/Order_of_magnitude">order of magnitude</a> for a given
+     * number. E.g. <code>orderOfMagnitude(100) = 2</code>.
+     * </p>
+     * 
+     * @param number The number.
+     * @return The order of magnitude for the given number.
+     */
+    public static int getOrderOfMagnitude(double number) {
+        if (number == 0) {
+            // this version works fine for me, but don't know, if this is mathematically correct, see:
+            // http://www.mathworks.com/matlabcentral/fileexchange/28559-order-of-magnitude-of-number
+            return 0;
         }
-        return orderOfMagnitude;
+        return (int)Math.floor(Math.log10(number));
     }
 
 }

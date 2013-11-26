@@ -383,6 +383,27 @@ public final class LocationExtractorUtils {
 
     }
 
+    /**
+     * <p>
+     * Filter {@link Location}s by ID.
+     * </p>
+     * 
+     * @author pk
+     */
+    public static class LocationIdFilter implements Filter<Location> {
+        private final int id;
+
+        public LocationIdFilter(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public boolean accept(Location item) {
+            return item.getId() == id;
+        }
+
+    }
+
     public static class LocationDocument {
 
         private final String fileName;
