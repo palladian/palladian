@@ -25,6 +25,30 @@ public interface Filter<T> {
         }
     };
 
+    /**
+     * <p>
+     * A filter which accepts all elements.
+     * </p>
+     */
+    public static final Filter<Object> ACCEPT = new Filter<Object>() {
+        @Override
+        public boolean accept(Object item) {
+            return true;
+        }
+    };
+
+    /**
+     * <p>
+     * A filter which rejects all elements.
+     * </p>
+     */
+    public static final Filter<Object> REJECT = new Filter<Object>() {
+        @Override
+        public boolean accept(Object item) {
+            return false;
+        }
+    };
+
     boolean accept(T item);
 
 }

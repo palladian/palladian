@@ -4,37 +4,36 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class MathHelperTest {
 
+    private final Set<Integer> set1 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4));
+    private final Set<Integer> set2 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 6));
+    private final Set<Integer> set3 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4));
+    private final Set<Integer> set4 = new HashSet<Integer>(Arrays.asList(5, 6, 7, 8));
+    private final Set<Integer> set5 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+    private final Set<Integer> emptySet = Collections.emptySet();
+
     @Test
     public void testRandomSample() {
-
         Collection<Integer> collection = Arrays.asList(321, 98, 123, 965, 143, 328, 497, 73, 65);
-
-        collection = MathHelper.randomSample(collection, 5);
-        assertEquals(5, collection.size());
-
-        collection = MathHelper.randomSample(collection, 1);
-        assertEquals(1, collection.size());
-
+        assertEquals(5, MathHelper.randomSample(collection, 5).size());
+        assertEquals(1, MathHelper.randomSample(collection, 1).size());
     }
 
     @Test
     public void testNumberToFraction() {
         assertEquals("1 1/2", MathHelper.numberToFraction(1.5));
-
         assertEquals("-12 1/2", MathHelper.numberToFraction(-12.5));
         assertEquals("0", MathHelper.numberToFraction(0.04));
         assertEquals("1", MathHelper.numberToFraction(1.005));
@@ -55,14 +54,14 @@ public class MathHelperTest {
     @Test
     public void testComputeAllCombinations() {
 
-        String[] items = new String[] {"a", "b", "c"};
+        String[] items = {"a", "b", "c"};
         Collection<List<Object>> allCombinations = MathHelper.computeAllCombinations(items);
-        CollectionHelper.print(allCombinations);
+        // CollectionHelper.print(allCombinations);
         assertEquals(7, allCombinations.size());
 
-        items = new String[] {"a"};
-        allCombinations = MathHelper.computeAllCombinations(items);
-        CollectionHelper.print(allCombinations);
+        String[] items2 = {"a"};
+        allCombinations = MathHelper.computeAllCombinations(items2);
+        // CollectionHelper.print(allCombinations);
         assertEquals(1, allCombinations.size());
     }
 
@@ -73,57 +72,24 @@ public class MathHelperTest {
         assertEquals(0.997, MathHelper.round(MathHelper.computeCosineSimilarity(vector1, vector2), 3), 0);
     }
 
-//    @Test
-//    public void testStandardDeviation() {
-//        assertEquals(2.14, MathHelper.getStandardDeviation(new double[] {2., 4., 4., 4., 5., 5., 7., 9.}, true), 0.01);
-//        assertEquals(2.24, MathHelper.getStandardDeviation(new double[] {4, 2, 5, 8, 6}, true), 0.01);
-//        assertEquals(2, MathHelper.getStandardDeviation(new double[] {2., 4., 4., 4., 5., 5., 7., 9.}, false), 0);
-//        assertEquals(0, MathHelper.getStandardDeviation(new double[] {1}), 0);
-//        assertTrue(Double.isNaN(MathHelper.getStandardDeviation(new double[] {})));
-//    }
-
-//    @Test
-//    public void testMedian() {
-//        assertEquals(2.5, MathHelper.getMedian(new double[] {1., 1., 2., 3., 1035., 89898.68}), 0);
-//        assertEquals(2., MathHelper.getMedian(new double[] {0., 1., 2., 3., 4.}), 0);
-//        assertEquals(2.5, MathHelper.getMedian(new double[] {0., 1., 2., 3., 4., 5.}), 0);
-//        assertEquals(7., MathHelper.getMedian(new double[] {9., 7., 2.}), 0.00001);
-//        assertEquals(0., MathHelper.getMedian(new double[] {0., 0., 0., 1.}), 0);
-//        assertEquals(3948348538l, MathHelper.getMedian(new long[] {1l, 2l, 3948348538l, 3948348539l, 3948348540l}), 0);
-//    }
-
-//    @Test
-//    public void testGetMedianDifference() {
-//        assertEquals(5l, MathHelper.getMedianDifference(new long[] {1l, 2l, 4l, 9l, 16l, 24l}));
-//    }
-
-//    @Test
-//    public void testAverage() {
-//        assertEquals(15156.81, MathHelper.getAverage(new double[] {1., 1., 2., 3., 1035., 89898.86}), 0.00001);
-//        assertEquals(3948348539l, MathHelper.getAverage(new double[] {3948348538l, 3948348539l, 3948348540l}), 0.00001);
-//    }
-
     @Test
-    public void testCalculateSetSimilarity() {
-
-        Set<String> set1 = new HashSet<String>(Arrays.asList("1", "2", "3", "4"));
-        Set<String> set2 = new HashSet<String>(Arrays.asList("1", "2", "3", "6"));
-        Set<String> set3 = new HashSet<String>(Arrays.asList("1", "2", "3", "4"));
-        Set<String> set4 = new HashSet<String>(Arrays.asList("5", "6", "7", "8"));
-        Set<String> set5 = new HashSet<String>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"));
-
+    public void testCalculateJaccardSimilarity() {
         assertEquals(0.6, MathHelper.computeJaccardSimilarity(set1, set2), 0);
         assertEquals(1.0, MathHelper.computeJaccardSimilarity(set1, set3), 0);
         assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, set4), 0);
-
-        assertEquals(0.75, MathHelper.computeOverlapCoefficient(set1, set2), 0);
-        assertEquals(1, MathHelper.computeOverlapCoefficient(set1, set5), 0);
+        assertEquals(0.0, MathHelper.computeJaccardSimilarity(emptySet, emptySet), 0);
+        assertEquals(0.0, MathHelper.computeJaccardSimilarity(emptySet, set1), 0);
+        assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, emptySet), 0);
     }
 
-//    @Test
-//    public void testLongestGap() {
-//        assertEquals(8l, MathHelper.getLongestGap(new long[] {1l, 2l, 4l, 9l, 16l, 24l}));
-//    }
+    @Test
+    public void testCalculateOverlapCoefficient() {
+        assertEquals(0.75, MathHelper.computeOverlapCoefficient(set1, set2), 0);
+        assertEquals(1, MathHelper.computeOverlapCoefficient(set1, set5), 0);
+        assertEquals(0.0, MathHelper.computeOverlapCoefficient(emptySet, emptySet), 0);
+        assertEquals(0.0, MathHelper.computeOverlapCoefficient(emptySet, set1), 0);
+        assertEquals(0.0, MathHelper.computeOverlapCoefficient(set1, emptySet), 0);
+    }
 
     @Test
     public void testPerformLinearRegression() {
@@ -156,22 +122,23 @@ public class MathHelperTest {
 
     }
 
-    @Test
-    public void testComputeRootMeanSquareError() throws FileNotFoundException {
-
-        List<double[]> values = new ArrayList<double[]>();
-
-        values.add(new double[] {2, 1});
-        values.add(new double[] {2, 1});
-        values.add(new double[] {5, 10});
-        values.add(new double[] {10, 8});
-        values.add(new double[] {22, 7});
-
-        assertEquals(7.155, MathHelper.round(MathHelper.computeRootMeanSquareError(values), 3), 0);
-
-        assertEquals(3.607, MathHelper.round(
-                MathHelper.computeRootMeanSquareError(ResourceHelper.getResourcePath("/rmseInput.csv"), ";"), 3), 0);
-    }
+//    @SuppressWarnings("deprecation")
+//    @Test
+//    public void testComputeRootMeanSquareError() throws FileNotFoundException {
+//
+//        List<double[]> values = new ArrayList<double[]>();
+//
+//        values.add(new double[] {2, 1});
+//        values.add(new double[] {2, 1});
+//        values.add(new double[] {5, 10});
+//        values.add(new double[] {10, 8});
+//        values.add(new double[] {22, 7});
+//
+//        assertEquals(7.155, MathHelper.round(MathHelper.computeRootMeanSquareError(values), 3), 0);
+//
+//        assertEquals(3.607, MathHelper.round(
+//                MathHelper.computeRootMeanSquareError(ResourceHelper.getResourcePath("/rmseInput.csv"), ";"), 3), 0);
+//    }
 
     @Test
     public void testComputeAveragePrecision() {
@@ -206,35 +173,10 @@ public class MathHelperTest {
         assertTrue(r >= 0 && r <= 100);
     }
 
-//    @Test
-//    public void testGetDistances() {
-//        assertEquals(0, MathHelper.getDistances(new long[0]).length);
-//        assertEquals(0, MathHelper.getDistances(new long[] {2l}).length);
-//        assertArrayEquals(new long[] {1l, 4l, 3l}, MathHelper.getDistances(new long[] {2l, 3l, 7l, 10l}));
-//    }
-
     @Test
     public void testComputePearsonCorrelationCoefficient() {
-        List<Double> x = CollectionHelper.newArrayList();
-        x.add(56.);
-        x.add(56.);
-        x.add(65.);
-        x.add(65.);
-        x.add(50.);
-        x.add(25.);
-        x.add(87.);
-        x.add(44.);
-        x.add(35.);
-        List<Double> y = CollectionHelper.newArrayList();
-        y.add(87.);
-        y.add(91.);
-        y.add(85.);
-        y.add(91.);
-        y.add(75.);
-        y.add(28.);
-        y.add(122.);
-        y.add(66.);
-        y.add(58.);
+        List<Double> x = Arrays.asList(56., 56., 65., 65., 50., 25., 87., 44., 35.);
+        List<Double> y = Arrays.asList(87., 91., 85., 91., 75., 28., 122., 66., 58.);
         assertEquals(0.9661943464912911, MathHelper.computePearsonCorrelationCoefficient(x, y), 0.01);
     }
 
@@ -250,11 +192,13 @@ public class MathHelperTest {
 
     @Test
     public void testGetOrderOfMagnitude() {
+        assertEquals(0, MathHelper.getOrderOfMagnitude(0));
         assertEquals(0, MathHelper.getOrderOfMagnitude(1));
         assertEquals(1, MathHelper.getOrderOfMagnitude(10));
         assertEquals(2, MathHelper.getOrderOfMagnitude(100));
-        // assertEquals(-1, MathHelper.getOrderOfMagnitude(0.1));
-        // assertEquals(-2, MathHelper.getOrderOfMagnitude(0.01));
+        assertEquals(-1, MathHelper.getOrderOfMagnitude(0.1));
+        assertEquals(-2, MathHelper.getOrderOfMagnitude(0.01));
+        assertEquals(5, MathHelper.getOrderOfMagnitude(123456));
     }
 
     @Test
