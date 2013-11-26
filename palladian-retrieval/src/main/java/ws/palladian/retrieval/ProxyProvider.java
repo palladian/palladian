@@ -28,6 +28,14 @@ public interface ProxyProvider {
         @Override
         public void promoteProxy(Proxy proxy) {
         }
+
+        @Override
+        public void removeProxy(Proxy proxy, int statusCode) {
+        }
+
+        @Override
+        public void removeProxy(Proxy proxy, Throwable error) {
+        }
     };
 
     /**
@@ -47,7 +55,11 @@ public interface ProxyProvider {
      * </p>
      * 
      * @param proxy The proxy to remove.
+     * @param statusCode The status code that was returned when using the proxy.
      */
+    void removeProxy(Proxy proxy, int statusCode);
+
+    void removeProxy(Proxy proxy, Throwable error);
     void removeProxy(Proxy proxy);
 
     /**

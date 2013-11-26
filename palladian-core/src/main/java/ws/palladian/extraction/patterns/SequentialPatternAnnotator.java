@@ -58,7 +58,7 @@ import ws.palladian.processing.features.SequentialPattern;
  */
 public final class SequentialPatternAnnotator extends TextDocumentPipelineProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SequentialPatternAnnotator.class);
+    // private static final Logger LOGGER = LoggerFactory.getLogger(SequentialPatternAnnotator.class);
 
     private Set<String> keywords;
 

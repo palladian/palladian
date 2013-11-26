@@ -80,11 +80,14 @@ public final class MathHelper {
      * Calculate the Jaccard similarity between two sets. <code>J(A, B) = |A intersection B| / |A union B|</code>.
      * </p>
      * 
-     * @param setA The first set.
-     * @param setB The second set.
+     * @param setA The first set, not <code>null</code>.
+     * @param setB The second set, not <code>null</code>.
      * @return The Jaccard similarity in the range [0, 1].
      */
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
+        Validate.notNull(setA, "setA must not be null");
+        Validate.notNull(setB, "setB must not be null");
+        
         Set<T> intersection = CollectionHelper.newHashSet();
         intersection.addAll(setA);
         intersection.retainAll(setB);
@@ -245,7 +248,7 @@ public final class MathHelper {
 //     * Calculate the <a href="http://en.wikipedia.org/wiki/Median">median</a> for a list of double values. The values do
 //     * not have to be in sorted order in advance.
 //     * </p>
-//     * 
+//     *
 //     * @param values The values for which to get the median.
 //     * @return The median.
 //     * @deprecated Use {@link Stats} instead.
@@ -302,7 +305,7 @@ public final class MathHelper {
 //     * <p>
 //     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
 //     * </p>
-//     * 
+//     *
 //     * @param values The values for which to get the standard deviation.
 //     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
 //     *            <code>false</code> the <i>standard deviation of the sample</i>.
@@ -333,7 +336,7 @@ public final class MathHelper {
 //     * <p>
 //     * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
 //     * </p>
-//     * 
+//     *
 //     * @param values The values for which to get the standard deviation.
 //     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
 //     * @deprecated Use {@link Stats} instead.
@@ -347,7 +350,7 @@ public final class MathHelper {
 //     * <p>
 //     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
 //     * </p>
-//     * 
+//     *
 //     * @param values The values for which to get the standard deviation.
 //     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
 //     *            <code>false</code> the <i>standard deviation of the sample</i>.
@@ -385,7 +388,7 @@ public final class MathHelper {
 //     * Get the largest gap in a {@link Collection} of {@link Number}s. E.g. for a Collection of [2,3,7,10] the value 4
 //     * is returned.
 //     * </p>
-//     * 
+//     *
 //     * @param values The Collection of Numbers, not <code>null</code>.
 //     * @return The largest distance between subsequent Numbers, or -1 when an empty collection or a collection of size 1
 //     *         was supplied.
@@ -787,7 +790,7 @@ public final class MathHelper {
 //     * Compute distances between subsequent {@link Longs}s in a {@link Collection}. E.g. for a Collection of [2,3,7,10]
 //     * a result of [1,4,3] is returned.
 //     * </p>
-//     * 
+//     *
 //     * @param values The Collection of Numbers, not <code>null</code>.
 //     * @return The distances between the subsequent Numbers in the Collection, or empty array for empty input array or
 //     *         arrays of size 1.
@@ -850,11 +853,20 @@ public final class MathHelper {
      * Try to translate a number into a fraction, e.g. 0.333 = 1/3.
      * </p>
      * 
-     * @parameter number A number between 0 and 1.
+     * @parameter number A number.
      * @return The fraction of the number if it was possible to transform, otherwise the number as a string.
      */
     public static String numberToFraction(Double number) {
         String fraction = "";
+
+        String sign = "";
+        if (number < 0) {
+            sign = "-";
+        }
+        number = Math.abs(number);
+
+        int fullPart = (int)Math.floor(number);
+        number = number - fullPart;
 
         double minMargin = 1;
         for (Entry<Double, String> fractionEntry : FRACTION_MAP.entrySet()) {
@@ -876,9 +888,15 @@ public final class MathHelper {
 
         if (fraction.isEmpty() || number > 1 || number < 0) {
             fraction = String.valueOf(number);
+        } else if (fullPart > 0) {
+            if (!fraction.equalsIgnoreCase("0")) {
+                fraction = fullPart + " " + fraction;
+            } else {
+                fraction = fullPart + "";
+            }
         }
 
-        return fraction;
+        return sign + fraction;
     }
 
     /**

@@ -66,14 +66,6 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
      *            {@link LinearKernel} and the {@link RBFKernel}. The kernel is required to transfer the data to a
      *            higher dimensional space, where it is separable. Please read on the theoretical details of SVM to
      *            learn more. If you do not care you are probably fine using either kernel. Just try them.
-     *            // * @param normalFeaturePaths The feature paths identifying the normal features, which should be
-     *            considered for
-     *            // * training. This parameter is ignored for classification since the model provides the value in this
-     *            // * case.
-     *            // * @param sparseFeaturePaths The feature paths identifying the sparse features, which should be
-     *            considered for
-     *            // * training. This parameter is ignored for classification since the model provides the value in this
-     *            // * case.
      */
     public LibSvmPredictor(LibSvmKernel kernel) {
         this.kernel = kernel;

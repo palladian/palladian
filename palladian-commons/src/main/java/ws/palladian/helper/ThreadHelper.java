@@ -6,11 +6,33 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>
+ * Utilities concerning threads.
+ * </p>
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class ThreadHelper {
     
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadHelper.class);
 
+    public static Thread spawnPeriodicThread(final PeriodicThreadAction action, final long intervalMillis) {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    ThreadHelper.deepSleep(intervalMillis);
+                    action.performPeriodicAction();
+                }
+            }
+        };
+        thread.start();
+
+        return thread;
+    }
 
     public static void deepSleep(long milliseconds) {
         try {

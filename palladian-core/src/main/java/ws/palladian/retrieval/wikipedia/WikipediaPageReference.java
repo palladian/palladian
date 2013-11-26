@@ -33,6 +33,11 @@ public class WikipediaPageReference implements WebContent {
     }
     
     @Override
+    public int getId() {
+        return pageId;
+    }
+    
+    @Override
     public String getIdentifier() {
         return String.valueOf(pageId);
     }

@@ -1,12 +1,9 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-public class TransposedMatrix<K, V> implements Matrix<K, V>, Serializable {
+public class TransposedMatrix<K, V> extends AbstractMatrix<K, V> implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
@@ -34,28 +31,13 @@ public class TransposedMatrix<K, V> implements Matrix<K, V>, Serializable {
     }
 
     @Override
-    public Set<K> getKeysX() {
-        return matrix.getKeysY();
+    public Set<K> getColumnKeys() {
+        return matrix.getRowKeys();
     }
 
     @Override
-    public Set<K> getKeysY() {
-        return matrix.getKeysX();
-    }
-
-    @Override
-    public int sizeY() {
-        return matrix.sizeX();
-    }
-
-    @Override
-    public int sizeX() {
-        return matrix.sizeY();
-    }
-
-    @Override
-    public String asCsv() {
-        return matrix.asCsv();
+    public Set<K> getRowKeys() {
+        return matrix.getColumnKeys();
     }
 
     @Override
@@ -64,12 +46,12 @@ public class TransposedMatrix<K, V> implements Matrix<K, V>, Serializable {
     }
 
     @Override
-    public List<Pair<K, V>> getRow(K y) {
+    public Vector<K, V> getRow(K y) {
         return matrix.getColumn(y);
     }
 
     @Override
-    public List<Pair<K, V>> getColumn(K x) {
+    public Vector<K, V> getColumn(K x) {
         return matrix.getRow(x);
     }
 

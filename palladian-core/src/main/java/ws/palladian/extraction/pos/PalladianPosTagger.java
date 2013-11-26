@@ -1,6 +1,7 @@
 package ws.palladian.extraction.pos;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -24,9 +25,10 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -52,7 +54,11 @@ public class PalladianPosTagger extends BasePosTagger {
     public PalladianPosTagger(String modelFilePath) {
         model = (UniversalClassifierModel)Cache.getInstance().getDataObject(modelFilePath);
         if (model == null) {
-            model = FileHelper.deserialize(modelFilePath);
+            try {
+                model = FileHelper.deserialize(modelFilePath);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
             Cache.getInstance().putDataObject(modelFilePath, model);
         }
         tagger = getTagger();
@@ -68,11 +74,9 @@ public class PalladianPosTagger extends BasePosTagger {
         String previousTag = "";
         for (PositionAnnotation annotation : annotations) {
 
-            // TODO this should only be a featureVector
-            Instance instance = new Instance("test");
-            setFeatures(instance, previousTag, annotation.getValue());
+            FeatureVector featureVector = extractFeatures(previousTag, annotation.getValue());
 
-            CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
+            CategoryEntries categoryEntries = tagger.classify(featureVector, model);
             String tag = categoryEntries.getMostLikelyCategory();
             assignTag(annotation, Arrays.asList(new String[] {tag}));
             previousTag = tag;
@@ -84,7 +88,7 @@ public class PalladianPosTagger extends BasePosTagger {
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.NOMINAL), featureSetting);
     }
 
-    public void trainModel(String folderPath, String modelFilePath) {
+    public void trainModel(String folderPath, String modelFilePath) throws IOException {
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
@@ -114,9 +118,8 @@ public class PalladianPosTagger extends BasePosTagger {
                     continue;
                 }
 
-                Instance instance = new Instance(normalizeTag(wordAndTag[1]));
-                setFeatures(instance, previousTag, wordAndTag[0]);
-                // instance.setInstanceCategory();
+                FeatureVector featureVector = extractFeatures(previousTag, wordAndTag[0]);
+                Instance instance = new Instance(normalizeTag(wordAndTag[1]), featureVector);
 
                 trainingInstances.add(instance);
 
@@ -137,7 +140,7 @@ public class PalladianPosTagger extends BasePosTagger {
         LOGGER.info("finished training tagger in " + stopWatch.getElapsedTimeString());
     }
 
-    private void setFeatures(Instance instance, String previousTag, String word) {
+    private FeatureVector extractFeatures(String previousTag, String word) {
 
         String lastTwo = "";
         if (word.length() > 1) {
@@ -157,21 +160,20 @@ public class PalladianPosTagger extends BasePosTagger {
         // instance.setNumericFeatures(Arrays.asList((double)word.length()));
         // instance.setNominalFeatures(Arrays.asList(word));
 
+        FeatureVector featureVector = new BasicFeatureVector();
         for (String nominalFeature : nominalFeatures) {
-            String name = "nom" + instance.getFeatureVector().size();
-            instance.getFeatureVector().add(new NominalFeature(name.intern(), nominalFeature));
+            String name = "nom" + featureVector.size();
+            featureVector.add(new NominalFeature(name.intern(), nominalFeature));
         }
 
-        try {
-            PreprocessingPipeline preprocessingPipeline = new PreprocessingPipeline(tagger.getFeatureSetting());
-            TextDocument textDocument = new TextDocument(word);
-            preprocessingPipeline.process(textDocument);
-            for (Feature<?> feature : textDocument.getFeatureVector()) {
-                instance.getFeatureVector().add(feature);
-            }
-        } catch (DocumentUnprocessableException e) {
-            throw new IllegalStateException(e);
+        PreprocessingPipeline preprocessingPipeline = new PreprocessingPipeline(tagger.getFeatureSetting());
+        TextDocument textDocument = new TextDocument(word);
+        preprocessingPipeline.process(textDocument);
+        for (Feature<?> feature : textDocument.getFeatureVector()) {
+            featureVector.add(feature);
         }
+
+        return featureVector;
     }
 
     public void evaluate(String folderPath, String modelFilePath) {
@@ -186,8 +188,6 @@ public class PalladianPosTagger extends BasePosTagger {
         int c = 1;
         int correct = 0;
         int total = 0;
-
-        // List<UniversalInstance> instances = CollectionHelper.newArrayList();
 
         File[] testFiles = FileHelper.getFiles(folderPath);
         for (File file : testFiles) {
@@ -211,13 +211,8 @@ public class PalladianPosTagger extends BasePosTagger {
                     continue;
                 }
 
-                // TextInstance result = tagger.classify(wordAndTag[0]);
-
-                // TODO this should only be a FeatureVector and no instance.
-                Instance instance = new Instance("test");
-                setFeatures(instance, previousTag, wordAndTag[0]);
-
-                CategoryEntries categoryEntries = tagger.classify(instance.getFeatureVector(), model);
+                FeatureVector featureVector = extractFeatures(previousTag, wordAndTag[0]);
+                CategoryEntries categoryEntries = tagger.classify(featureVector, model);
                 String assignedTag = categoryEntries.getMostLikelyCategory();
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 

@@ -1,15 +1,14 @@
 package ws.palladian.helper.math;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-import ws.palladian.helper.collection.Matrix;
+import ws.palladian.helper.collection.AbstractMatrix;
 import ws.palladian.helper.collection.MapMatrix;
+import ws.palladian.helper.collection.Matrix;
+import ws.palladian.helper.collection.Vector;
 
-public class NumericMatrix<K> implements Matrix<K, Double>, Serializable {
+public class NumericMatrix<K> extends AbstractMatrix<K, Double> implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
@@ -33,8 +32,8 @@ public class NumericMatrix<K> implements Matrix<K, Double>, Serializable {
      */
     public void add(NumericMatrix<K> matrix) {
 
-        for (K yKey : getKeysY()) {
-            for (K xKey : getKeysX()) {
+        for (K yKey : getRowKeys()) {
+            for (K xKey : getColumnKeys()) {
                 Double currentNumber = get(xKey, yKey);
                 double value = currentNumber.doubleValue();
                 Double number = matrix.get(xKey, yKey);
@@ -59,8 +58,8 @@ public class NumericMatrix<K> implements Matrix<K, Double>, Serializable {
      * @param divisor The value by which every cell is divided by.
      */
     public void divideBy(double divisor) {
-        for (K yKey : getKeysY()) {
-            for (K xKey : getKeysX()) {
+        for (K yKey : getRowKeys()) {
+            for (K xKey : getColumnKeys()) {
                 Double currentNumber = get(xKey, yKey);
                 double value = currentNumber.doubleValue();
                 value /= divisor;
@@ -147,28 +146,13 @@ public class NumericMatrix<K> implements Matrix<K, Double>, Serializable {
     }
 
     @Override
-    public Set<K> getKeysX() {
-        return matrix.getKeysX();
+    public Set<K> getColumnKeys() {
+        return matrix.getColumnKeys();
     }
 
     @Override
-    public Set<K> getKeysY() {
-        return matrix.getKeysY();
-    }
-
-    @Override
-    public int sizeY() {
-        return matrix.sizeY();
-    }
-
-    @Override
-    public int sizeX() {
-        return matrix.sizeX();
-    }
-
-    @Override
-    public String asCsv() {
-        return matrix.asCsv();
+    public Set<K> getRowKeys() {
+        return matrix.getRowKeys();
     }
 
     @Override
@@ -177,12 +161,12 @@ public class NumericMatrix<K> implements Matrix<K, Double>, Serializable {
     }
 
     @Override
-    public List<Pair<K, Double>> getRow(K y) {
+    public Vector<K, Double> getRow(K y) {
         return matrix.getRow(y);
     }
 
     @Override
-    public List<Pair<K, Double>> getColumn(K x) {
+    public Vector<K, Double> getColumn(K x) {
         return matrix.getColumn(x);
     }
 

@@ -1,5 +1,6 @@
 package ws.palladian.helper.math;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -21,10 +22,22 @@ public class Stats {
 
     private final List<Number> values;
 
+    /**
+     * <p>
+     * Create a new, empty {@link Stats} collection.
+     * </p>
+     */
     public Stats() {
         this.values = CollectionHelper.newArrayList();
     }
 
+    /**
+     * <p>
+     * Create a new {@link Stats} collection with the provided values.
+     * </p>
+     * 
+     * @param values The values to add to this Stats collection, not <code>null</code>.
+     */
     public Stats(Collection<? extends Number> values) {
         this();
         Validate.notNull(values, "values must not be null");
@@ -44,9 +57,32 @@ public class Stats {
         this.values = FixedSizeQueue.create(size);
     }
 
-    public void add(Number value) {
+    /**
+     * <p>
+     * Add a value to this {@link Stats} collection.
+     * </p>
+     * 
+     * @param value The {@link Number} to add, not <code>null</code>.
+     * @return This instance, to allow fluent method chaining.
+     */
+    public Stats add(Number value) {
         Validate.notNull(value, "value must not be null");
         values.add(value.doubleValue());
+        return this;
+    }
+
+    /**
+     * <p>
+     * Add multiple values to this {@link Stats} collection.
+     * </p>
+     * 
+     * @param values The {@link Number}s to add, not <code>null</code>.
+     * @return This instance, to allow fluent method chaining.
+     */
+    public Stats add(Number... values) {
+        Validate.notNull(values, "values must not be null");
+        this.values.addAll(Arrays.asList(values));
+        return this;
     }
 
     /**
@@ -109,6 +145,10 @@ public class Stats {
         return values.size();
     }
 
+    /**
+     * @return The minimum value in this {@link Stats} collection, or {@link Double#NaN} in case no numbers were
+     *         provided.
+     */
     public double getMin() {
         if (values.isEmpty()) {
             return Double.NaN;
@@ -139,8 +179,7 @@ public class Stats {
     }
 
     /**
-     * @return The minimum value in this {@link Stats} collection, or {@link Double#NaN} in case no numbers were
-     *         provided.
+     * @return The sum of all values in this {@link Stats} collection. 0 in case the collection is empty.
      */
     public double getSum() {
         double sum = 0;
@@ -195,29 +234,20 @@ public class Stats {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Stats [mean=");
-        builder.append(getMean());
-        builder.append(", standardDeviation=");
-        builder.append(getStandardDeviation());
-        builder.append(", median=");
-        builder.append(getMedian());
-        builder.append(", count=");
-        builder.append(getCount());
-        builder.append(", min=");
-        builder.append(getMin());
-        builder.append(", max=");
-        builder.append(getMax());
-        builder.append(", range=");
-        builder.append(getRange());
-        builder.append(", sum=");
-        builder.append(getSum());
-        builder.append(", MSE=");
-        builder.append(getMse());
-        builder.append(", RMSE=");
-        builder.append(getRmse());
-        builder.append("]");
-        return builder.toString();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Min: ").append(getMin()).append("\n");
+        stringBuilder.append("Max: ").append(getMax()).append("\n");
+        stringBuilder.append("Standard Deviation: ").append(getStandardDeviation()).append("\n");
+        stringBuilder.append("Mean: ").append(getMean()).append("\n");
+        stringBuilder.append("Median: ").append(getMedian()).append("\n");
+        stringBuilder.append("Count: ").append(getCount()).append("\n");
+        stringBuilder.append("Range: ").append(getRange()).append("\n");
+        stringBuilder.append("MSE: ").append(getMse()).append("\n");
+        stringBuilder.append("RMSE: ").append(getRmse()).append("\n");
+        stringBuilder.append("Sum: ").append(getSum()).append("\n");
+
+        return stringBuilder.toString();
     }
 
 }

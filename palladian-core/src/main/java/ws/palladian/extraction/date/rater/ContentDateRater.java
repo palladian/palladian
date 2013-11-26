@@ -107,15 +107,16 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
      * 
      * @param inputCsv The path to the CSV file.
      * @param outputPath The path and filename for the model file.
+     * @throws IOException 
      */
-    private static void buildModel(String inputCsv, String outputPath) {
+    private static void buildModel(String inputCsv, String outputPath) throws IOException {
         List<Trainable> instances = ClassificationUtils.readCsv(inputCsv, true);
         QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
         QuickDtModel model = learner.train(instances);
         FileHelper.serialize(model, outputPath);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         buildModel("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv",
                 "src/main/resources/dates_mod_model.gz");
         buildModel("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_pub.csv",

@@ -4,8 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
@@ -197,20 +202,18 @@ public class HttpRetriever {
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
     }
 
-
     /**
      * <p>
      * Add a cookie to the header.
      * </p>
-     *
+     * 
      * @param key The name of the cookie.
      * @param value The value of the cookie.
-     *
+     * 
      */
     public void addCookie(String key, String value) {
         cookieStore.put(key, value);
     }
-
 
     // ////////////////////////////////////////////////////////////////
     // HTTP methods
@@ -480,10 +483,10 @@ public class HttpRetriever {
 
             HttpContext context = new BasicHttpContext();
             StringBuilder cookieText = new StringBuilder();
-            for (Entry<String, String> cookie: cookieStore.entrySet()) {
+            for (Entry<String, String> cookie : cookieStore.entrySet()) {
                 cookieText.append(cookie.getKey()).append("=").append(cookie.getValue()).append(";");
             }
-            if(!cookieStore.isEmpty()){
+            if (!cookieStore.isEmpty()) {
                 request.addHeader("Cookie", cookieText.toString());
             }
 
@@ -525,18 +528,17 @@ public class HttpRetriever {
 
             addDownload(receivedBytes);
 
-            proxyProvider.promoteProxy(proxyUsed);
-
-            if(proxyRemoveStatusCodes.contains(statusCode)) {
-                proxyProvider.removeProxy(proxyUsed);
+            if (proxyRemoveStatusCodes.contains(statusCode)) {
+                proxyProvider.removeProxy(proxyUsed, statusCode);
+            }else {
+                proxyProvider.promoteProxy(proxyUsed);
             }
 
-
         } catch (IllegalStateException e) {
-            proxyProvider.removeProxy(proxyUsed);
+            proxyProvider.removeProxy(proxyUsed, e);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } catch (IOException e) {
-            proxyProvider.removeProxy(proxyUsed);
+            proxyProvider.removeProxy(proxyUsed, e);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } finally {
             FileHelper.close(in);
@@ -602,9 +604,10 @@ public class HttpRetriever {
 
         for (;;) {
             HttpHead headRequest;
+            Proxy proxy = null;
             try {
                 headRequest = new HttpHead(url);
-                setProxy(url, headRequest, backend);
+                proxy = setProxy(url, headRequest, backend);
             } catch (IllegalArgumentException e) {
                 throw new HttpException("Invalid URL: \"" + url + "\"");
             }
@@ -638,13 +641,16 @@ public class HttpRetriever {
                 } else {
                     break; // done.
                 }
+                proxyProvider.promoteProxy(proxy);
             } catch (ClientProtocolException e) {
                 throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
             } catch (IOException e) {
+                proxyProvider.removeProxy(proxy);
                 throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
             } finally {
                 headRequest.abort();
             }
+
         }
         // client.getConnectionManager().shutdown();
         return ret;
@@ -704,6 +710,9 @@ public class HttpRetriever {
         boolean result = false;
         try {
             HttpResult httpResult = httpGet(url, requestHeaders);
+            if (httpResult.getStatusCode() != 200) {
+                throw new HttpException("status code != 200 for " + url);
+            }
             result = HttpHelper.saveToFile(httpResult, filePath, includeHttpResponseHeaders);
         } catch (HttpException e) {
             LOGGER.error("Error while downloading {}", url, e);
@@ -821,6 +830,5 @@ public class HttpRetriever {
     public void setProxyRemoveStatusCodes(Set<Integer> proxyRemoveStatusCodes) {
         this.proxyRemoveStatusCodes = proxyRemoveStatusCodes;
     }
-
 
 }

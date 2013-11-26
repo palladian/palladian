@@ -182,8 +182,8 @@ class WikipediaEntityContextMiner {
     }
 
     private static void writeContexts(CountMatrix<String> contextMatrix, String fileName) {
-        Set<String> types = contextMatrix.getKeysX();
-        Set<String> contexts = contextMatrix.getKeysY();
+        Set<String> types = contextMatrix.getColumnKeys();
+        Set<String> contexts = contextMatrix.getRowKeys();
         LOGGER.info("Writing context list to '{}', # contexts: {}", fileName, contexts.size());
 
         Writer writer = null;

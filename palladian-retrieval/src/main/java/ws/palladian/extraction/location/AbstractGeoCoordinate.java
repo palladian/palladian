@@ -11,6 +11,15 @@ import org.apache.commons.lang3.Validate;
  * @author pk
  */
 public abstract class AbstractGeoCoordinate implements GeoCoordinate {
+    
+    /** Constant for formatting degrees. */
+    private static final char DEGREES = '°';
+    
+    /** Constant for formatting minutes. */
+    private static final char MINUTES = '′';
+    
+    /** Constant for formatting seconds. */
+    private static final char SECONDS = '″';
 
     @Override
     public double distance(GeoCoordinate other) {
@@ -48,9 +57,29 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         } else if (lng < 0) {
             lngSuffix = "W";
         }
-        String latString = String.format(GeoUtils.DMS_SUFFIX_FORMAT, latParts[0], latParts[1], latParts[2], latSuffix);
-        String lngString = String.format(GeoUtils.DMS_SUFFIX_FORMAT, lngParts[0], lngParts[1], lngParts[2], lngSuffix);
+        String latString = formatDms(latParts, latSuffix);
+        String lngString = formatDms(lngParts, lngSuffix);
         return latString + "," + lngString;
+    }
+
+    /**
+     * Produce something like <code>51°1′59″N,13°43′59″E</code>.
+     * 
+     * @param dmsParts date, minute, seconds parts; zero values will be cut.
+     * @param suffix The suffix to append [NSEW].
+     * @return The formatted string.
+     */
+    private static String formatDms(int[] dmsParts, String suffix) {
+        StringBuilder dmsBuilder = new StringBuilder();
+        dmsBuilder.append(dmsParts[0]).append(DEGREES);
+        if (dmsParts[1] != 0 && dmsParts[2] != 0) {
+            dmsBuilder.append(dmsParts[1]).append(MINUTES);
+            if (dmsParts[2] != 0) {
+                dmsBuilder.append(dmsParts[2]).append(SECONDS);
+            }
+        }
+        dmsBuilder.append(suffix);
+        return dmsBuilder.toString();
     }
 
     private static int[] getParts(double decimal) {
@@ -113,4 +142,5 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
             return false;
         return true;
     }
+
 }

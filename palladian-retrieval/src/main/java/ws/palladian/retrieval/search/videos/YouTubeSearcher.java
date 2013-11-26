@@ -173,10 +173,10 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         String published = entry.queryString("published/$t");
         builder.setPublished(parseDate(published));
         builder.setTitle(entry.queryString("title/$t"));
-        builder.setVideoUrl(entry.queryString("content/src"));
+        builder.setVideoUrl(entry.tryQueryString("content/src"));
         builder.setUrl(getPageLink(entry));
         builder.setDuration(entry.queryLong("media$group/yt$duration/seconds"));
-        builder.setViews(entry.queryInt("yt$statistics/viewCount"));
+        builder.setViews(entry.tryQueryInt("yt$statistics/viewCount"));
         builder.setSummary(entry.queryString("media$group/media$description/$t"));
         builder.setThumbnailUrl(entry.queryString("media$group/media$thumbnail[2]/url"));
 
@@ -201,7 +201,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
             }
         }
         
-        // no tags available ): 
+        // no tags available ):
         // see: http://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
 
         builder.setSource(SEARCHER_NAME);
