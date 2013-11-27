@@ -58,7 +58,10 @@ public final class ZScoreNormalization extends AbstractNormalization {
         if (standardDeviation == null || mean == null) {
             throw new IllegalArgumentException("No normalization information for \"" + featureName + "\".");
         }
-        double normalizedValue = (numericFeature.getValue() - mean) / standardDeviation;
+        double normalizedValue = numericFeature.getValue() - mean;
+        if (standardDeviation != 0) {
+            normalizedValue /= standardDeviation;
+        }
         return new NumericFeature(featureName, normalizedValue);
     }
 
