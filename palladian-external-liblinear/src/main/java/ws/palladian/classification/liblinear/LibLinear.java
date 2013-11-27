@@ -12,6 +12,10 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
+import ws.palladian.classification.utils.NoNormalizer;
+import ws.palladian.classification.utils.Normalization;
+import ws.palladian.classification.utils.Normalizer;
+import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
@@ -46,6 +50,9 @@ public class LibLinear implements Learner<LibLinearModel>, Classifier<LibLinearM
 
     /** Bias parameter, will be set in case value is greater zero. */
     private final double bias;
+    
+    /** The normalizer for the numeric features. */
+    private final Normalizer normalizer;
 
     static {
         // redirect debug output to logger.
@@ -59,23 +66,36 @@ public class LibLinear implements Learner<LibLinearModel>, Classifier<LibLinearM
      * 
      * @param parameter The parameter, not <code>null</code>.
      * @param bias The value for the bias term, <code>0</code> to add no bias term.
+     * @param normalizer The normalizer to use, not <code>null</code>. Use a {@link NoNormalizer} to skip
+     *            normalization.
      */
-    public LibLinear(Parameter parameter, double bias) {
+    public LibLinear(Parameter parameter, double bias, Normalizer normalizer) {
         Validate.notNull(parameter, "parameter must not be null");
+        Validate.notNull(normalizer, "normalizer must not be null");
         this.parameter = parameter;
         this.bias = bias;
+        this.normalizer = normalizer;
     }
 
+    /**
+     * <p>
+     * Create a new {@link LibLinear} with 'L2-regularized logistic regression', a cost value of 1.0 for constraints
+     * violation, a value of 0.01 as stopping criterion, a bias term of one, and Z-Score normalization for features.
+     * </p>
+     */
     public LibLinear() {
         this(new Parameter(SolverType.L2R_LR, //
                 1.0, // cost of constraints violation
                 0.01), // stopping criteria
-                1); // bias term
+                1, // bias term
+                new ZScoreNormalizer()); // normalizer
     }
 
     @Override
     public LibLinearModel train(Iterable<? extends Trainable> trainables) {
         Validate.notNull(trainables, "trainables must not be null");
+        Normalization normalization = normalizer.calculate(trainables);
+        normalization.normalize(trainables);
         Problem problem = new Problem();
         Set<String> featureLabels = CollectionHelper.newTreeSet();
         List<String> classIndices = CollectionHelper.newArrayList();
@@ -107,7 +127,7 @@ public class LibLinear implements Learner<LibLinearModel>, Classifier<LibLinearM
         }
         LOGGER.debug("n={}, l={}", problem.n, problem.l);
         Model model = Linear.train(problem, parameter);
-        return new LibLinearModel(model, featureLabels, classIndices);
+        return new LibLinearModel(model, featureLabels, classIndices, normalization);
     }
 
     private static de.bwaldvogel.liblinear.Feature[] makeInstance(Set<String> labels, Classifiable trainable,
@@ -137,6 +157,7 @@ public class LibLinear implements Learner<LibLinearModel>, Classifier<LibLinearM
     public CategoryEntries classify(Classifiable classifiable, LibLinearModel model) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(model, "model must not be null");
+        model.getNormalization().normalize(classifiable);
         de.bwaldvogel.liblinear.Feature[] instance = makeInstance(model.getFeatureLabels(), classifiable, model
                 .getLLModel().getBias());
         double[] probabilities = new double[model.getCategories().size()];

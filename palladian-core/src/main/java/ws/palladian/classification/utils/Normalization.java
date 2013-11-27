@@ -9,7 +9,7 @@ import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * Normalization for {@link NumericFeature}s.
+ * Normalization for {@link NumericFeature}s. Use a {@link Normalizer} implementation to obtain instances.
  * </p>
  * 
  * @author pk

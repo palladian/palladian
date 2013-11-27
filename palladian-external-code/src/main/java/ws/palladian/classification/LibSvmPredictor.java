@@ -23,7 +23,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.utils.MinMaxNormalization;
+import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.Classifiable;
@@ -85,7 +85,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
             throw new IllegalStateException(
                     "The training data contains less than two different classes. Training not possible on such a dataset.");
         }
-        Normalization normalization = new MinMaxNormalization(trainables);
+        Normalization normalization = new MinMaxNormalizer().calculate(trainables);
         svm_problem problem = createProblem(trainables, params, indices, classes, normalization);
         String errorMessage = svm.svm_check_parameter(problem, params);
         if (errorMessage != null) {
@@ -338,7 +338,7 @@ public final class LibSvmPredictor implements Learner<LibSvmModel>, Classifier<L
      * @param targetFilePath The path to write the output to.
      */
     public void writeToDisk(List<Instance> instances, String targetFilePath) {
-        Normalization normalization = new MinMaxNormalization(instances);
+        Normalization normalization = new MinMaxNormalizer().calculate(instances);
         Map<String, Integer> indices = new HashMap<String, Integer>();
         List<String> possibleClasses = calculatePossibleClasses(instances);
         for (Instance instance : instances) {
