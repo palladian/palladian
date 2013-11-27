@@ -1,7 +1,5 @@
 package ws.palladian.classification.utils;
 
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.processing.Classifiable;
@@ -19,7 +17,7 @@ import ws.palladian.processing.features.NumericFeature;
 abstract class AbstractNormalization implements Normalization {
 
     @Override
-    public final void normalize(List<? extends Classifiable> instances) {
+    public final void normalize(Iterable<? extends Classifiable> instances) {
         Validate.notNull(instances, "instances must not be null");
         for (Classifiable instance : instances) {
             normalize(instance);

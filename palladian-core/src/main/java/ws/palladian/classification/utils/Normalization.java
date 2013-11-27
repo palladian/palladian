@@ -24,7 +24,7 @@ public interface Normalization {
      * 
      * @param instances The List of Instances, not <code>null</code>.
      */
-    void normalize(List<? extends Classifiable> instances);
+    void normalize(Iterable<? extends Classifiable> instances);
 
     /**
      * <p>
