@@ -129,6 +129,9 @@ public final class MapTermCorpus extends AbstractTermCorpus {
             public void performAction(String text, int number) {
                 if (number != 0 && number % 100000 == 0) {
                     System.out.print('.');
+                    if (number % 10000000 == 0) {
+                        System.out.println();
+                    }
                 }
                 String[] split = text.split(SEPARATOR);
                 if (number > 1) {
