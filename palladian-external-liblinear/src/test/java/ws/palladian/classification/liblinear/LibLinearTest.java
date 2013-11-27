@@ -44,7 +44,7 @@ public class LibLinearTest {
         List<Trainable> instances = readCsv(getResourcePath("/adultData.txt"), false);
         LibLinear libLinear = new LibLinear();
         ConfusionMatrix confusionMatrix = evaluate(libLinear, libLinear, instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.779);
+        assertTrue(confusionMatrix.getAccuracy() > 0.79);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class LibLinearTest {
         List<Trainable> instances = readCsv(getResourcePath("/diabetesData.txt"), true);
         LibLinear libLinear = new LibLinear();
         ConfusionMatrix confusionMatrix = evaluate(libLinear, libLinear, instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.78);
+        assertTrue(confusionMatrix.getAccuracy() > 0.80);
     }
 
 }

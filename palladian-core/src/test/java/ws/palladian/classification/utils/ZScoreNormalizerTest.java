@@ -12,18 +12,18 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.NumericFeature;
 
-public class ZScoreNormalizationTest {
+public class ZScoreNormalizerTest {
 
     @Test
     public void testZScoreNormalization() {
-        List<Classifiable> Features = CollectionHelper.newArrayList();
-        Features.add(new InstanceBuilder().set("v1", 35.).create());
-        Features.add(new InstanceBuilder().set("v1", 36.).create());
-        Features.add(new InstanceBuilder().set("v1", 46.).create());
-        Features.add(new InstanceBuilder().set("v1", 68.).create());
-        Features.add(new InstanceBuilder().set("v1", 70.).create());
+        List<Classifiable> features = CollectionHelper.newArrayList();
+        features.add(new InstanceBuilder().set("v1", 35.).create());
+        features.add(new InstanceBuilder().set("v1", 36.).create());
+        features.add(new InstanceBuilder().set("v1", 46.).create());
+        features.add(new InstanceBuilder().set("v1", 68.).create());
+        features.add(new InstanceBuilder().set("v1", 70.).create());
 
-        ZScoreNormalization normalization = new ZScoreNormalization(Features);
+        Normalization normalization = new ZScoreNormalizer().calculate(features);
         // System.out.println(normalization);
         assertEquals(-0.9412, normalization.normalize(new NumericFeature("v1", 35.)).getValue(), 0.001);
         assertEquals(-0.8824, normalization.normalize(new NumericFeature("v1", 36.)).getValue(), 0.001);
@@ -37,7 +37,7 @@ public class ZScoreNormalizationTest {
         Collection<Classifiable> instances = CollectionHelper.newArrayList();
         instances.add(new InstanceBuilder().set("test", 0.9).create());
         instances.add(new InstanceBuilder().set("test", 0.9).create());
-        ZScoreNormalization normalization = new ZScoreNormalization(instances);
+        Normalization normalization = new ZScoreNormalizer().calculate(instances);
         assertEquals(0, normalization.normalize(new NumericFeature("test", 0.9)).getValue(), 0.001);
         assertEquals(-0.9, normalization.normalize(new NumericFeature("test", 0)).getValue(), 0.001);
         assertEquals(0.9, normalization.normalize(new NumericFeature("test", 1.8)).getValue(), 0.001);

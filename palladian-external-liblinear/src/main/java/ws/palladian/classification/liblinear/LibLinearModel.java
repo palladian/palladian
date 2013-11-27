@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import ws.palladian.classification.Model;
+import ws.palladian.classification.utils.Normalization;
 
 /**
  * <p>
@@ -27,10 +28,13 @@ public class LibLinearModel implements Model {
 
     private final List<String> classIndices;
 
-    public LibLinearModel(de.bwaldvogel.liblinear.Model model, Set<String> featureLabels, List<String> classIndices) {
+    private final Normalization normalization;
+
+    public LibLinearModel(de.bwaldvogel.liblinear.Model model, Set<String> featureLabels, List<String> classIndices, Normalization normalization) {
         this.model = model;
         this.featureLabels = featureLabels;
         this.classIndices = classIndices;
+        this.normalization = normalization;
     }
 
     de.bwaldvogel.liblinear.Model getLLModel() {
@@ -48,6 +52,10 @@ public class LibLinearModel implements Model {
 
     String getCategoryForIndex(int i) {
         return classIndices.get(i);
+    }
+    
+    Normalization getNormalization() {
+        return normalization;
     }
 
     @Override

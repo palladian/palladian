@@ -15,7 +15,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.NumericFeature;
 
-public class MinMaxNormalizationTest {
+public class MinMaxNormalizerTest {
 
     @Test
     public void testMinMaxNormalization() {
@@ -27,9 +27,8 @@ public class MinMaxNormalizationTest {
         instances.add(instance2);
         instances.add(instance3);
 
-        Normalization minMaxNormalize = new MinMaxNormalization(instances);
-
-        minMaxNormalize.normalize(instances);
+        Normalization normalization = new MinMaxNormalizer().calculate(instances);
+        normalization.normalize(instances);
 
         assertEquals(1., instance1.getFeatureVector().get(NumericFeature.class, "v1").getValue(), 0.);
         assertEquals(0.1111, instance2.getFeatureVector().get(NumericFeature.class, "v1").getValue(), 0.001);
@@ -41,24 +40,12 @@ public class MinMaxNormalizationTest {
 
     }
 
-//    @Test
-//    public void testNormalization() throws Exception {
-//        Collection<Classifiable> instances = CollectionHelper.newArrayList();
-//        instances.add(new InstanceBuilder().set("test", -10.d).create());
-//        instances.add(new InstanceBuilder().set("test", 10.0d).create());
-//        instances.add(new InstanceBuilder().set("test", 2).create());
-//        MinMaxNormalization normalization = new MinMaxNormalization(instances);
-//
-//        double result = normalization.normalize(new NumericFeature("test", 5.0d)).getValue();
-//        assertThat(result, is(0.75));
-//    }
-
     @Test
     public void testNormalizationWithEqualMinMax() throws Exception {
         Collection<Classifiable> instances = CollectionHelper.newArrayList();
         instances.add(new InstanceBuilder().set("test", 0.9d).create());
         instances.add(new InstanceBuilder().set("test", 0.9d).create());
-        Normalization normalization = new MinMaxNormalization(instances);
+        Normalization normalization = new MinMaxNormalizer().calculate(instances);
 
         double result = normalization.normalize(new NumericFeature("test", 5.0d)).getValue();
         assertThat(result, is(4.1));
