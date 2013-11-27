@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.processing.Classifiable;
@@ -33,12 +32,7 @@ public final class ZScoreNormalization extends AbstractNormalization {
     public ZScoreNormalization(Iterable<? extends Classifiable> instances) {
         Validate.notNull(instances, "instances must not be null");
 
-        Map<String, Stats> statsMap = LazyMap.create(new Factory<Stats>() {
-            @Override
-            public Stats create() {
-                return new Stats();
-            }
-        });
+        Map<String, Stats> statsMap = LazyMap.create(Stats.FACTORY);
 
         for (Classifiable instance : instances) {
             Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);

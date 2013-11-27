@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.FixedSizeQueue;
 import ws.palladian.helper.collection.Function;
 
@@ -19,6 +20,18 @@ import ws.palladian.helper.collection.Function;
  * @author Philipp Katz
  */
 public class Stats {
+
+    /**
+     * <p>
+     * A factory for producing {@link Stats} instances.
+     * </p>
+     */
+    public static final Factory<Stats> FACTORY = new Factory<Stats>() {
+        @Override
+        public Stats create() {
+            return new Stats();
+        }
+    };
 
     private final List<Number> values;
 
