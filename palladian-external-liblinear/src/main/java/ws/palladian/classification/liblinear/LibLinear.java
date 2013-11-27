@@ -1,5 +1,6 @@
 package ws.palladian.classification.liblinear;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +13,8 @@ import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.Slf4JOutputStream;
+import ws.palladian.helper.io.Slf4JOutputStream.Level;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
@@ -43,6 +46,11 @@ public class LibLinear implements Learner<LibLinearModel>, Classifier<LibLinearM
 
     /** Bias parameter, will be set in case value is greater zero. */
     private final double bias;
+
+    static {
+        // redirect debug output to logger.
+        Linear.setDebugOutput(new PrintStream(new Slf4JOutputStream(LOGGER, Level.DEBUG)));
+    }
 
     /**
      * <p>
