@@ -100,7 +100,7 @@ public final class KnnClassifier implements Learner<KnnModel>, Classifier<KnnMod
         
         model.getNormalization().normalize(classifiable);
         
-        Set<String> categories = getPossibleCategories(model.getTrainingExamples());
+        Set<String> categories = model.getCategories();
         Map<String, Double> relevances = CollectionHelper.newHashMap();
 
         // create one category entry for every category with relevance 0
@@ -143,21 +143,6 @@ public final class KnnClassifier implements Learner<KnnModel>, Classifier<KnnMod
             categoryEntries.set(entry.getKey(), entry.getValue());
         }
         return categoryEntries;
-    }
-
-    /**
-     * <p>
-     * Fetches the possible categories from a list of {@link Instance} like to ones making up the typical training set.
-     * </p>
-     * 
-     * @param instances The {@code List} of {@code NominalInstance}s to extract the {@code Categories} from.
-     */
-    private Set<String> getPossibleCategories(List<Trainable> instances) {
-        Set<String> categories = CollectionHelper.newHashSet();
-        for (Trainable instance : instances) {
-            categories.add(instance.getTargetClass());
-        }
-        return categories;
     }
 
     /**
