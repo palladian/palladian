@@ -22,6 +22,7 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
@@ -68,7 +69,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
     public UniversalClassifier(EnumSet<ClassifierSetting> settings, FeatureSetting featureSetting) {
         textClassifier = new PalladianTextClassifier(featureSetting);
         this.featureSetting = featureSetting;
-        numericClassifier = new KnnClassifier();
+        numericClassifier = new KnnClassifier(3, new NoNormalizer());
         nominalClassifier = new NaiveBayesClassifier();
         this.settings = settings;
     }
