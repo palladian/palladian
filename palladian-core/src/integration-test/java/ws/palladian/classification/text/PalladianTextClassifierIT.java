@@ -53,10 +53,10 @@ public class PalladianTextClassifierIT {
         FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 3, 6, 1000);
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
-        TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainFile, " ", true);
+        TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
         DictionaryModel model = classifier.train(trainIterator);
 
-        TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testFile, " ", true);
+        TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy char jrc: " + evaluation.getAccuracy());
@@ -72,10 +72,10 @@ public class PalladianTextClassifierIT {
         FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.WORD_NGRAMS, 1, 3, 10);
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
-        TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainFile, " ", true);
+        TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
         DictionaryModel model = classifier.train(trainIterator);
 
-        TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testFile, " ", true);
+        TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy word jrc: " + evaluation.getAccuracy());
@@ -91,10 +91,10 @@ public class PalladianTextClassifierIT {
         FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 3, 6, 1000);
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
-        TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainFile, " ", true);
+        TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
         DictionaryModel model = classifier.train(trainIterator);
 
-        TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testFile, " ", true);
+        TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy char ng: " + evaluation.getAccuracy());
@@ -110,10 +110,10 @@ public class PalladianTextClassifierIT {
         FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.WORD_NGRAMS, 1, 3, 10);
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
-        TextDatasetIterator trainIterator = TextDatasetIterator.createIterator(trainFile, " ", true);
+        TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
         DictionaryModel model = classifier.train(trainIterator);
 
-        TextDatasetIterator testIterator = TextDatasetIterator.createIterator(testFile, " ", true);
+        TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
 
         System.out.println("accuracy word ng: " + evaluation.getAccuracy());
