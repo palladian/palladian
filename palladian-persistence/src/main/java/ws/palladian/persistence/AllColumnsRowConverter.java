@@ -12,7 +12,9 @@ import java.util.Map;
  * </p>
  * 
  * @author David Urbansky
+ * @deprecated Use {@link MapRowConverter}.
  */
+@Deprecated
 public final class AllColumnsRowConverter {
 
     private AllColumnsRowConverter() {
