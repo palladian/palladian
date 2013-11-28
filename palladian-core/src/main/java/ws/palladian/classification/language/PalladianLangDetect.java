@@ -96,7 +96,7 @@ public class PalladianLangDetect implements LanguageClassifier {
         // classifier.save(classifierPath);
         // classifierManager.trainClassifier(dataset, classifier);
 
-        TextDatasetIterator datasetIterator = TextDatasetIterator.createIterator(dataset);
+        TextDatasetIterator datasetIterator = new TextDatasetIterator(dataset);
         DictionaryModel trainedModel = classifier.train(datasetIterator);
 
         // test the classifier

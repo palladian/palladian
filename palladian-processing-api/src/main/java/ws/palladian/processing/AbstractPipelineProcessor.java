@@ -154,12 +154,6 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
         fireOutputPorts();
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
     private void fireOutputPorts() {
         for (OutputPort outputPort : outputPorts) {
             if (outputPort.hasDocument()) {
