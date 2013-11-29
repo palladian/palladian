@@ -1,22 +1,14 @@
 package ws.palladian.classification.nb;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
-import org.javatuples.Pair;
-import org.javatuples.Triplet;
 
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
-import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.math.Stats;
 import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -31,7 +23,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NaiveBayesClassifier implements Learner<NaiveBayesModel>, Classifier<NaiveBayesModel> {
+public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
     /** The default value for the Laplace smoothing. */
     private static final double DEFAULT_LAPLACE_CORRECTOR = 0.00001;
@@ -60,47 +52,6 @@ public final class NaiveBayesClassifier implements Learner<NaiveBayesModel>, Cla
     public NaiveBayesClassifier(double laplaceCorrector) {
         Validate.isTrue(laplaceCorrector >= 0, "The Laplace corrector must be equal or greater than zero.");
         this.laplace = laplaceCorrector;
-    }
-
-    @Override
-    public NaiveBayesModel train(Iterable<? extends Trainable> trainables) {
-
-        // store the counts of different categories
-        CountMap<String> categories = CountMap.create();
-        // store the counts of nominal features (name, value, category)
-        CountMap<Triplet<String, String, String>> nominalCounts = CountMap.create();
-        // store mean and standard deviation for numeric features (name, category)
-        Map<Pair<String, String>, Stats> stats = LazyMap.create(Stats.FACTORY);
-
-        for (Trainable trainable : trainables) {
-            String category = trainable.getTargetClass();
-            categories.add(category);
-
-            for (Feature<?> feature : trainable.getFeatureVector()) {
-                String featureName = feature.getName();
-
-                if (feature instanceof NominalFeature) {
-                    String nominalValue = ((NominalFeature)feature).getValue();
-                    nominalCounts.add(new Triplet<String, String, String>(featureName, nominalValue, category));
-                }
-
-                if (feature instanceof NumericFeature) {
-                    Stats stat = stats.get(new Pair<String, String>(featureName, category));
-                    Double numericValue = ((NumericFeature)feature).getValue();
-                    stat.add(numericValue);
-                }
-            }
-        }
-
-        Map<Pair<String, String>, Double> sampleMeans = CollectionHelper.newHashMap();
-        Map<Pair<String, String>, Double> standardDeviations = CollectionHelper.newHashMap();
-
-        for (Entry<Pair<String, String>, Stats> entry : stats.entrySet()) {
-            sampleMeans.put(entry.getKey(), entry.getValue().getMean());
-            standardDeviations.put(entry.getKey(), entry.getValue().getStandardDeviation());
-        }
-
-        return new NaiveBayesModel(nominalCounts, categories, sampleMeans, standardDeviations);
     }
 
     @Override

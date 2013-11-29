@@ -14,6 +14,7 @@ import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
+import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
@@ -104,6 +105,7 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread
         // BaggedDecisionTreeClassifier classifier = new BaggedDecisionTreeClassifier();
+        NaiveBayesLearner learner = new NaiveBayesLearner();
         NaiveBayesClassifier classifier = new NaiveBayesClassifier();
 
         // scoring function used for deciding which feature to eliminate; we use the F1 measure here, but in general all
@@ -117,7 +119,7 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
         };
 
         SingleFeatureClassification<NaiveBayesModel> elimination = new SingleFeatureClassification<NaiveBayesModel>(
-                classifier, classifier, scorer);
+                learner, classifier, scorer);
         FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet);
         CollectionHelper.print(featureRanking.getAll());
     }
