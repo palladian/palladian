@@ -28,30 +28,28 @@ public class LibLinearTest {
         data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0).set("d", 1.4).set("e", 0.5).create("2"));
         data.add(new InstanceBuilder().set("a", -0.1).set("b", -0.2).set("c", 0.1).set("d", 1.1).set("e", 0.1)
                 .create("3"));
-        LibLinear liblinear = new LibLinear();
-        LibLinearModel model = liblinear.train(data);
+        LibLinearModel model = new LibLinearLearner().train(data);
         // System.out.println(model);
 
+        LibLinearClassifier classifier = new LibLinearClassifier();
         // assertEquals("1", liblinear.classify(data.get(0), model).getMostLikelyCategory());
         // assertEquals("2", liblinear.classify(data.get(1), model).getMostLikelyCategory());
-        assertEquals("1", liblinear.classify(data.get(2), model).getMostLikelyCategory());
+        assertEquals("1", classifier.classify(data.get(2), model).getMostLikelyCategory());
         // assertEquals("2", liblinear.classify(data.get(3), model).getMostLikelyCategory());
-        assertEquals("3", liblinear.classify(data.get(4), model).getMostLikelyCategory());
+        assertEquals("3", classifier.classify(data.get(4), model).getMostLikelyCategory());
     }
 
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
         List<Trainable> instances = readCsv(getResourcePath("/adultData.txt"), false);
-        LibLinear libLinear = new LibLinear();
-        ConfusionMatrix confusionMatrix = evaluate(libLinear, libLinear, instances);
+        ConfusionMatrix confusionMatrix = evaluate(new LibLinearLearner(), new LibLinearClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.79);
     }
 
     @Test
     public void testWithDiabetesData() throws FileNotFoundException {
         List<Trainable> instances = readCsv(getResourcePath("/diabetesData.txt"), true);
-        LibLinear libLinear = new LibLinear();
-        ConfusionMatrix confusionMatrix = evaluate(libLinear, libLinear, instances);
+        ConfusionMatrix confusionMatrix = evaluate(new LibLinearLearner(), new LibLinearClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.80);
     }
 

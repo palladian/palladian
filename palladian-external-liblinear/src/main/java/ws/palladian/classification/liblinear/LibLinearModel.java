@@ -13,7 +13,7 @@ import ws.palladian.classification.utils.Normalization;
 
 /**
  * <p>
- * Model for the {@link LibLinear} classifier.
+ * Model for the {@link LibLinearLearner} classifier.
  * </p>
  * 
  * @author pk
