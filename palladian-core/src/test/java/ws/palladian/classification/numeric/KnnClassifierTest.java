@@ -51,8 +51,8 @@ public class KnnClassifierTest {
         trainingInstances.add(new InstanceBuilder().set("f1", 4d).set("f2", 4d).set("f3", 4d).create("B"));
 
         // create the KNN classifier and add the training instances
-        KnnClassifier knn = new KnnClassifier(3, new NoNormalizer());
-        KnnModel model = knn.train(trainingInstances);
+        KnnLearner knnLearner = new KnnLearner(new NoNormalizer());
+        KnnModel model = knnLearner.train(trainingInstances);
         FeatureVector featureVector = new InstanceBuilder().set("f1", 1d).set("f2", 2d).set("f3", 3d).create();
 
         assertEquals(2, model.getCategories().size());
@@ -60,7 +60,7 @@ public class KnnClassifierTest {
         assertTrue(model.getCategories().contains("B"));
 
         // classify
-        CategoryEntries result = knn.classify(featureVector, model);
+        CategoryEntries result = new KnnClassifier(3).classify(featureVector, model);
         assertEquals(0.474, result.getProbability(result.getMostLikelyCategory()), 0.001);
         assertEquals("A", result.getMostLikelyCategory());
     }
@@ -73,14 +73,14 @@ public class KnnClassifierTest {
     @Test
     public void testKnnClassifierLoadFromFile() throws Exception {
         // create the KNN classifier and add the training instances
-        KnnClassifier knn = new KnnClassifier(3, new NoNormalizer());
+        KnnLearner knnLearner = new KnnLearner(new NoNormalizer());
         List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/wineData.txt"), false);
-        KnnModel model = knn.train(instances);
+        KnnModel model = knnLearner.train(instances);
         assertEquals(3, model.getCategories().size());
 
         // classify
-        CategoryEntries result = knn.classify(createTestInstance(), model);
+        CategoryEntries result = new KnnClassifier(3).classify(createTestInstance(), model);
         assertEquals(1.0000000001339825E9, result.getProbability(result.getMostLikelyCategory()), 0);
         assertEquals("1", result.getMostLikelyCategory());
     }
@@ -88,16 +88,16 @@ public class KnnClassifierTest {
     @Test
     public void testKnnClassifierLoadFromFileNormalize() throws Exception {
         // create the KNN classifier and add the training instances
-        KnnClassifier knn = new KnnClassifier(3);
+        KnnLearner knnLearner = new KnnLearner();
         String testDataPath = ResourceHelper.getResourcePath("/classifier/wineData.txt");
-        KnnModel model = knn.train(ClassificationUtils.readCsv(testDataPath, false));
+        KnnModel model = knnLearner.train(ClassificationUtils.readCsv(testDataPath, false));
         File tempDir = FileHelper.getTempDir();
         String tempFile = new File(tempDir, "/testKNN.gz").getPath();
         FileHelper.serialize(model, tempFile);
         KnnModel loadedModel = FileHelper.deserialize(tempFile);
 
         // classify
-        CategoryEntries result = knn.classify(createTestInstance(), loadedModel);
+        CategoryEntries result = new KnnClassifier(3).classify(createTestInstance(), loadedModel);
         assertEquals(1.0000000054326154E9, result.getProbability(result.getMostLikelyCategory()), 0);
         assertEquals("1", result.getMostLikelyCategory());
     }
@@ -106,16 +106,16 @@ public class KnnClassifierTest {
     public void testWithAdultIncomeData() throws FileNotFoundException {
         List<Trainable> instances = ClassificationUtils.readCsv(
                 ResourceHelper.getResourcePath("/classifier/adultData.txt"), false);
-        KnnClassifier classifier = new KnnClassifier(3, new NoNormalizer());
-        ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, classifier, instances);
+        KnnLearner learner = new KnnLearner(new NoNormalizer());
+        ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(learner, new KnnClassifier(3), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.69);
 
-        classifier = new KnnClassifier(3, new MinMaxNormalizer());
-        confusionMatrix = ClassifierEvaluation.evaluate(classifier, classifier, instances);
+        learner = new KnnLearner(new MinMaxNormalizer());
+        confusionMatrix = ClassifierEvaluation.evaluate(learner, new KnnClassifier(3), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.69);
 
-        classifier = new KnnClassifier(3, new ZScoreNormalizer());
-        confusionMatrix = ClassifierEvaluation.evaluate(classifier, classifier, instances);
+        learner = new KnnLearner(new ZScoreNormalizer());
+        confusionMatrix = ClassifierEvaluation.evaluate(learner, new KnnClassifier(3), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.71);
     }
 
