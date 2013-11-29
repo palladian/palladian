@@ -49,7 +49,7 @@ public class NaiveBayesClassifierTest {
         instances.add(new InstanceBuilder().set("outlook", "rainy").set("temp", "mild").set("humidity", "high").set("windy", "true").create("no"));
 
         NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier(1);
-        NaiveBayesModel model = bayesClassifier.train(instances);
+        NaiveBayesModel model = new NaiveBayesLearner().train(instances);
         assertEquals(2, model.getCategories().size());
         assertTrue(model.getCategories().contains("yes"));
         assertTrue(model.getCategories().contains("no"));
@@ -82,12 +82,11 @@ public class NaiveBayesClassifierTest {
         instances.add(new InstanceBuilder().set("f", 66.0).create("Phone"));
         instances.add(new InstanceBuilder().set("f", 290.0).create("Phone"));
 
-        NaiveBayesClassifier bayesClassifier = new NaiveBayesClassifier();
-        NaiveBayesModel model = bayesClassifier.train(instances);
+        NaiveBayesModel model = new NaiveBayesLearner().train(instances);
 
         // create an instance to classify
         FeatureVector featureVector = new InstanceBuilder().set("f", 16.0).create();
-        CategoryEntries categoryEntries = bayesClassifier.classify(featureVector, model);
+        CategoryEntries categoryEntries = new NaiveBayesClassifier().classify(featureVector, model);
 
         assertEquals(0.944, categoryEntries.getProbability(categoryEntries.getMostLikelyCategory()), 0.01);
         assertEquals("Case", categoryEntries.getMostLikelyCategory());
@@ -96,16 +95,14 @@ public class NaiveBayesClassifierTest {
     @Test
     public void testNaiveBayesWithAdultIncomeData() throws FileNotFoundException {
         List<Trainable> instances = readCsv(getResourcePath("/classifier/adultData.txt"), false);
-        NaiveBayesClassifier naiveBayes = new NaiveBayesClassifier();
-        ConfusionMatrix matrix = evaluate(naiveBayes, naiveBayes, instances);
+        ConfusionMatrix matrix = evaluate(new NaiveBayesLearner(), new NaiveBayesClassifier(), instances);
         assertTrue(matrix.getAccuracy() > 0.77);
     }
 
     @Test
     public void testNaiveBayesWithDiabetesData() throws FileNotFoundException {
         List<Trainable> instances = readCsv(getResourcePath("/classifier/diabetesData.txt"), false);
-        NaiveBayesClassifier naiveBayes = new NaiveBayesClassifier();
-        ConfusionMatrix matrix = evaluate(naiveBayes, naiveBayes, instances);
+        ConfusionMatrix matrix = evaluate(new NaiveBayesLearner(), new NaiveBayesClassifier(), instances);
         assertTrue(matrix.getAccuracy() > 0.77);
     }
 

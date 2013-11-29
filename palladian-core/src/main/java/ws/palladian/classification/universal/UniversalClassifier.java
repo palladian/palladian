@@ -15,6 +15,7 @@ import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
+import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnClassifier;
 import ws.palladian.classification.numeric.KnnLearner;
@@ -228,7 +229,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
         // train the nominal classifier
         if (settings.contains(ClassifierSetting.NOMINAL)) {
             LOGGER.debug("training nominal classifier");
-            nominalModel = nominalClassifier.train(trainables);
+            nominalModel = new NaiveBayesLearner().train(trainables);
         }
 
         UniversalClassifierModel model = new UniversalClassifierModel(nominalModel, numericModel, textModel);

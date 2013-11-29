@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.nb.NaiveBayesClassifier;
+import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.io.ResourceHelper;
@@ -24,9 +25,10 @@ public class BackwardFeatureEliminationTest {
         String testFile = ResourceHelper.getResourcePath("/classifier/diabetes2.csv");
         List<Trainable> instances = ClassificationUtils.readCsv(testFile, true);
 
+        NaiveBayesLearner learner = new NaiveBayesLearner();
         NaiveBayesClassifier classifier = new NaiveBayesClassifier();
         BackwardFeatureElimination<NaiveBayesModel> elimination = new BackwardFeatureElimination<NaiveBayesModel>(
-                classifier, classifier);
+                learner, classifier);
         FeatureRanking ranking = elimination.rankFeatures(instances);
         String bestFeatureValue = ranking.getAll().get(0).getValue();
 
