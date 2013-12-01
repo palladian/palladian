@@ -106,7 +106,7 @@ public final class ProgressMonitor {
         currentCount.incrementAndGet();
         printProgress(currentCount);
     }
-    
+
     /**
      * <p>
      * Increments the counter by the step size and prints the current progress to the System's standard output.
@@ -190,6 +190,10 @@ public final class ProgressMonitor {
         return stopWatch.getTotalElapsedTimeString();
     }
 
+    public long getCurrentCount() {
+        return currentCount.get();
+    }
+
     public static void main(String[] args) {
         int totalCount = 1759600335;
         ProgressMonitor pm = new ProgressMonitor(totalCount, .5, "My Progress");
@@ -199,5 +203,5 @@ public final class ProgressMonitor {
             pm.incrementAndPrintProgress();
         }
     }
-    
+
 }

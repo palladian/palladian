@@ -47,6 +47,8 @@ public final class AllColumnsRowConverter {
                     map.put(columnName, resultSet.getInt(i));
                 } else if (columnType == Types.BIGINT) {
                     map.put(columnName, resultSet.getLong(i));
+                } else if (columnType == Types.FLOAT) {
+                    map.put(columnName, resultSet.getDouble(i));
                 } else if (columnType == Types.DOUBLE) {
                     map.put(columnName, resultSet.getDouble(i));
                 } else if (columnType == Types.BOOLEAN) {
