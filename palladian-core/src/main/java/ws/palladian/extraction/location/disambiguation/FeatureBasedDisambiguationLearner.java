@@ -74,7 +74,7 @@ public class FeatureBasedDisambiguationLearner {
     }
 
     public void learn(File datasetDirectory) throws IOException {
-        learn(LocationExtractorUtils.iterateDataset(datasetDirectory));
+        learn(LocationExtractorUtils.iterateDataset(datasetDirectory).iterator());
     }
 
     /**
@@ -89,7 +89,7 @@ public class FeatureBasedDisambiguationLearner {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
         List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
         for (File datasetDirectory : datasetDirectories) {
-            datasetIterators.add(LocationExtractorUtils.iterateDataset(datasetDirectory));
+            datasetIterators.add(LocationExtractorUtils.iterateDataset(datasetDirectory).iterator());
         }
         learn(new CompositeIterator<LocationDocument>(datasetIterators));
     }
