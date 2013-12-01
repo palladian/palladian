@@ -187,45 +187,49 @@ public final class LocationExtractorUtils {
      *            <code>coordinates.csv</code> file, not <code>null</code>.
      * @return An iterator for the dataset.
      */
-    public static Iterator<LocationDocument> iterateDataset(File datasetDirectory) {
-        List<File> files = Arrays.asList(FileHelper.getFiles(datasetDirectory.getPath(), "text"));
-        File coordinateFile = new File(datasetDirectory, "coordinates.csv");
-
-        final Iterator<File> fileIterator = files.iterator();
+    public static Iterable<LocationDocument> iterateDataset(File datasetDirectory) {
+        final List<File> files = Arrays.asList(FileHelper.getFiles(datasetDirectory.getPath(), "text"));
+        final File coordinateFile = new File(datasetDirectory, "coordinates.csv");
         final Map<String, Map<Integer, GeoCoordinate>> coordinates = readCoordinates(coordinateFile);
         final int numFiles = files.size();
-
-        return new Iterator<LocationDocument>() {
-            ProgressMonitor monitor = new ProgressMonitor(numFiles, 0);
-
+        
+        return new Iterable<LocationExtractorUtils.LocationDocument>() {
+            
             @Override
-            public boolean hasNext() {
-                return fileIterator.hasNext();
-            }
+            public Iterator<LocationDocument> iterator() {
+                return new Iterator<LocationDocument>() {
+                    Iterator<File> fileIterator = files.iterator();
+                    ProgressMonitor monitor = new ProgressMonitor(numFiles, 0);
 
-            @Override
-            public LocationDocument next() {
-                monitor.incrementAndPrintProgress();
-                File currentFile = fileIterator.next();
-                String fileContent = FileHelper.tryReadFileToString(currentFile);
-                String rawText = fileContent.replace(" role=\"main\"", "");
-                String cleanText = HtmlHelper.stripHtmlTags(rawText);
-                Map<Integer, GeoCoordinate> currentCoordinates = coordinates.get(currentFile.getName());
-                List<LocationAnnotation> annotations = getAnnotations(rawText, currentCoordinates);
-                int mainLocationIdx = getMainLocationIdx(fileContent);
-                Location mainLocation = null;
-                if (mainLocationIdx != -1) {
-                    mainLocation = annotations.get(mainLocationIdx).getLocation();
-                }
-                return new LocationDocument(currentFile.getName(), cleanText, annotations, mainLocation);
-            }
+                    @Override
+                    public boolean hasNext() {
+                        return fileIterator.hasNext();
+                    }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
+                    @Override
+                    public LocationDocument next() {
+                        monitor.incrementAndPrintProgress();
+                        File currentFile = fileIterator.next();
+                        String fileContent = FileHelper.tryReadFileToString(currentFile);
+                        String rawText = fileContent.replace(" role=\"main\"", "");
+                        String cleanText = HtmlHelper.stripHtmlTags(rawText);
+                        Map<Integer, GeoCoordinate> currentCoordinates = coordinates.get(currentFile.getName());
+                        List<LocationAnnotation> annotations = getAnnotations(rawText, currentCoordinates);
+                        int mainLocationIdx = getMainLocationIdx(fileContent);
+                        Location mainLocation = null;
+                        if (mainLocationIdx != -1) {
+                            mainLocation = annotations.get(mainLocationIdx).getLocation();
+                        }
+                        return new LocationDocument(currentFile.getName(), cleanText, annotations, mainLocation);
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+                    }
+                };
             }
         };
-
     }
 
     /**

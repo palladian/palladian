@@ -33,9 +33,6 @@ public class WordTransformer {
     /** The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>. */
     private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<String, EnglishVerb>();
 
-    private static final StemmerAnnotator GERMAN_STEMMER = new StemmerAnnotator(Language.GERMAN);
-    private static final StemmerAnnotator ENGLISH_STEMMER = new StemmerAnnotator(Language.ENGLISH);
-
     static {
 
         // irregular verbs
@@ -460,11 +457,13 @@ public class WordTransformer {
     }
 
     public static String stemGermanWord(String word) {
-        return GERMAN_STEMMER.stem(word);
+        // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
+        return new StemmerAnnotator(Language.GERMAN).stem(word);
     }
 
     public static String stemEnglishWord(String word) {
-        return ENGLISH_STEMMER.stem(word);
+        // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
+        return new StemmerAnnotator(Language.ENGLISH).stem(word);
     }
 
     /**

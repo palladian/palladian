@@ -140,7 +140,7 @@ public final class LocationExtractionEvaluator {
         errors.put(ERROR4, new HashMap<String, Collection<Annotation>>());
         errors.put(ERROR5, new HashMap<String, Collection<Annotation>>());
 
-        Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(datasetDirectory);
+        Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(datasetDirectory).iterator();
 
         // for macro averaging
         double precisionMuc = 0;

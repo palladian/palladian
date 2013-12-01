@@ -20,7 +20,7 @@ import com.jolbox.bonecp.hooks.ConnectionHook;
  * 
  */
 final class DataSourceFactory {
-    
+
     private DataSourceFactory() {
         // prevent instantiation.
     }
@@ -54,7 +54,9 @@ final class DataSourceFactory {
         boneConfig.setPassword(password);
         boneConfig.setMinConnectionsPerPartition(5);
         boneConfig.setMaxConnectionsPerPartition(10);
-        boneConfig.setPartitionCount(1);
+
+        // recommended 3-4 depending on app
+        boneConfig.setPartitionCount(3);
 
         // only enable this for debugging purposes!
         // boneConfig.setCloseConnectionWatch(true);

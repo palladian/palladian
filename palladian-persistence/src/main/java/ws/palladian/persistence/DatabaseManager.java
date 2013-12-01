@@ -125,6 +125,7 @@ public class DatabaseManager {
 
             connection = getConnection();
             connection.setAutoCommit(false);
+
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             for (int i = 0; i < provider.getCount(); i++) {
