@@ -132,7 +132,7 @@ public final class CategoryEntriesMap implements CategoryEntries {
      */
     public void add(String categoryName, double score) {
         Validate.notNull(categoryName, "categoryName must not be null");
-        Validate.isTrue(score >= 0, "probability must be higher/equal zero");
+        Validate.isTrue(score >= 0, "probability must be higher/equal zero, but was %s", score);
 
         Double existingScore = entryMap.get(categoryName);
         if (existingScore == null) {
