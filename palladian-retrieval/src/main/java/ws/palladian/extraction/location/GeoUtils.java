@@ -18,6 +18,9 @@ public final class GeoUtils {
 
     /** The radius of the earth in kilometers. */
     public static final double EARTH_RADIUS_KM = 6371;
+    
+    /** Circumference of the earth at the equator in kilometers. */
+    public static final double EARTH_CIRCUMFERENCE_KM = 40075.16;
 
     /** For parsing a single DMS expression. */
     private static final Pattern PATTERN_PARSE_DMS = Pattern.compile(DMS);
