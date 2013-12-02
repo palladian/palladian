@@ -35,8 +35,15 @@ public class QuickDtLearner implements Learner<QuickDtModel> {
     // removed zero-arg constructor, because one might erroneously instantiate a single tree instead of a random forest
 
     /**
+     * @return A new QuickDtLearner creating a random forest with ten trees.
+     */
+    public static QuickDtLearner randomForest() {
+        return new QuickDtLearner(new RandomForestBuilder().numTrees(10));
+    }
+
+    /**
      * <p>
-     * Create a new QuickDtClassifier with the specified {@link PredictiveModelBuilder}. (currently, quickdt offers a
+     * Create a new QuickDtLearner with the specified {@link PredictiveModelBuilder}. (currently, quickdt offers a
      * standard {@link TreeBuilder}, and a {@link RandomForestBuilder}).
      * </p>
      * 
