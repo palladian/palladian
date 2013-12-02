@@ -27,6 +27,9 @@ public final class MidpointScopeDetector implements ScopeDetector {
         List<Location> locations = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
         List<GeoCoordinate> coordinates = CollectionHelper.convertList(locations, LOCATION_COORDINATE_FUNCTION);
         CollectionHelper.removeNulls(coordinates);
+        if (coordinates.isEmpty()) {
+            return null;
+        }
         GeoCoordinate midpoint = GeoUtils.getMidpoint(coordinates);
         double smallestDistance = Double.MAX_VALUE;
         Location selectedCoordinate = null;
