@@ -250,15 +250,15 @@ public final class ClassificationUtils {
 
     /**
      * <p>
-     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accepted features
-     * is returned.
+     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accepted
+     * features is returned.
      * </p>
      * 
      * @param classifiable The {@link Classifiable} to filter, not <code>null</code>.
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return The FeatureVector without the features filtered out by the nameFilter.
      */
-    public static FeatureVector filterFeatures(Classifiable classifiable, Filter<String> nameFilter) {
+    public static FeatureVector filterFeatures(Classifiable classifiable, Filter<? super String> nameFilter) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
         FeatureVector newFeatureVector = new BasicFeatureVector();
@@ -280,7 +280,8 @@ public final class ClassificationUtils {
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link FeatureVector}.
      */
-    public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances, Filter<String> nameFilter) {
+    public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances,
+            Filter<? super String> nameFilter) {
         List<Trainable> result = CollectionHelper.newArrayList();
         for (Trainable instance : instances) {
             FeatureVector featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
