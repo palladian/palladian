@@ -1,31 +1,25 @@
 package ws.palladian.retrieval;
 
+import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.collection.Factory;
+
 
 /**
  * <p>
- * Factory for creating {@link HttpRetriever} instances. The factory can be customized by creating a subclass and
- * setting it via {@link #setFactory(HttpRetrieverFactory)}. This way, new instances can be customized as needed.
+ * Factory for creating {@link HttpRetriever} instances. Can be customized via {@link #setFactory(Factory)}.
  * </p>
  * 
  * @author Philipp Katz
  */
-public abstract class HttpRetrieverFactory {
+public final class HttpRetrieverFactory {
 
-    private static HttpRetrieverFactory _factory = new HttpRetrieverFactory() {
+    private static Factory<HttpRetriever> _factory = new Factory<HttpRetriever>() {
         @Override
-        protected HttpRetriever createHttpRetriever() {
+        public HttpRetriever create() {
             return new HttpRetriever();
         }
     };
-
-    /**
-     * <p>
-     * Override, to customize the {@link HttpRetriever} instances which are created.
-     * </p>
-     * 
-     * @return
-     */
-    protected abstract HttpRetriever createHttpRetriever();
 
     /**
      * <p>
@@ -35,7 +29,7 @@ public abstract class HttpRetrieverFactory {
      * @return
      */
     public static HttpRetriever getHttpRetriever() {
-        return _factory.createHttpRetriever();
+        return _factory.create();
     }
 
     /**
@@ -43,10 +37,15 @@ public abstract class HttpRetrieverFactory {
      * Set the factory implementation to use when creating new {@link HttpRetriever} instances.
      * </p>
      * 
-     * @param factory
+     * @param factory The factory, not <code>null</code>.
      */
-    public static void setFactory(HttpRetrieverFactory factory) {
+    public static void setFactory(Factory<HttpRetriever> factory) {
+        Validate.notNull(factory, "factory must not be null");
         _factory = factory;
+    }
+    
+    private HttpRetrieverFactory() {
+        // no instances.
     }
 
 }
