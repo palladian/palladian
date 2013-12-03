@@ -131,7 +131,7 @@ public class PalladianSpellChecker {
 
         String[] textWords = SPLIT.split(text);
         for (String word : textWords) {
-            if (word.length() < 2 || StringHelper.isNumber(word)) {
+            if (word.length() < 2 || StringHelper.containsNumber(word)) {
                 correctedText.append(word).append(" ");
                 continue;
             }
