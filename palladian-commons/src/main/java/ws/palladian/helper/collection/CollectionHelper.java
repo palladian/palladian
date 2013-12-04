@@ -37,6 +37,48 @@ public final class CollectionHelper {
     public static final boolean ASCENDING = true;
     public static final boolean DESCENDING = false;
 
+    /**
+     * <p>
+     * Iterator, which stops after the specified limit.
+     * </p>
+     * 
+     * @author pk
+     * 
+     * @param <T>
+     */
+    private static final class LimitIterator<T> implements Iterator<T> {
+
+        final Iterator<T> iterator;
+        final int limit;
+        int counter = 0;
+
+        LimitIterator(Iterator<T> iterator, int limit) {
+            this.iterator = iterator;
+            this.limit = limit;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (counter >= limit) {
+                return false;
+            }
+            return iterator.hasNext();
+        }
+
+        @Override
+        public T next() {
+            T temp = iterator.next();
+            counter++;
+            return temp;
+        }
+
+        @Override
+        public void remove() {
+            iterator.remove();
+        }
+
+    }
+
     private CollectionHelper() {
         // prevent instantiation.
     }
@@ -286,9 +328,22 @@ public final class CollectionHelper {
      */
     public static <E> List<E> newArrayList(Iterable<E> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
+        return newArrayList(iterable.iterator());
+    }
+
+    /**
+     * <p>
+     * Create a new {@link ArrayList} and fill it with the content of the given {@link Iterator}.
+     * </p>
+     * 
+     * @param iterator The {@link Iterator} providing the content for the {@link List}, not <code>null</code>.
+     * @return The {@link List} with items from the {@link Iterator}.
+     */
+    public static <E> List<E> newArrayList(Iterator<E> iterator) {
+        Validate.notNull(iterator, "iterator must not be null");
         List<E> list = new ArrayList<E>();
-        for (E item : iterable) {
-            list.add(item);
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
         }
         return list;
     }
@@ -681,6 +736,43 @@ public final class CollectionHelper {
             }
         }
         return null;
+    }
+
+    /**
+     * <p>
+     * Limit the specified {@link Iterable} to the specified size, i.e. effectively get the first specified elements,
+     * then stop.
+     * </p>
+     * 
+     * @param iterable The iterable, not <code>null</code>.
+     * @param limit The number of elements which can be retrieved from the given iterable, greater/equal zero.
+     * @return An iterable which limits to the specified number of items, in case it contains more.
+     */
+    public static <T> Iterable<T> limit(final Iterable<T> iterable, final int limit) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
+        return new Iterable<T>() {
+            @Override
+            public Iterator<T> iterator() {
+                return limit(iterable.iterator(), limit);
+            }
+        };
+    }
+
+    /**
+     * <p>
+     * Limit the specified {@link Iterator} to the specified size, i.e. effectively get the first specified elements,
+     * then stop.
+     * </p>
+     * 
+     * @param iterator The iterator, not <code>null</code>.
+     * @param limit The number of elements which can be retrieved from the given iterator, greater/equal zero.
+     * @return An iterator which limits to the specified number of items, in case it contains more.
+     */
+    public static <T> Iterator<T> limit(Iterator<T> iterator, int limit) {
+        Validate.notNull(iterator, "iterator must not be null");
+        Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
+        return new LimitIterator<T>(iterator, limit);
     }
 
 }
