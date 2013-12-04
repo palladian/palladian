@@ -63,6 +63,7 @@ final class DatasetCheck {
         });
 
         int tokenCount = 0;
+        int scopedDocCount = 0;
 
         for (File file : datasetFiles) {
             String filePath = file.getAbsolutePath();
@@ -88,6 +89,7 @@ final class DatasetCheck {
                 String openingTag = matcher.group(1);
                 if (openingTag.contains("role=\"main\"")) {
                     openingTag = openingTag.substring(0, openingTag.indexOf("role=\"main\"")).trim();
+                    scopedDocCount++;
                 }
                 String content = matcher.group(2);
                 String closingSlash = matcher.group(3);
@@ -182,6 +184,8 @@ final class DatasetCheck {
         System.out.println("# tokens: " + tokenCount);
         System.out.println();
         System.out.println("# texts: " + datasetFiles.length);
+        System.out.println();
+        System.out.println("# text with role=\"main\": " + scopedDocCount);
     }
 
     /**
@@ -223,7 +227,7 @@ final class DatasetCheck {
 
 
     public static void main(String[] args) {
-        File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2");
+        File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/0-all");
         // getNonDisambiguatedStatistics(datasetPath);
         performCheck(datasetPath);
     }
