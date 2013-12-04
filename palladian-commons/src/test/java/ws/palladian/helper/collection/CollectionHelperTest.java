@@ -1,11 +1,13 @@
 package ws.palladian.helper.collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -190,12 +192,10 @@ public class CollectionHelperTest {
         private int age;
 
         public NameObject(String name) {
-            super();
             this.name = name;
         }
 
         public NameObject(int age) {
-            super();
             this.age = age;
         }
 
@@ -207,5 +207,28 @@ public class CollectionHelperTest {
             return age;
         }
 
+    }
+    
+    @Test
+    public void testLimitIterable() {
+        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        Iterator<Integer> iterator = CollectionHelper.limit(list, 5).iterator();
+        int count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count++;
+        }
+        assertEquals(5, count);
+        
+        iterator = CollectionHelper.limit(list, 15).iterator();
+        count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count++;
+        }
+        assertEquals(10, count);
+        
+        iterator = CollectionHelper.limit(Collections.<Integer>emptyList().iterator(), 0);
+        assertFalse(iterator.hasNext());
     }
 }
