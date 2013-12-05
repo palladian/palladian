@@ -11,6 +11,12 @@ import ws.palladian.persistence.RowConverter;
  */
 public class FeedCacheItemRowConverter implements RowConverter<CachedItem> {
 
+    public static final FeedCacheItemRowConverter INSTANCE = new FeedCacheItemRowConverter();
+
+    private FeedCacheItemRowConverter() {
+        // singleton
+    }
+
     @Override
     public CachedItem convert(ResultSet resultSet) throws SQLException {
         CachedItem cachedItem = new CachedItem();

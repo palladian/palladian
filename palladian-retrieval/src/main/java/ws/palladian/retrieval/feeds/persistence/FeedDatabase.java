@@ -211,21 +211,21 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     @Override
     public Feed getFeedById(int feedId) {
-        return runSingleQuery(new FeedRowConverter(), GET_FEED_BY_ID, feedId);
+        return runSingleQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_ID, feedId);
     }
 
     @Override
     public Feed getFeedByUrl(String feedUrl) {
-        return runSingleQuery(new FeedRowConverter(), GET_FEED_BY_URL, feedUrl);
+        return runSingleQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_URL, feedUrl);
     }
 
     public FeedItem getFeedItemById(int id) {
-        return runSingleQuery(new FeedItemRowConverter(), GET_ITEM_BY_ID, id);
+        return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEM_BY_ID, id);
     }
 
     @Override
     public FeedItem getFeedItemByRawId(int feedId, String rawId) {
-        return runSingleQuery(new FeedItemRowConverter(), GET_ITEMS_BY_RAW_ID_2, feedId, rawId);
+        return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEMS_BY_RAW_ID_2, feedId, rawId);
     }
 
 //    @Deprecated
@@ -234,7 +234,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 //    }
 
     public ResultIterator<FeedItem> getFeedItems() {
-        return runQueryWithIterator(new FeedItemRowConverter(), GET_ALL_ITEMS);
+        return runQueryWithIterator(FeedItemRowConverter.INSTANCE, GET_ALL_ITEMS);
     }
 
     /**
@@ -245,7 +245,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return
      */
     public ResultIterator<FeedItem> getFeedItemsForFeedId(int feedId) {
-        return runQueryWithIterator(new FeedItemRowConverter(), GET_ITEMS_FOR_FEED, feedId);
+        return runQueryWithIterator(FeedItemRowConverter.INSTANCE, GET_ITEMS_FOR_FEED, feedId);
     }
 
     /**
@@ -256,7 +256,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return
      */
     public List<FeedItem> getFeedItems(int limit, int offset) {
-        return runQuery(new FeedItemRowConverter(), GET_ITEMS, limit, offset);
+        return runQuery(FeedItemRowConverter.INSTANCE, GET_ITEMS, limit, offset);
     }
 
     /**
@@ -268,7 +268,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      */
     @Override
     public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
-        return runQuery(new FeedItemRowConverter(), sqlQuery);
+        return runQuery(FeedItemRowConverter.INSTANCE, sqlQuery);
     }
 
     public Map<Integer, int[]> getFeedPostDistribution(Feed feed) {
@@ -293,7 +293,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     @Override
     public List<Feed> getFeeds() {
-        List<Feed> feeds = runQuery(new FeedRowConverter(), GET_FEEDS);
+        List<Feed> feeds = runQuery(FeedRowConverter.INSTANCE, GET_FEEDS);
         for (Feed feed : feeds) {
             feed.setCachedItems(getCachedItemsById(feed.getId()));
         }
@@ -442,7 +442,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return A list with information about a all polls.
      */
     public List<PollMetaInformation> getFeedPollsByID(int feedID) {
-        return runQuery(new FeedPollRowConverter(), GET_FEED_POLLS_BY_ID, feedID);
+        return runQuery(FeedPollRowConverter.INSTANCE, GET_FEED_POLLS_BY_ID, feedID);
     }
 
     /**
@@ -453,7 +453,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return Information about a single poll.
      */
     public PollMetaInformation getFeedPoll(int feedID, Timestamp timestamp) {
-        return runSingleQuery(new FeedPollRowConverter(), GET_FEED_POLL_BY_ID_TIMESTAMP, feedID, timestamp);
+        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_FEED_POLL_BY_ID_TIMESTAMP, feedID, timestamp);
     }
 
     /**
@@ -468,7 +468,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @see #getPreviousFeedPoll(int, Timestamp)
      */
     public PollMetaInformation getEqualOrPreviousFeedPoll(int feedID, Timestamp simulatedPoll) {
-        return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME, feedID,
+        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME, feedID,
                 simulatedPoll);
     }
 
@@ -486,7 +486,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      */
     public PollMetaInformation getEqualOrPreviousFeedPollByTimeRange(int feedID, Timestamp simulatedPoll,
             Timestamp lastPoll) {
-        return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE, feedID,
+        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE, feedID,
                 simulatedPoll, lastPoll);
     }
 
@@ -501,7 +501,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @see #getEqualOrPreviousFeedPoll(int, Timestamp)
      */
     public PollMetaInformation getPreviousFeedPoll(int feedID, Timestamp simulatedPoll) {
-        return runSingleQuery(new FeedPollRowConverter(), GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME, feedID, simulatedPoll);
+        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME, feedID, simulatedPoll);
     }
 
     /**
@@ -581,7 +581,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private Map<String, Date> getCachedItemsById(int id) {
         Map<String, Date> cachedItems = new HashMap<String, Date>();
 
-        List<CachedItem> itemList = runQuery(new FeedCacheItemRowConverter(), GET_CACHE_ITEMS_BY_ID, id);
+        List<CachedItem> itemList = runQuery(FeedCacheItemRowConverter.INSTANCE, GET_CACHE_ITEMS_BY_ID, id);
         for (CachedItem item : itemList) {
             cachedItems.put(item.getHash(), item.getCorrectedPublishDate());
         }
