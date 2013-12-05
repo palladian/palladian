@@ -8,9 +8,15 @@ import ws.palladian.retrieval.feeds.FeedItem;
 
 public class FeedItemRowConverter implements RowConverter<FeedItem> {
 
+    public static final FeedItemRowConverter INSTANCE = new FeedItemRowConverter();
+
+    private FeedItemRowConverter() {
+        // singleton
+    }
+
     @Override
     public FeedItem convert(ResultSet resultSet) throws SQLException {
-        
+
         FeedItem entry = new FeedItem();
 
         entry.setId(resultSet.getInt("id"));
@@ -26,7 +32,7 @@ public class FeedItemRowConverter implements RowConverter<FeedItem> {
         entry.setHash(resultSet.getString("itemHash"));
 
         return entry;
-        
+
     }
 
 }

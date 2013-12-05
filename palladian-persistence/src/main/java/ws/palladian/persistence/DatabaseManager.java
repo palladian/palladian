@@ -97,7 +97,7 @@ public class DatabaseManager {
     public final boolean entryExists(String sql, Object... args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runSingleQuery(new NopRowConverter(), sql, args) != null;
+        return runSingleQuery(NopRowConverter.INSTANCE, sql, args) != null;
     }
 
     /**
@@ -487,7 +487,7 @@ public class DatabaseManager {
         Validate.notNull(callback, "callback must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
-        return runQuery(callback, new NopRowConverter(), sql, args);
+        return runQuery(callback, NopRowConverter.INSTANCE, sql, args);
     }
 
     /**

@@ -12,6 +12,12 @@ import java.sql.SQLException;
  */
 class NopRowConverter implements RowConverter<ResultSet> {
 
+    public static final NopRowConverter INSTANCE = new NopRowConverter();
+
+    private NopRowConverter() {
+        // singleton
+    }
+
     @Override
     public ResultSet convert(ResultSet resultSet) throws SQLException {
         return resultSet;

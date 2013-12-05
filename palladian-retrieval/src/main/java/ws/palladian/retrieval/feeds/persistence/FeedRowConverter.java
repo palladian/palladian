@@ -13,9 +13,15 @@ import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 
 public class FeedRowConverter implements RowConverter<Feed> {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedRowConverter.class);
+
+    public static final FeedRowConverter INSTANCE = new FeedRowConverter();
+
+    private FeedRowConverter() {
+        // singleton
+    }
 
     @Override
     public Feed convert(ResultSet resultSet) throws SQLException {
