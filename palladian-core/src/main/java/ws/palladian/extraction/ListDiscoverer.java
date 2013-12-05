@@ -16,6 +16,7 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -179,7 +180,7 @@ public class ListDiscoverer {
                         xPathsBySimilarity.put(entry.getKey(), averageLinkSimilarity);
                     }
                 }
-                xPathsBySimilarity = CollectionHelper.sortByValue(xPathsBySimilarity, CollectionHelper.DESCENDING);
+                xPathsBySimilarity = CollectionHelper.sortByValue(xPathsBySimilarity, Order.DESCENDING);
 
                 if (!xPathsBySimilarity.isEmpty()) {
                     paginationXPath = xPathsBySimilarity.entrySet().iterator().next().getKey();

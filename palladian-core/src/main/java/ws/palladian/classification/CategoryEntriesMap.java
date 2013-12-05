@@ -11,6 +11,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.math.MathHelper;
 
 /**
@@ -230,7 +231,7 @@ public final class CategoryEntriesMap implements CategoryEntries {
     }
 
     public void sort() {
-        entryMap = CollectionHelper.sortByValue(entryMap, false);
+        entryMap = CollectionHelper.sortByValue(entryMap, Order.DESCENDING);
     }
 
     @Override

@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.collection.CollectionHelper.Order;
+
 /**
  * <p>
  * A CountMap is a collection which allows counting equal items, it behaves similar to a {@link Set}, but counts the
@@ -35,9 +37,8 @@ public class CountMap<T> implements Collection<T>, Serializable {
         return CollectionHelper.sortByValue(map);
     }
 
-    @SuppressWarnings("deprecation")
     public LinkedHashMap<T, Integer> getSortedMapDescending() {
-        return CollectionHelper.sortByValue(map, false);
+        return CollectionHelper.sortByValue(map, Order.DESCENDING);
     }
 
     /**
