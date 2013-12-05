@@ -17,6 +17,7 @@ import ws.palladian.classification.Instance;
 import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryValueComparator;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
@@ -88,7 +89,7 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         }
 
         // sort near neighbor map by distance
-        Collections.sort(neighbors, EntryValueComparator.<Trainable, Double> ascending());
+        Collections.sort(neighbors, new EntryValueComparator<Double>(Order.ASCENDING));
 
         // if there are several instances at the same distance we take all of them into the voting, k might get bigger
         // in those cases

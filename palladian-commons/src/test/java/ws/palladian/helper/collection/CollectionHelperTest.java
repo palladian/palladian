@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper.Order;
+
 /**
  * 
  * @author Philipp Katz
@@ -42,8 +44,8 @@ public class CollectionHelperTest {
         assertEquals((Integer)2, iterator.next().getKey());
         assertEquals((Integer)1, iterator.next().getKey());
 
-        LinkedHashMap<Integer, Integer> mapSortedByValueDescending = CollectionHelper.sortByValue(map,
-                CollectionHelper.DESCENDING);
+        LinkedHashMap<Integer, Integer> mapSortedByValueDescending = CollectionHelper
+                .sortByValue(map, Order.DESCENDING);
         iterator = mapSortedByValueDescending.entrySet().iterator();
         assertEquals((Integer)5, iterator.next().getValue());
         assertEquals((Integer)4, iterator.next().getValue());
@@ -133,9 +135,10 @@ public class CollectionHelperTest {
         // CollectionHelper.print(hashMap);
         // CollectionHelper.print(CollectionHelper.sortByStringKeyLength(hashMap, false));
 
-        assertEquals("CCC", CollectionHelper.sortByStringKeyLength(hashMap, false).entrySet().iterator().next()
+        assertEquals("CCC", CollectionHelper.sortByStringKeyLength(hashMap, Order.DESCENDING).entrySet().iterator()
+                .next().getKey());
+        assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, Order.ASCENDING).entrySet().iterator().next()
                 .getKey());
-        assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, true).entrySet().iterator().next().getKey());
 
     }
 
@@ -208,7 +211,7 @@ public class CollectionHelperTest {
         }
 
     }
-    
+
     @Test
     public void testLimitIterable() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
@@ -219,7 +222,7 @@ public class CollectionHelperTest {
             count++;
         }
         assertEquals(5, count);
-        
+
         iterator = CollectionHelper.limit(list, 15).iterator();
         count = 0;
         while (iterator.hasNext()) {
@@ -227,8 +230,8 @@ public class CollectionHelperTest {
             count++;
         }
         assertEquals(10, count);
-        
-        iterator = CollectionHelper.limit(Collections.<Integer>emptyList().iterator(), 0);
+
+        iterator = CollectionHelper.limit(Collections.<Integer> emptyList().iterator(), 0);
         assertFalse(iterator.hasNext());
     }
 }

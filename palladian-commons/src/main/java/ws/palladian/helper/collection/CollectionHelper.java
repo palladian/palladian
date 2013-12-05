@@ -34,8 +34,14 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public final class CollectionHelper {
 
-    public static final boolean ASCENDING = true;
-    public static final boolean DESCENDING = false;
+    /**
+     * <p>
+     * Indicate sorting order.
+     * </p>
+     */
+    public enum Order {
+        ASCENDING, DESCENDING
+    }
 
     /**
      * <p>
@@ -96,14 +102,10 @@ public final class CollectionHelper {
      *         XXX {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
      *         {@link Pair}s, sorted as required.
      */
-    public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
+    public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final Order order) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-        if (ascending) {
-            Collections.sort(list, EntryValueComparator.<K, V> ascending());
-        } else {
-            Collections.sort(list, EntryValueComparator.<K, V> descending());
-        }
+        Collections.sort(list, new EntryValueComparator<V>(order));
 
         LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
@@ -127,7 +129,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map) {
-        return sortByValue(map, CollectionHelper.ASCENDING);
+        return sortByValue(map, Order.ASCENDING);
     }
 
     /**
@@ -145,7 +147,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <V extends Comparable<V>> LinkedHashMap<String, V> sortByStringKeyLength(Map<String, V> map,
-            final boolean ascending) {
+            final Order order) {
 
         LinkedList<Map.Entry<String, V>> list = new LinkedList<Map.Entry<String, V>>(map.entrySet());
 
@@ -153,7 +155,7 @@ public final class CollectionHelper {
             @Override
             public int compare(Map.Entry<String, V> o1, Map.Entry<String, V> o2) {
                 int ret = new Integer(o1.getKey().length()).compareTo(o2.getKey().length());
-                return ascending ? ret : -ret;
+                return order == Order.ASCENDING ? ret : -ret;
             }
         };
         Collections.sort(list, comparator);
