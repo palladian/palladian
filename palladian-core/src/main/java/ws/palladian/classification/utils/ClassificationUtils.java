@@ -172,11 +172,11 @@ public final class ClassificationUtils {
      * provide a target class), the target class is appended as last column after the features in the CSV.
      * </p>
      * 
-     * @param trainData The instances to write, not <code>null</code>.
+     * @param data The instances to write, not <code>null</code>.
      * @param filePath The path specifying the CSV file, not <code>null</code>.
      */
-    public static void writeCsv(Iterable<? extends Classifiable> trainData, File outputFile) {
-        Validate.notNull(trainData, "trainData must not be null");
+    public static void writeCsv(Iterable<? extends Classifiable> data, File outputFile) {
+        Validate.notNull(data, "trainData must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
 
         Writer writer = null;
@@ -187,30 +187,64 @@ public final class ClassificationUtils {
             boolean writeHeader = true;
             int count = 0;
             int featureCount = 0;
-            for (Classifiable trainable : trainData) {
-                if (writeHeader) {
-                    for (Feature<?> feature : trainable.getFeatureVector()) {
-                        writer.write(feature.getName());
-                        writer.write(DEFAULT_SEPARATOR);
-                        featureCount++;
-                    }
-                    if (trainable instanceof Trainable) {
-                        writer.write("targetClass");
-                    }
-                    writer.write(FileHelper.NEWLINE_CHARACTER);
-                    writeHeader = false;
-                }
-                for (Feature<?> feature : trainable.getFeatureVector()) {
-                    writer.write(feature.getValue().toString());
-                    writer.write(DEFAULT_SEPARATOR);
-                }
-                if (trainable instanceof Trainable) {
-                    writer.write(((Trainable)trainable).getTargetClass());
-                }
-                writer.write(FileHelper.NEWLINE_CHARACTER);
+            for (Classifiable trainable : data) {
+                featureCount = writeLine(trainable, writer, writeHeader);
+                writeHeader = false;
                 count++;
             }
             LOGGER.info("Wrote {} train instances with {} features.", count, featureCount);
+        } catch (IOException e) {
+            throw new IllegalStateException("Encountered " + e + " while writing to '" + outputFile + "'", e);
+        } finally {
+            FileHelper.close(writer);
+        }
+    }
+
+    private static int writeLine(Classifiable trainable, Writer writer, boolean writeHeader) throws IOException {
+        if (writeHeader) {
+            for (Feature<?> feature : trainable.getFeatureVector()) {
+                writer.write(feature.getName());
+                writer.write(DEFAULT_SEPARATOR);
+            }
+            if (trainable instanceof Trainable) {
+                writer.write("targetClass");
+            }
+            writer.write(FileHelper.NEWLINE_CHARACTER);
+        }
+        int featureCount = 0;
+        for (Feature<?> feature : trainable.getFeatureVector()) {
+            writer.write(feature.getValue().toString());
+            writer.write(DEFAULT_SEPARATOR);
+            featureCount++;
+        }
+        if (trainable instanceof Trainable) {
+            writer.write(((Trainable)trainable).getTargetClass());
+        }
+        writer.write(FileHelper.NEWLINE_CHARACTER);
+        return featureCount;
+    }
+
+    /**
+     * <p>
+     * Append a {@link Classifiable} to a CSV file. In case, the file did not exist already, the header is written. In
+     * case the file already exists, only the data is written. Does <b>not</b> check, whether the given data conforms to
+     * existing CSV structure (number of columns, types, ...).
+     * </p>
+     * 
+     * @param data The data to append to the file, not <code>null</code>.
+     * @param outputFile The output file to which to append, or which to create in case it does not exist. Not
+     *            <code>null</code>.
+     */
+    public static void appendCsv(Classifiable data, File outputFile) {
+        Validate.notNull(data, "data must not be null");
+        Validate.notNull(outputFile, "outputFile must not be null");
+
+        Writer writer = null;
+        boolean writeHeader = !outputFile.exists();
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile, true),
+                    FileHelper.DEFAULT_ENCODING));
+            writeLine(data, writer, writeHeader);
         } catch (IOException e) {
             throw new IllegalStateException("Encountered " + e + " while writing to '" + outputFile + "'", e);
         } finally {
