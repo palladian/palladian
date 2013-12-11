@@ -54,9 +54,9 @@ public final class KnnModel implements Model {
 
     private List<TrainingExample> initTrainingInstances(Iterable<? extends Trainable> instances,
             Normalization normalization) {
-        normalization.normalize(instances);
         List<TrainingExample> ret = new ArrayList<TrainingExample>();
         for (Trainable instance : instances) {
+            normalization.normalize(instance);
             ret.add(new TrainingExample(instance));
         }
         return ret;

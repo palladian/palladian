@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -73,6 +74,9 @@ public final class CollectionHelper {
 
         @Override
         public T next() {
+            if (counter >= limit) {
+                throw new NoSuchElementException();
+            }
             T temp = iterator.next();
             counter++;
             return temp;
@@ -677,6 +681,37 @@ public final class CollectionHelper {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
         return convert(iterable, function, new ArrayList<O>());
+    }
+
+    /**
+     * <p>
+     * Create a wrapper for a given {@link Iterator} which converts the iterator's items using a provided
+     * {@link Function}.
+     * </p>
+     * 
+     * @param iterator The iterator to wrap, not <code>null</code>.
+     * @param function The {@link Function} which performs the conversion, not <code>null</code>.
+     * @return An iterator wrapping the given iterator.
+     */
+    public static <I, O> Iterator<O> convert(final Iterator<I> iterator, final Function<? super I, O> function) {
+        Validate.notNull(iterator, "iterator must not be null");
+        Validate.notNull(function, "function must not be null");
+        return new Iterator<O>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public O next() {
+                return function.compute(iterator.next());
+            }
+
+            @Override
+            public void remove() {
+                iterator.remove();
+            }
+        };
     }
 
     /**

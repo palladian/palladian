@@ -2,7 +2,6 @@ package ws.palladian.classification.liblinear;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -93,15 +92,16 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
     public LibLinearModel train(Iterable<? extends Trainable> trainables) {
         Validate.notNull(trainables, "trainables must not be null");
         Normalization normalization = normalizer.calculate(trainables);
-        normalization.normalize(trainables);
         Problem problem = new Problem();
-        Set<String> featureLabels = CollectionHelper.newTreeSet();
+        List<String> featureLabels = CollectionHelper.newArrayList();
         List<String> classIndices = CollectionHelper.newArrayList();
         for (Trainable trainable : trainables) {
             problem.l++;
             for (Feature<?> feature : trainable.getFeatureVector()) {
                 if (feature instanceof NumericFeature) {
-                    featureLabels.add(feature.getName());
+                    if (!featureLabels.contains(feature.getName())) {
+                        featureLabels.add(feature.getName());
+                    }
                 }
             }
             if (!classIndices.contains(trainable.getTargetClass())) {
@@ -109,6 +109,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
             }
         }
         LOGGER.debug("Features = {}", featureLabels);
+        LOGGER.debug("Classes = {}", classIndices);
         problem.n = featureLabels.size();
         problem.x = new de.bwaldvogel.liblinear.Feature[problem.l][];
         problem.y = new double[problem.l];
@@ -119,6 +120,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
         }
         int index = 0;
         for (Trainable trainable : trainables) {
+            normalization.normalize(trainable);
             problem.x[index] = makeInstance(featureLabels, trainable, bias);
             problem.y[index] = classIndices.indexOf(trainable.getTargetClass());
             index++;
@@ -128,7 +130,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
         return new LibLinearModel(model, featureLabels, classIndices, normalization);
     }
 
-    static de.bwaldvogel.liblinear.Feature[] makeInstance(Set<String> labels, Classifiable trainable, double bias) {
+    static de.bwaldvogel.liblinear.Feature[] makeInstance(List<String> labels, Classifiable trainable, double bias) {
         List<de.bwaldvogel.liblinear.Feature> features = CollectionHelper.newArrayList();
         int index = 0; // 1-indexed
         for (String label : labels) {

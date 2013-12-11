@@ -17,14 +17,6 @@ import ws.palladian.processing.features.NumericFeature;
 abstract class AbstractNormalization implements Normalization {
 
     @Override
-    public final void normalize(Iterable<? extends Classifiable> instances) {
-        Validate.notNull(instances, "instances must not be null");
-        for (Classifiable instance : instances) {
-            normalize(instance);
-        }
-    }
-
-    @Override
     public final void normalize(Classifiable classifiable) {
         Validate.notNull(classifiable, "classifiable must not be null");
         FeatureVector featureVector = classifiable.getFeatureVector();

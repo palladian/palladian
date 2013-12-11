@@ -28,7 +28,9 @@ public class MinMaxNormalizerTest {
         instances.add(instance3);
 
         Normalization normalization = new MinMaxNormalizer().calculate(instances);
-        normalization.normalize(instances);
+        normalization.normalize(instance1);
+        normalization.normalize(instance2);
+        normalization.normalize(instance3);
 
         assertEquals(1., instance1.getFeatureVector().get(NumericFeature.class, "v1").getValue(), 0.);
         assertEquals(0.1111, instance2.getFeatureVector().get(NumericFeature.class, "v1").getValue(), 0.001);

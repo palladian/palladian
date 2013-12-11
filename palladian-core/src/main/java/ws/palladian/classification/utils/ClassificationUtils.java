@@ -317,6 +317,8 @@ public final class ClassificationUtils {
      * @param instances The instances to process, not <code>null</code>.
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link FeatureVector}.
+     * @see #filterFeaturesIterable(Iterable, Filter) which does the same on an iterable, without loading the whole
+     *      dataset in memory.
      */
     public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances,
             Filter<? super String> nameFilter) {
@@ -326,6 +328,20 @@ public final class ClassificationUtils {
             result.add(new Instance(instance.getTargetClass(), featureVector));
         }
         return result;
+    }
+
+    /**
+     * <p>
+     * Apply a filter on the features in a dataset.
+     * </p>
+     * 
+     * @param dataset The dataset to filter, not <code>null</code>.
+     * @param nameFilter The filter specifying which features to ignore, not <code>null</code>.
+     * @return A new {@link Iterable} providing the filtered feature set.
+     */
+    public static Iterable<Trainable> filterFeaturesIterable(Iterable<? extends Trainable> dataset,
+            Filter<? super String> nameFilter) {
+        return new DatasetFeatureFilter(dataset, nameFilter);
     }
 
     /**
