@@ -1,8 +1,5 @@
 package ws.palladian.classification.utils;
 
-import java.util.List;
-
-import ws.palladian.classification.Instance;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
@@ -18,16 +15,6 @@ public interface Normalization {
 
     /**
      * <p>
-     * Normalize a {@link List} of {@link Instance}s based on the normalization information. The values are modified
-     * directly in place.
-     * </p>
-     * 
-     * @param instances The List of Instances, not <code>null</code>.
-     */
-    void normalize(Iterable<? extends Classifiable> instances);
-
-    /**
-     * <p>
      * Normalize the given {@link NumericFeature} based on the normalization information. A new {@link NumericFeature}
      * with normalized value is returned.
      * </p>
@@ -38,6 +25,8 @@ public interface Normalization {
      */
     NumericFeature normalize(NumericFeature numericFeature);
 
+    // XXX it would be better to return a copy of the classifiable, as we might want to keep the original values, or
+    // normalizing several times will cause unexpected results
     /**
      * <p>
      * Normalize a {@link FeatureVector} based in the normalization information. The values are modified directly in

@@ -24,13 +24,14 @@ public class LibLinearModel implements Model {
 
     private final de.bwaldvogel.liblinear.Model model;
 
-    private final Set<String> featureLabels;
+    private final List<String> featureLabels;
 
     private final List<String> classIndices;
 
     private final Normalization normalization;
 
-    public LibLinearModel(de.bwaldvogel.liblinear.Model model, Set<String> featureLabels, List<String> classIndices, Normalization normalization) {
+    /** Instances are created package-internally. */
+    LibLinearModel(de.bwaldvogel.liblinear.Model model, List<String> featureLabels, List<String> classIndices, Normalization normalization) {
         this.model = model;
         this.featureLabels = featureLabels;
         this.classIndices = classIndices;
@@ -41,8 +42,8 @@ public class LibLinearModel implements Model {
         return model;
     }
 
-    Set<String> getFeatureLabels() {
-        return Collections.unmodifiableSet(featureLabels);
+    List<String> getFeatureLabels() {
+        return Collections.unmodifiableList(featureLabels);
     }
 
     @Override
