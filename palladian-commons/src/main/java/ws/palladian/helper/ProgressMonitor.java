@@ -29,10 +29,9 @@ public final class ProgressMonitor {
     private final static char PROGRESS_CHAR = '■';
     private final StopWatch stopWatch = new StopWatch();
     private final String processName;
-    private AtomicLong currentCount = new AtomicLong(0);
-    private final AtomicLong totalCount = new AtomicLong(0);
+    private final AtomicLong currentCount = new AtomicLong(0);
+    private final long totalCount;
     private final double showEveryPercent;
-    private boolean compactRemaining = false;
 
     /**
      * <p>
@@ -67,7 +66,7 @@ public final class ProgressMonitor {
      * @param processName The name of the process, for identification purposes when outputting the bar.
      */
     public ProgressMonitor(long totalCount, double showEveryPercent, String processName) {
-        this.totalCount.set(totalCount);
+        this.totalCount = totalCount;
         this.showEveryPercent = showEveryPercent;
         this.processName = processName;
     }
@@ -89,7 +88,7 @@ public final class ProgressMonitor {
      * 
      * @param counter Counter for current iteration in a loop.
      */
-    public void printProgress(AtomicLong counter) {
+    public void printProgress(long counter) {
         String progress = getProgress(counter);
         if (!progress.isEmpty()) {
             System.out.println(progress);
@@ -103,8 +102,7 @@ public final class ProgressMonitor {
      * 
      */
     public void incrementAndPrintProgress() {
-        currentCount.incrementAndGet();
-        printProgress(currentCount);
+        printProgress(currentCount.incrementAndGet());
     }
 
     /**
@@ -128,8 +126,7 @@ public final class ProgressMonitor {
      * @param counter Counter for current iteration in a loop.
      */
     public String incrementAndGetProgress() {
-        currentCount.incrementAndGet();
-        return getProgress(currentCount);
+        return getProgress(currentCount.incrementAndGet());
     }
 
     /**
@@ -139,26 +136,25 @@ public final class ProgressMonitor {
      * 
      * @param counter Counter for current iteration in a loop.
      */
-    public String getProgress(AtomicLong counter) {
+    private String getProgress(long counter) {
         StringBuilder progressString = new StringBuilder();
         try {
-            if (showEveryPercent == 0 || counter.get() % (showEveryPercent * totalCount.get() / 100.0) < 1) {
+            if (showEveryPercent == 0 || counter % (showEveryPercent * totalCount / 100.0) < 1) {
                 if (processName != null) {
                     progressString.append(processName).append(" ");
                 }
-                double percent = MathHelper.round(100 * counter.get() / (double)totalCount.get(), 2);
+                double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
                 progressString.append(createProgressBar(percent));
                 progressString.append(" ").append(percent).append("% (");
-                progressString.append(totalCount.get() - counter.get()).append(" remaining");
+                progressString.append(totalCount - counter).append(" remaining");
                 if (stopWatch != null && percent > 0) {
                     long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
                     // if elapsed not possible (timer started long before progress helper used) =>
                     // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
                     progressString.append(", elapsed: ").append(stopWatch.getTotalElapsedTimeString());
                     progressString.append(", iteration: ").append(stopWatch.getElapsedTimeString());
-                    if (counter.get() < totalCount.get()) {
-                        progressString.append(", ~remaining: ").append(
-                                DateHelper.formatDuration(0, msRemaining, compactRemaining));
+                    if (counter < totalCount) {
+                        progressString.append(", ~remaining: ").append(DateHelper.formatDuration(0, msRemaining, true));
                     }
                     stopWatch.start();
                 }
@@ -169,21 +165,6 @@ public final class ProgressMonitor {
         }
 
         return progressString.toString();
-    }
-
-    public boolean isCompactRemaining() {
-        return compactRemaining;
-    }
-
-    /**
-     * <p>
-     * Sets whether the remaining time should be shown in compact format.
-     * </p>
-     * 
-     * @param compactRemaining True if the remaining time should be shown in compact format.
-     */
-    public void setCompactRemaining(boolean compactRemaining) {
-        this.compactRemaining = compactRemaining;
     }
 
     public String getTotalElapsedTimeString() {
@@ -197,7 +178,6 @@ public final class ProgressMonitor {
     public static void main(String[] args) {
         int totalCount = 1759600335;
         ProgressMonitor pm = new ProgressMonitor(totalCount, .5, "My Progress");
-        pm.setCompactRemaining(true);
         for (int i = 1; i <= totalCount; i++) {
             // ThreadHelper.deepSleep(200);
             pm.incrementAndPrintProgress();
