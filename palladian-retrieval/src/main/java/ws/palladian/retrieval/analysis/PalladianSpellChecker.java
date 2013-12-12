@@ -39,6 +39,9 @@ public class PalladianSpellChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianSpellChecker.class);
     private static final Pattern SPLIT = Pattern.compile("\\s");
 
+    /** Do not correct words that contain any of these characters. */
+    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[" + Pattern.quote("0-9<>=-*'#/") + "]");
+
     private final Trie words = new Trie();
 
     public PalladianSpellChecker(String file) {
@@ -131,7 +134,7 @@ public class PalladianSpellChecker {
 
         String[] textWords = SPLIT.split(text);
         for (String word : textWords) {
-            if (word.length() < 2 || StringHelper.containsNumber(word)) {
+            if (word.length() < 2 || StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).length() > 0) {
                 correctedText.append(word).append(" ");
                 continue;
             }
