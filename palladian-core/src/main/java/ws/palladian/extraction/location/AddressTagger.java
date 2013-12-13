@@ -39,6 +39,11 @@ public final class AddressTagger implements Tagger {
         // step one: match tagged annotations using street pattern
         for (Annotation annotation : annotations) {
             String value = annotation.getValue();
+            
+            // street names must consist of four tokens maximum
+            if (value.split("\\s").length > 4) {
+                continue;
+            }
 
             // XXX ugly; in case of "Bla St", check, if following character is a . and extend annotation, as the . was
             // swallowed by StringTagger
