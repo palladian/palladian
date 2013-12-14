@@ -1,9 +1,11 @@
 package ws.palladian.extraction.location;
 
+import static java.lang.Math.asin;
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
+import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 import static ws.palladian.extraction.location.GeoUtils.EARTH_RADIUS_KM;
 
@@ -124,6 +126,22 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         double long1 = getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.04);
         double long2 = getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.04);
         return new double[] {lat1, long1, lat2, long2};
+    }
+    
+    @Override
+    public GeoCoordinate getCoordinate(double distance, double bearing) {
+        Validate.isTrue(distance >= 0, "distance must be greater/equal zero");
+        // http://www.movable-type.co.uk/scripts/latlong.html
+        double latRad = toRadians(getLatitude());
+        double lngRad = toRadians(getLongitude());
+        double bearingRad = toRadians(bearing);
+        double d = distance / EARTH_RADIUS_KM;
+        double resultLatRad = asin(sin(latRad) * cos(d) + cos(latRad) * sin(d) * cos(bearingRad));
+        double resultLngRad = lngRad
+                + atan2(sin(bearingRad) * sin(d) * cos(latRad), cos(d) - sin(latRad) * sin(resultLatRad));
+        double resultLat = toDegrees(resultLatRad);
+        double resultLng = toDegrees(GeoUtils.normalizeLongitude(resultLngRad));
+        return new ImmutableGeoCoordinate(resultLat, resultLng);
     }
 
     @Override
