@@ -68,6 +68,37 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         }
     };
 
+    /**
+     * <p>
+     * A scorer using F1 measure for the specified class name.
+     * </p>
+     * 
+     * @author pk
+     */
+    public static final class FMeasureScorer implements Function<ConfusionMatrix, Double> {
+
+        private final String className;
+
+        /**
+         * @param className The name of the class for which to calculate F1 measure, not <code>null</code> or empty.
+         */
+        public FMeasureScorer(String className) {
+            Validate.notEmpty(className, "className must not be empty");
+            this.className = className;
+        }
+
+        @Override
+        public Double compute(ConfusionMatrix input) {
+            return input.getF(1., className);
+        }
+
+        @Override
+        public String toString() {
+            return "FMeasureScorer [class=" + className + "]";
+        }
+
+    }
+
     private final class TestRun implements Callable<TestRunResult> {
 
         private final Collection<? extends Trainable> trainData;
