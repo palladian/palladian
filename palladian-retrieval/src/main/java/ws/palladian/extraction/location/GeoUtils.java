@@ -53,7 +53,8 @@ public final class GeoUtils {
      */
     public static final GeoCoordinate getMidpoint(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notEmpty(coordinates, "locations must not be empty");
-        if (coordinates.size() == 1) { // shortcut
+        int count = coordinates.size();
+        if (count == 1) { // shortcut
             return CollectionHelper.getFirst(coordinates);
         }
         double x = 0;
@@ -66,12 +67,10 @@ public final class GeoUtils {
             y += Math.cos(latRad) * Math.sin(lngRad);
             z += Math.sin(latRad);
         }
-        int count = coordinates.size();
         x /= count;
         y /= count;
         z /= count;
-        final double t = Math.pow(10, -9);
-        if (Math.abs(x) < t || Math.abs(y) < t || Math.abs(z) < t) {
+        if (Math.abs(x) < 1e-9 || Math.abs(y) < 1e-9 || Math.abs(z) < 1e-9) {
             return new ImmutableGeoCoordinate(0., 0.);
         }
         double lngRad = Math.atan2(y, x);
