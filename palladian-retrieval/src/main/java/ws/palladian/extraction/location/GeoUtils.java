@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 /**
  * <p>
  * Various utility functions and constants for geographic purposes.
@@ -51,6 +53,9 @@ public final class GeoUtils {
      */
     public static final GeoCoordinate getMidpoint(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notEmpty(coordinates, "locations must not be empty");
+        if (coordinates.size() == 1) { // shortcut
+            return CollectionHelper.getFirst(coordinates);
+        }
         double x = 0;
         double y = 0;
         double z = 0;
@@ -92,6 +97,10 @@ public final class GeoUtils {
      */
     public static final GeoCoordinate getCenterOfMinimumDistance(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notEmpty(coordinates, "coordinates must not be empty");
+        
+        if (coordinates.size() == 1) { // shortcut
+            return CollectionHelper.getFirst(coordinates);
+        }
 
         // algorithm implemented from explanation at: http://www.geomidpoint.com/calculation.html
         GeoCoordinate currentPoint = getMidpoint(coordinates); // step 1

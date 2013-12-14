@@ -13,6 +13,7 @@ public class GeoUtilsTest {
 
     private static Collection<GeoCoordinate> coordinates1;
     private static Collection<GeoCoordinate> coordinates2;
+    private static Collection<GeoCoordinate> coordinates3;
 
     @BeforeClass
     public static void setUp() {
@@ -25,6 +26,9 @@ public class GeoUtilsTest {
         coordinates2 = CollectionHelper.newHashSet();
         coordinates2.add(new ImmutableGeoCoordinate(40.71427, -74.00597));
         coordinates2.add(new ImmutableGeoCoordinate(35.68950, 139.69171));
+        
+        coordinates3 = CollectionHelper.newHashSet();
+        coordinates3.add(new ImmutableGeoCoordinate(52.52437, 13.41053));
     }
 
     @Test
@@ -36,6 +40,9 @@ public class GeoUtilsTest {
         midpoint = GeoUtils.getMidpoint(coordinates2);
         assertEquals(69.660652, midpoint.getLatitude(), 0.01);
         assertEquals(-153.661864, midpoint.getLongitude(), 0.01);
+        
+        midpoint = GeoUtils.getMidpoint(coordinates3);
+        assertEquals(new ImmutableGeoCoordinate(52.52437, 13.41053), midpoint);
     }
 
     @Test
@@ -43,6 +50,9 @@ public class GeoUtilsTest {
         GeoCoordinate center = GeoUtils.getCenterOfMinimumDistance(coordinates1);
         assertEquals(48.337076, center.getLatitude(), 0.01);
         assertEquals(7.758056, center.getLongitude(), 0.01);
+        
+        center = GeoUtils.getCenterOfMinimumDistance(coordinates3);
+        assertEquals(new ImmutableGeoCoordinate(52.52437, 13.41053), center);
     }
 
     @Test
