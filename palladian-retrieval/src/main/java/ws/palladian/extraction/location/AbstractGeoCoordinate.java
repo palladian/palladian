@@ -1,5 +1,12 @@
 package ws.palladian.extraction.location;
 
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+import static java.lang.Math.toRadians;
+import static ws.palladian.extraction.location.GeoUtils.EARTH_RADIUS_KM;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
@@ -25,15 +32,24 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     public double distance(GeoCoordinate other) {
         Validate.notNull(other, "other must not be null");
 
-        double lat1 = getLatitude();
-        double lng1 = getLongitude();
-        double lat2 = other.getLatitude();
-        double lng2 = other.getLongitude();
-        return 2
-                * GeoUtils.EARTH_RADIUS_KM
-                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
-                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
+//        double lat1 = getLatitude();
+//        double lng1 = getLongitude();
+//        double lat2 = other.getLatitude();
+//        double lng2 = other.getLongitude();
+//        return 2
+//                * GeoUtils.EARTH_RADIUS_KM
+//                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
+//                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+//                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
+
+        double lat1 = toRadians(getLatitude());
+        double lon1 = toRadians(getLongitude());
+        double lat2 = toRadians(other.getLatitude());
+        double lon2 = toRadians(other.getLongitude());
+        double dLat = (lat2 - lat1) / 2;
+        double dLon = (lon2 - lon1) / 2;
+        double a = sin(dLat) * sin(dLat) + cos(lat1) * cos(lat2) * sin(dLon) * sin(dLon);
+        return 2 * EARTH_RADIUS_KM * atan2(sqrt(a), sqrt(1 - a));
     }
 
     @Override
