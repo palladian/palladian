@@ -48,7 +48,7 @@ import ws.palladian.persistence.helper.SqlHelper;
  * @author Philipp Katz
  * @author David Urbansky
  */
-public final class LocationDatabase extends DatabaseManager implements LocationStore {
+public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
