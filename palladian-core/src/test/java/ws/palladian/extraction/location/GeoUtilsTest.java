@@ -80,12 +80,4 @@ public class GeoUtilsTest {
         }
     }
 
-    @Test
-    public void testGetCoordinateDistanceBearing() {
-        GeoCoordinate coordinate = GeoUtils.getCoordinate(new ImmutableGeoCoordinate(53.320556, 1.729722), 124.8,
-                96.021667);
-        assertEquals(53.188333, coordinate.getLatitude(), 0.001);
-        assertEquals(3.592778, coordinate.getLongitude(), 0.001);
-    }
-
 }

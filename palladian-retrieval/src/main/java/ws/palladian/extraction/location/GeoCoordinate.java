@@ -51,5 +51,17 @@ public interface GeoCoordinate {
      *         [south, west, north, east].
      */
     double[] getBoundingBox(double distance);
+    
+    /**
+     * <p>
+     * Get a new point form this {@link GeoCoordinate} with the specified distance and bearing.
+     * </p>
+     * 
+     * @param distance The distance from this coordinate in kilometers, greater/equal zero.
+     * @param bearing The bearing (angle) in degrees, which determines in which direction to move. A bearing of 0°
+     *            denotes the direction north, 90° east, and so on.
+     * @return A new {@link GeoCoordinate} with the specified distance and bearing.
+     */
+    GeoCoordinate getCoordinate(double distance, double bearing);
 
 }

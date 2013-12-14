@@ -1,12 +1,5 @@
 package ws.palladian.extraction.location;
 
-import static java.lang.Math.asin;
-import static java.lang.Math.atan2;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-import static java.lang.Math.toDegrees;
-import static java.lang.Math.toRadians;
-
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -96,7 +89,7 @@ public final class GeoUtils {
      */
     public static final GeoCoordinate getCenterOfMinimumDistance(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notEmpty(coordinates, "coordinates must not be empty");
-        
+
         if (coordinates.size() == 1) { // shortcut
             return CollectionHelper.getFirst(coordinates);
         }
@@ -162,43 +155,15 @@ public final class GeoUtils {
     static GeoCoordinate[] getTestPoints(GeoCoordinate coordinate, double distance) {
         GeoCoordinate[] result = new GeoCoordinate[8];
         for (int i = 0; i < 8; i++) {
-            result[i] = getCoordinate(coordinate, distance, i * 45);
+            result[i] = coordinate.getCoordinate(distance, i * 45);
         }
         return result;
     }
 
     /**
-     * <p>
-     * Get a new point form the given {@link GeoCoordinate} with the specified distance and bearing.
-     * </p>
-     * 
-     * @param coordinate The {@link GeoCoordinate}, not <code>null</code>.
-     * @param distance The distance from the given coordinate in kilometers, greater/equal zero.
-     * @param bearing The bearing (angle) in degrees, which determines in which direction to move. A bearing of 0°
-     *            denotes the direction north, 90° east, and so on.
-     * @return A new {@link GeoCoordinate} with the specified distance and bearing from the given coordinate.
-     */
-    // TODO move to GeoCoordinate class
-    public static GeoCoordinate getCoordinate(GeoCoordinate coordinate, double distance, double bearing) {
-        Validate.notNull(coordinate, "coordinate must not be null");
-        Validate.isTrue(distance >= 0, "distance must be greater/equal zero");
-        // http://www.movable-type.co.uk/scripts/latlong.html
-        double latRad = toRadians(coordinate.getLatitude());
-        double lngRad = toRadians(coordinate.getLongitude());
-        double bearingRad = toRadians(bearing);
-        double d = distance / EARTH_RADIUS_KM;
-        double resultLatRad = asin(sin(latRad) * cos(d) + cos(latRad) * sin(d) * cos(bearingRad));
-        double resultLngRad = lngRad
-                + atan2(sin(bearingRad) * sin(d) * cos(latRad), cos(d) - sin(latRad) * sin(resultLatRad));
-        double resultLat = toDegrees(resultLatRad);
-        double resultLng = toDegrees(normalizeLongitude(resultLngRad));
-        return new ImmutableGeoCoordinate(resultLat, resultLng);
-    }
-
-    /**
      * Normalize a longitude value to an interval -180 ... 180°.
      */
-    private static double normalizeLongitude(double lng) {
+    public static double normalizeLongitude(double lng) {
         return (lng + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
     }
 
