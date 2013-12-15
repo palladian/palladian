@@ -16,6 +16,7 @@ import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringPool;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
@@ -43,6 +44,8 @@ public class CsvDatasetReader implements Iterable<Trainable> {
         BufferedReader reader;
         int lineNumber;
         boolean closed;
+        /** Save some memory when reading datasets with nominal values. */
+        final StringPool stringPool;
 
         public CsvDatasetIterator(File filePath, boolean readHeader, String fieldSeparator) {
             FileInputStream inputStream = null;
@@ -55,6 +58,7 @@ public class CsvDatasetReader implements Iterable<Trainable> {
             this.fieldSeparator = fieldSeparator;
             this.readHeader = readHeader;
             this.closed = false;
+            this.stringPool = new StringPool();
         }
 
         @Override
@@ -65,6 +69,10 @@ public class CsvDatasetReader implements Iterable<Trainable> {
             if (line != null) {
                 return true;
             }
+            return read();
+        }
+
+        private boolean read() {
             try {
                 line = reader.readLine();
                 if (line == null) {
@@ -100,6 +108,12 @@ public class CsvDatasetReader implements Iterable<Trainable> {
 
         @Override
         public Trainable next() {
+            if (closed) {
+                throw new IllegalStateException("Already closed.");
+            }
+            if (line == null) {
+                read();
+            }
             String[] parts = line.split(fieldSeparator);
             line = null;
             FeatureVector featureVector = new BasicFeatureVector();
@@ -116,7 +130,8 @@ public class CsvDatasetReader implements Iterable<Trainable> {
                     Double doubleValue = Double.valueOf(value);
                     featureVector.add(new NumericFeature(name, doubleValue));
                 } catch (NumberFormatException e) {
-                    featureVector.add(new NominalFeature(name, value));
+                    String stringValue = stringPool.get(value);
+                    featureVector.add(new NominalFeature(name, stringValue));
                 }
             }
             String targetClass = parts[parts.length - 1];

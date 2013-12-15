@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import quickdt.TreeBuilder;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
@@ -51,7 +50,7 @@ public class QuickDtTest {
         instances.add(new InstanceBuilder().set("height", 49.).set("weight", 144.).set("gender", "female").create("underweight"));
         instances.add(new InstanceBuilder().set("height", 83.).set("weight", 223.).set("gender", "male").create("healthy"));
 
-        QuickDtLearner learner = new QuickDtLearner(new TreeBuilder());
+        QuickDtLearner learner = QuickDtLearner.tree();
         QuickDtModel model = learner.train(instances);
 
         FeatureVector featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();

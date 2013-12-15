@@ -2,9 +2,8 @@ package ws.palladian.classification.liblinear;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static ws.palladian.classification.utils.ClassificationUtils.readCsv;
 import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
-import static ws.palladian.helper.io.ResourceHelper.getResourcePath;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.InstanceBuilder;
+import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
@@ -44,24 +44,25 @@ public class LibLinearTest {
                 .create("3"));
         return data;
     }
-    
+
     @Test
     public void testUntrainedFeature() {
         LibLinearModel model = new LibLinearLearner().train(createSampleData());
-        FeatureVector featureVector = new InstanceBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("e", 0).set("f", 0).create();
+        FeatureVector featureVector = new InstanceBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("e", 0)
+                .set("f", 0).create();
         assertEquals("1", new LibLinearClassifier().classify(featureVector, model).getMostLikelyCategory());
     }
 
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
-        List<Trainable> instances = readCsv(getResourcePath("/adultData.txt"), false);
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/adultData.txt"), false).readAll();
         ConfusionMatrix confusionMatrix = evaluate(new LibLinearLearner(), new LibLinearClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.79);
     }
 
     @Test
     public void testWithDiabetesData() throws FileNotFoundException {
-        List<Trainable> instances = readCsv(getResourcePath("/diabetesData.txt"), true);
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), true).readAll();
         ConfusionMatrix confusionMatrix = evaluate(new LibLinearLearner(), new LibLinearClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.80);
     }
