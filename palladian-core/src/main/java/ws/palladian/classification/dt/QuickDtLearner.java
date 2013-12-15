@@ -27,18 +27,23 @@ import ws.palladian.processing.features.Feature;
  * 
  * @author Philipp Katz
  */
-public class QuickDtLearner implements Learner<QuickDtModel> {
+public final class QuickDtLearner implements Learner<QuickDtModel> {
 
     /** The builder used for creating the predictive mode. */
     private final PredictiveModelBuilder<? extends PredictiveModel> builder;
-
-    // removed zero-arg constructor, because one might erroneously instantiate a single tree instead of a random forest
 
     /**
      * @return A new QuickDtLearner creating a random forest with ten trees.
      */
     public static QuickDtLearner randomForest() {
         return new QuickDtLearner(new RandomForestBuilder().numTrees(10));
+    }
+    
+    /**
+     * @return A new QuickDtLearner creating a single tree.
+     */
+    public static QuickDtLearner tree() {
+        return new QuickDtLearner(new TreeBuilder());
     }
 
     /**
@@ -48,6 +53,7 @@ public class QuickDtLearner implements Learner<QuickDtModel> {
      * </p>
      * 
      * @param builder The builder to use, not <code>null</code>.
+     * @see {@link #tree()} and {@link #randomForest()} for a predefined learner.
      */
     public QuickDtLearner(PredictiveModelBuilder<? extends PredictiveModel> builder) {
         Validate.notNull(builder, "builder must not be null");
