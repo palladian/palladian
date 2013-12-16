@@ -9,18 +9,19 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import ws.palladian.classification.Model;
+import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
 
 /**
  * <p>
- * Model for the {@link LibLinearLearner} classifier.
+ * Model for the {@link LibLinearClassifier}. Use the {@link LibLinearLearner} to train.
  * </p>
  * 
  * @author pk
  */
 public class LibLinearModel implements Model {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private final de.bwaldvogel.liblinear.Model model;
 
@@ -30,12 +31,16 @@ public class LibLinearModel implements Model {
 
     private final Normalization normalization;
 
+    private final DummyVariableCreator dummyCoder;
+
     /** Instances are created package-internally. */
-    LibLinearModel(de.bwaldvogel.liblinear.Model model, List<String> featureLabels, List<String> classIndices, Normalization normalization) {
+    LibLinearModel(de.bwaldvogel.liblinear.Model model, List<String> featureLabels, List<String> classIndices,
+            Normalization normalization, DummyVariableCreator dummyCoder) {
         this.model = model;
         this.featureLabels = featureLabels;
         this.classIndices = classIndices;
         this.normalization = normalization;
+        this.dummyCoder = dummyCoder;
     }
 
     de.bwaldvogel.liblinear.Model getLLModel() {
@@ -54,9 +59,13 @@ public class LibLinearModel implements Model {
     String getCategoryForIndex(int i) {
         return classIndices.get(i);
     }
-    
+
     Normalization getNormalization() {
         return normalization;
+    }
+
+    DummyVariableCreator getDummyCoder() {
+        return dummyCoder;
     }
 
     @Override

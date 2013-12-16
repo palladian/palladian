@@ -38,8 +38,9 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
     public CategoryEntries classify(Classifiable classifiable, LibLinearModel model) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(model, "model must not be null");
-        classifiable = removeUntrainedFeatures(classifiable, model);
         model.getNormalization().normalize(classifiable);
+        classifiable = model.getDummyCoder().convert(classifiable);
+        classifiable = removeUntrainedFeatures(classifiable, model);
         de.bwaldvogel.liblinear.Feature[] instance = LibLinearLearner.makeInstance(model.getFeatureLabels(),
                 classifiable, model.getLLModel().getBias());
         double[] probabilities = new double[model.getCategories().size()];

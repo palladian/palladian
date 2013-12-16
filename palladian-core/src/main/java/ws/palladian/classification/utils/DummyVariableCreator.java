@@ -1,5 +1,8 @@
 package ws.palladian.classification.utils;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
@@ -42,9 +45,9 @@ public class DummyVariableCreator implements Serializable {
 
     // TODO for a nominal feature with k values, k-1 numeric features are enough
 
-    private final MultiMap<String, String> domain;
+    private transient MultiMap<String, String> domain;
 
-    private final StringPool stringPool = new StringPool();
+    private transient StringPool stringPool = new StringPool();
 
     /**
      * <p>
@@ -190,6 +193,34 @@ public class DummyVariableCreator implements Serializable {
             numCreatedNumericFeatures += value.size() < 3 ? 1 : value.size();
         }
         return numCreatedNumericFeatures;
+    }
+    
+    // custom serialization/deserialization code
+    
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeInt(getNominalFeatureCount()); // number of entries
+        for (String featureName : domain.keySet()) {
+            out.writeObject(featureName); // name of the current feature
+            Collection<String> values = domain.get(featureName);
+            out.writeInt(values.size()); // number of following entries
+            for (String value : values) {
+                out.writeObject(value);
+            }
+        }
+    }
+    
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        domain = DefaultMultiMap.createWithList();
+        stringPool = new StringPool(); // just create a new one
+        int featureCount = in.readInt();
+        for (int i = 0; i < featureCount; i++) {
+            String featureName = (String)in.readObject();
+            int entryCount = in.readInt();
+            for (int j = 0; j < entryCount; j++) {
+                String value = (String)in.readObject();
+                domain.add(featureName, value);
+            }
+        }
     }
 
 }
