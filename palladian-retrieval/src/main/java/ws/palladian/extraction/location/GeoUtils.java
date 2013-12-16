@@ -114,11 +114,11 @@ public final class GeoUtils {
             }
         }
 
-        double testDistance = Math.PI / 2; // step 4
+        double testDistance = EARTH_RADIUS_KM * Math.PI / 2; // step 4
         // steps 5-8
         boolean foundNewSmallest = false;
         int iterations = 0; // prevent infinite loops, just in case
-        while (iterations++ < 5000 && (foundNewSmallest || testDistance >= 2.0e-8)) {
+        while (iterations++ < 5000 && (foundNewSmallest || testDistance >= 2.0e-8 * EARTH_RADIUS_KM)) {
             GeoCoordinate[] testPoints = getTestPoints(currentPoint, testDistance);
             double tempMinimumDistance = Double.MAX_VALUE;
             GeoCoordinate tempCurrentPoint = null;
