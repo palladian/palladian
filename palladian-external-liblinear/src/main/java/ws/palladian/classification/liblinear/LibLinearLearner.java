@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Learner;
+import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.classification.utils.Normalizer;
@@ -18,6 +19,7 @@ import ws.palladian.helper.io.Slf4JOutputStream.Level;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
+import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 import de.bwaldvogel.liblinear.FeatureNode;
 import de.bwaldvogel.liblinear.Linear;
@@ -31,7 +33,10 @@ import de.bwaldvogel.liblinear.SolverType;
  * LIBLINEAR, A Library for Large Linear Classification. Wrapper for <a
  * href="http://liblinear.bwaldvogel.de">liblinear-java</a>. For a documentation about liblinear see <a
  * href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/">here</a> and <a
- * href="http://www.csie.ntu.edu.tw/~cjlin/papers/liblinear.pdf">here</a>.
+ * href="http://www.csie.ntu.edu.tw/~cjlin/papers/liblinear.pdf">here</a>. In addition, to the pure LIBLINEAR
+ * classifier, this wrapper adds the following functionality: a) Numerical data can be normalized using a
+ * {@link Normalizer}, b) nominal data is transformed to a numerical representation, using dummy coding (see
+ * {@link DummyVariableCreator} for more information).
  * </p>
  * 
  * @author Philipp Katz
@@ -92,12 +97,14 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
     public LibLinearModel train(Iterable<? extends Trainable> trainables) {
         Validate.notNull(trainables, "trainables must not be null");
         Normalization normalization = normalizer.calculate(trainables);
+        DummyVariableCreator dummyCoder = new DummyVariableCreator(trainables);
         Problem problem = new Problem();
         List<String> featureLabels = CollectionHelper.newArrayList();
         List<String> classIndices = CollectionHelper.newArrayList();
         for (Trainable trainable : trainables) {
             problem.l++;
-            for (Feature<?> feature : trainable.getFeatureVector()) {
+            FeatureVector featureVector = dummyCoder.convert(trainable).getFeatureVector();
+            for (Feature<?> feature : featureVector) {
                 if (feature instanceof NumericFeature) {
                     if (!featureLabels.contains(feature.getName())) {
                         featureLabels.add(feature.getName());
@@ -121,13 +128,14 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
         int index = 0;
         for (Trainable trainable : trainables) {
             normalization.normalize(trainable);
-            problem.x[index] = makeInstance(featureLabels, trainable, bias);
+            Classifiable converted = dummyCoder.convert(trainable);
+            problem.x[index] = makeInstance(featureLabels, converted, bias);
             problem.y[index] = classIndices.indexOf(trainable.getTargetClass());
             index++;
         }
         LOGGER.debug("n={}, l={}", problem.n, problem.l);
         Model model = Linear.train(problem, parameter);
-        return new LibLinearModel(model, featureLabels, classIndices, normalization);
+        return new LibLinearModel(model, featureLabels, classIndices, normalization, dummyCoder);
     }
 
     static de.bwaldvogel.liblinear.Feature[] makeInstance(List<String> labels, Classifiable trainable, double bias) {

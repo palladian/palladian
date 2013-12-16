@@ -57,12 +57,12 @@ public class LibLinearTest {
     public void testWithAdultIncomeData() throws FileNotFoundException {
         List<Trainable> instances = new CsvDatasetReader(getResourceFile("/adultData.txt"), false).readAll();
         ConfusionMatrix confusionMatrix = evaluate(new LibLinearLearner(), new LibLinearClassifier(), instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.79);
+        assertTrue(confusionMatrix.getAccuracy() > 0.82);
     }
 
     @Test
     public void testWithDiabetesData() throws FileNotFoundException {
-        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), true).readAll();
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), false).readAll();
         ConfusionMatrix confusionMatrix = evaluate(new LibLinearLearner(), new LibLinearClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.80);
     }
