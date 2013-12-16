@@ -24,8 +24,11 @@ public final class AddressTagger implements Tagger {
 
     public static final Pattern STREET_PATTERN = Pattern
             .compile(
-                    ".+\\sstreet$|.+\\sroad$|.+avenue$|.+ave\\.|.+boulevard$|.+straße$|.+strasse$|.+gasse$|^rue\\s.+|via\\s.+|viale\\s.+|.+straat|.+drive|.+\\sst\\.|.+\\strafficway",
-                    Pattern.CASE_INSENSITIVE);
+            // suffix rules
+                    "[A-Za-z]+(?:\\s[A-Za-z]+)?(?:\\sstreet$|\\sroad$|\\savenue$|\\save\\.|boulevard$|straße$|strasse$|gasse$|straat|\\sdrive|\\sst\\.|\\strafficway)|"
+                            +
+                            // prefix rules
+                            "(?:^rue\\s.+|via\\s.+|viale\\s.+)[A-Za-z]+(?:\\s[A-Za-z]+)?", Pattern.CASE_INSENSITIVE);
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
@@ -39,7 +42,7 @@ public final class AddressTagger implements Tagger {
         // step one: match tagged annotations using street pattern
         for (Annotation annotation : annotations) {
             String value = annotation.getValue();
-            
+
             // street names must consist of four tokens maximum
             if (value.split("\\s").length > 4) {
                 continue;
