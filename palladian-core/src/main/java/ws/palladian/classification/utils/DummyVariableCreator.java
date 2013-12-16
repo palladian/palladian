@@ -5,11 +5,15 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.nlp.StringPool;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.Feature;
@@ -30,11 +34,16 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public class DummyVariableCreator implements Iterable<Trainable> {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyVariableCreator.class);
+
     // TODO for a nominal feature with k values, k-1 numeric features are enough
 
     private final Iterable<Trainable> wrapped;
 
     private final MultiMap<String, String> domain;
+    
+    private final StringPool stringPool = new StringPool();
 
     public DummyVariableCreator(Iterable<Trainable> wrapped) {
         Validate.notNull(wrapped, "wrapped must not be null");
@@ -43,6 +52,8 @@ public class DummyVariableCreator implements Iterable<Trainable> {
     }
 
     private static MultiMap<String, String> determineDomains(Iterable<Trainable> dataset) {
+        LOGGER.debug("Determine domain for dataset ...");
+        StopWatch stopWatch = new StopWatch();
         MultiMap<String, String> domain = DefaultMultiMap.createWithList();
         Set<String> nominalFeatureNames = null;
         for (Trainable trainable : dataset) {
@@ -60,6 +71,7 @@ public class DummyVariableCreator implements Iterable<Trainable> {
                 }
             }
         }
+        LOGGER.debug("... finished determining domain in {}", stopWatch);
         return domain;
     }
 
@@ -108,7 +120,7 @@ public class DummyVariableCreator implements Iterable<Trainable> {
                 } else {
                     for (String domainValue : featureDomain) {
                         double numericValue = nominalValue.equals(domainValue) ? 1 : 0;
-                        String featureName = feature.getName() + ":" + domainValue;
+                        String featureName = stringPool.get(feature.getName() + ":" + domainValue);
                         convertedFeatureVector.add(new NumericFeature(featureName, numericValue));
                     }
                 }
