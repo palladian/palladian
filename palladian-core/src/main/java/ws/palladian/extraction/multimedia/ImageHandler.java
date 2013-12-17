@@ -61,35 +61,35 @@ public class ImageHandler {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandler.class);
 
-	/**
-	 * <p>
-	 * An extracted image.
-	 * </p>
-	 * 
-	 * @author David Urbansky
-	 */
+    /**
+     * <p>
+     * An extracted image.
+     * </p>
+     * 
+     * @author David Urbansky
+     */
     private static final class ExtractedImage extends BasicWebImage {
         private int rankCount = 1;
         private int duplicateCount = 0;
         private final BufferedImage imageContent;
-        
+
         public ExtractedImage(WebImage image, BufferedImage imageContent) {
-        	super(image);
-        	this.imageContent = imageContent;
-		}
-        
-        public void addRanking(int ranking) {
-        	this.rankCount += ranking;
+            super(image);
+            this.imageContent = imageContent;
         }
-        
+
+        public void addRanking(int ranking) {
+            this.rankCount += ranking;
+        }
+
         public double getRanking() {
             return duplicateCount + 1. / rankCount;
         }
-        
+
         public double getWidthHeightRatio() {
             return getWidth() / getHeight();
         }
-    	
+
     }
 
     /** Image similarity mean square error. */
@@ -498,8 +498,7 @@ public class ImageHandler {
 
         int width = (int)(Math.round(scaleX * bufferedImage.getWidth()));
         int height = (int)(Math.round(scaleY * bufferedImage.getHeight()));
-        resizedImage = image.getScaledInstance(width,
-                height, Image.SCALE_SMOOTH);
+        resizedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
 
         // ensure that all the pixels in the image are loaded.
         Image temp = new ImageIcon(resizedImage).getImage();
@@ -610,6 +609,69 @@ public class ImageHandler {
 
         float averageGray = grayCount / (float)pixelCount;
         return averageGray;
+    }
+
+    public static double getAverageRed(BufferedImage bufferedImage, boolean ignoreWhite) {
+        int pixelCount = bufferedImage.getWidth() * bufferedImage.getHeight();
+        int redCount = 0;
+
+        for (int i = 0; i < bufferedImage.getWidth(); i++) {
+            for (int j = 0; j < bufferedImage.getHeight(); j++) {
+
+                Color c1 = new Color(bufferedImage.getRGB(i, j));
+
+                if (ignoreWhite && c1.getRed() == 255 && c1.getGreen() == 255 && c1.getBlue() == 255) {
+                    continue;
+                }
+                redCount += c1.getRed();
+
+            }
+        }
+
+        double averageRed = 0.3 * redCount / pixelCount;
+        return averageRed;
+    }
+
+    public static double getAverageGreen(BufferedImage bufferedImage, boolean ignoreWhite) {
+        int pixelCount = bufferedImage.getWidth() * bufferedImage.getHeight();
+        int greenCount = 0;
+
+        for (int i = 0; i < bufferedImage.getWidth(); i++) {
+            for (int j = 0; j < bufferedImage.getHeight(); j++) {
+
+                Color c1 = new Color(bufferedImage.getRGB(i, j));
+
+                if (ignoreWhite && c1.getRed() == 255 && c1.getGreen() == 255 && c1.getBlue() == 255) {
+                    continue;
+                }
+                greenCount += c1.getGreen();
+
+            }
+        }
+
+        double averageGreen = 0.59 * greenCount / pixelCount;
+        return averageGreen;
+    }
+
+    public static double getAverageBlue(BufferedImage bufferedImage, boolean ignoreWhite) {
+        int pixelCount = bufferedImage.getWidth() * bufferedImage.getHeight();
+        int blueCount = 0;
+
+        for (int i = 0; i < bufferedImage.getWidth(); i++) {
+            for (int j = 0; j < bufferedImage.getHeight(); j++) {
+
+                Color c1 = new Color(bufferedImage.getRGB(i, j));
+
+                if (ignoreWhite && c1.getRed() == 255 && c1.getGreen() == 255 && c1.getBlue() == 255) {
+                    continue;
+                }
+                blueCount += c1.getBlue();
+
+            }
+        }
+
+        double averageBlau = 0.11 * blueCount / pixelCount;
+        return averageBlau;
     }
 
     public static double getSimilarity(BufferedImage image1, BufferedImage image2, int measure) {
