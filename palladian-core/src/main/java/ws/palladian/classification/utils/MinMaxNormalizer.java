@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -27,6 +29,9 @@ import ws.palladian.processing.features.NumericFeature;
 public class MinMaxNormalizer implements Normalizer {
 
     private static final class MinMaxNormalization extends AbstractNormalization implements Serializable {
+        
+        /** The logger for this class. */
+        private static final Logger LOGGER = LoggerFactory.getLogger(MinMaxNormalizer.MinMaxNormalization.class);
 
         private static final long serialVersionUID = 7227377881428315427L;
 
@@ -55,8 +60,10 @@ public class MinMaxNormalizer implements Normalizer {
             Double min = minValues.get(featureName);
             Double max = maxValues.get(featureName);
             if (min == null || max == null) {
-                throw new IllegalArgumentException("No normalization information for \"" + featureName
-                        + "\" available.");
+//                throw new IllegalArgumentException("No normalization information for \"" + featureName
+//                        + "\" available.");
+                LOGGER.debug("No normalization information for \"{}\".", featureName);
+                return numericFeature;
             }
 
             double diff = max - min;
