@@ -2,9 +2,8 @@ package ws.palladian.classification.nb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static ws.palladian.classification.utils.ClassificationUtils.readCsv;
 import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
-import static ws.palladian.helper.io.ResourceHelper.getResourcePath;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -14,6 +13,7 @@ import org.junit.Test;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
+import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
@@ -94,14 +94,14 @@ public class NaiveBayesClassifierTest {
 
     @Test
     public void testNaiveBayesWithAdultIncomeData() throws FileNotFoundException {
-        List<Trainable> instances = readCsv(getResourcePath("/classifier/adultData.txt"), false);
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/adultData.txt"), false).readAll();
         ConfusionMatrix matrix = evaluate(new NaiveBayesLearner(), new NaiveBayesClassifier(), instances);
         assertTrue(matrix.getAccuracy() > 0.77);
     }
 
     @Test
     public void testNaiveBayesWithDiabetesData() throws FileNotFoundException {
-        List<Trainable> instances = readCsv(getResourcePath("/classifier/diabetesData.txt"), false);
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false).readAll();
         ConfusionMatrix matrix = evaluate(new NaiveBayesLearner(), new NaiveBayesClassifier(), instances);
         assertTrue(matrix.getAccuracy() > 0.77);
     }

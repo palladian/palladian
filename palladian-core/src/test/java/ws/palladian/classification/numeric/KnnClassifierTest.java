@@ -2,6 +2,8 @@ package ws.palladian.classification.numeric;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,8 +14,8 @@ import org.junit.Test;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
@@ -74,8 +76,7 @@ public class KnnClassifierTest {
     public void testKnnClassifierLoadFromFile() throws Exception {
         // create the KNN classifier and add the training instances
         KnnLearner knnLearner = new KnnLearner(new NoNormalizer());
-        List<Trainable> instances = ClassificationUtils.readCsv(
-                ResourceHelper.getResourcePath("/classifier/wineData.txt"), false);
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/wineData.txt"), false).readAll();
         KnnModel model = knnLearner.train(instances);
         assertEquals(3, model.getCategories().size());
 
@@ -89,8 +90,8 @@ public class KnnClassifierTest {
     public void testKnnClassifierLoadFromFileNormalize() throws Exception {
         // create the KNN classifier and add the training instances
         KnnLearner knnLearner = new KnnLearner();
-        String testDataPath = ResourceHelper.getResourcePath("/classifier/wineData.txt");
-        KnnModel model = knnLearner.train(ClassificationUtils.readCsv(testDataPath, false));
+        File testDataPath = ResourceHelper.getResourceFile("/classifier/wineData.txt");
+        KnnModel model = knnLearner.train(new CsvDatasetReader(testDataPath, false).readAll());
         File tempDir = FileHelper.getTempDir();
         String tempFile = new File(tempDir, "/testKNN.gz").getPath();
         FileHelper.serialize(model, tempFile);
@@ -104,8 +105,7 @@ public class KnnClassifierTest {
 
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
-        List<Trainable> instances = ClassificationUtils.readCsv(
-                ResourceHelper.getResourcePath("/classifier/adultData.txt"), false);
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/adultData.txt"), false).readAll();
         KnnLearner learner = new KnnLearner(new NoNormalizer());
         ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(learner, new KnnClassifier(3), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.69);
@@ -117,6 +117,20 @@ public class KnnClassifierTest {
         learner = new KnnLearner(new ZScoreNormalizer());
         confusionMatrix = ClassifierEvaluation.evaluate(learner, new KnnClassifier(3), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.71);
+    }
+
+    @Test
+    public void testWithDiabetesData() throws FileNotFoundException {
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false)
+                .readAll();
+        ConfusionMatrix confusionMatrix = evaluate(new KnnLearner(new NoNormalizer()), new KnnClassifier(3), instances);
+        assertTrue(confusionMatrix.getAccuracy() > 0.76);
+
+        confusionMatrix = evaluate(new KnnLearner(new MinMaxNormalizer()), new KnnClassifier(3), instances);
+        assertTrue(confusionMatrix.getAccuracy() > 0.73);
+
+        confusionMatrix = evaluate(new KnnLearner(new ZScoreNormalizer()), new KnnClassifier(3), instances);
+        assertTrue(confusionMatrix.getAccuracy() > 0.73);
     }
 
     private Classifiable createTestInstance() {

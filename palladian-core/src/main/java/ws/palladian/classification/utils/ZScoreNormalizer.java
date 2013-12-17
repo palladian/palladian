@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
@@ -27,6 +29,9 @@ import ws.palladian.processing.features.NumericFeature;
 public final class ZScoreNormalizer implements Normalizer {
 
     private static final class ZScoreNormalization extends AbstractNormalization implements Serializable {
+        
+        /** The logger for this class. */
+        private static final Logger LOGGER = LoggerFactory.getLogger(ZScoreNormalizer.ZScoreNormalization.class);
 
         private static final long serialVersionUID = 1L;
 
@@ -45,7 +50,9 @@ public final class ZScoreNormalizer implements Normalizer {
             Double standardDeviation = standardDeviations.get(featureName);
             Double mean = means.get(featureName);
             if (standardDeviation == null || mean == null) {
-                throw new IllegalArgumentException("No normalization information for \"" + featureName + "\".");
+                // throw new IllegalArgumentException("No normalization information for \"" + featureName + "\".");
+                LOGGER.debug("No normalization information for \"{}\".", featureName);
+                return numericFeature;
             }
             double normalizedValue = numericFeature.getValue() - mean;
             if (standardDeviation != 0) {
