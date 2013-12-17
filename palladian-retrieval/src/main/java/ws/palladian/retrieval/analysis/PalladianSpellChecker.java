@@ -40,7 +40,7 @@ public class PalladianSpellChecker {
     private static final Pattern SPLIT = Pattern.compile("\\s");
 
     /** Do not correct words that contain any of these characters. */
-    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[" + Pattern.quote("0-9<>=-*'#/") + "]");
+    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/") + "]");
 
     private final Trie words = new Trie();
 
