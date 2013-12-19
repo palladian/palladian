@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
 
@@ -68,6 +69,11 @@ public class BasicWebContent implements WebContent {
             return this;
         }
 
+        public Builder setCoordinate(double latitude, double longitude) {
+            this.coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+            return this;
+        }
+
         public Builder setIdentifier(String identifier) {
             this.identifier = identifier;
             return this;
@@ -82,7 +88,7 @@ public class BasicWebContent implements WebContent {
             this.tags.add(tag);
             return this;
         }
-        
+
         public Builder setSource(String source) {
             this.source = source;
             return this;
@@ -107,7 +113,7 @@ public class BasicWebContent implements WebContent {
         }
 
     }
-    
+
     private final int id;
 
     private final String url;
@@ -119,11 +125,11 @@ public class BasicWebContent implements WebContent {
     private final Date published;
 
     private final GeoCoordinate coordinate;
-    
+
     private final String identifier;
-    
+
     private final Set<String> tags;
-    
+
     private final String source;
 
     protected BasicWebContent(WebContent webResult) {
@@ -149,7 +155,7 @@ public class BasicWebContent implements WebContent {
         this.tags = builder.tags;
         this.source = builder.source;
     }
-    
+
     @Override
     public int getId() {
         return id;
@@ -179,17 +185,17 @@ public class BasicWebContent implements WebContent {
     public GeoCoordinate getCoordinate() {
         return coordinate;
     }
-    
+
     @Override
     public String getIdentifier() {
         return identifier;
     }
-    
+
     @Override
     public Set<String> getTags() {
         return Collections.unmodifiableSet(tags);
     }
-    
+
     @Override
     public String getSource() {
         return source;

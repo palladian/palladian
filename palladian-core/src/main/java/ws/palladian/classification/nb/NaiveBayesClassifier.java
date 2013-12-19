@@ -59,7 +59,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
         Map<String, Double> probabilities = CollectionHelper.newHashMap();
 
-        for (String category : model.getCategoryNames()) {
+        for (String category : model.getCategories()) {
 
             // initially set all category probabilities to their priors
             double probability = model.getPrior(category);
@@ -86,48 +86,5 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
         return new CategoryEntriesMap(probabilities);
     }
-
-//    /**
-//     * <p>
-//     * Keep mathematical stats such as mean and standard deviation for a series of numbers.
-//     * </p>
-//     * 
-//     * @author Philipp Katz
-//     */
-//    private static final class Stats {
-//
-//        private final List<Double> values;
-//
-//        public Stats() {
-//            this.values = CollectionHelper.newArrayList();
-//        }
-//
-//        public void add(Double value) {
-//            values.add(value);
-//        }
-//
-//        public double getMean() {
-//            double mean = 0;
-//            for (double value : values) {
-//                mean += value;
-//            }
-//            return mean / values.size();
-//        }
-//
-//        public double getStandardDeviation() {
-//            if (values.size() == 1) {
-//                return 0.;
-//            }
-//            double mean = getMean();
-//            double standardDeviation = 0;
-//            for (double value : values) {
-//                standardDeviation += Math.pow(value - mean, 2);
-//            }
-//            standardDeviation /= values.size() - 1;
-//            standardDeviation = Math.sqrt(standardDeviation);
-//            return standardDeviation;
-//        }
-//
-//    }
 
 }

@@ -90,13 +90,6 @@ public class HttpCrawler {
 
     private static final int NUM_THREADS = 10;
 
-    public static final Filter<String> ACCEPT_ALL_FILTER = new Filter<String>() {
-        @Override
-        public boolean accept(String item) {
-            return true;
-        }
-    };
-
     private final Queue<String> urlQueue;
 
     private final Set<String> checkedUrls;
@@ -156,21 +149,16 @@ public class HttpCrawler {
         Filter<String> urlFilter = new Filter<String>() {
             @Override
             public boolean accept(String item) {
-                // return item.startsWith("http://geizhals.de/?cat=monlcd19wide&pg=");
-                return item.startsWith("http://thepioneerwoman.com/cooking/");
+                return item.startsWith("http://www.breakingnews.com/topic/");
             }
         };
         HttpCrawler crawler = new HttpCrawler(urlFilter, new CrawlAction() {
             @Override
             public void pageCrawled(HttpResult result) {
                 System.out.println("Fetched " + result.getUrl());
-                // save the result to disk:
-                // String filePath = "/path/" + result.getUrl().hashCode();
-                // HttpHelper.saveToFile(result, filePath, true);
             }
         }, 10, TimeUnit.SECONDS);
-        // crawler.add("http://geizhals.de/?cat=monlcd19wide");
-        crawler.add("http://thepioneerwoman.com/cooking/");
+        crawler.add("http://www.breakingnews.com");
         crawler.start();
     }
 
