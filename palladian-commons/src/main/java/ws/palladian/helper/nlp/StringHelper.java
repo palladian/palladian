@@ -544,6 +544,7 @@ public final class StringHelper {
         }
         return searchString;
     }
+
     public static String removeWord(String word, String searchString) {
         return PATTERN_LIMITED_WHITESPACES.matcher(replaceWord(word, "", searchString)).replaceAll(" ");
     }
@@ -1941,6 +1942,21 @@ public final class StringHelper {
             }
         }
         return false;
+    }
+
+    /**
+     * <p>
+     * Check if the given String contains any (i.e. at least one) of the given {@link CharSequence}s.
+     * </p>
+     * 
+     * @param string The string to check, not <code>null</code>
+     * @param values The values to check whether they appear within the given string, not <code>null</code>.
+     * @return <code>true</code> if at least on of the given values appears in the string.
+     */
+    public static boolean containsAny(String string, CharSequence... values) {
+        Validate.notNull(string, "string must not be null");
+        Validate.notNull(values, "values must not be null");
+        return containsAny(string, Arrays.asList(values));
     }
 
     /**
