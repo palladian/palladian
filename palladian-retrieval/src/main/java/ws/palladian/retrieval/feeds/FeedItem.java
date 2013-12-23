@@ -238,6 +238,7 @@ public class FeedItem implements WebContent {
         this.additionalData = additionalData;
     }
 
+    @Override
     public Map<String, Object> getAdditionalData() {
         return additionalData;
     }

@@ -225,6 +225,9 @@ public class MultifacetQuery {
         DateFormat format = new SimpleDateFormat(DATE_FORMAT);
         List<String> toStringParts = CollectionHelper.newArrayList();
 
+        if (id != null) {
+            toStringParts.add(String.format("id=%s", id));
+        }
         if (tags != null) {
             toStringParts.add(String.format("tags=%s", tags));
         }

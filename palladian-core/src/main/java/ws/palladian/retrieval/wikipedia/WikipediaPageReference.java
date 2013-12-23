@@ -2,6 +2,7 @@ package ws.palladian.retrieval.wikipedia;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.extraction.location.GeoCoordinate;
@@ -111,6 +112,11 @@ public class WikipediaPageReference implements WebContent {
     @Override
     public String getSource() {
         return SOURCE_NAME;
+    }
+
+    @Override
+    public Map<String, Object> getAdditionalData() {
+        return Collections.emptyMap();
     }
 
 }

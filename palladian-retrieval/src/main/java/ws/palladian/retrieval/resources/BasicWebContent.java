@@ -2,7 +2,9 @@ package ws.palladian.retrieval.resources;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.extraction.location.GeoCoordinate;
@@ -38,6 +40,7 @@ public class BasicWebContent implements WebContent {
         protected String identifier;
         protected Set<String> tags = CollectionHelper.newHashSet();
         protected String source;
+        protected Map<String, Object> additionalData = CollectionHelper.newHashMap();
 
         public Builder setId(int id) {
             this.id = id;
@@ -94,6 +97,11 @@ public class BasicWebContent implements WebContent {
             return this;
         }
 
+        public Builder setAdditionalData(String key, Object value) {
+            this.additionalData.put(key, value);
+            return this;
+        }
+
         public Builder setWebContent(WebContent webContent) {
             this.id = webContent.getId();
             this.url = webContent.getUrl();
@@ -104,6 +112,7 @@ public class BasicWebContent implements WebContent {
             this.identifier = webContent.getIdentifier();
             this.tags = new HashSet<String>(webContent.getTags());
             this.source = webContent.getSource();
+            this.additionalData = new HashMap<String, Object>(webContent.getAdditionalData());
             return this;
         }
 
@@ -132,6 +141,8 @@ public class BasicWebContent implements WebContent {
 
     private final String source;
 
+    private final Map<String, Object> additionalData;
+
     protected BasicWebContent(WebContent webResult) {
         this.id = webResult.getId();
         this.url = webResult.getUrl();
@@ -142,6 +153,7 @@ public class BasicWebContent implements WebContent {
         this.identifier = webResult.getIdentifier();
         this.tags = new HashSet<String>(webResult.getTags());
         this.source = webResult.getSource();
+        this.additionalData = new HashMap<String, Object>(webResult.getAdditionalData());
     }
 
     protected BasicWebContent(Builder builder) {
@@ -154,6 +166,7 @@ public class BasicWebContent implements WebContent {
         this.identifier = builder.identifier;
         this.tags = builder.tags;
         this.source = builder.source;
+        this.additionalData = builder.additionalData;
     }
 
     @Override
@@ -199,6 +212,11 @@ public class BasicWebContent implements WebContent {
     @Override
     public String getSource() {
         return source;
+    }
+
+    @Override
+    public Map<String, Object> getAdditionalData() {
+        return additionalData;
     }
 
     @Override

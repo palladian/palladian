@@ -12,7 +12,7 @@ public class RateLimitedException extends SearcherException {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer timeUntilReset;
+    private final Integer timeUntilReset;
 
     /**
      * <p>

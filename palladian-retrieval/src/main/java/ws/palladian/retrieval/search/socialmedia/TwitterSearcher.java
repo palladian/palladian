@@ -89,6 +89,12 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
+    /**
+     * Identifier for the raw JSON representation of a Tweet, which can be retrieved via
+     * {@link WebContent#getAdditionalData()}.
+     */
+    public static final String DATA_ROW_JSON = "twitter.tweet.raw.json";
+
     private final OAuthParams oAuthParams;
 
     private final HttpRetriever retriever;
@@ -324,6 +330,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
             builder.addTag(hashTagObject.getString("text"));
         }
         builder.setSource(SEARCHER_NAME);
+        builder.setAdditionalData(DATA_ROW_JSON, jsonResult);
 
         WebContent result = builder.create();
         return result;
