@@ -216,7 +216,7 @@ public class BasicWebContent implements WebContent {
 
     @Override
     public Map<String, Object> getAdditionalData() {
-        return additionalData;
+        return Collections.unmodifiableMap(additionalData);
     }
 
     @Override
