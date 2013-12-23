@@ -87,6 +87,7 @@ public final class BreakingNewsSearcher extends AbstractMultifacetSearcher<WebCo
                     if (lng != null && lat != null) {
                         builder.setCoordinate(lat, lng);
                     }
+                    builder.setSource(NAME);
                     resultList.add(builder.create());
                     if (resultList.size() >= requestedItems) {
                         break outer;

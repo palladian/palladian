@@ -33,6 +33,7 @@ import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.Facet;
 import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.RateLimitedException;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -146,7 +147,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      *         both parameters was <code>null</code>.
      */
     private String createTweetUrl(String userId, String statusId) {
-        if (userId == null | statusId == null) {
+        if (userId == null || statusId == null) {
             return null;
         }
         return String.format("http://twitter.com/%s/status/%s", userId, statusId);
@@ -168,8 +169,22 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         TOTAL_REQUEST_COUNT.incrementAndGet();
 
         int statusCode = httpResult.getStatusCode();
-        if (statusCode == 429) { // changed to v1.1 without verifying
-            throw new SearcherException("Twitter is currently blocked due to rate limit");
+        String resetHeader = httpResult.getHeaderString("X-Rate-Limit-Reset");
+        String remainingHeader = httpResult.getHeaderString("X-Rate-Limit-Remaining");
+        LOGGER.debug("X-Rate-Limit-Reset = {}; X-Rate-Limit-Remaining = {}", resetHeader, remainingHeader);
+
+        if (statusCode == 429) { // changed to v1.1 without verifying; see
+                                 // https://dev.twitter.com/docs/rate-limiting/1.1
+            Integer timeUntilReset = null;
+            if (resetHeader != null) {
+                try {
+                    int now = (int)(System.currentTimeMillis() / 1000);
+                    timeUntilReset = Integer.valueOf(resetHeader) - now;
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+            throw new RateLimitedException("Twitter is currently blocked due to rate limit", timeUntilReset);
         }
         if (statusCode >= 400) {
             String content = httpResult.getStringContent();
@@ -231,7 +246,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
     }
 
     @Override
-    public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
+    public SearchResults<WebContent> search(MultifacetQuery query) throws RateLimitedException, SearcherException {
 
         List<WebContent> webResults = new ArrayList<WebContent>();
 
