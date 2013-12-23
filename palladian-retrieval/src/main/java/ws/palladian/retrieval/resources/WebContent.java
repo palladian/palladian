@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.resources;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.extraction.location.GeoCoordinate;
@@ -13,7 +14,7 @@ import ws.palladian.extraction.location.GeoCoordinate;
  * @author Philipp Katz
  */
 public interface WebContent {
-    
+
     /**
      * @return Internal identifier of this content, used in case this item is stored in a database, or <code>-1</code>,
      *         in case no identifier exists or the item has not been persisted.
@@ -60,5 +61,11 @@ public interface WebContent {
      * @return Name of the source, from which this {@link WebContent} was acquired.
      */
     String getSource();
+
+    /**
+     * @return A map, with arbitrary additional content. An empty map, in case no additional data exists, never
+     *         <code>null</code>.
+     */
+    Map<String, Object> getAdditionalData();
 
 }

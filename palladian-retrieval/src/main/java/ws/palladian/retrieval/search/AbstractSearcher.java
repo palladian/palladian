@@ -52,13 +52,10 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
 
     /**
      * <p>
-     * Override, if this searcher supports getting the total number of available results.
+     * Override in subclasses, if this searcher supports getting the total number of available results. In case this
+     * method is not overridden, a {@link SearcherException} will be thrown, stating that this functionality is not
+     * supported.
      * </p>
-     * 
-     * @param query
-     * @param language
-     * @return
-     * @throws SearcherException In case the search fails.
      */
     @Override
     public long getTotalResultCount(String query, Language language) throws SearcherException {

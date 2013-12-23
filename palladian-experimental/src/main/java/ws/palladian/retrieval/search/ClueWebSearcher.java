@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -113,6 +114,11 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         @Override
         public String getSource() {
             return SEARCHER_NAME;
+        }
+
+        @Override
+        public Map<String, Object> getAdditionalData() {
+            return Collections.emptyMap();
         }
 
     }

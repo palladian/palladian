@@ -27,9 +27,9 @@ public interface Searcher<R extends WebContent> {
      * Retrieve a list of {@link WebContent}s for the specified query.
      * </p>
      * 
-     * @param query
-     * @param resultCount
-     * @return
+     * @param query The text for which to search, not <code>null</code> or empty.
+     * @param resultCount Maximum number of results to retrieve.
+     * @return A list of results, never <code>null</code>.
      * @throws SearcherException In case the search fails.
      */
     List<R> search(String query, int resultCount) throws SearcherException;
@@ -39,10 +39,10 @@ public interface Searcher<R extends WebContent> {
      * Retrieve a list of {@link WebContent}s for the specified query.
      * </p>
      * 
-     * @param query
+     * @param query The text for which to search, not <code>null</code> or empty.
      * @param resultCount Maximum number of results to retrieve.
-     * @param language The language for which to search.
-     * @return
+     * @param language The language for which to search, not <code>null</code>.
+     * @return A list of results, never <code>null</code>.
      * @throws SearcherException In case the search fails.
      */
     List<R> search(String query, int resultCount, Language language) throws SearcherException;
@@ -52,9 +52,9 @@ public interface Searcher<R extends WebContent> {
      * Convenience method to retrieve a list of URLs for the specified query instead of {@link WebContent}s.
      * </p>
      * 
-     * @param query
+     * @param query The text for which to search, not <code>null</code> or empty.
      * @param resultCount Maximum number of results to retrieve.
-     * @return
+     * @return A list of URLs, never <code>null</code>.
      * @throws SearcherException In case the search fails.
      */
     List<String> searchUrls(String query, int resultCount) throws SearcherException;
@@ -64,10 +64,10 @@ public interface Searcher<R extends WebContent> {
      * Convenience method to retrieve a list of URLs for the specified query instead of {@link WebContent}s.
      * </p>
      * 
-     * @param query
+     * @param query The text for which to search, not <code>null</code> or empty.
      * @param resultCount Maximum number of results to retrieve.
-     * @param language The language for which to search.
-     * @return
+     * @param language The language for which to search, not <code>null</code>.
+     * @return A list of URLs, never <code>null</code>.
      * @throws SearcherException In case the search fails.
      */
     List<String> searchUrls(String query, int resultCount, Language language) throws SearcherException;
@@ -77,9 +77,9 @@ public interface Searcher<R extends WebContent> {
      * Get the total number of results available for the specified query.
      * </p>
      * 
-     * @param query
-     * @return
-     * @throws SearcherException In case the search fails.
+     * @param query The text for which to search, not <code>null</code> or empty.
+     * @return The number of available search results for the given query.
+     * @throws SearcherException In case the search fails, or the searcher does not allow to retrieve this information.
      */
     long getTotalResultCount(String query) throws SearcherException;
 
@@ -88,10 +88,10 @@ public interface Searcher<R extends WebContent> {
      * Override, if this searcher supports getting the total number of available results.
      * </p>
      * 
-     * @param query
-     * @param language
-     * @return
-     * @throws SearcherException In case the search fails.
+     * @param query The text for which to search, not <code>null</code> or empty.
+     * @param language The language for which to search, not <code>null</code>.
+     * @return The number of available search results for the given query.
+     * @throws SearcherException In case the search fails, or the searcher does not allow to retrieve this information.
      */
     long getTotalResultCount(String query, Language language) throws SearcherException;
 
@@ -107,11 +107,7 @@ public interface Searcher<R extends WebContent> {
     SearchResults<R> search(MultifacetQuery query) throws SearcherException;
 
     /**
-     * <p>
-     * Get a human-readable description for this {@link Searcher}.
-     * </p>
-     * 
-     * @return
+     * @return A human-readable description for this {@link Searcher}.
      */
     String getName();
 
