@@ -17,7 +17,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -46,7 +46,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
     private static final int ENTRIES_PER_PAGE = 10;
 
     /** Prevent over penetrating the searcher. */
-    private static final RequestThrottle THROTTLE = new RequestThrottle(1000);
+    private static final FixedIntervalRequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1000);
 
     /** The JavaScript URL for the search results. */
     private static final String URL = "https://duckduckgo.com/d.js?q=%s&t=A&l=us-en&p=1&s=%s";

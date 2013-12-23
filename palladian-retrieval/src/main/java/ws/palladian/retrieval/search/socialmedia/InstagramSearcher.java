@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -20,6 +21,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -27,6 +30,7 @@ import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.RateLimitedException;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -52,6 +56,9 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
 
     /** Name of this searcher. */
     private static final String SEARCHER_NAME = "Instagram";
+
+    /** Instagram allows maximum 5000 requests/hour; however, we take a smaller value to be on the save side. */
+    private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.HOURS, 4500);
 
     private final String accessToken;
 
@@ -93,9 +100,13 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
 
         page: for (;;) {
 
+            THROTTLE.hold();
             HttpResult httpResult;
             try {
                 httpResult = retriever.httpGet(queryUrl);
+                if (httpResult.getStatusCode() == 503) {
+                    throw new RateLimitedException("Rate limit exceeded.", null);
+                }
             } catch (HttpException e) {
                 throw new SearcherException("Encountered HTTP exception while accessing \"" + queryUrl + "\": "
                         + e.getMessage(), e);

@@ -12,7 +12,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -46,7 +46,7 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
     private static final int THROTTLING_INTERVAL_MS = 1000;
 
     /** Throttle the requests; this applies to all instances of the searcher. */
-    private static final RequestThrottle THROTTLE = new RequestThrottle(THROTTLING_INTERVAL_MS);
+    private static final FixedIntervalRequestThrottle THROTTLE = new FixedIntervalRequestThrottle(THROTTLING_INTERVAL_MS);
 
     private final String apiKey;
     

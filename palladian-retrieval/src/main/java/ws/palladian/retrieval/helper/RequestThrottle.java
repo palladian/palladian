@@ -1,48 +1,22 @@
 package ws.palladian.retrieval.helper;
 
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * @author Philipp Katz
+ * <p>
+ * A {@link RequestThrottle} allows to limit the number of actions (typically requests sent to some web API), in order
+ * to avoid being blocked because of rate limits.
+ * </p>
+ * 
+ * @author pk
+ * 
  */
-public class RequestThrottle {
+public interface RequestThrottle {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestThrottle.class);
+    /**
+     * <p>
+     * Check, whether the next request can be performed and record the performed request in the counter. If the request
+     * should wait, block (i.e. sleep) for the necessary amount of time.
+     * </p>
+     */
+    void hold();
 
-    /** The time in milliseconds to wait after each request. */
-    private final long pauseInterval;
-    
-    /** The time stamp of the last request. */
-    private long lastRequest;
-
-    public RequestThrottle(long pauseInterval, TimeUnit timeUnit) {
-        this(timeUnit.toMillis(pauseInterval));
-    }
-
-    public RequestThrottle(long pauseInterval) {
-        this.pauseInterval = pauseInterval;
-    }
-
-    public synchronized void hold() {
-        long sinceLast = System.currentTimeMillis() - lastRequest;
-        if (sinceLast < pauseInterval) {
-            try {
-                long toWait = pauseInterval - sinceLast;
-                LOGGER.debug("Waiting for {} milliseconds", toWait);
-                Thread.sleep(toWait);
-            } catch (InterruptedException e) {
-                LOGGER.warn("{}", e);
-            }
-        }
-        lastRequest = System.currentTimeMillis();
-    }
-
-    public long getPauseInterval() {
-        return pauseInterval;
-    }
-    
 }
