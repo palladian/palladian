@@ -27,6 +27,10 @@ public class RateLimitedException extends SearcherException {
         this.timeUntilReset = timeUntilReset;
     }
 
+    public RateLimitedException(String message) {
+        this(message, null);
+    }
+
     /**
      * @return The time in seconds, until the block expires. <code>null</code> in case this information is not provided.
      */

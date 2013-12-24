@@ -28,6 +28,7 @@ import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.RateLimitedException;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -141,7 +142,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
                         + " (request: " + request + "): " + e.getMessage(), e);
             }
-            logRateLimits(httpResult);
+            checkRateLimits(httpResult);
             try {
                 JsonObject json = new JsonObject(httpResult.getStringContent());
                 availableResults = json.queryLong("/videos/total");
@@ -158,11 +159,16 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
         return new SearchResults<WebVideo>(webResults, availableResults);
     }
 
-    private static void logRateLimits(HttpResult httpResult) {
+    private static void checkRateLimits(HttpResult httpResult) throws RateLimitedException {
+        // http://developer.vimeo.com/guidelines/rate-limiting
         int rateLimit = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Limit"));
         int rateLimitRemaining = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Remaining"));
         int rateLimitReset = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Reset"));
         LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
+        if (rateLimitRemaining == 0) {
+            int timeUntilReset = rateLimitReset - (int)(System.currentTimeMillis() / 1000);
+            throw new RateLimitedException("Rate limit exceeded, rate limit is " + rateLimit, timeUntilReset );
+        }
     }
 
     public static List<WebVideo> parseVideoResult(JsonObject json) throws JsonException {

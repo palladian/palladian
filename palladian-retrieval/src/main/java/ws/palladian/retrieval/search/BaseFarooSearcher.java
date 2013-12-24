@@ -2,16 +2,20 @@ package ws.palladian.retrieval.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
+import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -34,8 +38,11 @@ public abstract class BaseFarooSearcher extends AbstractSearcher<WebContent> {
     /** Key of the {@link Configuration} key for the account key. */
     public static final String CONFIG_ACCOUNT_KEY = "api.faroo.key";
 
-    protected final String key;
-    
+    /** Faroo allows 1 query/second. */
+    private static final RequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1, TimeUnit.SECONDS);
+
+    private final String key;
+
     private final HttpRetriever retriever;
 
     /**
@@ -76,7 +83,13 @@ public abstract class BaseFarooSearcher extends AbstractSearcher<WebContent> {
 
         try {
             String requestUrl = getRequestUrl(query, resultCount, language);
+            THROTTLE.hold();
             httpResult = retriever.httpGet(requestUrl);
+            if (httpResult.getStatusCode() == 401) {
+                throw new SearcherException("Encountered HTTP status 401, API key is not accepted.");
+            } else if (httpResult.getStatusCode() == 429) {
+                throw new RateLimitedException("Encountered HTTP status 429, rate limit is exceeded.");
+            }
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
         } catch (HttpException e) {
@@ -102,6 +115,7 @@ public abstract class BaseFarooSearcher extends AbstractSearcher<WebContent> {
                 }
                 builder.setUrl(jsonResult.getString("url"));
                 builder.setTitle(jsonResult.getString("title"));
+                builder.setSource(getName());
                 webResults.add(builder.create());
                 if (webResults.size() >= resultCount) {
                     break;
@@ -116,7 +130,35 @@ public abstract class BaseFarooSearcher extends AbstractSearcher<WebContent> {
         return webResults;
     }
 
-    protected abstract String getRequestUrl(String query, int resultCount, Language language);
+    // protected abstract String getRequestUrl(String query, int resultCount, Language language);
+
+    private String getRequestUrl(String query, int resultCount, Language language) throws SearcherException {
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append("http://www.faroo.com/instant.json");
+        urlBuilder.append("?q=").append(UrlHelper.encodeParameter(query));
+        urlBuilder.append("&start=1");
+        urlBuilder.append("&key=").append(key);
+        urlBuilder.append("&length=").append(resultCount);
+        urlBuilder.append("&l=");
+        switch (language) {
+            case ENGLISH:
+                urlBuilder.append("en");
+                break;
+            case GERMAN:
+                urlBuilder.append("de");
+                break;
+            case CHINESE:
+                urlBuilder.append("zh");
+                break;
+            default:
+                throw new SearcherException("Language " + language
+                        + " is not supported, allowed are ENGLISH, GERMAN, CHINESE.");
+        }
+        urlBuilder.append("&src=").append(getSrcType());
+        return urlBuilder.toString();
+    }
+
+    protected abstract String getSrcType();
 
     /**
      * <p>

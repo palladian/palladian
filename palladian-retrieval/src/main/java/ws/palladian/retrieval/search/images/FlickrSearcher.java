@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -53,6 +56,9 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     private static final String SEARCHER_NAME = "Flickr";
 
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    
+    /** flickr allows 3.6000 requests/hour. */
+    private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.HOURS, 3500);
 
     private final HttpRetriever retriever;
 
@@ -188,6 +194,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             String requestUrl = buildRequestUrl(query, resultsPerPage, p);
             LOGGER.debug("Requesting page {} with {}", p, requestUrl);
             HttpResult httpResult;
+            THROTTLE.hold();
             try {
                 httpResult = retriever.httpGet(requestUrl);
             } catch (HttpException e) {

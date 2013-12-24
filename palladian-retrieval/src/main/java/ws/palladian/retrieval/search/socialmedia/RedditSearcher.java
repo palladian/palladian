@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search.socialmedia;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -29,6 +32,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author Philipp Katz
  * @see <a href="http://www.reddit.com/dev/api">reddit.com API documentation</a>
+ * @see <a href="https://github.com/reddit/reddit/wiki/API">GitHub: reddit API</a>
  */
 public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent> {
 
@@ -55,6 +59,9 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
     /* The name of this searcher. */
     private static final String SEARCHER_NAME = "reddit.com";
     
+    /** Reddit API allows 30 requests/minute. */
+    private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 28);
+    
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
@@ -72,6 +79,7 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
         paging: for (;;) {
             String queryUrl = makeQueryUrl(query, pagingAfter, limit);
             LOGGER.debug("Retrieve from {}", queryUrl);
+            THROTTLE.hold();
 
             String stringResult;
             try {
