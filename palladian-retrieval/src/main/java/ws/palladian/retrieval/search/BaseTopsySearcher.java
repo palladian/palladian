@@ -22,7 +22,7 @@ public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
     public static final String CONFIG_API_KEY = "api.topsy.key";
 
     private final String apiKey;
-    
+
     private final HttpRetriever retriever;
 
     /**
@@ -52,17 +52,11 @@ public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
-
         List<WebContent> result = CollectionHelper.newArrayList();
-
         // # of necessary requests, we fetch in chunks of 100
         int numRequests = (int)Math.ceil(resultCount / 100.);
-
         for (int page = 1; page <= Math.min(numRequests, 10); page++) {
-
             String queryUrl = buildQueryUrl(query, page, apiKey);
-            // System.out.println(queryUrl);
-
             HttpResult httpResult;
             try {
                 httpResult = retriever.httpGet(queryUrl);
@@ -70,34 +64,39 @@ public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
                 throw new SearcherException("HTTP error while searching with URL \"" + query + "\": " + e.getMessage(),
                         e);
             }
-
+//            checkRateLimit(httpResult);
             String jsonString = httpResult.getStringContent();
             try {
                 JsonObject jsonResult = new JsonObject(jsonString);
                 JsonObject responseJson = jsonResult.getJsonObject("response");
                 JsonArray listJson = responseJson.getJsonArray("list");
-
                 for (int i = 0; i < listJson.size(); i++) {
-
                     JsonObject item = listJson.getJsonObject(i);
                     WebContent webResult = parse(item);
                     result.add(webResult);
-
                     if (result.size() == resultCount) {
                         break;
                     }
-
                 }
-
             } catch (JsonException e) {
                 throw new SearcherException("Error parsing the JSON response " + e.getMessage() + ", JSON was \""
                         + jsonString + "\"", e);
             }
-
         }
-
         return result;
     }
+
+    // this information is not provided, although it is mentioned here:
+    // https://code.google.com/p/otterapi/wiki/RateLimit
+//    private void checkRateLimit(HttpResult httpResult) throws RateLimitedException {
+//        int limit = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Limit"));
+//        int remaining = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Remaining"));
+//        int reset = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Reset"));
+//        if (remaining == 0) {
+//            int timeUntilReset = reset - (int)(System.currentTimeMillis() / 1000);
+//            throw new RateLimitedException("Rate limit exceeded, allowed " + limit, timeUntilReset);
+//        }
+//    }
 
     /**
      * Subclass provides the URL for the query.
