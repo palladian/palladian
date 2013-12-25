@@ -56,7 +56,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
 
     private StringHelper() {
-
+        // utility class.
     }
 
     /**
@@ -377,50 +377,34 @@ public final class StringHelper {
      * @return True if the string contains a proper noun, else false.
      */
     public static boolean containsProperNoun(String searchString) {
-        Matcher m = PATTERN_STRING.matcher(searchString);
-        return m.find();
+        return PATTERN_STRING.matcher(searchString).find();
     }
 
     public static boolean containsWordRegExp(Collection<String> words, String searchString) {
-
-        boolean contained = false;
-
         for (String word : words) {
-            contained = containsWordRegExp(word, searchString);
-            if (contained) {
-                break;
+            if (containsWordRegExp(word, searchString)) {
+                return true;
             }
         }
-
-        return contained;
+        return false;
     }
 
     public static boolean containsWord(Collection<String> words, String searchString) {
-
-        boolean contained = false;
-
         for (String word : words) {
-            contained = containsWord(word, searchString);
-            if (contained) {
-                break;
+            if (containsWord(word, searchString)) {
+                return true;
             }
         }
-
-        return contained;
+        return false;
     }
 
     public static String containsWhichWord(Collection<String> words, String searchString) {
-
-        String contained = null;
-
         for (String word : words) {
             if (containsWord(word, searchString)) {
-                contained = word;
-                break;
+                return word;
             }
         }
-
-        return contained;
+        return null;
     }
 
     /**
@@ -440,15 +424,13 @@ public final class StringHelper {
 
         word = Pattern.quote(word);
 
-        Pattern pat = null;
         try {
-            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            Pattern pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            return pattern.matcher(searchString).find();
         } catch (PatternSyntaxException e) {
             LOGGER.error("PatternSyntaxException for {} with regExp {}", new Object[] {searchString, regexp, e});
             return false;
         }
-        Matcher m = pat.matcher(searchString);
-        return m.find();
     }
 
     /**
@@ -604,8 +586,7 @@ public final class StringHelper {
      * @return True if the string contains a numeric value, else false.
      */
     public static boolean containsNumber(String searchString) {
-        Matcher matcher = PATTERN_NUMBER.matcher(searchString);
-        return matcher.find();
+        return PATTERN_NUMBER.matcher(searchString).find();
     }
 
     /**
@@ -649,38 +630,38 @@ public final class StringHelper {
         return string.trim();
     }
 
-    /**
-     * Escape for regular expression.
-     * 
-     * @param inputString the input string
-     * @return the string
-     * @deprecated Use {@link Pattern#quote(String)} instead.
-     */
-    @Deprecated
-    public static String escapeForRegularExpression(String inputString) {
-        String string = inputString;
-        try {
-            string = string.replace("\\", "\\\\");
-            string = string.replace("(", "\\(");
-            string = string.replace(")", "\\)");
-            string = string.replace("[", "\\[");
-            string = string.replace("]", "\\]");
-            string = string.replace("{", "\\{");
-            string = string.replace("}", "\\}");
-            string = string.replace("|", "\\|");
-            string = string.replace("+", "\\+");
-            string = string.replace("*", "\\*");
-            string = string.replace("$", "\\$");
-            string = string.replace("^", "\\^");
-            string = string.replace(".", "\\.");
-            string = string.replace("?", "\\?");
-            string = string.replace("-", "\\-");
-            string = string.replaceAll("\\n", "\\\\n");
-        } catch (Exception e) {
-            LOGGER.error("{}, {}", string, e.getMessage());
-        }
-        return string;
-    }
+//    /**
+//     * Escape for regular expression.
+//     * 
+//     * @param inputString the input string
+//     * @return the string
+//     * @deprecated Use {@link Pattern#quote(String)} instead.
+//     */
+//    @Deprecated
+//    public static String escapeForRegularExpression(String inputString) {
+//        String string = inputString;
+//        try {
+//            string = string.replace("\\", "\\\\");
+//            string = string.replace("(", "\\(");
+//            string = string.replace(")", "\\)");
+//            string = string.replace("[", "\\[");
+//            string = string.replace("]", "\\]");
+//            string = string.replace("{", "\\{");
+//            string = string.replace("}", "\\}");
+//            string = string.replace("|", "\\|");
+//            string = string.replace("+", "\\+");
+//            string = string.replace("*", "\\*");
+//            string = string.replace("$", "\\$");
+//            string = string.replace("^", "\\^");
+//            string = string.replace(".", "\\.");
+//            string = string.replace("?", "\\?");
+//            string = string.replace("-", "\\-");
+//            string = string.replaceAll("\\n", "\\\\n");
+//        } catch (Exception e) {
+//            LOGGER.error("{}, {}", string, e.getMessage());
+//        }
+//        return string;
+//    }
 
     /**
      * Checks whether character is a bracket.
@@ -748,7 +729,7 @@ public final class StringHelper {
     }
 
     public static boolean isNumberOrNumberWord(String string) {
-        if (string.length() == 0) {
+        if (string == null || string.isEmpty()) {
             return false;
         }
 
@@ -833,16 +814,15 @@ public final class StringHelper {
             return false;
         }
 
-        boolean isCompletelyUppercase = true;
         for (int i = 0, l = string.length(); i < l; ++i) {
             Character ch = string.charAt(i);
             if (Character.getType(ch) != Character.UPPERCASE_LETTER
                     && Character.getType(ch) != Character.INITIAL_QUOTE_PUNCTUATION
                     && Character.getType(ch) != Character.FINAL_QUOTE_PUNCTUATION && ch != ' ') {
-                isCompletelyUppercase = false;
+                return false;
             }
         }
-        return isCompletelyUppercase;
+        return true;
     }
 
     /**
@@ -1742,25 +1722,15 @@ public final class StringHelper {
         }
 
         Matcher matcher = pattern.matcher(text);
-        if (matcher.find()) {
-            return matcher.group();
-        }
-
-        return "";
+        return matcher.find() ? matcher.group() : "";
     }
 
     public static String getRegexpMatch(Pattern regexpPattern, String text) {
-
         if (text == null) {
             return "";
         }
-
-        Matcher m = regexpPattern.matcher(text);
-        if (m.find()) {
-            return m.group();
-        }
-
-        return "";
+        Matcher matcher = regexpPattern.matcher(text);
+        return matcher.find() ? matcher.group() : "";
     }
 
     /**
@@ -1773,13 +1743,11 @@ public final class StringHelper {
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(Pattern pattern, String text) {
-
-        List<String> matches = new ArrayList<String>();
-
         if (text == null) {
-            return matches;
+            return Collections.emptyList();
         }
 
+        List<String> matches = new ArrayList<String>();
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
             matches.add(matcher.group());
@@ -1802,8 +1770,7 @@ public final class StringHelper {
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(String regexp, String text) {
-        Pattern pattern = Pattern.compile(regexp);
-        return getRegexpMatches(pattern, text);
+        return getRegexpMatches(Pattern.compile(regexp), text);
     }
 
     /**
@@ -1865,11 +1832,12 @@ public final class StringHelper {
      * @see <a href="http://en.wikipedia.org/wiki/Newline">Wikipedia: Newline</a>
      */
     public static String removeLineBreaks(String string) {
-        if (string != null) {
-            string = string.replace("\r\n", " ");
-            string = string.replace('\n', ' ');
-            string = string.replace('\r', ' ');
+        if (string == null) {
+            return null;
         }
+        string = string.replace("\r\n", " ");
+        string = string.replace('\n', ' ');
+        string = string.replace('\r', ' ');
         return string;
     }
 
