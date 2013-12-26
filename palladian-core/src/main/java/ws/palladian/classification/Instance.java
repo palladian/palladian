@@ -109,11 +109,10 @@ public final class Instance implements Trainable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("TrainableWrap [classifiable=");
+        builder.append("Instance ");
         builder.append(classifiable);
-        builder.append(", targetClass=");
+        builder.append(": ");
         builder.append(targetClass);
-        builder.append("]");
         return builder.toString();
     }
 }
