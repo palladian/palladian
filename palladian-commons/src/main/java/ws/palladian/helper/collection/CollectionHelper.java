@@ -722,10 +722,10 @@ public final class CollectionHelper {
      * @param entries The entries that should be joined.
      * @return The joined string.
      */
-    public static String joinReadable(Collection<Object> entries) {
+    public static String joinReadable(Collection<?> entries) {
         return joinReadable(entries, entries.size());
     }
-    public static String joinReadable(Collection<Object> entries, int numEntries) {
+    public static String joinReadable(Collection<?> entries, int numEntries) {
         String joinedText = StringUtils.join(entries.toArray(), ", ", 0, Math.min(entries.size(), numEntries));
         int lastIndex = joinedText.lastIndexOf(",");
         if (lastIndex > -1) {

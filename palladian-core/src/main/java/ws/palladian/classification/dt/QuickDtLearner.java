@@ -81,5 +81,10 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
         }
         return inputs.toArray(new Serializable[inputs.size()]);
     }
+    
+    @Override
+    public String toString() {
+        return "QuickDtLearner (" + builder + ")";
+    }
 
 }
