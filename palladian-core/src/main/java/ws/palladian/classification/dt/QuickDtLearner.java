@@ -36,7 +36,9 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
      * @return A new QuickDtLearner creating a random forest with ten trees.
      */
     public static QuickDtLearner randomForest() {
-        return new QuickDtLearner(new RandomForestBuilder().numTrees(10));
+        return new QuickDtLearner(new RandomForestBuilder(
+                new TreeBuilder().minProbability(0.7)). // see mail Ian, 2013-12-29 
+                numTrees(10));
     }
     
     /**
