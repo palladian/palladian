@@ -58,7 +58,11 @@ public class TimeWindowRequestThrottle implements RequestThrottle {
             Long oldestTimestamp = requestTimestamps.poll();
             long timeToWait = oldestTimestamp - (System.currentTimeMillis() - timeWindow);
             totalThrottledTime += timeToWait;
-            LOGGER.debug("Waiting for {}", DateHelper.getTimeString(timeToWait));
+            if (timeToWait > 5000) { // show info, when we have to wait long
+                LOGGER.info("Waiting for {}", DateHelper.getTimeString(timeToWait));
+            } else {
+                LOGGER.debug("Waiting for {}", DateHelper.getTimeString(timeToWait));
+            }
             try {
                 Thread.sleep(timeToWait);
             } catch (InterruptedException e) {

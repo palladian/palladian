@@ -164,9 +164,9 @@ public final class DictionaryModel implements Model {
         StringBuilder builder = new StringBuilder();
         builder.append("DictionaryModel [featureSetting=");
         builder.append(featureSetting);
-        builder.append(", getNumTerms()=");
+        builder.append(", numTerms=");
         builder.append(getNumTerms());
-        builder.append(", getNumCategories()=");
+        builder.append(", numCategories=");
         builder.append(getNumCategories());
         builder.append("]");
         return builder.toString();
