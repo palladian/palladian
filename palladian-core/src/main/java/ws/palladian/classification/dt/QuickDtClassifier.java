@@ -4,7 +4,7 @@ import quickdt.Attributes;
 import quickdt.HashMapAttributes;
 import quickdt.PredictiveModel;
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.processing.Classifiable;
 
@@ -21,12 +21,11 @@ public class QuickDtClassifier implements Classifier<QuickDtModel> {
     public CategoryEntries classify(Classifiable classifiable, QuickDtModel model) {
         PredictiveModel pm = model.getModel();
         Attributes attributes = HashMapAttributes.create(QuickDtLearner.getInput(classifiable));
-        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         for (String targetClass : model.getCategories()) {
-            categoryEntries.set(targetClass, pm.getProbability(attributes, targetClass));
+            builder.set(targetClass, pm.getProbability(attributes, targetClass));
         }
-        categoryEntries.sort();
-        return categoryEntries;
+        return builder.create();
     }
 
 }
