@@ -21,7 +21,9 @@ import ws.palladian.helper.math.MathHelper;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @deprecated Use the {@link CategoryEntriesBuilder} instead.
  */
+@Deprecated
 public final class CategoryEntriesMap implements CategoryEntries {
 
     private Map<String, Double> entryMap;

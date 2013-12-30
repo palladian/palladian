@@ -1,13 +1,10 @@
 package ws.palladian.classification.nb;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.NominalFeature;
@@ -57,7 +54,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
     @Override
     public CategoryEntries classify(Classifiable classifiable, NaiveBayesModel model) {
 
-        Map<String, Double> probabilities = CollectionHelper.newHashMap();
+        CategoryEntriesBuilder categoryEntriesBuilder = new CategoryEntriesBuilder();
 
         for (String category : model.getCategories()) {
 
@@ -66,13 +63,10 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
             for (Feature<?> feature : classifiable.getFeatureVector()) {
                 String featureName = feature.getName();
-
                 if (feature instanceof NominalFeature) {
                     NominalFeature nominalFeature = (NominalFeature)feature;
                     probability *= model.getProbability(featureName, nominalFeature.getValue(), category, laplace);
-                }
-
-                if (feature instanceof NumericFeature) {
+                } else if (feature instanceof NumericFeature) {
                     NumericFeature numericFeature = (NumericFeature)feature;
                     double density = model.getDensity(featureName, numericFeature.getValue(), category);
                     if (density > 0) {
@@ -80,11 +74,10 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
                     }
                 }
             }
-
-            probabilities.put(category, probability);
+            categoryEntriesBuilder.set(category, probability);
         }
 
-        return new CategoryEntriesMap(probabilities);
+        return categoryEntriesBuilder.create();
     }
 
 }

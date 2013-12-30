@@ -3,21 +3,18 @@ package ws.palladian.classification.numeric;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.helper.collection.CollectionHelper.Order;
+import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
@@ -72,14 +69,9 @@ public final class KnnClassifier implements Classifier<KnnModel> {
     public CategoryEntries classify(Classifiable classifiable, KnnModel model) {
 
         model.getNormalization().normalize(classifiable);
-
-        Set<String> categories = model.getCategories();
-        Map<String, Double> relevances = CollectionHelper.newHashMap();
-
-        // create one category entry for every category with relevance 0
-        for (String category : categories) {
-            relevances.put(category, 0.);
-        }
+        
+        // initialize with all category names and a score of zero
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder().set(model.getCategories(), 0);
 
         // find k nearest neighbors, compare instance to every known instance
         List<Pair<Trainable, Double>> neighbors = CollectionHelper.newArrayList();
@@ -104,18 +96,13 @@ public final class KnnClassifier implements Classifier<KnnModel> {
             double distance = neighbor.getValue();
             double weight = 1.0 / (distance + 0.000000001);
             String targetClass = neighbor.getKey().getTargetClass();
-            relevances.put(targetClass, relevances.get(targetClass) + weight);
+            builder.add(targetClass, weight);
 
             lastDistance = distance;
             ck++;
         }
 
-        // XXX currently the results are not normalized; is there a reason for that?
-        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
-        for (Entry<String, Double> entry : relevances.entrySet()) {
-            categoryEntries.set(entry.getKey(), entry.getValue());
-        }
-        return categoryEntries;
+        return builder.create();
     }
 
     /**

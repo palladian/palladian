@@ -21,7 +21,6 @@ import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
@@ -63,7 +62,7 @@ public class KnnClassifierTest {
 
         // classify
         CategoryEntries result = new KnnClassifier(3).classify(featureVector, model);
-        assertEquals(0.474, result.getProbability(result.getMostLikelyCategory()), 0.001);
+        assertEquals(0.6396, result.getProbability(result.getMostLikelyCategory()), 0.001);
         assertEquals("A", result.getMostLikelyCategory());
     }
 
@@ -82,16 +81,16 @@ public class KnnClassifierTest {
 
         // classify
         CategoryEntries result = new KnnClassifier(3).classify(createTestInstance(), model);
-        assertEquals(1.0000000001339825E9, result.getProbability(result.getMostLikelyCategory()), 0);
+        assertEquals(1, result.getProbability(result.getMostLikelyCategory()), 0);
         assertEquals("1", result.getMostLikelyCategory());
     }
 
     @Test
-    public void testKnnClassifierLoadFromFileNormalize() throws Exception {
+    public void testKnnClassifierSerialization() throws Exception {
         // create the KNN classifier and add the training instances
         KnnLearner knnLearner = new KnnLearner();
-        File testDataPath = ResourceHelper.getResourceFile("/classifier/wineData.txt");
-        KnnModel model = knnLearner.train(new CsvDatasetReader(testDataPath, false).readAll());
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/wineData.txt"), false).readAll();
+        KnnModel model = knnLearner.train(instances);
         File tempDir = FileHelper.getTempDir();
         String tempFile = new File(tempDir, "/testKNN.gz").getPath();
         FileHelper.serialize(model, tempFile);
@@ -99,7 +98,7 @@ public class KnnClassifierTest {
 
         // classify
         CategoryEntries result = new KnnClassifier(3).classify(createTestInstance(), loadedModel);
-        assertEquals(1.0000000054326154E9, result.getProbability(result.getMostLikelyCategory()), 0);
+        assertEquals(1, result.getProbability(result.getMostLikelyCategory()), 0);
         assertEquals("1", result.getMostLikelyCategory());
     }
 

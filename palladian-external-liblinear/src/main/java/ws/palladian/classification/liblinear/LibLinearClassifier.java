@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.helper.collection.EqualsFilter;
@@ -45,11 +45,11 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
                 classifiable, model.getLLModel().getBias());
         double[] probabilities = new double[model.getCategories().size()];
         Linear.predictProbability(model.getLLModel(), instance, probabilities);
-        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
+        CategoryEntriesBuilder categoryEntriesBuilder = new CategoryEntriesBuilder();
         for (int i = 0; i < probabilities.length; i++) {
-            categoryEntries.add(model.getCategoryForIndex(i), probabilities[i]);
+            categoryEntriesBuilder.add(model.getCategoryForIndex(i), probabilities[i]);
         }
-        return categoryEntries;
+        return categoryEntriesBuilder.create();
     }
 
     /**

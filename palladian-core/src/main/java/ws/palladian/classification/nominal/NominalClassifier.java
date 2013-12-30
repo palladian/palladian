@@ -1,16 +1,13 @@
 package ws.palladian.classification.nominal;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
-import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMatrix;
-import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.NominalFeature;
@@ -43,7 +40,7 @@ public final class NominalClassifier implements Learner<NominalClassifierModel>,
         CountMatrix<String> cooccurrenceMatrix = model.getCooccurrenceMatrix();
 
         // category-probability map, initialized with zeros
-        Map<String, Double> scores = LazyMap.create(ConstantFactory.create(0.));
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         // category names
         Set<String> categories = cooccurrenceMatrix.getColumnKeys();
@@ -57,19 +54,11 @@ public final class NominalClassifier implements Learner<NominalClassifierModel>,
                 int rowSum = cooccurrenceMatrix.getRow(featureValue).getSum();
 
                 double score = (double)cooccurrences / rowSum;
-                scores.put(category, scores.get(category) + score);
+                builder.add(category, score);
             }
 
         }
-
-        // create category entries
-        CategoryEntriesMap assignedEntries = new CategoryEntriesMap();
-        for (String category : categories) {
-            assignedEntries.set(category, scores.get(category));
-        }
-
-        return assignedEntries;
-
+        return builder.create();
     }
 
 }
