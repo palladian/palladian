@@ -1,6 +1,5 @@
 package ws.palladian.classification.utils;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +27,7 @@ import ws.palladian.processing.features.NumericFeature;
  */
 public class MinMaxNormalizer implements Normalizer {
 
-    private static final class MinMaxNormalization extends AbstractNormalization implements Serializable {
+    private static final class MinMaxNormalization extends AbstractNormalization {
         
         /** The logger for this class. */
         private static final Logger LOGGER = LoggerFactory.getLogger(MinMaxNormalizer.MinMaxNormalization.class);

@@ -1,5 +1,7 @@
 package ws.palladian.classification.utils;
 
+import java.io.Serializable;
+
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
@@ -11,7 +13,7 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  * @author pk
  */
-public interface Normalization {
+public interface Normalization extends Serializable {
 
     /**
      * <p>
