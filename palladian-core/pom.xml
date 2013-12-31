@@ -164,7 +164,7 @@
 		<dependency>
 			<groupId>quickdt</groupId>
 			<artifactId>quickdt</artifactId>
-			<version>0.0.8.6</version>
+			<version>0.0.8.10</version>
 			<!-- both dependencies are only used for testing in quickdt, so we do not need them -->
 			<exclusions>
 				<exclusion>

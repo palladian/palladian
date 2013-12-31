@@ -36,9 +36,22 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
      * @return A new QuickDtLearner creating a random forest with ten trees.
      */
     public static QuickDtLearner randomForest() {
-        return new QuickDtLearner(new RandomForestBuilder().numTrees(10));
+        return randomForest(10);
     }
-    
+
+    /**
+     * @param numTrees The number of trees to grow, greater zero.
+     * @return A new QuickDtLearner creating a random forest with the specified number of trees.
+     */
+    public static QuickDtLearner randomForest(int numTrees) {
+        Validate.isTrue(numTrees > 0, "numTrees must be greater zero");
+        // "random subspace" method; 0.7 denotes the probability, that an attribute at a node will be ignored
+        // see: Tin K. Ho; The random subspace method for constructing decision forests; 1998
+        // and mail Ian, 2013-12-29 -- Philipp
+        TreeBuilder treeBuilder = new TreeBuilder().ignoreAttributeAtNodeProbability(0.7);
+        return new QuickDtLearner(new RandomForestBuilder(treeBuilder).numTrees(numTrees));
+    }
+
     /**
      * @return A new QuickDtLearner creating a single tree.
      */
@@ -81,7 +94,7 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
         }
         return inputs.toArray(new Serializable[inputs.size()]);
     }
-    
+
     @Override
     public String toString() {
         return "QuickDtLearner (" + builder + ")";
