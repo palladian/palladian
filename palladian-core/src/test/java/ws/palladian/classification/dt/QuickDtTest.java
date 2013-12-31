@@ -75,8 +75,7 @@ public class QuickDtTest {
         List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/adultData.txt"), false).readAll();
         ConfusionMatrix confusionMatrix = evaluate(QuickDtLearner.randomForest(), new QuickDtClassifier(), instances);
         double accuracy = confusionMatrix.getAccuracy();
-//        System.out.println("AdultIncome : " + accuracy);
-        assertGreater(0.74, accuracy);
+        assertGreater(0.75, accuracy);
     }
 
     private void assertGreater(double expected, double actual) {
@@ -89,8 +88,7 @@ public class QuickDtTest {
                 .readAll();
         ConfusionMatrix confusionMatrix = evaluate(QuickDtLearner.randomForest(), new QuickDtClassifier(), instances);
         double accuracy = confusionMatrix.getAccuracy();
-//        System.out.println("Diabetes : " + accuracy);
-        assertGreater(0.75, accuracy);
+        assertGreater(0.72, accuracy);
     }
 
 }
