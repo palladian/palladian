@@ -12,8 +12,10 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Philipp Katz
  */
 public final class NoNormalizer implements Normalizer {
-
+    
     private static final Normalization NOP = new AbstractNormalization() {
+
+        private static final long serialVersionUID = 1L;
 
         @Override
         public NumericFeature normalize(NumericFeature numericFeature) {
