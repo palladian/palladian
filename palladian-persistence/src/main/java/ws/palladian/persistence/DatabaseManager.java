@@ -318,28 +318,46 @@ public class DatabaseManager {
     public final int runInsertReturnId(String sql, Object... args) {
         return runInsertReturnId(null, sql, args);
     }
-    public final int runInsertReturnId(Connection connection, String sql, Object... args) {
-        Validate.notEmpty(sql, "sql must not be empty");
-        Validate.notNull(args, "args must not be null");
-        return runInsertReturnId(connection, new BasicQuery(sql, args));
-    }
-
-    public final int runInsertReturnId(Query query) {
-        return runInsertReturnId(null, query);
-    }
 
     /**
      * <p>
-     * Run an insert operation and return the generated insert ID.
-     * </p>
-     * <p>
-     * NOTE: If a connection is given, you <b>must</b> close it yourself or reuse it.
+     * Run an insert operation and return the generated insert ID. <b>NOTE</b>: If a connection is given, you
+     * <b>must</b> close it yourself or reuse it.
      * </p>
      * 
      * @param connection The connection to use for the update or <code>null</code> if a new connection should be
      *            retrieved from the pool.
      * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in update statement.
+     * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
+     */
+    public final int runInsertReturnId(Connection connection, String sql, Object... args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
+        return runInsertReturnId(connection, new BasicQuery(sql, args));
+    }
+
+    /**
+     * <p>
+     * Run an insert operation and return the generated insert ID.
+     * </p>
+     * 
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
+     */
+    public final int runInsertReturnId(Query query) {
+        return runInsertReturnId(null, query);
+    }
+
+    /**
+     * <p>
+     * Run an insert operation and return the generated insert ID. <b>NOTE</b>: If a connection is given, you
+     * <b>must</b> close it yourself or reuse it.
+     * </p>
+     * 
+     * @param connection The connection to use for the update or <code>null</code> if a new connection should be
+     *            retrieved from the pool.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
     public final int runInsertReturnId(Connection connection, Query query) {
