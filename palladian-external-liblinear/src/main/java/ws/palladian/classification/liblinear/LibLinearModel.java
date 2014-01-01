@@ -1,8 +1,5 @@
 package ws.palladian.classification.liblinear;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -70,13 +67,40 @@ public class LibLinearModel implements Model {
 
     @Override
     public String toString() {
-        try {
-            Writer writer = new StringWriter();
-            model.save(writer);
-            return writer.toString();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+//        try {
+//            Writer writer = new StringWriter();
+//            model.save(writer);
+//            return writer.toString() + "\n" + featureLabels;
+//        } catch (IOException e) {
+//            throw new IllegalStateException(e);
+//        }
+        StringBuilder builder = new StringBuilder();
+        builder.append("# classes\t").append(model.getNrClass()).append('\n');
+        builder.append("# features\t").append(model.getNrFeature()).append('\n');
+        builder.append("bias\t").append(model.getBias()).append('\n');
+        builder.append("normalization\t").append(normalization.getClass().getSimpleName());
+        builder.append("\n\n");
+        if (model.getNrClass() > 2) {
+            for (int i = 0; i < model.getNrClass(); i++) {
+                builder.append('\t').append(classIndices.get(i));
+            }
+            builder.append('\n');
         }
+        int nrWeights = model.getNrFeature() + (model.getBias() >= 0 ? 1 : 0);
+        int nrColumns = model.getNrClass() > 2 ? model.getNrClass() : 1;
+        for (int i = 0; i < nrWeights; i++) {
+            String weightLabel = i < featureLabels.size() ? featureLabels.get(i) : "bias";
+            builder.append(weightLabel);
+            for (int j = 0; j < nrColumns; j++) {
+                double weight = model.getFeatureWeights()[i * nrColumns + j];
+                builder.append('\t').append(weight);
+                if (model.getNrClass() == 2) {
+                    break;
+                }
+            }
+            builder.append('\n');
+        }
+        return builder.toString();
     }
 
 }

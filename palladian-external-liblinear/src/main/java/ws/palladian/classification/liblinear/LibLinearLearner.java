@@ -66,7 +66,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
      * </p>
      * 
      * @param parameter The parameter, not <code>null</code>.
-     * @param bias The value for the bias term, <code>0</code> to add no bias term.
+     * @param bias The value for the bias term, use a value <code>&lt; 0</code> to add no bias term.
      * @param normalizer The normalizer to use, not <code>null</code>. Use a {@link NoNormalizer} to skip
      *            normalization.
      */
@@ -120,7 +120,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
         problem.n = featureLabels.size();
         problem.x = new de.bwaldvogel.liblinear.Feature[problem.l][];
         problem.y = new double[problem.l];
-        if (bias > 0) {
+        if (bias >= 0) {
             LOGGER.debug("Add bias correction {}", bias);
             problem.bias = bias; // bias feature
             problem.n++; // add one for bias term
@@ -154,10 +154,10 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
             }
             features.add(new FeatureNode(index, value));
         }
-        if (bias > 0) {
+        if (bias >= 0) {
             features.add(new FeatureNode(index + 1, bias)); // bias term
         }
-        return features.toArray(new de.bwaldvogel.liblinear.Feature[0]);
+        return features.toArray(new de.bwaldvogel.liblinear.Feature[features.size()]);
     }
 
 }
