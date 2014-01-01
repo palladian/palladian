@@ -5,10 +5,8 @@ package ws.palladian.classification;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import libsvm.svm_model;
@@ -19,6 +17,7 @@ import ws.palladian.classification.utils.Normalization;
 
 /**
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 1.0
  * @since 0.2.0
  */
@@ -34,22 +33,21 @@ public final class LibSvmModel implements Model {
      * to the correct features during classification.
      * </p>
      */
-    private final Map<String, Integer> schema;
+    private final List<String> schema;
 
     private final List<String> classes;
 
     private final Normalization normalization;
 
     /* To be instantiated from within the package only. */
-    LibSvmModel(svm_model model, Map<String, Integer> schema, List<String> classes, Normalization normalization) {
+    LibSvmModel(svm_model model, List<String> schema, List<String> classes, Normalization normalization) {
         Validate.notNull(model);
         Validate.notNull(schema);
         Validate.notNull(classes);
         Validate.notNull(normalization);
 
         this.model = model;
-        this.schema = new HashMap<String, Integer>();
-        this.schema.putAll(schema);
+        this.schema = new ArrayList<String>(schema);
         this.classes = new ArrayList<String>(classes);
         this.normalization = normalization;
     }
@@ -58,8 +56,8 @@ public final class LibSvmModel implements Model {
         return model;
     }
 
-    public Map<String, Integer> getSchema() {
-        return Collections.unmodifiableMap(schema);
+    public List<String> getSchema() {
+        return Collections.unmodifiableList(schema);
     }
 
     public Normalization getNormalization() {

@@ -3,11 +3,13 @@
  */
 package ws.palladian.classification;
 
-import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,9 +22,11 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
@@ -34,6 +38,7 @@ import ws.palladian.processing.features.NumericFeature;
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * @version 1.0
  * @since 0.2.0
  */
@@ -53,8 +58,8 @@ public class LibSvmPredictorTest {
         instances.add(instance1);
         instances.add(instance2);
 
-        LibSvmPredictor predictor = new LibSvmPredictor(new LinearKernel(1.0d));
-        LibSvmModel model = predictor.train(instances);
+        LibSvmLearner learner = new LibSvmLearner(new LinearKernel(1.0d));
+        LibSvmModel model = learner.train(instances);
         assertThat(model, Matchers.is(Matchers.notNullValue()));
         assertEquals(2, model.getCategories().size());
         assertTrue(model.getCategories().contains("A"));
@@ -63,7 +68,7 @@ public class LibSvmPredictorTest {
         FeatureVector classificationVector = new BasicFeatureVector();
         classificationVector.add(new NominalFeature("a", "a"));
         classificationVector.add(new NumericFeature("b", 0.8));
-        CategoryEntries result = predictor.classify(classificationVector, model);
+        CategoryEntries result = new LibSvmClassifier().classify(classificationVector, model);
         assertThat(result.getMostLikelyCategory(), Matchers.is("A"));
     }
 
@@ -79,16 +84,16 @@ public class LibSvmPredictorTest {
     public void testRealDataSet() throws FileNotFoundException {
         List<Instance> instances = readInstances("/train.1");
 
-        LibSvmPredictor predictor = new LibSvmPredictor(new RBFKernel(2.0d, 2.0d));
-        LibSvmModel model = predictor.train(instances);
+        LibSvmLearner learner = new LibSvmLearner(new RBFKernel(2.0d, 2.0d));
+        LibSvmModel model = learner.train(instances);
 
         List<Instance> test = readInstances("/test.1");
-        ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(predictor, test, model);
+        ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(new LibSvmClassifier(), test, model);
 
-        assertThat(confusionMatrix.getAverageAccuracy(false), is(closeTo(0.954, 0.0001)));
-        assertThat(confusionMatrix.getAverageRecall(false), is(closeTo(0.954, 0.0001)));
-        assertThat(confusionMatrix.getAveragePrecision(false), is(closeTo(0.954, 0.0001)));
-        assertThat(confusionMatrix.getAverageF(0.5, false), is(closeTo(0.954, 0.0001)));
+        assertThat(confusionMatrix.getAverageAccuracy(false), is(greaterThan(0.954)));
+        assertThat(confusionMatrix.getAverageRecall(false), is(greaterThan(0.954)));
+        assertThat(confusionMatrix.getAveragePrecision(false), is(greaterThan(0.954)));
+        assertThat(confusionMatrix.getAverageF(0.5, false), is(greaterThan(0.954)));
     }
 
     private List<Instance> readInstances(String resource) throws FileNotFoundException {
@@ -107,10 +112,25 @@ public class LibSvmPredictorTest {
                 Number value = Double.valueOf(element[1]);
                 featureVector.add(new NumericFeature(name, value));
             }
-            Instance newInstance = new Instance(targetClass, featureVector);
-            ret.add(newInstance);
+            ret.add(new Instance(targetClass, featureVector));
         }
         return ret;
+    }
+
+    @Test
+    public void testWithAdultIncomeData() throws FileNotFoundException {
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/adultData.txt"), false).readAll();
+        LibSvmLearner learner = new LibSvmLearner(new RBFKernel(1., 1.));
+        ConfusionMatrix confusionMatrix = evaluate(learner, new LibSvmClassifier(), instances);
+        assertTrue(confusionMatrix.getAccuracy() > 0.78);
+    }
+
+    @Test
+    public void testWithDiabetesData() throws FileNotFoundException {
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), false).readAll();
+        LibSvmLearner learner = new LibSvmLearner(new RBFKernel(1., 1.));
+        ConfusionMatrix confusionMatrix = evaluate(learner, new LibSvmClassifier(), instances);
+        assertTrue(confusionMatrix.getAccuracy() > 0.80);
     }
 
 }
