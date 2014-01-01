@@ -50,7 +50,7 @@ public final class ZScoreNormalizer implements Normalizer {
             Double mean = means.get(featureName);
             if (standardDeviation == null || mean == null) {
                 // throw new IllegalArgumentException("No normalization information for \"" + featureName + "\".");
-                LOGGER.debug("No normalization information for \"{}\".", featureName);
+                LOGGER.warn("No normalization information for \"{}\".", featureName);
                 return numericFeature;
             }
             double normalizedValue = numericFeature.getValue() - mean;
