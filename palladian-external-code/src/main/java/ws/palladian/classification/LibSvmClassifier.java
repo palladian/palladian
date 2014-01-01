@@ -21,22 +21,26 @@ import ws.palladian.processing.Classifiable;
  * @since 2.0
  */
 public final class LibSvmClassifier implements Classifier<LibSvmModel> {
+    
+    static {
+        LibSvmLearner.redirectLogOutput();
+    }
 
     @Override
     public CategoryEntries classify(Classifiable classifiable, LibSvmModel model) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(model, "model must not be null");
         
-        CategoryEntriesMap ret = new CategoryEntriesMap();
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         svm_node[] libsvmFeatureVector = LibSvmLearner.convertFeatureVector(classifiable, model.getSchema(),
                 model.getNormalization(), model.getDummyCoder());
 
         double classIndex = svm.svm_predict(model.getModel(), libsvmFeatureVector);
         String className = model.transformClassToString(Double.valueOf(classIndex).intValue());
-        ret.set(className, 1.0);
+        builder.set(className, 1.0);
 
-        return ret;
+        return builder.create();
     }
 
 }

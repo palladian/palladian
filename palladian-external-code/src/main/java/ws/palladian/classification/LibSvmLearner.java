@@ -10,9 +10,12 @@ import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
 import libsvm.svm_parameter;
+import libsvm.svm_print_interface;
 import libsvm.svm_problem;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
@@ -36,10 +39,29 @@ import ws.palladian.processing.features.NumericFeature;
  * @since 2.0
  */
 public final class LibSvmLearner implements Learner<LibSvmModel> {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(LibSvmLearner.class);
 
     private static final Normalizer NORMALIZER = new ZScoreNormalizer();
 
     private final LibSvmKernel kernel;
+    
+    static {
+        redirectLogOutput();
+    }
+
+    /**
+     * Redirect logging output to the {@link Logger}.
+     */
+    static void redirectLogOutput() {
+        svm.svm_set_print_string_function(new svm_print_interface() {
+            @Override
+            public void print(String s) {
+                LOGGER.debug(s);
+            }
+        });
+    }
 
     /**
      * <p>
