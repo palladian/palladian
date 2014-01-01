@@ -13,6 +13,7 @@ import libsvm.svm_model;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
 
 /**
@@ -39,8 +40,11 @@ public final class LibSvmModel implements Model {
 
     private final Normalization normalization;
 
+    private final DummyVariableCreator dummyCoder;
+
     /* To be instantiated from within the package only. */
-    LibSvmModel(svm_model model, List<String> schema, List<String> classes, Normalization normalization) {
+    LibSvmModel(svm_model model, List<String> schema, List<String> classes, Normalization normalization,
+            DummyVariableCreator dummyCoder) {
         Validate.notNull(model);
         Validate.notNull(schema);
         Validate.notNull(classes);
@@ -50,6 +54,7 @@ public final class LibSvmModel implements Model {
         this.schema = new ArrayList<String>(schema);
         this.classes = new ArrayList<String>(classes);
         this.normalization = normalization;
+        this.dummyCoder = dummyCoder;
     }
 
     public svm_model getModel() {
@@ -71,6 +76,10 @@ public final class LibSvmModel implements Model {
     @Override
     public Set<String> getCategories() {
         return new HashSet<String>(classes);
+    }
+
+    public DummyVariableCreator getDummyCoder() {
+        return dummyCoder;
     }
 
 }

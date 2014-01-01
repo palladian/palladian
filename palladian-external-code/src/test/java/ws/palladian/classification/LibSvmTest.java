@@ -39,10 +39,10 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  * @author Klemens Muthmann
  * @author Philipp Katz
- * @version 1.0
+ * @version 2.0
  * @since 0.2.0
  */
-public class LibSvmPredictorTest {
+public class LibSvmTest {
 
     @Test
     public void test() {
@@ -122,7 +122,7 @@ public class LibSvmPredictorTest {
         List<Trainable> instances = new CsvDatasetReader(getResourceFile("/adultData.txt"), false).readAll();
         LibSvmLearner learner = new LibSvmLearner(new RBFKernel(1., 1.));
         ConfusionMatrix confusionMatrix = evaluate(learner, new LibSvmClassifier(), instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.78);
+        assertTrue(confusionMatrix.getAccuracy() > 0.81);
     }
 
     @Test
