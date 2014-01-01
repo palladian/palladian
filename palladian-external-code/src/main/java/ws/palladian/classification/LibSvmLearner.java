@@ -26,6 +26,7 @@ import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -126,10 +127,11 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
      * @param trainables The Palladian instances to transform.
      * @param params The parameters for the classifier. Required to set parameter which are based on the training set.
      * @param featureNames The indices of the features to process in the new model.
-     * @param dummyCoder
      * @param classes The possible classes to predict to. The index in the list is the index used to convert those
      *            classes to numbers.
      * @param normalizations The normalizations to apply to {@link NumericFeature}s.
+     * @param dummyCoder A {@link DummyVariableCreator} for convertign {@link NominalFeature}s to {@link NumericFeature}
+     *            s.
      * @return A new {@link svm_problem} ready to train a libsvm classifier.
      */
     private svm_problem createProblem(Iterable<? extends Trainable> trainables, svm_parameter params,
@@ -163,8 +165,9 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
      * @param featureNames A {@link Map} filled with the correct indices for all the features if {@code trainingMode} is
      *            {@code true}.
      * @param normalization Normalization information.
-     * @param dummyCoder
-     * @return An array of {@link svm_node} instances.
+     * @param dummyCoder A {@link DummyVariableCreator} for convertign {@link NominalFeature}s to {@link NumericFeature}
+     *            s.
+     * @return An array of {@link svm_node}s representing an libsvm feature vector.
      */
     static svm_node[] convertFeatureVector(Classifiable classifiable, List<String> featureNames,
             Normalization normalization, DummyVariableCreator dummyCoder) {
@@ -198,7 +201,7 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
         ret.eps = 0.001;
         ret.p = 0.1;
         ret.shrinking = 1;
-        ret.probability = 0;
+        ret.probability = 1;
         ret.nr_weight = 0;
         ret.weight_label = new int[0];
         ret.weight = new double[0];

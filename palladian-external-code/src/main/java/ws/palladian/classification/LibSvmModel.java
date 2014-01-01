@@ -24,7 +24,7 @@ import ws.palladian.classification.utils.Normalization;
  */
 public final class LibSvmModel implements Model {
 
-    private static final long serialVersionUID = 2l;
+    private static final long serialVersionUID = 3l;
 
     private final svm_model model;
 
