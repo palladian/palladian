@@ -21,7 +21,7 @@ import ws.palladian.processing.Classifiable;
  * @since 2.0
  */
 public final class LibSvmClassifier implements Classifier<LibSvmModel> {
-    
+
     static {
         LibSvmLearner.redirectLogOutput();
     }
@@ -30,16 +30,16 @@ public final class LibSvmClassifier implements Classifier<LibSvmModel> {
     public CategoryEntries classify(Classifiable classifiable, LibSvmModel model) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(model, "model must not be null");
-        
-        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         svm_node[] libsvmFeatureVector = LibSvmLearner.convertFeatureVector(classifiable, model.getSchema(),
                 model.getNormalization(), model.getDummyCoder());
+        double[] probabilities = new double[model.getCategories().size()];
+        svm.svm_predict_probability(model.getModel(), libsvmFeatureVector, probabilities);
 
-        double classIndex = svm.svm_predict(model.getModel(), libsvmFeatureVector);
-        String className = model.transformClassToString(Double.valueOf(classIndex).intValue());
-        builder.set(className, 1.0);
-
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
+        for (int i = 0; i < probabilities.length; i++) {
+            builder.set(model.transformClassToString(i), probabilities[i]);
+        }
         return builder.create();
     }
 
