@@ -6,37 +6,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instances;
 import weka.core.SparseInstance;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BooleanFeature;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.processing.features.SequentialPattern;
 import ws.palladian.processing.features.SparseFeature;
 
 /**
  * <p>
- * Predictor implementation using Weka.
- * </p>
- * <p>
- * Use {@link #train(List)} to train a new classifier based on a list of example instances and
- * {@link #predict(FeatureVector)} to classify a {@link FeatureVector}.
+ * Learner wrapper for Weka classifiers.
  * </p>
  * 
  * @see <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka 3</a>
@@ -45,7 +34,7 @@ import ws.palladian.processing.features.SparseFeature;
  * @version 3.1
  * @since 0.1.7
  */
-public final class WekaPredictor implements Learner<WekaModel>, Classifier<WekaModel> {
+public final class WekaLearner implements Learner<WekaModel> {
 
     /**
      * This is necessary, because there is a bug when using sparse features in Weka ARFF files, therefore we need to add
@@ -56,28 +45,17 @@ public final class WekaPredictor implements Learner<WekaModel>, Classifier<WekaM
     /** The prediction target, where the classification result goes. */
     private static final String TARGET_CLASS_ATTRIBUTE = "palladianWekaTargetClass";
 
-    /**
-     * <p>
-     * Logger for objects of this class. Configure it using <tt>/src/main/resources/log4j.properties</tt>.
-     * </p>
-     */
-    private final static Logger LOGGER = LoggerFactory.getLogger(WekaPredictor.class);
-
-    /**
-     * <p>
-     * The Weka classifier this classifier wraps.
-     * </p>
-     */
+    /** The Weka classifier this classifier wraps. */
     private final weka.classifiers.Classifier classifier;
 
     /**
      * <p>
-     * Create a new {@link WekaPredictor} with the specified Weka {@link Classifier} implementation.
+     * Create a new {@link WekaLearner} with the specified Weka {@link Classifier} implementation.
      * </p>
      * 
      * @param classifier The classifier to use, not <code>null</code>.
      */
-    public WekaPredictor(weka.classifiers.Classifier classifier) {
+    public WekaLearner(weka.classifiers.Classifier classifier) {
         Validate.notNull(classifier, "classifier must not be null.");
         this.classifier = classifier;
     }
@@ -276,64 +254,6 @@ public final class WekaPredictor implements Learner<WekaModel>, Classifier<WekaM
             fvNominalValues.addElement(nominalValue);
         }
         return fvNominalValues;
-    }
-
-    @Override
-    public CategoryEntries classify(Classifiable classifiable, WekaModel model) {
-        CategoryEntriesMap ret = new CategoryEntriesMap();
-
-        SortedMap<Integer, Double> indices = new TreeMap<Integer, Double>();
-        Map<String, Attribute> schema = model.getSchema();
-        for (Feature<?> feature : classifiable.getFeatureVector()) {
-            if (feature instanceof ListFeature) {
-                ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
-                for (Feature<?> sparseFeature : listFeature.getValue()) {
-                    String featureName = listFeature.getName() + sparseFeature.getName();
-                    Attribute featureAttribute = schema.get(featureName);
-                    if (featureAttribute == null) {
-                        LOGGER.info("Ignoring sparse feature " + featureName + " since it was not in training set.");
-                        continue;
-                    }
-                    int indexOfSparseFeature = featureAttribute.index();
-                    indices.put(indexOfSparseFeature, 1.0);
-                }
-            } else {
-                Attribute attribute = schema.get(feature.getName());
-                int attributeIndex = attribute.index();
-
-                if (!(feature instanceof NumericFeature)) {
-                    double value = Integer.valueOf(attribute.indexOfValue(feature.getValue().toString())).doubleValue();
-                    // consider feature as missing if value was not in the training set.
-                    if(!(value<.0)) {
-                        indices.put(attributeIndex, value);
-                    }
-                } else {
-                    indices.put(attributeIndex, Double.valueOf(feature.getValue().toString()));
-                }
-            }
-        }
-
-        double[] valuesArray = new double[indices.size()];
-        int[] indicesArray = new int[indices.size()];
-        int index = 0;
-        for (Map.Entry<Integer, Double> entry : indices.entrySet()) {
-            valuesArray[index] = entry.getValue();
-            indicesArray[index] = entry.getKey();
-            index++;
-        }
-        SparseInstance instance = new SparseInstance(1.0, valuesArray, indicesArray, indices.size());
-        instance.setDataset(model.getDataset());
-
-        try {
-            double[] distribution = model.getClassifier().distributionForInstance(instance);
-            for (int i = 0; i < distribution.length; i++) {
-                String className = model.getDataset().classAttribute().value(i);
-                ret.set(className, distribution[i]);
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("An exception occurred during classification.", e);
-        }
-        return ret;
     }
 
     @Override

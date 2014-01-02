@@ -9,7 +9,11 @@ import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,8 +22,8 @@ import org.junit.Test;
 
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.meta.Bagging;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;
@@ -40,12 +44,10 @@ import ws.palladian.processing.features.SparseFeature;
  * @version 1.0
  * @since 0.1.7
  */
-public class WekaPredictorTest {
+public class WekaTest {
 
     @Test
     public void test() {
-        WekaPredictor objectOfClassUnderTest = new WekaPredictor(new NaiveBayes());
-
         List<Instance> trainingInstances = new ArrayList<Instance>();
         FeatureVector v1 = new BasicFeatureVector();
         v1.add(new NumericFeature("a", 2.3));
@@ -70,7 +72,7 @@ public class WekaPredictorTest {
 
         trainingInstances.add(trainingInstance1);
         trainingInstances.add(trainingInstance2);
-        WekaModel model = objectOfClassUnderTest.train(trainingInstances);
+        WekaModel model = new WekaLearner(new NaiveBayes()).train(trainingInstances);
 
         assertEquals(2, model.getCategories().size());
         assertTrue(model.getCategories().contains("c1"));
@@ -83,7 +85,7 @@ public class WekaPredictorTest {
         testListFeature.add(new SparseFeature<String>("v1"));
         testListFeature.add(new SparseFeature<String>("v2"));
         testVector.add(testListFeature);
-        CategoryEntries result = objectOfClassUnderTest.classify(testVector, model);
+        CategoryEntries result = new WekaClassifier().classify(testVector, model);
 
         assertThat(result.getMostLikelyCategory(), isOneOf("c1", "c2"));
     }
@@ -120,16 +122,14 @@ public class WekaPredictorTest {
         featureVector2.add(annotationListFeature2);
         featureVector2.add(pattern1ListFeature2);
 
-        WekaPredictor objectOfClassUnderTest = new WekaPredictor(new NaiveBayes());
-
         List<Instance> instances = new ArrayList<Instance>();
         Instance instance1 = new Instance("c1", featureVector1);
         Instance instance2 = new Instance("c2", featureVector2);
         instances.add(instance1);
         instances.add(instance2);
-        WekaModel model = objectOfClassUnderTest.train(instances);
+        WekaModel model = new WekaLearner(new NaiveBayes()).train(instances);
 
-        CategoryEntries result = objectOfClassUnderTest.classify(instance1.getFeatureVector(), model);
+        CategoryEntries result = new WekaClassifier().classify(instance1.getFeatureVector(), model);
 
         assertThat(result.getMostLikelyCategory(), is("c1"));
     }
@@ -139,18 +139,35 @@ public class WekaPredictorTest {
      * Tests whether a {@link NominalFeature} is processed correctly even if some of its values do not occur in the
      * training set, which results in an incomplete Weka schema.
      * </p>
+     * 
+     * @throws FileNotFoundException
      */
     @Test
-    public void testNominalFeatureWithMissingValueInValidationSet() {
-        String pathToTrainSet = this.getClass().getResource("/wekadatasets/train_sample.csv").getFile();
-        String pathToValidationSet = this.getClass().getResource("/wekadatasets/validation_sample.csv").getFile();
-        List<Trainable> trainSet = ClassificationUtils.readCsv(pathToTrainSet, true);
-        List<Trainable> validationSet = ClassificationUtils.readCsv(pathToValidationSet, true);
+    public void testNominalFeatureWithMissingValueInValidationSet() throws FileNotFoundException {
+        File pathToTrainSet = getResourceFile("/wekadatasets/train_sample.csv");
+        File pathToValidationSet = getResourceFile("/wekadatasets/validation_sample.csv");
+        List<Trainable> trainSet = new CsvDatasetReader(pathToTrainSet).readAll();
+        List<Trainable> validationSet = new CsvDatasetReader(pathToValidationSet).readAll();
 
-        WekaPredictor classifier = new WekaPredictor(new Bagging());
-        WekaModel model = classifier.train(trainSet);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, validationSet, model);
+        WekaModel model = new WekaLearner(new Bagging()).train(trainSet);
+        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(new WekaClassifier(), validationSet, model);
         assertThat(evaluation.getF(1.0, "false"), is(greaterThan(0.0)));
         assertThat(evaluation.getAccuracy(), is(greaterThan(0.0)));
+    }
+
+    @Test
+    public void testWithAdultIncomeData() throws FileNotFoundException {
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/adultData.txt"), false).readAll();
+        WekaLearner learner = new WekaLearner(new Bagging());
+        ConfusionMatrix confusionMatrix = evaluate(learner, new WekaClassifier(), instances);
+        assertTrue(confusionMatrix.getAccuracy() > 0.79);
+    }
+
+    @Test
+    public void testWithDiabetesData() throws FileNotFoundException {
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), false).readAll();
+        WekaLearner learner = new WekaLearner(new Bagging());
+        ConfusionMatrix confusionMatrix = evaluate(learner, new WekaClassifier(), instances);
+        assertTrue(confusionMatrix.getAccuracy() > 0.78);
     }
 }
