@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -24,11 +25,14 @@ import ws.palladian.classification.Model;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.ImmutableNumericVector;
+import ws.palladian.helper.math.NumericVector;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
+import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -375,6 +379,24 @@ public final class ClassificationUtils {
         }
 
         return mergedCategoryEntries;
+    }
+
+    /**
+     * <p>
+     * Get a {@link NumericFeature} with all numeric values from the given {@link Classifiable}. Note: This is just a
+     * crutch and should be better integrated with the existing {@link FeatureVector}.
+     * </p>
+     * 
+     * @param classifiable The classifiable, not <code>null</code>.
+     * @return A {@link NumericVector} with all numeric features from the {@link Classifiable}'s {@link FeatureVector}.
+     */
+    public static NumericVector<String> getNumericVector(Classifiable classifiable) {
+        Validate.notNull(classifiable, "classifiable must not be null");
+        Map<String, Double> values = CollectionHelper.newHashMap();
+        for (NumericFeature numericFeature : classifiable.getFeatureVector().getAll(NumericFeature.class)) {
+            values.put(numericFeature.getName(), numericFeature.getValue());
+        }
+        return new ImmutableNumericVector<String>(values);
     }
 
 }
