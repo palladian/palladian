@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -26,6 +27,28 @@ import ws.palladian.helper.collection.CollectionHelper.Order;
  * @author Philipp Katz
  */
 public class CollectionHelperTest {
+
+    private static class NameObject {
+        private String name;
+        private int age;
+
+        public NameObject(String name) {
+            this.name = name;
+        }
+
+        public NameObject(int age) {
+            this.age = age;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+    }
 
     @SuppressWarnings("deprecation")
     @Test
@@ -190,28 +213,6 @@ public class CollectionHelperTest {
         assertTrue(groupedResult.get(5).containsAll(Arrays.asList("three")));
     }
 
-    private class NameObject {
-        private String name;
-        private int age;
-
-        public NameObject(String name) {
-            this.name = name;
-        }
-
-        public NameObject(int age) {
-            this.age = age;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getAge() {
-            return age;
-        }
-
-    }
-
     @Test
     public void testLimitIterable() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
@@ -233,5 +234,11 @@ public class CollectionHelperTest {
 
         iterator = CollectionHelper.limit(Collections.<Integer> emptyList().iterator(), 0);
         assertFalse(iterator.hasNext());
+    }
+    
+    @Test
+    public void testDistinct() {
+        Set<String> values = CollectionHelper.distinct(Arrays.asList("a","b","c"),Arrays.asList("b","c","d"));
+        assertEquals(4, values.size());
     }
 }

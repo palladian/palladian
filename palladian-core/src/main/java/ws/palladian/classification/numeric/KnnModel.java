@@ -6,15 +6,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.ImmutableNumericVector;
+import ws.palladian.helper.math.NumericVector;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -66,23 +66,8 @@ public final class KnnModel implements Model {
      * @return The training instances underlying this {@link KnnModel}. They are used by the {@code KnnClassifier} to
      *         make a classification decision.
      */
-    public List<Trainable> getTrainingExamples() {
-        return convertTrainingInstances(trainingExamples);
-    }
-
-    private List<Trainable> convertTrainingInstances(List<TrainingExample> instances) {
-        List<Trainable> nominalInstances = new ArrayList<Trainable>(instances.size());
-
-        for (TrainingExample instance : trainingExamples) {
-            FeatureVector featureVector = new BasicFeatureVector();
-            for (Entry<String, Double> feature : instance.features.entrySet()) {
-                featureVector.add(new NumericFeature(feature.getKey(), feature.getValue()));
-            }
-            Instance nominalInstance = new Instance(instance.targetClass, featureVector);
-            nominalInstances.add(nominalInstance);
-        }
-
-        return nominalInstances;
+    public List<TrainingExample> getTrainingExamples() {
+        return trainingExamples;
     }
 
     @Override
@@ -122,6 +107,10 @@ class TrainingExample implements Serializable {
         for (NumericFeature feature : numericFeatures) {
             features.put(feature.getName(), feature.getValue());
         }
+    }
+    
+    public NumericVector<String> getVector() {
+        return new ImmutableNumericVector<String>(features);
     }
 
     @Override

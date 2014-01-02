@@ -725,6 +725,7 @@ public final class CollectionHelper {
     public static String joinReadable(Collection<?> entries) {
         return joinReadable(entries, entries.size());
     }
+
     public static String joinReadable(Collection<?> entries, int numEntries) {
         String joinedText = StringUtils.join(entries.toArray(), ", ", 0, Math.min(entries.size(), numEntries));
         int lastIndex = joinedText.lastIndexOf(",");
@@ -813,6 +814,23 @@ public final class CollectionHelper {
         Validate.notNull(iterator, "iterator must not be null");
         Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
         return new LimitIterator<T>(iterator, limit);
+    }
+
+    /**
+     * <p>
+     * Get a set with distinct values from all given collections.
+     * </p>
+     * 
+     * @param collections The collections, not <code>null</code>.
+     * @return A {@link Set} with distinct values from the given collections.
+     */
+    public static <T> Set<T> distinct(Collection<T>... collections) {
+        Validate.notNull(collections, "collections must not be null");
+        Set<T> distinct = newHashSet();
+        for (Collection<T> collection : collections) {
+            distinct.addAll(collection);
+        }
+        return distinct;
     }
 
 }

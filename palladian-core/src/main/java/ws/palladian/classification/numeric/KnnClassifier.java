@@ -1,6 +1,5 @@
 package ws.palladian.classification.numeric;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,14 +10,14 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.EntryValueComparator;
+import ws.palladian.helper.math.NumericVector;
 import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -69,15 +68,17 @@ public final class KnnClassifier implements Classifier<KnnModel> {
     public CategoryEntries classify(Classifiable classifiable, KnnModel model) {
 
         model.getNormalization().normalize(classifiable);
-        
+
         // initialize with all category names and a score of zero
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder().set(model.getCategories(), 0);
 
+        NumericVector<String> featureVector = ClassificationUtils.getNumericVector(classifiable);
+
         // find k nearest neighbors, compare instance to every known instance
-        List<Pair<Trainable, Double>> neighbors = CollectionHelper.newArrayList();
-        for (Trainable example : model.getTrainingExamples()) {
-            double distance = getDistanceBetween(classifiable.getFeatureVector(), example.getFeatureVector());
-            neighbors.add(Pair.of(example, distance));
+        List<Pair<String, Double>> neighbors = CollectionHelper.newArrayList();
+        for (TrainingExample example : model.getTrainingExamples()) {
+            double distance = example.getVector().euclidean(featureVector);
+            neighbors.add(Pair.of(example.targetClass, distance));
         }
 
         // sort near neighbor map by distance
@@ -87,49 +88,18 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         // in those cases
         double lastDistance = -1;
         int ck = 0;
-        for (Pair<Trainable, Double> neighbor : neighbors) {
-
+        for (Pair<String, Double> neighbor : neighbors) {
             if (ck >= k && neighbor.getValue() != lastDistance) {
                 break;
             }
-
-            double distance = neighbor.getValue();
-            double weight = 1.0 / (distance + 0.000000001);
-            String targetClass = neighbor.getKey().getTargetClass();
+            double weight = 1.0 / (neighbor.getValue() + 0.000000001);
+            String targetClass = neighbor.getKey();
             builder.add(targetClass, weight);
-
-            lastDistance = distance;
+            lastDistance = neighbor.getValue();
             ck++;
         }
 
         return builder.create();
-    }
-
-    /**
-     * <p>
-     * Distance function, the shorter the distance the more important the category of the known instance. Euclidean
-     * Distance = sqrt(SUM_0,n (i1-i2)²)
-     * </p>
-     * 
-     * @param vector The instance to classify.
-     * @param featureVector The instance in the vector space with known categories.
-     * @return distance The Euclidean distance between the two instances in the vector space.
-     */
-    private double getDistanceBetween(FeatureVector vector, FeatureVector featureVector) {
-
-        // XXX factor this distance measure out to a strategy class.
-
-        double squaredSum = 0;
-
-        Collection<NumericFeature> instanceFeatures = vector.getAll(NumericFeature.class);
-
-        for (NumericFeature instanceFeature : instanceFeatures) {
-            squaredSum += Math.pow(
-                    instanceFeature.getValue()
-                            - featureVector.get(NumericFeature.class, instanceFeature.getName()).getValue(), 2);
-        }
-
-        return Math.sqrt(squaredSum);
     }
 
 }
