@@ -132,7 +132,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     /**
      * @return The sum of all scores over all categories.
      */
-    private double getTotalScore() {
+    public double getTotalScore() {
         double total = 0;
         for (Double value : entryMap.values()) {
             total += value;
