@@ -1,14 +1,10 @@
 package ws.palladian.classification.text;
 
-import java.util.Map;
-
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.helper.collection.ConstantFactory;
-import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
@@ -75,8 +71,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
         process(classifiable);
 
-        // initialize probability Map with mutable double objects, so we can add relevance values to them
-        Map<String, Double> probabilities = LazyMap.create(ConstantFactory.create(0.));
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         // iterate through all terms in the document
         @SuppressWarnings("unchecked")
@@ -87,24 +82,19 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             for (PositionAnnotation annotation : annotations) {
                 CategoryEntries categoryFrequencies = model.getCategoryEntries(annotation.getValue());
                 for (String category : categoryFrequencies) {
-                    double categoryFrequency = categoryFrequencies.getProbability(category);
-                    if (categoryFrequency > 0) {
-                        double weight = categoryFrequency * categoryFrequency;
-                        probabilities.put(category, probabilities.get(category) + weight);
-                    }
+                    double frequency = categoryFrequencies.getProbability(category);
+                    builder.add(category, frequency * frequency);
                 }
             }
         }
 
         // If we have a category weight by matching terms from the document, use them to create the probability
         // distribution. Else wise return the prior probability distribution of the categories.
-        CategoryEntriesMap categories;
-        if (!probabilities.isEmpty()) {
-            categories = new CategoryEntriesMap(probabilities);
-        } else {
-            categories = new CategoryEntriesMap(model.getPriors());
+        if (builder.getTotalScore() == 0) {
+            builder = new CategoryEntriesBuilder(model.getPriors());
         }
-        return categories;
+        return builder.create();
+
     }
 
     // XXX ugly -- in case we have text documents and feature settings have been defined, do the preprocessing here
