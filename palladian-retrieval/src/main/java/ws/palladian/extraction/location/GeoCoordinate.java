@@ -23,7 +23,10 @@ public interface GeoCoordinate {
     /**
      * <p>
      * Get the distance in kilometers between this and the given {@link GeoCoordinate} on the earth (assuming an earth
-     * radius of {@link GeoUtils#EARTH_RADIUS_KM}).
+     * radius of {@link GeoUtils#EARTH_RADIUS_KM}). <b>Implemenation hint:</b> Calculations using the Haversine formula are usually
+     * expensive. In case, this method is run in a busy loop, consider using
+     * {@link GeoUtils#approximateDistance(GeoCoordinate, GeoCoordinate)} which sacrifices accuracy, but which is
+     * magnitudes faster.
      * </p>
      * 
      * @param other The other location, not <code>null</code>.

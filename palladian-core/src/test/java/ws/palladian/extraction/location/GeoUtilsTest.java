@@ -1,12 +1,15 @@
 package ws.palladian.extraction.location;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class GeoUtilsTest {
@@ -98,6 +101,51 @@ public class GeoUtilsTest {
         for (GeoCoordinate point : points) {
             assertEquals(100, point.distance(origin), 0.001);
         }
+    }
+    
+    @Test
+    public void testApproximateDistance() {
+        GeoCoordinate c1 = new ImmutableGeoCoordinate(33.662508, -95.547692);
+        GeoCoordinate c2 = new ImmutableGeoCoordinate(48.85341, 2.3488);
+        GeoCoordinate c3 = new ImmutableGeoCoordinate(49.265278, 4.028611);
+        GeoCoordinate c4 = new ImmutableGeoCoordinate(48.858222, 2.2945);
+        
+        // should be: exact < approximate < 1.1 * exact
+        double exact = c1.distance(c2);
+        double approximate = GeoUtils.approximateDistance(c1, c2);
+        assertTrue(exact < approximate);
+        assertTrue(approximate < exact * 1.1);
+        
+        exact = c2.distance(c3);
+        approximate = GeoUtils.approximateDistance(c2, c3);
+        assertTrue(exact < approximate);
+        assertTrue(approximate < exact * 1.1);
+        
+        exact = c2.distance(c4);
+        approximate = GeoUtils.approximateDistance(c2, c4);
+        assertTrue(exact < approximate);
+        assertTrue(approximate < exact * 1.1);
+    }
+    
+    @Test
+    @Ignore
+    public void performanceTest() {
+        GeoCoordinate c1 = new ImmutableGeoCoordinate(33.662508, -95.547692);
+        GeoCoordinate c2 = new ImmutableGeoCoordinate(48.85341, 2.3488);
+
+        StopWatch stopExact = new StopWatch();
+        for (int i = 0; i < 10000000; i++) {
+            c1.distance(c2);
+        }
+        System.out.println("Time with exact distance: " + stopExact);
+
+        StopWatch stopApproximate = new StopWatch();
+        for (int i = 0; i < 10000000; i++) {
+            GeoUtils.approximateDistance(c1, c2);
+        }
+        System.out.println("Time with approximate distance: " + stopApproximate);
+        System.out.println("Speedup: " + (double)stopExact.getElapsedTime() / stopApproximate.getElapsedTime());
+        // speedup is about 90x!
     }
 
 }

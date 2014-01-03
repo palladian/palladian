@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import static java.lang.Math.toRadians;
+
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -193,6 +195,31 @@ public final class GeoUtils {
         double minutes = matcher.group(2) != null ? Double.valueOf(matcher.group(2)) : 0;
         double seconds = matcher.group(3) != null ? Double.valueOf(matcher.group(3)) : 0;
         return sign * (Math.abs(degrees) + minutes / 60. + seconds / 3600.);
+    }
+
+    /**
+     * <p>
+     * Use "<a href="http://en.wikipedia.org/wiki/Equirectangular_projection>Equirectangular approximation</a>" to
+     * quickly calculate the distance between two coordinates. This performs better than
+     * {@link GeoCoordinate#distance(GeoCoordinate)} but is less exact. For small distances, the discrepancy is
+     * negligible.
+     * </p>
+     * 
+     * @param c1 First coordinate, not <code>null</code>.
+     * @param c2 Second coordinate, not <code>null</code>.
+     * @return The approximate distance between the two coordinates.
+     */
+    // XXX consider moving directly to GeoCoordinate
+    public static final double approximateDistance(GeoCoordinate c1, GeoCoordinate c2) {
+        Validate.notNull(c1, "c1 must not be null");
+        Validate.notNull(c2, "c2 must not be null");
+        double lat1 = toRadians(c1.getLatitude());
+        double lat2 = toRadians(c2.getLatitude());
+        double lon2 = toRadians(c2.getLongitude());
+        double lon1 = toRadians(c1.getLongitude());
+        double x = (lon2 - lon1) * Math.cos((lat1 + lat2) / 2);
+        double y = (lat2 - lat1);
+        return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
     }
 
     private GeoUtils() {
