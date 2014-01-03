@@ -118,7 +118,6 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
             }
 
             String jsonString = httpResult.getStringContent();
-            System.out.println(jsonString);
 
             try {
                 JsonObject jsonResult = new JsonObject(jsonString);
