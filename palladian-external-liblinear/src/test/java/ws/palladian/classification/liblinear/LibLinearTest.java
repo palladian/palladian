@@ -10,8 +10,13 @@ import java.util.List;
 
 import org.junit.Test;
 
+import de.bwaldvogel.liblinear.Parameter;
+import de.bwaldvogel.liblinear.SolverType;
+import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.classification.utils.NoNormalizer;
+import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
@@ -32,6 +37,17 @@ public class LibLinearTest {
         assertEquals("1", classifier.classify(data.get(2), model).getMostLikelyCategory());
         // assertEquals("2", liblinear.classify(data.get(3), model).getMostLikelyCategory());
         assertEquals("3", classifier.classify(data.get(4), model).getMostLikelyCategory());
+    }
+    
+    @Test
+    public void testLiblinearNonProbabilistic() {
+        List<Trainable> data = createSampleData();
+        Parameter parameter = new Parameter(SolverType.L1R_L2LOSS_SVC, 1.0, 0.01);
+        LibLinearLearner learner = new LibLinearLearner(parameter, 1., new ZScoreNormalizer());
+        LibLinearModel model = learner.train(data);
+        CategoryEntries result = new LibLinearClassifier().classify(data.get(2), model);
+        assertEquals("1", result.getMostLikelyCategory());
+        assertEquals(1., result.getProbability("1"), 0.);
     }
 
     private List<Trainable> createSampleData() {
@@ -65,6 +81,17 @@ public class LibLinearTest {
         List<Trainable> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), false).readAll();
         ConfusionMatrix confusionMatrix = evaluate(new LibLinearLearner(), new LibLinearClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.80);
+    }
+    
+    /**
+     * We do not support LibLinear's support vector regression, an exception must be thrown in case one tries to use it.
+     * (the reason is, that the current Learner/Classifier/Instance API is not intended for regression. In the future,
+     * we might add necessary extensions, and this exception can be removed.
+     */
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUnsupportedOperation() {
+        Parameter parameter = new Parameter(SolverType.L2R_L2LOSS_SVR, 1.0, 0.01);
+        new LibLinearLearner(parameter, 1., new NoNormalizer());
     }
 
 }
