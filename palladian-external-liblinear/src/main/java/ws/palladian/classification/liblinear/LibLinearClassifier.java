@@ -43,11 +43,17 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
         classifiable = removeUntrainedFeatures(classifiable, model);
         de.bwaldvogel.liblinear.Feature[] instance = LibLinearLearner.makeInstance(model.getFeatureLabels(),
                 classifiable, model.getLLModel().getBias());
-        double[] probabilities = new double[model.getCategories().size()];
-        Linear.predictProbability(model.getLLModel(), instance, probabilities);
         CategoryEntriesBuilder categoryEntriesBuilder = new CategoryEntriesBuilder();
-        for (int i = 0; i < probabilities.length; i++) {
-            categoryEntriesBuilder.add(model.getCategoryForIndex(i), probabilities[i]);
+        if (model.getLLModel().isProbabilityModel()) {
+            double[] probabilities = new double[model.getCategories().size()];
+            Linear.predictProbability(model.getLLModel(), instance, probabilities);
+            for (int i = 0; i < probabilities.length; i++) {
+                categoryEntriesBuilder.add(model.getCategoryForIndex(i), probabilities[i]);
+            }
+        } else {
+            int classIdx = (int)Linear.predict(model.getLLModel(), instance);
+            categoryEntriesBuilder.set(model.getCategories(), 0.);
+            categoryEntriesBuilder.add(model.getCategoryForIndex(classIdx), 1.);
         }
         return categoryEntriesBuilder.create();
     }

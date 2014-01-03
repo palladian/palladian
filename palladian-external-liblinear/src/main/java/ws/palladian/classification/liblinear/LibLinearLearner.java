@@ -73,6 +73,10 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
     public LibLinearLearner(Parameter parameter, double bias, Normalizer normalizer) {
         Validate.notNull(parameter, "parameter must not be null");
         Validate.notNull(normalizer, "normalizer must not be null");
+        if (parameter.getSolverType().isSupportVectorRegression()) {
+            throw new UnsupportedOperationException(
+                    "Support vector regression is not supported by this learner. This learner is for classification only!");
+        }
         this.parameter = parameter;
         this.bias = bias;
         this.normalizer = normalizer;

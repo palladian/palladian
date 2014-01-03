@@ -89,7 +89,8 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
         @Override
         public Double compute(ConfusionMatrix input) {
-            return input.getF(1., className);
+            double value = input.getF(1., className);
+            return Double.isNaN(value) ? 0 : value;
         }
 
         @Override
