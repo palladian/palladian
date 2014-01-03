@@ -44,6 +44,7 @@ public class MultifacetQuery {
         private static final int DEFAULT_PAGE = 0;
 
         private String id;
+        private String url;
         private Set<String> tags;
         private String text;
         private Date startDate;
@@ -69,6 +70,11 @@ public class MultifacetQuery {
          */
         public Builder setId(String id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder setUrl(String url) {
+            this.url = url;
             return this;
         }
 
@@ -150,6 +156,7 @@ public class MultifacetQuery {
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private final String id;
+    private final String url;
     private final Set<String> tags;
     private final String text;
     private final Date startDate;
@@ -164,6 +171,7 @@ public class MultifacetQuery {
     /** Created by the builder. */
     private MultifacetQuery(Builder builder) {
         this.id = builder.id;
+        this.url = builder.url;
         this.tags = builder.tags;
         this.text = builder.text;
         this.startDate = builder.startDate;
@@ -175,9 +183,13 @@ public class MultifacetQuery {
         this.facets = builder.facets;
         this.resultPage = builder.resultPage;
     }
-    
+
     public String getId() {
         return id;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public Set<String> getTags() {
@@ -227,6 +239,9 @@ public class MultifacetQuery {
 
         if (id != null) {
             toStringParts.add(String.format("id=%s", id));
+        }
+        if (url != null) {
+            toStringParts.add(String.format("url=%s", url));
         }
         if (tags != null) {
             toStringParts.add(String.format("tags=%s", tags));
