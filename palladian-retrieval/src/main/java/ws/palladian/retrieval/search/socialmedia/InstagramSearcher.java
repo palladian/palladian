@@ -9,12 +9,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
@@ -107,56 +107,35 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                 if (httpResult.getStatusCode() == 503) {
                     throw new RateLimitedException("Rate limit exceeded.", null);
                 }
+                if (httpResult.errorStatus()) {
+                    throw new SearcherException("Received HTTP code " + httpResult.getStatusCode()
+                            + " while accessing \"" + queryUrl + "\" ("
+                            + getErrorMessage(httpResult.getStringContent()) + ")");
+                }
             } catch (HttpException e) {
                 throw new SearcherException("Encountered HTTP exception while accessing \"" + queryUrl + "\": "
                         + e.getMessage(), e);
             }
 
             String jsonString = httpResult.getStringContent();
+            System.out.println(jsonString);
 
             try {
                 JsonObject jsonResult = new JsonObject(jsonString);
-                JsonArray dataArray = jsonResult.getJsonArray("data");
-
-                for (int i = 0; i < dataArray.size(); i++) {
-                    JsonObject data = dataArray.getJsonObject(i);
-                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
-
-                    builder.setUrl(data.getString("link"));
-                    builder.setPublished(new Date(data.getLong("created_time") * 1000));
-
-                    JsonObject imageData = data.getJsonObject("images").getJsonObject("standard_resolution");
-                    builder.setImageUrl(imageData.getString("url"));
-                    builder.setWidth(imageData.getInt("width"));
-                    builder.setHeight(imageData.getInt("height"));
-
-                    if (data.get("caption") != null) {
-                        builder.setTitle(data.getJsonObject("caption").getString("text"));
-                    }
-                    if (data.get("location") != null) {
-                        JsonObject jsonLocaiton = data.getJsonObject("location");
-                        if (jsonLocaiton.get("longitude") != null && jsonLocaiton.get("latitude") != null) {
-                            double longitude = jsonLocaiton.getDouble("longitude");
-                            double latitude = jsonLocaiton.getDouble("latitude");
-                            builder.setCoordinate(new ImmutableGeoCoordinate(latitude, longitude));
+                if (jsonResult.get("data") instanceof JsonArray) {
+                    // result list
+                    JsonArray dataArray = jsonResult.getJsonArray("data");
+                    for (int i = 0; i < dataArray.size(); i++) {
+                        JsonObject data = dataArray.getJsonObject(i);
+                        WebImage webImage = parseJsonObject(data);
+                        result.add(webImage);
+                        if (result.size() == resultCount) {
+                            break page;
                         }
                     }
-                    if (data.get("tags") != null) {
-                        JsonArray tagArray = data.getJsonArray("tags");
-                        Set<String> tagSet = CollectionHelper.newHashSet();
-                        for (int j = 0; j < tagArray.size(); j++) {
-                            tagSet.add(tagArray.getString(j));
-                        }
-                        builder.setTags(tagSet);
-                    }
-                    builder.setIdentifier(data.getString("id"));
-                    builder.setSource(SEARCHER_NAME);
-                    result.add(builder.create());
-
-                    if (result.size() == resultCount) {
-                        break page;
-                    }
-
+                } else {
+                    // single result
+                    result.add(parseJsonObject(jsonResult.getJsonObject("data")));
                 }
 
                 if (jsonResult.get("pagination") == null) {
@@ -177,13 +156,83 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         return result;
     }
 
+    /**
+     * Parse a JSON entry into a WebImage.
+     * 
+     * @param data The JSON data.
+     * @return A parsed WebImage.
+     * @throws JsonException In case parsing failes.
+     */
+    private WebImage parseJsonObject(JsonObject data) throws JsonException {
+        BasicWebImage.Builder builder = new BasicWebImage.Builder();
+
+        builder.setUrl(data.getString("link"));
+        builder.setPublished(new Date(data.getLong("created_time") * 1000));
+
+        JsonObject imageData = data.getJsonObject("images").getJsonObject("standard_resolution");
+        builder.setImageUrl(imageData.getString("url"));
+        builder.setWidth(imageData.getInt("width"));
+        builder.setHeight(imageData.getInt("height"));
+
+        if (data.get("caption") != null) {
+            builder.setTitle(data.getJsonObject("caption").getString("text"));
+        }
+        if (data.get("location") != null) {
+            JsonObject jsonLocaiton = data.getJsonObject("location");
+            if (jsonLocaiton.get("longitude") != null && jsonLocaiton.get("latitude") != null) {
+                double longitude = jsonLocaiton.getDouble("longitude");
+                double latitude = jsonLocaiton.getDouble("latitude");
+                builder.setCoordinate(latitude, longitude);
+            }
+        }
+        if (data.get("tags") != null) {
+            JsonArray tagArray = data.getJsonArray("tags");
+            Set<String> tagSet = CollectionHelper.newHashSet();
+            for (int j = 0; j < tagArray.size(); j++) {
+                tagSet.add(tagArray.getString(j));
+            }
+            builder.setTags(tagSet);
+        }
+        builder.setIdentifier(data.getString("id"));
+        builder.setSource(SEARCHER_NAME);
+        return builder.create();
+    }
+
+    /**
+     * Try to extract error message from JSON.
+     * 
+     * @param stringContent The result string.
+     * @return A formatted error message, or an empty String, in case the response could not be parsed.
+     */
+    private String getErrorMessage(String stringContent) {
+        try {
+            if (StringUtils.isNotBlank(stringContent)) {
+                JsonObject json = new JsonObject(stringContent);
+                String errorType = json.queryString("/meta/error_type");
+                String errorMessage = json.queryString("/meta/error_message");
+                return String.format("%s: %s", errorType, errorMessage);
+            }
+        } catch (JsonException e) {
+            // ignore
+        }
+        return StringUtils.EMPTY;
+    }
+
     @Override
     public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
 
+        String id = query.getId();
         String tag = getTag(query);
         String queryUrl;
 
-        if (tag != null) {
+        // we search by URL; but first, we need to get the ID ...
+        if (query.getUrl() != null) {
+            id = getIdForUrl(query.getUrl());
+        }
+
+        if (id != null) {
+            queryUrl = String.format("https://api.instagram.com/v1/media/%s?access_token=%s", id, accessToken);
+        } else if (tag != null) {
             queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s",
                     UrlHelper.encodeParameter(tag), accessToken);
         } else if (query.getCoordinate() != null) {
@@ -206,11 +255,38 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
             urlBuilder.append("&access_token=").append(accessToken);
             queryUrl = urlBuilder.toString();
         } else {
-            throw new SearcherException("Search must either provide a tag or a geographic coordinate and a radius.");
+            throw new SearcherException(
+                    "Search must either provide a tag, a geographic coordinate and a radius, a URL or an Instagram ID.");
         }
 
         LOGGER.debug("Query URL: {}", queryUrl);
         return new SearchResults<WebImage>(processResult(query.getResultCount(), queryUrl));
+    }
+
+    /**
+     * In case, the {@link MultifacetQuery} asks for a URL, we first have to transform the URL to an Instagram ID. This
+     * costs one additional HTTP request, but it does not require API key authorization, so I guess it does not fall
+     * under the quota (and therefore do not use the {@link RequestThrottle} here).
+     * 
+     * @param url The URL to transform.
+     * @return An Instagram ID.
+     * @throws SearcherException In case, the transformation fails.
+     * @see <a
+     *      href="http://stackoverflow.com/questions/16758316/where-do-i-find-the-instagram-media-id-of-a-image">Where
+     *      do I find the Instagram media ID of a image</a>
+     */
+    private String getIdForUrl(String url) throws SearcherException {
+        try {
+            HttpResult httpResult = retriever.httpGet("http://api.instagram.com/oembed?url=" + url);
+            String id = new JsonObject(httpResult.getStringContent()).queryString("/media_id");
+            LOGGER.debug("ID for {} = {}", url, id);
+            return id;
+        } catch (HttpException e) {
+            throw new SearcherException("Error while trying to get ID for URL.");
+        } catch (JsonException e) {
+            throw new SearcherException("Error while trying to get ID for URL \"" + url
+                    + "\". Make sure, that this is a valid Instagram URL!");
+        }
     }
 
     /**
@@ -225,6 +301,9 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
             allTags = Arrays.asList(query.getText().split("\\s"));
         }
         String firstTag = CollectionHelper.getFirst(allTags);
+        if (firstTag == null) {
+            return null;
+        }
         firstTag = firstTag.replaceAll("[^A-Za-z0-9]", ""); // remove special characters
         if (allTags.size() > 1) {
             LOGGER.warn("Query consists of multiple terms ({}), only the first one ({}) is considered!", allTags,

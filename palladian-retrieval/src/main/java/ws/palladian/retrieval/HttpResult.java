@@ -161,6 +161,13 @@ public class HttpResult implements Serializable {
         }
         return ret;
     }
+    
+    /**
+     * @return <code>true</code> in case the HTTP status code was of type error (i.e. >= 400).
+     */
+    public boolean errorStatus() {
+        return statusCode >= 400;
+    }
 
     /*
      * (non-Javadoc)
