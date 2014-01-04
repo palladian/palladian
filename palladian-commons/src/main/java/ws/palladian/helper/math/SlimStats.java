@@ -8,8 +8,8 @@ import ws.palladian.helper.collection.Factory;
 
 /**
  * <p>
- * Keep mathematical stats such as mean and standard deviation for a series of numbers. In contrast to {@link FatStats},
- * this class does not maintain a list of all values. Therefore, the median cannot be computed.
+ * Keep mathematical stats such as mean, sum, min, max for a series of numbers. In contrast to {@link FatStats}, this
+ * class does <b>not</b> maintain a list of all values. Therefore, the median cannot be computed.
  * </p>
  * 
  * @author Philipp Katz
