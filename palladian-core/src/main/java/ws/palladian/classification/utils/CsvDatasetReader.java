@@ -136,7 +136,7 @@ public class CsvDatasetReader implements Iterable<Trainable> {
             }
             String targetClass = stringPool.get(parts[parts.length - 1]);
             Trainable instance = new Instance(targetClass, featureVector);
-            if (lineNumber % 10000 == 0) {
+            if (lineNumber % 100000 == 0) {
                 LOGGER.debug("Read {} lines", lineNumber);
             }
             return instance;

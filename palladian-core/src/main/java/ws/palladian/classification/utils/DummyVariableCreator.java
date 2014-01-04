@@ -69,6 +69,10 @@ public class DummyVariableCreator implements Serializable {
         for (Classifiable trainable : dataset) {
             if (nominalFeatureNames == null) {
                 nominalFeatureNames = getNominalFeatureNames(trainable);
+                if (nominalFeatureNames.isEmpty()) {
+                    LOGGER.debug("No nominal features in dataset.");
+                    break;
+                }
             }
             for (String featureName : nominalFeatureNames) {
                 NominalFeature feature = trainable.getFeatureVector().get(NominalFeature.class, featureName);

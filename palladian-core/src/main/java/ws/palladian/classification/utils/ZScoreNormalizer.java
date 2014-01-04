@@ -1,20 +1,15 @@
 package ws.palladian.classification.utils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.math.SlimStats;
 import ws.palladian.helper.math.Stats;
-import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -26,7 +21,7 @@ import ws.palladian.processing.features.NumericFeature;
  * @see <a href="http://www.utdallas.edu/~herve/abdi-Normalizing2010-pretty.pdf">Normalizing Data; Hervé Abdi</a>
  * @author pk
  */
-public final class ZScoreNormalizer implements Normalizer {
+public final class ZScoreNormalizer extends AbstractStatsNormalizer {
 
     private static final class ZScoreNormalization extends AbstractNormalization {
         
@@ -35,13 +30,15 @@ public final class ZScoreNormalizer implements Normalizer {
 
         private static final long serialVersionUID = 1L;
 
-        private final Map<String, Double> standardDeviations;
+        private final Map<String, Double> standardDeviations = CollectionHelper.newHashMap();
 
-        private final Map<String, Double> means;
+        private final Map<String, Double> means = CollectionHelper.newHashMap();
 
-        public ZScoreNormalization(Map<String, Double> standardDeviations, Map<String, Double> means) {
-            this.standardDeviations = standardDeviations;
-            this.means = means;
+        ZScoreNormalization(Map<String, Stats> statsMap) {
+            for (String featureName : statsMap.keySet()) {
+                standardDeviations.put(featureName, statsMap.get(featureName).getStandardDeviation());
+                means.put(featureName, statsMap.get(featureName).getMean());
+            }
         }
 
         @Override
@@ -83,27 +80,8 @@ public final class ZScoreNormalizer implements Normalizer {
     }
 
     @Override
-    public Normalization calculate(Iterable<? extends Classifiable> instances) {
-        Validate.notNull(instances, "instances must not be null");
-
-        Map<String, Stats> statsMap = LazyMap.create(SlimStats.FACTORY);
-
-        for (Classifiable instance : instances) {
-            Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
-            for (NumericFeature feature : numericFeatures) {
-                statsMap.get(feature.getName()).add(feature.getValue());
-            }
-        }
-
-        Map<String, Double> standardDeviations = CollectionHelper.newHashMap();
-        Map<String, Double> means = CollectionHelper.newHashMap();
-
-        for (String featureName : statsMap.keySet()) {
-            standardDeviations.put(featureName, statsMap.get(featureName).getStandardDeviation());
-            means.put(featureName, statsMap.get(featureName).getMean());
-        }
-
-        return new ZScoreNormalization(standardDeviations, means);
+    protected Normalization create(Map<String, Stats> statsMap) {
+        return new ZScoreNormalization(statsMap);
     }
 
 }
