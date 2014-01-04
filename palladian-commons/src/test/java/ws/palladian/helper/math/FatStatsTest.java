@@ -7,11 +7,11 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-public class StatsTest {
+public class FatStatsTest {
 
     @Test
     public void testStats() {
-        Stats stats = new Stats().add(2., 1., 6., 10., 23., 7.);
+        Stats stats = new FatStats().add(2., 1., 6., 10., 23., 7.);
         assertEquals(6, stats.getCount());
         assertEquals(8.167, stats.getMean(), 0.001);
         assertEquals(6.5, stats.getMedian(), 0);
@@ -27,7 +27,7 @@ public class StatsTest {
 
     @Test
     public void testRunningStats() {
-        Stats stats = new Stats(3);
+        Stats stats = new FatStats(3);
         stats.add(1);
         assertEquals(1, stats.getMean(), 0);
         stats.add(2);
@@ -42,25 +42,25 @@ public class StatsTest {
 
     @Test
     public void testMedian() {
-        assertEquals(2.5, new Stats().add(1., 1., 2., 3., 1035., 89898.68).getMedian(), 0);
-        assertEquals(2., new Stats().add(0., 1., 2., 3., 4.).getMedian(), 0);
-        assertEquals(2.5, new Stats().add(0., 1., 2., 3., 4., 5.).getMedian(), 0);
-        assertEquals(7., new Stats().add(9., 7., 2.).getMedian(), 0.00001);
-        assertEquals(0., new Stats().add(0., 0., 0., 1.).getMedian(), 0);
-        assertEquals(3948348538l, new Stats().add(1l, 2l, 3948348538l, 3948348539l, 3948348540l).getMedian(), 0);
+        assertEquals(2.5, new FatStats().add(1., 1., 2., 3., 1035., 89898.68).getMedian(), 0);
+        assertEquals(2., new FatStats().add(0., 1., 2., 3., 4.).getMedian(), 0);
+        assertEquals(2.5, new FatStats().add(0., 1., 2., 3., 4., 5.).getMedian(), 0);
+        assertEquals(7., new FatStats().add(9., 7., 2.).getMedian(), 0.00001);
+        assertEquals(0., new FatStats().add(0., 0., 0., 1.).getMedian(), 0);
+        assertEquals(3948348538l, new FatStats().add(1l, 2l, 3948348538l, 3948348539l, 3948348540l).getMedian(), 0);
     }
 
     @Test
     public void testStandardDeviation() {
-        assertEquals(2.14, new Stats().add(2., 4., 4., 4., 5., 5., 7., 9.).getStandardDeviation(), 0.01);
-        assertEquals(2.24, new Stats().add(4, 2, 5, 8, 6).getStandardDeviation(), 0.01);
-        assertEquals(0, new Stats().add(1).getStandardDeviation(), 0);
-        assertTrue(Double.isNaN(new Stats().getStandardDeviation()));
+        assertEquals(2.14, new FatStats().add(2., 4., 4., 4., 5., 5., 7., 9.).getStandardDeviation(), 0.01);
+        assertEquals(2.24, new FatStats().add(4, 2, 5, 8, 6).getStandardDeviation(), 0.01);
+        assertEquals(0, new FatStats().add(1).getStandardDeviation(), 0);
+        assertTrue(Double.isNaN(new FatStats().getStandardDeviation()));
     }
 
     @Test
     public void testNoValues() {
-        Stats stats = new Stats();
+        Stats stats = new FatStats();
         assertEquals(0, stats.getCount());
         assertTrue(Double.isNaN(stats.getMax()));
         assertTrue(Double.isNaN(stats.getMin()));
@@ -77,7 +77,7 @@ public class StatsTest {
     public void testOverflow() {
         Double[] temp = new Double[10000];
         Arrays.fill(temp, Double.MAX_VALUE);
-        Stats stats = new Stats().add(temp);
+        Stats stats = new FatStats().add(temp);
         assertEquals(Double.MAX_VALUE, stats.getMax(), 0);
         assertEquals(Double.MAX_VALUE, stats.getMin(), 0);
         assertEquals(Double.MAX_VALUE, stats.getMedian(), 0);

@@ -320,7 +320,7 @@ public final class MathHelper {
         int summedRealDistance = 0;
         int summedRealSquaredDistance = 0;
         int position1 = 0;
-        Stats stats = new Stats();
+        Stats stats = new SlimStats();
 
         for (String entry1 : list1) {
 

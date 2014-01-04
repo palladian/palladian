@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 
@@ -106,7 +107,7 @@ public class FeedPostStatistics {
         for (int i = 1; i < timeList.size(); i++) {
             intervals.add(timeList.get(i) - timeList.get(i - 1));
         }
-        Stats timeDistanceStats = new Stats(intervals);
+        Stats timeDistanceStats = new FatStats(intervals);
 
         // FIXME: do we really need to set these fake values? In case the feed has an empty window, we set two fake
         // timestamps and calculate some statistics that are not valid. I think this code is very old. In the past, we

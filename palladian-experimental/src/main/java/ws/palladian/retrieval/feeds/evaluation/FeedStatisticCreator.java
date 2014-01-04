@@ -26,6 +26,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManager;
@@ -234,7 +235,7 @@ public class FeedStatisticCreator {
 
         // long[] valueArray = ArrayUtils.toPrimitive(valueList.toArray(new Long[0]));
         // return MathHelper.getMedian(valueArray);
-        return new Stats(valueList).getMedian();
+        return new FatStats(valueList).getMedian();
     }
 
     /**

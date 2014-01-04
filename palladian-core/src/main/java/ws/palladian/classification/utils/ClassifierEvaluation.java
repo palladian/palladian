@@ -32,6 +32,8 @@ public final class ClassifierEvaluation {
         // no instances.
     }
 
+    // XXX misleading; I thought that would test multiple models, but it acutally combines the models?
+    // document, and also have a look at comment in ClassificationUtils.classifyWithMultipleModels
     public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier,
             Iterable<? extends Trainable> testData, M... models) {
 

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.math.SlimStats;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.NumericFeature;
@@ -63,7 +64,7 @@ public final class ZScoreNormalizer implements Normalizer {
         @Override
         public String toString() {
             StringBuilder toStringBuilder = new StringBuilder();
-            toStringBuilder.append("MinMaxNormalization:\n");
+            toStringBuilder.append("ZScoreNormalization:\n");
             toStringBuilder.append("featureName: stdDev; mean\n");
             List<String> names = new ArrayList<String>(standardDeviations.keySet());
             Collections.sort(names);
@@ -85,7 +86,7 @@ public final class ZScoreNormalizer implements Normalizer {
     public Normalization calculate(Iterable<? extends Classifiable> instances) {
         Validate.notNull(instances, "instances must not be null");
 
-        Map<String, Stats> statsMap = LazyMap.create(Stats.FACTORY);
+        Map<String, Stats> statsMap = LazyMap.create(SlimStats.FACTORY);
 
         for (Classifiable instance : instances) {
             Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);

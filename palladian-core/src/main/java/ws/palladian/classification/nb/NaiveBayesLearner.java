@@ -10,6 +10,7 @@ import ws.palladian.classification.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.math.SlimStats;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Feature;
@@ -36,7 +37,7 @@ public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
         // store the counts of nominal features (name, value, category)
         CountMap<Triplet<String, String, String>> nominalCounts = CountMap.create();
         // store mean and standard deviation for numeric features (name, category)
-        Map<Pair<String, String>, Stats> stats = LazyMap.create(Stats.FACTORY);
+        Map<Pair<String, String>, Stats> stats = LazyMap.create(SlimStats.FACTORY);
 
         for (Trainable trainable : trainables) {
             String category = trainable.getTargetClass();
