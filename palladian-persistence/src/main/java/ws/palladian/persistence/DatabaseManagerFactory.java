@@ -15,6 +15,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,11 +168,11 @@ public final class DatabaseManagerFactory {
         String username = config.getString("db.username");
         String password = config.getString("db.password");
 
-        if (driver == null || jdbcUrl == null || username == null) {
+        if (jdbcUrl == null || username == null) {
             throw new IllegalStateException("Database properties are missing in the supplied PropertiesConfiguration.");
         }
         if (password == null) {
-            password = "";
+            password = StringUtils.EMPTY;
         }
 
         return create(managerClass, driver, jdbcUrl, username, password);
