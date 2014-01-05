@@ -43,6 +43,9 @@ public final class DatabaseManagerFactory {
 
     private final static Map<String, DataSource> dataSourceRegistry = new ConcurrentHashMap<String, DataSource>();
     
+    /** Specify the {@link DataSourceFactory} to use, if you need a custom one. */
+    public static DataSourceFactory dataSourceFactory = BoneCpDataSourceFactory.INSTANCE;
+    
     private static HierarchicalConfiguration configuration;
 
     /**
@@ -66,8 +69,8 @@ public final class DatabaseManagerFactory {
         return configuration;
     }
 
-    /**
-     * <p>
+//    /**
+//     * <p>
 //     * Create a DatabaseManager with the configuration obtained from the Palladian configuration file. See
 //     * {@link ConfigHolder} for a documentation about the location of this configuration file. The configuration file
 //     * must supply the following fields:
@@ -174,23 +177,23 @@ public final class DatabaseManagerFactory {
         return create(managerClass, driver, jdbcUrl, username, password);
     }
 
-    /**
-     * <p>
-     * Create a DatabaseManager with the supplied configuration.
-     * </p>
-     * 
-     * @param <D> Type of the DataManager (sub)class to create.
-     * @param managerClass The type of the DatabaseManager class.
-     * @param jdbcDriverClassName The fully qualified name of the JDBC driver class.
-     * @param jdbcConnectionUrl The JDBC connection URL.
-     * @param username The user name for accessing the database.
-     * @return A configured DatabaseManager with access to a connection pool
-     * @throws IllegalStateException In case the initialization fails.
-     */
-    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
-            String jdbcConnectionUrl, String username) {
-        return create(managerClass, jdbcDriverClassName, jdbcConnectionUrl, username, "");
-    }
+//    /**
+//     * <p>
+//     * Create a DatabaseManager with the supplied configuration.
+//     * </p>
+//     * 
+//     * @param <D> Type of the DataManager (sub)class to create.
+//     * @param managerClass The type of the DatabaseManager class.
+//     * @param jdbcDriverClassName The fully qualified name of the JDBC driver class.
+//     * @param jdbcConnectionUrl The JDBC connection URL.
+//     * @param username The user name for accessing the database.
+//     * @return A configured DatabaseManager with access to a connection pool
+//     * @throws IllegalStateException In case the initialization fails.
+//     */
+//    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
+//            String jdbcConnectionUrl, String username) {
+//        return create(managerClass, jdbcDriverClassName, jdbcConnectionUrl, username, "");
+//    }
 
     /**
      * <p>
@@ -205,14 +208,16 @@ public final class DatabaseManagerFactory {
      * @param password The password for accessing the database.
      * @return A configured DatabaseManager with access to a connection pool
      * @throws IllegalStateException In case the initialization fails.
+     * @deprecated It is not necessary any longer to specify the JDBC driver class, you can use
+     *             {@link #create(Class, String, String, String)} instead
      */
+    @Deprecated
     public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
             String jdbcConnectionUrl, String username, String password) {
         try {
             Constructor<D> dbManagerConstructor = managerClass.getDeclaredConstructor(DataSource.class);
             dbManagerConstructor.setAccessible(true);
-            D ret = dbManagerConstructor.newInstance(getDataSource(jdbcDriverClassName, jdbcConnectionUrl, username,
-                    password));
+            D ret = dbManagerConstructor.newInstance(getDataSource(jdbcConnectionUrl, username, password));
             return ret;
         } catch (Exception e) {
             throw new IllegalArgumentException("Unable to instantiate DatabaseManager", e);
@@ -220,15 +225,31 @@ public final class DatabaseManagerFactory {
 
     }
 
-    private static synchronized DataSource getDataSource(String jdbcDriverClassName, String jdbcConnectionUrl,
+    /**
+     * <p>
+     * Create a DatabaseManager with the supplied configuration.
+     * </p>
+     * 
+     * @param <D> Type of the DataManager (sub)class to create.
+     * @param managerClass The type of the DatabaseManager class.
+     * @param jdbcConnectionUrl The JDBC connection URL.
+     * @param username The user name for accessing the database.
+     * @param password The password for accessing the database.
+     * @return A configured DatabaseManager with access to a connection pool
+     * @throws IllegalStateException In case the initialization fails.
+     */
+    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcConnectionUrl,
             String username, String password) {
-        Validate.notEmpty(jdbcDriverClassName, "jdbcDriverClassName must not be empty");
+        return create(managerClass, null, jdbcConnectionUrl, username, password);
+    }
+
+    private static synchronized DataSource getDataSource(String jdbcConnectionUrl, String username, String password) {
         Validate.notEmpty(jdbcConnectionUrl, "jdbcConnectionUrl must not be empty");
         Validate.notEmpty(username, "username must not be empty");
         
         DataSource dataSource = dataSourceRegistry.get(jdbcConnectionUrl);
         if (dataSource == null) {
-            dataSource = DataSourceFactory.createDataSource(jdbcDriverClassName, jdbcConnectionUrl, username, password);
+            dataSource = dataSourceFactory.createDataSource(jdbcConnectionUrl, username, password);
             dataSourceRegistry.put(jdbcConnectionUrl, dataSource);
         }
         return dataSource;
