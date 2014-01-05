@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -76,6 +77,13 @@ public final class SimpleDataSourceFactory implements DataSourceFactory {
         public Connection getConnection() throws SQLException {
             return getConnection(username, password);
         }
+
+        @SuppressWarnings("unused")
+        // no @Override; method was added in JDBC 4.1; allow to compile on old and new versions
+        public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+            throw new SQLFeatureNotSupportedException();
+        }
+
     }
 
     /** The logger for this class. */
