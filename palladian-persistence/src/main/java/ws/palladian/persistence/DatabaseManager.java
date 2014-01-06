@@ -58,7 +58,7 @@ public class DatabaseManager {
 
     /**
      * <p>
-     * Get a {@link Connection} from the {@link DataSourceFactory}. If you use this method, e.g. in your subclass, it's
+     * Get a {@link Connection} from the {@link BoneCpDataSourceFactory}. If you use this method, e.g. in your subclass, it's
      * your responsibility to close all database resources after work has been done. This can be done conveniently by
      * using one of the various close methods offered by this class.
      * </p>

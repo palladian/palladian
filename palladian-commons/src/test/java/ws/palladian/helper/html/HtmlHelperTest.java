@@ -71,6 +71,10 @@ public class HtmlHelperTest {
         htmlContent = HtmlHelper
                 .joinTagsAndRemoveNewLines("<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />");
         assertEquals("some text 2", HtmlHelper.stripHtmlTags(htmlContent));
+        
+        htmlContent = "It weights <3 tons<br />(bridge)";
+        String stripped = HtmlHelper.stripHtmlTags(htmlContent);
+        assertEquals("It weights <3 tons(bridge)", stripped);
     }
 
     //    @Test

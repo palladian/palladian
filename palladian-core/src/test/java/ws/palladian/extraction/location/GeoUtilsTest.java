@@ -92,6 +92,7 @@ public class GeoUtilsTest {
         assertEquals(42.904722, GeoUtils.parseDms("42°54'17\" N"), 0.05);
         assertEquals(39.716667, GeoUtils.parseDms("39°43' North"), 0.05);
         assertEquals(42.904722, GeoUtils.parseDms("42°54'17\" N"), 0.05);
+        assertEquals(36.466667, GeoUtils.parseDms("36º28' N"), 0.05);
     }
 
     @Test
