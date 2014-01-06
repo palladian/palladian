@@ -42,7 +42,7 @@ public class TimeIntervalParser {
         }
 
         try {
-            minutes = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([mM]inutes?|mins?))", string));
+            minutes = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([mM]inutes?|[Mm]ins?))", string));
             parsed = true;
         } catch (Exception e) {
         }
