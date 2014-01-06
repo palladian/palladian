@@ -150,7 +150,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         long temp;
@@ -162,7 +162,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     }
 
     @Override
-    public final boolean equals(Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

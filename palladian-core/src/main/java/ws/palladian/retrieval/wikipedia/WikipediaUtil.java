@@ -3,7 +3,6 @@ package ws.palladian.retrieval.wikipedia;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,8 +12,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -423,7 +420,7 @@ public final class WikipediaUtil {
      * @param text The markup, not <code>null</code>.
      * @return {@link List} of extracted {@link MarkupCoordinate}s, or an empty list, never <code>null</code>.
      */
-    public static List<MarkupCoordinate> extractCoordinateTag(String text) {
+    static List<MarkupCoordinate> extractCoordinateTag(String text) {
         Validate.notNull(text, "text must not be null");
         List<MarkupCoordinate> result = CollectionHelper.newArrayList();
         Matcher m = COORDINATE_TAG_PATTERN.matcher(text);
@@ -447,74 +444,6 @@ public final class WikipediaUtil {
             result.add(new MarkupCoordinate(lat, lng, name, population, display, type, region));
         }
         return result;
-    }
-
-    /**
-     * <p>
-     * Try to parse {@link GeoCoordinate}s in a given info box.
-     * </p>
-     * 
-     * @param parsedTemplate The parsed template, not <code>null</code>.
-     * @return Set with extracted {@link GeoCoordinate}s, or an empty list in case nothing could be extracted, never
-     *         <code>null</code>.
-     * @see #extractTemplate(String)
-     */
-    public static Set<MarkupCoordinate> extractCoordinatesFromInfobox(WikipediaTemplate infobox) {
-        Validate.notNull(infobox, "parsedTemplate must not be null");
-        Set<MarkupCoordinate> coordinates = CollectionHelper.newHashSet();
-        
-        String display = infobox.getEntry("coordinates_display");
-        String type = infobox.getEntry("coordinates_type");
-
-        // try lat/long_deg/min_sec
-        try {
-            String latDeg = infobox.getEntry("lat_deg", "latd", "lat_d", "lat_degrees", "source_lat_d", "mouth_lat_d");
-            String lngDeg = infobox.getEntry("lon_deg", "longd", "long_d", "long_degrees", "source_long_d",
-                    "mouth_long_d");
-            if (StringUtils.isNotBlank(latDeg) && StringUtils.isNotBlank(lngDeg)) {
-                String latMin = infobox.getEntry("lat_min", "latm", "lat_m", "lat_minutes", "source_lat_m",
-                        "mouth_lat_m");
-                String latSec = infobox.getEntry("lat_sec", "lats", "lat_s", "lat_seconds", "source_lat_s",
-                        "mouth_lat_s");
-                String lngMin = infobox.getEntry("lon_min", "longm", "long_m", "long_minutes", "source_long_m",
-                        "mouth_long_m");
-                String lngSec = infobox.getEntry("lon_sec", "longs", "long_s", "long_seconds", "source_long_s",
-                        "mouth_long_s");
-                String latNS = infobox.getEntry("latNS", "lat_direction", "lat_NS", "source_lat_NS", "mouth_lat_NS");
-                String lngEW = infobox.getEntry("longEW", "long_direction", "long_EW", "source_long_EW",
-                        "mouth_long_EW");
-                double lat = parseComponents(latDeg, latMin, latSec, latNS);
-                double lng = parseComponents(lngDeg, lngMin, lngSec, lngEW);
-                coordinates.add(new MarkupCoordinate(lat, lng, display, type));
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Error while parsing: {}", e.getMessage());
-        }
-
-        // try all-in-one format
-        String lat = infobox.getEntry("latitude");
-        String lng = infobox.getEntry("longitude");
-        if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lng)) {
-            try {
-                // try decimal format
-                coordinates.add(new MarkupCoordinate(Double.valueOf(lat), Double.valueOf(lng), display, type));
-            } catch (Exception e) {
-                try {
-                    // try DMS format
-                    coordinates
-                            .add(new MarkupCoordinate(GeoUtils.parseDms(lat), GeoUtils.parseDms(lng), display, type));
-                } catch (Exception e1) {
-                    // try decdeg markup
-                    try {
-                        coordinates.add(new MarkupCoordinate(WikipediaUtil.parseDecDeg(lat), WikipediaUtil
-                                .parseDecDeg(lng), display, type));
-                    } catch (Exception e2) {
-                        LOGGER.warn("Error while parsing: {} and/or {}: {}", lat, lng, e.getMessage());
-                    }
-                }
-            }
-        }
-        return coordinates;
     }
 
     private static Long getNumberInBrackets(String string) {
@@ -563,7 +492,7 @@ public final class WikipediaUtil {
      * @param nsew NSEW modifier, should be in [NSEW], may be <code>null</code>.
      * @return Parsed double value.
      */
-    private static double parseComponents(String deg, String min, String sec, String nsew) {
+    static double parseComponents(String deg, String min, String sec, String nsew) {
         Validate.notEmpty(deg, "deg must not be null or empty");
         double parsedDeg = Double.valueOf(deg);
         double parsedMin = StringUtils.isNotBlank(min) ? Double.valueOf(min) : 0;
@@ -581,7 +510,7 @@ public final class WikipediaUtil {
      * @param name The name, like infobox, quote, etc.
      * @return The content in the markup, or an empty list of not found, never <code>null</code>.
      */
-    public static List<String> getNamedMarkup(String markup, String... names) {
+    static List<String> getNamedMarkup(String markup, String... names) {
         List<String> result = CollectionHelper.newArrayList();
         int startIdx = 0;
         String cleanMarkup = HtmlHelper.stripHtmlTags(markup, HtmlElement.COMMENTS);

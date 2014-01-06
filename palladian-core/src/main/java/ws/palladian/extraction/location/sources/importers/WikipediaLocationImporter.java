@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -44,7 +43,6 @@ import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 import ws.palladian.retrieval.wikipedia.WikipediaTemplate;
-import ws.palladian.retrieval.wikipedia.WikipediaUtil;
 
 /**
  * <p>
@@ -197,8 +195,6 @@ public class WikipediaLocationImporter {
                     LOGGER.debug("Ignoring '{}' by blacklist", page.getTitle());
                     return;
                 }
-
-                String text = page.getMarkup();
                 
                 List<WikipediaTemplate> infoboxes = page.getInfoboxes();
                 if (infoboxes.isEmpty()) {
@@ -217,22 +213,11 @@ public class WikipediaLocationImporter {
                     return;
                 }
 
-                // first, try to extract coordinates from {{coord|...|display=title}} tags
-                List<MarkupCoordinate> locations = WikipediaUtil.extractCoordinateTag(text);
-                GeoCoordinate coordinate = null;
-                Long population = null;
-                for (MarkupCoordinate location : locations) {
-                    String display = location.getDisplay();
-                    if (display != null && (display.contains("title") || display.equals("t"))) {
-                        coordinate = location;
-                        population = location.getPopulation();
-                    }
-                }
-
+                MarkupCoordinate coordinate = page.getCoordinate();
                 // fallback, use infobox/geobox:
                 if (coordinate == null) {
                     for (WikipediaTemplate infobox : infoboxes) {
-                        Set<MarkupCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(infobox);
+                        Set<MarkupCoordinate> coordinates = infobox.getCoordinates();
                         // XXX we might also want to extract population information here in the future
                         if (coordinates.size() > 0) {
                             coordinate = CollectionHelper.getFirst(coordinates);
@@ -245,7 +230,7 @@ public class WikipediaLocationImporter {
                     String cleanArticleName = page.getCleanTitle();
                     int locationId = Integer.valueOf(page.getIdentifier()) + idOffset;
                     locationStore
-                            .save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate, population));
+                            .save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate, coordinate.getPopulation()));
                     LOGGER.trace("Saved location with ID {}, name {}", page.getIdentifier(), cleanArticleName);
                     locationNamesIds.put(page.getTitle(), Integer.valueOf(page.getIdentifier()));
                     counter[0]++;
