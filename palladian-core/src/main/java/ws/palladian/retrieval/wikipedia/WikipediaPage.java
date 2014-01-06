@@ -50,6 +50,13 @@ public class WikipediaPage extends WikipediaPageReference {
     }
 
     /**
+     * @return The clean text on this Wiki page.
+     */
+    public String getCleanText() {
+        return WikipediaUtil.stripMediaWikiMarkup(text);
+    }
+
+    /**
      * <p>
      * Get the individual sections from the page. The beginning of the article is also added to the result, even if it
      * does not start with a section heading.

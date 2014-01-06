@@ -81,7 +81,7 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
             for (Location location : candidates) {
                 double score = scoredLocations.get(location.getId());
-                if (score > highestScore) {
+                if (selectedLocation == null || score > highestScore) {
                     highestScore = score;
                     selectedLocation = location;
                 }

@@ -28,10 +28,10 @@ public final class CoordinateTagger implements Tagger {
     /** The name of the tag to be assigned. */
     public static final String TAG_NAME = "geoCoordinate";
 
-    private static final String LEFT = "(?<=^|\\s)";
-    private static final String RIGHT = "\\b";
+    private static final String LEFT = "(?<!\\w)";
+    private static final String RIGHT = "(?!\\w)";
     private static final String DEG = "([-+]?\\d{1,3}\\.\\d{1,10})([NSWE])?";
-    private static final String SEP = "(?:,\\s?|\\s)";
+    private static final String SEP = "(?:,\\s?|\\s|\\(|\\))";
 
     /** Only degrees, as real number. */
     private static final Pattern PATTERN_DEG = Pattern.compile(LEFT + "(" + DEG + ")" + SEP + "(" + DEG + ")" + RIGHT);
@@ -39,6 +39,13 @@ public final class CoordinateTagger implements Tagger {
     /** DMS scheme, and/or combination with degrees. */
     private static final Pattern PATTERN_DMS = Pattern.compile(LEFT + "(" + GeoUtils.DMS + ")" + SEP + "("
             + GeoUtils.DMS + ")" + RIGHT);
+    
+    /** The singleton instance of this class. */
+    public static final CoordinateTagger INSTANCE = new CoordinateTagger();
+    
+    private CoordinateTagger() {
+        // singleton
+    }
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
