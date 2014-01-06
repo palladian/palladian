@@ -20,7 +20,7 @@ import org.junit.Test;
  * @author Philipp Katz
  */
 public class DatabaseManagerTest {
-
+    
     // test prepared statements
     private static final String CREATE_TABLE = "CREATE TABLE test (id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, name VARCHAR(255), age INTEGER, weight REAL, cool BOOLEAN, PRIMARY KEY (id));";
     private static final String DROP_TABLE = "DROP TABLE test";
@@ -31,8 +31,7 @@ public class DatabaseManagerTest {
     private static final String MAX_TEST = "SELECT MAX(id) FROM test";
 
     // configuration for in-memory database
-    private static final String JDBC_DRIVER = "org.h2.Driver";
-    private static final String JDBC_URL = "jdbc:h2:mem:test";
+    private static final String JDBC_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1";
     private static final String JDBC_USERNAME = "sa";
     private static final String JDBC_PASSWORD = "";
 
@@ -51,8 +50,7 @@ public class DatabaseManagerTest {
 
     @Before
     public void before() {
-        databaseManager = DatabaseManagerFactory.create(DatabaseManager.class, JDBC_DRIVER, JDBC_URL, JDBC_USERNAME,
-                JDBC_PASSWORD);
+        databaseManager = DatabaseManagerFactory.create(DatabaseManager.class, JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD);
         databaseManager.runUpdate(CREATE_TABLE);
     }
 

@@ -19,7 +19,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  */
 public final class GeoUtils {
 
-    public static final String DMS = "([-+]?\\d{1,3}(?:\\.\\d{1,10})?)[°d:]" + // degree
+    public static final String DMS = "([-+]?\\d{1,3}(?:\\.\\d{1,10})?)[°ºd:]" + // degree
             "(?:\\s?(\\d{1,2}(?:\\.\\d{1,10})?))?['′:]?" + // minute
             "(?:\\s?(\\d{1,2}(?:\\.\\d{1,10})?))?(?:\"|″|'')?" + // second
             "(?:\\s?(N|S|W|E|North|South|West|East))?"; // direction
@@ -220,6 +220,21 @@ public final class GeoUtils {
         double x = (lon2 - lon1) * Math.cos((lat1 + lat2) / 2);
         double y = (lat2 - lat1);
         return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
+    }
+
+    /**
+     * <p>
+     * Check, if the given latitude and longitude pair are in valid coordinate range (i.e. -90 <= latitude <= 90 and
+     * -180 <= longitude <= 180).
+     * </p>
+     * 
+     * @param lat The latitude.
+     * @param lng The longitude.
+     * @return <code>true</code> in case the latitude and longitude are valid for a coordinate, <code>false</code>
+     *         otherwise.
+     */
+    public static boolean validCoordinateRange(double lat, double lng) {
+        return -90 <= lat && lat <= 90 && -180 <= lng && lng <= 180;
     }
 
     private GeoUtils() {

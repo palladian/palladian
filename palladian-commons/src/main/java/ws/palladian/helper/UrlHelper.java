@@ -100,7 +100,7 @@ public final class UrlHelper {
                 String value = attributeNode.getNodeValue();
                 String fullValue = makeFullUrl(documentUrl, baseUrl, value);
                 if (!fullValue.equals(value)) {
-                    LOGGER.debug("{} -> {}", value, fullValue);
+                    LOGGER.trace("{} -> {}", value, fullValue);
                     attributeNode.setNodeValue(fullValue);
                 }
             }
