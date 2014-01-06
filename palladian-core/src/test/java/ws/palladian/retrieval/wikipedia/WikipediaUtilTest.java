@@ -169,14 +169,14 @@ public class WikipediaUtilTest {
     public void testExtractCoordinatesFromInfobox() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
-        Set<MarkupCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
+        Set<MarkupCoordinate> coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(51.033333, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(13.733333, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
 
         markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Metro_Vancouver.wikipedia"));
         page = new WikipediaPage(0, 0, "Metro Vancouver", markup);
-        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
+        coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(49.249444, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-122.979722, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
@@ -184,7 +184,7 @@ public class WikipediaUtilTest {
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Lancaster_Girls'_Grammar_School.wikipedia"));
         page = new WikipediaPage(0, 0, "Lancaster Girls' Grammar School", markup);
-        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
+        coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(54.04573, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-2.80332, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
@@ -192,14 +192,14 @@ public class WikipediaUtilTest {
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Saint_Kitts_and_Nevis.wikipedia"));
         page = new WikipediaPage(0, 0, "Saint Kitts and Nevis", markup);
-        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
+        coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(17.3, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-62.733333, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
 
         markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Wild_Dunes.wikipedia"));
         page = new WikipediaPage(0, 0, "Wild Dunes", markup);
-        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
+        coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(32.796389, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-79.765, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
@@ -207,7 +207,7 @@ public class WikipediaUtilTest {
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
         page = new WikipediaPage(0, 0, "Dry Fork (Cheat River)", markup);
-        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
+        coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(38.733611, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-79.647778, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
@@ -215,7 +215,7 @@ public class WikipediaUtilTest {
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Spice_Run_Wilderness.wikipedia"));
         page = new WikipediaPage(0, 0, "Spice Run Wilderness", markup);
-        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
+        coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(38.043056, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-80.233056, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
@@ -229,7 +229,7 @@ public class WikipediaUtilTest {
         
         markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/CraigsvilleWestVirginia.wikipedia"));
         page = new WikipediaPage(0, 0, "Craigsville, West Virginia", markup);
-        coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
+        coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(38.333333, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-80.642778, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);

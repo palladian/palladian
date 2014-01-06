@@ -220,9 +220,25 @@ public class WikipediaPage extends WikipediaPageReference {
         return result;
     }
     
+    /**
+     * Extract a {@link GeoCoordinate} from this Wikipedia page. <code>display</code> type of the coordinate on the
+     * Wikipedia page must be <code>title</code> or <code>t</code>.
+     */
     @Override
-    public GeoCoordinate getCoordinate() {
-        return CollectionHelper.getFirst(WikipediaUtil.extractCoordinateTag(text));
+    public MarkupCoordinate getCoordinate() {
+        // return CollectionHelper.getFirst(WikipediaUtil.extractCoordinateTag(text));
+        List<MarkupCoordinate> coordinates = CollectionHelper.newArrayList();
+        coordinates.addAll(WikipediaUtil.extractCoordinateTag(text));
+        for (WikipediaTemplate infobox : getInfoboxes()) {
+            coordinates.addAll(infobox.getCoordinates());
+        }
+        for (MarkupCoordinate coordinate : coordinates) {
+            String display = coordinate.getDisplay();
+            if (display != null && (display.contains("title") || display.equals("t"))) {
+                return coordinate;
+            }
+        }
+        return null;
     }
     
     @Override
