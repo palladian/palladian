@@ -201,6 +201,10 @@ public class StringTaggerTest {
         text = "3 Ind. fugitives transferred to another Neb. jail.";
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
+        
+        text = "Sahuyé is a town and commune in Côte d'Ivoire.";
+        annotations = StringTagger.getTaggedEntities(text);
+        CollectionHelper.print(annotations);
 
     }
 

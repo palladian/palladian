@@ -76,7 +76,7 @@ class WikipediaTermCorpusCreator {
                         LOGGER.info("Memory nearly exhausted, stopping. Make sure to assign lots of heap memory before running!");
                         throw new StopException();
                     }
-                    String pageText = WikipediaUtil.stripMediaWikiMarkup(page.getMarkup());
+                    String pageText = page.getCleanText();
                     pageText = StringHelper.normalizeQuotes(pageText);
                     pageText = WikipediaUtil.extractSentences(pageText);
                     addCounts(pageText);
