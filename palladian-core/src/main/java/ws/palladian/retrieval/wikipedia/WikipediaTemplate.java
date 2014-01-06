@@ -39,10 +39,18 @@ public class WikipediaTemplate {
         return name;
     }
 
+    /**
+     * @param key The key to retrieve.
+     * @return String value for the key, or <code>null</code> in case no entry exists.
+     */
     public String getEntry(String key) {
         return content.get(key);
     }
 
+    /**
+     * @param keys The names of the keys to retrieve.
+     * @return First matching value for the keys, or <code>null</code> in case no entry exists.
+     */
     public String getEntry(String... keys) {
         return CollectionHelper.getTrying(content, keys);
     }

@@ -68,11 +68,13 @@ public final class HtmlHelper {
     /** "Junk" elements which do not contain relevant content. */
     private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
 
-    private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("\\<(br|li)\\s?\\/?\\>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("\\<(br|li)\\s?\\/?\\>",
+            Pattern.CASE_INSENSITIVE);
     private static final Pattern HTML_TO_READABLE_TEXT2 = Pattern.compile("\\<\\/p\\>", Pattern.CASE_INSENSITIVE);
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
     private static final Pattern STRIP_ALL_TAGS = Pattern
-            .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
+    // .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
+            .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<[^<]*?>", Pattern.DOTALL
                     | Pattern.CASE_INSENSITIVE);
 
     /** Thread local caching of TransformerFactories which are not thread-safe, but expensive to create. */

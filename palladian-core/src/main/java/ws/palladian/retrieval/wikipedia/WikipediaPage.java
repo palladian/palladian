@@ -45,7 +45,7 @@ public class WikipediaPage extends WikipediaPageReference {
     /**
      * @return The text on this Wiki page, as raw Mediawiki markup.
      */
-    public String getText() {
+    public String getMarkup() {
         return text;
     }
 

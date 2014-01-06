@@ -73,7 +73,7 @@ class WikipediaCaseDictionaryCreator {
                         throw new StopException();
                     }
                     System.out.println(counter[0]);
-                    String pageText = WikipediaUtil.stripMediaWikiMarkup(page.getText());
+                    String pageText = WikipediaUtil.stripMediaWikiMarkup(page.getMarkup());
                     pageText = StringHelper.normalizeQuotes(pageText);
                     pageText = WikipediaUtil.extractSentences(pageText);
                     addCounts(pageText);

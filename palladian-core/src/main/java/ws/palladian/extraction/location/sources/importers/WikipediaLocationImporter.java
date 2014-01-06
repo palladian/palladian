@@ -38,7 +38,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.wikipedia.MarkupLocation;
+import ws.palladian.retrieval.wikipedia.MarkupCoordinate;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
@@ -198,7 +198,7 @@ public class WikipediaLocationImporter {
                     return;
                 }
 
-                String text = page.getText();
+                String text = page.getMarkup();
                 
                 List<WikipediaTemplate> infoboxes = page.getInfoboxes();
                 if (infoboxes.isEmpty()) {
@@ -218,10 +218,10 @@ public class WikipediaLocationImporter {
                 }
 
                 // first, try to extract coordinates from {{coord|...|display=title}} tags
-                List<MarkupLocation> locations = WikipediaUtil.extractCoordinateTag(text);
+                List<MarkupCoordinate> locations = WikipediaUtil.extractCoordinateTag(text);
                 GeoCoordinate coordinate = null;
                 Long population = null;
-                for (MarkupLocation location : locations) {
+                for (MarkupCoordinate location : locations) {
                     String display = location.getDisplay();
                     if (display != null && (display.contains("title") || display.equals("t"))) {
                         coordinate = location;
@@ -232,7 +232,7 @@ public class WikipediaLocationImporter {
                 // fallback, use infobox/geobox:
                 if (coordinate == null) {
                     for (WikipediaTemplate infobox : infoboxes) {
-                        Set<GeoCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(infobox);
+                        Set<MarkupCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(infobox);
                         // XXX we might also want to extract population information here in the future
                         if (coordinates.size() > 0) {
                             coordinate = CollectionHelper.getFirst(coordinates);
