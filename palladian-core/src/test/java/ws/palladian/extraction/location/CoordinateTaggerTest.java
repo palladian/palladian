@@ -64,6 +64,10 @@ public class CoordinateTaggerTest {
         assertEquals(-68.183333, annotations.get(0).getLocation().getLatitude(), 0.05);
         assertEquals(-67, annotations.get(0).getLocation().getLongitude(), 0.05);
         // CollectionHelper.print(annotations);
+
+        text = "The cost of living index was listed as 121.4, 21.4 points above the U.S. average.";
+        annotations = tagger.getAnnotations(text);
+        assertEquals(0, annotations.size());
     }
 
 }
