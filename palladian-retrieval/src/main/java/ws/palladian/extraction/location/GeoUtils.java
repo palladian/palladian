@@ -19,7 +19,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  */
 public final class GeoUtils {
 
-    public static final String DMS = "([-+]?\\d{1,3}(?:\\.\\d{1,10})?)[°d:]" + // degree
+    public static final String DMS = "([-+]?\\d{1,3}(?:\\.\\d{1,10})?)[°ºd:]" + // degree
             "(?:\\s?(\\d{1,2}(?:\\.\\d{1,10})?))?['′:]?" + // minute
             "(?:\\s?(\\d{1,2}(?:\\.\\d{1,10})?))?(?:\"|″|'')?" + // second
             "(?:\\s?(N|S|W|E|North|South|West|East))?"; // direction

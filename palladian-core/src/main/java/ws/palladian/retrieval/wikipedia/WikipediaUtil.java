@@ -15,13 +15,13 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.GeoUtils;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.CharStack;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -99,7 +99,9 @@ public final class WikipediaUtil {
         result = processLinks(result, EXTERNAL_LINK_PATTERN);
 
         // remove everything left in between { ... } and [ ... ]
-        result = removeArea(result, '{', '}');
+        // result = removeArea(result, '{', '}');
+        result = removeBetween(result, '{', '{', '}', '}');
+        result = removeBetween(result, '{', '|', '|', '}');
 
         // result = removeArea(result, '[', ']');
         // XXX replaced by RegEx, not sure if accurate
@@ -133,20 +135,44 @@ public final class WikipediaUtil {
         return buffer.toString();
     }
 
-    private static String removeArea(String string, char begin, char end) {
-        StringBuilder builder = new StringBuilder();
-        int brackets = 0;
-        for (int idx = 0; idx < string.length(); idx++) {
+    /**
+     * Remove portions of text which are in between two opening and two closing characters. This is typically for texts
+     * like {{abc}}.
+     * 
+     * @param string The text.
+     * @param begin1 The first opening character.
+     * @param begin2 The second opening character.
+     * @param end1 The first closing character.
+     * @param end2 The second closing character.
+     * @return The text with parts in between opening/closing characters removed.
+     */
+    static String removeBetween(String string, char begin1, char begin2, char end1, char end2) {
+        if (string.length() < 2) {
+            return string;
+        }
+        // XXX some regex, iteratively applied, like "\\{\\{[^{}]*\\}\\}", might also work
+        CharStack charStack = new CharStack();
+        charStack.push(string.charAt(0));
+        for (int idx = 1; idx < string.length(); idx++) {
+            char previous = string.charAt(idx - 1);
             char current = string.charAt(idx);
-            if (current == begin) {
-                brackets++;
-            } else if (current == end) {
-                brackets--;
-            } else if (brackets == 0) {
-                builder.append(current);
+            if (current == end2 && previous == end1) { // closing brackets
+                while (charStack.size() > 1) {
+                    // remove from stack until we found opening brackets
+                    if (charStack.pop() == begin2 && charStack.peek() == begin1) {
+                        charStack.pop();
+                        // in case, closing brackets follow immediately, advance on the index by one
+                        if (idx < string.length() - 1 && string.charAt(idx + 1) == end1) {
+                            idx++;
+                        }
+                        break;
+                    }
+                }
+            } else {
+                charStack.push(current);
             }
         }
-        return builder.toString();
+        return charStack.toString();
     }
 
     public static String extractSentences(String text) {
@@ -395,31 +421,30 @@ public final class WikipediaUtil {
      * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">WikiProject
      *      Geographical coordinates</a>
      * @param text The markup, not <code>null</code>.
-     * @return {@link List} of extracted {@link MarkupLocation}s, or an empty list, never <code>null</code>.
+     * @return {@link List} of extracted {@link MarkupCoordinate}s, or an empty list, never <code>null</code>.
      */
-    public static List<MarkupLocation> extractCoordinateTag(String text) {
+    public static List<MarkupCoordinate> extractCoordinateTag(String text) {
         Validate.notNull(text, "text must not be null");
-        List<MarkupLocation> result = CollectionHelper.newArrayList();
+        List<MarkupCoordinate> result = CollectionHelper.newArrayList();
         Matcher m = COORDINATE_TAG_PATTERN.matcher(text);
         while (m.find()) {
-            MarkupLocation coordMarkup = new MarkupLocation();
-            coordMarkup.lat = parseComponents(m.group(1), m.group(2), m.group(3), m.group(4));
-            coordMarkup.lng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
+            double lat = parseComponents(m.group(1), m.group(2), m.group(3), m.group(4));
+            double lng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
 
             // get coordinate parameters
             String data = m.group(9);
             String type = getCoordinateParam(data, "type");
+            Long population = null;
             if (type != null) {
-                coordMarkup.population = getNumberInBrackets(type);
+                population = getNumberInBrackets(type);
                 type = type.replaceAll("\\(.*\\)", ""); // remove population
             }
-            coordMarkup.type = type;
-            coordMarkup.region = getCoordinateParam(data, "region");
+            String region = getCoordinateParam(data, "region");
             // get other parameters
-            coordMarkup.display = getOtherParam(data, "display");
-            coordMarkup.name = getOtherParam(data, "name");
+            String display = getOtherParam(data, "display");
+            String name = getOtherParam(data, "name");
 
-            result.add(coordMarkup);
+            result.add(new MarkupCoordinate(lat, lng, name, population, display, type, region));
         }
         return result;
     }
@@ -434,9 +459,12 @@ public final class WikipediaUtil {
      *         <code>null</code>.
      * @see #extractTemplate(String)
      */
-    public static Set<GeoCoordinate> extractCoordinatesFromInfobox(WikipediaTemplate infobox) {
+    public static Set<MarkupCoordinate> extractCoordinatesFromInfobox(WikipediaTemplate infobox) {
         Validate.notNull(infobox, "parsedTemplate must not be null");
-        Set<GeoCoordinate> coordinates = CollectionHelper.newHashSet();
+        Set<MarkupCoordinate> coordinates = CollectionHelper.newHashSet();
+        
+        String display = infobox.getEntry("coordinates_display");
+        String type = infobox.getEntry("coordinates_type");
 
         // try lat/long_deg/min_sec
         try {
@@ -457,7 +485,7 @@ public final class WikipediaUtil {
                         "mouth_long_EW");
                 double lat = parseComponents(latDeg, latMin, latSec, latNS);
                 double lng = parseComponents(lngDeg, lngMin, lngSec, lngEW);
-                coordinates.add(new ImmutableGeoCoordinate(lat, lng));
+                coordinates.add(new MarkupCoordinate(lat, lng, display, type));
             }
         } catch (Exception e) {
             LOGGER.warn("Error while parsing: {}", e.getMessage());
@@ -469,19 +497,17 @@ public final class WikipediaUtil {
         if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lng)) {
             try {
                 // try decimal format
-                coordinates.add(new ImmutableGeoCoordinate(Double.valueOf(lat), Double.valueOf(lng)));
+                coordinates.add(new MarkupCoordinate(Double.valueOf(lat), Double.valueOf(lng), display, type));
             } catch (Exception e) {
                 try {
                     // try DMS format
-                    double latDec = GeoUtils.parseDms(lat);
-                    double lngDec = GeoUtils.parseDms(lng);
-                    coordinates.add(new ImmutableGeoCoordinate(latDec, lngDec));
+                    coordinates
+                            .add(new MarkupCoordinate(GeoUtils.parseDms(lat), GeoUtils.parseDms(lng), display, type));
                 } catch (Exception e1) {
                     // try decdeg markup
                     try {
-                        double latDec = WikipediaUtil.parseDecDeg(lat);
-                        double lngDec = WikipediaUtil.parseDecDeg(lng);
-                        coordinates.add(new ImmutableGeoCoordinate(latDec, lngDec));
+                        coordinates.add(new MarkupCoordinate(WikipediaUtil.parseDecDeg(lat), WikipediaUtil
+                                .parseDecDeg(lng), display, type));
                     } catch (Exception e2) {
                         LOGGER.warn("Error while parsing: {} and/or {}: {}", lat, lng, e.getMessage());
                     }
@@ -644,7 +670,7 @@ public final class WikipediaUtil {
 
         // WikipediaPage page = getArticle("Mit Schirm, Charme und Melone (Film)", Language.GERMAN);
         WikipediaPage page = retrieveArticle("Charles River", Language.ENGLISH);
-        WikipediaTemplate infoboxData = extractTemplate(getNamedMarkup(page.getText(), "geobox").get(0));
+        WikipediaTemplate infoboxData = extractTemplate(getNamedMarkup(page.getMarkup(), "geobox").get(0));
         // CollectionHelper.print(infoboxData);
         System.out.println(infoboxData);
         System.out.println(page);
