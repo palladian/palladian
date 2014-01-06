@@ -118,7 +118,7 @@ public class WikipediaTemplate {
                         coordinates.add(new MarkupCoordinate(WikipediaUtil.parseDecDeg(lat), WikipediaUtil
                                 .parseDecDeg(lng), display, type));
                     } catch (Exception e2) {
-                        LOGGER.warn("Error while parsing: {} and/or {}: {}", lat, lng, e.getMessage());
+                        LOGGER.warn("Error while parsing: {} and/or {}: {}", lat, lng, e2.getMessage());
                     }
                 }
             }

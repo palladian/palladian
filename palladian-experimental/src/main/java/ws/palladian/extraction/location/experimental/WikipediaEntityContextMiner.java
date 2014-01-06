@@ -231,7 +231,7 @@ class WikipediaEntityContextMiner {
     }
 
     private static void extractContexts(WikipediaPage page, String type, int contextSize) {
-        String pageText = WikipediaUtil.stripMediaWikiMarkup(page.getMarkup());
+        String pageText = page.getCleanText();
         pageText = StringHelper.normalizeQuotes(pageText);
         pageText = WikipediaUtil.extractSentences(pageText);
 

@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
