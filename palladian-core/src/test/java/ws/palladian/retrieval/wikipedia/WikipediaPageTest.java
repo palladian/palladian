@@ -15,7 +15,7 @@ public class WikipediaPageTest {
 
     @Test
     public void testWikipediaPage() throws IOException {
-        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
         assertEquals("german location", page.getInfoboxes().get(0).getName());
         assertEquals(4, page.getCategories().size());
@@ -34,7 +34,7 @@ public class WikipediaPageTest {
 
     @Test
     public void testInfoboxExtraction() throws IOException {
-        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
         List<WikipediaTemplate> infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
@@ -48,7 +48,7 @@ public class WikipediaPageTest {
         // ...
         assertEquals("1206", infobox.getEntry("year"));
 
-        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Stack_Overflow.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Stack_Overflow.wikipedia"));
         page = new WikipediaPage(0, 0, "Stack Overflow", markup);
         infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
@@ -76,7 +76,7 @@ public class WikipediaPageTest {
 
     @Test
     public void testGetSections() throws IOException {
-        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
         List<String> sections = page.getSections();
         assertEquals(46, sections.size());
