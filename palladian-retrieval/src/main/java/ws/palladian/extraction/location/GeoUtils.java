@@ -222,6 +222,21 @@ public final class GeoUtils {
         return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
     }
 
+    /**
+     * <p>
+     * Check, if the given latitude and longitude pair are in valid coordinate range (i.e. -90 <= latitude <= 90 and
+     * -180 <= longitude <= 180).
+     * </p>
+     * 
+     * @param lat The latitude.
+     * @param lng The longitude.
+     * @return <code>true</code> in case the latitude and longitude are valid for a coordinate, <code>false</code>
+     *         otherwise.
+     */
+    public static boolean validCoordinateRange(double lat, double lng) {
+        return -90 <= lat && lat <= 90 && -180 <= lng && lng <= 180;
+    }
+
     private GeoUtils() {
         // no instances.
     }
