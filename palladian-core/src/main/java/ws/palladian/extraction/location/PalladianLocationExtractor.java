@@ -46,6 +46,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
     private static final AddressTagger addressTagger = new AddressTagger();
 
     private static final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
+    
+    private static final CoordinateTagger coordinateTagger = CoordinateTagger.INSTANCE;
 
     public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
         this.locationSource = locationSource;
@@ -83,6 +85,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // workflow. We should use the CITY annotations, to search for neighboring ZIP codes.
         List<LocationAnnotation> annotatedStreets = addressTagger.getAnnotations(text);
         result.addAll(annotatedStreets);
+        
+        // extract explicit coordinate mentions in the text
+        List<LocationAnnotation> annotatedCoordinates = coordinateTagger.getAnnotations(text);
+        result.addAll(annotatedCoordinates);
 
         result.sort();
         result.removeNested();

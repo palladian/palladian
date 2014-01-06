@@ -6,11 +6,13 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 public class CoordinateTaggerTest {
 
     @Test
     public void testLocationTagger() {
-        CoordinateTagger tagger = new CoordinateTagger();
+        CoordinateTagger tagger = CoordinateTagger.INSTANCE;
 
         List<LocationAnnotation> annotations = tagger.getAnnotations("40.446195,-79.948862");
         assertEquals(1, annotations.size());
@@ -51,6 +53,17 @@ public class CoordinateTaggerTest {
         assertEquals(1, annotations.size());
         assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0.05);
         assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0.05);
+    }
+
+    @Test
+    public void testTagText() {
+        CoordinateTagger tagger = CoordinateTagger.INSTANCE;
+        String text = "Mast Hill (68°11′S 67°0′W) is a hill 14 metres (46 ft) high at the western end of Stonington Island, Marguerite Bay, on the west side of the Antarctic Peninsula.";
+        List<LocationAnnotation> annotations = tagger.getAnnotations(text);
+        assertEquals(1, annotations.size());
+        assertEquals(-68.183333, annotations.get(0).getLocation().getLatitude(), 0.05);
+        assertEquals(-67, annotations.get(0).getLocation().getLongitude(), 0.05);
+        // CollectionHelper.print(annotations);
     }
 
 }
