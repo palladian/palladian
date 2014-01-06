@@ -31,7 +31,7 @@ public final class CoordinateTagger implements Tagger {
     private static final String LEFT = "(?<!\\w)";
     private static final String RIGHT = "(?!\\w)";
     private static final String DEG = "([-+]?\\d{1,3}\\.\\d{1,10})([NSWE])?";
-    private static final String SEP = "(?:,\\s?|\\s|\\(|\\))";
+    private static final String SEP = "(?:,\\s?|\\s)";
 
     /** Only degrees, as real number. */
     private static final Pattern PATTERN_DEG = Pattern.compile(LEFT + "(" + DEG + ")" + SEP + "(" + DEG + ")" + RIGHT);
