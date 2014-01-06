@@ -167,7 +167,7 @@ public class WikipediaUtilTest {
 
     @Test
     public void testExtractCoordinatesFromInfobox() throws IOException {
-        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
         WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
         Set<GeoCoordinate> coordinates = WikipediaUtil.extractCoordinatesFromInfobox(page.getInfoboxes().get(0));
         assertEquals(1, coordinates.size());
@@ -230,11 +230,20 @@ public class WikipediaUtilTest {
 
     @Test
     public void testStripMarkup() throws IOException {
-        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/Dresden.wikipedia"));
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
         String cleanText = WikipediaUtil.stripMediaWikiMarkup(markup);
         // System.out.println(cleanText);
         assertEquals(46225, cleanText.length());
         assertEquals(-43112148, cleanText.hashCode());
+        
+        // FIXME too much (all) text is stripped here; reason seems to be invalid markup?
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/LutonAirportParkwayRailwayStation.wikipedia"));
+        cleanText = WikipediaUtil.stripMediaWikiMarkup(markup);
+        // assertTrue(cleanText.length() > 0);
+        
+        markup =  FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/MiddlesbroughTransporterBridge.wikipedia"));
+        cleanText = WikipediaUtil.stripMediaWikiMarkup(markup);
+        // assertTrue(cleanText.length() > 0);
     }
 
     @Test
