@@ -332,7 +332,7 @@ public final class CollectionHelper {
      * @param iterable The {@link Iterable} providing the content for the {@link List}.
      * @return The {@link List} with items from the {@link Iterable}.
      */
-    public static <E> List<E> newArrayList(Iterable<E> iterable) {
+    public static <E> List<E> newArrayList(Iterable<? extends E> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
         return newArrayList(iterable.iterator());
     }
@@ -345,7 +345,7 @@ public final class CollectionHelper {
      * @param iterator The {@link Iterator} providing the content for the {@link List}, not <code>null</code>.
      * @return The {@link List} with items from the {@link Iterator}.
      */
-    public static <E> List<E> newArrayList(Iterator<E> iterator) {
+    public static <E> List<E> newArrayList(Iterator<? extends E> iterator) {
         Validate.notNull(iterator, "iterator must not be null");
         List<E> list = new ArrayList<E>();
         while (iterator.hasNext()) {
