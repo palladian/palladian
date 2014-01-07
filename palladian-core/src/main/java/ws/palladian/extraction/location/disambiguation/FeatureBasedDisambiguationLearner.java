@@ -25,10 +25,10 @@ import ws.palladian.extraction.location.EntityPreprocessingTagger;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.evaluation.LocationDocument;
+import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CompositeIterator;
@@ -74,7 +74,7 @@ public class FeatureBasedDisambiguationLearner {
     }
 
     public void learn(File datasetDirectory) throws IOException {
-        learn(LocationExtractorUtils.iterateDataset(datasetDirectory).iterator());
+        learn(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
     }
 
     /**
@@ -89,7 +89,7 @@ public class FeatureBasedDisambiguationLearner {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
         List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
         for (File datasetDirectory : datasetDirectories) {
-            datasetIterators.add(LocationExtractorUtils.iterateDataset(datasetDirectory).iterator());
+            datasetIterators.add(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
         }
         learn(new CompositeIterator<LocationDocument>(datasetIterators));
     }

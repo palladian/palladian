@@ -11,7 +11,6 @@ import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -195,7 +194,7 @@ final class DatasetCheck {
      */
     static void getNonDisambiguatedStatistics(File datasetPath) {
         File coordinatesFile = new File(datasetPath, "coordinates.csv");
-        Map<String, Map<Integer, GeoCoordinate>> coordinates = LocationExtractorUtils.readCoordinates(coordinatesFile);
+        Map<String, Map<Integer, GeoCoordinate>> coordinates = TudLoc2013DatasetIterable.readCoordinates(coordinatesFile);
         CountMap<String> totalTypeCounts = CountMap.create();
         CountMap<String> disambiguatedTypeCounts = CountMap.create();
 

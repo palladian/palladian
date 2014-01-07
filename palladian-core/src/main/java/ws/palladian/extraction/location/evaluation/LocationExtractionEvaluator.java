@@ -36,7 +36,6 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.YahooLocationExtractor;
@@ -140,7 +139,7 @@ public final class LocationExtractionEvaluator {
         errors.put(ERROR4, new HashMap<String, Collection<Annotation>>());
         errors.put(ERROR5, new HashMap<String, Collection<Annotation>>());
 
-        Iterator<LocationDocument> goldStandard = LocationExtractorUtils.iterateDataset(datasetDirectory).iterator();
+        Iterator<LocationDocument> goldStandard = new TudLoc2013DatasetIterable(datasetDirectory).iterator();
 
         // for macro averaging
         double precisionMuc = 0;
