@@ -35,6 +35,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * @author Philipp Katz
  */
+@Deprecated
 public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
@@ -175,6 +176,11 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
      */
     public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
+    }
+    
+    @Override
+    public boolean isDeprecated() {
+        return true;
     }
 
     public static void main(String[] args) throws SearcherException {
