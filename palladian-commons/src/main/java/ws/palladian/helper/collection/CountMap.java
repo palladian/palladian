@@ -296,12 +296,12 @@ public class CountMap<T> implements Collection<T>, Serializable {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return map.entrySet().removeAll(c);
+        return map.keySet().removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return map.entrySet().retainAll(c);
+        return map.keySet().retainAll(c);
     }
 
     @Override
@@ -311,12 +311,12 @@ public class CountMap<T> implements Collection<T>, Serializable {
 
     @Override
     public Object[] toArray() {
-        return map.entrySet().toArray();
+        return map.keySet().toArray();
     }
 
     @Override
     public <A> A[] toArray(A[] a) {
-        return map.entrySet().toArray(a);
+        return map.keySet().toArray(a);
     }
 
     public Set<Entry<T, Integer>> entrySet() {
