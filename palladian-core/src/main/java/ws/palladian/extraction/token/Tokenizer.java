@@ -47,7 +47,7 @@ public final class Tokenizer {
 
     /** The RegExp used for sentence splitting. */
     public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs| eg|ca|etc| sq| ft)((\\.|\\?|\\!)(’|”|\")+(?=\\s+[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
-    public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|engl|etc|bzw|zzgl|ggf|z\\.\\s?B|u\\.s\\.w|u\\.a)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)| B\\.|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|engl|etc|bzw|zzgl|ggf|z\\.\\s?B|u\\.s\\.w|u\\.a|d\\.h)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)| B\\.|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
 
     private static final Pattern SENTENCE_SPLIT_PATTERN_EN = Pattern.compile(SENTENCE_SPLIT_REGEX_EN);
     private static final Pattern SENTENCE_SPLIT_PATTERN_DE = Pattern.compile(SENTENCE_SPLIT_REGEX_DE);
@@ -661,7 +661,7 @@ public final class Tokenizer {
             String value = StringHelper.rtrim(leftTrimmedValue);
 
             int leftIndex = lastIndex + leftOffset;
-//            int rightIndex = leftIndex + value.length();
+            //            int rightIndex = leftIndex + value.length();
             PositionAnnotation sentence = new PositionAnnotation(value, leftIndex);
             sentences.add(sentence);
             lastIndex = endPosition;
@@ -679,7 +679,7 @@ public final class Tokenizer {
             // Since there often is a line break at the end of a file this should not be added here.
             if (!value.isEmpty()) {
                 int leftIndex = lastIndex + leftOffset;
-//                int rightIndex = leftIndex + value.length();
+                //                int rightIndex = leftIndex + value.length();
                 PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(value, leftIndex);
                 sentences.add(lastSentenceAnnotation);
             }
@@ -775,9 +775,9 @@ public final class Tokenizer {
         for (Annotation annotation : annotations) {
             String value = annotation.getValue();
             int startPosition = annotation.getStartPosition();
-//            int endPosition = annotation.getStartPosition() + annotation.getValue().length();
-//            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
-//                    value);
+            //            int endPosition = annotation.getStartPosition() + annotation.getValue().length();
+            //            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
+            //                    value);
             PositionAnnotation positionAnnotation = new PositionAnnotation(value, startPosition);
 
             ret.add(positionAnnotation);
