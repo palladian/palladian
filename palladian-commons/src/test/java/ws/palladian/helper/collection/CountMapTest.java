@@ -3,6 +3,8 @@ package ws.palladian.helper.collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 public class CountMapTest {
@@ -41,32 +43,44 @@ public class CountMapTest {
         assertEquals(0, countMap.getCount("one"));
         assertEquals(7, countMap.totalSize());
         assertEquals(2, countMap.uniqueSize());
-        
+
         countMap.set("three", 0);
         assertEquals(0, countMap.getCount("three"));
         assertEquals(5, countMap.totalSize());
         assertEquals(1, countMap.uniqueSize());
 
     }
-    
+
     @Test
     public void testCountMapAdd() {
         CountMap<String> countMap1 = CountMap.create();
         countMap1.add("one", 5);
         countMap1.add("two", 3);
         countMap1.add("three", 1);
-        
+
         CountMap<String> countMap2 = CountMap.create();
         countMap2.add("one", 10);
         countMap2.add("two", 5);
         countMap2.add("four", 7);
-        
+
         countMap1.addAll(countMap2);
-        
+
         assertEquals(15, countMap1.getCount("one"));
         assertEquals(8, countMap1.getCount("two"));
         assertEquals(1, countMap1.getCount("three"));
         assertEquals(7, countMap1.getCount("four"));
+    }
+
+    @Test
+    public void testRemoveAll() {
+        CountMap<String> countMap = CountMap.create();
+        countMap.add("one", 5);
+        countMap.add("two", 3);
+        countMap.add("three", 1);
+        countMap.removeAll(Arrays.asList("one", "three"));
+        assertEquals(1, countMap.uniqueSize());
+        assertEquals(3, countMap.totalSize());
+        assertEquals(3, countMap.getCount("two"));
     }
 
 }
