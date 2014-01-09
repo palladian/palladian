@@ -111,4 +111,10 @@ public interface Searcher<R extends WebContent> {
      */
     String getName();
 
+    /**
+     * @return <code>true</code> in case the use of this {@link Searcher} is deprecated, e.g. the API is not supported
+     *         any more or it is based on an unofficial API.
+     */
+    boolean isDeprecated();
+
 }

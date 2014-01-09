@@ -13,6 +13,7 @@ import ws.palladian.retrieval.search.BaseGoogleSearcher;
  * 
  * @author Philipp Katz
  */
+@Deprecated
 public final class GoogleSearcher extends BaseGoogleSearcher<WebContent> {
 
     @Override
