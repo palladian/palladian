@@ -79,5 +79,13 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
     public String toString() {
         return getName();
     }
+    
+    /**
+     * Override, in case this searcher is deprecated.
+     */
+    @Override
+    public boolean isDeprecated() {
+        return false;
+    }
 
 }

@@ -134,5 +134,10 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
     private static String stripAndUnescape(String html) {
         return HtmlHelper.stripHtmlTags(StringEscapeUtils.unescapeHtml4(html));
     }
+    
+    @Override
+    public boolean isDeprecated() {
+        return true;
+    }
 
 }

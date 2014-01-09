@@ -67,7 +67,9 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
      * 
      * @param builder The builder to use, not <code>null</code>.
      * @see {@link #tree()} and {@link #randomForest()} for a predefined learner.
+     * @deprecated Use {@link #tree()} or {@link #randomForest()} to create instances.
      */
+    @Deprecated
     public QuickDtLearner(PredictiveModelBuilder<? extends PredictiveModel> builder) {
         Validate.notNull(builder, "builder must not be null");
         this.builder = builder;

@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -13,6 +14,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
+import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -26,7 +29,8 @@ import ws.palladian.retrieval.resources.WebContent;
  * result to the desired type ({@link BasicWebContent} or subclasses).
  * </p>
  * 
- * @see http://code.google.com/intl/de/apis/websearch/docs/reference.html
+ * @see <a href="http://code.google.com/intl/de/apis/websearch/docs/reference.html">Google Web Search API</a>
+ * @deprecated The Google search API is officially deprecated.
  * @author Philipp Katz
  */
 public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractSearcher<R> {
@@ -35,7 +39,9 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseGoogleSearcher.class);
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
-    
+
+    private static final RequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1, TimeUnit.SECONDS);
+
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
@@ -50,10 +56,12 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
 
             int offset = i * 8;
             String responseString = getResponseData(query, language, offset);
+            THROTTLE.hold();
 
             try {
 
                 JsonObject jsonObject = new JsonObject(responseString);
+                checkResponse(jsonObject);
                 JsonObject responseData = jsonObject.getJsonObject("responseData");
 
                 TOTAL_REQUEST_COUNT.incrementAndGet();
@@ -83,6 +91,24 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
 
         LOGGER.debug("google requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
+    }
+
+    private void checkResponse(JsonObject jsonObject) throws SearcherException, JsonException {
+        if (jsonObject == null) {
+            throw new SearcherException("Unexcpected JSON result format.");
+        }
+        if (jsonObject.get("responseData") == null) {
+            String responseDetails = jsonObject.getString("responseDetails");
+            int responseStatus = jsonObject.getInt("responseStatus");
+            if (responseStatus != 200) {
+                throw new SearcherException(
+                        "Response from Google: \""
+                                + responseDetails
+                                + "\" ("
+                                + responseStatus
+                                + "). Note: Google search API is deprecated. Number of requests per day is heavily limited. Consider using a different searcher.");
+            }
+        }
     }
 
     /**
@@ -193,4 +219,10 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
     public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
     }
+    
+    @Override
+    public boolean isDeprecated() {
+        return true;
+    }
+
 }
