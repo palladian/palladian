@@ -38,6 +38,7 @@ public class WordTransformer {
 
     /** The German singular plural map for nouns. */
     private static final Map<String, String> GERMAN_SINGULAR_PLURAL = new HashMap<String, String>();
+    private static final List<String> GERMAN_NOUNS = new ArrayList<String>();
 
     static {
 
@@ -48,12 +49,16 @@ public class WordTransformer {
             List<String> list = FileHelper.readFileToArray(inputStream);
             for (String string : list) {
                 String[] parts = string.split("\t");
-                GERMAN_SINGULAR_PLURAL.put(parts[1], parts[3]);
+                GERMAN_SINGULAR_PLURAL.put(parts[1].toLowerCase(), parts[3].toLowerCase());
             }
 
         } finally {
             FileHelper.close(inputStream);
         }
+
+        GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.keySet());
+        GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.values());
+        Collections.sort(GERMAN_NOUNS, new StringLengthComparator());
 
         // irregular verbs
         inputStream = null;
@@ -289,36 +294,22 @@ public class WordTransformer {
      */
     public static String wordToSingularGerman(String pluralForm) {
 
-        String singular = CollectionHelper.getKeyByValue(GERMAN_SINGULAR_PLURAL, pluralForm);
+        String singular = CollectionHelper.getKeyByValue(GERMAN_SINGULAR_PLURAL, pluralForm.toLowerCase());
         if (singular != null) {
-            return singular;
+            return StringHelper.upperCaseFirstLetter(singular);
         } else {
 
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldketten" ->
             // "Gold" "Ketten" -> "Kette" => "Goldkette"
-            List<String> allWords = new ArrayList<String>(GERMAN_SINGULAR_PLURAL.keySet());
-            allWords.addAll(GERMAN_SINGULAR_PLURAL.values());
-
-            Collections.sort(allWords, new StringLengthComparator());
-
             String lowerCasePlural = pluralForm.toLowerCase();
 
-            for (String word1 : allWords) {
-
-                if (lowerCasePlural.startsWith(word1.toLowerCase())) {
-                    for (String word2 : allWords) {
-                        if (lowerCasePlural.endsWith(word2.toLowerCase())
-                                && word1.length() + word2.length() == lowerCasePlural.length()) {
-                            String singular2 = wordToSingularGerman(word2);
-                            return word1 + singular2.toLowerCase();
-                        }
-                    }
+            for (String word2 : GERMAN_NOUNS) {
+                if (lowerCasePlural.endsWith(word2) && word2.length() < lowerCasePlural.length()) {
+                    String singular2 = wordToSingularGerman(word2);
+                    return pluralForm.replace(word2, singular2.toLowerCase());
                 }
-
             }
-
         }
-
 
         return pluralForm;
     }
@@ -448,55 +439,22 @@ public class WordTransformer {
             return "";
         }
 
-        String plural = GERMAN_SINGULAR_PLURAL.get(singular);
+        String plural = GERMAN_SINGULAR_PLURAL.get(singular.toLowerCase());
         if (plural != null) {
-            return plural;
+            return StringHelper.upperCaseFirstLetter(plural);
         } else {
 
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldkette" ->
             // "Gold" "Kette" -> "Ketten" => "Goldketten"
-            List<String> allWords = new ArrayList<String>(GERMAN_SINGULAR_PLURAL.keySet());
-            allWords.addAll(GERMAN_SINGULAR_PLURAL.values());
-
-            Collections.sort(allWords, new StringLengthComparator());
-
             String lowerCaseSingular = singular.toLowerCase();
 
-            for (String word1 : allWords) {
-
-                if (lowerCaseSingular.startsWith(word1.toLowerCase())) {
-                    for (String word2 : allWords) {
-                        if (lowerCaseSingular.endsWith(word2.toLowerCase())
-                                && word1.length() + word2.length() == lowerCaseSingular.length()) {
-                            String singular2 = wordToPluralGerman(word2);
-                            return word1 + singular2.toLowerCase();
-                        }
-                    }
+            for (String word2 : GERMAN_NOUNS) {
+                if (lowerCaseSingular.endsWith(word2) && word2.length() < lowerCaseSingular.length()) {
+                    String singular2 = wordToPluralGerman(word2);
+                    return singular.replace(word2, singular2.toLowerCase());
                 }
-
             }
-
         }
-
-        // String singularLc = singular.toLowerCase();
-        //
-        // String plural = "";
-        //
-        // // no ending but umlauts
-        // if (singularLc.endsWith("er") || singularLc.endsWith("en") || singularLc.endsWith("el")
-        // || singularLc.endsWith("chen") || singularLc.endsWith("lein")) {
-        // plural = singular.replace("o", "ö");
-        // plural = plural.replace("a", "ä");
-        // plural = plural.replace("u", "ü");
-        // } else
-        //
-        // // add "n" ending and umlauts
-        // if (singularLc.endsWith("e")) {
-        // plural = singular.replace("o", "ö");
-        // plural = plural.replace("a", "ä");
-        // plural = plural.replace("u", "ü");
-        // plural += "n";
-        // }
 
         return plural;
     }

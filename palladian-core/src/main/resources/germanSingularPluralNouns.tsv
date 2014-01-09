@@ -26,7 +26,7 @@ die	Billion	die	Billionen
 der	Aal	die	Aale
 die	Litschi	die	Litschis
 die	Zitrone	die	Zitronen
-der	Mensch	die	[[Menschen]]
+der	Mensch	die	Menschen
 das	Wiedersehen	die	Wiedersehen
 die	Bank	die	Bänke
 das	Wörterbuch	die	Wörterbücher
@@ -35,7 +35,7 @@ das	Unterseeboot	die	Unterseeboote
 die	Software	die	Softwares
 das	Kind	die	Kinder
 das	Angebot	die	Angebote
-das	Gelb	die	Gelbs <br />(die Gelbtöne)
+das	Gelb	die	Gelbs
 der	Computer	die	Computer
 der	Wortschatz	die	Wortschätze
 die	Intention	die	Intentionen
@@ -189,13 +189,13 @@ die	Eisenbahn	die	Eisenbahnen
 der	Wald	die	Wälder
 der	Maulwurf	die	Maulwürfe
 die	Spielbank	die	Spielbanken
-der	Keks <br /> das Keks	die	Kekse
+der	Keks	die	Kekse
 die	Milbe	die	Milben
 der	Achat	die	Achate
 die	Pappel	die	Pappeln
 die	Algebra	die	Algebren
 die	Benachrichtigung	die	Benachrichtigungen
-der	Pkw	die	Pkw(s)
+der	Pkw	die	Pkws
 das	Bierzelt	die	Bierzelte
 das	Luftfahrzeug	die	Luftfahrzeuge
 das	Olfaktorius	die	Olfaktorien
@@ -378,7 +378,7 @@ der	Dorfbewohner	die	Dorfbewohner
 der	Dorftrottel	die	Dorftrottel
 der	Dorfdepp	die	Dorfdeppen
 der	Kreuzer	die	Kreuzer
-die	Inflation	die	Inflationen (''nur'' [2])
+die	Inflation	die	Inflationen
 das	Schwert	die	Schwerter
 die	Waffe	die	Waffen
 der	Philanthrop	die	Philanthropen
@@ -608,7 +608,6 @@ der	Angster	die	Angster
 die	Galaxie	die	Galaxien
 die	Spielwiese	die	Spielwiesen
 der	Hygrophyt	die	Hygrophyten
-das	H	die	H(s)
 der	Troglodyt	die	Troglodyten
 die	Olive	die	Oliven
 das	Gas	die	Gase
@@ -625,7 +624,6 @@ die	Blume	die	Blumen
 der	Wolf	die	Wölfe
 das	Privativum	die	Privativa
 die	DVD	die	DVDs
-das	G	die	G(s)
 das	Paderborner	die	Paderborner
 die	Impression	die	Impressionen
 der	Ball	die	Bälle
@@ -1013,11 +1011,9 @@ die	Packerin	die	Packerinnen
 der	Tollpatsch	die	Tollpatsche
 der	Arzt	die	Ärzte
 die	Pflanze	die	Pflanzen
-das	P	die	P(s)
 die	Blüte	die	Blüten
 die	Palette	die	Paletten
 das	Rebhuhn	die	Rebhühner
-das	E	die	E(s)
 die	Deklination	die	Deklinationen
 die	Republik	die	Republiken
 das	Kochbuch	die	Kochbücher
@@ -1056,7 +1052,6 @@ die	Panne	die	Pannen
 die	Netzwerktopologie	die	Netzwerktopologien
 die	Mularde	die	Mularden
 der	Pannendienst	die	Pannendienste
-das	Q	die	Q(s)
 die	Tafelente	die	Tafelenten
 der	Hiatus	die	Hiatus
 die	Abbreviatur	die	Abbreviaturen
@@ -1333,8 +1328,6 @@ der	Alkohol	die	Alkohole
 die	Kommunikation	die	Kommunikationen
 der	Detektiv	die	Detektive
 der	Topf	die	Töpfe
-das	B	die	B(s)
-das	C	die	C(s)
 die	Schrift	die	Schriften
 die	Polemik	die	Polemiken
 die	Demagogie	die	Demagogien
@@ -1351,12 +1344,9 @@ der	Senf	die	Senfe
 der	Zuhälter	die	Zuhälter
 die	Rollierung	die	Rollierungen
 die	Apotheke	die	Apotheken
-das	I	die	I(s)
-das	D	die	D(s)
 die	Papageienkrankheit	die	Papageienkrankheiten
 das	Paperback	die	Paperbacks
 das	Papier	die	Papiere
-das	J	die	J(s)
 die	Optimalfarbe	die	Optimalfarben
 das	Wikiwörterbuch	die	Wikiwörterbücher
 das	Ereignis	die	Ereignisse
@@ -1516,7 +1506,7 @@ die	Überlegung	die	Überlegungen
 die	Limousine	die	Limousinen
 der	Geländewagen	die	Geländewagen
 die	Onomatopöie	die	Onomatopöien
-der	Beidl	die	Beidl(n)
+der	Beidl	die	Beidln
 der	Muschkote	die	Muschkoten
 der	Stoff	die	Stoffe
 der	Regenschauer	die	Regenschauer
@@ -1598,7 +1588,7 @@ die	Androphobie	die	Androphobien
 das	Lemma	die	Lemmata
 der	Exotismus	die	Exotismen
 der	MP3-Player	die	MP3-Player
-die	Gemein	die	Gemein(d)en
+die	Gemein	die	Gemeinden
 die	Hauptschule	die	Hauptschulen
 die	Frechheit	die	Frechheiten
 die	Abfahrt	die	Abfahrten
@@ -1656,7 +1646,7 @@ das	Mesenchym	die	Mesenchyme
 die	Seitennummerierung	die	Seitennummerierungen
 das	Bundesland	die	Bundesländer
 die	Bundesrepublik	die	Bundesrepubliken
-die	Kolter <br />der Kolter	die	Koltern
+die	Kolter	die	Koltern
 die	Abasie	die	Abasien
 die	Abdominalhernie	die	Abdominalhernien
 die	Abduzenslähmung	die	Abduzenslähmungen
@@ -1925,7 +1915,7 @@ die	Neun	die	Neunen
 die	Vier	die	Vieren
 die	Drei	die	Dreien
 die	Zwei	die	Zweien
-die	(Zahl) Null	die	Nullen
+die	Null	die	Nullen
 der	Wertebereich	die	Wertebereiche
 der	Sieg	die	Siege
 das	Femininum	die	Feminina
@@ -1949,7 +1939,6 @@ der	Grünfink	die	Grünfinken
 das	Geviert	die	Gevierte
 die	Weihe	die	Weihen
 die	Reinkarnation	die	Reinkarnationen
-das	V	die	V(s)
 die	Rarität	die	Raritäten
 die	Permutation	die	Permutationen
 der	Arapaima	die	Arapaimas
@@ -2008,7 +1997,6 @@ die	Karikatur	die	Karikaturen
 der	Kopfgrind	die	Kopfgrinde
 die	Hausaufgabe	die	Hausaufgaben
 der	Pangasius	die	Pangasiusse
-das	W	die	W(s)
 der	Salat	die	Salate
 die	Kodifikation	die	Kodifikationen
 die	Oma	die	Omas
@@ -2246,7 +2234,6 @@ das	Goniometer	die	Goniometer
 das	Sprichwort	die	Sprichwörter
 der	Kniefall	die	Kniefälle
 die	Etymologie	die	Etymologien
-das	K	die	K(s)
 die	Wallung	die	Wallungen
 der	Wodka	die	Wodkas
 das	Konvolut	die	Konvolute
@@ -2335,7 +2322,6 @@ die	Defäkation	die	Defäkationen
 die	Aberration	die	Aberrationen
 der	Specht	die	Spechte
 der	Buntspecht	die	Buntspechte
-das	L	die	L(s)
 der	Schwarzspecht	die	Schwarzspechte
 der	Hartriegel	die	Hartriegel
 die	Kornelkirsche	die	Kornelkirschen
@@ -2383,7 +2369,6 @@ die	Entstalinisierung	die	Entstalinisierungen
 der	Borborygmus	die	Borborygmen
 die	Position	die	Positionen
 die	Göttin	die	Göttinnen
-das	Y	die	Ys
 die	Nahrung	die	Nahrungen
 die	Homosexualität	die	Homosexualitäten
 die	Verordnung	die	Verordnungen
@@ -2426,7 +2411,7 @@ der	Schurke	die	Schurken
 das	Haustier	die	Haustiere
 die	Küchenschabe	die	Küchenschaben
 das	Arschgeweih	die	Arschgeweihe
-der	Dämon	die	[[Dämonen]]
+der	Dämon	die	Dämonen
 die	Ironie	die	Ironien
 die	Vedette	die	Vedetten
 die	Abrenuntiation	die	Abrenuntiationen
@@ -3164,8 +3149,8 @@ der	Nachkomme	die	Nachkommen
 der	Urenkel	die	Urenkel
 die	Enkelin	die	Enkelinnen
 die	Urenkelin	die	Urenkelinnen
-der	Nachfahr<br />der Nachfahre	die	Nachfahren
-der	Vorfahr<br />der Vorfahre	die	Vorfahren
+der	Nachfahr	die	Nachfahren
+der	Vorfahre	die	Vorfahren
 die	Stromstärke	die	Stromstärken
 die	Abschiedsgrußformel	die	Abschiedsgrußformeln
 der	Abbruch	die	Abbrüche
@@ -3679,11 +3664,10 @@ die	Seifenoper	die	Seifenopern
 die	Melodie	die	Melodien
 der	Klingelstreich	die	Klingelstreiche
 die	Werksfeuerwehr	die	Werksfeuerwehren
-das	Grießnockerl	die	Grießnockerl(n)
-die	Watsche(n)	die	Watschen
-das	Tatschkerl	die	Tatschkerl(n)
+das	Grießnockerl	die	Grießnockerln
+die	Watsche	die	Watschen
+das	Tatschkerl	die	Tatschkerln
 die	Ohrfeige	die	Ohrfeigen
-das	M	die	M(s)
 der	Watschenbaum	die	Watschenbäume
 die	Juliamenge	die	Juliamengen
 die	Richtung	die	Richtungen
@@ -4321,7 +4305,6 @@ der	Delfin	die	Delfine
 der	Delphin	die	Delphine
 die	Fähigkeit	die	Fähigkeiten
 die	Bearbeitung	die	Bearbeitungen
-das	N	die	N(s)
 die	Ökonomie	die	Ökonomien
 der	Gummiparagraph	die	Gummiparagraphen
 die	Steueroase	die	Steueroasen
@@ -4363,7 +4346,6 @@ der	Steppke	die	Steppkes
 die	Versteinerung	die	Versteinerungen
 die	U-Bahn	die	U-Bahnen
 die	Bremse	die	Bremsen
-das	n	die	n
 das	Aushängeschild	die	Aushängeschilder
 der	Bauernhof	die	Bauernhöfe
 die	Subarachnoidalblutung	die	Subarachnoidalblutungen
@@ -4587,7 +4569,6 @@ die	Preissuchmaschine	die	Preissuchmaschinen
 die	Hufeisenumlaufbahn	die	Hufeisenumlaufbahnen
 der	Kakadu	die	Kakadus
 die	Orbitalgeschwindigkeit	die	Orbitalgeschwindigkeiten
-das	O	die	O(s)
 der	Nikolausabend	die	Nikolausabende
 der	Spitzer	die	Spitzer
 der	Motorroller	die	Motorroller
@@ -4952,7 +4933,6 @@ der	Zitronenstrauch	die	Zitronensträucher
 der	Außenspiegel	die	Außenspiegel
 das	Hermelin	die	Hermeline
 der	Porree	die	Porrees
-das	U	die	U(s)
 die	Rübe	die	Rüben
 die	Folter	die	Foltern
 das	Memory	die	Memorys
@@ -4982,7 +4962,6 @@ der	Popo	die	Popos
 der	Podex	die	Podexe
 der	Torschützenkönig	die	Torschützenkönige
 die	Topografie	die	Topografien
-das	S	die	S
 das	Sexsymbol	die	Sexsymbole
 die	Formalität	die	Formalitäten
 die	Säure-Base-Reaktion	die	Säure-Base-Reaktionen
@@ -4999,8 +4978,6 @@ der	Lufthanseat	die	Lufthanseaten
 das	Todesopfer	die	Todesopfer
 der	Wermut	die	Wermuts
 die	Kathedrale	die	Kathedralen
-das	T	die	T(s)
-das	p	die	ps
 die	Apotheose	die	Apotheosen
 die	Klausur	die	Klausuren
 der	Felchen	die	Felchen
@@ -5030,7 +5007,7 @@ der	Krug	die	Krüge
 die	Trauerfeier	die	Trauerfeiern
 der	Strohhalm	die	Strohhalme
 der	Bison	die	Bisons
-der	(das) Nougat	die	Nougats
+der	Nougat	die	Nougats
 das	Lama	die	Lamas
 die	Eidechse	die	Eidechsen
 das	Gürteltier	die	Gürteltiere
@@ -5155,7 +5132,7 @@ die	Rabatte	die	Rabatten
 die	Huk	die	Huken
 das	Pentagon	die	Pentagone
 der	Rosenkranz	die	Rosenkränze
-der	Zloty	die	Zlotys <small>(aber 2 Zloty)</small>
+der	Zloty	die	Zlotys
 das	Grundsatzprogramm	die	Grundsatzprogramme
 das	Stundenbuch	die	Stundenbücher
 das	Dessin	die	Dessins
@@ -5212,8 +5189,6 @@ die	Egge	die	Eggen
 die	Marktkapitalisierung	die	Marktkapitalisierungen
 die	Börsenkapitalisierung	die	Börsenkapitalisierungen
 der	Börsenwert	die	Börsenwerte
-das	R	die	R(s)
-das	Z	die	Z(s)
 die	Geldmenge	die	Geldmengen
 der	Mitarbeiter	die	Mitarbeiter
 die	Mehrheit	die	Mehrheiten
@@ -5250,7 +5225,7 @@ der	Härtling	die	Härtlinge
 der	Kaufsüchtige	die	Kaufsüchtigen
 der	Schurkenstaat	die	Schurkenstaaten
 der	Penner	die	Penner
-die	Vulva	die	Vulven <br />({{lat.|Bild=Female_pubic_hair_cropped.jpg|220px|1|''Vulva'' mit originärer [[Schambehaarung]].
+die	Vulva	die	Vulven
 das	Sakrileg	die	Sakrilegien
 die	Validität	die	Validitäten
 der	Kinderfilm	die	Kinderfilme
@@ -5260,7 +5235,7 @@ die	Trias	die	Trias
 die	Bark	die	Barken
 der	Oikos	die	Oikoi
 der	Trappist	die	Trappisten
-der	Switch	die	Switchs<br />die Switches
+der	Switch	die	Switches
 der	Landschaftsgärtner	die	Landschaftsgärtner
 die	Dunkelziffer	die	Dunkelziffern
 die	Parabel	die	Parabeln
@@ -5271,7 +5246,7 @@ die	Wassergeburt	die	Wassergeburten
 der	Dammschnitt	die	Dammschnitte
 der	Dammriss	die	Dammrisse
 die	Abseite	die	Abseiten
-der	Bonbon <br />das Bonbon	die	Bonbons
+das	Bonbon	die	Bonbons
 der	Kopp	die	Köppe
 die	Ewigkeit	die	Ewigkeiten
 der	Äon	die	Äonen
@@ -5402,17 +5377,12 @@ der	Thriller	die	Thriller
 der	Einkristall	die	Einkristalle
 der	Iraner	die	Iraner
 die	Iranerin	die	Iranerinnen
-das	i	die	i
-das	e	die	e
-das	O	die	O
-das	u	die	u
-das	j	die	j
 der	Bundespräsident	die	Bundespräsidenten
 die	Kernfusion	die	Kernfusionen
 die	Bundespräsidentin	die	Bundespräsidentinnen
 der	Billigflug	die	Billigflüge
 der	Kabelbrand	die	Kabelbrände
-der	(das) IT-Service	die	IT-Services
+der	IT-Service	die	IT-Services
 die	Implementierung	die	Implementierungen
 der	Wels	die	Welse
 die	Quintessenz	die	Quintessenzen
@@ -5650,7 +5620,7 @@ die	Geisterstunde	die	Geisterstunden
 die	Nenntante	die	Nenntanten
 der	Schlittenhund	die	Schlittenhunde
 das	Schwermetall	die	Schwermetalle
-das	Walross	die	Walrosse<br />die Walrösser
+das	Walross	die	Walrösser
 der	Südafrikaner	die	Südafrikaner
 die	Südafrikanerin	die	Südafrikanerinnen
 die	Rehabilitandin	die	Rehabilitandinnen
@@ -6173,7 +6143,7 @@ der	Ovo-Lacto-Vegetarierin	die	Ovo-Lacto-Vegetarierinnen
 die	Nichtmuslimin	die	Nichtmusliminnen
 die	Kirmes	die	Kirmessen
 der	Kirmeskuchen	die	Kirmeskuchen
-die	Lava	die	 Laven
+die	Lava	die	Laven
 das	Herdentier	die	Herdentiere
 der	Salvadorianer	die	Salvadorianer
 die	Salvadorianerin	die	Salvadorianerinnen
@@ -6557,7 +6527,6 @@ die	Troika	die	Troikas
 der	Aventurin	die	Aventurine
 die	Psychiatrie	die	Psychiatrien
 das	Talent	die	Talente
-das	k	die	k
 die	Bundesstadt	die	Bundesstädte
 die	Großtante	die	Großtanten
 der	Urgroßonkel	die	Urgroßonkel
@@ -6999,7 +6968,7 @@ der	Verehrer	die	Verehrer
 die	Kalebasse	die	Kalebassen
 der	Musikbogen	die	Musikbögen
 die	Brosame	die	Brosamen
-das	Elter <br />der Elter	die	Eltern
+das	Elter	die	Eltern
 die	Verehrerin	die	Verehrerinnen
 das	Merkmal	die	Merkmale
 die	Warft	die	Warften
@@ -7604,7 +7573,7 @@ die	Meinungsbildung	die	Meinungsbildungen
 das	Holzpferd	die	Holzpferde
 das	Brackwasser	die	Brackwasser
 das	Rettungsboot	die	Rettungsboote
-der	Moloch	die	Moloche <!-- ? -->
+der	Moloch	die	Moloche
 die	Abtrift	die	Abtriften
 die	Stube	die	Stuben
 die	Schreibstube	die	Schreibstuben
@@ -7702,7 +7671,6 @@ der	Zephyr	die	Zephyre
 die	Volksweisheit	die	Volksweisheiten
 der	Keim	die	Keime
 die	Brechzahl	die	Brechzahlen
-das	r	die	r
 die	Knifte	die	Kniften
 der	Trieb	die	Triebe
 das	Volkswissen	die	Volkswissen
@@ -8428,7 +8396,7 @@ das	Lösungswort	die	Lösungsworte
 das	Grave	die	Graves
 die	Traumdeutung	die	Traumdeutungen
 die	Vortragsbezeichnung	die	Vortragsbezeichnungen
-die	Tempoangabe	die	 Tempoangaben
+die	Tempoangabe	die	Tempoangaben
 der	Fugenlaut	die	Fugenlaute
 die	Rechtswissenschaft	die	Rechtswissenschaften
 der	Bauschaden	die	Bauschäden
@@ -8620,7 +8588,7 @@ die	Uhrzeit	die	Uhrzeiten
 das	Indiz	die	Indizien
 das	Katapult	die	Katapulte
 das	Gespenst	die	Gespenster
-der	/ die Aspie	die	Aspies
+der	Aspie	die	Aspies
 der	Dart	die	Darts
 der	Falz	die	Falze
 das	Schießpulver	die	Schießpulver
@@ -8807,7 +8775,7 @@ die	Xiphopagie	die	Xiphopagien
 das	Elektrizitätswerk	die	Elektrizitätswerke
 die	Adelphie	die	Adelphien
 der	Phillumenist	die	Phillumenisten
-der	/ das Sulky	die	Sulkys
+der	Sulky	die	Sulkys
 der	siamesische Zwilling	die	siamesischen Zwillinge
 das	Wertpapier	die	Wertpapiere
 das	Luder	die	Luder
@@ -8950,7 +8918,7 @@ die	Gracht	die	Grachten
 das	Bokkie	die	Bokkies
 der	Schnabel	die	Schnäbel
 die	Stange	die	Stangen
-das	Buschveld	die	Buschvelde <br />die Buschvelder
+das	Buschveld	die	Buschvelde
 das	Ungeziefer	die	Ungeziefer
 der	Umstand	die	Umstände
 die	Ramme	die	Rammen
@@ -8992,7 +8960,7 @@ die	Wasserscheide	die	Wasserscheiden
 die	Wallfahrtskirche	die	Wallfahrtskirchen
 das	Turmendspiel	die	Turmendspiele
 der	Porphyrröhrling	die	Porphyrröhrlinge
-der	Düstere Röhrling <br /> Düsterer Röhrling	die	Düsteren Röhrlinge <br /> Düstere Röhrlinge
+der	Düstere Röhrling	die	Düsteren Röhrlinge
 die	Forderung	die	Forderungen
 der	Korken	die	Korken
 der	Pirat	die	Piraten
@@ -9028,7 +8996,6 @@ der	Birkenröhrling	die	Birkenröhrlinge
 der	Satanspilz	die	Satanspilze
 der	Satansröhrling	die	Satansröhrlinge
 der	Gallenröhrling	die	Gallenröhrlinge
-der	Flockenstielige Hexenröhrling <br /> Flockenstieliger Hexenröhrling	die	Flockenstieligen Hexenröhrlinge <br /> Flockenstielige Hexenröhrlinge
 das	Dauerschach	die	Dauerschachs
 der	Bitterling	die	Bitterlinge
 der	Farbstoff	die	Farbstoffe
@@ -9115,7 +9082,6 @@ der	Gemeine Hallimasch	die	Gemeinen Hallimasche
 der	Goldgelbe Hallimasch	die	Goldgelben Hallimasche
 die	Schleiereule	die	Schleiereulen
 die	Empfehlung	die	Empfehlungen
-der	Blaugestiefelte Schleimkopf <br /> Blaugestiefelter Schleimkopf	die	Blaugestiefelten Schleimköpfe <br /> Blaugestiefelte Schleimköpfe
 das	Freilichtmuseum	die	Freilichtmuseen
 die	Freilichtaufführung	die	Freilichtaufführungen
 die	Freilichtbühne	die	Freilichtbühnen
@@ -9268,7 +9234,6 @@ der	Kaiserling	die	Kaiserlinge
 der	Kaiserpilz	die	Kaiserpilze
 der	Orangegelbe Wulstling	die	Orangegelben Wulstlinge
 die	Schattenmorelle	die	Schattenmorellen
-der	Braune Knollenblätterpilz <br /> Brauner Knollenblätterpilz	die	Braunen Knollenblätterpilze <br /> Braune Knollenblätterpilze
 der	Kieselstein	die	Kieselsteine
 das	Doppelhaus	die	Doppelhäuser
 der	Explosiv	die	Explosive
@@ -11329,7 +11294,7 @@ die	Bombe	die	Bomben
 der	Lötkolben	die	Lötkolben
 das	Possessivsuffix	die	Possessivsuffixe
 die	Grundschule	die	Grundschulen
-das	Kausativ<br />der Kausativ	die	Kausative
+das	Kausativ	die	Kausative
 der	Komitativ	die	Komitative
 die	Verfügbarkeit	die	Verfügbarkeiten
 der	Heizkörper	die	Heizkörper
@@ -11445,7 +11410,7 @@ das	Aussprachewörterbuch	die	Aussprachewörterbücher
 das	Fremdwörterbuch	die	Fremdwörterbücher
 das	Synonymwörterbuch	die	Synonymwörterbücher
 das	Synonymenwörterbuch	die	Synonymenwörterbücher
-der	Schalk	die	Schalke <br /> die Schälke
+der	Schalk	die	Schälke
 der	Schmied	die	Schmiede
 der	Sekretär	die	Sekretäre
 der	Moselwein	die	Moselweine
@@ -11479,7 +11444,7 @@ die	Ratifikation	die	Ratifikationen
 die	Kumpanei	die	Kumpaneien
 das	Lobwedge	die	Lobwedges
 die	Abschlagsmarkierung	die	Abschlagsmarkierungen
-der	Ballmarker	die	Ballmarker(s)
+der	Ballmarker	die	Ballmarkers
 das	Diebesgut	die	Diebesgüter
 der	Erwerb	die	Erwerbe
 das	Doppelbogey	die	Doppelbogeys
@@ -11897,7 +11862,7 @@ der	Strichpunkt	die	Strichpunkte
 der	Feigenbaum	die	Feigenbäume
 die	Unförmigkeit	die	Unförmigkeiten
 das	Massenphänomen	die	Massenphänomene
-das	Soll	die	Soll(s)
+das	Soll	die	Solls
 der	Zimmermannsbleistift	die	Zimmermannsbleistifte
 die	Fettsäure	die	Fettsäuren
 die	Nabelschnur	die	Nabelschnüre
@@ -12044,7 +12009,7 @@ der	Ikonoklast	die	Ikonoklasten
 das	Lapidarium	die	Lapidarien
 der	Dirham	die	Dirhams
 der	VAE-Dirham	die	VAE-Dirhams
-der	Afghani	die	Afghani(s)
+der	Afghani	die	Afghanis
 der	Lek	die	Lek
 die	Ikone	die	Ikonen
 das	Abführmittel	die	Abführmittel
@@ -12062,7 +12027,7 @@ die	Glotze	die	Glotzen
 die	Anämie	die	Anämien
 das	Großmaul	die	Großmäuler
 der	Geldschein	die	Geldscheine
-der	Peso	die	Peso<br />die Pesos
+der	Peso	die	Pesos
 die	Nervensäge	die	Nervensägen
 die	Bewunderung	die	Bewunderungen
 die	Weihnachtsgans	die	Weihnachtsgänse
@@ -12117,7 +12082,7 @@ die	Schublehre	die	Schublehren
 das	Richtfest	die	Richtfeste
 das	Bethmännchen	die	Bethmännchen
 der	Aruba-Gulden	die	Aruba-Gulden
-der	Aserbaidschan-Manat	die	Aserbaidschan-Manat(s)
+der	Aserbaidschan-Manat	die	Aserbaidschan-Manats
 die	Lochkarte	die	Lochkarten
 das	Partieformular	die	Partieformulare
 der	Galgen	die	Galgen
@@ -12392,7 +12357,7 @@ der	Halswirbel	die	Halswirbel
 der	Kreuzwirbel	die	Kreuzwirbel
 der	Steißwirbel	die	Steißwirbel
 die	Bö	die	Böen
-das	Leiberl	die	Leiberl<br />die Leiberln
+das	Leiberl	die	Leiberl
 die	Schieblehre	die	Schieblehren
 der	Distanzverlust	die	Distanzverluste
 die	Sinusitis	die	Sinusitiden
@@ -13427,7 +13392,7 @@ die	Anmerkung	die	Anmerkungen
 der	Anlauf	die	Anläufe
 der	Annäherungsversuch	die	Annäherungsversuche
 der	Textverweis	die	Textverweise
-die	Textwissenschaft	die	Textwissenschaften<br />
+die	Textwissenschaft	die	Textwissenschaften
 die	Volksrepublik	die	Volksrepubliken
 der	Dieselmotor	die	Dieselmotoren
 das	Pentagramm	die	Pentagramme
@@ -13517,7 +13482,7 @@ der	Transporter	die	Transporter
 die	Rubrik	die	Rubriken
 das	Verbalsubstantiv	die	Verbalsubstantive
 die	Vermarktung	die	Vermarktungen
-der	Synthese-Index	die	Synthese-Indizes<br />die Synthese-Indices
+der	Synthese-Index	die	Synthese-Indizes
 der	Erlös	die	Erlöse
 der	Schlauch	die	Schläuche
 die	Walpurgisnacht	die	Walpurgisnächte
@@ -13542,7 +13507,7 @@ das	Purgatorium	die	Purgatorien
 das	Bambusrohr	die	Bambusrohre
 die	Ahle	die	Ahlen
 die	Köpenickiade	die	Köpenickiaden
-der	Weisel<br />die Weisel	die	Weiseln
+der	Weisel	die	Weiseln
 der	Gnadenstoß	die	Gnadenstöße
 die	Acetabuloplastik	die	Acetabuloplastiken
 die	Blesse	die	Blessen
@@ -13886,7 +13851,7 @@ die	Belagerung	die	Belagerungen
 die	Brandrodung	die	Brandrodungen
 die	Infanterie	die	Infanterien
 die	Kavallerie	die	Kavallerien
-das	Stelldichein	die	Stelldichein(s)
+das	Stelldichein	die	Stelldicheins
 der	Hörsaal	die	Hörsäle
 das	Stoma	die	Stomata
 die	Hecksee	die	Heckseen
@@ -14064,7 +14029,7 @@ der	Stornobekämpfer	die	Stornobekämpfer
 die	Katzenklappe	die	Katzenklappen
 die	Amtshilfe	die	Amtshilfen
 die	Meerkatze	die	Meerkatzen
-das	Walroß	die	Walrosse<br />die Walrösser
+das	Walroß	die	Walrösser
 die	Befragung	die	Befragungen
 der	Anflug	die	Anflüge
 der	Abmarsch	die	Abmärsche
@@ -14252,7 +14217,7 @@ die	Yamswurzel	die	Yamswurzeln
 die	Jamswurzel	die	Jamswurzeln
 die	Männin	die	Männinnen
 der	Yankee	die	Yankees
-der	Yen	die	Yen(s)
+der	Yen	die	Yens
 die	Abscheulichkeit	die	Abscheulichkeiten
 die	Allokation	die	Allokationen
 die	Allokution	die	Allokutionen
@@ -14696,7 +14661,7 @@ der	Sensor	die	Sensoren
 der	Kampfbegriff	die	Kampfbegriffe
 der	Medizinball	die	Medizinbälle
 die	Kuttel	die	Kutteln
-der	Klafter<br />das Klafter	die	Klafter
+der	Klafter	die	Klafter
 der	Gammler	die	Gammler
 die	Feinunze	die	Feinunzen
 der	Tipp	die	Tipps
@@ -15142,7 +15107,7 @@ das	Pfandhaus	die	Pfandhäuser
 die	Falschschreibung	die	Falschschreibungen
 die	Kartei	die	Karteien
 das	Insigne	die	Insignien
-der	Essay<br />das Essay	die	Essays
+der	Essay	die	Essays
 der	Luzerne-Pellet	die	Luzerne-Pellets
 das	Kollektivum	die	Kollektiva
 die	Selbstentleibung	die	Selbstentleibungen
@@ -15418,7 +15383,7 @@ der	Barmann	die	Barmänner
 die	Verspätung	die	Verspätungen
 der	Loser	die	Loser
 die	Spule	die	Spulen
-der	Essai<br />das Essai	die	Essais
+der	Essai	die	Essais
 die	Begrüßung	die	Begrüßungen
 das	Elektrogerät	die	Elektrogeräte
 das	Serial	die	Serials
@@ -17360,7 +17325,7 @@ der	Schachspieler	die	Schachspieler
 der	Skatspieler	die	Skatspieler
 die	Liquidation	die	Liquidationen
 das	Archaeon	die	Archaeen
-der	Boxermotor	die	Boxermotore(n)
+der	Boxermotor	die	Boxermotoren
 der	Polospieler	die	Polospieler
 die	Engelmacherin	die	Engelmacherinnen
 die	Ansichtssache	die	Ansichtssachen
@@ -19011,7 +18976,7 @@ die	Balgfrucht	die	Balgfrüchte
 die	Honigbiene	die	Honigbienen
 die	Emse	die	Emsen
 die	Mispel	die	Mispeln
-der	Prestling	die	Prestling<br />die Prestlinge
+der	Prestling	die	Prestlinge
 die	Eucharistie	die	Eucharistien
 die	Eucharistiefeier	die	Eucharistiefeiern
 der	Steirer	die	Steirer
@@ -21301,7 +21266,7 @@ der	Kreuzgang	die	Kreuzgänge
 das	Amperemeter	die	Amperemeter
 der	Schnorrer	die	Schnorrer
 die	Kontaktlinse	die	Kontaktlinsen
-der	Gong<br />das Gong	die	Gongs
+der	Gong	die	Gongs
 die	Schelle	die	Schellen
 der	Sonnenblumenkern	die	Sonnenblumenkerne
 die	Kaktee	die	Kakteen
@@ -21696,7 +21661,7 @@ die	Kartoffelreibe	die	Kartoffelreiben
 der	Luftkrieg	die	Luftkriege
 der	Seekrieg	die	Seekriege
 der	Landkrieg	die	Landkriege
-der	Sixpack<br /> das Sixpack	die	Sixpacks
+das	Sixpack	die	Sixpacks
 das	Parteimitglied	die	Parteimitglieder
 das	Vereinsmitglied	die	Vereinsmitglieder
 der	Philatelist	die	Philatelisten
@@ -24221,8 +24186,6 @@ die	Bankfiliale	die	Bankfilialen
 das	Rotlichtviertel	die	Rotlichtviertel
 die	Carambola	die	Carambolas
 die	Überheblichkeit	die	Überheblichkeiten
-das	Farb-Bild-Austast-<br />Synchronsignal	die	Farb-Bild-Austast-<br />Synchronsignale
-das	Bild-Austast-Synchronsignal	die	Bild-Austast-Synchronsignale
 die	Appendektomie	die	Appendektomien
 die	Verklärung	die	Verklärungen
 die	Dauerkarte	die	Dauerkarten
@@ -25118,9 +25081,9 @@ die	Bezirksklasse	die	Bezirksklassen
 die	Landesklasse	die	Landesklassen
 die	Petrischale	die	Petrischalen
 die	Kirchenrenovierung	die	Kirchenrenovierungen
-das	französische<br /> Fenster	die	französischen<br /> Fenster
 der	Zivildienst	die	Zivildienste
 der	Leviathan	die	Leviathane
+das	Licht	die	Lichter
 die	Hydra	die	Hydren
 der	Einer	die	Einer
 der	Lebensinhalt	die	Lebensinhalte
@@ -28391,7 +28354,7 @@ die	Taktlosigkeit	die	Taktlosigkeiten
 der	Tonfall	die	Tonfälle
 die	Talsohle	die	Talsohlen
 die	Prinzessbohne	die	Prinzessbohnen
-der	Kip	die	Kip(s)
+der	Kip	die	Kips
 der	Knochenmarkspender	die	Knochenmarkspender
 der	Seetang	die	Seetange
 die	Sisyphusarbeit	die	Sisyphusarbeiten
@@ -29276,7 +29239,7 @@ die	Mitternachtsformel	die	Mitternachtsformeln
 die	Onkologin	die	Onkologinnen
 der	Darmstädter	die	Darmstädter
 die	Darmstädterin	die	Darmstädterinnen
-der	Eisheilige / <br> die Eisheilige 	die	Eisheiligen
+der	Eisheilige	die	Eisheiligen
 der	Stumpen	die	Stumpen
 die	Missionsreise	die	Missionsreisen
 die	Edeltraube	die	Edeltrauben
@@ -29697,7 +29660,7 @@ der	Mittfünfziger	die	Mittfünfziger
 die	Mittfünfzigerin	die	Mittfünfzigerinnen
 der	Mittsechziger	die	Mittsechziger
 die	Mittsechzigerin	die	Mittsechzigerinnen
-der	Hauf<br /> der Häuf<br /> der Haufe	die	Haufen <br />die Häufe
+der	Hauf	die	Haufen
 das	Mainzelmännchen	die	Mainzelmännchen
 die	Zwangsabgabe	die	Zwangsabgaben
 die	Feldforschung	die	Feldforschungen
@@ -32527,7 +32490,7 @@ die	Lüftungszone	die	Lüftungszonen
 das	Lüftungsziel	die	Lüftungsziele
 die	Lüftungszeichnung	die	Lüftungszeichnungen
 die	Lüftungsaufgabe	die	Lüftungsaufgaben
-der	Weltmensch	die	[[Weltmenschen]]
+der	Weltmensch	die	Weltmenschen
 der	Lüftungsschalter	die	Lüftungsschalter
 der	Lüftungseffekt	die	Lüftungseffekte
 der	Weltmenschpreis	die	Weltmenschpreise
@@ -33101,7 +33064,7 @@ der	Balinese	die	Balinesen
 die	Balinesin	die	Balinesinnen
 der	Mietkoch	die	Mietköche
 die	Gaunerin	die	Gaunerinnen
-das	(der) Prinzipat	die	Prinzipate
+das	Prinzipat	die	Prinzipate
 das	Sümmchen	die	Sümmchen
 der	Graupelschauer	die	Graupelschauer
 der	Hauptgrund	die	Hauptgründe
