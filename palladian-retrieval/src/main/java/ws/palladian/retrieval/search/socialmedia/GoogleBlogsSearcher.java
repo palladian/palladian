@@ -14,6 +14,7 @@ import ws.palladian.retrieval.search.BaseGoogleSearcher;
  * 
  * @author Philipp Katz
  */
+@Deprecated
 public final class GoogleBlogsSearcher extends BaseGoogleSearcher<WebContent> {
 
     @Override
