@@ -1,7 +1,9 @@
 package ws.palladian.semantics;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +14,7 @@ import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -33,10 +36,27 @@ public class WordTransformer {
     /** The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>. */
     private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<String, EnglishVerb>();
 
+    /** The German singular plural map for nouns. */
+    private static final Map<String, String> GERMAN_SINGULAR_PLURAL = new HashMap<String, String>();
+
     static {
 
-        // irregular verbs
+        // German nouns
         InputStream inputStream = null;
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/germanSingularPluralNouns.tsv");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split("\t");
+                GERMAN_SINGULAR_PLURAL.put(parts[1], parts[3]);
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
+        // irregular verbs
+        inputStream = null;
         try {
             inputStream = WordTransformer.class.getResourceAsStream("/irregularEnglishVerbs.csv");
             List<String> list = FileHelper.readFileToArray(inputStream);
@@ -180,9 +200,7 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToSingularEnglish(pluralForm);
         } else if (language.equals(Language.GERMAN)) {
-            // return wordToSingularGerman(pluralForm);
-            // TODO
-            throw new IllegalStateException("nix gut (needs to be restructured because of model paths).");
+            return wordToSingularGerman(pluralForm);
         }
 
         throw new IllegalArgumentException("Language must be 'en' or 'de'.");
@@ -261,28 +279,49 @@ public class WordTransformer {
         return plural;
     }
 
-    // /**
-    // * <p>
-    // * Transform a German plural word to its singular form using the wiktionary DB.
-    // * </p>
-    // *
-    // * @param pluralForm The plural form of the word.
-    // * @return The singular form of the word.
-    // */
-    // public static String wordToSingularGerman(String pluralForm) {
-    //
-    // PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-    // String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
-    //
-    // WordDB wordDB = new WordDB(path);
-    // Word word = wordDB.getWord(pluralForm);
-    //
-    // if (word != null) {
-    // return word.getWord();
-    // }
-    //
-    // return pluralForm;
-    // }
+    /**
+     * <p>
+     * Transform a German plural word to its singular form using the file.
+     * </p>
+     * 
+     * @param pluralForm The plural form of the word.
+     * @return The singular form of the word.
+     */
+    public static String wordToSingularGerman(String pluralForm) {
+
+        String singular = CollectionHelper.getKeyByValue(GERMAN_SINGULAR_PLURAL, pluralForm);
+        if (singular != null) {
+            return singular;
+        } else {
+
+            // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldketten" ->
+            // "Gold" "Ketten" -> "Kette" => "Goldkette"
+            List<String> allWords = new ArrayList<String>(GERMAN_SINGULAR_PLURAL.keySet());
+            allWords.addAll(GERMAN_SINGULAR_PLURAL.values());
+
+            Collections.sort(allWords, new StringLengthComparator());
+
+            String lowerCasePlural = pluralForm.toLowerCase();
+
+            for (String word1 : allWords) {
+
+                if (lowerCasePlural.startsWith(word1.toLowerCase())) {
+                    for (String word2 : allWords) {
+                        if (lowerCasePlural.endsWith(word2.toLowerCase())
+                                && word1.length() + word2.length() == lowerCasePlural.length()) {
+                            String singular2 = wordToSingularGerman(word2);
+                            return word1 + singular2.toLowerCase();
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+
+        return pluralForm;
+    }
 
     /**
      * <p>
@@ -302,8 +341,7 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToPluralEnglish(singular);
         } else if (language.equals(Language.GERMAN)) {
-            // return wordToPluralGerman(singular); XXX
-            throw new IllegalArgumentException("Language must be 'en'.");
+            return wordToPluralGerman(singular);
         }
 
         throw new IllegalArgumentException("Language must be 'en'.");
@@ -404,33 +442,64 @@ public class WordTransformer {
      * @see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
      * @return The plural form of the word.
      */
-    // public static String wordToPluralGerman(String singular) {
-    //
-    // if (singular == null) {
-    // return "";
-    // }
-    // String singularLc = singular.toLowerCase();
-    //
-    // String plural = "";
-    //
-    // // no ending but umlauts
-    // if (singularLc.endsWith("er") || singularLc.endsWith("en") || singularLc.endsWith("el")
-    // || singularLc.endsWith("chen") || singularLc.endsWith("lein")) {
-    // plural = singular.replace("o", "ö");
-    // plural = plural.replace("a", "ä");
-    // plural = plural.replace("u", "ü");
-    // } else
-    //
-    // // add "n" ending and umlauts
-    // if (singularLc.endsWith("e")) {
-    // plural = singular.replace("o", "ö");
-    // plural = plural.replace("a", "ä");
-    // plural = plural.replace("u", "ü");
-    // plural += "n";
-    // }
-    //
-    // return plural;
-    // }
+    public static String wordToPluralGerman(String singular) {
+
+        if (singular == null) {
+            return "";
+        }
+
+        String plural = GERMAN_SINGULAR_PLURAL.get(singular);
+        if (plural != null) {
+            return plural;
+        } else {
+
+            // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldkette" ->
+            // "Gold" "Kette" -> "Ketten" => "Goldketten"
+            List<String> allWords = new ArrayList<String>(GERMAN_SINGULAR_PLURAL.keySet());
+            allWords.addAll(GERMAN_SINGULAR_PLURAL.values());
+
+            Collections.sort(allWords, new StringLengthComparator());
+
+            String lowerCaseSingular = singular.toLowerCase();
+
+            for (String word1 : allWords) {
+
+                if (lowerCaseSingular.startsWith(word1.toLowerCase())) {
+                    for (String word2 : allWords) {
+                        if (lowerCaseSingular.endsWith(word2.toLowerCase())
+                                && word1.length() + word2.length() == lowerCaseSingular.length()) {
+                            String singular2 = wordToPluralGerman(word2);
+                            return word1 + singular2.toLowerCase();
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+        // String singularLc = singular.toLowerCase();
+        //
+        // String plural = "";
+        //
+        // // no ending but umlauts
+        // if (singularLc.endsWith("er") || singularLc.endsWith("en") || singularLc.endsWith("el")
+        // || singularLc.endsWith("chen") || singularLc.endsWith("lein")) {
+        // plural = singular.replace("o", "ö");
+        // plural = plural.replace("a", "ä");
+        // plural = plural.replace("u", "ü");
+        // } else
+        //
+        // // add "n" ending and umlauts
+        // if (singularLc.endsWith("e")) {
+        // plural = singular.replace("o", "ö");
+        // plural = plural.replace("a", "ä");
+        // plural = plural.replace("u", "ü");
+        // plural += "n";
+        // }
+
+        return plural;
+    }
 
     public static String stemGermanWords(String words) {
         return stemWords(words, Language.GERMAN);

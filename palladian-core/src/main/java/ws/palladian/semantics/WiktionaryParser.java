@@ -63,6 +63,11 @@ public class WiktionaryParser {
         wordDB.setup();
     }
 
+    public WiktionaryParser(Language language) {
+        this.corpusLanguage = language;
+        wordDB = null;
+    }
+
     /**
      * 
      * @param wiktionaryXmlFilePath
@@ -185,7 +190,7 @@ public class WiktionaryParser {
 
                     // String tagGrabRegexp = "(?<=\\[\\[)([^\\]]+?)(?=\\]\\])";
                     String tagGrabRegexp = "(?<=(^ |  |, )\\[\\[)([^\\]]{1,30}?)(?=\\]\\]($|,|;))";
-                    
+
                     String synonymString = "";
 
                     if (corpusLanguage.equals(Language.GERMAN)) {
@@ -195,7 +200,7 @@ public class WiktionaryParser {
                         // off
                         synonymString = StringHelper.getSubstringBetween(synonymString, ":[1]", "\n");
                         synonymString = synonymString.replaceAll("''.*?''", "");
-                        
+
                         synonyms = StringHelper.getRegexpMatches(tagGrabRegexp, synonymString);
                     } else if (corpusLanguage.equals(Language.ENGLISH)) {
                         synonymString = StringHelper.getSubstringBetween(textString, "====Synonyms====", "===");
@@ -250,9 +255,9 @@ public class WiktionaryParser {
                         wordDB.addHypernyms(wordObject, hypernyms);
                         wordDB.addHyponyms(wordObject, hyponyms);
                     }
-                    
-//                    wordObject = wordDB.getWord(word);
-//                    wordDB.aggregateInformation(wordObject);
+
+                    //                    wordObject = wordDB.getWord(word);
+                    //                    wordDB.aggregateInformation(wordObject);
 
                     if (elementsParsed++ % 100 == 0) {
                         System.out.println(">" + MathHelper.round(100 * bytesProcessed / bytesToProcess, 2) + "%, +"
@@ -360,6 +365,143 @@ public class WiktionaryParser {
         wordDB.writeToDisk();
     }
 
+    public void parseAndCreateSingularPluralFile(String wiktionaryXmlFilePath) {
+
+        final long bytesToProcess = new File(wiktionaryXmlFilePath).length();
+
+        final StringBuilder wordFile = new StringBuilder();
+
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            DefaultHandler handler = new DefaultHandler() {
+
+                private long bytesProcessed = 0;
+                private int elementsParsed = 0;
+                private boolean isTitle = false;
+                private boolean considerText = false;
+                private boolean isText = false;
+
+                private String currentWord = "";
+                private StringBuilder text = new StringBuilder();
+                private final StopWatch sw = new StopWatch();
+
+                @Override
+                public void startElement(String uri, String localName, String qName, Attributes attributes)
+                        throws SAXException {
+
+                    // System.out.println("Start Element :" + qName);
+
+                    if (qName.equalsIgnoreCase("text")) {
+                        isText = true;
+                        text = new StringBuilder();
+                    }
+
+                    if (qName.equalsIgnoreCase("title")) {
+                        isTitle = true;
+                    }
+
+                    bytesProcessed += qName.length();
+                }
+
+                private void postProcess(String word, StringBuilder text) throws SQLException {
+
+                    if (word.equalsIgnoreCase("ewusersonly")) {
+                        return;
+                    }
+
+                    String singular = "";
+                    String plural = "";
+                    String wordType = "";
+
+                    String textString = text.toString();
+
+                    // get the word type
+                    wordType = StringHelper.getSubstringBetween(textString, "=== {{Wortart|", "|");
+                    if (wordType.indexOf("}}") > -1) {
+                        wordType = StringHelper.getSubstringBetween(textString, "=== {{Wortart|", "}}");
+                    }
+
+                    // get the plural if noun
+                    if (corpusLanguage.equals(Language.GERMAN) && wordType.equalsIgnoreCase("substantiv")) {
+
+                        singular = StringHelper.getSubstringBetween(textString, "|Nominativ Singular=", "\n");
+                        plural = StringHelper.getSubstringBetween(textString, "|Nominativ Plural=", "\n");
+
+                    }
+
+                    if ((singular.startsWith("der ") || singular.startsWith("die ") || singular.startsWith("das "))
+                            && (plural.startsWith("der ") || plural.startsWith("die ") || plural.startsWith("das "))) {
+
+                        wordFile.append(singular.replaceFirst("\\s", "\t")).append("\t");
+                        wordFile.append(plural.replaceFirst("\\s", "\t")).append("\n");
+
+                    }
+
+                    if (elementsParsed++ % 100 == 0) {
+                        System.out.println(">" + MathHelper.round(100 * bytesProcessed / bytesToProcess, 2) + "%, +"
+                                + sw.getElapsedTimeString());
+                        sw.start();
+                    }
+                }
+
+                @Override
+                public void endElement(String uri, String localName, String qName) throws SAXException {
+
+                    if (qName.equalsIgnoreCase("text")) {
+                        if (considerText) {
+                            LOGGER.debug("Word: " + currentWord);
+                            LOGGER.debug("Text: " + text);
+                            try {
+                                postProcess(currentWord, text);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        isText = false;
+                        considerText = false;
+                    }
+
+                    if (qName.equalsIgnoreCase("title")) {
+                        isTitle = false;
+                    }
+
+                    bytesProcessed += qName.length();
+                }
+
+                @Override
+                public void characters(char ch[], int start, int length) throws SAXException {
+
+                    if (isTitle) {
+                        String titleText = new String(ch, start, length);
+
+                        if (titleText.indexOf(":") == -1 && titleText.indexOf("Wiktionary") == -1) {
+                            considerText = true;
+                            currentWord = titleText;
+                        }
+                    }
+
+                    if (isText && considerText) {
+                        String textString = new String(ch, start, length);
+                        text.append(textString);
+                    }
+
+                    bytesProcessed += length;
+                }
+
+            };
+
+            saxParser.parse(wiktionaryXmlFilePath, handler);
+
+            FileHelper.writeToFile("singularPluralGermanNounsWiktionary.tsv", wordFile);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public String getAdditionalHypernymFile() {
         return additionalHypernymFile;
     }
@@ -376,14 +518,14 @@ public class WiktionaryParser {
     public static void main(String[] args) {
         StopWatch sw = new StopWatch();
 
-//        String text = " [[alkoholisch]]es [[Getränk]], [[Getränk]] [[Bier]], [[Lebensmittel]]";
-//        //text = " [[alkoholisch]]es [[Getränk]]";
-//        //text = " [[Lebensmittel]]";
-//        text = " [[Getränk]], [[Lebensmittel]]";
-//        List<String> syns = StringHelper.getRegexpMatches("(?<=(^ |, )\\[\\[)([^\\]]+?)(?=\\]\\]($|,))", text);
-//        CollectionHelper.print(syns);
-//        System.exit(0);
-        
+        //        String text = " [[alkoholisch]]es [[Getränk]], [[Getränk]] [[Bier]], [[Lebensmittel]]";
+        //        //text = " [[alkoholisch]]es [[Getränk]]";
+        //        //text = " [[Lebensmittel]]";
+        //        text = " [[Getränk]], [[Lebensmittel]]";
+        //        List<String> syns = StringHelper.getRegexpMatches("(?<=(^ |, )\\[\\[)([^\\]]+?)(?=\\]\\]($|,))", text);
+        //        CollectionHelper.print(syns);
+        //        System.exit(0);
+
         // German
         // WiktionaryParser wpG = new WiktionaryParser("data/temp/wdbg/", Language.GERMAN);
         // wpG.parseAndCreateDB("data/temp/dewiktionary-20110327-pages-meta-current.xml");
@@ -392,8 +534,10 @@ public class WiktionaryParser {
         // wpG.parseAndCreateDB("data/temp/disk1.xml");
 
         // English
-        WiktionaryParser wpE = new WiktionaryParser("data/temp/wordDatabaseEnglish/", Language.ENGLISH);
-        wpE.parseAndCreateDB("data/temp/pages.xml");
+        WiktionaryParser wpE = new WiktionaryParser(Language.GERMAN);
+        wpE.parseAndCreateSingularPluralFile("pages.xml");
+        // WiktionaryParser wpE = new WiktionaryParser("data/temp/wordDatabaseEnglish/", Language.ENGLISH);
+        // wpE.parseAndCreateDB("data/temp/pages.xml");
 
         LOGGER.info("created wiktionary DB in " + sw.getElapsedTimeString());
     }
