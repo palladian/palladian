@@ -51,6 +51,7 @@ public class WordTransformerTest {
 
     @Test
     public void testWordToSingularGerman() {
+        assertEquals("Weihnachtsdeko", WordTransformer.wordToSingular("Weihnachtsdeko", Language.GERMAN));
         assertEquals("Eilsendungadresse", WordTransformer.wordToSingular("Eilsendungadressen", Language.GERMAN));
         assertEquals("Kette", WordTransformer.wordToSingular("Ketten", Language.GERMAN));
         assertEquals("Halskette", WordTransformer.wordToSingular("Halsketten", Language.GERMAN));
