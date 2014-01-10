@@ -1,14 +1,9 @@
 package ws.palladian.persistence;
 
-import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import com.jolbox.bonecp.BoneCPConfig;
 import com.jolbox.bonecp.BoneCPDataSource;
-import com.jolbox.bonecp.ConnectionHandle;
-import com.jolbox.bonecp.hooks.AbstractConnectionHook;
-import com.jolbox.bonecp.hooks.ConnectionHook;
 
 /**
  * <p>
@@ -59,17 +54,18 @@ public final class BoneCpDataSourceFactory implements DataSourceFactory {
         // in auto-commit = false, which has led to long hangs (java.sql.SQLException: Lock wait timeout exceeded;
         // try restarting transaction). This hook ensures, that all connections handed out by pool have their
         // auto-commit enabled.
-        ConnectionHook connectionHook = new AbstractConnectionHook() {
-            @Override
-            public void onCheckOut(ConnectionHandle connection) {
-                try {
-                    connection.setAutoCommit(true);
-                } catch (SQLException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        };
-        boneConfig.setConnectionHook(connectionHook);
+        // ConnectionHook connectionHook = new AbstractConnectionHook() {
+        // @Override
+        // public void onCheckOut(ConnectionHandle connection) {
+        // try {
+        // connection.setAutoCommit(true);
+        // } catch (SQLException e) {
+        // throw new IllegalStateException(e);
+        // }
+        // }
+        // };
+        // boneConfig.setConnectionHook(connectionHook);
+
         return new BoneCPDataSource(boneConfig);
     }
 
