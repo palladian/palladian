@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class PlaceholderQueryTest {
 
-    private static final String QUERY_STRING = "SELECT * FROM table WHERE value1 > @value1 AND value2 < @value2 OR value3 < @value3 AND value2 > @value2";
+    private static final String QUERY_STRING = "SELECT * FROM table WHERE value1 > @value1 AND value2 < @value2 OR value3 < @value3 AND value2 > @Value2";
     private PlaceholderQuery query;
 
     @Before
@@ -31,7 +31,7 @@ public class PlaceholderQueryTest {
 
     @Test
     public void testPlaceholderQueryArguments() {
-        Query args = query.newArgs().set("value3", 3).set("value1", 1).set("value2", 2).create();
+        Query args = query.newArgs().set("value3", 3).set("value1", 1).set("Value2", 2).create();
         assertEquals(4, args.getArgs().length);
         assertEquals(Arrays.asList(1, 2, 3, 2), Arrays.asList(args.getArgs()));
     }

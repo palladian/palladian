@@ -41,6 +41,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
     private final List<File> files;
     private final Map<String, Map<Integer, GeoCoordinate>> coordinates;
     private final int numFiles;
+    private final File datasetDirectory;
 
     public TudLoc2013DatasetIterable(File datasetDirectory) {
         Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
@@ -48,6 +49,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
         final File coordinateFile = new File(datasetDirectory, "coordinates.csv");
         coordinates = readCoordinates(coordinateFile);
         numFiles = files.size();
+        this.datasetDirectory = datasetDirectory;
     }
 
     @Override
@@ -164,6 +166,15 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
             annotations.add(new LocationAnnotation(xmlAnnotation, location));
         }
         return annotations;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TudLoc2013DatasetIterable [datasetDirectory=");
+        builder.append(datasetDirectory);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

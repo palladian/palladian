@@ -196,7 +196,7 @@ public final class ClassificationUtils {
                 writeHeader = false;
                 count++;
             }
-            LOGGER.info("Wrote {} train instances with {} features.", count, featureCount);
+            LOGGER.info("Wrote {} train instances with {} features to {}.", count, featureCount, outputFile);
         } catch (IOException e) {
             throw new IllegalStateException("Encountered " + e + " while writing to '" + outputFile + "'", e);
         } finally {

@@ -14,10 +14,10 @@ import org.apache.commons.lang3.Validate;
  * <p>
  * A {@link PlaceholderQuery} can be used to write prepared statements with named parameter markers. Later, parameters
  * can be assigned using those markers to build a {@link List} with arguments necessary for the {@link DatabaseManager}.
- * Parameters markers in the query start with @ followed by a combination of alphanumeric characters and underscores.
- * Instances of {@link PlaceholderQuery} are immutable and Thread-safe and should usually be created as constants,
- * {@link ArgumentBuilder}s on the other hand are created method-scoped and discarded after use. Example usage looks
- * like this:
+ * Parameters markers in the query start with @ followed by a combination of alphanumeric characters and underscores,
+ * markers are case insensitive. Instances of {@link PlaceholderQuery} are immutable and Thread-safe and should usually
+ * be created as constants, {@link ArgumentBuilder}s on the other hand are created method-scoped and discarded after
+ * use. Example usage looks like this:
  * </p>
  * 
  * <pre>
@@ -60,7 +60,7 @@ public final class PlaceholderQuery {
         Pattern pattern = Pattern.compile(PLACEHOLDER_PATTERN);
         Matcher matcher = pattern.matcher(query);
         while (matcher.find()) {
-            placeholders.add(matcher.group().substring(1));
+            placeholders.add(matcher.group().substring(1).toLowerCase());
         }
         return Collections.unmodifiableList(placeholders);
     }
@@ -120,8 +120,9 @@ public final class PlaceholderQuery {
          */
         public ArgumentBuilder set(String placeholder, Object value) {
             Validate.notNull(placeholder, "key must not be null");
-            if (placeholders.contains(placeholder)) {
-                parameters.put(placeholder, value);
+            String placeholderLowercase = placeholder.toLowerCase();
+            if (placeholders.contains(placeholderLowercase)) {
+                parameters.put(placeholderLowercase, value);
                 return this;
             } else {
                 throw new IllegalArgumentException("'" + placeholder + "' is not a placeholder");
