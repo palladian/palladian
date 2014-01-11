@@ -205,6 +205,11 @@ public class StringTaggerTest {
         text = "Sahuyé is a town and commune in Côte d'Ivoire.";
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
+        
+        text = "Marina del Rey is an affluent unincorporated seaside community and census-designated place (CDP) in Los Angeles County, California.";
+        annotations = StringTagger.getTaggedEntities(text);
+        // should extract "Marina del Rey"
+        CollectionHelper.print(annotations);
 
     }
 
