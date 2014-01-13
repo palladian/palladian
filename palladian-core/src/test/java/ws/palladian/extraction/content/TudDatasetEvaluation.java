@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
@@ -38,11 +39,14 @@ public class TudDatasetEvaluation {
         String resultFileName = extractor.getExtractorName() + "_results.csv";
 
         FileHelper.delete(resultFileName);
-
+        FileHelper.appendFile(resultFileName, "file;levenshtein;5gram;jaroWinkler;startCorrect;endCorrect\n");
+        
         // for online services, we need the URL to evaluate
         List<String> index = FileHelper.readFileToArray(datasetDirectory + "___index.csv");
+        
 
         File[] textFiles = FileHelper.getFiles(datasetDirectory, ".txt");
+        ProgressMonitor progressMonitor = new ProgressMonitor(textFiles.length);
         for (int i = 0; i < textFiles.length; i++) {
 
             File expectedFile = textFiles[i];
@@ -86,7 +90,7 @@ public class TudDatasetEvaluation {
 
             FileHelper.appendFile(resultFileName, resultLine);
 
-            ProgressHelper.printProgress(i, textFiles.length, 0);
+            progressMonitor.incrementAndPrintProgress();
         }
 
         double totalScore = (totalScore1 + totalScore2 + totalScore3) / (3 * textFiles.length);
