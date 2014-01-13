@@ -216,6 +216,9 @@ public class MultifacetQuery {
         return coordinate;
     }
 
+    /**
+     * @return The radius in kilometers, or <code>null</code> in case no radius was specified.
+     */
     public Double getRadius() {
         return radius;
     }
