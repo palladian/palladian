@@ -50,6 +50,7 @@ public class StringHelperTest {
     @Test
     public void testContainsWord() {
 
+        assertEquals(true, StringHelper.containsWord("ich", "das finde ich persönlich nicht weiter tragisch"));
 
         assertEquals(true, StringHelper.containsWord("test", "a test b"));
         assertEquals(true, StringHelper.containsWord("test", "test"));
@@ -195,15 +196,15 @@ public class StringHelperTest {
         // assertEquals(StringHelper.trim("2\""),"2\"");
     }
 
-//    @Deprecated
-//    @Test
-//    public void testEscapeForRegularExpression() {
-//        assertEquals("\\(2008\\)", StringHelper.escapeForRegularExpression("(2008)"));
-//        // String containing RegEx meta characters which need to be escaped
-//        String s = "(the) [quick] {brown} fox$ ^jumps+ \n ov|er the? l-a\\zy ]dog[";
-//        // test successful escape by matching escaped RegEx ...
-//        assertTrue(s.matches(StringHelper.escapeForRegularExpression(s)));
-//    }
+    //    @Deprecated
+    //    @Test
+    //    public void testEscapeForRegularExpression() {
+    //        assertEquals("\\(2008\\)", StringHelper.escapeForRegularExpression("(2008)"));
+    //        // String containing RegEx meta characters which need to be escaped
+    //        String s = "(the) [quick] {brown} fox$ ^jumps+ \n ov|er the? l-a\\zy ]dog[";
+    //        // test successful escape by matching escaped RegEx ...
+    //        assertTrue(s.matches(StringHelper.escapeForRegularExpression(s)));
+    //    }
 
     @Test
     public void testGetSubstringBetween() {
