@@ -210,7 +210,13 @@ public class StringTaggerTest {
         annotations = StringTagger.getTaggedEntities(text);
         // should extract "Marina del Rey"
         CollectionHelper.print(annotations);
-
+        
+        // note, that there is a non-breaking space in between "West Virginia"; this needs dedicted treatment.
+        text = "Up to 300,000 people in West Virginia have been told not to drink tap water after the spill of a dangerous chemical sparked a federal emergency.";
+        annotations = StringTagger.getTaggedEntities(text);
+        assertEquals(2, annotations.size());
+        assertEquals("West Virginia", annotations.get(1).getValue());
+        // CollectionHelper.print(annotations);
     }
 
 }
