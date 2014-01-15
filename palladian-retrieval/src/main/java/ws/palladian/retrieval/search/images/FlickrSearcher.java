@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -56,7 +57,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     private static final String SEARCHER_NAME = "Flickr";
 
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
-    
+
     /** flickr allows 3.6000 requests/hour. */
     private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.HOURS, 3500);
 
@@ -203,43 +204,22 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             }
             // TODO implement checking for error codes.
             String jsonString = httpResult.getStringContent();
-            
+
             try {
                 JsonObject resultJson = new JsonObject(jsonString);
                 JsonObject photosJson = resultJson.getJsonObject("photos");
-                if (photosJson.get("total") != null) {
-                    availableResults = photosJson.getLong("total");
-                }
-                JsonArray photoJsonArray = photosJson.getJsonArray("photo");
-                for (int i = 0; i < photoJsonArray.size(); i++) {
-                    JsonObject photoJson = photoJsonArray.getJsonObject(i);
-                    BasicWebImage.Builder builder = new BasicWebImage.Builder();
-
-                    String farmId = photoJson.getString("farm");
-                    String serverId = photoJson.getString("server");
-                    String id = photoJson.getString("id");
-                    String secret = photoJson.getString("secret");
-                    String userId = photoJson.getString("owner");
-                    String tags = photoJson.getString("tags");
-
-                    builder.setTitle(photoJson.getString("title"));
-                    builder.setImageUrl(buildImageUrl(farmId, serverId, id, secret));
-                    builder.setUrl(buildPageUrl(id, userId));
-                    builder.setSummary(photoJson.getJsonObject("description").getString("_content"));
-                    builder.setPublished(parseDate(photoJson.getString("datetaken")));
-                    builder.setCoordinate(parseCoordinate(photoJson));
-                    builder.setIdentifier(id);
-
-                    // License license = License.get(photoJson.getInt("license"));
-                    Integer width = photoJson.tryGetInt("o_width");
-                    Integer height = photoJson.tryGetInt("o_height");
-                    if (width != null && height != null) {
-                        builder.setWidth(width);
-                        builder.setHeight(height);
+                if (photosJson != null) { // result list (search)
+                    if (photosJson.get("total") != null) {
+                        availableResults = photosJson.getLong("total");
                     }
-                    builder.setTags(new HashSet<String>(Arrays.asList(tags.split("\\s"))));
-                    builder.setSource(SEARCHER_NAME);
-                    result.add(builder.create());
+                    JsonArray photoJsonArray = photosJson.getJsonArray("photo");
+                    for (int i = 0; i < photoJsonArray.size(); i++) {
+                        JsonObject photoJson = photoJsonArray.getJsonObject(i);
+                        result.add(parseWebImage(photoJson));
+                    }
+                } else { // single result (retrieve picture per ID)
+                    JsonObject photoJson = resultJson.getJsonObject("photo");
+                    result.add(parseWebImage(photoJson));
                 }
             } catch (JsonException e) {
                 throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()
@@ -249,20 +229,98 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         return new SearchResults<WebImage>(result, availableResults);
     }
 
-    private static final GeoCoordinate parseCoordinate(JsonObject photoJson) throws JsonException {
-        double lat = photoJson.getDouble("latitude");
-        double lng = photoJson.getDouble("longitude");
-        if (lat == 0.0 && lng == 0.0) {
+    private WebImage parseWebImage(JsonObject photoJson) throws JsonException {
+        String farmId = photoJson.getString("farm");
+        String serverId = photoJson.getString("server");
+        String id = photoJson.getString("id");
+
+        String secret = photoJson.getString("secret");
+        String userId = photoJson.tryGetString("owner");
+        if (userId == null) {
+            userId = photoJson.queryString("/owner/nsid");
+        }
+
+        BasicWebImage.Builder builder = new BasicWebImage.Builder();
+        String title = photoJson.tryGetString("title");
+        if (title == null) {
+            title = photoJson.queryString("/title/_content");
+        }
+        builder.setTitle(title);
+        builder.setImageUrl(buildImageUrl(farmId, serverId, id, secret));
+        builder.setUrl(buildPageUrl(id, userId));
+        builder.setSummary(photoJson.getJsonObject("description").getString("_content"));
+        builder.setPublished(parseDate(photoJson));
+        builder.setCoordinate(parseCoordinate(photoJson));
+        builder.setIdentifier(id);
+
+        // License license = License.get(photoJson.getInt("license"));
+        Integer width = photoJson.tryGetInt("o_width");
+        Integer height = photoJson.tryGetInt("o_height");
+        if (width != null && height != null) {
+            builder.setWidth(width);
+            builder.setHeight(height);
+        }
+        builder.setTags(parseTags(photoJson));
+        builder.setSource(SEARCHER_NAME);
+        return builder.create();
+    }
+
+    private static Set<String> parseTags(JsonObject photoJson) throws JsonException {
+        Object tagsElement = photoJson.get("tags");
+        if (tagsElement instanceof String) {
+            String tags = (String)tagsElement;
+            return new HashSet<String>(Arrays.asList(tags.split("\\s")));
+        } else {
+            JsonObject tagsObject = (JsonObject)tagsElement;
+            JsonArray tagsArray = tagsObject.getJsonArray("tag");
+            Set<String> result = CollectionHelper.newHashSet();
+            for (Object tagContent : tagsArray) {
+                JsonObject tagJson = (JsonObject)tagContent;
+                result.add(tagJson.getString("_content"));
+            }
+            return result;
+        }
+    }
+
+    /**
+     * Parse coordinate from JSON. It is either directly in <code>latitude</code>/<code>longitude</code>, or nested
+     * within <code>location</code> (in case of a single result, when querying for an ID).
+     * 
+     * @param photoJson The JSON of the photo.
+     * @return The parsed {@link GeoCoordinate}, or <code>null</code>.
+     */
+    private static final GeoCoordinate parseCoordinate(JsonObject photoJson) {
+        Double lat = photoJson.tryGetDouble("latitude");
+        Double lng = photoJson.tryGetDouble("longitude");
+        if (lat == null || lng == null) {
+            lat = photoJson.tryQueryDouble("/location/latitude");
+            lng = photoJson.tryQueryDouble("/location/longitude");
+        }
+        if (lat == null || lng == null || (lat == 0.0 && lng == 0.0)) {
             return null;
         }
         return new ImmutableGeoCoordinate(lat, lng);
     }
 
-    private static final Date parseDate(String string) {
+    /**
+     * Parse date from JSON. It is either directly in <code>datetaken</code>, or in <code>dates/taken</code> (in case of
+     * a single result, when querying for an ID).
+     * 
+     * @param photoJson The JSON of the photo.
+     * @return The parsed date, or <code>null</code>.
+     */
+    private Date parseDate(JsonObject photoJson) {
+        String dateString = photoJson.tryGetString("datetaken");
+        if (dateString == null) {
+            dateString = photoJson.tryQueryString("/dates/taken");
+        }
+        if (dateString == null) {
+            return null;
+        }
         try {
-            return new SimpleDateFormat(DATE_PATTERN).parse(string);
+            return new SimpleDateFormat(DATE_PATTERN).parse(dateString);
         } catch (ParseException e) {
-            LOGGER.warn("Error while parsing date string '" + string + "'.");
+            LOGGER.warn("Error while parsing date string '" + dateString + "'.");
             return null;
         }
     }
@@ -276,37 +334,42 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     private String buildRequestUrl(MultifacetQuery query, int perPage, int page) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://api.flickr.com/services/rest/");
-        urlBuilder.append("?method=flickr.photos.search");
-        urlBuilder.append("&api_key=").append(apiKey);
-        if (query.getText() != null) {
-            urlBuilder.append("&text=").append(UrlHelper.encodeParameter(query.getText()));
-        }
-        if (query.getTags() != null && !query.getTags().isEmpty()) {
-            urlBuilder.append("&tags=").append(StringUtils.join(query.getTags(), ","));
-        }
-        if (query.getStartDate() != null) {
-            urlBuilder.append("&min_taken_date=").append(query.getStartDate().getTime() / 1000);
-        }
-        if (query.getEndDate() != null) {
-            urlBuilder.append("&max_taken_date=").append(query.getEndDate().getTime() / 1000);
-        }
-        if (query.getCoordinate() != null) {
-            double[] bbox = query.getCoordinate().getBoundingBox(query.getRadius());
-            String params = String.format("%s,%s,%s,%s", bbox[1], bbox[0], bbox[3], bbox[2]);
-            urlBuilder.append("&bbox=").append(params);
-        }
-        Facet facet = query.getFacet(Licenses.LICENSES_IDENTIFIER);
-        if (facet != null) {
-            Licenses licensesFacet = (Licenses)facet;
-            if (licensesFacet.licenses.size() > 0) {
-                urlBuilder.append("&license=").append(licensesFacet.getLicensesString());
+        urlBuilder.append("?api_key=").append(apiKey);
+        if (StringUtils.isNotBlank(query.getId())) {
+            urlBuilder.append("&method=flickr.photos.getInfo");
+            urlBuilder.append("&photo_id=").append(query.getId());
+        } else {
+            urlBuilder.append("&method=flickr.photos.search");
+            if (query.getText() != null) {
+                urlBuilder.append("&text=").append(UrlHelper.encodeParameter(query.getText()));
             }
+            if (query.getTags() != null && !query.getTags().isEmpty()) {
+                urlBuilder.append("&tags=").append(StringUtils.join(query.getTags(), ","));
+            }
+            if (query.getStartDate() != null) {
+                urlBuilder.append("&min_taken_date=").append(query.getStartDate().getTime() / 1000);
+            }
+            if (query.getEndDate() != null) {
+                urlBuilder.append("&max_taken_date=").append(query.getEndDate().getTime() / 1000);
+            }
+            if (query.getCoordinate() != null) {
+                double[] bbox = query.getCoordinate().getBoundingBox(query.getRadius());
+                String params = String.format("%s,%s,%s,%s", bbox[1], bbox[0], bbox[3], bbox[2]);
+                urlBuilder.append("&bbox=").append(params);
+            }
+            Facet facet = query.getFacet(Licenses.LICENSES_IDENTIFIER);
+            if (facet != null) {
+                Licenses licensesFacet = (Licenses)facet;
+                if (licensesFacet.licenses.size() > 0) {
+                    urlBuilder.append("&license=").append(licensesFacet.getLicensesString());
+                }
+            }
+            urlBuilder.append("&per_page=").append(perPage);
+            urlBuilder.append("&page=").append(page);
+            urlBuilder.append("&extras=description,license,date_taken,geo,tags,o_dims,");
         }
-        urlBuilder.append("&per_page=").append(perPage);
-        urlBuilder.append("&page=").append(page);
         urlBuilder.append("&format=json");
         urlBuilder.append("&nojsoncallback=1");
-        urlBuilder.append("&extras=description,license,date_taken,geo,tags,o_dims,");
         LOGGER.debug("Query URL {}", urlBuilder);
         return urlBuilder.toString();
     }

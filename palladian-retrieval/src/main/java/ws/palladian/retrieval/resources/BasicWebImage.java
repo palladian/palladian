@@ -232,6 +232,14 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
             builder.append(", coordinate=");
             builder.append(getCoordinate());
         }
+        if (getTags() != null && getTags().size() > 0) {
+            builder.append(", tags=");
+            builder.append(getTags());
+        }
+        if (getIdentifier() != null) {
+            builder.append(", identifier=");
+            builder.append(getIdentifier());
+        }
         builder.append("]");
         return builder.toString();
     }

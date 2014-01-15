@@ -471,6 +471,10 @@ public final class StringHelper {
             rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
         }
 
+        if (leftBorder && rightBorder) {
+            return true;
+        }
+
         return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(Pattern.quote(word), ""), leftBorder
                 && rightBorder);
     }
@@ -630,38 +634,38 @@ public final class StringHelper {
         return string.trim();
     }
 
-//    /**
-//     * Escape for regular expression.
-//     * 
-//     * @param inputString the input string
-//     * @return the string
-//     * @deprecated Use {@link Pattern#quote(String)} instead.
-//     */
-//    @Deprecated
-//    public static String escapeForRegularExpression(String inputString) {
-//        String string = inputString;
-//        try {
-//            string = string.replace("\\", "\\\\");
-//            string = string.replace("(", "\\(");
-//            string = string.replace(")", "\\)");
-//            string = string.replace("[", "\\[");
-//            string = string.replace("]", "\\]");
-//            string = string.replace("{", "\\{");
-//            string = string.replace("}", "\\}");
-//            string = string.replace("|", "\\|");
-//            string = string.replace("+", "\\+");
-//            string = string.replace("*", "\\*");
-//            string = string.replace("$", "\\$");
-//            string = string.replace("^", "\\^");
-//            string = string.replace(".", "\\.");
-//            string = string.replace("?", "\\?");
-//            string = string.replace("-", "\\-");
-//            string = string.replaceAll("\\n", "\\\\n");
-//        } catch (Exception e) {
-//            LOGGER.error("{}, {}", string, e.getMessage());
-//        }
-//        return string;
-//    }
+    //    /**
+    //     * Escape for regular expression.
+    //     *
+    //     * @param inputString the input string
+    //     * @return the string
+    //     * @deprecated Use {@link Pattern#quote(String)} instead.
+    //     */
+    //    @Deprecated
+    //    public static String escapeForRegularExpression(String inputString) {
+    //        String string = inputString;
+    //        try {
+    //            string = string.replace("\\", "\\\\");
+    //            string = string.replace("(", "\\(");
+    //            string = string.replace(")", "\\)");
+    //            string = string.replace("[", "\\[");
+    //            string = string.replace("]", "\\]");
+    //            string = string.replace("{", "\\{");
+    //            string = string.replace("}", "\\}");
+    //            string = string.replace("|", "\\|");
+    //            string = string.replace("+", "\\+");
+    //            string = string.replace("*", "\\*");
+    //            string = string.replace("$", "\\$");
+    //            string = string.replace("^", "\\^");
+    //            string = string.replace(".", "\\.");
+    //            string = string.replace("?", "\\?");
+    //            string = string.replace("-", "\\-");
+    //            string = string.replaceAll("\\n", "\\\\n");
+    //        } catch (Exception e) {
+    //            LOGGER.error("{}, {}", string, e.getMessage());
+    //        }
+    //        return string;
+    //    }
 
     /**
      * Checks whether character is a bracket.
