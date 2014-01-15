@@ -256,7 +256,7 @@ public class BasicWebContent implements WebContent {
             builder.append(tags);
         }
         if (source != null) {
-            builder.append(", source");
+            builder.append(", source=");
             builder.append(source);
         }
         builder.append("]");

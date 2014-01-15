@@ -3,6 +3,7 @@ package ws.palladian.retrieval.parser.json;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -20,7 +21,6 @@ public class JsonParserTest {
 
     @Test
     public void testGet() throws JsonException {
-
         JsonObject jsonObject = new JsonObject(jsonString);
         assertEquals(jsonObject.getJsonObject("entry"), jsonObject.query("entry"));
         assertEquals(Integer.valueOf(1), jsonObject.query("entry/a"));
@@ -38,6 +38,12 @@ public class JsonParserTest {
 
         assertNull(jsonObject.query("/entry/d"));
         assertNull(jsonObject.getJsonObject("entry").getString("d"));
+
+        // it should be possible, to get "entry/a" as String instead of int. However, it is not allowed, to query a JSON
+        // object/array as string, while this would be easily possible, the reason is to avoid potential coding errors,
+        // as we assume, that if someone asks for a string, he wants an actual string value and not a JSON string. This
+        // case is tested in #testGetWrongType.
+        assertEquals("1", jsonObject.queryString("/entry/a"));
     }
 
     @Test
@@ -77,7 +83,13 @@ public class JsonParserTest {
         } catch (JsonException e) {
             assertEquals("Could not parse \"null\" to long.", e.getMessage());
         }
+        try {
+            jsonObject.getString("entry"); // entry is not a String
+            fail();
+        } catch (JsonException e) {
+            assertTrue(e.getMessage().startsWith("Could not parse"));
+            assertTrue(e.getMessage().endsWith("to string."));
+        }
     }
-
 
 }

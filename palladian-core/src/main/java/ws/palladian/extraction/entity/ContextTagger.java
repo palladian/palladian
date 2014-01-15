@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.Tagger;
 
 public abstract class ContextTagger implements Tagger {
@@ -24,7 +25,8 @@ public abstract class ContextTagger implements Tagger {
     @Override
     public List<ContextAnnotation> getAnnotations(String text) {
         List<ContextAnnotation> annotations = CollectionHelper.newArrayList();
-        Matcher matcher = pattern.matcher(text);
+        // XXX StringHelper#replaceProtectedSpace is also in normal StringTagger; can we not unify those two classes?
+        Matcher matcher = pattern.matcher(StringHelper.replaceProtectedSpace(text));
         while (matcher.find()) {
             int startPosition = matcher.start();
             int endPosition = matcher.end();

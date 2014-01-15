@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.Facet;
 import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
@@ -55,6 +57,45 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
 
     /** The pattern for parsing the date. */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+    /** The maximum number of results we can get per request. */
+    private static final int MAX_RESULTS_PER_PAGE = 50;
+
+    /**
+     * <p>
+     * Order parameter for result list.
+     * </p>
+     * 
+     * @author pk
+     */
+    public static enum OrderBy implements Facet {
+        /** Entries are ordered by their relevance to a search query. */
+        RELEVANCE("relevance"),
+        /** Entries are returned in reverse chronological order. */
+        PUBLISHED("published"),
+        /** Entries are ordered from most views to least views. */
+        VIEW_COUNT("viewCount"),
+        /** Entries are ordered from highest rating to lowest rating. */
+        RATING("rating");
+
+        private static final String YOUTUBE_RESULT_ORDER = "youtube.resultOrder";
+        
+        private final String parameterValue;
+        
+        private OrderBy(String parameterValue) {
+            this.parameterValue = parameterValue;
+        }
+
+        @Override
+        public String getIdentifier() {
+            return YOUTUBE_RESULT_ORDER;
+        }
+
+        public String getValue() {
+            return parameterValue;
+        }
+
+    }
 
     /** The API key. */
     private final String apiKey;
@@ -98,16 +139,20 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         return SEARCHER_NAME;
     }
 
-    private String getRequestUrl(MultifacetQuery query) throws SearcherException {
-        if (query.getText() == null || query.getText().isEmpty()) {
+    private String getRequestUrl(MultifacetQuery query, int startIndex, int numResults) throws SearcherException {
+        if (StringUtils.isBlank(query.getText())) {
             throw new SearcherException("The query must supply a text.");
         }
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("https://gdata.youtube.com/feeds/api/videos?q=");
         urlBuilder.append(UrlHelper.encodeParameter(query.getText()));
-        urlBuilder.append("&orderby=relevance");
-        urlBuilder.append("&start-index=1");
-        urlBuilder.append("&max-results=" + Math.min(50, query.getResultCount()));
+        Facet facet = query.getFacet(OrderBy.YOUTUBE_RESULT_ORDER);
+        if (facet != null) {
+            OrderBy orderByFacet = (OrderBy)facet;
+            urlBuilder.append("&orderby=").append(orderByFacet.getValue());
+        }
+        urlBuilder.append("&start-index=").append(startIndex);
+        urlBuilder.append("&max-results=").append(numResults);
         urlBuilder.append("&v=2");
         urlBuilder.append("&alt=json");
         if (apiKey != null && !apiKey.isEmpty()) {
@@ -117,6 +162,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         if (language != null) {
             urlBuilder.append("&lr=").append(language.getIso6391());
         }
+        urlBuilder.append("&safeSearch=none");
         // TODO geo search is currently not available.
         // see: https://code.google.com/p/gdata-issues/issues/detail?id=4234
         return urlBuilder.toString();
@@ -124,46 +170,40 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
 
     @Override
     public SearchResults<WebVideo> search(MultifacetQuery query) throws SearcherException {
-        // TODO pagination available? Currently I get only 50 results max.
-
-        String url = getRequestUrl(query);
-
-        HttpResult httpResult;
-        try {
-            httpResult = retriever.httpGet(url);
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
-                    + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
-        }
-
         List<WebVideo> webResults = new ArrayList<WebVideo>();
-        long numResults = 0;
-        String jsonString = httpResult.getStringContent();
+        Long numResults = null;
+        int numPages = (int)Math.ceil((double)query.getResultCount() / MAX_RESULTS_PER_PAGE);
 
-        try {
-            JsonObject root = new JsonObject(jsonString);
-            TOTAL_REQUEST_COUNT.incrementAndGet();
-            JsonObject feed = root.getJsonObject("feed");
-            numResults = feed.getJsonObject("openSearch$totalResults").getLong("$t");
-
-            JsonArray entries = feed.getJsonArray("entry");
-
-            if (entries != null) {
-
-                for (int i = 0; i < entries.size(); i++) {
-                    WebVideo webVideoResult = parseEntry(entries.getJsonObject(i));
-                    webResults.add(webVideoResult);
-
-                    if (webResults.size() >= query.getResultCount()) {
-                        break;
+        for (int page = 1; page <= numPages; page++) {
+            String url = getRequestUrl(query, page, MAX_RESULTS_PER_PAGE);
+            LOGGER.debug("Requesting with URL {}", url);
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.httpGet(url);
+            } catch (HttpException e) {
+                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
+                        + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
+            }
+            String jsonString = httpResult.getStringContent();
+            try {
+                JsonObject root = new JsonObject(jsonString);
+                TOTAL_REQUEST_COUNT.incrementAndGet();
+                JsonObject feed = root.getJsonObject("feed");
+                numResults = feed.getJsonObject("openSearch$totalResults").getLong("$t");
+                JsonArray entries = feed.getJsonArray("entry");
+                if (entries != null) {
+                    for (int i = 0; i < entries.size(); i++) {
+                        WebVideo webVideoResult = parseEntry(entries.getJsonObject(i));
+                        webResults.add(webVideoResult);
+                        if (webResults.size() >= query.getResultCount()) {
+                            break;
+                        }
                     }
                 }
+            } catch (JsonException e) {
+                throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                        + "\" with " + getName() + ", JSON was \"" + jsonString + "\": " + e, e);
             }
-
-        } catch (Exception e) {
-            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                    + "\" with " + getName() + ", JSON was \"" + jsonString + "\": " + e, e);
-
         }
         return new SearchResults<WebVideo>(webResults, numResults);
     }
@@ -185,12 +225,10 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
             int numDislikes = ratingObject.getInt("numDislikes");
             int numLikes = ratingObject.getInt("numLikes");
             int total = numLikes + numDislikes;
-
             if (total > 0) {
                 builder.setRating(numLikes / (double)total);
             }
         }
-
         if (entry.get("georss$where") != null) {
             String positionString = entry.queryString("georss$where/gml$Point/gml$pos/$t");
             if (positionString != null) {

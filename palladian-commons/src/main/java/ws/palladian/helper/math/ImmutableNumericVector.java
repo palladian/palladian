@@ -24,6 +24,13 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
     private final Map<K, Double> valueMap;
 
     /**
+     * @return An empty {@link ImmutableNumericVector}.
+     */
+    public static <K> ImmutableNumericVector<K> empty() {
+        return new ImmutableNumericVector<K>(Collections.<K, Double> emptyMap());
+    }
+
+    /**
      * <p>
      * Create a new {@link ImmutableNumericVector} from the given value map. The map is copied, making this instance
      * effectively immutable.
