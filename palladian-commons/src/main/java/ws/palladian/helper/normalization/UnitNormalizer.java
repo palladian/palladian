@@ -266,6 +266,55 @@ public class UnitNormalizer {
         return null;
     }
 
+    public static String detectUnit(String text, int unitType) {
+        switch (unitType) {
+            case UNIT_LENGTH:
+            for (String unit : LENGTH_UNITS) {
+                if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                    return unit;
+                }
+            }
+                break;
+            case UNIT_FREQUENCY:
+                for (String unit : FREQUENCY_UNITS) {
+                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                        return unit;
+                    }
+                }
+                break;
+            case UNIT_DIGITAL:
+                for (String unit : DIGITAL_UNITS) {
+                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                        return unit;
+                    }
+                }
+                break;
+            case UNIT_TEMPERATURE:
+                for (String unit : TEMPERATURE_UNITS) {
+                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                        return unit;
+                    }
+                }
+                break;
+            case UNIT_WEIGHT:
+                for (String unit : WEIGHT_UNITS) {
+                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                        return unit;
+                    }
+                }
+                break;
+            case UNIT_TIME:
+                for (String unit : TIME_UNITS) {
+                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                        return unit;
+                    }
+                }
+                break;
+        }
+
+        return null;
+    }
+
     /**
      * <p>
      * Return a collection of units that are of the same type, e.g. if "cm" is given, all other length units are
