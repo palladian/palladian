@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,13 +40,14 @@ import ws.palladian.retrieval.search.SearcherException;
  */
 public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebImage> {
 
-    private static final int MAX_RESULTS_PER_PAGE = 100;
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FivehundredPxSearcher.class);
 
     /** The name of this searcher. */
     private static final String NAME = "500px";
+
+    /** Maximum number of results which can be retrieved by one request. */
+    private static final int MAX_RESULTS_PER_PAGE = 100;
 
     /** The format for parsing the dates. */
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
@@ -103,6 +105,18 @@ public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebI
         this.consumerKey = consumerKey;
     }
 
+    /**
+     * <p>
+     * Create a new {@link FivehundredPxSearcher} from a given {@link Configuration}.
+     * </p>
+     * 
+     * @param configuration The configuration which must provide the consumer key via {@value #CONFIG_CONSUMER_KEY}, not
+     *            <code>null</code>.
+     */
+    public FivehundredPxSearcher(Configuration configuration) {
+        this(configuration.getString(CONFIG_CONSUMER_KEY));
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -144,6 +158,7 @@ public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebI
                     builder.setSize(photoJson.getInt("width"), photoJson.getInt("height"));
                     builder.setImageUrl(photoJson.getString("image_url"));
                     builder.setUrl("http://500px.com/photo/" + photoJson.getString("id"));
+                    builder.setSource(NAME);
                     JsonArray tagsArray = photoJson.getJsonArray("tags");
                     for (Object tag : tagsArray) {
                         builder.addTag((String)tag);
