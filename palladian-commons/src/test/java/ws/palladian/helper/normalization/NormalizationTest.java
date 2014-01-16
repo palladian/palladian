@@ -28,7 +28,7 @@ public class NormalizationTest {
 
     @Test
     public void testDetectUnit() {
-        
+
         assertEquals("kilobytes", UnitNormalizer.detectUnit("how much are 100 kilobytes"));
         assertEquals("kilometers", UnitNormalizer.detectUnit("kilometers"));
         assertEquals("miles", UnitNormalizer.detectUnit("1.5miles"));
@@ -57,6 +57,7 @@ public class NormalizationTest {
         // assertEquals(UnitNormalizer.getNormalizedNumber(13.3, "\" adf fs"), 33.782);
         assertEquals(UnitNormalizer.getNormalizedNumber(6, "' 2''"), 187.96, 2);
         assertEquals(UnitNormalizer.getNormalizedNumber(6, "'2\""), 187.96, 2);
+        assertEquals(UnitNormalizer.getNormalizedNumber(7.5, "\""), 18.75, 2);
         assertEquals(UnitNormalizer.getNormalizedNumber(5, "hours 4 minutes 6seconds"), 18246.0, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(6, " h 30 min"), 23400.0, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(5, "ft 9 inches"), 175.26, 2);
