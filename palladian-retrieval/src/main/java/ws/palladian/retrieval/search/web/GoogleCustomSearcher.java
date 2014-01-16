@@ -32,7 +32,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author Philipp Katz
  * @see <a href="https://developers.google.com/custom-search/v1/overview">Overview Google Custom Search</a>
  * @see <a href="http://code.google.com/apis/console/?api=customsearch">Google API console</a>
- * @see <a href="http://www.google.com/cse>Google Custom Search settings</a>
+ * @see <a href="http://www.google.com/cse">Google Custom Search settings</a>
  * @see <a href="http://support.google.com/customsearch/bin/answer.py?hl=en&answer=1210656">Search the entire web</a>
  */
 public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
@@ -159,6 +159,7 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
             builder.setTitle(jsonItem.getString("title"));
             builder.setUrl(jsonItem.getString("link"));
             builder.setSummary(jsonItem.getString("snippet"));
+            builder.setSource(SEARCHER_NAME);
             result.add(builder.create());
         }
         return result;
