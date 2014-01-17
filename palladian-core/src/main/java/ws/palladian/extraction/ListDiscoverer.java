@@ -123,9 +123,9 @@ public class ListDiscoverer {
                 }
             }
 
-            LinkedHashMap<String, Integer> xPathMap = paginationPaths.getXPathMap();
+            Map<String, Integer> xPathMap = paginationPaths.getXPathMap();
             if (xPathMap.entrySet().size() > 0) {
-                LinkedHashMap<String, Double> xPathsBySimilarity = new LinkedHashMap<String, Double>();
+                Map<String, Double> xPathsBySimilarity = new LinkedHashMap<String, Double>();
                 // QGramsDistance stringDistanceMetric = new QGramsDistance();
                 StringSimilarity stringDistanceMetric = new JaroWinklerSimilarity();
                 Iterator<Map.Entry<String, Integer>> xPathMapIterator = xPathMap.entrySet().iterator();
@@ -452,7 +452,7 @@ public class ListDiscoverer {
         }
 
         XPathSet siblingXPathSet = getXPathSet(siblingDocument);
-        LinkedHashMap<String, Integer> siblingXPathSetMap = siblingXPathSet.getXPathMap();
+        Map<String, Integer> siblingXPathSetMap = siblingXPathSet.getXPathMap();
 
         int samePathContent = 0;
         Iterator<Map.Entry<String, Integer>> xPathSetIterator = xPathSet.getXPathMap().entrySet().iterator();

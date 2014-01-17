@@ -103,7 +103,7 @@ public class WikipediaPlaceNameCollector {
             }
         });
 
-        LinkedHashMap<String, Integer> map = counts.getSortedMapDescending();
+        Map<String, Integer> map = counts.getSortedMapDescending();
         for (String value : map.keySet()) {
             int count = map.get(value);
             if (count > 200) {
