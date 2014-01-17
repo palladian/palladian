@@ -106,7 +106,7 @@ public final class CollectionHelper {
      *         XXX {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
      *         {@link Pair}s, sorted as required.
      */
-    public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final Order order) {
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map, final Order order) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
         Collections.sort(list, new EntryValueComparator<V>(order));
@@ -128,11 +128,8 @@ public final class CollectionHelper {
      * @param <V> Type of the values.
      * @param map The {@link Map} to sort.
      * @return A sorted map, in ascending order.
-     * @deprecated {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
-     *             {@link Pair}s, sorted as required.
      */
-    @Deprecated
-    public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map) {
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map) {
         return sortByValue(map, Order.ASCENDING);
     }
 
