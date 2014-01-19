@@ -39,6 +39,7 @@ public class NormalizationTest {
     @Test
     public void testGetNormalizedNumber() {
 
+        assertEquals(14.175, UnitNormalizer.getNormalizedNumber(0.5, "fluid ounce"), 0.1);
         assertEquals(UnitNormalizer.getNormalizedNumber(1, "measure"), 44.3603, 0.1);
         assertEquals(UnitNormalizer.getNormalizedNumber(2.5, "shots"), 110.9, 0.1);
 
