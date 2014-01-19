@@ -43,6 +43,12 @@ public final class BoneCpDataSourceFactory implements DataSourceFactory {
         boneConfig.setMinConnectionsPerPartition(5);
         boneConfig.setMaxConnectionsPerPartition(10);
 
+        // The PalladianDatabaseManager guarantees, that connections are closed (in case, one uses the standard
+        // functionality. And those fools, who don't, need punishment anyways). On the other hand, this functionality
+        // has caused me some trouble since updating to version 0.8, so I disable it here completely (which should
+        // slightly improve performance, too).
+        boneConfig.setDisableConnectionTracking(true);
+
         // recommended 3-4 depending on app
         boneConfig.setPartitionCount(3);
 
