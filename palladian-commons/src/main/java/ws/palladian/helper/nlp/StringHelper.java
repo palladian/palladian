@@ -1697,6 +1697,15 @@ public final class StringHelper {
         text = StringHelper.replaceWord("ten", "10", text);
         text = StringHelper.replaceWord("eleven", "11", text);
         text = StringHelper.replaceWord("twelve", "12", text);
+        text = StringHelper.replaceWord("twenty", "20", text);
+        text = StringHelper.replaceWord("thirty", "30", text);
+        text = StringHelper.replaceWord("forty", "40", text);
+        text = StringHelper.replaceWord("fifty", "50", text);
+        text = StringHelper.replaceWord("sixty", "60", text);
+        text = StringHelper.replaceWord("seventy", "70", text);
+        text = StringHelper.replaceWord("eighty", "80", text);
+        text = StringHelper.replaceWord("ninety", "90", text);
+        text = StringHelper.replaceWord("one hundred", "100", text);
         return text;
     }
 
