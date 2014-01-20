@@ -3,9 +3,7 @@ package ws.palladian.helper.io;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
 
 import org.apache.commons.lang3.Validate;
 
@@ -50,14 +48,15 @@ public final class ResourceHelper {
             throw new FileNotFoundException(resourceLocation + " could not be found or accessed");
         }
 
-        String resourcePath;
-        try {
-            resourcePath = URLDecoder.decode(url.getFile(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-        return resourcePath;
-
+//        String resourcePath;
+//        try {
+//            resourcePath = URLDecoder.decode(url.getFile(), "UTF-8");
+//        } catch (UnsupportedEncodingException e) {
+//            throw new IllegalStateException(e);
+//        }
+//        return resourcePath;
+        
+        return url.getFile();
     }
 
     /**
