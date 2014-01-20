@@ -136,8 +136,11 @@ public class DatabaseManager {
                 rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     provider.insertedItem(i, rs.getInt(1));
-                    affectedRows++;
+                } else if (ps.getUpdateCount() == 1) {
+                    // no ID generated
+                    provider.insertedItem(i, -1);
                 }
+                affectedRows++;
             }
 
             connection.commit();
@@ -145,6 +148,7 @@ public class DatabaseManager {
 
         } catch (SQLException e) {
             rollback(connection);
+            affectedRows = 0;
             Object[] args = null;
             if (data != null) {
                 args = data.toArray();
