@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -1945,6 +1946,35 @@ public final class FileHelper {
             }
         }
         return tempDirectory;
+    }
+
+    /**
+     * <p>
+     * Traverse a directory, including its subdirectories and perform an {@link Action} to each file.
+     * </p>
+     * 
+     * @param path The starting path, not <code>null</code>.
+     * @param filter A {@link FileFilter} which determines which files to process, not <code>null</code>.
+     * @param action An {@link Action} to perform for the matching files, not <code>null</code>.
+     * @return The number of processed files.
+     */
+    public static int traverseFiles(File path, FileFilter filter, Action<? super File> action) {
+        Validate.notNull(path, "path must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        Validate.notNull(action, "action must not be null");
+        int counter = 0;
+        File[] files = path.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                traverseFiles(file, filter, action);
+            } else {
+                if (filter.accept(file)) {
+                    counter++;
+                    action.process(file);
+                }
+            }
+        }
+        return counter;
     }
 
 }
