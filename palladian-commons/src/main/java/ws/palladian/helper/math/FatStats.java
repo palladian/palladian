@@ -71,6 +71,22 @@ public class FatStats implements Stats {
         Validate.isTrue(size > 0);
         this.values = FixedSizeQueue.create(size);
     }
+    
+    /**
+     * <p>
+     * Add another {@link FatStats} to this {@link FatStats}.
+     * </p>
+     * 
+     * @param stats The FatStats to add, not <code>null</code>.
+     * @return This instance, for fluent method chaining.
+     */
+    public FatStats add(FatStats stats) {
+        // TODO pull up, but I don't know how to implement the same for SlimStats now, have a look here?
+        // http://stats.stackexchange.com/questions/25848/how-to-sum-a-standard-deviation
+        Validate.notNull(stats, "stats must not be null");
+        values.addAll(stats.values);
+        return this;
+    }
 
     /* (non-Javadoc)
      * @see ws.palladian.helper.math.Stats#add(java.lang.Number)

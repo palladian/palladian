@@ -124,4 +124,9 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
         return valueMap.size();
     }
 
+    @Override
+    public String toString() {
+        return "Vector " + valueMap;
+    }
+
 }
