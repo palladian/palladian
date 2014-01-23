@@ -21,6 +21,8 @@ import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.InverseFilter;
+import ws.palladian.helper.collection.RegexFilter;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -267,19 +269,20 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
 
     private static Set<String> parseTags(JsonObject photoJson) throws JsonException {
         Object tagsElement = photoJson.get("tags");
+        Set<String> tags;
         if (tagsElement instanceof String) {
-            String tags = (String)tagsElement;
-            return new HashSet<String>(Arrays.asList(tags.split("\\s")));
+            tags = new HashSet<String>(Arrays.asList(((String)tagsElement).split("\\s")));
         } else {
             JsonObject tagsObject = (JsonObject)tagsElement;
             JsonArray tagsArray = tagsObject.getJsonArray("tag");
-            Set<String> result = CollectionHelper.newHashSet();
+            tags = CollectionHelper.newHashSet();
             for (Object tagContent : tagsArray) {
-                JsonObject tagJson = (JsonObject)tagContent;
-                result.add(tagJson.getString("_content"));
+                tags.add(((JsonObject)tagContent).getString("_content"));
             }
-            return result;
         }
+        // remove "vision:" tags; http://stackoverflow.com/questions/21287302/flickr-api-what-are-the-vision-tags
+        CollectionHelper.remove(tags, InverseFilter.create(new RegexFilter("vision:.*")));
+        return tags;
     }
 
     /**
@@ -353,7 +356,8 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                 urlBuilder.append("&max_taken_date=").append(query.getEndDate().getTime() / 1000);
             }
             if (query.getCoordinate() != null) {
-                double[] bbox = query.getCoordinate().getBoundingBox(query.getRadius());
+                double radius = query.getRadius() != null ? query.getRadius() : 10;
+                double[] bbox = query.getCoordinate().getBoundingBox(radius);
                 String params = String.format("%s,%s,%s,%s", bbox[1], bbox[0], bbox[3], bbox[2]);
                 urlBuilder.append("&bbox=").append(params);
             }
