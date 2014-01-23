@@ -73,6 +73,12 @@ public class JsonParserTest {
         } catch (JsonException e) {
             assertEquals("No key: test", e.getMessage());
         }
+        try {
+            jsonObject.queryJsonArray("/entry/a/c");
+            fail();
+        } catch (JsonException e) {
+            assertEquals("No value/item for query.", e.getMessage());
+        }
     }
 
     @Test
