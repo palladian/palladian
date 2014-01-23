@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
@@ -405,6 +407,18 @@ public final class StringHelper {
             }
         }
         return null;
+    }
+
+    public static Set<String> containsWhichWords(Collection<String> words, String searchString) {
+        Set<String> containedWords = CollectionHelper.newHashSet();
+
+        for (String word : words) {
+            if (containsWord(word, searchString)) {
+                containedWords.add(word);
+            }
+        }
+
+        return containedWords;
     }
 
     /**
