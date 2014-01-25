@@ -6,7 +6,8 @@ import org.apache.commons.lang3.Validate;
 
 /**
  * <p>
- * Save the settings which text features should be used for a classifier.
+ * Save the settings which text features should be used for a classifier. Use the {@link FeatureSettingBuilder} to
+ * instantiate.
  * </p>
  * 
  * @author David Urbansky
@@ -16,7 +17,22 @@ public class FeatureSetting implements Serializable {
 
     private static final long serialVersionUID = 8129286644101075891L;
 
-    public enum TextFeatureType {
+    /** The default maximum term length. */
+    static final int DEFAULT_MIN_TERM_LENGTH = 3;
+
+    /** The default maximum term length. */
+    static final int DEFAULT_MAX_TERM_LENGTH = 20;
+
+    /** The default maximum terms to extract. */
+    static final int DEFAULT_MAX_TERMS = 800;
+
+    /** The default minimum n-gram length. */
+    static final int DEFAULT_MIN_NGRAM_LENGTH = 4;
+
+    /** The default maximum n-gram length. */
+    static final int DEFAULT_MAX_NGRAM_LENGTH = 7;
+
+    public static enum TextFeatureType {
         /** Use n-Grams on a character level. */
         CHAR_NGRAMS,
         /** Use n-Grams on a word level. */
@@ -39,22 +55,34 @@ public class FeatureSetting implements Serializable {
      * The minimum length of a single term, this only applies if {@link textFeatureType} is set to
      * {@link TextFeatureType#WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
      */
-    private final int minimumTermLength = 3;
+    private int minimumTermLength = DEFAULT_MIN_TERM_LENGTH;
 
     /**
      * The maximum length of a single term, this only applies if {@link textFeatureType} is set to
      * {@link TextFeatureType#WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
      */
-    private final int maximumTermLength = 20;
+    private int maximumTermLength = DEFAULT_MAX_TERM_LENGTH;
 
+    /**
+     * @deprecated Consider using the {@link FeatureSettingBuilder} for better readability.
+     */
+    @Deprecated
     public FeatureSetting() {
-        this(TextFeatureType.CHAR_NGRAMS, 4, 7, 800);
+        this(TextFeatureType.CHAR_NGRAMS, DEFAULT_MIN_NGRAM_LENGTH, DEFAULT_MAX_NGRAM_LENGTH, DEFAULT_MAX_TERMS);
     }
 
+    /**
+     * @deprecated Consider using the {@link FeatureSettingBuilder} for better readability.
+     */
+    @Deprecated
     public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength) {
-        this(textFeatureType, minNGramLength, maxNGramLength, 800);
+        this(textFeatureType, minNGramLength, maxNGramLength, DEFAULT_MAX_TERMS);
     }
 
+    /**
+     * @deprecated Consider using the {@link FeatureSettingBuilder} for better readability.
+     */
+    @Deprecated
     public FeatureSetting(TextFeatureType textFeatureType, int minNGramLength, int maxNGramLength, int maxTerms) {
         Validate.notNull(textFeatureType, "textFeatureType must not be null");
         Validate.isTrue(minNGramLength > 0);
@@ -65,6 +93,15 @@ public class FeatureSetting implements Serializable {
         this.minNGramLength = minNGramLength;
         this.maxNGramLength = maxNGramLength;
         this.maxTerms = maxTerms;
+    }
+
+    FeatureSetting(FeatureSettingBuilder builder) {
+        this.textFeatureType = builder.featureType;
+        this.maxTerms = builder.maxTerms;
+        this.minNGramLength = builder.minNGramLength;
+        this.maxNGramLength = builder.maxNGramLength;
+        this.minimumTermLength = builder.minTermLength;
+        this.maximumTermLength = builder.maxTermLength;
     }
 
     public TextFeatureType getTextFeatureType() {
@@ -91,6 +128,13 @@ public class FeatureSetting implements Serializable {
         return minimumTermLength;
     }
 
+    /**
+     * @return <code>true</code> in case word unigrams are extracted, <code>false</code> otherwise.
+     */
+    public boolean isWordUnigrams() {
+        return textFeatureType == TextFeatureType.WORD_NGRAMS && minNGramLength == 1 & maxNGramLength == 1;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -101,8 +145,10 @@ public class FeatureSetting implements Serializable {
             builder.append("...").append(maxNGramLength);
         }
         builder.append(", ");
-        builder.append("termLength=").append(minimumTermLength);
-        builder.append("...").append(maximumTermLength).append(", ");
+        if (isWordUnigrams()) {
+            builder.append("termLength=").append(minimumTermLength);
+            builder.append("...").append(maximumTermLength).append(", ");
+        }
         builder.append("maxTerms=").append(maxTerms);
         builder.append("]");
         return builder.toString();
