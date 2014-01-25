@@ -713,6 +713,27 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Create a wrapper for a given {@link Iterable} which converts the iterable's items using a provided
+     * {@link Function}.
+     * </p>
+     * 
+     * @param iterator The iterator to wrap, not <code>null</code>.
+     * @param function The {@link Function} which performs the conversion, not <code>null</code>.
+     * @return An iterable wrapping the given iterable.
+     */
+    public static <I, O> Iterable<O> convert(final Iterable<I> iterable, final Function<? super I, O> function) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+        return new Iterable<O>() {
+            @Override
+            public Iterator<O> iterator() {
+                return convert(iterable.iterator(), function);
+            }
+        };
+    }
+
+    /**
+     * <p>
      * Join elements of a collection in a readable form.
      * </p>
      * 
