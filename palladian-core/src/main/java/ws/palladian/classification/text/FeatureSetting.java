@@ -94,18 +94,16 @@ public class FeatureSetting implements Serializable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("FeatureSetting [maxNGramLength=");
-        builder.append(maxNGramLength);
-        builder.append(", maxTerms=");
-        builder.append(maxTerms);
-        builder.append(", maximumTermLength=");
-        builder.append(maximumTermLength);
-        builder.append(", minNGramLength=");
-        builder.append(minNGramLength);
-        builder.append(", minimumTermLength=");
-        builder.append(minimumTermLength);
-        builder.append(", textFeatureType=");
-        builder.append(textFeatureType);
+        builder.append("FeatureSetting [");
+        builder.append("featureType=").append(textFeatureType).append(", ");
+        builder.append("nGramLength=").append(minNGramLength);
+        if (maxNGramLength > minNGramLength) {
+            builder.append("...").append(maxNGramLength);
+        }
+        builder.append(", ");
+        builder.append("termLength=").append(minimumTermLength);
+        builder.append("...").append(maximumTermLength).append(", ");
+        builder.append("maxTerms=").append(maxTerms);
         builder.append("]");
         return builder.toString();
     }
