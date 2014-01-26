@@ -54,14 +54,14 @@ import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * A {@link ScopeDetector} which uses various features to train a model, which is then used for predicting the scope.
- * The features are mainly influenced from the rule-based {@link ScopeDetector}s (see implementations).
+ * A {@link RankingScopeDetector} which uses various features to train a model, which is then used for predicting the scope.
+ * The features are mainly influenced from the rule-based {@link RankingScopeDetector}s (see implementations).
  * </p>
  * 
  * @author pk
  * @param <M> Type of the model, depending on the actual classifier.
  */
-public final class FeatureBasedScopeDetector implements ScopeDetector {
+public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetector {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedScopeDetector.class);
@@ -75,9 +75,9 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
 
     private final QuickDtClassifier classifier = new QuickDtClassifier();
 
-    public FeatureBasedScopeDetector(QuickDtModel scopeModel) {
+    public FeatureBasedScopeDetector(LocationExtractor extractor, QuickDtModel scopeModel) {
+        super(extractor);
         Validate.notNull(scopeModel, "scopeModel must not be null");
-        Validate.notNull(classifier, "classifier must not be null");
         this.scopeModel = scopeModel;
     }
 

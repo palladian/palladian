@@ -12,11 +12,16 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public final class HighestPopulationScopeDetector implements ScopeDetector {
+public final class HighestPopulationScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "MaximumPopulation";
+
+    public HighestPopulationScopeDetector(LocationExtractor extractor) {
+        super(extractor);
+    }
 
     @Override
     public Location getScope(Collection<LocationAnnotation> locations) {

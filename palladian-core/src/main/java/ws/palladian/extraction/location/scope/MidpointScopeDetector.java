@@ -12,11 +12,17 @@ import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public final class MidpointScopeDetector implements ScopeDetector {
+public final class MidpointScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "Midpoint";
+
+    public MidpointScopeDetector(LocationExtractor extractor) {
+        super(extractor);
+    }
+
 
     @Override
     public Location getScope(Collection<LocationAnnotation> annotations) {

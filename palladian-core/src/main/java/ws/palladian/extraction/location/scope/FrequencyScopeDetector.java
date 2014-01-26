@@ -12,11 +12,16 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public final class FrequencyScopeDetector implements ScopeDetector {
+public final class FrequencyScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "Frequency";
+
+    public FrequencyScopeDetector(LocationExtractor extractor) {
+        super(extractor);
+    }
 
     @Override
     public Location getScope(Collection<LocationAnnotation> annotations) {
