@@ -6,10 +6,15 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractor;
 
-public final class FirstScopeDetector implements ScopeDetector {
+public final class FirstScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "First";
+
+    public FirstScopeDetector(LocationExtractor extractor) {
+        super(extractor);
+    }
 
     @Override
     public Location getScope(Collection<LocationAnnotation> locations) {
@@ -22,7 +27,7 @@ public final class FirstScopeDetector implements ScopeDetector {
         }
         return null;
     }
-    
+
     @Override
     public String toString() {
         return NAME;

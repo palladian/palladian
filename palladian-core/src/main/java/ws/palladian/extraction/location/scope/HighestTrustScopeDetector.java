@@ -13,11 +13,16 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public final class HighestTrustScopeDetector implements ScopeDetector {
+public final class HighestTrustScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "Trust";
+
+    public HighestTrustScopeDetector(LocationExtractor extractor) {
+        super(extractor);
+    }
 
     @Override
     public Location getScope(Collection<LocationAnnotation> locations) {
