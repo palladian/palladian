@@ -66,7 +66,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * @return The builder.
      */
     public static FeatureSettingBuilder words() {
-        return new FeatureSettingBuilder(TextFeatureType.WORD_NGRAMS);
+        return new FeatureSettingBuilder(TextFeatureType.WORD_NGRAMS).nGramLength(1);
     }
 
     /**
