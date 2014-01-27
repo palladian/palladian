@@ -59,11 +59,7 @@ public class ScopeDetectorEvaluator {
     }
 
     public void runAll(boolean detailedResults) {
-        // write header if necessary
-        if (!RESULT_CSV_FILE.isFile()) {
-            String header = "detector;extractor;below1km;below10km;below100km;below1000km;meanError;medianError;minError;maxError;mse;rmse;misses\n";
-            FileHelper.writeToFile(RESULT_CSV_FILE.getPath(), header);
-        }
+        writeHeader();
 
         for (Iterable<LocationDocument> dataset : datasets) {
             FileHelper.appendFile(RESULT_CSV_FILE.getPath(), "##### " + dataset.toString() + "\n");
@@ -72,6 +68,16 @@ public class ScopeDetectorEvaluator {
             }
             FileHelper.appendFile(RESULT_CSV_FILE.getPath(), "\n\n");
             FileHelper.appendFile(RESULT_CSV_FILE.getPath(), "\n\n");
+        }
+    }
+
+    /**
+     * Write CSV header if necessary.
+     */
+    private static void writeHeader() {
+        if (!RESULT_CSV_FILE.isFile()) {
+            String header = "detector;extractor;below1km;below10km;below100km;below1000km;meanError;medianError;minError;maxError;mse;rmse;misses\n";
+            FileHelper.writeToFile(RESULT_CSV_FILE.getPath(), header);
         }
     }
 
@@ -136,6 +142,7 @@ public class ScopeDetectorEvaluator {
                 distanceStats.getMse(), //
                 distanceStats.getRmse(), //
                 misses); //
+        writeHeader();
         FileHelper.appendFile(RESULT_CSV_FILE.getPath(), line);
 
         // write detailed results
