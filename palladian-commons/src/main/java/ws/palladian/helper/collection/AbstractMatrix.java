@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+
 /**
  * <p>
  * Common {@link Matrix} functionality.
@@ -54,25 +55,11 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
     public String toCsv() {
         return toString().replace("\t", ";");
     }
-
+    
     @Override
-    public Vector<K, V> getRow(final K y) {
-        return new Vector<K, V>() {
-            @Override
-            public V get(K x) {
-                return AbstractMatrix.this.get(x, y);
-            }
-        };
-    }
-
-    @Override
-    public Vector<K, V> getColumn(final K x) {
-        return new Vector<K, V>() {
-            @Override
-            public V get(K y) {
-                return AbstractMatrix.this.get(x, y);
-            }
-        };
+    public V get(K x, K y) {
+        Vector<K, V> row = getRow(y);
+        return row != null ? row.get(x) : null;
     }
 
 }

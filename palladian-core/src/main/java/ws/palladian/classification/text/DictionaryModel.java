@@ -12,7 +12,8 @@ import ws.palladian.classification.Model;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
-import ws.palladian.helper.collection.Vector;
+import ws.palladian.helper.collection.CountMatrix.NumberVector;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -24,7 +25,7 @@ import ws.palladian.helper.collection.Vector;
  */
 public final class DictionaryModel implements Model {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /** The optional name of the model. */
     private String name = "NONAME";
@@ -39,8 +40,7 @@ public final class DictionaryModel implements Model {
     private final FeatureSetting featureSetting;
 
     /**
-     * @param featureSetting
-     * @param classificationTypeSetting
+     * @param featureSetting The feature setting which was used for creating this model.
      */
     public DictionaryModel(FeatureSetting featureSetting) {
         this.featureSetting = featureSetting;
@@ -64,11 +64,11 @@ public final class DictionaryModel implements Model {
 
     public CategoryEntries getCategoryEntries(String term) {
         CategoryEntriesMap categoryFrequencies = new CategoryEntriesMap();
-        Vector<String, Integer> termRow = termCategories.getRow(term);
-        int sum = termCategories.getRow(term).getSum();
-        if (sum > 0) {
-            for (String category : termCategories.getColumnKeys()) {
-                categoryFrequencies.set(category, (double)termRow.get(category) / sum);
+        NumberVector<String> row = termCategories.getRow(term);
+        if (row != null) {
+            int sum = row.getSum();
+            for (VectorEntry<String, Integer> entry : row) {
+                categoryFrequencies.set(entry.key(), (double)entry.value() / sum);
             }
         }
         return categoryFrequencies;

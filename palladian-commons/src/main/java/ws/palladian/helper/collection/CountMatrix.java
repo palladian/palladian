@@ -1,6 +1,7 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -20,14 +21,49 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
 
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
-    
-    public static interface NumberVector<K> extends Vector<K, Integer> {
-        
+
+    /**
+     * A vector decorator, with added functionality applying to numbers (i.e. calculation of sum).
+     * 
+     * @author pk
+     * @param <K> Type of the key.
+     */
+    public static class NumberVector<K> implements Vector<K, Integer> {
+
+        final Vector<K, Integer> vector;
+        final int sum;
+
+        public NumberVector(Vector<K, Integer> vector) {
+            this.vector = vector;
+            int sum = 0;
+            for (VectorEntry<K, Integer> entry : this) {
+                sum += entry.value();
+            }
+            this.sum = sum;
+        }
+
         /**
          * @return The sum of all values in this {@link Vector}.
          */
-        public int getSum();
-        
+        public int getSum() {
+            return sum;
+        }
+
+        @Override
+        public Iterator<VectorEntry<K, Integer>> iterator() {
+            return vector.iterator();
+        }
+
+        @Override
+        public Integer get(K k) {
+            return vector.get(k);
+        }
+
+        @Override
+        public int size() {
+            return vector.size();
+        }
+
     }
 
     private final Matrix<K, Integer> matrix;
@@ -124,43 +160,17 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
     }
 
     @Override
-    public NumberVector<K> getRow(final K y) {
+    public NumberVector<K> getRow(K y) {
         Validate.notNull(y, "y must not be null");
-        return new NumberVector<K>() {
-            @Override
-            public Integer get(K x) {
-                return CountMatrix.this.get(x, y);
-            }
-
-            @Override
-            public int getSum() {
-                int sum = 0;
-                for (K x : getColumnKeys()) {
-                    sum += get(x);
-                }
-                return sum;
-            }
-        };
+        Vector<K, Integer> row = matrix.getRow(y);
+        return row != null ? new NumberVector<K>(row) : null;
     }
 
     @Override
-    public NumberVector<K> getColumn(final K x) {
+    public NumberVector<K> getColumn(K x) {
         Validate.notNull(x, "x must not be null");
-        return new NumberVector<K>() {
-            @Override
-            public Integer get(K y) {
-                return CountMatrix.this.get(x, y);
-            }
-
-            @Override
-            public int getSum() {
-                int sum = 0;
-                for (K y : getRowKeys()) {
-                    sum += get(y);
-                }
-                return sum;
-            }
-        };
+        Vector<K, Integer> column = matrix.getColumn(x);
+        return column != null ? new NumberVector<K>(column) : null;
     }
 
     public int getSum() {
