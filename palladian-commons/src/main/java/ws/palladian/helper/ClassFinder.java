@@ -86,6 +86,7 @@ public final class ClassFinder {
         final Collection<Class<? extends T>> result = CollectionHelper.newHashSet();
         final ConcreteClassFilter classFilter = new ConcreteClassFilter(type);
 
+        LOGGER.debug("Classpath = {}", CLASSPATH);
         String[] classPathItems = CLASSPATH.split(File.pathSeparator);
         for (final String classPathItem : classPathItems) {
             if (classPathItem.endsWith(JAR_FILE_EXTENSION)) { // we're in a JAR file
@@ -135,6 +136,8 @@ public final class ClassFinder {
                             }
                         } catch (ClassNotFoundException e) {
                             LOGGER.debug("Encountered ClassNotFoundException for {}", className);
+                        } catch (NoClassDefFoundError e) {
+                            LOGGER.debug("Encountered NoClassDefFoundError for {}", className);
                         }
                     }
                 });

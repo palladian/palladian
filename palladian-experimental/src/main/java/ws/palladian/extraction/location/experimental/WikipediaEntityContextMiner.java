@@ -29,11 +29,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.io.Action;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil;
 
@@ -82,9 +82,9 @@ class WikipediaEntityContextMiner {
             InputStream inputStream = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(
                     wikipediaDump)));
             final int[] counter = new int[] {0};
-            parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
+            parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
                 @Override
-                public void callback(WikipediaPage page) {
+                public void process(WikipediaPage page) {
                     if (counter[0]++ == limit) {
                         throw new StopException();
                     }
