@@ -18,6 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.text.DictionaryModel;
@@ -893,10 +894,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
                     CategoryEntriesMap mostLikelyCes = new CategoryEntriesMap();
                     if (conceptLikelihoodOrder != null) {
                         ol: for (String conceptName : conceptLikelihoodOrder) {
-                            for (String categoryEntry : categoryEntries) {
-                                if (categoryEntries.getProbability(categoryEntry) > 0
-                                        && categoryEntry.equalsIgnoreCase(conceptName)) {
-                                    mostLikelyCes.set(categoryEntry, categoryEntries.getProbability(categoryEntry));
+                            for (Category categoryEntry : categoryEntries) {
+                                if (categoryEntry.getProbability() > 0
+                                        && categoryEntry.getName().equalsIgnoreCase(conceptName)) {
+                                    mostLikelyCes.set(categoryEntry.getName(), categoryEntry.getProbability());
                                     break ol;
                                 }
                             }

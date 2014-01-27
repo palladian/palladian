@@ -45,7 +45,7 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
     public Iterator<LocationDocument> iterator() {
         return new Iterator<LocationDocument>() {
             private int idx = 0;
-            private final ProgressMonitor monitor = new ProgressMonitor(wikiPages.length, 0);
+            private final ProgressMonitor monitor = new ProgressMonitor(wikiPages.length, 1);
 
             @Override
             public boolean hasNext() {

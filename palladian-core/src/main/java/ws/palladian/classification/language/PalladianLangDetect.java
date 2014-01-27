@@ -6,6 +6,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.text.DictionaryModel;
@@ -137,9 +138,9 @@ public class PalladianLangDetect implements LanguageClassifier {
             return categoryEntries;
         }
         CategoryEntriesMap narrowedCategories = new CategoryEntriesMap();
-        for (String categoryName : categoryEntries) {
-            if (possibleClasses.contains(categoryName)) {
-                narrowedCategories.set(categoryName, categoryEntries.getProbability(categoryName));
+        for (Category category : categoryEntries) {
+            if (possibleClasses.contains(category.getName())) {
+                narrowedCategories.set(category.getName(), category.getProbability());
             }
         }
         narrowedCategories.sort();

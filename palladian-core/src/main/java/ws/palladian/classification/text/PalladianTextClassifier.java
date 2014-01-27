@@ -1,5 +1,6 @@
 package ws.palladian.classification.text;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
@@ -81,9 +82,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         if (annotations != null) {
             for (PositionAnnotation annotation : annotations) {
                 CategoryEntries categoryFrequencies = model.getCategoryEntries(annotation.getValue());
-                for (String category : categoryFrequencies) {
-                    double frequency = categoryFrequencies.getProbability(category);
-                    builder.add(category, frequency * frequency);
+                for (Category category : categoryFrequencies) {
+                    double frequency = category.getProbability();
+                    builder.add(category.getName(), frequency * frequency);
                 }
             }
         }

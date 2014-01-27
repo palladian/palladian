@@ -9,9 +9,9 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.math.MathHelper;
 
 /**
@@ -47,8 +47,8 @@ public final class CategoryEntriesMap implements CategoryEntries {
     public CategoryEntriesMap(CategoryEntries categoryEntries) {
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
         entryMap = CollectionHelper.newHashMap();
-        for (String categoryName : categoryEntries) {
-            entryMap.put(categoryName, categoryEntries.getProbability(categoryName));
+        for (Category category : categoryEntries) {
+            entryMap.put(category.getName(), category.getProbability());
         }
     }
 
@@ -84,9 +84,9 @@ public final class CategoryEntriesMap implements CategoryEntries {
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
         Map<String, Double> valueMap = LazyMap.create(ConstantFactory.create(0.));
         for (CategoryEntries entries : categoryEntries) {
-            for (String category : entries) {
-                Double value = valueMap.get(category);
-                valueMap.put(category, value + entries.getProbability(category));
+            for (Category category : entries) {
+                Double value = valueMap.get(category.getName());
+                valueMap.put(category.getName(), value + category.getProbability());
             }
         }
         CategoryEntriesMap result = new CategoryEntriesMap();
@@ -147,8 +147,8 @@ public final class CategoryEntriesMap implements CategoryEntries {
     }
 
     public void addAll(CategoryEntriesMap categories) {
-        for (String categoryName : categories) {
-            add(categoryName, categories.getProbability(categoryName));
+        for (Category category : categories) {
+            add(category.getName(), category.getProbability());
         }
     }
 
@@ -176,19 +176,34 @@ public final class CategoryEntriesMap implements CategoryEntries {
 
     @Override
     public String getMostLikelyCategory() {
-        double maxProbability = -1;
-        String maxName = null;
-        for (Entry<String, Double> entry : entryMap.entrySet()) {
-            if (entry.getValue() > maxProbability) {
-                maxProbability = entry.getValue();
-                maxName = entry.getKey();
-            }
-        }
-        return maxName;
+//        double maxProbability = -1;
+//        String maxName = null;
+//        for (Entry<String, Double> entry : entryMap.entrySet()) {
+//            if (entry.getValue() > maxProbability) {
+//                maxProbability = entry.getValue();
+//                maxName = entry.getKey();
+//            }
+//        }
+//        return maxName;
+        Category mostLikelyCategory = getMostLikely();
+        return mostLikelyCategory != null ? mostLikelyCategory.getName() : null;
     }
 
-    public Entry<String, Double> getMostLikelyCategoryEntry() {
-        double maxProbability = -1;
+//    public Entry<String, Double> getMostLikelyCategoryEntry() {
+//        double maxProbability = -1;
+//        Entry<String, Double> maxEntry = null;
+//        for (Entry<String, Double> entry : entryMap.entrySet()) {
+//            if (entry.getValue() > maxProbability) {
+//                maxProbability = entry.getValue();
+//                maxEntry = entry;
+//            }
+//        }
+//        return maxEntry;
+//    }
+
+    @Override
+    public Category getMostLikely() {
+        double maxProbability = Double.MIN_VALUE;
         Entry<String, Double> maxEntry = null;
         for (Entry<String, Double> entry : entryMap.entrySet()) {
             if (entry.getValue() > maxProbability) {
@@ -196,7 +211,7 @@ public final class CategoryEntriesMap implements CategoryEntries {
                 maxEntry = entry;
             }
         }
-        return maxEntry;
+        return maxEntry != null ? new ImmutableCategory(maxEntry.getKey(), maxEntry.getValue()) : null;
     }
 
     @Override
@@ -204,29 +219,30 @@ public final class CategoryEntriesMap implements CategoryEntries {
         StringBuilder toStringBuilder = new StringBuilder();
         toStringBuilder.append("CategoryEntriesMap [");
         boolean first = true;
-        for (String categoryName : this) {
+        for (Category category : this) {
             if (first) {
                 first = false;
             } else {
                 toStringBuilder.append(", ");
             }
-            toStringBuilder.append(categoryName);
+            toStringBuilder.append(category.getName());
             toStringBuilder.append("=");
-            toStringBuilder.append(MathHelper.round(getProbability(categoryName), 4));
+            toStringBuilder.append(MathHelper.round(category.getProbability(), 4));
         }
         toStringBuilder.append("]");
         return toStringBuilder.toString();
     }
 
     @Override
-    public Iterator<String> iterator() {
-        return entryMap.keySet().iterator();
+    public Iterator<Category> iterator() {
+        // return entryMap.keySet().iterator();
+        return CollectionHelper.convert(entryMap.entrySet().iterator(), new ImmutableCategory.EntryConverter());
     }
 
-	@Override
-	public boolean contains(String category) {
-		return entryMap.keySet().contains(category);
-	}
+    @Override
+    public boolean contains(String category) {
+        return entryMap.keySet().contains(category);
+    }
 
     public boolean isEmpty() {
         return entryMap.isEmpty();

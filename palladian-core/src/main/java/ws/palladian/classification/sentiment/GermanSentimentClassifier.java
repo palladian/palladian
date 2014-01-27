@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -118,7 +119,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     }
  
     @Override
-    public Entry<String, Double> getPolarity(String text, String query) {
+    public Category getPolarity(String text, String query) {
         
         String positiveCategory = "positive";
         String negativeCategory = "negative";
@@ -215,7 +216,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         categoryEntries.add(negativeCategory, negativeSentences);
         categoryEntries.computeProbabilities();
         
-        return categoryEntries.getMostLikelyCategoryEntry();
+        return categoryEntries.getMostLikely();
     }
 
     public static void main(String[] args) throws IOException {
@@ -227,7 +228,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 
         gsc = new GermanSentimentClassifier("gsc.gz");
         gsc.setConfidenceThreshold(0.6);
-        Entry<String, Double> result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
+        Category result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
         result = gsc.getPolarity("Die DAK hat Versäumt die Krankenkasse zu benachrichtigen und das ist auch gut so.");
         result = gsc.getPolarity("Die Deutsche-Bahn ist scheisse!!!");
         // result =
