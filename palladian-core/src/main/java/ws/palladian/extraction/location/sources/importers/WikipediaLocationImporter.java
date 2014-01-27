@@ -34,13 +34,13 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.Action;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wikipedia.MarkupCoordinate;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 import ws.palladian.retrieval.wikipedia.WikipediaTemplate;
 
@@ -181,10 +181,10 @@ public class WikipediaLocationImporter {
     void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
         SAXParser parser = saxParserFactory.newSAXParser();
-        parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
+        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
 
             @Override
-            public void callback(WikipediaPage page) {
+            public void process(WikipediaPage page) {
                 if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }
@@ -267,10 +267,10 @@ public class WikipediaLocationImporter {
     void importAlternativeNames(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         SAXParser parser = saxParserFactory.newSAXParser();
         final int[] counter = new int[] {0};
-        parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
+        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
 
             @Override
-            public void callback(WikipediaPage page) {
+            public void process(WikipediaPage page) {
                 if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }

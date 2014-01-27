@@ -25,12 +25,12 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.io.Action;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil;
 
@@ -59,9 +59,9 @@ class WikipediaCaseDictionaryCreator {
             InputStream inputStream = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(
                     wikipediaDump)));
             final int[] counter = new int[] {0};
-            parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
+            parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
                 @Override
-                public void callback(WikipediaPage page) {
+                public void process(WikipediaPage page) {
                     if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                         return;
                     }
