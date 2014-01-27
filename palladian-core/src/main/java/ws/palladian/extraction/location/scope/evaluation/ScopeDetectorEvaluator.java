@@ -76,7 +76,7 @@ public class ScopeDetectorEvaluator {
      */
     private static void writeHeader() {
         if (!RESULT_CSV_FILE.isFile()) {
-            String header = "detector;extractor;below1km;below10km;below100km;below1000km;meanError;medianError;minError;maxError;mse;rmse;misses\n";
+            String header = "detector;below1km;below10km;below100km;below1000km;meanError;medianError;minError;maxError;mse;rmse;misses\n";
             FileHelper.writeToFile(RESULT_CSV_FILE.getPath(), header);
         }
     }
