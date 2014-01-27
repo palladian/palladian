@@ -29,6 +29,7 @@ public class NormalizationTest {
     @Test
     public void testDetectUnit() {
 
+        assertEquals("cm", UnitNormalizer.detectUnit("2cm- up to 8"));
         assertEquals("kilobytes", UnitNormalizer.detectUnit("how much are 100 kilobytes"));
         assertEquals("kilometers", UnitNormalizer.detectUnit("kilometers"));
         assertEquals("miles", UnitNormalizer.detectUnit("1.5miles"));

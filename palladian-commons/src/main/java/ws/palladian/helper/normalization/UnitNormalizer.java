@@ -266,7 +266,7 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
-            if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+            if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|-|\\s)").matcher(text).find()) {
                 return unit;
             }
         }
