@@ -851,4 +851,22 @@ public final class CollectionHelper {
         return distinct;
     }
 
+    /**
+     * <p>
+     * Create a list where the given item is inserted n times.
+     * </p>
+     * 
+     * @param n The number of times the item is added, greater/equal zero.
+     * @param item The item to add.
+     * @return A list of the size n.
+     */
+    public static <T> List<T> repeat(int n, T item) {
+        Validate.isTrue(n >= 0, "n must be greater/equal zero");
+        List<T> result = CollectionHelper.newArrayList();
+        for (int i = 0; i < n; i++) {
+            result.add(item);
+        }
+        return result;
+    }
+
 }
