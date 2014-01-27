@@ -1,21 +1,16 @@
 package ws.palladian.helper.collection;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
 
-    private final Map<Pair<K, K>, V> matrixMap;
-    private final Set<K> keysX;
-    private final Set<K> keysY;
-
-    public PairMatrix() {
-        matrixMap = CollectionHelper.newHashMap();
-        keysX = CollectionHelper.newLinkedHashSet();
-        keysY = CollectionHelper.newLinkedHashSet();
-    }
+    private final Map<Pair<K, K>, V> matrixMap = CollectionHelper.newHashMap();
+    private final Set<K> keysX = CollectionHelper.newLinkedHashSet();
+    private final Set<K> keysY = CollectionHelper.newLinkedHashSet();
 
     @Override
     public V get(K x, K y) {
@@ -44,6 +39,28 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
         matrixMap.clear();
         keysX.clear();
         keysY.clear();
+    }
+
+    @Override
+    public Vector<K, V> getRow(K y) {
+        Map<K, V> row = CollectionHelper.newHashMap();
+        for (Entry<Pair<K, K>, V> entry : matrixMap.entrySet()) {
+            if (entry.getKey().getRight().equals(y)) {
+                row.put(entry.getKey().getLeft(), entry.getValue());
+            }
+        }
+        return row.size() > 0 ? new MapVector<K, V>(row) : null;
+    }
+
+    @Override
+    public Vector<K, V> getColumn(K x) {
+        Map<K, V> column = CollectionHelper.newHashMap();
+        for (Entry<Pair<K, K>, V> entry : matrixMap.entrySet()) {
+            if (entry.getKey().getLeft().equals(x)) {
+                column.put(entry.getKey().getRight(), entry.getValue());
+            }
+        }
+        return column.size() > 0 ? new MapVector<K, V>(column) : null;
     }
 
 }

@@ -69,7 +69,7 @@ public interface Matrix<K, V> {
      * </p>
      * 
      * @param y Key/index of the row, not <code>null</code>.
-     * @return The row.
+     * @return The row, or <code>null</code> in case no such row exists.
      */
     Vector<K, V> getRow(K y);
 
@@ -79,9 +79,13 @@ public interface Matrix<K, V> {
      * </p>
      * 
      * @param x Key/index of the column, not <code>null</code>.
-     * @return The column.
+     * @return The column, or <code>null</code> in case no such column exists.
      */
     Vector<K, V> getColumn(K x);
+
+    // Collection<Vector<K, V>> getRows();
+
+    // Collection<Vector<K, V>> getColumns();
 
     /**
      * @return A CSV representation of this matrix.

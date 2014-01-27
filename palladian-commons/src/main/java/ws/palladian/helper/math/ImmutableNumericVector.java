@@ -2,6 +2,7 @@ package ws.palladian.helper.math;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.EntryConverter;
 
 /**
  * <p>
@@ -127,6 +129,11 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
     @Override
     public String toString() {
         return "Vector " + valueMap;
+    }
+
+    @Override
+    public Iterator<VectorEntry<K, Double>> iterator() {
+        return CollectionHelper.convert(valueMap.entrySet().iterator(), new EntryConverter<K, Double>());
     }
 
 }

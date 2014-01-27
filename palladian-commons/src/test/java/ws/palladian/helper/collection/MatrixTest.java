@@ -38,7 +38,7 @@ public class MatrixTest {
         assertNull(matrix.get(3, 1));
 
         Vector<Integer, Integer> column = matrix.getColumn(2);
-        // assertEquals(3, column.size());
+        assertEquals(3, column.size());
         assertEquals((Integer)5, column.get(0));
         assertEquals((Integer)9, column.get(1));
         assertEquals((Integer)2, column.get(2));
@@ -46,7 +46,7 @@ public class MatrixTest {
         // assertEquals(1, matrix.getColumn(3).size());
 
         Vector<Integer, Integer> row = matrix.getRow(2);
-        // assertEquals(3, row.size());
+        assertEquals(3, row.size());
         assertEquals((Integer)5, row.get(0));
         assertEquals((Integer)2, row.get(1));
         assertEquals((Integer)2, row.get(2));
