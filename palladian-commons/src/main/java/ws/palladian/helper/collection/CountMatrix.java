@@ -159,18 +159,30 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
         matrix.clear();
     }
 
+    /**
+     * <p>
+     * In contrast to what is stated in the interface, this methods returns an empty number vector, in case the
+     * specified row does not exist for your convenience.
+     * </p>
+     */
     @Override
     public NumberVector<K> getRow(K y) {
         Validate.notNull(y, "y must not be null");
         Vector<K, Integer> row = matrix.getRow(y);
-        return row != null ? new NumberVector<K>(row) : null;
+        return new NumberVector<K>(row != null ? row : new NullVector<K, Integer>());
     }
 
+    /**
+     * <p>
+     * In contrast to what is stated in the interface, this methods returns an empty number vector, in case the
+     * specified column does not exist for your convenience.
+     * </p>
+     */
     @Override
     public NumberVector<K> getColumn(K x) {
         Validate.notNull(x, "x must not be null");
         Vector<K, Integer> column = matrix.getColumn(x);
-        return column != null ? new NumberVector<K>(column) : null;
+        return new NumberVector<K>(column != null ? column : new NullVector<K, Integer>());
     }
 
     public int getSum() {

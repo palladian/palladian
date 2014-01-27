@@ -6,6 +6,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+/**
+ * <p>
+ * A {@link Matrix} which is implemented by using nested {@link Map}s. The outer map holds the rows, the inner maps hold
+ * the columns. When using this class in performance critical environments, note that accessing a row using
+ * {@link #getRow(Object)} is <b>much</b> faster than accessing a column using {@link #getColumn(Object)}, because in
+ * the latter case, all entries need to be iterated.
+ * </p>
+ * 
+ * @author pk
+ * 
+ * @param <K> Type of the keys.
+ * @param <V> Type of the values.
+ */
 public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializable {
 
     /** The serial version id. */
