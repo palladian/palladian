@@ -10,7 +10,7 @@ package ws.palladian.classification;
  * 
  * @author Philipp Katz
  */
-public interface CategoryEntries extends Iterable<String> {
+public interface CategoryEntries extends Iterable<Category> {
 
     /**
      * <p>
@@ -27,9 +27,19 @@ public interface CategoryEntries extends Iterable<String> {
      * Retrieves the category with the highest relevance.
      * </p>
      * 
-     * @return The category with the highest relevance, or <code>null</code> no categories were classified.
+     * @return The category with the highest relevance, or <code>null</code> in case no categories were classified.
+     * @deprecated Use {@link #getMostLikely()} instead.
      */
     String getMostLikelyCategory();
+
+    /**
+     * <p>
+     * Retrieves the category with the highest relevance.
+     * </p>
+     * 
+     * @return The category with the highest relevance, or <code>null</code> in case when no categories were classified.
+     */
+    Category getMostLikely();
 
     /**
      * <p>

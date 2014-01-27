@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
@@ -180,11 +181,11 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
 
         // merge entries from different classifiers
         for (Entry<CategoryEntries, Double> entries : weightedCategoryEntries.entrySet()) {
-            for (String categoryName : entries.getKey()) {
-                double relevance = entries.getKey().getProbability(categoryName);
+            for (Category category : entries.getKey()) {
+                double relevance = entries.getKey().getProbability(category.getName());
                 double weight = entries.getValue();
-                Double existingRelevance = mergedCategoryEntries.get(categoryName);
-                mergedCategoryEntries.put(categoryName, existingRelevance + relevance * weight);
+                Double existingRelevance = mergedCategoryEntries.get(category.getName());
+                mergedCategoryEntries.put(category.getName(), existingRelevance + relevance * weight);
             }
         }
 

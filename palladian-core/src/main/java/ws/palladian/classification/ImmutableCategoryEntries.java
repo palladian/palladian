@@ -1,9 +1,8 @@
 package ws.palladian.classification;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
@@ -28,9 +27,10 @@ final class ImmutableCategoryEntries implements CategoryEntries {
     }
 
     @Override
-    public Iterator<String> iterator() {
-        Set<String> categories = entryMap.keySet();
-        return Collections.unmodifiableSet(categories).iterator();
+    public Iterator<Category> iterator() {
+//        Set<String> categories = entryMap.keySet();
+//        return Collections.unmodifiableSet(categories).iterator();
+        return CollectionHelper.convert(entryMap.entrySet().iterator(), new ImmutableCategory.EntryConverter());
     }
 
     @Override
@@ -55,6 +55,12 @@ final class ImmutableCategoryEntries implements CategoryEntries {
         // map entries are sorted already (constructor), so we just need to return the first entry
         return CollectionHelper.getFirst(entryMap.keySet());
     }
+    
+    @Override
+    public Category getMostLikely() {
+        Entry<String, Double> entry = CollectionHelper.getFirst(entryMap.entrySet());
+        return entry != null ? new ImmutableCategory(entry.getKey(), entry.getValue()) : null;
+    }
 
     @Override
     public boolean contains(String category) {
@@ -66,15 +72,15 @@ final class ImmutableCategoryEntries implements CategoryEntries {
         StringBuilder toStringBuilder = new StringBuilder();
         toStringBuilder.append("CategoryEntries [");
         boolean first = true;
-        for (String categoryName : this) {
+        for (Category category : this) {
             if (first) {
                 first = false;
             } else {
                 toStringBuilder.append(", ");
             }
-            toStringBuilder.append(categoryName);
+            toStringBuilder.append(category.getName());
             toStringBuilder.append("=");
-            toStringBuilder.append(MathHelper.round(getProbability(categoryName), 4));
+            toStringBuilder.append(MathHelper.round(category.getProbability(), 4));
         }
         toStringBuilder.append("]");
         return toStringBuilder.toString();

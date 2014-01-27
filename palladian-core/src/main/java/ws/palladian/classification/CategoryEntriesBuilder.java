@@ -109,8 +109,8 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public CategoryEntriesBuilder add(CategoryEntries categoryEntries) {
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
-        for (String categoryName : categoryEntries) {
-            add(categoryName, categoryEntries.getProbability(categoryName));
+        for (Category category : categoryEntries) {
+            add(category.getName(), category.getProbability());
         }
         return this;
     }

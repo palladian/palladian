@@ -3,6 +3,7 @@ package ws.palladian.helper;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -38,7 +39,8 @@ public final class ProgressMonitor {
      * Create a new {@link ProgressMonitor} showing the current progress with each percent.
      * </p>
      * 
-     * @param totalCount The total iterations to perform.
+     * @param totalCount The total iterations to perform, greater/equal zero.
+     * @param showEveryPercent Step size for outputting the progress in range [0,100].
      */
     public ProgressMonitor(long totalCount) {
         this(totalCount, 1);
@@ -49,8 +51,8 @@ public final class ProgressMonitor {
      * Create a new {@link ProgressMonitor}.
      * </p>
      * 
-     * @param totalCount The total iterations to perform.
-     * @param showEveryPercent Step size for outputting the progress.
+     * @param totalCount The total iterations to perform, greater/equal zero.
+     * @param showEveryPercent Step size for outputting the progress in range [0,100].
      */
     public ProgressMonitor(long totalCount, double showEveryPercent) {
         this(totalCount, showEveryPercent, null);
@@ -61,11 +63,13 @@ public final class ProgressMonitor {
      * Create a new {@link ProgressMonitor}.
      * </p>
      * 
-     * @param totalCount The total iterations to perform.
-     * @param showEveryPercent Step size for outputting the progress.
+     * @param totalCount The total iterations to perform, greater/equal zero.
+     * @param showEveryPercent Step size for outputting the progress in range [0,100].
      * @param processName The name of the process, for identification purposes when outputting the bar.
      */
     public ProgressMonitor(long totalCount, double showEveryPercent, String processName) {
+        Validate.isTrue(totalCount >= 0, "totalCount must be greater/equal zero");
+        Validate.inclusiveBetween(0., 100., showEveryPercent, "showEveryPercent must be in range [0,100]");
         this.totalCount = totalCount;
         this.showEveryPercent = showEveryPercent;
         this.processName = processName;
