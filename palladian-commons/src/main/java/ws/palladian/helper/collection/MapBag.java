@@ -13,6 +13,9 @@ import java.util.Set;
  * Consider the following two bags: A = [a,b,c] and B = [d,e,f]. You can now get the bag A by saying MapBag.get(c) or
  * MapBag.get(b) for example.
  * </p>
+ * <p>
+ * NOTE: Bags must be strictly disjoint, that is, A must not contain any elements from B and vice versa.
+ * </p>
  * 
  * @author David Urbansky
  * 
