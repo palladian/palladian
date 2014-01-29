@@ -42,7 +42,7 @@ public class ScopeDetectorEvaluator {
     /** The failure distance which we assume, in case a {@link RankingScopeDetector} detects no location. */
     private static final double MISS_DISTANCE = 0.5 * GeoUtils.EARTH_CIRCUMFERENCE_KM;
 
-    private static final File RESULT_CSV_FILE = new File("data/_scopeDetectionResults.csv");
+    public static final File RESULT_CSV_FILE = new File("data/_scopeDetectionResults.csv");
 
     private static final String RESULT_DETAILS_FILE = "data/scopeDetectionDetailedResults_%s.csv";
 

@@ -13,6 +13,7 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 
@@ -29,7 +30,29 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
     private final File datasetPath;
     private final File[] wikiPages;
 
+    /**
+     * <p>
+     * Create a new Wikipedia scope dataset iterator where files are iterated in alphabetical order.
+     * </p>
+     * 
+     * @param datasetPath The path to the dataset, which contains files with MediaWiki markup with file name extension
+     *            ".mediawiki", not <code>null</code>.
+     */
     public WikipediaLocationScopeIterator(File datasetPath) {
+        this(datasetPath, false);
+    }
+
+    /**
+     * <p>
+     * Create a new Wikipedia scope dataset iterator.
+     * </p>
+     * 
+     * @param datasetPath The path to the dataset, which contains files with MediaWiki markup with file name extension
+     *            ".mediawiki", not <code>null</code>.
+     * @param shuffle <code>true</code> to shuffle the files randomly (useful, in case the filenames have the pages'
+     *            titles, but degrades reproducibility in later runs), <code>false</code> to keep the file names' order.
+     */
+    public WikipediaLocationScopeIterator(File datasetPath, boolean shuffle) {
         Validate.notNull(datasetPath, "datasetPath must not be null");
         if (!datasetPath.isDirectory()) {
             throw new IllegalArgumentException(datasetPath + " does not point to a directory.");
@@ -38,6 +61,9 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
         this.wikiPages = FileHelper.getFiles(datasetPath.getPath(), "mediawiki");
         if (this.wikiPages.length == 0) {
             throw new IllegalArgumentException("No wiki pages found at " + datasetPath + ".");
+        }
+        if (shuffle) {
+            CollectionHelper.shuffle(this.wikiPages);
         }
     }
 

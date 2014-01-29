@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -867,6 +868,25 @@ public final class CollectionHelper {
             result.add(item);
         }
         return result;
+    }
+
+    /**
+     * <p>
+     * Shuffle the content of the given array.
+     * </p>
+     * 
+     * @param array The array to shuffle, not <code>null</code>.
+     */
+    public static void shuffle(Object[] array) {
+        Validate.notNull(array, "array must not be null");
+        // http://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+        Random rnd = new Random();
+        for (int i = array.length - 1; i > 0; i--) {
+            int index = rnd.nextInt(i + 1);
+            Object item = array[index];
+            array[index] = array[i];
+            array[i] = item;
+        }
     }
 
 }
