@@ -11,7 +11,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.ProcessHelper;
@@ -50,7 +49,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.jrc.test");
         checkExistence("JRC", testFile, trainFile);
 
-        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 3, 6, 1000);
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
@@ -69,7 +68,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.wikipedia.test");
         checkExistence("Wikipedia", testFile, trainFile);
 
-        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.WORD_NGRAMS, 1, 3, 10);
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 3).maxTerms(10).create();
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
@@ -88,7 +87,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
 
-        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 3, 6, 1000);
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
@@ -107,7 +106,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
 
-        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.WORD_NGRAMS, 1, 3, 10);
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 3).maxTerms(10).create();
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
 
         TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
@@ -137,7 +136,8 @@ public class PalladianTextClassifierIT {
             }
         }
         if (!runTest) {
-            fail("Dataset for '" + datasetName + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.");
+            fail("Dataset for '" + datasetName
+                    + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.");
         }
     }
 

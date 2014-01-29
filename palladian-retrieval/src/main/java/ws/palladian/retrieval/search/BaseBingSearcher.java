@@ -36,13 +36,13 @@ import ws.palladian.retrieval.resources.WebContent;
  * @see <a href="https://datamarket.azure.com/dataset/bing/search">Bing Search API on Windows Azure Marketplace</a>
  * @author Philipp Katz
  */
-public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSearcher<R> {
+public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMultifacetSearcher<R> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseBingSearcher.class);
 
     /** The base URL endpoint of the Bing service. */
-    private static final String BASE_SERVICE_URL = "https://api.datamarket.azure.com/Bing/Search/v1/";
+    private static final String BASE_SERVICE_URL = "https://api.datamarket.azure.com/Bing/Search/Composite";
 
     /** Key of the {@link Configuration} key for the account key. */
     public static final String CONFIG_ACCOUNT_KEY = "api.bing.accountkey";
@@ -79,44 +79,48 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
     public BaseBingSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_ACCOUNT_KEY));
     }
-
+    
     @Override
-    public List<R> search(String query, int resultCount, Language language) throws SearcherException {
+    public SearchResults<R> search(MultifacetQuery query) throws SearcherException {
 
         List<R> webResults = new ArrayList<R>();
 
-        int necessaryPages = (int)Math.ceil((double)resultCount / getDefaultFetchSize());
+        int necessaryPages = (int)Math.ceil((double)query.getResultCount() / getDefaultFetchSize());
         int offset = 0;
+        Long totalResults = null;
 
         for (int i = 0; i < necessaryPages; i++) {
 
-            String sourceType = getSourceType();
-            String requestUrl = buildRequestUrl(query, sourceType, language, offset, getDefaultFetchSize());
+            String requestUrl = buildRequestUrl(query.getText(), query.getLanguage(), offset, getDefaultFetchSize());
+            LOGGER.debug("Requesting {}", requestUrl);
             String jsonString = null;
 
             try {
-
-                jsonString = getResponseData(requestUrl, accountKey);
-
-                JsonObject jsonObject = new JsonObject(jsonString);
-                JsonObject responseData = jsonObject.getJsonObject("d");
+                jsonString = getResponseData(requestUrl);
+                JsonObject responseData = new JsonObject(jsonString).getJsonObject("d");
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
-                JsonArray results = responseData.getJsonArray("results");
-                int numResults = results.size();
-                offset += numResults;
+                long currentTotal = responseData.queryLong("results[0]/" + getSourceType() + "Total");
+                if (totalResults == null) {
+                    // get it on first page, values on follow up pages do not seem trustworthy; e.g. for a query "obama",
+                    // I get a value of 90800000 for total results; which later shrinks to 767. Seems, that Bing does not
+                    // want to give all results here?
+                    totalResults = currentTotal;
+                }
+                offset += getDefaultFetchSize();
 
-                for (int j = 0; j < numResults; j++) {
+                JsonArray results = responseData.queryJsonArray("results[0]/" + getSourceType());
+                for (int j = 0; j < results.size(); j++) {
                     JsonObject currentResult = results.getJsonObject(j);
                     R webResult = parseResult(currentResult);
                     webResults.add(webResult);
-
-                    if (webResults.size() >= resultCount) {
+                    if (webResults.size() >= query.getResultCount()) {
                         break;
                     }
                 }
-
-                if (responseData.get("__next") == null) {
+                
+                if (webResults.size() >= currentTotal) {
+                    // no more results
                     break;
                 }
 
@@ -129,10 +133,8 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
                         + jsonString + "\"", e);
             }
         }
-
-        LOGGER.debug("bing requests: " + TOTAL_REQUEST_COUNT.get());
-
-        return webResults;
+        
+        return new SearchResults<R>(webResults, totalResults);
     }
 
     /**
@@ -140,27 +142,19 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
      * Parse the {@link JSONObject} to the desired type of {@link BasicWebContent}.
      * </p>
      * 
-     * @param currentResult
-     * @return
-     * @throws JsonException
+     * @param currentResult The JSON entry to parse.
+     * @return A parsed entry of type {@link WebContent} or subclass.
+     * @throws JsonException In case the JSON could not be parsed.
      */
     protected abstract R parseResult(JsonObject currentResult) throws JsonException;
 
     /**
-     * <p>
-     * Return the String description for this source, i.e. Web, Image, or News.
-     * </p>
-     * 
-     * @return
+     * @return The String description for this source, i.e. Web, Image, or News.
      */
     protected abstract String getSourceType();
 
     /**
-     * <p>
-     * Return the default fetch size, i.e. the number of results being fetched with each request.
-     * </p>
-     * 
-     * @return
+     * @return Return the default fetch size, i.e. the number of results being fetched with each request.
      */
     protected abstract int getDefaultFetchSize();
 
@@ -169,16 +163,20 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
      * Perform the HTTP request and return the JSON result string.
      * </p>
      * 
-     * @param requestUrl
-     * @return
-     * @throws HttpException
-     * @throws JsonException
+     * @param requestUrl The URL to request.
+     * @return The response as String.
+     * @throws HttpException In case of a network exception.
+     * @throws SearcherException In case of an error HTTP status code.
      */
-    private String getResponseData(String requestUrl, String accountKey) throws HttpException, JsonException {
+    private String getResponseData(String requestUrl) throws HttpException, SearcherException {
         String basicAuthentication = "Basic " + StringHelper.encodeBase64(":" + accountKey);
         HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, requestUrl);
         httpRequest.addHeader("Authorization", basicAuthentication);
         HttpResult httpResult = retriever.execute(httpRequest);
+        if (httpResult.errorStatus()) {
+            throw new SearcherException("Encountered HTTP status " + httpResult.getStatusCode() + ": "
+                    + httpResult.getStringContent());
+        }
         return httpResult.getStringContent();
     }
 
@@ -188,17 +186,16 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
      * </p>
      * 
      * @param query the raw query, no escaping necessary.
-     * @param sourceType type of source to query, i.e. Web, Image, or News.
      * @param language the language for which to search, may be <code>null</code>.
      * @param offset the paging offset, 0 for no offset.
      * @param count the number of results to retrieve.
-     * @return
+     * @return The URL for the API request.
      */
-    protected String buildRequestUrl(String query, String sourceType, Language language, int offset, int count) {
+    protected String buildRequestUrl(String query, Language language, int offset, int count) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(getBaseServiceUrl());
-        queryBuilder.append(sourceType);
-        queryBuilder.append("?Query=%27").append(UrlHelper.encodeParameter(query)).append("%27");
+        queryBuilder.append("?Sources=%27").append(getSourceType()).append("%27");
+        queryBuilder.append("&Query=%27").append(UrlHelper.encodeParameter(query)).append("%27");
         queryBuilder.append("&$top=").append(count);
         if (offset > 0) {
             queryBuilder.append("&$skip=").append(offset);
@@ -211,7 +208,8 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
     }
 
     /**
-     * @return Get the base service URL.
+     * @return Get the base service URL (must be the "composite" endpoint, because only this supports getting the total
+     *         number of available results).
      */
     protected String getBaseServiceUrl() {
         return BASE_SERVICE_URL;
@@ -223,10 +221,10 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
      * href="http://msdn.microsoft.com/en-us/library/dd251064.aspx">here</a> available language codes.
      * </p>
      * 
-     * @param language
-     * @return
+     * @param language The language to map.
+     * @return Language string identifier for the given language.
      */
-    protected String getLanguageString(Language language) {
+    private String getLanguageString(Language language) {
         switch (language) {
             case GERMAN:
                 return "de-de";
@@ -234,11 +232,6 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
                 break;
         }
         return "en-us";
-    }
-
-    @Override
-    public long getTotalResultCount(String query, Language language) throws SearcherException {
-        throw new SearcherException("Getting the total result count is not supported in the new Bing API.");
     }
 
     /**
@@ -255,7 +248,7 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractSea
         try {
             result = dateFormat.parse(dateString);
         } catch (ParseException e) {
-            LOGGER.trace("error parsing date " + dateString, e);
+            LOGGER.trace("Error parsing date " + dateString, e);
         }
         return result;
     }

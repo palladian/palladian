@@ -893,7 +893,7 @@ public final class PageAnalyzer {
 
         String t = getParentNode(getTableCellPath(tableTDXPath));
         List<Node> nodeList = XPathHelper.getXhtmlNodes(document, t);
-        LinkedHashMap<Integer, Integer> tdCountMap = new LinkedHashMap<Integer, Integer>();
+        Map<Integer, Integer> tdCountMap = new LinkedHashMap<Integer, Integer>();
 
         for (int i = 0; i < nodeList.size(); i++) {
             Node trNode = nodeList.get(i);
@@ -1164,7 +1164,7 @@ public final class PageAnalyzer {
         // remove anchors from url
         url = UrlHelper.removeAnchors(url);
 
-        LinkedHashMap<String, Double> similarityMap = new LinkedHashMap<String, Double>();
+        Map<String, Double> similarityMap = new LinkedHashMap<String, Double>();
 
         // PageAnalyzer.printDOM(document.getLastChild(), " ");
         // Crawler c = new Crawler();

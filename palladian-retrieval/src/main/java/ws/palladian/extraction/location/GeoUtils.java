@@ -30,6 +30,9 @@ public final class GeoUtils {
     /** Circumference of the earth at the equator in kilometers. */
     public static final double EARTH_CIRCUMFERENCE_KM = 40075.16;
 
+    /** The maximum possible distance between two points on earth (i.e. half the circumference). */
+    public static final double EARTH_MAX_DISTANCE_KM = GeoUtils.EARTH_CIRCUMFERENCE_KM * 0.5;
+
     /** For parsing a single DMS expression. */
     private static final Pattern PATTERN_PARSE_DMS = Pattern.compile(DMS);
 

@@ -127,12 +127,12 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String text, int number) {
-                if (number != 0 && number % 100000 == 0) {
-                    System.out.print('.');
-                    if (number % 10000000 == 0) {
-                        System.out.println();
-                    }
-                }
+//                if (number != 0 && number % 100000 == 0) {
+//                    System.out.print('.');
+//                    if (number % 10000000 == 0) {
+//                        System.out.println();
+//                    }
+//                }
                 String[] split = text.split(SEPARATOR);
                 if (number > 1) {
                     if (split.length != 2) {
@@ -145,7 +145,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
                 }
             }
         });
-        System.out.println();
+//        System.out.println();
         LOGGER.debug("Loaded {} terms in {}", counts.uniqueSize(), stopWatch);
         return new MapTermCorpus(counts, numDocs[0]);
     }

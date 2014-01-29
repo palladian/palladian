@@ -106,7 +106,7 @@ public final class CollectionHelper {
      *         XXX {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
      *         {@link Pair}s, sorted as required.
      */
-    public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final Order order) {
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map, final Order order) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
         Collections.sort(list, new EntryValueComparator<V>(order));
@@ -128,11 +128,8 @@ public final class CollectionHelper {
      * @param <V> Type of the values.
      * @param map The {@link Map} to sort.
      * @return A sorted map, in ascending order.
-     * @deprecated {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
-     *             {@link Pair}s, sorted as required.
      */
-    @Deprecated
-    public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map) {
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map) {
         return sortByValue(map, Order.ASCENDING);
     }
 
@@ -710,6 +707,27 @@ public final class CollectionHelper {
             @Override
             public void remove() {
                 iterator.remove();
+            }
+        };
+    }
+
+    /**
+     * <p>
+     * Create a wrapper for a given {@link Iterable} which converts the iterable's items using a provided
+     * {@link Function}.
+     * </p>
+     * 
+     * @param iterator The iterator to wrap, not <code>null</code>.
+     * @param function The {@link Function} which performs the conversion, not <code>null</code>.
+     * @return An iterable wrapping the given iterable.
+     */
+    public static <I, O> Iterable<O> convert(final Iterable<I> iterable, final Function<? super I, O> function) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+        return new Iterable<O>() {
+            @Override
+            public Iterator<O> iterator() {
+                return convert(iterable.iterator(), function);
             }
         };
     }

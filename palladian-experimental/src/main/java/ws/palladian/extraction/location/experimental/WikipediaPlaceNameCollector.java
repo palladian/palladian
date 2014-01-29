@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,11 +20,11 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.io.Action;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageCallback;
 import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 
 public class WikipediaPlaceNameCollector {
@@ -60,10 +59,10 @@ public class WikipediaPlaceNameCollector {
             IOException {
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         SAXParser parser = saxParserFactory.newSAXParser();
-        parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
+        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
 
             @Override
-            public void callback(WikipediaPage page) {
+            public void process(WikipediaPage page) {
                 if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
                     return;
                 }
@@ -103,7 +102,7 @@ public class WikipediaPlaceNameCollector {
             }
         });
 
-        LinkedHashMap<String, Integer> map = counts.getSortedMapDescending();
+        Map<String, Integer> map = counts.getSortedMapDescending();
         for (String value : map.keySet()) {
             int count = map.get(value);
             if (count > 200) {

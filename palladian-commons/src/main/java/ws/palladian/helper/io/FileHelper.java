@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,7 +31,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -128,12 +128,8 @@ public final class FileHelper {
      * @return true, if is file name
      */
     public static boolean isFileName(String name) {
-        name = name.trim();
-
         Pattern pattern = Pattern.compile("\\.[A-Za-z0-9]{2,5}$", Pattern.CASE_INSENSITIVE);
-        Matcher m = pattern.matcher(name);
-
-        return m.find();
+        return pattern.matcher(name.trim()).find();
     }
 
     /**
@@ -929,9 +925,7 @@ public final class FileHelper {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
-        String newPath = fullPath.replaceAll(Pattern.quote(oldName) + "\\.", newName + ".");
-
-        return newPath;
+        return fullPath.replaceAll(Pattern.quote(oldName) + "\\.", newName + ".");
     }
 
     /**
@@ -1525,10 +1519,7 @@ public final class FileHelper {
      *         <code>null</code>.
      */
     public static boolean fileExists(String filePath) {
-        if (filePath == null) {
-            return false;
-        }
-        return new File(filePath).isFile();
+        return filePath != null ? new File(filePath).isFile() : false;
     }
 
     /**
@@ -1541,10 +1532,7 @@ public final class FileHelper {
      *         was <code>null</code>.
      */
     public static boolean directoryExists(String directoryPath) {
-        if (directoryPath == null) {
-            return false;
-        }
-        return new File(directoryPath).isDirectory();
+        return directoryPath != null ? new File(directoryPath).isDirectory() : false;
     }
 
     /**
@@ -1945,6 +1933,35 @@ public final class FileHelper {
             }
         }
         return tempDirectory;
+    }
+
+    /**
+     * <p>
+     * Traverse a directory, including its subdirectories and perform an {@link Action} to each file.
+     * </p>
+     * 
+     * @param path The starting path, not <code>null</code>.
+     * @param filter A {@link FileFilter} which determines which files to process, not <code>null</code>.
+     * @param action An {@link Action} to perform for the matching files, not <code>null</code>.
+     * @return The number of processed files.
+     */
+    public static int traverseFiles(File path, FileFilter filter, Action<? super File> action) {
+        Validate.notNull(path, "path must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        Validate.notNull(action, "action must not be null");
+        int counter = 0;
+        File[] files = path.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                traverseFiles(file, filter, action);
+            } else {
+                if (filter.accept(file)) {
+                    counter++;
+                    action.process(file);
+                }
+            }
+        }
+        return counter;
     }
 
 }

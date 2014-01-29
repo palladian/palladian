@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.Action;
 
 /**
  * <p>
@@ -34,7 +35,7 @@ public class WikipediaPageContentHandler extends DefaultHandler {
     private int pageCounter;
     private final StopWatch stopWatch;
 
-    private final WikipediaPageCallback callback;
+    private final Action<WikipediaPage> callback;
 
     private StringBuilder buffer = new StringBuilder();
     private boolean bufferText = false;
@@ -53,7 +54,7 @@ public class WikipediaPageContentHandler extends DefaultHandler {
      * 
      * @param callback The callback to trigger for parsed pages, not <code>null</code>.
      */
-    public WikipediaPageContentHandler(WikipediaPageCallback callback) {
+    public WikipediaPageContentHandler(Action<WikipediaPage> callback) {
         Validate.notNull(callback, "callback must not be null");
         this.callback = callback;
         this.stopWatch = new StopWatch();
@@ -91,7 +92,7 @@ public class WikipediaPageContentHandler extends DefaultHandler {
             float throughput = (float)pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
             LOGGER.info("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
         }
-        callback.callback(new WikipediaPage(pageId, namespaceId, title, text));
+        callback.process(new WikipediaPage(pageId, namespaceId, title, text));
     }
 
     @Override
@@ -116,10 +117,10 @@ public class WikipediaPageContentHandler extends DefaultHandler {
         File redirects = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
         InputStream inputStream = new MultiStreamBZip2InputStream(new BufferedInputStream(
                 new FileInputStream(redirects)));
-        parser.parse(inputStream, new WikipediaPageContentHandler(new WikipediaPageCallback() {
+        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
 
             @Override
-            public void callback(WikipediaPage page) {
+            public void process(WikipediaPage page) {
                 if (page.getIdentifier().equals("27394805")) {
                     System.out.println(page);
                     System.exit(0);

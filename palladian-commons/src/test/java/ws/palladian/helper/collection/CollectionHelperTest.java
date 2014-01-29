@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,7 +49,6 @@ public class CollectionHelperTest {
 
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testSortyMapByValue() {
         Map<Integer, Integer> map = new HashMap<Integer, Integer>();
@@ -59,7 +57,7 @@ public class CollectionHelperTest {
         map.put(2, 4);
         map.put(5, 1);
         map.put(4, 2);
-        LinkedHashMap<Integer, Integer> mapSortedByValue = CollectionHelper.sortByValue(map);
+        Map<Integer, Integer> mapSortedByValue = CollectionHelper.sortByValue(map);
         Iterator<Entry<Integer, Integer>> iterator = mapSortedByValue.entrySet().iterator();
         assertEquals((Integer)1, iterator.next().getValue());
         assertEquals((Integer)2, iterator.next().getValue());
@@ -67,8 +65,7 @@ public class CollectionHelperTest {
         assertEquals((Integer)2, iterator.next().getKey());
         assertEquals((Integer)1, iterator.next().getKey());
 
-        LinkedHashMap<Integer, Integer> mapSortedByValueDescending = CollectionHelper
-                .sortByValue(map, Order.DESCENDING);
+        Map<Integer, Integer> mapSortedByValueDescending = CollectionHelper.sortByValue(map, Order.DESCENDING);
         iterator = mapSortedByValueDescending.entrySet().iterator();
         assertEquals((Integer)5, iterator.next().getValue());
         assertEquals((Integer)4, iterator.next().getValue());
@@ -235,10 +232,11 @@ public class CollectionHelperTest {
         iterator = CollectionHelper.limit(Collections.<Integer> emptyList().iterator(), 0);
         assertFalse(iterator.hasNext());
     }
-    
+
     @Test
     public void testDistinct() {
-        Set<String> values = CollectionHelper.distinct(Arrays.asList("a","b","c"),Arrays.asList("b","c","d"));
+        @SuppressWarnings("unchecked")
+        Set<String> values = CollectionHelper.distinct(Arrays.asList("a", "b", "c"), Arrays.asList("b", "c", "d"));
         assertEquals(4, values.size());
     }
 }
