@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -103,31 +104,31 @@ public class GeoUtilsTest {
             assertEquals(100, point.distance(origin), 0.001);
         }
     }
-    
+
     @Test
     public void testApproximateDistance() {
         GeoCoordinate c1 = new ImmutableGeoCoordinate(33.662508, -95.547692);
         GeoCoordinate c2 = new ImmutableGeoCoordinate(48.85341, 2.3488);
         GeoCoordinate c3 = new ImmutableGeoCoordinate(49.265278, 4.028611);
         GeoCoordinate c4 = new ImmutableGeoCoordinate(48.858222, 2.2945);
-        
+
         // should be: exact < approximate < 1.1 * exact
         double exact = c1.distance(c2);
         double approximate = GeoUtils.approximateDistance(c1, c2);
         assertTrue(exact < approximate);
         assertTrue(approximate < exact * 1.1);
-        
+
         exact = c2.distance(c3);
         approximate = GeoUtils.approximateDistance(c2, c3);
         assertTrue(exact < approximate);
         assertTrue(approximate < exact * 1.1);
-        
+
         exact = c2.distance(c4);
         approximate = GeoUtils.approximateDistance(c2, c4);
         assertTrue(exact < approximate);
         assertTrue(approximate < exact * 1.1);
     }
-    
+
     @Test
     @Ignore
     public void performanceTest() {
@@ -147,6 +148,13 @@ public class GeoUtilsTest {
         System.out.println("Time with approximate distance: " + stopApproximate);
         System.out.println("Speedup: " + (double)stopExact.getElapsedTime() / stopApproximate.getElapsedTime());
         // speedup is about 90x!
+    }
+
+    @Test
+    public void testValidateRange() {
+        assertTrue(GeoUtils.isValidCoordinateRange(45, 175));
+        assertFalse(GeoUtils.isValidCoordinateRange(45, 195));
+        assertFalse(GeoUtils.isValidCoordinateRange(-95, 175));
     }
 
 }

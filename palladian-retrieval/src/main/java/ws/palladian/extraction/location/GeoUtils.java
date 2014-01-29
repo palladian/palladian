@@ -3,6 +3,7 @@ package ws.palladian.extraction.location;
 import static java.lang.Math.toRadians;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -236,8 +237,25 @@ public final class GeoUtils {
      * @return <code>true</code> in case the latitude and longitude are valid for a coordinate, <code>false</code>
      *         otherwise.
      */
-    public static boolean validCoordinateRange(double lat, double lng) {
+    public static boolean isValidCoordinateRange(double lat, double lng) {
         return -90 <= lat && lat <= 90 && -180 <= lng && lng <= 180;
+    }
+
+    /**
+     * <p>
+     * Check, if the given latitude and longitude pair are in valid coordinate range (i.e. -90 <= latitude <= 90 and
+     * -180 <= longitude <= 180).
+     * </p>
+     * 
+     * @param lat The latitude.
+     * @param lng The longitude.
+     * @throws IllegalArgumentException In case the latitude and/or longitude are out of range.
+     */
+    public static void validateCoordinateRange(double lat, double lng) {
+        if (!isValidCoordinateRange(lat, lng)) {
+            String message = String.format(Locale.US, "latitude and/or longitude out of range (%f,%f)", lat, lng);
+            throw new IllegalArgumentException(message);
+        }
     }
 
     private GeoUtils() {

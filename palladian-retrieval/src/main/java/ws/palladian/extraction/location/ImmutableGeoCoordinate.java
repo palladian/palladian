@@ -1,7 +1,5 @@
 package ws.palladian.extraction.location;
 
-import org.apache.commons.lang3.Validate;
-
 // FIXME this is a class for the API module
 public final class ImmutableGeoCoordinate extends AbstractGeoCoordinate {
 
@@ -18,7 +16,7 @@ public final class ImmutableGeoCoordinate extends AbstractGeoCoordinate {
      * @throws IllegalArgumentException in case latitude/longitude are out of given range.
      */
     public ImmutableGeoCoordinate(double lat, double lng) {
-        Validate.isTrue(GeoUtils.validCoordinateRange(lat, lng), "latitude/longitude out of range (%f,%f)", lat, lng);
+        GeoUtils.validateCoordinateRange(lat, lng);
         this.lat = lat;
         this.lng = lng;
     }

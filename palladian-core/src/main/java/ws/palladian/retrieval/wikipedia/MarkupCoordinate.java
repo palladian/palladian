@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.wikipedia;
 
 import ws.palladian.extraction.location.AbstractGeoCoordinate;
+import ws.palladian.extraction.location.GeoUtils;
 
 /**
  * <p>
@@ -28,6 +29,7 @@ public final class MarkupCoordinate extends AbstractGeoCoordinate {
 
     public MarkupCoordinate(double lat, double lng, String name, Long population, String display, String type,
             String region) {
+        GeoUtils.validateCoordinateRange(lat, lng);
         this.lat = lat;
         this.lng = lng;
         this.name = name;
