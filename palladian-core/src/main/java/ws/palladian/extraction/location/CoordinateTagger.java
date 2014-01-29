@@ -59,7 +59,7 @@ public final class CoordinateTagger implements Tagger {
                 double lng = Double.valueOf(matcher.group(5));
                 lat = "S".equals(matcher.group(3)) ? -lat : lat;
                 lng = "W".equals(matcher.group(6)) ? -lng : lng;
-                if (GeoUtils.validCoordinateRange(lat, lng)) {
+                if (GeoUtils.isValidCoordinateRange(lat, lng)) {
                     annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
                 }
             } catch (NumberFormatException e) {
@@ -72,7 +72,7 @@ public final class CoordinateTagger implements Tagger {
             try {
                 double lat = GeoUtils.parseDms(matcher.group(1));
                 double lng = GeoUtils.parseDms(matcher.group(6));
-                if (GeoUtils.validCoordinateRange(lat, lng)) {
+                if (GeoUtils.isValidCoordinateRange(lat, lng)) {
                     annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
                 }
             } catch (NumberFormatException e) {

@@ -1,16 +1,12 @@
 package ws.palladian.retrieval.search;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.GeoCoordinate;
@@ -26,7 +22,7 @@ import ws.palladian.helper.constants.Language;
  * 
  * @author Philipp Katz
  */
-public class MultifacetQuery {
+public interface MultifacetQuery {
 
     /**
      * <p>
@@ -43,21 +39,21 @@ public class MultifacetQuery {
         /** Default offset if not specified explicitly. */
         private static final int DEFAULT_PAGE = 0;
 
-        private String id;
-        private String url;
-        private Set<String> tags;
-        private String text;
-        private Date startDate;
-        private Date endDate;
-        private int resultCount = DEFAULT_RESULT_COUNT;
-        private GeoCoordinate coordinate;
-        private Double radius;
-        private Language language;
-        private int resultPage = DEFAULT_PAGE;
+        String id;
+        String url;
+        Set<String> tags;
+        String text;
+        Date startDate;
+        Date endDate;
+        int resultCount = DEFAULT_RESULT_COUNT;
+        GeoCoordinate coordinate;
+        Double radius;
+        Language language;
+        int resultPage = DEFAULT_PAGE;
 
         // additional facets, in the future, we might want to make this super-generic and also replace the dedicated
         // fields given above by facets
-        private final Map<String, Facet> facets = CollectionHelper.newHashMap();
+        final Map<String, Facet> facets = CollectionHelper.newHashMap();
 
         /**
          * <p>
@@ -148,130 +144,76 @@ public class MultifacetQuery {
 
         @Override
         public MultifacetQuery create() {
-            return new MultifacetQuery(this);
+            return new ImmutableMultifacetQuery(this);
         }
 
     }
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    /**
+     * @return The source-specific identifier of the sought content, or <code>null</code> in case not specified.
+     */
+    String getId();
 
-    private final String id;
-    private final String url;
-    private final Set<String> tags;
-    private final String text;
-    private final Date startDate;
-    private final Date endDate;
-    private final int resultCount;
-    private final GeoCoordinate coordinate;
-    private final Double radius;
-    private final Language language;
-    private final Map<String, Facet> facets;
-    private final int resultPage;
+    /**
+     * @return The URL of the sought content, or <code>null</code> in case not specified.
+     */
+    String getUrl();
 
-    /** Created by the builder. */
-    private MultifacetQuery(Builder builder) {
-        this.id = builder.id;
-        this.url = builder.url;
-        this.tags = builder.tags;
-        this.text = builder.text;
-        this.startDate = builder.startDate;
-        this.endDate = builder.endDate;
-        this.resultCount = builder.resultCount;
-        this.coordinate = builder.coordinate;
-        this.radius = builder.radius;
-        this.language = builder.language;
-        this.facets = builder.facets;
-        this.resultPage = builder.resultPage;
-    }
+    /**
+     * @return The tags, or an empty set if not specified.
+     */
+    Set<String> getTags();
 
-    public String getId() {
-        return id;
-    }
+    /**
+     * @return The text, or <code>null</code> in case not specified.
+     */
+    String getText();
 
-    public String getUrl() {
-        return url;
-    }
+    /**
+     * @return The start date of the interval to search, or <code>null</code> in case not specified.
+     */
+    Date getStartDate();
 
-    public Set<String> getTags() {
-        return tags != null ? Collections.unmodifiableSet(tags) : Collections.<String> emptySet();
-    }
+    /**
+     * @return The end date of the interval to search, or <code>null</code> in case not specified.
+     */
+    Date getEndDate();
 
-    public String getText() {
-        return text;
-    }
+    /**
+     * @return The number of desired results, must be greater zero.
+     */
+    int getResultCount();
 
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public int getResultCount() {
-        return resultCount;
-    }
-
-    public GeoCoordinate getCoordinate() {
-        return coordinate;
-    }
+    /**
+     * @return The coordinate where to search, or <code>null</code> in case not specified.
+     */
+    GeoCoordinate getCoordinate();
 
     /**
      * @return The radius in kilometers, or <code>null</code> in case no radius was specified.
      */
-    public Double getRadius() {
-        return radius;
-    }
+    Double getRadius();
 
-    public Language getLanguage() {
-        return language;
-    }
+    /**
+     * @return The language of the sought content, or <code>null</code> in case not specified.
+     */
+    Language getLanguage();
 
-    public Facet getFacet(String identifier) {
-        return facets.get(identifier);
-    }
+    /**
+     * <p>
+     * Get a searcher-specific additional facet which is not included in this API. The convention is, that additional
+     * facets should be specified as static nested classes within the corresponding searcher.
+     * </p>
+     * 
+     * @param identifier The identifier of the facet to retrieve, not <code>null</code>.
+     * @return The facet for the specified identifier, or <code>null</code> in case no facet with the given identifier
+     *         exists.
+     */
+    Facet getFacet(String identifier);
 
-    public int getResultPage() {
-        return resultPage;
-    }
-
-    @Override
-    public String toString() {
-        DateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        List<String> toStringParts = CollectionHelper.newArrayList();
-
-        if (id != null) {
-            toStringParts.add(String.format("id=%s", id));
-        }
-        if (url != null) {
-            toStringParts.add(String.format("url=%s", url));
-        }
-        if (tags != null) {
-            toStringParts.add(String.format("tags=%s", tags));
-        }
-        if (text != null) {
-            toStringParts.add(String.format("text=%s", text));
-        }
-        if (startDate != null) {
-            toStringParts.add(String.format("startDate=%s", format.format(startDate)));
-        }
-        if (endDate != null) {
-            toStringParts.add(String.format("endDate=%s", format.format(endDate)));
-        }
-        toStringParts.add(String.format("resultCount=%s", resultCount));
-        if (coordinate != null && radius != null) {
-            toStringParts.add(String.format("coordinate=%s", coordinate));
-            toStringParts.add(String.format("radius=%s", radius));
-        }
-        if (language != null) {
-            toStringParts.add(String.format("language=%s", language));
-        }
-        if (facets.size() > 0) {
-            toStringParts.add(String.format("facets=%s", facets));
-        }
-        toStringParts.add(String.format("resultPage=%s", resultPage));
-
-        return String.format("MultifacetQuery [%s]", StringUtils.join(toStringParts, ','));
-    }
+    /**
+     * @return The page of the result list to get.
+     */
+    int getResultPage();
 
 }

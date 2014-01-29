@@ -12,6 +12,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -427,6 +428,10 @@ public final class WikipediaUtil {
         while (m.find()) {
             double lat = parseComponents(m.group(1), m.group(2), m.group(3), m.group(4));
             double lng = parseComponents(m.group(5), m.group(6), m.group(7), m.group(8));
+            if (!GeoUtils.isValidCoordinateRange(lat, lng)) {
+                LOGGER.warn("lat/lng ({},{}) out of range", lat, lng);
+                continue;
+            }
 
             // get coordinate parameters
             String data = m.group(9);
