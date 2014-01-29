@@ -25,13 +25,13 @@ public class XPathSet {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(XPathSet.class);
 
-    private LinkedHashMap<String, Integer> xPathMap = null;
+    private Map<String, Integer> xPathMap = null;
 
     public XPathSet() {
         xPathMap = new LinkedHashMap<String, Integer>();
     }
 
-    public LinkedHashMap<String, Integer> getXPathMap() {
+    public Map<String, Integer> getXPathMap() {
         return xPathMap;
     }
 

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -32,12 +31,11 @@ public class CountMap<T> implements Collection<T>, Serializable {
 
     private final Map<T, Integer> map = CollectionHelper.newHashMap();
 
-    @SuppressWarnings("deprecation")
-    public LinkedHashMap<T, Integer> getSortedMap() {
+    public Map<T, Integer> getSortedMap() {
         return CollectionHelper.sortByValue(map);
     }
 
-    public LinkedHashMap<T, Integer> getSortedMapDescending() {
+    public Map<T, Integer> getSortedMapDescending() {
         return CollectionHelper.sortByValue(map, Order.DESCENDING);
     }
 
@@ -253,7 +251,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
     }
 
     public CountMap<T> getHighest(int num) {
-        LinkedHashMap<T, Integer> descendingItems = getSortedMapDescending();
+        Map<T, Integer> descendingItems = getSortedMapDescending();
         CountMap<T> result = CountMap.create();
         for (Entry<T, Integer> entry : descendingItems.entrySet()) {
             result.add(entry.getKey(), entry.getValue());

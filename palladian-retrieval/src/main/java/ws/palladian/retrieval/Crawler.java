@@ -172,7 +172,7 @@ public class Crawler {
         int wc = 0;
         while (getThreadCount() > 0 && wc < 180) {
             try {
-                LOGGER.info("wait a second ({} more times, {} threds active)", 180 - wc, getThreadCount());
+                LOGGER.info("wait a second ({} more times, {} threads active)", 180 - wc, getThreadCount());
                 wc++;
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

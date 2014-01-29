@@ -3,8 +3,8 @@ package ws.palladian.extraction.content;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -235,7 +235,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        LinkedHashMap<String, Integer> xpmap = xpathset.getXPathMap();
+        Map<String, Integer> xpmap = xpathset.getXPathMap();
         String highestCountXPath = xpathset.getHighestCountXPath();
         int highestCount = xpathset.getCountOfXPath(highestCountXPath);
 

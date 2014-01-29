@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -921,7 +920,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
 
         stopWatch.start();
-        LinkedHashMap<String, Integer> sortedMap = leftContextMap.getSortedMapDescending();
+        Map<String, Integer> sortedMap = leftContextMap.getSortedMapDescending();
 
         for (ContextAnnotation annotation : annotations) {
 
@@ -1327,7 +1326,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
             int tagCount = tagCounts.getCount(entry.getKey());
             CountMap<String> patterns = contextMap.get(entry.getKey());
-            LinkedHashMap<String, Integer> sortedMap = patterns.getSortedMap();
+            Map<String, Integer> sortedMap = patterns.getSortedMap();
 
             csv.append(entry.getKey()).append("###").append(tagCount).append("\n");
 

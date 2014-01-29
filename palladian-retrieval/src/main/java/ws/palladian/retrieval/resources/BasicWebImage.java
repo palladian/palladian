@@ -40,19 +40,22 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         public Builder setThumbnailUrl(String thumbnailUrl) {
             this.thumbnailUrl = thumbnailUrl;
             return this;
-
         }
 
         public Builder setWidth(int width) {
             this.width = width;
             return this;
-
         }
 
         public Builder setHeight(int height) {
             this.height = height;
             return this;
-
+        }
+        
+        public Builder setSize(int width, int height) {
+            this.width = width;
+            this.height = height;
+            return this;
         }
 
         public Builder setLicense(License license) {
@@ -70,7 +73,6 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         public Builder setImageUrl(String imageUrl) {
             this.imageUrl = imageUrl;
             return this;
-
         }
 
         public Builder setFileType(String fileType) {

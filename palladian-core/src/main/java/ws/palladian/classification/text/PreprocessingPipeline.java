@@ -47,7 +47,7 @@ public class PreprocessingPipeline extends ProcessingPipeline {
             connectToPreviousProcessor(new NGramCreator(minNGramLength, maxNGramLength));
         }
 
-        if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
+        if (featureSetting.isWordUnigrams()) {
             int minTermLength = featureSetting.getMinimumTermLength();
             int maxTermLength = featureSetting.getMaximumTermLength();
             connectToPreviousProcessor(new LengthTokenRemover(minTermLength, maxTermLength));

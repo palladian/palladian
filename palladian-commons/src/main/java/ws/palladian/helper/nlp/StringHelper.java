@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
@@ -405,6 +407,18 @@ public final class StringHelper {
             }
         }
         return null;
+    }
+
+    public static Set<String> containsWhichWords(Collection<String> words, String searchString) {
+        Set<String> containedWords = CollectionHelper.newHashSet();
+
+        for (String word : words) {
+            if (containsWord(word, searchString)) {
+                containedWords.add(word);
+            }
+        }
+
+        return containedWords;
     }
 
     /**
@@ -1697,6 +1711,15 @@ public final class StringHelper {
         text = StringHelper.replaceWord("ten", "10", text);
         text = StringHelper.replaceWord("eleven", "11", text);
         text = StringHelper.replaceWord("twelve", "12", text);
+        text = StringHelper.replaceWord("twenty", "20", text);
+        text = StringHelper.replaceWord("thirty", "30", text);
+        text = StringHelper.replaceWord("forty", "40", text);
+        text = StringHelper.replaceWord("fifty", "50", text);
+        text = StringHelper.replaceWord("sixty", "60", text);
+        text = StringHelper.replaceWord("seventy", "70", text);
+        text = StringHelper.replaceWord("eighty", "80", text);
+        text = StringHelper.replaceWord("ninety", "90", text);
+        text = StringHelper.replaceWord("one hundred", "100", text);
         return text;
     }
 

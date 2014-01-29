@@ -203,12 +203,20 @@ public class UnitNormalizer {
         VOLUME_UNITS.add("milliliters");
         VOLUME_UNITS.add("ml");
         VOLUME_UNITS.add("mls");
+        VOLUME_UNITS.add("fl. oz");
+        VOLUME_UNITS.add("fl. oz.");
+        VOLUME_UNITS.add("fl. ozs");
+        VOLUME_UNITS.add("fl. ozs.");
+        VOLUME_UNITS.add("fl. ounce");
+        VOLUME_UNITS.add("fl. ounces");
         VOLUME_UNITS.add("fl oz");
         VOLUME_UNITS.add("fl oz.");
         VOLUME_UNITS.add("fl ozs");
         VOLUME_UNITS.add("fl ozs.");
         VOLUME_UNITS.add("fl ounce");
         VOLUME_UNITS.add("fl ounces");
+        VOLUME_UNITS.add("fluid ounce");
+        VOLUME_UNITS.add("fluid ounces");
         VOLUME_UNITS.add("cm³");
 
         for (TemperatureUnit tUnit : TemperatureUnit.values()) {
@@ -258,7 +266,7 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
-            if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+            if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|-|\\s)").matcher(text).find()) {
                 return unit;
             }
         }
@@ -269,11 +277,11 @@ public class UnitNormalizer {
     public static String detectUnit(String text, int unitType) {
         switch (unitType) {
             case UNIT_LENGTH:
-            for (String unit : LENGTH_UNITS) {
-                if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
-                    return unit;
+                for (String unit : LENGTH_UNITS) {
+                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                        return unit;
+                    }
                 }
-            }
                 break;
             case UNIT_FREQUENCY:
                 for (String unit : FREQUENCY_UNITS) {
@@ -505,7 +513,11 @@ public class UnitNormalizer {
             multiplier = 1000.0;
         } else if (unit.equals("pound") || unit.equals("pounds") || unit.equals("lb") || unit.equals("lbs")) {
             multiplier = 453.59237;
-        } else if (unit.equals("ounce") || unit.equals("ounces") || unit.equals("oz") || unit.equals("ozs")) {
+        } else if (unit.equals("ounce") || unit.equals("ounces") || unit.equals("oz") || unit.equals("ozs")
+                || unit.equals("fl. oz") || unit.equals("fl. oz.") || unit.equals("fl. ozs") || unit.equals("fl. ozs.")
+                || unit.equals("fl. ounce") || unit.equals("fl. ounces") || unit.equals("fl oz")
+                || unit.equals("fl oz.") || unit.equals("fl ozs") || unit.equals("fl ozs.") || unit.equals("fl ounce")
+                || unit.equals("fl ounces") || unit.equals("fluid ounce") || unit.equals("fluid ounces")) {
             multiplier = 28.3495231;
         } else if (unit.equals("gram") || unit.equals("grams") || unit.equals("g") || unit.equals("gr")) {
             multiplier = 1.0;
@@ -614,11 +626,10 @@ public class UnitNormalizer {
                 || unit.equals("megapixels") || unit.equals("mpix") || unit.equals("mpixel") || unit.equals("mp")
                 || unit.equals("mpx")) {
             multiplier = 1000000.0;
-        }else if (unit.equals("kpix") || unit.equals("kilopixels") || unit.equals("kilopixel")
+        } else if (unit.equals("kpix") || unit.equals("kilopixels") || unit.equals("kilopixel")
                 || unit.equals("kilo pixel")) {
             multiplier = 1000.0;
-        }
-        else if (unit.equals("%")) {
+        } else if (unit.equals("%")) {
             multiplier = 0.01;
         }
 
@@ -740,9 +751,9 @@ public class UnitNormalizer {
      */
     public static double transorm(String unitTo, double value) {
         double divider = unitLookup(unitTo);
-        if(divider != -1){
-            return value/divider;
-        }else{
+        if (divider != -1) {
+            return value / divider;
+        } else {
             return value;
         }
     }
@@ -1006,9 +1017,8 @@ public class UnitNormalizer {
         System.out.println(getNormalizedNumber(1, ":20 23sdf sdf a__:"));
         System.out.println(getNormalizedNumber(1, ":20 23sdf sdf a__:"));
 
-
-        System.out.println(getNormalizedNumber(20,"inch"));
-        System.out.println(transorm("inch", getNormalizedNumber(20,"inch")));
+        System.out.println(getNormalizedNumber(20, "inch"));
+        System.out.println(transorm("inch", getNormalizedNumber(20, "inch")));
 
         // System.out.println(Double.valueOf("8.589934592E9")/100000);
 
