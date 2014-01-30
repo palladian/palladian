@@ -519,6 +519,43 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Apply a {@link Filter} to an {@link Iterator}.
+     * </p>
+     * 
+     * @param iterator The iterator to filter, not <code>null</code>.
+     * @param filter The filter to apply, not <code>null</code>.
+     * @return A new iterator, where the given filter is applied, thus eliminating the entries in the iterator, which
+     *         are not accepted by the filter.
+     */
+    public static <T> Iterator<T> filter(Iterator<T> iterator, Filter<? super T> filter) {
+        Validate.notNull(iterator, "iterator must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        return new FilterIterator<T>(iterator, filter);
+    }
+
+    /**
+     * <p>
+     * Apply a {@link Filter} to an {@link Iterable}.
+     * </p>
+     * 
+     * @param iterable The iterable to filter, not <code>null</code>.
+     * @param filter The filter to apply, not <code>null</code>.
+     * @return A new iterator, where the given filter is applied, thus eliminating the entries in the iterator, which
+     *         are not accepted by the filter.
+     */
+    public static <T> Iterable<T> filter(final Iterable<T> iterable, final Filter<? super T> filter) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        return new Iterable<T>() {
+            @Override
+            public Iterator<T> iterator() {
+                return filter(iterable.iterator(), filter);
+            }
+        };
+    }
+
+    /**
+     * <p>
      * Get the first element in an {@link Iterable}.
      * </p>
      * 
