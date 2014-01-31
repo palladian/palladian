@@ -9,7 +9,7 @@ import org.javatuples.Triplet;
 import org.javatuples.Tuple;
 
 import ws.palladian.classification.Model;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 
 /**
  * <p>
@@ -20,11 +20,11 @@ import ws.palladian.helper.collection.CountMap;
  */
 public final class NaiveBayesModel implements Model {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
-    private final CountMap<Triplet<String, String, String>> nominalCounts;
+    private final Bag<Triplet<String, String, String>> nominalCounts;
 
-    private final CountMap<String> categories;
+    private final Bag<String> categories;
 
     private final Map<Pair<String, String>, Double> sampleMeans;
 
@@ -35,15 +35,15 @@ public final class NaiveBayesModel implements Model {
      * Instantiate a new {@link NaiveBayesModel}.
      * </p>
      * 
-     * @param nominalCounts {@link CountMap} with all nominal values. They have to be stored as {@link Triplet} (name,
+     * @param nominalCounts {@link Bag} with all nominal values. They have to be stored as {@link Triplet} (name,
      *            value, category), not <code>null</code>.
-     * @param categories {@link CountMap} with all categories, not <code>null</code>.
+     * @param categories {@link Bag} with all categories, not <code>null</code>.
      * @param sampleMeans {@link Map} with sample means as values for all numeric values. The keys have to be stored as
      *            {@link Tuple}s (name, category), not <code>null</code>.
      * @param standardDeviations {@link Map} with standard deviations as values for all numeric values. The keys have to
      *            be stored as {@link Tuple}s (name, category), not <code>null</code>.
      */
-    NaiveBayesModel(CountMap<Triplet<String, String, String>> nominalCounts, CountMap<String> categories,
+    NaiveBayesModel(Bag<Triplet<String, String, String>> nominalCounts, Bag<String> categories,
             Map<Pair<String, String>, Double> sampleMeans, Map<Pair<String, String>, Double> standardDeviations) {
         this.nominalCounts = nominalCounts;
         this.categories = categories;
@@ -61,7 +61,7 @@ public final class NaiveBayesModel implements Model {
      */
     public double getPrior(String category) {
         Validate.notNull(category, "category must not be null");
-        return (double)categories.getCount(category) / categories.totalSize();
+        return (double)categories.count(category) / categories.size();
     }
 
     /**
@@ -81,7 +81,7 @@ public final class NaiveBayesModel implements Model {
         Validate.notNull(category, "category must not be null");
         Validate.isTrue(laplace >= 0, "laplace corrector must be equal or greater than zero");
 
-        int count = nominalCounts.getCount(new Triplet<String, String, String>(featureName, featureValue, category));
+        int count = nominalCounts.count(new Triplet<String, String, String>(featureName, featureValue, category));
 
         // Laplace smoothing:
         // pretend we have seen each result once more than we actually did;
@@ -89,7 +89,7 @@ public final class NaiveBayesModel implements Model {
         // P(X = i) = n_i / N becomes P(X = i) = (n_i + 1) / (N + K)
 
         // return (double)(count + 1) / (categories.getCount(category) + categories.uniqueSize());
-        return (double)(count + laplace) / (categories.getCount(category) + laplace * categories.uniqueSize());
+        return (double)(count + laplace) / (categories.count(category) + laplace * categories.unique().size());
     }
 
     /**

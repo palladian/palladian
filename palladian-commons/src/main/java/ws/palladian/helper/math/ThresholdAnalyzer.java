@@ -3,7 +3,7 @@ package ws.palladian.helper.math;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 
 /**
  * <p>
@@ -21,9 +21,9 @@ public class ThresholdAnalyzer {
 
     private final int numBins;
 
-    private final CountMap<Integer> truePositiveItems;
+    private final Bag<Integer> truePositiveItems;
 
-    private final CountMap<Integer> retrievedItems;
+    private final Bag<Integer> retrievedItems;
 
     private int relevantItems;
 
@@ -48,8 +48,8 @@ public class ThresholdAnalyzer {
             throw new IllegalArgumentException("numBins must be least two, was " + numBins);
         }
         this.numBins = numBins;
-        this.retrievedItems = CountMap.create();
-        this.truePositiveItems = CountMap.create();
+        this.retrievedItems = Bag.create();
+        this.truePositiveItems = Bag.create();
         this.relevantItems = 0;
     }
 
@@ -145,7 +145,7 @@ public class ThresholdAnalyzer {
     int getRetrievedAt(double threshold) {
         int retrieved = 0;
         for (int i = getBin(threshold); i <= numBins; i++) {
-            retrieved += retrievedItems.getCount(i);
+            retrieved += retrievedItems.count(i);
         }
         return retrieved;
     }
@@ -153,7 +153,7 @@ public class ThresholdAnalyzer {
     int getTruePositiveAt(double threshold) {
         int truePositive = 0;
         for (int i = getBin(threshold); i <= numBins; i++) {
-            truePositive += truePositiveItems.getCount(i);
+            truePositive += truePositiveItems.count(i);
         }
         return truePositive;
     }

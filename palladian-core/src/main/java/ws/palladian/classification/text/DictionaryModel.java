@@ -2,6 +2,7 @@ package ws.palladian.classification.text;
 
 import java.io.PrintStream;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,8 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Model;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.CountMatrix.NumberVector;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -34,7 +35,7 @@ public final class DictionaryModel implements Model {
     private final CountMatrix<String> termCategories = CountMatrix.create();
 
     /** Categories with their counts. */
-    private final CountMap<String> categories = CountMap.create();
+    private final Bag<String> categories = Bag.create();
 
     /** Configuration for the feature extraction. */
     private final FeatureSetting featureSetting;
@@ -99,13 +100,14 @@ public final class DictionaryModel implements Model {
     }
 
     public double getPrior(String category) {
-        return (double)categories.getCount(category) / categories.totalSize();
+        return (double)categories.count(category) / categories.size();
     }
 
     public Map<String, Double> getPriors() {
         Map<String, Double> result = CollectionHelper.newHashMap();
-        for (String category : categories) {
-            result.put(category, (double)categories.getCount(category) / categories.totalSize());
+        int sum = categories.size();
+        for (Entry<String, Integer> category : categories.unique()) {
+            result.put(category.getKey(), (double)category.getValue() / sum);
         }
         return result;
     }
@@ -132,7 +134,7 @@ public final class DictionaryModel implements Model {
             // get word frequency for each category and current term
             CategoryEntries frequencies = getCategoryEntries(term);
             boolean first = true;
-            for (String category : categories) {
+            for (String category : categories.uniqueItems()) {
                 Double probability = frequencies.getProbability(category);
                 if (!first) {
                     printStream.print(",");
