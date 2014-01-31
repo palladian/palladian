@@ -514,6 +514,21 @@ public class DatabaseManager {
 
     /**
      * <p>
+     * Run a query operation on the database, process the result using a callback.
+     * </p>
+     * 
+     * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return Number of processed results.
+     */
+    public final int runQuery(ResultSetCallback callback, Query query) {
+        Validate.notNull(callback, "callback must not be null");
+        Validate.notNull(query, "query must not be null");
+        return runQuery(callback, NopRowConverter.INSTANCE, query);
+    }
+
+    /**
+     * <p>
      * Run a query operation on the database, return the result as List.
      * </p>
      * 
