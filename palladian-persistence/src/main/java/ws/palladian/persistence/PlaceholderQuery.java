@@ -113,14 +113,18 @@ public final class PlaceholderQuery {
          * Set the placeholder in the query to the given value.
          * </p>
          * 
-         * @param placeholder Name of the placeholder to set, not <code>null</code>.
+         * @param placeholder Name of the placeholder to set, not <code>null</code> (@ at the placeholders' beginnings
+         *            are not necessary, but do no harm).
          * @param value Value to set for the placeholder.
          * @return This instance for builder style.
          * @throws IllegalArgumentException In case the given placeholder does not exist in the query.
          */
         public ArgumentBuilder set(String placeholder, Object value) {
-            Validate.notNull(placeholder, "key must not be null");
+            Validate.notNull(placeholder, "placeholder must not be null");
             String placeholderLowercase = placeholder.toLowerCase();
+            if (placeholderLowercase.startsWith("@")) {
+                placeholderLowercase = placeholderLowercase.substring(1);
+            }
             if (placeholders.contains(placeholderLowercase)) {
                 parameters.put(placeholderLowercase, value);
                 return this;
