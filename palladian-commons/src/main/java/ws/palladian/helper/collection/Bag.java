@@ -44,6 +44,23 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     /** The serial version id. */
     private static final long serialVersionUID = 1l;
 
+    /**
+     * <p>
+     * A factory for creating {@link Bag}s.
+     * </p>
+     * 
+     * @author pk
+     * 
+     * @param <T>
+     */
+    public static final class BagFactory<T> implements Factory<Bag<T>> {
+        @Override
+        public Bag<T> create() {
+            return Bag.create();
+        }
+    }
+
+    /** The internal map keeping the data. */
     private final Map<T, Integer> map;
 
     /**
