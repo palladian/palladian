@@ -1,7 +1,6 @@
 package ws.palladian.helper.collection;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import org.apache.commons.lang3.Validate;
 
@@ -15,11 +14,10 @@ import org.apache.commons.lang3.Validate;
  * @see CollectionHelper#filter(Iterable, Filter)
  * @see CollectionHelper#filter(Iterator, Filter)
  */
-class FilterIterator<E> implements Iterator<E> {
+class FilterIterator<E> extends AbstractIterator<E> {
 
     private final Iterator<E> iterator;
     private final Filter<? super E> filter;
-    private E next;
 
     /**
      * Create a new {@link FilterIterator} wrapping the given {@link Iterator}.
@@ -35,34 +33,14 @@ class FilterIterator<E> implements Iterator<E> {
     }
 
     @Override
-    public boolean hasNext() {
-        if (next == null) {
-            next = getNext();
-        }
-        return next != null;
-    }
-
-    private E getNext() {
+    protected E getNext() throws Finished {
         while (iterator.hasNext()) {
             E element = iterator.next();
             if (filter.accept(element)) {
                 return element;
             }
         }
-        return null;
-    }
-
-    @Override
-    public E next() {
-        if (next == null) {
-            next = getNext();
-        }
-        if (next == null) {
-            throw new NoSuchElementException("No (more) elements");
-        }
-        E result = next;
-        next = null;
-        return result;
+        throw new Finished();
     }
 
     @Override

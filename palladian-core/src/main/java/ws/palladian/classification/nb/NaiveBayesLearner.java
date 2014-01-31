@@ -7,8 +7,8 @@ import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import ws.palladian.classification.Learner;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.math.SlimStats;
 import ws.palladian.helper.math.Stats;
@@ -33,9 +33,9 @@ public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
     public NaiveBayesModel train(Iterable<? extends Trainable> trainables) {
 
         // store the counts of different categories
-        CountMap<String> categories = CountMap.create();
+        Bag<String> categories = Bag.create();
         // store the counts of nominal features (name, value, category)
-        CountMap<Triplet<String, String, String>> nominalCounts = CountMap.create();
+        Bag<Triplet<String, String, String>> nominalCounts = Bag.create();
         // store mean and standard deviation for numeric features (name, category)
         Map<Pair<String, String>, Stats> stats = LazyMap.create(SlimStats.FACTORY);
 

@@ -23,7 +23,9 @@ import ws.palladian.helper.collection.CollectionHelper.Order;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @deprecated This class has been replaced with {@link Bag}, which provides a better API and behaves more "intuitive".
  */
+@Deprecated
 public class CountMap<T> implements Collection<T>, Serializable {
 
     /** The serial version id. */

@@ -83,17 +83,18 @@ public final class CategoryEntriesMap implements CategoryEntries {
     public static CategoryEntriesMap merge(CategoryEntries... categoryEntries) {
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
         Map<String, Double> valueMap = LazyMap.create(ConstantFactory.create(0.));
+        double sum = 0;
         for (CategoryEntries entries : categoryEntries) {
             for (Category category : entries) {
                 Double value = valueMap.get(category.getName());
                 valueMap.put(category.getName(), value + category.getProbability());
+                sum += category.getProbability();
             }
         }
         CategoryEntriesMap result = new CategoryEntriesMap();
         for (String category : valueMap.keySet()) {
-            result.set(category, valueMap.get(category));
+            result.set(category, valueMap.get(category) / sum);
         }
-
         return result;
     }
 
