@@ -50,8 +50,9 @@ public final class PlaceholderQuery {
      */
     public PlaceholderQuery(String query) {
         Validate.notEmpty(query, "query must not be empty");
-        this.originalQuery = query;
-        this.query = query.replaceAll(PLACEHOLDER_PATTERN, "?");
+        String cleanQuery = query.replaceAll("\\s+", " "); // remove excessive spacing
+        this.originalQuery = cleanQuery;
+        this.query = cleanQuery.replaceAll(PLACEHOLDER_PATTERN, "?");
         this.placeholders = parsePlaceholders(query);
     }
 
