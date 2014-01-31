@@ -100,23 +100,21 @@ public final class CollectionHelper {
      * </p>
      * 
      * @param <K> Type of the keys.
-     * @param <V> Type of the values.
-     * @param map The {@link Map} to sort.
-     * @param ascending {@link CollectionHelper#ASCENDING} or {@link CollectionHelper#DESCENDING}.
+     * @param <V> Type of the values, must implement {@link Comparable}.
+     * @param map The {@link Map} to sort, not <code>null</code>.
+     * @param ascending {@link Order#ASCENDING} or {@link Order#DESCENDING}, not <code>null</code>.
      * @return A sorted map.
-     *         XXX {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
-     *         {@link Pair}s, sorted as required.
      */
-    public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map, final Order order) {
-
-        LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map, Order order) {
+        Validate.notNull(map, "map must not be null");
+        Validate.notNull(order, "order must not be null");
+        List<Entry<K, V>> list = new LinkedList<Entry<K, V>>(map.entrySet());
         Collections.sort(list, new EntryValueComparator<V>(order));
-
-        LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
+        
+        Map<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
-
         return result;
     }
 
@@ -126,7 +124,7 @@ public final class CollectionHelper {
      * </p>
      * 
      * @param <K> Type of the keys.
-     * @param <V> Type of the values.
+     * @param <V> Type of the values, must implement {@link Comparable}.
      * @param map The {@link Map} to sort.
      * @return A sorted map, in ascending order.
      */
@@ -142,27 +140,27 @@ public final class CollectionHelper {
      * @param <K> Type of the keys.
      * @param <V> Type of the values.
      * @param map The entry set.
-     * @param ascending {@link CollectionHelper#ASCENDING} or {@link CollectionHelper#DESCENDING}.
+     * @param ascending {@link Order#ASCENDING} or {@link Order#DESCENDING}.
      * @return A sorted map.
      * @deprecated {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
      *             {@link Pair}s, sorted as required.
      */
     @Deprecated
-    public static <V extends Comparable<V>> LinkedHashMap<String, V> sortByStringKeyLength(Map<String, V> map,
+    public static <V extends Comparable<V>> Map<String, V> sortByStringKeyLength(Map<String, V> map,
             final Order order) {
 
-        LinkedList<Map.Entry<String, V>> list = new LinkedList<Map.Entry<String, V>>(map.entrySet());
+        LinkedList<Entry<String, V>> list = new LinkedList<Entry<String, V>>(map.entrySet());
 
-        Comparator<Map.Entry<String, V>> comparator = new Comparator<Map.Entry<String, V>>() {
+        Comparator<Entry<String, V>> comparator = new Comparator<Entry<String, V>>() {
             @Override
-            public int compare(Map.Entry<String, V> o1, Map.Entry<String, V> o2) {
+            public int compare(Entry<String, V> o1, Entry<String, V> o2) {
                 int ret = new Integer(o1.getKey().length()).compareTo(o2.getKey().length());
                 return order == Order.ASCENDING ? ret : -ret;
             }
         };
         Collections.sort(list, comparator);
 
-        LinkedHashMap<String, V> result = new LinkedHashMap<String, V>();
+        Map<String, V> result = new LinkedHashMap<String, V>();
         for (Entry<String, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
@@ -195,6 +193,7 @@ public final class CollectionHelper {
      * @param array
      */
     public static void print(Object[] array) {
+        Validate.notNull(array, "array must not be null");
         for (Object o : array) {
             System.out.println(o);
         }
@@ -206,26 +205,11 @@ public final class CollectionHelper {
      * Print a human readable, line separated output of a {@link Map}.
      * </p>
      * 
-     * @param <K>
-     * @param <V>
-     * @param map
+     * @param map The map to print, not <code>null</code>.
      */
-    public static <K, V> void print(Map<K, V> map) {
-        print(map, -1);
-    }
-
-    public static <K, V> void print(Map<K, V> map, int limit) {
-        int c = 0;
-        Iterator<Map.Entry<K, V>> mapIterator = map.entrySet().iterator();
-        while (mapIterator.hasNext()) {
-            Map.Entry<K, V> entry = mapIterator.next();
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-            c++;
-            if (c >= limit && limit > -1) {
-                break;
-            }
-        }
-        System.out.println("#Entries: " + map.entrySet().size());
+    public static void print(Map<?, ?> map) {
+        Validate.notNull(map, "map must not be null");
+        print(map.entrySet());
     }
 
     /**
