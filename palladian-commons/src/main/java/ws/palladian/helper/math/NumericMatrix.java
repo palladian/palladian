@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -10,72 +11,45 @@ import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MapMatrix;
 import ws.palladian.helper.collection.Matrix;
 import ws.palladian.helper.collection.MatrixDecorator;
-import ws.palladian.helper.collection.MatrixEntryDecorator;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Serializable {
 
-    private final class NumericEntryConverter implements Function<MatrixEntry<K, Double>, NumericMatrixEntry<K>> {
+    private final class NumericEntryConverter implements Function<MatrixVector<K, Double>, NumericMatrixVector<K>> {
         @Override
-        public NumericMatrixEntry<K> compute(MatrixEntry<K, Double> input) {
-            return new NumericMatrixEntry<K>(input);
+        public NumericMatrixVector<K> compute(MatrixVector<K, Double> input) {
+            return new NumericMatrixVector<K>(input);
         }
     }
 
-    public static class NumericMatrixEntry<K> extends MatrixEntryDecorator<K, Double> implements NumericVector<K> {
+    public static final class NumericMatrixVector<K> extends AbstractNumericVector<K> implements
+            MatrixVector<K, Double> {
 
-        private final NumericVector<K> vector;
-        private final MatrixEntry<K, Double> matrixEntry;
+        private final MatrixVector<K, Double> vector;
 
-        public NumericMatrixEntry(MatrixEntry<K, Double> matrixEntry) {
-            this.matrixEntry = matrixEntry;
-            this.vector = new ImmutableNumericVector<K>(matrixEntry);
+        public NumericMatrixVector(MatrixVector<K, Double> vector) {
+            this.vector = vector;
         }
 
         @Override
-        public NumericVector<K> add(NumericVector<K> other) {
-            return vector.add(other);
+        public Double get(K k) {
+            Double value = vector.get(k);
+            return value != null ? value : 0;
         }
 
         @Override
-        public double norm() {
-            return vector.norm();
-        }
-
-        @Override
-        public double dot(NumericVector<K> other) {
-            return vector.dot(other);
-        }
-
-        @Override
-        public double sum() {
-            return vector.sum();
-        }
-
-        @Override
-        public double cosine(NumericVector<K> other) {
-            return vector.cosine(other);
-        }
-
-        @Override
-        public double euclidean(NumericVector<K> other) {
-            return vector.euclidean(other);
+        public Iterator<VectorEntry<K, Double>> iterator() {
+            return vector.iterator();
         }
 
         @Override
         public Set<K> keys() {
             return vector.keys();
         }
-        
-        @Override
-        public Double get(K k) {
-            Double value = matrixEntry.get(k);
-            return value != null ? value : 0;
-        }
 
         @Override
-        protected MatrixEntry<K, Double> getMatrixEntry() {
-            return matrixEntry;
+        public K key() {
+            return vector.key();
         }
 
     }
@@ -126,7 +100,7 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
      */
     public NumericMatrix<K> scalar(double lambda) {
         NumericMatrix<K> result = new NumericMatrix<K>();
-        for (NumericMatrixEntry<K> row : rows()) {
+        for (NumericMatrixVector<K> row : rows()) {
             for (VectorEntry<K, Double> entry : row) {
                 result.set(entry.key(), row.key(), entry.value() * lambda);
             }
@@ -141,22 +115,22 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
     };
 
     @Override
-    public NumericMatrixEntry<K> getRow(K y) {
-        return new NumericMatrixEntry<K>(matrix.getRow(y));
+    public NumericMatrixVector<K> getRow(K y) {
+        return new NumericMatrixVector<K>(matrix.getRow(y));
     }
 
     @Override
-    public NumericMatrixEntry<K> getColumn(K x) {
-        return new NumericMatrixEntry<K>(matrix.getColumn(x));
+    public NumericMatrixVector<K> getColumn(K x) {
+        return new NumericMatrixVector<K>(matrix.getColumn(x));
     }
 
     @Override
-    public Iterable<NumericMatrixEntry<K>> rows() {
+    public Iterable<NumericMatrixVector<K>> rows() {
         return CollectionHelper.convert(matrix.rows(), new NumericEntryConverter());
     }
 
     @Override
-    public Iterable<NumericMatrixEntry<K>> columns() {
+    public Iterable<NumericMatrixVector<K>> columns() {
         return CollectionHelper.convert(matrix.columns(), new NumericEntryConverter());
     }
 

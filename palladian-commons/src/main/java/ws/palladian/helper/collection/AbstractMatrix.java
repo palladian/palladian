@@ -21,7 +21,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
      * 
      * @author pk
      */
-    private final class RowIterator implements Iterator<MatrixEntry<K, V>> {
+    private final class RowIterator implements Iterator<MatrixVector<K, V>> {
         final Iterator<K> rowNameIterator = getRowKeys().iterator();
         K currentRowKey;
 
@@ -31,7 +31,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
         }
 
         @Override
-        public MatrixEntry<K, V> next() {
+        public MatrixVector<K, V> next() {
             currentRowKey = rowNameIterator.next();
             return getRow(currentRowKey);
         }
@@ -47,7 +47,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
      * 
      * @author pk
      */
-    private final class ColumnIterator implements Iterator<MatrixEntry<K, V>> {
+    private final class ColumnIterator implements Iterator<MatrixVector<K, V>> {
         final Iterator<K> columnNameIterator = getColumnKeys().iterator();
         K currentColumnKey;
 
@@ -57,7 +57,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
         }
 
         @Override
-        public MatrixEntry<K, V> next() {
+        public MatrixVector<K, V> next() {
             currentColumnKey = columnNameIterator.next();
             return getColumn(currentColumnKey);
         }
@@ -91,7 +91,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
         boolean headWritten = false;
 
         // iterate through all rows (y)
-        for (MatrixEntry<K, V> row : rows()) {
+        for (MatrixVector<K, V> row : rows()) {
 
             // write table head
             if (!headWritten) {
@@ -130,20 +130,20 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
     }
 
     @Override
-    public Iterable<? extends MatrixEntry<K, V>> rows() {
-        return new Iterable<MatrixEntry<K, V>>() {
+    public Iterable<? extends MatrixVector<K, V>> rows() {
+        return new Iterable<MatrixVector<K, V>>() {
             @Override
-            public Iterator<MatrixEntry<K, V>> iterator() {
+            public Iterator<MatrixVector<K, V>> iterator() {
                 return new RowIterator();
             }
         };
     }
 
     @Override
-    public Iterable<? extends MatrixEntry<K, V>> columns() {
-        return new Iterable<MatrixEntry<K, V>>() {
+    public Iterable<? extends MatrixVector<K, V>> columns() {
+        return new Iterable<MatrixVector<K, V>>() {
             @Override
-            public Iterator<MatrixEntry<K, V>> iterator() {
+            public Iterator<MatrixVector<K, V>> iterator() {
                 return new ColumnIterator();
             }
         };

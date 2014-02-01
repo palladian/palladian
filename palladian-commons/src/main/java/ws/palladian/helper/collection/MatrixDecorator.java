@@ -66,22 +66,22 @@ public abstract class MatrixDecorator<K, V> implements Matrix<K, V>, Serializabl
     }
 
     @Override
-    public MatrixEntry<K, V> getRow(K y) {
+    public MatrixVector<K, V> getRow(K y) {
         return matrix.getRow(y);
     }
 
     @Override
-    public MatrixEntry<K, V> getColumn(K x) {
+    public MatrixVector<K, V> getColumn(K x) {
         return matrix.getColumn(x);
     }
 
     @Override
-    public Iterable<? extends MatrixEntry<K, V>> rows() {
+    public Iterable<? extends MatrixVector<K, V>> rows() {
         return matrix.rows();
     }
 
     @Override
-    public Iterable<? extends MatrixEntry<K, V>> columns() {
+    public Iterable<? extends MatrixVector<K, V>> columns() {
         return matrix.columns();
     }
 

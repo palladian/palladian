@@ -42,25 +42,25 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
     }
 
     @Override
-    public MatrixEntry<K, V> getRow(K y) {
+    public MatrixVector<K, V> getRow(K y) {
         Map<K, V> row = CollectionHelper.newHashMap();
         for (Entry<Pair<K, K>, V> entry : matrixMap.entrySet()) {
             if (entry.getKey().getRight().equals(y)) {
                 row.put(entry.getKey().getLeft(), entry.getValue());
             }
         }
-        return row.size() > 0 ? new MapMatrixEntry<K, V>(y, row) : null;
+        return row.size() > 0 ? new MapMatrixVector<K, V>(y, row) : null;
     }
 
     @Override
-    public MatrixEntry<K, V> getColumn(K x) {
+    public MatrixVector<K, V> getColumn(K x) {
         Map<K, V> column = CollectionHelper.newHashMap();
         for (Entry<Pair<K, K>, V> entry : matrixMap.entrySet()) {
             if (entry.getKey().getLeft().equals(x)) {
                 column.put(entry.getKey().getRight(), entry.getValue());
             }
         }
-        return column.size() > 0 ? new MapMatrixEntry<K, V>(x, column) : null;
+        return column.size() > 0 ? new MapMatrixVector<K, V>(x, column) : null;
     }
 
     @Override
