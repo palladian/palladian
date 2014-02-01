@@ -33,7 +33,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
         @Override
         public MatrixEntry<K, V> next() {
             currentRowKey = rowNameIterator.next();
-            return new DefaultMatrixEntry<K, V>(getRow(currentRowKey), currentRowKey);
+            return getRow(currentRowKey);
         }
 
         @Override
@@ -59,7 +59,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
         @Override
         public MatrixEntry<K, V> next() {
             currentColumnKey = columnNameIterator.next();
-            return new DefaultMatrixEntry<K, V>(getColumn(currentColumnKey), currentColumnKey);
+            return getColumn(currentColumnKey);
         }
 
         @Override
@@ -79,9 +79,14 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
     }
 
     @Override
+    public int size() {
+        return columnCount() * rowCount();
+    }
+
+    @Override
     public String toString(String separator) {
         Validate.notEmpty(separator, "separator must not be empty");
-        
+
         StringBuilder builder = new StringBuilder();
         boolean headWritten = false;
 
@@ -98,15 +103,15 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
                 headWritten = true;
             }
 
-            builder.append(row.key()).append(separator);
+            builder.append(row.key());
 
             // iterate through all columns (x)
             for (K xKey : getColumnKeys()) {
-                V value = row.vector().get(xKey);
+                builder.append(separator);
+                V value = row.get(xKey);
                 if (value != null) {
                     builder.append(value);
                 }
-                builder.append(separator);
             }
             builder.append('\n');
         }
@@ -142,6 +147,11 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
                 return new ColumnIterator();
             }
         };
+    }
+
+    @Override
+    public boolean isCompatible(Matrix<K, V> other) {
+        return getRowKeys().equals(other.getRowKeys()) && getColumnKeys().equals(other.getColumnKeys());
     }
 
 }

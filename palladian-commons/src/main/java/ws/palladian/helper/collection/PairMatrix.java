@@ -42,31 +42,31 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
     }
 
     @Override
-    public Vector<K, V> getRow(K y) {
+    public MatrixEntry<K, V> getRow(K y) {
         Map<K, V> row = CollectionHelper.newHashMap();
         for (Entry<Pair<K, K>, V> entry : matrixMap.entrySet()) {
             if (entry.getKey().getRight().equals(y)) {
                 row.put(entry.getKey().getLeft(), entry.getValue());
             }
         }
-        return row.size() > 0 ? new MapVector<K, V>(row) : null;
+        return row.size() > 0 ? new MapMatrixEntry<K, V>(y, row) : null;
     }
 
     @Override
-    public Vector<K, V> getColumn(K x) {
+    public MatrixEntry<K, V> getColumn(K x) {
         Map<K, V> column = CollectionHelper.newHashMap();
         for (Entry<Pair<K, K>, V> entry : matrixMap.entrySet()) {
             if (entry.getKey().getLeft().equals(x)) {
                 column.put(entry.getKey().getRight(), entry.getValue());
             }
         }
-        return column.size() > 0 ? new MapVector<K, V>(column) : null;
+        return column.size() > 0 ? new MapMatrixEntry<K, V>(x, column) : null;
     }
 
     @Override
     public void removeRow(final K y) {
         keysY.remove(y);
-        CollectionHelper.remove(matrixMap.keySet(), new Filter<Pair<K,K>>() {
+        CollectionHelper.remove(matrixMap.keySet(), new Filter<Pair<K, K>>() {
             @Override
             public boolean accept(Pair<K, K> item) {
                 return !item.getRight().equals(y);
@@ -77,7 +77,7 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
     @Override
     public void removeColumn(final K x) {
         keysX.remove(x);
-        CollectionHelper.remove(matrixMap.keySet(), new Filter<Pair<K,K>>() {
+        CollectionHelper.remove(matrixMap.keySet(), new Filter<Pair<K, K>>() {
             @Override
             public boolean accept(Pair<K, K> item) {
                 return !item.getLeft().equals(x);

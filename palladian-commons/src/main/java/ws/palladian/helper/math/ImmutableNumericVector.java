@@ -11,6 +11,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryConverter;
+import ws.palladian.helper.collection.Vector;
 
 /**
  * <p>
@@ -45,6 +46,21 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
         this.valueMap = new HashMap<K, Double>(valueMap);
     }
 
+    /**
+     * <p>
+     * Create a new {@link ImmutableNumericVector} by copying the given {@link Vector}.
+     * </p>
+     * 
+     * @param vector The vector with the values, not <code>null</code>.
+     */
+    public ImmutableNumericVector(Vector<K, Double> vector) {
+        Validate.notNull(vector, "vector must not be null");
+        valueMap = new HashMap<K, Double>();
+        for (VectorEntry<K, Double> entry : vector) {
+            valueMap.put(entry.key(), entry.value());
+        }
+    }
+
     @Override
     public Double get(K k) {
         Validate.notNull(k, "k must not be null");
@@ -69,7 +85,8 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
     @Override
     public double norm() {
         double norm = 0;
-        for (Double value : valueMap.values()) {
+        for (VectorEntry<K, Double> entry : this) {
+            double value = entry.value();
             norm += value * value;
         }
         return Math.sqrt(norm);
@@ -78,8 +95,8 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
     @Override
     public double sum() {
         double sum = 0;
-        for (Double value : valueMap.values()) {
-            sum += value;
+        for (VectorEntry<K, Double> entry : this) {
+            sum += entry.value();
         }
         return sum;
     }
@@ -88,10 +105,10 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
     public double dot(NumericVector<K> other) {
         Validate.notNull(other, "other must not be null");
         double dotProduct = 0;
-        for (Entry<K, Double> entry : valueMap.entrySet()) {
-            Double otherValue = other.get(entry.getKey());
+        for (VectorEntry<K, Double> entry : this) {
+            Double otherValue = other.get(entry.key());
             if (otherValue != null) {
-                dotProduct += entry.getValue() * otherValue;
+                dotProduct += entry.value() * otherValue;
             }
         }
         return dotProduct;

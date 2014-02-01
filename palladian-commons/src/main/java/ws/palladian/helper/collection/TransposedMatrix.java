@@ -55,12 +55,12 @@ public class TransposedMatrix<K, V> extends MatrixDecorator<K, V> implements Ser
     }
 
     @Override
-    public Vector<K, V> getRow(K y) {
+    public MatrixEntry<K, V> getRow(K y) {
         return matrix.getColumn(y);
     }
 
     @Override
-    public Vector<K, V> getColumn(K x) {
+    public MatrixEntry<K, V> getColumn(K x) {
         return matrix.getRow(x);
     }
 

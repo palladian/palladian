@@ -5,12 +5,17 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
-public class MapVector<K, V> implements Vector<K, V> {
+import ws.palladian.helper.collection.Matrix.MatrixEntry;
 
+public class MapMatrixEntry<K, V> implements MatrixEntry<K, V> {
+
+    private final K key;
     private final Map<K, V> map;
 
-    public MapVector(Map<K, V> map) {
+    public MapMatrixEntry(K key, Map<K, V> map) {
+        Validate.notNull(key, "key must not be null");
         Validate.notNull(map, "map must not be null");
+        this.key = key;
         this.map = map;
     }
 
@@ -27,6 +32,11 @@ public class MapVector<K, V> implements Vector<K, V> {
     @Override
     public int size() {
         return map.size();
+    }
+
+    @Override
+    public K key() {
+        return key;
     }
 
     @Override
@@ -47,7 +57,7 @@ public class MapVector<K, V> implements Vector<K, V> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MapVector<?, ?> other = (MapVector<?, ?>)obj;
+        MapMatrixEntry<?, ?> other = (MapMatrixEntry<?, ?>)obj;
         return map.equals(other.map);
     }
 

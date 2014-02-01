@@ -56,17 +56,22 @@ public abstract class MatrixDecorator<K, V> implements Matrix<K, V>, Serializabl
     }
 
     @Override
+    public int size() {
+        return matrix.size();
+    }
+
+    @Override
     public void clear() {
         matrix.clear();
     }
 
     @Override
-    public Vector<K, V> getRow(K y) {
+    public MatrixEntry<K, V> getRow(K y) {
         return matrix.getRow(y);
     }
 
     @Override
-    public Vector<K, V> getColumn(K x) {
+    public MatrixEntry<K, V> getColumn(K x) {
         return matrix.getColumn(x);
     }
 
@@ -98,6 +103,11 @@ public abstract class MatrixDecorator<K, V> implements Matrix<K, V>, Serializabl
     @Override
     public String toString() {
         return matrix.toString();
+    }
+
+    @Override
+    public boolean isCompatible(Matrix<K, V> other) {
+        return matrix.isCompatible(other);
     }
 
 }
