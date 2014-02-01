@@ -5,7 +5,7 @@ import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.LazyMatrix;
 import ws.palladian.helper.collection.MapMatrix;
 import ws.palladian.helper.collection.Matrix;
-import ws.palladian.helper.collection.Matrix.MatrixEntry;
+import ws.palladian.helper.collection.Matrix.MatrixVector;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.SlimStats;
 import ws.palladian.helper.math.Stats;
@@ -56,7 +56,7 @@ public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
         Matrix<String, Double> sampleMeans = MapMatrix.create();
         Matrix<String, Double> standardDeviations = MapMatrix.create();
 
-        for (MatrixEntry<String, Stats> row : stats.rows()) {
+        for (MatrixVector<String, Stats> row : stats.rows()) {
             String category = row.key();
             for (VectorEntry<String, Stats> cell : row) {
                 String featureName = cell.key();

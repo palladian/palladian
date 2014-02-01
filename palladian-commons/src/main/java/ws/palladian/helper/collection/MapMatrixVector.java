@@ -2,17 +2,18 @@ package ws.palladian.helper.collection;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.Matrix.MatrixEntry;
+import ws.palladian.helper.collection.Matrix.MatrixVector;
 
-public class MapMatrixEntry<K, V> implements MatrixEntry<K, V> {
+final class MapMatrixVector<K, V> implements MatrixVector<K, V> {
 
     private final K key;
     private final Map<K, V> map;
 
-    public MapMatrixEntry(K key, Map<K, V> map) {
+    MapMatrixVector(K key, Map<K, V> map) {
         Validate.notNull(key, "key must not be null");
         Validate.notNull(map, "map must not be null");
         this.key = key;
@@ -40,6 +41,11 @@ public class MapMatrixEntry<K, V> implements MatrixEntry<K, V> {
     }
 
     @Override
+    public Set<K> keys() {
+        return map.keySet();
+    }
+
+    @Override
     public String toString() {
         return map.toString();
     }
@@ -57,7 +63,7 @@ public class MapMatrixEntry<K, V> implements MatrixEntry<K, V> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MapMatrixEntry<?, ?> other = (MapMatrixEntry<?, ?>)obj;
+        MapMatrixVector<?, ?> other = (MapMatrixVector<?, ?>)obj;
         return map.equals(other.map);
     }
 

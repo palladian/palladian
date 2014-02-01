@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.Matrix.MatrixEntry;
+import ws.palladian.helper.collection.Matrix.MatrixVector;
 
 public class MatrixTest {
 
@@ -55,17 +55,15 @@ public class MatrixTest {
         assertEquals((Integer)2, row.get(2));
 
         // iterators
-        Iterable<? extends MatrixEntry<Integer, Integer>> rowIterator = matrix.rows();
         int index = 0;
-        for (MatrixEntry<Integer, Integer> rowEntry : rowIterator) {
+        for (MatrixVector<Integer, Integer> rowEntry : matrix.rows()) {
             assertEquals(index, (int)rowEntry.key());
             assertEquals(matrix.getRow(index), rowEntry);
             index++;
         }
         assertEquals(3, index);
-        Iterable<? extends MatrixEntry<Integer, Integer>> columnIterator = matrix.columns();
         index = 0;
-        for (MatrixEntry<Integer, Integer> columnEntry : columnIterator) {
+        for (MatrixVector<Integer, Integer> columnEntry : matrix.columns()) {
             assertEquals(index, (int)columnEntry.key());
             assertEquals(matrix.getColumn(index), columnEntry);
             index++;

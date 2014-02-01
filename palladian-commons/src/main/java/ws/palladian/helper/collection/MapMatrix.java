@@ -38,13 +38,13 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     }
 
     @Override
-    public MatrixEntry<K, V> getRow(K y) {
+    public MatrixVector<K, V> getRow(K y) {
         Map<K, V> row = matrix.get(y);
-        return row != null ? new MapMatrixEntry<K, V>(y, row) : null;
+        return row != null ? new MapMatrixVector<K, V>(y, row) : null;
     }
 
     @Override
-    public MatrixEntry<K, V> getColumn(K x) {
+    public MatrixVector<K, V> getColumn(K x) {
         Map<K, V> column = CollectionHelper.newHashMap();
         for (Entry<K, Map<K, V>> row : matrix.entrySet()) {
             K y = row.getKey();
@@ -54,7 +54,7 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
                 }
             }
         }
-        return column.size() > 0 ? new MapMatrixEntry<K, V>(x, column) : null;
+        return column.size() > 0 ? new MapMatrixVector<K, V>(x, column) : null;
     }
 
     @Override

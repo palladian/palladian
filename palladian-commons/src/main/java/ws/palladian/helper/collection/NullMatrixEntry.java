@@ -2,8 +2,9 @@ package ws.palladian.helper.collection;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 
-import ws.palladian.helper.collection.Matrix.MatrixEntry;
+import ws.palladian.helper.collection.Matrix.MatrixVector;
 
 /**
  * <p>
@@ -15,11 +16,11 @@ import ws.palladian.helper.collection.Matrix.MatrixEntry;
  * @param <K>
  * @param <V>
  */
-public final class NullMatrixEntry<K, V> implements MatrixEntry<K, V> {
+final class NullMatrixEntry<K, V> implements MatrixVector<K, V> {
 
     private final K key;
 
-    public NullMatrixEntry(K key) {
+    NullMatrixEntry(K key) {
         this.key = key;
     }
 
@@ -46,6 +47,11 @@ public final class NullMatrixEntry<K, V> implements MatrixEntry<K, V> {
     @Override
     public K key() {
         return key;
+    }
+
+    @Override
+    public Set<K> keys() {
+        return Collections.emptySet();
     }
 
 }

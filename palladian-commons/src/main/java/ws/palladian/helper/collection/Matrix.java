@@ -2,27 +2,48 @@ package ws.palladian.helper.collection;
 
 import java.util.Set;
 
+import ws.palladian.helper.collection.Vector.VectorEntry;
+import ws.palladian.helper.math.NumericMatrix;
+
 /**
  * <p>
- * A data matrix. The data can have arbitrary types for keys (i.e. indices for rows/columns) and cell content.
- * </p>
+ * A data matrix. The data can have arbitrary types for keys (i.e. indices for rows/columns) and cell content. Matrices
+ * allow random access to stored values using {@link #get(Object, Object)}. Rows and columns can also be iterated:
+ * 
+ * <pre>
+ * for (MatrixVector&lt;String, Integer&gt; row : matrix.rows()) {
+ *     for (VectorEntry&lt;String, Integer&gt; entry : row) {
+ *         // row.key() gives the x index
+ *         // entry.key() gives the y index
+ *         // entry.value() gives the actual value
+ *         System.out.println(row.key() + &quot;/&quot; + entry.key() + &quot; : &quot; + entry.value());
+ *     }
+ * }
+ * </pre>
+ * 
+ * <p>
+ * Specific subclasses can specialize the provided {@link VectorEntry}s; a matrix holding double values might actually
+ * provide vectors which have functionality to perform vector calculations such as dot product, norm, etc.
  * 
  * @author pk
  * 
  * @param <K> Type of the indices.
  * @param <V> Type of the data.
+ * @see MapMatrix
+ * @see NumericMatrix
+ * @see CountMatrix
  */
 public interface Matrix<K, V> {
 
     /**
-     * An entry (row or column) within a {@link Matrix}.
+     * An row or column within a {@link Matrix}.
      * 
      * @author pk
      * 
      * @param <K>
      * @param <V>
      */
-    public interface MatrixEntry<K, V> extends Vector<K, V> {
+    public interface MatrixVector<K, V> extends Vector<K, V> {
 
         /**
          * @return Key of the row/column.
@@ -72,7 +93,7 @@ public interface Matrix<K, V> {
      * @return The number of rows in this matrix.
      */
     int rowCount();
-    
+
     /**
      * @return The size of this matrix (i.e. num rows times num columns).
      */
@@ -93,7 +114,7 @@ public interface Matrix<K, V> {
      * @param y Key/index of the row, not <code>null</code>.
      * @return The row, or <code>null</code> in case no such row exists.
      */
-    MatrixEntry<K, V> getRow(K y);
+    MatrixVector<K, V> getRow(K y);
 
     /**
      * <p>
@@ -103,7 +124,7 @@ public interface Matrix<K, V> {
      * @param x Key/index of the column, not <code>null</code>.
      * @return The column, or <code>null</code> in case no such column exists.
      */
-    MatrixEntry<K, V> getColumn(K x);
+    MatrixVector<K, V> getColumn(K x);
 
     /**
      * <p>
@@ -112,7 +133,7 @@ public interface Matrix<K, V> {
      * 
      * @return The rows in this matrix.
      */
-    Iterable<? extends MatrixEntry<K, V>> rows();
+    Iterable<? extends MatrixVector<K, V>> rows();
 
     /**
      * <p>
@@ -121,7 +142,7 @@ public interface Matrix<K, V> {
      * 
      * @return The columns in this matrix.
      */
-    Iterable<? extends MatrixEntry<K, V>> columns();
+    Iterable<? extends MatrixVector<K, V>> columns();
 
     /**
      * <p>
