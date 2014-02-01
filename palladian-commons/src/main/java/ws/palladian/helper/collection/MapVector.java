@@ -23,10 +23,32 @@ public class MapVector<K, V> implements Vector<K, V> {
     public V get(K k) {
         return map.get(k);
     }
-    
+
     @Override
     public int size() {
         return map.size();
+    }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return map.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MapVector<?, ?> other = (MapVector<?, ?>)obj;
+        return map.equals(other.map);
     }
 
 }

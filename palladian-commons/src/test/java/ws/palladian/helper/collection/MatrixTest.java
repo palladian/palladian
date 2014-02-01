@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.Matrix.MatrixEntry;
+
 public class MatrixTest {
 
     @Test
@@ -50,6 +52,34 @@ public class MatrixTest {
         assertEquals((Integer)5, row.get(0));
         assertEquals((Integer)2, row.get(1));
         assertEquals((Integer)2, row.get(2));
+
+        // iterators
+        Iterable<? extends MatrixEntry<Integer, Integer>> rowIterator = matrix.rows();
+        int index = 0;
+        for (MatrixEntry<Integer, Integer> rowEntry : rowIterator) {
+            assertEquals(index, (int)rowEntry.key());
+            assertEquals(matrix.getRow(index), rowEntry.vector());
+            index++;
+        }
+        assertEquals(3, index);
+        Iterable<? extends MatrixEntry<Integer, Integer>> columnIterator = matrix.columns();
+        index = 0;
+        for (MatrixEntry<Integer, Integer> columnEntry : columnIterator) {
+            assertEquals(index, (int)columnEntry.key());
+            assertEquals(matrix.getColumn(index), columnEntry.vector());
+            index++;
+        }
+        assertEquals(4, index);
+
+        // removal of rows/columns
+        matrix.removeRow(2);
+        assertNull(matrix.getRow(2));
+        assertEquals(2, matrix.rowCount());
+
+        matrix.removeColumn(0);
+        assertNull(matrix.getColumn(0));
+        assertEquals(3, matrix.columnCount());
+
     }
 
 }

@@ -63,4 +63,26 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
         return column.size() > 0 ? new MapVector<K, V>(column) : null;
     }
 
+    @Override
+    public void removeRow(final K y) {
+        keysY.remove(y);
+        CollectionHelper.remove(matrixMap.keySet(), new Filter<Pair<K,K>>() {
+            @Override
+            public boolean accept(Pair<K, K> item) {
+                return !item.getRight().equals(y);
+            }
+        });
+    }
+
+    @Override
+    public void removeColumn(final K x) {
+        keysX.remove(x);
+        CollectionHelper.remove(matrixMap.keySet(), new Filter<Pair<K,K>>() {
+            @Override
+            public boolean accept(Pair<K, K> item) {
+                return !item.getLeft().equals(x);
+            }
+        });
+    }
+
 }

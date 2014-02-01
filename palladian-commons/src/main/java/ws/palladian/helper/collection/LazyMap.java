@@ -35,54 +35,32 @@ public final class LazyMap<K, V> implements Map<K, V> {
         return new LazyMap<K, V>(map, factory);
     }
 
-    /**
-     * 
-     * @see java.util.Map#clear()
-     */
+    @Override
     public void clear() {
         map.clear();
     }
 
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#containsKey(java.lang.Object)
-     */
+    @Override
     public boolean containsKey(Object key) {
         return map.containsKey(key);
     }
 
-    /**
-     * @param value
-     * @return
-     * @see java.util.Map#containsValue(java.lang.Object)
-     */
+    @Override
     public boolean containsValue(Object value) {
         return map.containsValue(value);
     }
 
-    /**
-     * @return
-     * @see java.util.Map#entrySet()
-     */
+    @Override
     public Set<java.util.Map.Entry<K, V>> entrySet() {
         return map.entrySet();
     }
 
-    /**
-     * @param o
-     * @return
-     * @see java.util.Map#equals(java.lang.Object)
-     */
+    @Override
     public boolean equals(Object o) {
         return map.equals(o);
     }
 
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#get(java.lang.Object)
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public V get(Object key) {
         V value = map.get(key);
@@ -93,77 +71,46 @@ public final class LazyMap<K, V> implements Map<K, V> {
         return value;
     }
 
-    /**
-     * @return
-     * @see java.util.Map#hashCode()
-     */
+    @Override
     public int hashCode() {
         return map.hashCode();
     }
 
-    /**
-     * @return
-     * @see java.util.Map#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
-    /**
-     * @return
-     * @see java.util.Map#keySet()
-     */
+    @Override
     public Set<K> keySet() {
         return map.keySet();
     }
 
-    /**
-     * @param key
-     * @param value
-     * @return
-     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
-     */
+    @Override
     public V put(K key, V value) {
         return map.put(key, value);
     }
 
-    /**
-     * @param m
-     * @see java.util.Map#putAll(java.util.Map)
-     */
+    @Override
     public void putAll(Map<? extends K, ? extends V> m) {
         map.putAll(m);
     }
 
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#remove(java.lang.Object)
-     */
+    @Override
     public V remove(Object key) {
         return map.remove(key);
     }
 
-    /**
-     * @return
-     * @see java.util.Map#size()
-     */
+    @Override
     public int size() {
         return map.size();
     }
 
-    /**
-     * @return
-     * @see java.util.Map#values()
-     */
+    @Override
     public Collection<V> values() {
         return map.values();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
