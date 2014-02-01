@@ -58,7 +58,7 @@ public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
 
         for (MatrixEntry<String, Stats> row : stats.rows()) {
             String category = row.key();
-            for (VectorEntry<String, Stats> cell : row.vector()) {
+            for (VectorEntry<String, Stats> cell : row) {
                 String featureName = cell.key();
                 sampleMeans.set(featureName, category, cell.value().getMean());
                 standardDeviations.set(featureName, category, cell.value().getStandardDeviation());

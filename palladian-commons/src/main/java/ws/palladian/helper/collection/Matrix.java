@@ -22,12 +22,7 @@ public interface Matrix<K, V> {
      * @param <K>
      * @param <V>
      */
-    public interface MatrixEntry<K, V> {
-
-        /**
-         * @return The vector with the values.
-         */
-        Vector<K, V> vector();
+    public interface MatrixEntry<K, V> extends Vector<K, V> {
 
         /**
          * @return Key of the row/column.
@@ -77,6 +72,11 @@ public interface Matrix<K, V> {
      * @return The number of rows in this matrix.
      */
     int rowCount();
+    
+    /**
+     * @return The size of this matrix (i.e. num rows times num columns).
+     */
+    int size();
 
     /**
      * <p>
@@ -93,7 +93,7 @@ public interface Matrix<K, V> {
      * @param y Key/index of the row, not <code>null</code>.
      * @return The row, or <code>null</code> in case no such row exists.
      */
-    Vector<K, V> getRow(K y);
+    MatrixEntry<K, V> getRow(K y);
 
     /**
      * <p>
@@ -103,7 +103,7 @@ public interface Matrix<K, V> {
      * @param x Key/index of the column, not <code>null</code>.
      * @return The column, or <code>null</code> in case no such column exists.
      */
-    Vector<K, V> getColumn(K x);
+    MatrixEntry<K, V> getColumn(K x);
 
     /**
      * <p>
@@ -150,5 +150,16 @@ public interface Matrix<K, V> {
      * @return A string representation of this matrix.
      */
     String toString(String separator);
+
+    /**
+     * <p>
+     * Determine whether this and the given matrix are "compatible" to each other. This means, they have them same
+     * dimensions and exactly the same indices.
+     * </p>
+     * 
+     * @param other The other matrix, not <code>null</code>.
+     * @return <code>true</code> in case the matrices are compatible, <code>false</code> otherwise.
+     */
+    boolean isCompatible(Matrix<K, V> other);
 
 }

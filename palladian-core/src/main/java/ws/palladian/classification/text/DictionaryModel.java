@@ -13,7 +13,7 @@ import ws.palladian.classification.Model;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMatrix;
-import ws.palladian.helper.collection.CountMatrix.NumberVector;
+import ws.palladian.helper.collection.CountMatrix.IntegerMatrixEntry;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
@@ -65,7 +65,7 @@ public final class DictionaryModel implements Model {
 
     public CategoryEntries getCategoryEntries(String term) {
         CategoryEntriesMap categoryFrequencies = new CategoryEntriesMap();
-        NumberVector<String> row = termCategories.getRow(term);
+        IntegerMatrixEntry<String> row = termCategories.getRow(term);
         if (row != null) {
             int sum = row.getSum();
             for (VectorEntry<String, Integer> entry : row) {

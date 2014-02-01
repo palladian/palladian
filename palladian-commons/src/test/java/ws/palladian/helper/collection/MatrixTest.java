@@ -35,6 +35,7 @@ public class MatrixTest {
 
         assertEquals(4, matrix.columnCount());
         assertEquals(3, matrix.rowCount());
+        assertEquals(12, matrix.size());
         assertEquals((Integer)3, matrix.get(1, 0));
         assertEquals((Integer)9, matrix.get(2, 1));
         assertNull(matrix.get(3, 1));
@@ -58,7 +59,7 @@ public class MatrixTest {
         int index = 0;
         for (MatrixEntry<Integer, Integer> rowEntry : rowIterator) {
             assertEquals(index, (int)rowEntry.key());
-            assertEquals(matrix.getRow(index), rowEntry.vector());
+            assertEquals(matrix.getRow(index), rowEntry);
             index++;
         }
         assertEquals(3, index);
@@ -66,7 +67,7 @@ public class MatrixTest {
         index = 0;
         for (MatrixEntry<Integer, Integer> columnEntry : columnIterator) {
             assertEquals(index, (int)columnEntry.key());
-            assertEquals(matrix.getColumn(index), columnEntry.vector());
+            assertEquals(matrix.getColumn(index), columnEntry);
             index++;
         }
         assertEquals(4, index);

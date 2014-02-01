@@ -1,7 +1,6 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
-import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
 
@@ -21,31 +20,37 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
 
-    private final class NumberEntryConverter implements Function<MatrixEntry<K, Integer>, NumberEntry<K>> {
+    private final class EntryConverter implements Function<MatrixEntry<K, Integer>, IntegerMatrixEntry<K>> {
         @Override
-        public NumberEntry<K> compute(MatrixEntry<K, Integer> input) {
-            return new NumberEntry<K>(input);
+        public IntegerMatrixEntry<K> compute(MatrixEntry<K, Integer> input) {
+            return new IntegerMatrixEntry<K>(input);
         }
     }
 
     /**
-     * A vector decorator, with added functionality applying to numbers (i.e. calculation of sum).
+     * A {@link MatrixEntry} decorator, which returns {@link IntegerVector}s.
      * 
      * @author pk
-     * @param <K> Type of the key.
+     * 
+     * @param <K>
      */
-    public static class NumberVector<K> implements Vector<K, Integer> {
+    public static class IntegerMatrixEntry<K> extends MatrixEntryDecorator<K, Integer> {
 
-        final Vector<K, Integer> vector;
+        private final MatrixEntry<K, Integer> matrixEntry;
         final int sum;
 
-        public NumberVector(Vector<K, Integer> vector) {
-            this.vector = vector;
+        public IntegerMatrixEntry(MatrixEntry<K, Integer> matrixEntry) {
+            this.matrixEntry = matrixEntry;
             int sum = 0;
-            for (VectorEntry<K, Integer> entry : this) {
+            for (VectorEntry<K, Integer> entry : matrixEntry) {
                 sum += entry.value();
             }
             this.sum = sum;
+        }
+
+        @Override
+        protected MatrixEntry<K, Integer> getMatrixEntry() {
+            return matrixEntry;
         }
 
         /**
@@ -53,48 +58,6 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
          */
         public int getSum() {
             return sum;
-        }
-
-        @Override
-        public Iterator<VectorEntry<K, Integer>> iterator() {
-            return vector.iterator();
-        }
-
-        @Override
-        public Integer get(K k) {
-            return vector.get(k);
-        }
-
-        @Override
-        public int size() {
-            return vector.size();
-        }
-
-    }
-
-    /**
-     * A {@link MatrixEntry} decorator, which returns {@link NumberVector}s.
-     * 
-     * @author pk
-     * 
-     * @param <K>
-     */
-    public static class NumberEntry<K> implements MatrixEntry<K, Integer> {
-
-        final MatrixEntry<K, Integer> entry;
-
-        public NumberEntry(MatrixEntry<K, Integer> entry) {
-            this.entry = entry;
-        }
-
-        @Override
-        public NumberVector<K> vector() {
-            return new NumberVector<K>(entry.vector());
-        }
-
-        @Override
-        public K key() {
-            return entry.key();
         }
 
     }
@@ -164,13 +127,13 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
     }
 
     @Override
-    public Iterable<NumberEntry<K>> rows() {
-        return CollectionHelper.convert(matrix.rows(), new NumberEntryConverter());
+    public Iterable<IntegerMatrixEntry<K>> rows() {
+        return CollectionHelper.convert(matrix.rows(), new EntryConverter());
     }
 
     @Override
-    public Iterable<NumberEntry<K>> columns() {
-        return CollectionHelper.convert(matrix.columns(), new NumberEntryConverter());
+    public Iterable<IntegerMatrixEntry<K>> columns() {
+        return CollectionHelper.convert(matrix.columns(), new EntryConverter());
     }
 
     /**
@@ -180,10 +143,10 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
      * </p>
      */
     @Override
-    public NumberVector<K> getRow(K y) {
+    public IntegerMatrixEntry<K> getRow(K y) {
         Validate.notNull(y, "y must not be null");
-        Vector<K, Integer> row = matrix.getRow(y);
-        return new NumberVector<K>(row != null ? row : new NullVector<K, Integer>());
+        MatrixEntry<K, Integer> row = matrix.getRow(y);
+        return new IntegerMatrixEntry<K>(row != null ? row : new NullMatrixEntry<K, Integer>(y));
     }
 
     /**
@@ -193,10 +156,10 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
      * </p>
      */
     @Override
-    public NumberVector<K> getColumn(K x) {
+    public IntegerMatrixEntry<K> getColumn(K x) {
         Validate.notNull(x, "x must not be null");
-        Vector<K, Integer> column = matrix.getColumn(x);
-        return new NumberVector<K>(column != null ? column : new NullVector<K, Integer>());
+        MatrixEntry<K, Integer> column = matrix.getColumn(x);
+        return new IntegerMatrixEntry<K>(column != null ? column : new NullMatrixEntry<K, Integer>(x));
     }
 
     public int getSum() {
