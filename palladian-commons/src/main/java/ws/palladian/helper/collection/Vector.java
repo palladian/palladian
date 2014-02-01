@@ -11,8 +11,8 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
 public interface Vector<K, V> extends Iterable<VectorEntry<K, V>> {
 
     /**
-     * An entry within a {@link Vector}. Behaves similar to an entry in a Map, but is realised as dedicated class so
-     * that it can be distinguished.
+     * An entry within a {@link Vector}. Behaves similar to an entry in a Map, but is realized as dedicated class so
+     * that it can be distinguished and it does not provide a setter for the value.
      * 
      * @author pk
      * 

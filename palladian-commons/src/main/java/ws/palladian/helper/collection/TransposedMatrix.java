@@ -3,21 +3,25 @@ package ws.palladian.helper.collection;
 import java.io.Serializable;
 import java.util.Set;
 
-public class TransposedMatrix<K, V> extends AbstractMatrix<K, V> implements Serializable {
-    
+import org.apache.commons.lang3.Validate;
+
+public class TransposedMatrix<K, V> extends MatrixDecorator<K, V> implements Serializable {
+
     private static final long serialVersionUID = 1L;
-    
-    private final Matrix<K, V> matrix;
-    
-    public static <K, V> TransposedMatrix<K, V> of(Matrix<K ,V> matrix) {
+
+    /**
+     * Create a new {@link TransposedMatrix}.
+     * 
+     * @param matrix The matrix to transpose, not <code>null</code>.
+     * @return The transposed matrix.
+     */
+    public static <K, V> TransposedMatrix<K, V> of(Matrix<K, V> matrix) {
+        Validate.notNull(matrix, "matrix must not be null");
         return new TransposedMatrix<K, V>(matrix);
     }
 
-    /**
-     * @param matrix
-     */
     private TransposedMatrix(Matrix<K, V> matrix) {
-        this.matrix = matrix;
+        super(matrix);
     }
 
     @Override
@@ -41,8 +45,13 @@ public class TransposedMatrix<K, V> extends AbstractMatrix<K, V> implements Seri
     }
 
     @Override
-    public void clear() {
-        matrix.clear();
+    public Iterable<? extends MatrixEntry<K, V>> rows() {
+        return matrix.columns();
+    }
+
+    @Override
+    public Iterable<? extends MatrixEntry<K, V>> columns() {
+        return matrix.rows();
     }
 
     @Override
@@ -53,6 +62,16 @@ public class TransposedMatrix<K, V> extends AbstractMatrix<K, V> implements Seri
     @Override
     public Vector<K, V> getColumn(K x) {
         return matrix.getRow(x);
+    }
+
+    @Override
+    public void removeRow(K y) {
+        matrix.removeColumn(y);
+    }
+
+    @Override
+    public void removeColumn(K x) {
+        matrix.removeRow(x);
     }
 
 }

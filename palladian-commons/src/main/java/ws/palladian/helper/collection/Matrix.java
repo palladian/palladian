@@ -15,6 +15,28 @@ import java.util.Set;
 public interface Matrix<K, V> {
 
     /**
+     * An entry (row or column) within a {@link Matrix}.
+     * 
+     * @author pk
+     * 
+     * @param <K>
+     * @param <V>
+     */
+    public interface MatrixEntry<K, V> {
+
+        /**
+         * @return The vector with the values.
+         */
+        Vector<K, V> vector();
+
+        /**
+         * @return Key of the row/column.
+         */
+        K key();
+
+    }
+
+    /**
      * <p>
      * Get data at the specified x/y position.
      * </p>
@@ -83,13 +105,50 @@ public interface Matrix<K, V> {
      */
     Vector<K, V> getColumn(K x);
 
-    // Collection<Vector<K, V>> getRows();
-
-    // Collection<Vector<K, V>> getColumns();
+    /**
+     * <p>
+     * Note: Implementors should narrow down to a concrete return type, to keep code short.
+     * </p>
+     * 
+     * @return The rows in this matrix.
+     */
+    Iterable<? extends MatrixEntry<K, V>> rows();
 
     /**
-     * @return A CSV representation of this matrix.
+     * <p>
+     * Note: Implementors should narrow down to a concrete return type, to keep code short.
+     * </p>
+     * 
+     * @return The columns in this matrix.
      */
-    String toCsv();
+    Iterable<? extends MatrixEntry<K, V>> columns();
+
+    /**
+     * <p>
+     * Remove a row from this matrix.
+     * </p>
+     * 
+     * @param y Key/index of the row to remove, not <code>null</code>.
+     */
+    void removeRow(K y);
+
+    /**
+     * <p>
+     * Remove a column from this matrix.
+     * </p>
+     * 
+     * @param x Key/index of the column to remove, not <code>null</code>.
+     */
+    void removeColumn(K x);
+
+    /**
+     * <p>
+     * Get a string representation of this matrix.
+     * </p>
+     * 
+     * @param separator The separator character between columns.
+     * @return A string representation of this matrix.
+     */
+    String toString(String separator);
 
 }

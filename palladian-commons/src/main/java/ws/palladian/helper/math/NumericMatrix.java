@@ -1,25 +1,21 @@
 package ws.palladian.helper.math;
 
 import java.io.Serializable;
-import java.util.Set;
 
-import ws.palladian.helper.collection.AbstractMatrix;
 import ws.palladian.helper.collection.MapMatrix;
 import ws.palladian.helper.collection.Matrix;
-import ws.palladian.helper.collection.Vector;
+import ws.palladian.helper.collection.MatrixDecorator;
 
-public class NumericMatrix<K> extends AbstractMatrix<K, Double> implements Serializable {
+public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
-    private final Matrix<K, Double> matrix;
-    
+
     public NumericMatrix() {
         this(new MapMatrix<K, Double>());
     }
-    
+
     public NumericMatrix(Matrix<K, Double> matrix) {
-        this.matrix = matrix;
+        super(matrix);
     }
 
     /**
@@ -67,33 +63,12 @@ public class NumericMatrix<K> extends AbstractMatrix<K, Double> implements Seria
             }
         }
     }
-    
+
     @Override
     public Double get(K x, K y) {
         Double value = matrix.get(x, y);
-        if (value == null) {
-            return 0.;
-        }
-        return value;
+        return value != null ? value : 0;
     };
-    
-
-//    /**
-//     * <p>
-//     * Calculate the sum of the entries in one column.
-//     * </p>
-//     * 
-//     * @param column The column for which the values should be summed.
-//     */
-//    protected double calculateColumnSum(Map<Object, Object> column) {
-//
-//        double sum = 0;
-//        for (Entry<Object, Object> rowEntry : column.entrySet()) {
-//            sum += ((Number)rowEntry.getValue()).doubleValue();
-//        }
-//
-//        return sum;
-//    }
 
     public static void main(String[] args) {
 
@@ -139,35 +114,4 @@ public class NumericMatrix<K> extends AbstractMatrix<K, Double> implements Seria
         System.out.println(confusionMatrix2);
 
     }
-
-    @Override
-    public void set(K x, K y, Double value) {
-        matrix.set(x, y, value);
-    }
-
-    @Override
-    public Set<K> getColumnKeys() {
-        return matrix.getColumnKeys();
-    }
-
-    @Override
-    public Set<K> getRowKeys() {
-        return matrix.getRowKeys();
-    }
-
-    @Override
-    public void clear() {
-        matrix.clear();
-    }
-
-    @Override
-    public Vector<K, Double> getRow(K y) {
-        return matrix.getRow(y);
-    }
-
-    @Override
-    public Vector<K, Double> getColumn(K x) {
-        return matrix.getColumn(x);
-    }
-
 }

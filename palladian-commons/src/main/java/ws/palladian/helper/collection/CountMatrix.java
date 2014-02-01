@@ -2,7 +2,6 @@ package ws.palladian.helper.collection;
 
 import java.io.Serializable;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -17,10 +16,17 @@ import org.apache.commons.lang3.Validate;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serializable {
+public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Serializable {
 
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
+
+    private final class NumberEntryConverter implements Function<MatrixEntry<K, Integer>, NumberEntry<K>> {
+        @Override
+        public NumberEntry<K> compute(MatrixEntry<K, Integer> input) {
+            return new NumberEntry<K>(input);
+        }
+    }
 
     /**
      * A vector decorator, with added functionality applying to numbers (i.e. calculation of sum).
@@ -66,13 +72,35 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
 
     }
 
-    private final Matrix<K, Integer> matrix;
-
     /**
-     * @param matrix
+     * A {@link MatrixEntry} decorator, which returns {@link NumberVector}s.
+     * 
+     * @author pk
+     * 
+     * @param <K>
      */
+    public static class NumberEntry<K> implements MatrixEntry<K, Integer> {
+
+        final MatrixEntry<K, Integer> entry;
+
+        public NumberEntry(MatrixEntry<K, Integer> entry) {
+            this.entry = entry;
+        }
+
+        @Override
+        public NumberVector<K> vector() {
+            return new NumberVector<K>(entry.vector());
+        }
+
+        @Override
+        public K key() {
+            return entry.key();
+        }
+
+    }
+
     public CountMatrix(Matrix<K, Integer> matrix) {
-        this.matrix = matrix;
+        super(matrix);
     }
 
     /**
@@ -113,11 +141,7 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
         Validate.notNull(x, "x must not be null");
         Validate.notNull(y, "y must not be null");
         Integer count = get(x, y);
-        if (count == null) {
-            count = 0;
-        }
-        count += value;
-        set(x, y, count);
+        set(x, y, count += value);
     }
 
     /**
@@ -140,23 +164,13 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
     }
 
     @Override
-    public void set(K x, K y, Integer value) {
-        matrix.set(x, y, value);
+    public Iterable<NumberEntry<K>> rows() {
+        return CollectionHelper.convert(matrix.rows(), new NumberEntryConverter());
     }
 
     @Override
-    public Set<K> getColumnKeys() {
-        return matrix.getColumnKeys();
-    }
-
-    @Override
-    public Set<K> getRowKeys() {
-        return matrix.getRowKeys();
-    }
-
-    @Override
-    public void clear() {
-        matrix.clear();
+    public Iterable<NumberEntry<K>> columns() {
+        return CollectionHelper.convert(matrix.columns(), new NumberEntryConverter());
     }
 
     /**
@@ -191,6 +205,6 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
             totalSize += getRow(y).getSum();
         }
         return totalSize;
-    };
+    }
 
 }

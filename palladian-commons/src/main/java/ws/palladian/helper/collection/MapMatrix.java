@@ -33,6 +33,10 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     /** All keys for the y-axis used in the matrix. */
     private final Set<K> keysY = CollectionHelper.newLinkedHashSet();
 
+    public static <K, V> MapMatrix<K, V> create() {
+        return new MapMatrix<K, V>();
+    }
+
     @Override
     public Vector<K, V> getRow(K y) {
         Map<K, V> row = matrix.get(y);
@@ -80,6 +84,20 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
         matrix.clear();
         keysX.clear();
         keysY.clear();
+    }
+
+    @Override
+    public void removeColumn(K x) {
+        for (Map<K, V> row : matrix.values()) {
+            row.remove(x);
+        }
+        keysX.remove(x);
+    }
+
+    @Override
+    public void removeRow(K y) {
+        matrix.remove(y);
+        keysY.remove(y);
     }
 
 }
