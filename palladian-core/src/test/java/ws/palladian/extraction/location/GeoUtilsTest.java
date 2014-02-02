@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -155,6 +156,25 @@ public class GeoUtilsTest {
         assertTrue(GeoUtils.isValidCoordinateRange(45, 175));
         assertFalse(GeoUtils.isValidCoordinateRange(45, 195));
         assertFalse(GeoUtils.isValidCoordinateRange(-95, 175));
+    }
+
+    @Test
+    public void testClusterCoordinates() {
+        // test coordinates taken from :
+        // http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps
+        GeoCoordinate c1 = new ImmutableGeoCoordinate(59.441193, 24.729494);
+        GeoCoordinate c2 = new ImmutableGeoCoordinate(59.432365, 24.742992);
+        GeoCoordinate c3 = new ImmutableGeoCoordinate(59.431602, 24.757563);
+        GeoCoordinate c4 = new ImmutableGeoCoordinate(59.437843, 24.765759);
+        GeoCoordinate c5 = new ImmutableGeoCoordinate(59.439644, 24.779041);
+        GeoCoordinate c6 = new ImmutableGeoCoordinate(59.434776, 24.756681);
+        Set<GeoCoordinate> coordinates = CollectionHelper.newHashSet(c1, c2, c3, c4, c5, c6);
+        Set<Set<GeoCoordinate>> clusters = GeoUtils.cluster(coordinates, 0.75);
+        assertEquals(4, clusters.size());
+        clusters = GeoUtils.cluster(coordinates, 1.5);
+        assertEquals(2, clusters.size());
+        clusters = GeoUtils.cluster(coordinates, 2);
+        assertEquals(1, clusters.size());
     }
 
 }

@@ -3,11 +3,16 @@ package ws.palladian.extraction.location;
 import static java.lang.Math.toRadians;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Queue;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -19,6 +24,9 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author Philipp Katz
  */
 public final class GeoUtils {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoUtils.class);
 
     public static final String DMS = "([-+]?\\d{1,3}(?:\\.\\d{1,10})?)[°ºd:]" + // degree
             "(?:\\s?(\\d{1,2}(?:\\.\\d{1,10})?))?['′:]?" + // minute
@@ -256,6 +264,39 @@ public final class GeoUtils {
             String message = String.format(Locale.US, "latitude and/or longitude out of range (%f,%f)", lat, lng);
             throw new IllegalArgumentException(message);
         }
+    }
+
+    /**
+     * <p>
+     * Cluster a given {@link Collection} of {@link GeoCoordinate}s, so that coordinates which have a distance below the
+     * specified value are put into one cluster.
+     * </p>
+     * 
+     * @param coordinates The coordinates to cluster, not <code>null</code>.
+     * @param distance The distance threshold, pairs which have a distance below/equal this value are put into one
+     *            cluster. Must be greater/equal zero.
+     * @return A nested {@link Set}, where each inner set represents one cluster.
+     */
+    public static Set<Set<GeoCoordinate>> cluster(Collection<? extends GeoCoordinate> coordinates, double distance) {
+        Validate.notNull(coordinates, "coordinates must not be null");
+        Validate.isTrue(distance >= 0, "distance must be greater/equal zero");
+
+        Set<Set<GeoCoordinate>> result = CollectionHelper.newHashSet();
+        Queue<GeoCoordinate> coordinateQueue = new LinkedList<GeoCoordinate>(coordinates);
+        while (coordinateQueue.size() > 0) {
+            GeoCoordinate current = coordinateQueue.poll();
+            Set<GeoCoordinate> currentCluster = CollectionHelper.newHashSet(current);
+            for (GeoCoordinate other : coordinateQueue) {
+                double currentDistance = current.distance(other);
+                if (currentDistance <= distance) {
+                    LOGGER.debug("Distance between {} and {}: {} km", current, other, currentDistance);
+                    currentCluster.add(other);
+                }
+            }
+            coordinateQueue.removeAll(currentCluster);
+            result.add(currentCluster);
+        }
+        return result;
     }
 
     private GeoUtils() {
