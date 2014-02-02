@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -35,7 +35,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
     private static final String SEPARATOR = "#";
 
     private int numDocs;
-    private final CountMap<String> terms;
+    private final Bag<String> terms;
 
     /**
      * <p>
@@ -43,7 +43,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * </p>
      */
     public MapTermCorpus() {
-        this(CountMap.<String> create(), 0);
+        this(Bag.<String>create(), 0);
     }
 
     /**
@@ -54,7 +54,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * @param terms The terms to add.
      * @param numDocs The number of documents this corpus contains.
      */
-    public MapTermCorpus(CountMap<String> terms, int numDocs) {
+    public MapTermCorpus(Bag<String> terms, int numDocs) {
         this.numDocs = numDocs;
         this.terms = terms;
     }
@@ -73,7 +73,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
 
     @Override
     public int getCount(String term) {
-        return terms.getCount(term);
+        return terms.count(term);
     }
 
     @Override
@@ -83,12 +83,12 @@ public final class MapTermCorpus extends AbstractTermCorpus {
 
     @Override
     public int getNumTerms() {
-        return terms.totalSize();
+        return terms.size();
     }
 
     @Override
     public int getNumUniqueTerms() {
-        return terms.uniqueSize();
+        return terms.unique().size();
     }
 
     /**
@@ -122,7 +122,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
     public static MapTermCorpus load(InputStream inputStream) {
         Validate.notNull(inputStream, "inputStream must not be null");
         final int[] numDocs = new int[1];
-        final CountMap<String> counts = CountMap.create();
+        final Bag<String> counts = Bag.create();
         StopWatch stopWatch = new StopWatch();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
@@ -146,7 +146,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
             }
         });
 //        System.out.println();
-        LOGGER.debug("Loaded {} terms in {}", counts.uniqueSize(), stopWatch);
+        LOGGER.debug("Loaded {} terms in {}", counts.unique().size(), stopWatch);
         return new MapTermCorpus(counts, numDocs[0]);
     }
 
@@ -159,7 +159,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
             printWriter.println("numDocs" + SEPARATOR + getNumDocs());
             printWriter.println();
             for (String term : terms.uniqueItems()) {
-                int count = terms.getCount(term);
+                int count = terms.count(term);
                 String line = term + SEPARATOR + count;
                 printWriter.println(line);
             }
@@ -187,9 +187,9 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * @return The filtered {@link TermCorpus}.
      */
     public MapTermCorpus getFilteredCorpus(int minOccurrenceCount) {
-        CountMap<String> resultTerms = CountMap.create();
+        Bag<String> resultTerms = Bag.create();
         for (String term : terms.uniqueItems()) {
-            int count = terms.getCount(term);
+            int count = terms.count(term);
             if (count >= minOccurrenceCount) {
                 resultTerms.add(term, count);
             }
@@ -202,8 +202,8 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         StringBuilder sb = new StringBuilder();
         sb.append("TermCorpus");
         sb.append(" numDocs=").append(getNumDocs());
-        sb.append(" numUniqueTerms=").append(terms.uniqueSize());
-        sb.append(" numTerms=").append(terms.totalSize());
+        sb.append(" numUniqueTerms=").append(terms.unique().size());
+        sb.append(" numTerms=").append(terms.size());
         return sb.toString();
     }
 
