@@ -110,7 +110,7 @@ public final class CollectionHelper {
         Validate.notNull(order, "order must not be null");
         List<Entry<K, V>> list = new LinkedList<Entry<K, V>>(map.entrySet());
         Collections.sort(list, new EntryValueComparator<V>(order));
-        
+
         Map<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
@@ -146,8 +146,7 @@ public final class CollectionHelper {
      *             {@link Pair}s, sorted as required.
      */
     @Deprecated
-    public static <V extends Comparable<V>> Map<String, V> sortByStringKeyLength(Map<String, V> map,
-            final Order order) {
+    public static <V extends Comparable<V>> Map<String, V> sortByStringKeyLength(Map<String, V> map, final Order order) {
 
         LinkedList<Entry<String, V>> list = new LinkedList<Entry<String, V>>(map.entrySet());
 
@@ -314,7 +313,7 @@ public final class CollectionHelper {
      * @param iterable The {@link Iterable} providing the content for the {@link List}.
      * @return The {@link List} with items from the {@link Iterable}.
      */
-    public static <E> List<E> newArrayList(Iterable<? extends E> iterable) {
+    public static <E> ArrayList<E> newArrayList(Iterable<? extends E> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
         return newArrayList(iterable.iterator());
     }
@@ -327,13 +326,28 @@ public final class CollectionHelper {
      * @param iterator The {@link Iterator} providing the content for the {@link List}, not <code>null</code>.
      * @return The {@link List} with items from the {@link Iterator}.
      */
-    public static <E> List<E> newArrayList(Iterator<? extends E> iterator) {
+    public static <E> ArrayList<E> newArrayList(Iterator<? extends E> iterator) {
         Validate.notNull(iterator, "iterator must not be null");
-        List<E> list = new ArrayList<E>();
+        ArrayList<E> list = new ArrayList<E>();
         while (iterator.hasNext()) {
             list.add(iterator.next());
         }
         return list;
+    }
+    
+    /**
+     * <p>
+     * Create a new {@link ArrayList} and fill it with the given elements. In contrast to
+     * {@link Arrays#asList(Object...)}, which creates an immutable {@link List} (and therefore should be used for
+     * constant lists), the result can be further modified and further elements can be added, removed, ....
+     * </p>
+     * 
+     * @param elements The elements to add to the {@link ArrayList}, not <code>null</code>.
+     * @return A new {@link ArrayList} containing the given elements.
+     */
+    public static <E> ArrayList<E> newArrayList(E...elements) {
+        Validate.notNull(elements, "elements must not be null");
+        return new ArrayList<E>(Arrays.asList(elements));
     }
 
     /**
@@ -358,6 +372,19 @@ public final class CollectionHelper {
      */
     public static <E> HashSet<E> newHashSet() {
         return new HashSet<E>();
+    }
+
+    /**
+     * <p>
+     * Create a new {@link HashSet} and fill it with the given elements.
+     * </p>
+     * 
+     * @param elements The elements to add to the {@link HashSet}, not <code>null</code>.
+     * @return A new {@link HashSet} containing the given elements.
+     */
+    public static <E> HashSet<E> newHashSet(E... elements) {
+        Validate.notNull(elements, "elements must not be null");
+        return new HashSet<E>(Arrays.asList(elements));
     }
 
     /**
