@@ -22,7 +22,6 @@ import org.junit.Test;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 
 /**
- * 
  * @author Philipp Katz
  */
 public class CollectionHelperTest {
@@ -239,4 +238,19 @@ public class CollectionHelperTest {
         Set<String> values = CollectionHelper.distinct(Arrays.asList("a", "b", "c"), Arrays.asList("b", "c", "d"));
         assertEquals(4, values.size());
     }
+
+    @Test
+    public void testNewHashSet() {
+        HashSet<Integer> set = CollectionHelper.newHashSet(1, 2, 3, 2, 1);
+        assertEquals(3, set.size());
+        assertTrue(set.containsAll(Arrays.asList(1, 2, 3)));
+    }
+
+    @Test
+    public void testNewArrayList() {
+        ArrayList<Integer> list = CollectionHelper.newArrayList(1, 2, 3, 2, 1);
+        assertEquals(5, list.size());
+        assertTrue(list.equals(Arrays.asList(1, 2, 3, 2, 1)));
+    }
+
 }
