@@ -184,10 +184,13 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
         return new IntegerMatrixVector<K>(column != null ? column : new NullMatrixEntry<K, Integer>(x));
     }
 
+    /**
+     * @return The sum of all entries in this matrix.
+     */
     public int getSum() {
         int totalSize = 0;
-        for (K y : getRowKeys()) {
-            totalSize += getRow(y).getSum();
+        for (IntegerMatrixVector<K> row : rows()) {
+            totalSize += row.getSum();
         }
         return totalSize;
     }

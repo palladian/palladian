@@ -7,7 +7,7 @@ import org.apache.commons.lang3.Validate;
 /**
  * <p>
  * Common {@link Matrix} functionality (override existent methods in subclasses, in case it gives a performance
- * benefit).
+ * benefit, see interface documentation for more information).
  * </p>
  * 
  * @author pk

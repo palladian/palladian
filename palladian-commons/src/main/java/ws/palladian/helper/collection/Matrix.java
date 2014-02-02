@@ -23,7 +23,14 @@ import ws.palladian.helper.math.NumericMatrix;
  * 
  * <p>
  * Specific subclasses can specialize the provided {@link VectorEntry}s; a matrix holding double values might actually
- * provide vectors which have functionality to perform vector calculations such as dot product, norm, etc.
+ * provide vectors which have functionality to perform vector calculations such as dot product, norm, etc. (this is
+ * specified trough the return types in {@link #rows()}, {@link #columns()}, {@link #getRow(Object)}, and
+ * {@link #getColumn(Object)}).
+ * 
+ * <p>
+ * <b>Implementation note:</b> In case, a matrix implementation allows faster access in one dimension, one should keep
+ * to the following convention: Accessing rows (using {@link #getRow(Object)} or {@link #rows()} ) should always be the
+ * <b>faster</b> operation, than accessing columns (using {@link #getColumn(Object)} or {@link #columns()}).
  * 
  * @author pk
  * 
