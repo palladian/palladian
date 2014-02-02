@@ -1,7 +1,9 @@
 package ws.palladian.helper.collection;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -22,7 +24,8 @@ final class MapMatrixVector<K, V> implements MatrixVector<K, V> {
 
     @Override
     public Iterator<VectorEntry<K, V>> iterator() {
-        return CollectionHelper.convert(map.entrySet().iterator(), new EntryConverter<K, V>());
+        Set<Entry<K, V>> entrySet = Collections.unmodifiableSet(map.entrySet());
+        return CollectionHelper.convert(entrySet.iterator(), new EntryConverter<K, V>());
     }
 
     @Override
@@ -42,7 +45,7 @@ final class MapMatrixVector<K, V> implements MatrixVector<K, V> {
 
     @Override
     public Set<K> keys() {
-        return map.keySet();
+        return Collections.unmodifiableSet(map.keySet());
     }
 
     @Override
