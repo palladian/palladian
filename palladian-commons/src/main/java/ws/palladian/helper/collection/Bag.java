@@ -144,7 +144,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
                 if (currentEntry == null) {
                     throw new IllegalStateException();
                 }
-                Integer newValue = currentEntry.getValue() - 1;
+                int newValue = currentEntry.getValue() - 1;
                 if (newValue == 0) {
                     entryIterator.remove();
                 } else {
