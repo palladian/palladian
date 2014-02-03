@@ -18,11 +18,11 @@ import org.apache.commons.lang3.Validate;
  */
 public abstract class CollectionBatchDataProvider<T> implements BatchDataProvider {
 
-    private final Iterator<T> iterator;
+    private final Iterator<? extends T> iterator;
 
     private final int count;
 
-    public CollectionBatchDataProvider(Collection<T> collection) {
+    public CollectionBatchDataProvider(Collection<? extends T> collection) {
         Validate.notNull(collection, "collection must not be null");
         this.iterator = collection.iterator();
         this.count = collection.size();
