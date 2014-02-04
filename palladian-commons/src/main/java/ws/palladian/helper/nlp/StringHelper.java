@@ -549,6 +549,25 @@ public final class StringHelper {
         return PATTERN_LIMITED_WHITESPACES.matcher(replaceWord(word, "", searchString)).replaceAll(" ");
     }
 
+    public static String removeStemmedWord(String word, String searchString) {
+        return PATTERN_LIMITED_WHITESPACES.matcher(replaceStemmedWord(word, "", searchString)).replaceAll(" ");
+    }
+
+    public static String replaceStemmedWord(String word, String replacement, String searchString) {
+
+        if (word == null || word.isEmpty()) {
+            return searchString;
+        }
+
+        // reconstruct the full word
+        List<String> fullWords = getRegexpMatches(word + "[A-Za-z]{0,5}", searchString);
+        for (String fullWord : fullWords) {
+            searchString = replaceWord(fullWord, replacement, searchString);
+        }
+
+        return searchString;
+    }
+
     public static String replaceWord(String word, String replacement, String searchString) {
 
         if (word == null || word.isEmpty()) {
@@ -1798,6 +1817,10 @@ public final class StringHelper {
      */
     public static List<String> getRegexpMatches(String regexp, String text) {
         return getRegexpMatches(Pattern.compile(regexp), text);
+    }
+
+    public static List<String> getRegexpMatches(String regexp, String text, int patternArguments) {
+        return getRegexpMatches(Pattern.compile(regexp, patternArguments), text);
     }
 
     /**
