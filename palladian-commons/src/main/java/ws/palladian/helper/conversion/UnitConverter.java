@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import ws.palladian.helper.constants.TemperatureUnit;
 import ws.palladian.helper.normalization.UnitNormalizer;
+import ws.palladian.helper.normalization.UnitType;
 
 /**
  * <p>
@@ -27,7 +28,7 @@ public class UnitConverter {
      * @return The converted amount.
      */
     public static Double convert(Double amount, String fromUnit, String toUnit) {
-        if (UnitNormalizer.getUnitType(fromUnit) == UnitNormalizer.UNIT_TEMPERATURE) {
+        if (UnitNormalizer.getUnitType(fromUnit) == UnitType.TEMPERATURE) {
             return convertTemperature(amount, fromUnit, toUnit);
         }
 
@@ -37,40 +38,40 @@ public class UnitConverter {
     }
 
     public static Double convertTemperature(Double amount, String fromUnit, String toUnit) {
-        
+
         TemperatureUnit from = TemperatureUnit.getByName(fromUnit);
         TemperatureUnit to = TemperatureUnit.getByName(toUnit);
 
         if (from == null || to == null || amount == null) {
             return null;
         }
-        
+
         // celsius to fahrenheit
         if (from == TemperatureUnit.CELSIUS && to == TemperatureUnit.FAHRENHEIT) {
             amount = (amount * 9 / 5) + 32;
         }
-        
+
         // celsius to kelvin
         if (from == TemperatureUnit.CELSIUS && to == TemperatureUnit.KELVIN) {
             amount += 273.15;
         }
-        
+
         // fahrenheit to celsius
         if (from == TemperatureUnit.FAHRENHEIT && to == TemperatureUnit.CELSIUS) {
             amount = (amount - 32) * 5 / 9;
         }
-        
+
         // fahrenheit to kelvin
         if (from == TemperatureUnit.FAHRENHEIT && to == TemperatureUnit.KELVIN) {
             amount = ((amount - 32) * 5 / 9) + 273.15;
         }
-        
+
         // kelvin to celsius
         if (from == TemperatureUnit.KELVIN && to == TemperatureUnit.CELSIUS) {
             amount -= 273.15;
 
         }
-        
+
         // kelvin to fahrenheit
         if (from == TemperatureUnit.KELVIN && to == TemperatureUnit.FAHRENHEIT) {
             amount = ((amount - 273.15) * 9 / 5) + 32;
@@ -78,7 +79,7 @@ public class UnitConverter {
 
         return amount;
     }
-    
+
     public static AmountUnit bestFitConvert(Double amount, String fromUnit, Collection<String> possibleUnits) {
         double normalizedAmount = UnitNormalizer.getNormalizedNumber(amount, fromUnit);
 
