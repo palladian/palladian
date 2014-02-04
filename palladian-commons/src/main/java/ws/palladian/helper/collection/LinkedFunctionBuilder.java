@@ -22,10 +22,6 @@ import org.apache.commons.lang3.Validate;
  * </pre>
  * 
  * @author pk
- * 
- * @param <I> Input type into first function.
- * @param <E> Exchange type between first and second function.
- * @param <O> Output type of second function.
  */
 public final class LinkedFunctionBuilder {
 
