@@ -151,9 +151,12 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
         stringBuilder.append(CachingLocationSource.class.getSimpleName());
         stringBuilder.append(" (");
         stringBuilder.append(wrapped.getClass().getSimpleName());
-        stringBuilder.append(", Size=").append(size);
+        stringBuilder.append(", MaxCacheSize=").append(size);
         stringBuilder.append(", Hits=").append(cacheHits);
-        stringBuilder.append(", Misses=").append(cacheMisses).append(")");
+        stringBuilder.append(", Misses=").append(cacheMisses);
+        stringBuilder.append(", NameCacheSize=").append(nameCache.size());
+        stringBuilder.append(", IdCacheSize=").append(idCache.size());
+        stringBuilder.append(")");
         return stringBuilder.toString();
     }
 

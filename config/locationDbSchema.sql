@@ -5,9 +5,9 @@
 # http://www.sequelpro.com/
 # http://code.google.com/p/sequel-pro/
 #
-# Host: 127.0.0.1 (MySQL 5.5.25)
+# Host: 127.0.0.1 (MySQL 5.5.33)
 # Datenbank: locations
-# Erstellungsdauer: 2013-06-13 22:13:13 +0000
+# Erstellungsdauer: 2014-02-04 18:25:39 +0000
 # ************************************************************
 
 
@@ -65,6 +65,30 @@ CREATE TABLE `locations` (
 --
 DELIMITER ;;
 
+# Dump of PROCEDURE delete_misleading_abbreviations
+# ------------------------------------------------------------
+
+/*!50003 DROP PROCEDURE IF EXISTS `delete_misleading_abbreviations` */;;
+/*!50003 SET SESSION SQL_MODE=""*/;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `delete_misleading_abbreviations`()
+BEGIN
+-- This procedure removes abbreviations from the database, which have shown to be
+-- misleading for location extraction. A prominent example is the abbrevation 'CNN',
+-- which was present for the location 'Canonbury Railway Station', its usual
+-- meaning however is obviously different. After some empiric analysis of the data, 
+-- we found, misclassifications through abbrevations happen frequently for railway
+-- stations and Maxican states (e.g. 'Estado de Sinaloa' with abbreviation 'SIN'),
+-- that's why we remove abbreviations for those two types of locations.
+	DELETE lan 
+	FROM `location_alternative_names` lan 
+	INNER JOIN `locations` l ON lan.`locationId` = l.`id` 
+	WHERE (l.`name` LIKE "estado de %" OR l.`name` LIKE "% station")
+		AND lan.`alternativeName` = BINARY UPPER(lan.`alternativeName`)
+		AND CHAR_LENGTH(lan.`alternativeName`) < 4
+		AND lan.`language` IS NULL;
+END */;;
+
+/*!50003 SET SESSION SQL_MODE=@OLD_SQL_MODE */;;
 # Dump of PROCEDURE search_locations
 # ------------------------------------------------------------
 
