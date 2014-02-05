@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -24,6 +25,12 @@ import ws.palladian.helper.collection.Vector;
 public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
 
     private final Map<K, Double> valueMap;
+
+    /** Cache the norm of this vector, lazy initialized. */
+    private Double norm;
+
+    /** Cache the sum of this vector, lazy initialized. */
+    private Double sum;
 
     /**
      * @return An empty {@link ImmutableNumericVector}.
@@ -79,7 +86,45 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
 
     @Override
     public Iterator<VectorEntry<K, Double>> iterator() {
-        return CollectionHelper.convert(valueMap.entrySet().iterator(), new EntryConverter<K, Double>());
+        Set<Entry<K, Double>> entries = Collections.unmodifiableSet(valueMap.entrySet());
+        return CollectionHelper.convert(entries.iterator(), new EntryConverter<K, Double>());
+    }
+
+    // these values can be cached, as this class is immutable
+
+    @Override
+    public double norm() {
+        if (norm == null) {
+            norm = super.norm();
+        }
+        return norm;
+    }
+
+    @Override
+    public double sum() {
+        if (sum == null) {
+            sum = super.sum();
+        }
+        return sum;
+    }
+
+    // hashCode + equals
+
+    @Override
+    public int hashCode() {
+        return valueMap.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ImmutableNumericVector<?> other = (ImmutableNumericVector<?>)obj;
+        return valueMap.equals(other.valueMap);
     }
 
 }
