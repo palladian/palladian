@@ -253,4 +253,13 @@ public class CollectionHelperTest {
         assertTrue(list.equals(Arrays.asList(1, 2, 3, 2, 1)));
     }
 
+    @Test
+    public void testIntersect() {
+        Set<Integer> set1 = CollectionHelper.newHashSet(1, 2, 3, 4, 5);
+        Set<Integer> set2 = CollectionHelper.newHashSet(3, 4, 5, 6, 7);
+        Set<Integer> intersection = CollectionHelper.intersect(set1, set2);
+        assertEquals(3, intersection.size());
+        assertTrue(intersection.containsAll(Arrays.asList(3, 4, 5)));
+    }
+
 }
