@@ -37,11 +37,16 @@ abstract class AbstractNumericVector<K> implements NumericVector<K> {
     public double dot(NumericVector<K> other) {
         Validate.notNull(other, "other must not be null");
         double dotProduct = 0;
-        for (VectorEntry<K, Double> entry : this) {
-            Double otherValue = other.get(entry.key());
-            if (otherValue != null) {
-                dotProduct += entry.value() * otherValue;
-            }
+//        for (VectorEntry<K, Double> entry : this) {
+//            Double otherValue = other.get(entry.key());
+//            if (otherValue != null) {
+//                dotProduct += entry.value() * otherValue;
+//            }
+//        }
+        for (K key : CollectionHelper.intersect(keys(), other.keys())) {
+            double thisValue = get(key);
+            double otherValue = other.get(key);
+            dotProduct += thisValue * otherValue;
         }
         return dotProduct;
     }

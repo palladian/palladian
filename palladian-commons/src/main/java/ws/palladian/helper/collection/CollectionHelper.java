@@ -902,6 +902,39 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Get a set with the intersection from two given sets (this method is faster than the common idiom
+     * <code>Set intersection = new HashSet(setA); intersection.retainAll(setB);</code>).
+     * </p>
+     * 
+     * @param setA The first set, not <code>null</code>.
+     * @param setB The second set, not <code>null</code>.
+     * @return A new set which contains only elements occuring in both given sets.
+     */
+    public static <T> Set<T> intersect(Set<T> setA, Set<T> setB) {
+        Validate.notNull(setA, "setA must not be null");
+        Validate.notNull(setB, "setB must not be null");
+        // the most common variant to calculate an intersection is something like this:
+        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
+        // however, if both sets have considerably different sizes, this can be optimized,
+        // by iterating over the smaller set and checking whether the current element
+        // occurs in the larger set:
+        Set<T> smallerSet = setA;
+        Set<T> largerSet = setB;
+        if (smallerSet.size() > largerSet.size()) { // swap smaller/larger set if necessary
+            smallerSet = setB;
+            largerSet = setA;
+        }
+        Set<T> intersection = new HashSet<T>();
+        for (T element : smallerSet) {
+            if (largerSet.contains(element)) {
+                intersection.add(element);
+            }
+        }
+        return intersection;
+    }
+
+    /**
+     * <p>
      * Create a list where the given item is inserted n times.
      * </p>
      * 
