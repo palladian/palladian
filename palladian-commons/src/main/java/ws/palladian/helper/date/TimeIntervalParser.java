@@ -61,16 +61,4 @@ public class TimeIntervalParser {
         return seconds;
     }
 
-    /**
-     * <p>
-     * </p>
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        System.out.println(TimeIntervalParser.parse("the movie lasted 2 hours and 5 minutes"));
-        System.out.println(TimeIntervalParser.parse("4 hrs 20 mins"));
-        System.out.println(TimeIntervalParser.parse("1 day 23 mins"));
-    }
-
 }
