@@ -125,6 +125,8 @@ public final class MathHelper {
         return (double)intersection.size() / Math.min(setA.size(), setB.size());
     }
 
+    /** Use {@link NumericVector} instead. */
+    @Deprecated
     public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
 
         double dotProduct = computeDotProduct(vector1, vector2);
@@ -134,6 +136,8 @@ public final class MathHelper {
         return dotProduct / (magnitude1 * magnitude2);
     }
 
+    /** Use {@link NumericVector} instead. */
+    @Deprecated
     public static double computeDotProduct(Double[] vector1, Double[] vector2) {
         double dotProduct = 0.0;
 
@@ -144,6 +148,8 @@ public final class MathHelper {
         return dotProduct;
     }
 
+    /** Use {@link NumericVector} instead. */
+    @Deprecated
     public static double computeMagnitude(Double[] vector) {
         double magnitude = 0.0;
 
