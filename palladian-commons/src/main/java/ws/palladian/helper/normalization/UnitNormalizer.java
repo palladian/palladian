@@ -558,6 +558,38 @@ public class UnitNormalizer {
     }
 
     /**
+     * <p>
+     * Transforms a given <b>normalized</b> value and transforms it to the most readable unit for its unit type. E.g.
+     * "0.5" with LENGTH will become "5mm".
+     * </p>
+     * 
+     * @param normalizedValue The value, normalized to its base value in its unit type.
+     * @param unitType The unit type of the normalized value.
+     * @return A pair with the transformed value and the used unit.
+     */
+    public static Pair<Double, List<String>> smartTransform(Double normalizedValue, UnitType unitType) {
+
+        double smallestReadableValue = normalizedValue;
+        Pair<List<String>, Double> bestMatchingTransformation = null;
+        for (Pair<List<String>, Double> entry : unitType.getUnits()) {
+
+            double transformed = normalizedValue / entry.getValue1();
+            if ((transformed < smallestReadableValue && transformed > 1)
+                    || (transformed > smallestReadableValue && smallestReadableValue < 1)
+                    || bestMatchingTransformation == null) {
+                bestMatchingTransformation = entry;
+                smallestReadableValue = transformed;
+            }
+
+        }
+
+        Pair<Double, List<String>> smartTransformationResult = new Pair<Double, List<String>>(smallestReadableValue,
+                bestMatchingTransformation.getValue0());
+
+        return smartTransformationResult;
+    }
+
+    /**
      * @param args
      */
     public static void main(String[] args) {
@@ -666,4 +698,5 @@ public class UnitNormalizer {
         // }
         // }
     }
+
 }
