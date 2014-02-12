@@ -167,7 +167,7 @@ public enum Language {
 
     /**
      * <p>
-     * Retrieve a {@link Language} by its ISO 639-1 code.
+     * Retrieve a {@link Language} by its ISO 639-1 code. For example, "en" for English.
      * </p>
      * 
      * @param iso6391 The ISO 639-1 code.
@@ -187,7 +187,7 @@ public enum Language {
 
     /**
      * <p>
-     * Retrieve a {@link Language} by its ISO 639-2 code.
+     * Retrieve a {@link Language} by its ISO 639-2 code. For example, "eng" for English.
      * </p>
      * 
      * @param iso6392 The ISO 639-2 code.
