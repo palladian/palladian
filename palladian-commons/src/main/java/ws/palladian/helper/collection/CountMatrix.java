@@ -50,9 +50,16 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
             this.sum = sum;
         }
 
+        /**
+         * <p>
+         * In contrast to what is stated in the interface, this methods returns zero, in case the specified column does
+         * not exist for your convenience.
+         * </p>
+         */
         @Override
         public Integer get(K k) {
-            return vector.get(k);
+            Integer result = vector.get(k);
+            return result != null ? result : 0;
         }
 
         @Override
@@ -142,6 +149,12 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
         return get(x, y);
     }
 
+    /**
+     * <p>
+     * In contrast to what is stated in the interface, this methods returns zero, in case the specified cell does not
+     * exist.
+     * </p>
+     */
     @Override
     public Integer get(K x, K y) {
         Integer result = matrix.get(x, y);

@@ -63,6 +63,7 @@ public final class DictionaryModel implements Model {
         termCategories.add(category, new String(term));
     }
 
+    @Deprecated
     public CategoryEntries getCategoryEntries(String term) {
         CategoryEntriesMap categoryFrequencies = new CategoryEntriesMap();
         IntegerMatrixVector<String> row = termCategories.getRow(term);
@@ -75,9 +76,19 @@ public final class DictionaryModel implements Model {
         return categoryFrequencies;
     }
 
-    public int getTermCount(String term) {
-        return termCategories.getRow(term).getSum();
+    /**
+     * Get a vector denoting, how often the given term occurs in each category observed during training.
+     * 
+     * @param term The term for which to retrieve the counts.
+     * @return A vector.
+     */
+    public IntegerMatrixVector<String> getCategoryCounts(String term) {
+        return termCategories.getRow(term);
     }
+
+//    public int getTermCount(String term) {
+//        return termCategories.getRow(term).getSum();
+//    }
 
     public int getNumTerms() {
         return termCategories.rowCount();
@@ -87,6 +98,7 @@ public final class DictionaryModel implements Model {
         return termCategories.columnCount();
     }
 
+    @Override
     public Set<String> getCategories() {
         return termCategories.getColumnKeys();
     }
@@ -99,9 +111,9 @@ public final class DictionaryModel implements Model {
         categories.add(catgegory);
     }
 
-    public double getPrior(String category) {
-        return (double)categories.count(category) / categories.size();
-    }
+//    public double getPrior(String category) {
+//        return (double)categories.count(category) / categories.size();
+//    }
 
     public Map<String, Double> getPriors() {
         Map<String, Double> result = CollectionHelper.newHashMap();
@@ -152,10 +164,6 @@ public final class DictionaryModel implements Model {
         printStream.flush();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
 
