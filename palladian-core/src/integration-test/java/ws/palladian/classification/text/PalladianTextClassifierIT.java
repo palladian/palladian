@@ -48,18 +48,8 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.jrc.train");
         String testFile = config.getString("dataset.jrc.test");
         checkExistence("JRC", testFile, trainFile);
-
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
-
-        TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
-        DictionaryModel model = classifier.train(trainIterator);
-
-        TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
-
-        System.out.println("accuracy char jrc: " + evaluation.getAccuracy());
-        assertTrue(evaluation.getAccuracy() >= 0.99);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.99);
     }
 
     @Test
@@ -67,18 +57,8 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.wikipedia.train");
         String testFile = config.getString("dataset.wikipedia.test");
         checkExistence("Wikipedia", testFile, trainFile);
-
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 3).maxTerms(10).create();
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
-
-        TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
-        DictionaryModel model = classifier.train(trainIterator);
-
-        TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
-
-        System.out.println("accuracy word jrc: " + evaluation.getAccuracy());
-        assertTrue(evaluation.getAccuracy() >= 0.98);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.98);
     }
 
     @Test
@@ -86,18 +66,8 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
-
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
-
-        TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
-        DictionaryModel model = classifier.train(trainIterator);
-
-        TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
-
-        System.out.println("accuracy char ng: " + evaluation.getAccuracy());
-        assertTrue(evaluation.getAccuracy() >= 0.88);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.88);
     }
 
     @Test
@@ -105,18 +75,29 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
-
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 3).maxTerms(10).create();
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.9);
+    }
 
+    /**
+     * <p>
+     * Use the training set, train a classifier, check accuracy on test set.
+     * </p>
+     * 
+     * @param trainFile The training data.
+     * @param testFile The testing data.
+     * @param featureSetting The feature setting for the classifier.
+     * @param minAccuracy The minimum expected accuracy on the test data.
+     */
+    private static void assertAccuracy(String trainFile, String testFile, FeatureSetting featureSetting,
+            double minAccuracy) {
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
         TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
         DictionaryModel model = classifier.train(trainIterator);
-
         TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
-
-        System.out.println("accuracy word ng: " + evaluation.getAccuracy());
-        assertTrue(evaluation.getAccuracy() >= 0.9);
+        System.out.println("accuracy with " + featureSetting + " on " + testFile + " : " + evaluation.getAccuracy());
+        assertTrue(evaluation.getAccuracy() >= minAccuracy);
     }
 
     /**

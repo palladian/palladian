@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
@@ -22,7 +23,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
      * @author pk
      */
     private final class RowIterator implements Iterator<MatrixVector<K, V>> {
-        final Iterator<K> rowNameIterator = getRowKeys().iterator();
+        final Iterator<K> rowNameIterator = new HashSet<K>(getRowKeys()).iterator();
         K currentRowKey;
 
         @Override
@@ -48,7 +49,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
      * @author pk
      */
     private final class ColumnIterator implements Iterator<MatrixVector<K, V>> {
-        final Iterator<K> columnNameIterator = getColumnKeys().iterator();
+        final Iterator<K> columnNameIterator = new HashSet<K>(getColumnKeys()).iterator();
         K currentColumnKey;
 
         @Override
