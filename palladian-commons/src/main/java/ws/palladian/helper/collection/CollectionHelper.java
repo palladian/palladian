@@ -970,4 +970,24 @@ public final class CollectionHelper {
         }
     }
 
+    /**
+     * <p>
+     * Check, if the provided {@link Filter} accepts all items from given {@link Iterable}.
+     * </p>
+     * 
+     * @param iterable The iterable, not <code>null</code>.
+     * @param filter The filter, not <code>null</code>.
+     * @return <code>true</code> in case the filter accepted all items from the iterable, <code>false</code> otherwise.
+     */
+    public static <T> boolean acceptAll(Iterable<T> iterable, Filter<? super T> filter) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        for (T item : iterable) {
+            if (!filter.accept(item)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
