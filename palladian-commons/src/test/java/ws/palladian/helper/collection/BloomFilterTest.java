@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.BitSet;
 import java.util.Set;
 
 import org.junit.Test;
@@ -31,24 +30,6 @@ public class BloomFilterTest {
         assertFalse(filter.accept("mango"));
         assertFalse(filter.accept("pineapple"));
         // System.out.println(filter);
-    }
-
-    @Test
-    public void testBitsetContainsAll() {
-        BitSet s1 = newBitSet(1, 2, 3, 4, 6);
-        BitSet s2 = newBitSet(1, 2, 3, 4);
-        BitSet s3 = newBitSet(1, 2, 3, 4, 5);
-
-        assertTrue(BloomFilter.containsAll(s1, s2));
-        assertFalse(BloomFilter.containsAll(s1, s3));
-    }
-
-    private static BitSet newBitSet(int... values) {
-        BitSet bitSet = new BitSet();
-        for (int value : values) {
-            bitSet.set(value);
-        }
-        return bitSet;
     }
 
 }

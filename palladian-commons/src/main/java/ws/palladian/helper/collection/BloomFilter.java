@@ -159,21 +159,9 @@ public class BloomFilter<T> implements Filter<T>, Serializable {
         if (item == null) {
             return false;
         }
-        BitSet itemBitVector = createBitVector(item, vectorSize, numHashFunctions);
-        return containsAll(bitVector, itemBitVector);
-    }
-
-    /**
-     * Check, whether the first given {@link BitSet} contains all values from the second given BitSet.
-     * 
-     * @param s1 The first {@link BitSet}, not <code>null</code>.
-     * @param s2 The second {@link BitSet}, not <code>null</code>.
-     * @return <code>true</code> in case all enabled bits in the second bit set are also enabled in the first bit set
-     *         (ie. s2 \in s1).
-     */
-    static boolean containsAll(BitSet s1, BitSet s2) {
-        for (int i = s2.nextSetBit(0); i >= 0; i = s2.nextSetBit(i + 1)) {
-            if (!s1.get(i)) {
+        int[] hashes = createHashes(item, vectorSize, numHashFunctions);
+        for (int hash : hashes) {
+            if (!bitVector.get(hash)) {
                 return false;
             }
         }
@@ -187,8 +175,10 @@ public class BloomFilter<T> implements Filter<T>, Serializable {
      */
     public void add(T item) {
         Validate.notNull(item, "item must not be null");
-        BitSet itemBitVector = createBitVector(item, vectorSize, numHashFunctions);
-        bitVector.or(itemBitVector);
+        int[] hashes = createHashes(item, vectorSize, numHashFunctions);
+        for (int hash : hashes) {
+            bitVector.set(hash);
+        }
         numAddedItems++;
     }
 
@@ -219,23 +209,23 @@ public class BloomFilter<T> implements Filter<T>, Serializable {
     }
 
     /**
-     * Create a {@link BitSet} from the given item.
+     * Create hashes for the given item.
      * 
      * @param item The item to convert to a BitSet, not <code>null</code>.
      * @param vectorSize Size of the created bit vector (>= 1).
      * @param numHashFunctions The number of hash functions to apply (>=1).
-     * @return The bit vector for the given object.
+     * @return An array with hashes.
      */
-    private static BitSet createBitVector(Object item, int vectorSize, int numHashFunctions) {
-        BitSet bitVector = new BitSet(vectorSize);
+    private static int[] createHashes(Object item, int vectorSize, int numHashes) {
         byte[] bytes = getBytes(item);
-        for (int i = 0; i < numHashFunctions; i++) {
+        int[] hashes = new int[numHashes];
+        for (int i = 0; i < numHashes; i++) {
             int hash = murmur32(bytes, bytes.length, i);
             // shift the modulus, so that we do not get any negative values
             int modHash = (hash % vectorSize + vectorSize) % vectorSize;
-            bitVector.set(modHash);
+            hashes[i] = modHash;
         }
-        return bitVector;
+        return hashes;
     }
 
     @Override

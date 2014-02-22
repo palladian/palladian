@@ -60,6 +60,7 @@ public class ResultIterator<T> implements Iterator<T>, Closeable {
 
     /** Reference to the next item which can be retrieved via next(). */
     private T next = null;
+    private boolean finished = false;
 
     ResultIterator(Connection connection, Statement statement, ResultSet resultSet, RowConverter<T> rowConverter) {
         this.connection = connection;
@@ -70,6 +71,9 @@ public class ResultIterator<T> implements Iterator<T>, Closeable {
 
     @Override
     public boolean hasNext() {
+        if (finished) {
+            return false;
+        }
         boolean hasNext = true;
         try {
             if (next == null) {
@@ -78,6 +82,7 @@ public class ResultIterator<T> implements Iterator<T>, Closeable {
                 } else {
                     close();
                     hasNext = false;
+                    finished = true;
                 }
             }
         } catch (SQLException e) {
