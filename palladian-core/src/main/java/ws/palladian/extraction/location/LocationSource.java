@@ -95,4 +95,10 @@ public interface LocationSource {
      */
     Iterator<Location> getLocations();
 
+    /**
+     * @return The number of locations in this location source.
+     * @throws UnsupportedOperationException In case this information is not provided (e.g. in Web APIs).
+     */
+    int size();
+
 }

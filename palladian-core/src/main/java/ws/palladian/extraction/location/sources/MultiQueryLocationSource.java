@@ -31,14 +31,19 @@ public abstract class MultiQueryLocationSource implements LocationSource {
     public final Location getLocation(int locationId) {
         return CollectionHelper.getFirst(getLocations(Collections.singletonList(locationId)));
     }
-    
+
     @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
-    
+
     @Override
     public Iterator<Location> getLocations() {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
+    }
+
+    @Override
+    public int size() {
         throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
 

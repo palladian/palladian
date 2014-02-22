@@ -44,14 +44,19 @@ public abstract class SingleQueryLocationSource implements LocationSource {
         }
         return locations;
     }
-    
+
     @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
-    
+
     @Override
     public Iterator<Location> getLocations() {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
+    }
+
+    @Override
+    public int size() {
         throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
 
