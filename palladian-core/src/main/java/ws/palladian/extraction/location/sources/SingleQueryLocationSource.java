@@ -21,7 +21,7 @@ import ws.palladian.helper.constants.Language;
  * 
  * @author Philipp Katz
  */
-abstract class SingleQueryLocationSource implements LocationSource {
+public abstract class SingleQueryLocationSource implements LocationSource {
 
     @Override
     public final MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {

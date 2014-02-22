@@ -19,7 +19,7 @@ import ws.palladian.helper.constants.Language;
  * 
  * @author Philipp Katz
  */
-abstract class MultiQueryLocationSource implements LocationSource {
+public abstract class MultiQueryLocationSource implements LocationSource {
 
     @Override
     public final Collection<Location> getLocations(String locationName, Set<Language> languages) {
