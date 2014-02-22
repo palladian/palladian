@@ -62,6 +62,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
     private static final String GET_LOCATIONS_UNIVERSAL = "{call search_locations(?,?,?,?,?)}";
     private static final String GET_ALL_LOCATIONS = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
+    private static final String GET_LOCATION_COUNT = "SELECT COUNT(*) FROM locations";
 
     // //////////////////////////////////////////////////////////////////////
 
@@ -269,6 +270,11 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     @Override
     public ResultIterator<Location> getLocations() {
         return runQueryWithIterator(LocationRowConverter.FULL, GET_ALL_LOCATIONS);
+    }
+
+    @Override
+    public int size() {
+        return runSingleQuery(OneColumnRowConverter.INTEGER, GET_LOCATION_COUNT);
     }
 
 }

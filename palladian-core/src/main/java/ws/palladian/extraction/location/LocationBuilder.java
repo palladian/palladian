@@ -93,13 +93,14 @@ public final class LocationBuilder implements Factory<Location> {
     public LocationBuilder setAncestorIds(String hierarchyPath) {
         if (hierarchyPath == null) {
             ancestorIds = Collections.emptyList();
-        }
-        ancestorIds = CollectionHelper.newArrayList();
-        String[] splitPath = hierarchyPath.split("/");
-        for (int i = splitPath.length - 1; i >= 0; i--) {
-            String ancestorId = splitPath[i];
-            if (StringUtils.isNotBlank(ancestorId)) {
-                ancestorIds.add(Integer.valueOf(ancestorId));
+        } else {
+            ancestorIds = CollectionHelper.newArrayList();
+            String[] splitPath = hierarchyPath.split("/");
+            for (int i = splitPath.length - 1; i >= 0; i--) {
+                String ancestorId = splitPath[i];
+                if (StringUtils.isNotBlank(ancestorId)) {
+                    ancestorIds.add(Integer.valueOf(ancestorId));
+                }
             }
         }
         return this;
