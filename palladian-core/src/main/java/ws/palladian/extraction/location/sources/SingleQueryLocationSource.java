@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +47,11 @@ public abstract class SingleQueryLocationSource implements LocationSource {
     
     @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
+    }
+    
+    @Override
+    public Iterator<Location> getLocations() {
         throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
 

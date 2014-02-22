@@ -266,6 +266,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
      * 
      * @return An iterator over all locations.
      */
+    @Override
     public ResultIterator<Location> getLocations() {
         return runQueryWithIterator(LocationRowConverter.FULL, GET_ALL_LOCATIONS);
     }

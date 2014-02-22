@@ -13,7 +13,6 @@ import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -34,7 +33,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @author David Urbansky
  * @see <a href="http://wiki.freebase.com/wiki/How_to_obtain_an_API_key">How to obtain an API key</a>
  */
-public class FreebaseLocationSource extends SingleQueryLocationSource implements LocationSource {
+public class FreebaseLocationSource extends SingleQueryLocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FreebaseLocationSource.class);
