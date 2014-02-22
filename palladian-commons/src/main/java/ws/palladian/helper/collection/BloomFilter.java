@@ -1,39 +1,81 @@
 package ws.palladian.helper.collection;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.BitSet;
 import java.util.Collection;
 
 import org.apache.commons.lang3.Validate;
 
-// http://stackoverflow.com/questions/658439/how-many-hash-functions-does-my-bloom-filter-need
-// http://corte.si/%2Fposts/code/bloom-filter-rules-of-thumb/index.html
+/**
+ * <p>
+ * Bloom filter implementation. A <a href="http://en.wikipedia.org/wiki/Bloom_filter">Bloom filter</a> is a
+ * probabilistic data structure which allows membership queries, similar to a Set. The difference, to a full-blown Set
+ * is, that when checking for membership of an element, you get on of the two answers: <i>potentially in set</i> or for
+ * <i>sure not in set</i> (the false positive rate can tuned by modifying the filter's parameters, which has of course
+ * impact on the space requirements). Bloom filters can be used e.g. for blocking unnecessary disk hits, because the
+ * <i>for sure not in set</i> candidates can be filtered out in advance, where the space requirements of a bloom filter
+ * are considerably smaller than a set.
+ * </p>
+ * 
+ * @author pk
+ * 
+ * @param <T> Type of the items in this Bloom filter.
+ * @see <a href="http://pages.cs.wisc.edu/~cao/papers/summary-cache/node9.html">Bloom Filters as Summaries</a>
+ * @see <a href="http://pages.cs.wisc.edu/~cao/papers/summary-cache/node8.html">Bloom Filters - the math</a>
+ * @see <a href="http://corte.si/%2Fposts/code/bloom-filter-rules-of-thumb/index.html">3 Rules of thumb for Bloom
+ *      Filters</a>
+ * @see <a href="https://github.com/tnm/murmurhash-java">murmurhash-java (used hashing function)</a>
+ * @see <a href="http://spyced.blogspot.de/2009/01/all-you-ever-wanted-to-know-about.html">All you ever wanted to know
+ *      about writing bloom filters</a>
+ * @see <a
+ *      href="http://highlyscalable.wordpress.com/2012/05/01/probabilistic-structures-web-analytics-data-mining/">Probabilistic
+ *      Data Structures for Web Analytics and Data Mining</a>
+ * @see <a href="http://matthias.vallentin.net/blog/2011/06/a-garden-variety-of-bloom-filters/">A Garden Variety of
+ *      Bloom Filters</a>
+ * @see <a href="http://www.michaelnielsen.org/ddi/why-bloom-filters-work-the-way-they-do/">Why Bloom filters work the
+ *      way they do </a>
+ */
+public class BloomFilter<T> implements Filter<T>, Serializable {
 
-// http://pages.cs.wisc.edu/~cao/papers/summary-cache/node8.html
-public class BloomFilter<T> implements Filter<T> {
+    private static final long serialVersionUID = 1L;
 
     private final int vectorSize;
+
     private final BitSet bitVector;
+
     private final double falsePositiveProbability;
-    private final double numHashFunctions;
+
+    private final int numHashFunctions;
+
     private int numAddedItems;
 
     /**
-     * @param fpProb The accepted false positive probability.
-     * @param numElements The expected number of elements.
+     * <p>
+     * Create a new Bloom filter providing a specific false positive rate on a set with the maximum number of elements.
+     * </p>
+     * 
+     * @param fpProb The accepted false positive probability, must be in range [0,1].
+     * @param numElements The expected number of elements, greater zero.
      */
     public BloomFilter(double fpProb, int numElements) {
         this(numElements, (int)Math.ceil(numElements * Math.log(1 / fpProb) / Math.pow(Math.log(2), 2)));
     }
 
     /**
-     * @param numElements The expected number of elements.
-     * @param vectorSize Size of the bit vector.
+     * <p>
+     * Create a new Bloom filter for the given number of elements with the provided size for the bit vector.
+     * </p>
+     * 
+     * @param numElements The expected number of elements, greater zero.
+     * @param vectorSize Size of the bit vector, greater zero.
      */
     public BloomFilter(int numElements, int vectorSize) {
+        Validate.isTrue(numElements > 0, "numElements must be greater zero");
+        Validate.isTrue(vectorSize > 0, "vectorSize must be greater zero");
         this.vectorSize = vectorSize;
         this.bitVector = new BitSet(vectorSize);
-        this.numHashFunctions = vectorSize / numElements * Math.log(2);
+        this.numHashFunctions = (int)Math.ceil(vectorSize / numElements * Math.log(2));
         this.falsePositiveProbability = Math.pow(2, -(vectorSize * Math.log(2)) / numElements);
     }
 
@@ -47,7 +89,7 @@ public class BloomFilter<T> implements Filter<T> {
     /**
      * @return The number of hash functions.
      */
-    public double getNumHashFunctions() {
+    public int getNumHashFunctions() {
         return numHashFunctions;
     }
 
@@ -58,17 +100,11 @@ public class BloomFilter<T> implements Filter<T> {
         return vectorSize;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("BloomFilter [falsePositiveProbability=");
-        builder.append(getFalsePositiveProbability());
-        builder.append(", numHashFunctions=");
-        builder.append(getNumHashFunctions());
-        builder.append(", vectorSize=");
-        builder.append(getVectorSize());
-        builder.append("]");
-        return builder.toString();
+    /**
+     * @return The number of items which have been added to this bloom filter (each duplicate is counted).
+     */
+    public int getNumAddedItems() {
+        return numAddedItems;
     }
 
     /**
@@ -107,7 +143,7 @@ public class BloomFilter<T> implements Filter<T> {
             case 2:
                 h ^= (data[(length & ~3) + 1] & 0xff) << 8;
             case 1:
-                h ^= (data[length & ~3] & 0xff);
+                h ^= data[length & ~3] & 0xff;
                 h *= m;
         }
 
@@ -120,28 +156,21 @@ public class BloomFilter<T> implements Filter<T> {
 
     @Override
     public boolean accept(T item) {
-        if (item ==null)return false;
-//        byte[] bytes = getBytes(item);
-//        for (int i = 0; i < Math.ceil(getNumHashFunctions()); i++) {
-//            int hash = murmur32(bytes, bytes.length, i);
-//            if (!bitVector.get(trim(hash))) {
-//                return false;
-//            }
-//        }
-//        return true;
-//        System.out.println("accept > " + item);
-        BitSet itemBitVector = createBitVector(item, vectorSize, (int) Math.ceil(numHashFunctions));
-        
-//        System.out.println(itemBitVector);
-//        System.out.println("* " + bitVector);
-        
-//        itemBitVector.
-//        boolean result = itemBitVector.intersects(bitVector);
-//        System.out.println("< accept " + result);
-//        return result;
+        if (item == null) {
+            return false;
+        }
+        BitSet itemBitVector = createBitVector(item, vectorSize, numHashFunctions);
         return containsAll(bitVector, itemBitVector);
     }
-    
+
+    /**
+     * Check, whether the first given {@link BitSet} contains all values from the second given BitSet.
+     * 
+     * @param s1 The first {@link BitSet}, not <code>null</code>.
+     * @param s2 The second {@link BitSet}, not <code>null</code>.
+     * @return <code>true</code> in case all enabled bits in the second bit set are also enabled in the first bit set
+     *         (ie. s2 \in s1).
+     */
     static boolean containsAll(BitSet s1, BitSet s2) {
         for (int i = s2.nextSetBit(0); i >= 0; i = s2.nextSetBit(i + 1)) {
             if (!s1.get(i)) {
@@ -151,18 +180,23 @@ public class BloomFilter<T> implements Filter<T> {
         return true;
     }
 
+    /**
+     * Add an item to this {@link BloomFilter}.
+     * 
+     * @param item The item to add, not <code>null</code>.
+     */
     public void add(T item) {
         Validate.notNull(item, "item must not be null");
-//        byte[] bytes = getBytes(item);
-//        for (int i = 0; i < Math.ceil(getNumHashFunctions()); i++) {
-//            int hash = murmur32(bytes, bytes.length, i);
-//            bitVector.set(trim(hash));
-//        }
-        BitSet itemBitVector = createBitVector(item, vectorSize, (int) Math.ceil(numHashFunctions));
+        BitSet itemBitVector = createBitVector(item, vectorSize, numHashFunctions);
         bitVector.or(itemBitVector);
         numAddedItems++;
     }
 
+    /**
+     * Adds a collection of items to this {@link BloomFilter}.
+     * 
+     * @param items The items to add, not <code>null</code>.
+     */
     public void addAll(Collection<? extends T> items) {
         Validate.notNull(items, "items must not be null");
         for (T item : items) {
@@ -170,10 +204,12 @@ public class BloomFilter<T> implements Filter<T> {
         }
     }
 
-//    private int trim(int hash) {
-//        return ((hash % vectorSize) + vectorSize) % vectorSize;
-//    }
-
+    /**
+     * Convert the given object to a byte array, taken from its {@link Object#toString()} representation.
+     * 
+     * @param item The item to convert, not <code>null</code>.
+     * @return The byte array, representing the Object's string value.
+     */
     private static byte[] getBytes(Object item) {
         try {
             return item.toString().getBytes("UTF-8");
@@ -181,16 +217,40 @@ public class BloomFilter<T> implements Filter<T> {
             throw new IllegalStateException("UTF-8 encoding not supported.");
         }
     }
-    
+
+    /**
+     * Create a {@link BitSet} from the given item.
+     * 
+     * @param item The item to convert to a BitSet, not <code>null</code>.
+     * @param vectorSize Size of the created bit vector (>= 1).
+     * @param numHashFunctions The number of hash functions to apply (>=1).
+     * @return The bit vector for the given object.
+     */
     private static BitSet createBitVector(Object item, int vectorSize, int numHashFunctions) {
         BitSet bitVector = new BitSet(vectorSize);
         byte[] bytes = getBytes(item);
         for (int i = 0; i < numHashFunctions; i++) {
             int hash = murmur32(bytes, bytes.length, i);
-            int modHash = ((hash % vectorSize) + vectorSize) % vectorSize;
+            // shift the modulus, so that we do not get any negative values
+            int modHash = (hash % vectorSize + vectorSize) % vectorSize;
             bitVector.set(modHash);
         }
         return bitVector;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("BloomFilter [vectorSize=");
+        builder.append(vectorSize);
+        builder.append(", fpProbability=");
+        builder.append(falsePositiveProbability);
+        builder.append(", hashFunctions=");
+        builder.append(numHashFunctions);
+        builder.append(", addedItems=");
+        builder.append(numAddedItems);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
