@@ -19,10 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
-import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -31,9 +28,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.OneColumnRowConverter;
+import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
-import ws.palladian.persistence.RowConverter;
-import ws.palladian.persistence.helper.SqlHelper;
 
 /**
  * <p>
@@ -65,42 +61,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     private static final String UPDATE_HIERARCHY = "UPDATE locations SET ancestorIds = CONCAT(?, ancestorIds) WHERE ancestorIds LIKE ?";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
     private static final String GET_LOCATIONS_UNIVERSAL = "{call search_locations(?,?,?,?,?)}";
-
-    // ////////////////// row converts ////////////////////////////////////
-//    private static final RowConverter<Location> LOCATION_CONVERTER = new RowConverter<Location>() {
-//        @Override
-//        public Location convert(ResultSet resultSet) throws SQLException {
-//            int id = resultSet.getInt("id");
-//            LocationType locationType = LocationType.map(resultSet.getString("type"));
-//            String name = resultSet.getString("name");
-//
-//            List<AlternativeName> altNames = CollectionHelper.newArrayList();
-//            String alternativesString = resultSet.getString("alternatives");
-//            if (alternativesString != null) {
-//                for (String nameLanguageString : alternativesString.split(",")) {
-//                    String[] parts = nameLanguageString.split("#");
-//                    if (parts.length == 0 || StringUtils.isBlank(parts[0]) || parts[0].equals("alternativeName")) {
-//                        continue;
-//                    }
-//                    Language language = null;
-//                    if (parts.length > 1) {
-//                        language = Language.getByIso6391(parts[1]);
-//                    }
-//                    altNames.add(new AlternativeName(parts[0], language));
-//                }
-//            }
-//
-//            Double latitude = SqlHelper.getDouble(resultSet, "latitude");
-//            Double longitude = SqlHelper.getDouble(resultSet, "longitude");
-//            GeoCoordinate coordinate = null;
-//            if (latitude != null && longitude != null) {
-//                coordinate = new ImmutableGeoCoordinate(latitude, longitude);
-//            }
-//            Long population = resultSet.getLong("population");
-//            List<Integer> ancestorIds = splitHierarchyPath(resultSet.getString("ancestorIds"));
-//            return new ImmutableLocation(id, name, altNames, locationType, coordinate, population, ancestorIds);
-//        }
-//    };
+    private static final String GET_ALL_LOCATIONS = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
 
     // //////////////////////////////////////////////////////////////////////
 
@@ -245,32 +206,6 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
         runUpdate(UPDATE_HIERARCHY, ancestorPath, "/" + childId + "/%");
     }
 
-//    /**
-//     * <p>
-//     * Split up an hierarchy path into single IDs. An hierarchy path looks like
-//     * "/6295630/6255148/2921044/2951839/2861322/3220837/6559171/" and is used to flatten the hierarchy relation in the
-//     * database into one column per entry. In the database, to root node is at the beginning of the string; this method
-//     * does a reverse ordering, so that result contains the root node as last element.
-//     * </p>
-//     * 
-//     * @param hierarchyPath The hierarchy path.
-//     * @return List with IDs, in reverse order. Empty {@link List}, if hierarchy path was <code>null</code> or empty.
-//     */
-//    protected static final List<Integer> splitHierarchyPath(String hierarchyPath) {
-//        if (hierarchyPath == null) {
-//            return Collections.emptyList();
-//        }
-//        List<Integer> ancestorIds = CollectionHelper.newArrayList();
-//        String[] splitPath = hierarchyPath.split("/");
-//        for (int i = splitPath.length - 1; i >= 0; i--) {
-//            String ancestorId = splitPath[i];
-//            if (StringUtils.isNotBlank(ancestorId)) {
-//                ancestorIds.add(Integer.valueOf(ancestorId));
-//            }
-//        }
-//        return ancestorIds;
-//    }
-
     /**
      * <p>
      * Delete the content in the location database.
@@ -322,6 +257,17 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
             GeoCoordinate coordinate, double distance) {
         return getLocationsInternal(locationNames, languages, coordinate, distance);
+    }
+
+    /**
+     * <p>
+     * Get all locations in the database.
+     * </p>
+     * 
+     * @return An iterator over all locations.
+     */
+    public ResultIterator<Location> getLocations() {
+        return runQueryWithIterator(LocationRowConverter.FULL, GET_ALL_LOCATIONS);
     }
 
 }

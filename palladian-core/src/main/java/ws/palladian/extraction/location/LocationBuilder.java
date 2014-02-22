@@ -2,12 +2,15 @@ package ws.palladian.extraction.location;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.constants.Language;
 
@@ -73,6 +76,32 @@ public final class LocationBuilder implements Factory<Location> {
 
     public LocationBuilder setAncestorIds(Integer... ancestorIds) {
         this.ancestorIds = Arrays.asList(ancestorIds);
+        return this;
+    }
+    
+    /**
+     * <p>
+     * Split up an hierarchy path into single IDs. An hierarchy path looks like
+     * "/6295630/6255148/2921044/2951839/2861322/3220837/6559171/" and is used to flatten the hierarchy relation in the
+     * database into one column per entry. In the database, to root node is at the beginning of the string; this method
+     * does a reverse ordering, so that result contains the root node as last element.
+     * </p>
+     * 
+     * @param hierarchyPath The hierarchy path.
+     * @return List with IDs, in reverse order. Empty {@link List}, if hierarchy path was <code>null</code> or empty.
+     */
+    public LocationBuilder setAncestorIds(String hierarchyPath) {
+        if (hierarchyPath == null) {
+            ancestorIds = Collections.emptyList();
+        }
+        ancestorIds = CollectionHelper.newArrayList();
+        String[] splitPath = hierarchyPath.split("/");
+        for (int i = splitPath.length - 1; i >= 0; i--) {
+            String ancestorId = splitPath[i];
+            if (StringUtils.isNotBlank(ancestorId)) {
+                ancestorIds.add(Integer.valueOf(ancestorId));
+            }
+        }
         return this;
     }
 
