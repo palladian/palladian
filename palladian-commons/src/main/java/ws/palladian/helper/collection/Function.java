@@ -18,10 +18,23 @@ public interface Function<I, O> {
      * <code>null</code> in case the input was <code>null</code>.
      * </p>
      */
-    public static final Function<Object, String> TO_STRING_FUNCTION = new Function<Object, String>() {
+    public static final Function<Object, String> TO_STRING = new Function<Object, String>() {
         @Override
         public String compute(Object input) {
             return input != null ? input.toString() : null;
+        }
+    };
+
+    /**
+     * <p>
+     * A function which converts {@link String}s to lowercase, or <code>null</code> in case the input was
+     * <code>null</code>.
+     * </p>
+     */
+    public static final Function<String, String> LOWERCASE = new Function<String, String>() {
+        @Override
+        public String compute(String input) {
+            return input != null ? input.toLowerCase() : null;
         }
     };
 
