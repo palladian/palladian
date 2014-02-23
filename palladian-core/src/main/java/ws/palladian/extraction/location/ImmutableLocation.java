@@ -80,55 +80,31 @@ public final class ImmutableLocation extends AbstractLocation {
                 .getCoordinate(), location.getPopulation(), ancestorIds);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.location.Location#getId()
-     */
     @Override
     public int getId() {
         return id;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.location.Location#getPrimaryName()
-     */
     @Override
     public String getPrimaryName() {
         return primaryName;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.location.Location#getAlternativeNames()
-     */
     @Override
     public Collection<AlternativeName> getAlternativeNames() {
         return Collections.unmodifiableCollection(alternativeNames);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.location.Location#getType()
-     */
     @Override
     public LocationType getType() {
         return type;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.location.Location#getPopulation()
-     */
     @Override
     public Long getPopulation() {
         return population;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ws.palladian.extraction.location.Location#getAncestorIds()
-     */
     @Override
     public List<Integer> getAncestorIds() {
         return Collections.unmodifiableList(ancestorIds);
@@ -137,49 +113,6 @@ public final class ImmutableLocation extends AbstractLocation {
     @Override
     public GeoCoordinate getCoordinate() {
         return coordinate;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Location [id=");
-        builder.append(id);
-        builder.append(", primaryName=");
-        builder.append(primaryName);
-        // builder.append(", alternativeNames=");
-        // builder.append(alternativeNames);
-        builder.append(", type=");
-        builder.append(type);
-        builder.append(", coordinate=");
-        builder.append(coordinate);
-        builder.append(", population=");
-        builder.append(population);
-        // builder.append(", ancestorIds=");
-        // builder.append(ancestorIds);
-        builder.append("]");
-        return builder.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + id;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ImmutableLocation other = (ImmutableLocation)obj;
-        if (id != other.id)
-            return false;
-        return true;
     }
 
 }

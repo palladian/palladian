@@ -8,7 +8,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
- * Common implementation of {@link Location} interface with utility functionality.
+ * Common implementation of {@link Location} interface with utility functionality. {@link #hashCode()} and
+ * {@link #equals(Object)} are determined via the {@link Location} ID ({@link #getId()}).
  * </p>
  * 
  * @author Philipp Katz
@@ -49,7 +50,7 @@ public abstract class AbstractLocation implements Location {
         }
         return names;
     }
-    
+
     // deprecated getters (returning null values when no coordinate is present)
 
     @Override
@@ -62,6 +63,49 @@ public abstract class AbstractLocation implements Location {
     @Deprecated
     public final Double getLongitude() {
         return getCoordinate() != null ? getCoordinate().getLongitude() : null;
+    }
+
+    // toString
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getSimpleName());
+        builder.append(" [id=");
+        builder.append(getId());
+        builder.append(", primaryName=");
+        builder.append(getPrimaryName());
+        // builder.append(", alternativeNames=");
+        // builder.append(alternativeNames);
+        builder.append(", type=");
+        builder.append(getType());
+        builder.append(", coordinate=");
+        builder.append(getCoordinate());
+        builder.append(", population=");
+        builder.append(getPopulation());
+        // builder.append(", ancestorIds=");
+        // builder.append(ancestorIds);
+        builder.append("]");
+        return builder.toString();
+    }
+
+    // hashCode and equals
+
+    @Override
+    public int hashCode() {
+        return getId();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        AbstractLocation other = (AbstractLocation)obj;
+        return getId() == other.getId();
     }
 
 }
