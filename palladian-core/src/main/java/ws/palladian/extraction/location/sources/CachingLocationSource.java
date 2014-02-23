@@ -38,9 +38,17 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
 
     private final int size;
 
+    /** Number of items for which we had a cache hit. */
     private int cacheHits = 0;
 
+    /** Number of items for which we had a cache miss. */
     private int cacheMisses = 0;
+
+    /** Number of total requests. */
+    private int requests = 0;
+
+    /** Number of total requests which had to be passed to the wrapped source. */
+    private int passedRequests = 0;
 
     /**
      * <p>
@@ -74,6 +82,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
         Set<String> needsLookup = CollectionHelper.newHashSet();
+        requests++;
 
         for (String locationName : locationNames) {
             String identifier = createIdentifier(languages, locationName);
@@ -89,6 +98,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
 
         // get the unresolved names from the underlying location source
         if (needsLookup.size() > 0) {
+            passedRequests++;
             MultiMap<String, Location> retrievedLocations = wrapped.getLocations(needsLookup, languages);
             for (String locationName : needsLookup) {
                 Collection<Location> locations = retrievedLocations.get(locationName);
@@ -118,6 +128,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     public List<Location> getLocations(List<Integer> locationIds) {
         Map<Integer, Location> tempResult = CollectionHelper.newHashMap();
         Set<Integer> needsLookup = CollectionHelper.newHashSet();
+        requests++;
 
         for (Integer locationId : locationIds) {
             Location cachedLocation = idCache.get(locationId);
@@ -132,6 +143,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
 
         // get the unresolved IDs from the underlying location source
         if (needsLookup.size() > 0) {
+            passedRequests++;
             List<Location> retrievedLocations = wrapped.getLocations(new ArrayList<Integer>(needsLookup));
             for (Location location : retrievedLocations) {
                 tempResult.put(location.getId(), location);
@@ -150,10 +162,12 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(CachingLocationSource.class.getSimpleName());
         stringBuilder.append(" (");
-        stringBuilder.append(wrapped.getClass().getSimpleName());
+        stringBuilder.append(wrapped);
         stringBuilder.append(", MaxCacheSize=").append(size);
         stringBuilder.append(", Hits=").append(cacheHits);
         stringBuilder.append(", Misses=").append(cacheMisses);
+        stringBuilder.append(", Requests=").append(requests);
+        stringBuilder.append(", PassedRequests=").append(passedRequests);
         stringBuilder.append(", NameCacheSize=").append(nameCache.size());
         stringBuilder.append(", IdCacheSize=").append(idCache.size());
         stringBuilder.append(")");

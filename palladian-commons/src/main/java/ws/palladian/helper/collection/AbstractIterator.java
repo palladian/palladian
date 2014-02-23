@@ -21,6 +21,9 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
      */
     @SuppressWarnings("serial")
     protected static final class Finished extends Exception {
+        public Finished() {
+            // no op.
+        }
     }
 
     /**
