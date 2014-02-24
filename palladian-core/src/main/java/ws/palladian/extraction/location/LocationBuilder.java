@@ -1,8 +1,6 @@
 package ws.palladian.extraction.location;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,11 +72,17 @@ public final class LocationBuilder implements Factory<Location> {
         return this;
     }
 
-    public LocationBuilder setAncestorIds(Integer... ancestorIds) {
-        this.ancestorIds = Arrays.asList(ancestorIds);
+    public LocationBuilder setAncestorIds(int... ancestorIds) {
+        if (ancestorIds != null) {
+            this.ancestorIds = CollectionHelper.newArrayList();
+            for (int ancestorId : ancestorIds) {
+                this.ancestorIds.add(ancestorId);
+            }
+
+        }
         return this;
     }
-    
+
     /**
      * <p>
      * Split up an hierarchy path into single IDs. An hierarchy path looks like
@@ -91,9 +95,7 @@ public final class LocationBuilder implements Factory<Location> {
      * @return List with IDs, in reverse order. Empty {@link List}, if hierarchy path was <code>null</code> or empty.
      */
     public LocationBuilder setAncestorIds(String hierarchyPath) {
-        if (hierarchyPath == null) {
-            ancestorIds = Collections.emptyList();
-        } else {
+        if (hierarchyPath != null) {
             ancestorIds = CollectionHelper.newArrayList();
             String[] splitPath = hierarchyPath.split("/");
             for (int i = splitPath.length - 1; i >= 0; i--) {
