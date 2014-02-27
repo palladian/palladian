@@ -96,6 +96,7 @@ public final class ClassifierEvaluation {
 
     public static <M extends Model> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier, M model,
             Iterable<? extends Trainable> testData, String correctClass) {
+        Validate.isTrue(model.getCategories().size() == 2, "binary model required");
 
         ThresholdAnalyzer thresholdAnalyzer = new ThresholdAnalyzer(100);
 
