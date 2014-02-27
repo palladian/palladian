@@ -1,8 +1,12 @@
 package ws.palladian.helper.math;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Iterator;
+import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
+
+import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.Bag;
 
 /**
@@ -17,7 +21,60 @@ import ws.palladian.helper.collection.Bag;
  * @see <a href="http://en.wikipedia.org/wiki/Precision_and_recall">Precision and recall</a>
  * @see <a href="http://en.wikipedia.org/wiki/F1_score">F1 score</a>
  */
-public class ThresholdAnalyzer {
+public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEntry> {
+
+    /**
+     * An entry for a specific threshold supplying precision, recall and f-measure.
+     * 
+     * @author pk
+     */
+    public static final class ThresholdEntry {
+
+        /** Length in characters for the printed bar visualizing the F1 measure. */
+        private static final int F1_BAR_LENGTH = 50;
+
+        private final double t;
+        private final double pr;
+        private final double rc;
+
+        ThresholdEntry(double t, double pr, double rc) {
+            this.t = t;
+            this.pr = pr;
+            this.rc = rc;
+        }
+        
+        public double getThreshold() {
+            return t;
+        }
+        
+        public double getPrecision() {
+            return pr;
+        }
+        
+        public double getRecall() {
+            return rc;
+        }
+
+        public double getF1() {
+            return 2 * pr * rc / (pr + rc);
+        }
+
+        @Override
+        public String toString() {
+            return internalToString("threshold=%s: pr=%s, rc=%s, f1=%s");
+        }
+
+        private String internalToString(String format) {
+            NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+            return String.format(format, numberFormat.format(t), numberFormat.format(pr), numberFormat.format(rc),
+                    numberFormat.format(getF1()), makeBar(getF1()));
+        }
+
+        private String makeBar(double f1) {
+            return StringUtils.repeat('*', (int)Math.round(F1_BAR_LENGTH * f1));
+        }
+
+    }
 
     private final int numBins;
 
@@ -60,11 +117,11 @@ public class ThresholdAnalyzer {
      * 
      * @param threshold The threshold for which to get the precision, must be in range [0,1].
      * @return The precision at the specified threshold.
+     * @deprecated Use {@link #getEntry(double)}.
      */
+    @Deprecated
     public double getPrecision(double threshold) {
-        int numRelevantRetrieved = getTruePositiveAt(threshold);
-        int numRetrieved = getRetrievedAt(threshold);
-        return (double)numRelevantRetrieved / numRetrieved;
+        return getEntry(threshold).pr;
     }
 
     /**
@@ -74,10 +131,11 @@ public class ThresholdAnalyzer {
      * 
      * @param threshold The threshold for which to get the recall, must be in range [0,1].
      * @return The recall at the specified threshold.
+     * @deprecated Use {@link #getEntry(double)}.
      */
+    @Deprecated
     public double getRecall(double threshold) {
-        int numRelevantRetrieved = getTruePositiveAt(threshold);
-        return (double)numRelevantRetrieved / relevantItems;
+        return getEntry(threshold).rc;
     }
 
     /**
@@ -87,11 +145,50 @@ public class ThresholdAnalyzer {
      * 
      * @param threshold The threshold for which to get the F1, must be in range [0,1].
      * @return The F1 at the specified threshold.
+     * @deprecated Use {@link #getEntry(double)}.
      */
+    @Deprecated
     public double getF1(double threshold) {
         double pr = getPrecision(threshold);
         double rc = getRecall(threshold);
         return 2 * pr * rc / (pr + rc);
+    }
+
+    @Override
+    public Iterator<ThresholdEntry> iterator() {
+        return new AbstractIterator<ThresholdEntry>() {
+            // start in the bin, where we actually have entries (everything below gives same values as here).
+            int bin = Math.min(truePositiveItems.getMin().getKey(), retrievedItems.getMin().getKey());
+
+            @Override
+            protected ThresholdEntry getNext() throws Finished {
+                double threshold = (double)bin++ / numBins;
+                if (threshold > 1) {
+                    throw new Finished();
+                }
+                ThresholdEntry entry = getEntry(threshold);
+                if (entry.rc == 0) { // no more useful information from here, stop.
+                    throw new Finished();
+                }
+                return entry;
+            }
+        };
+    }
+
+    /**
+     * <p>
+     * Get a threshold entry supplying precision, recall and F1 measure for the specified threshold.
+     * </p>
+     * 
+     * @param threshold The threshold for which to get the entry, must be in range [0,1].
+     * @return The threshold entry for the specified threshold.
+     */
+    public ThresholdEntry getEntry(double threshold) {
+        int numRelevantRetrieved = getTruePositiveAt(threshold);
+        int numRetrieved = getRetrievedAt(threshold);
+        double pr = (double)numRelevantRetrieved / numRetrieved;
+        double rc = (double)numRelevantRetrieved / relevantItems;
+        return new ThresholdEntry(threshold, pr, rc);
     }
 
     /**
@@ -100,18 +197,39 @@ public class ThresholdAnalyzer {
      * </p>
      * 
      * @return The maximum F1 value.
+     * @deprecated Use {@link #getMaxF1Entry()} instead.
      */
+    @Deprecated
     public double getMaxF1() {
-        double maxF1 = 0;
-        for (int i = 0; i <= numBins; i++) {
-            double threshold = (double)i / numBins;
-            double f1 = getF1(threshold);
-            if (Double.isNaN(f1)) {
-                continue;
+//        double maxF1 = 0;
+//        for (int i = 0; i <= numBins; i++) {
+//            double threshold = (double)i / numBins;
+//            double f1 = getF1(threshold);
+//            if (Double.isNaN(f1)) {
+//                continue;
+//            }
+//            maxF1 = Math.max(maxF1, f1);
+//        }
+//        return maxF1;
+        ThresholdEntry maxF1Entry = getMaxF1Entry();
+        return maxF1Entry != null ? maxF1Entry.getF1() : 0;
+    }
+
+    /**
+     * <p>
+     * Get the threshold entry, for which a maximum F1 value is achieved.
+     * </p>
+     * 
+     * @return ThresholdEntry with maximum F1 value.
+     */
+    public ThresholdEntry getMaxF1Entry() {
+        ThresholdEntry entry = null;
+        for (ThresholdEntry currentEntry : this) {
+            if (entry == null || entry.getF1() < currentEntry.getF1()) {
+                entry = currentEntry;
             }
-            maxF1 = Math.max(maxF1, f1);
         }
-        return maxF1;
+        return entry;
     }
 
     /**
@@ -161,23 +279,14 @@ public class ThresholdAnalyzer {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        NumberFormat format = new DecimalFormat("#0.00");
-        sb.append("t\tpr\trc\tf1\n");
-        for (int i = 0; i <= numBins; i++) {
-            double threshold = (double)i / numBins;
-            double pr = getPrecision(threshold);
-            double rc = getRecall(threshold);
-            if (rc == 0) {
-                // no more useful information from here, stop.
-                break;
-            }
-            double f1 = getF1(threshold);
-            sb.append(format.format(threshold)).append('\t');
-            sb.append(format.format(pr)).append('\t');
-            sb.append(format.format(rc)).append('\t');
-            sb.append(format.format(f1)).append('\n');
+        sb.append("t\tPr\tRc\tF1\n");
+        for (ThresholdEntry entry : this) {
+            sb.append(entry.internalToString("%s\t%s\t%s\t%s\t%s\n"));
         }
-        sb.append('\n').append("Maximum f1: ").append(getMaxF1());
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        ThresholdEntry maxF1Entry = getMaxF1Entry();
+        sb.append('\n').append("Max. F1=").append(numberFormat.format(maxF1Entry.getF1())).append("@t=")
+                .append(numberFormat.format(maxF1Entry.getThreshold()));
         return sb.toString();
     }
 
