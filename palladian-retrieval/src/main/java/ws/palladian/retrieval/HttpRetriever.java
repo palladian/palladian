@@ -162,7 +162,11 @@ public class HttpRetriever {
     /** Hook for http* methods. */
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
+    /** Any of these status codes will cause a removal of the used proxy. */
     private Set<Integer> proxyRemoveStatusCodes = CollectionHelper.newHashSet();
+
+    /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
+    private ProxyRemoverCallback proxyRemoveCallback = null;
 
     // ////////////////////////////////////////////////////////////////
     // constructor
@@ -528,9 +532,11 @@ public class HttpRetriever {
 
             addDownload(receivedBytes);
 
-            if (proxyRemoveStatusCodes.contains(statusCode)) {
+            if (proxyRemoveStatusCodes.contains(statusCode)
+                    || (proxyRemoveCallback != null && proxyRemoveCallback.shouldRemove(result))) {
                 proxyProvider.removeProxy(proxyUsed, statusCode);
-            }else {
+                throw new HttpException("invalid result, remove proxy: " + proxyUsed + ", URL: " + url);
+            } else {
                 proxyProvider.promoteProxy(proxyUsed);
             }
 
@@ -829,6 +835,14 @@ public class HttpRetriever {
 
     public void setProxyRemoveStatusCodes(Set<Integer> proxyRemoveStatusCodes) {
         this.proxyRemoveStatusCodes = proxyRemoveStatusCodes;
+    }
+
+    public ProxyRemoverCallback getProxyRemoveCallback() {
+        return proxyRemoveCallback;
+    }
+
+    public void setProxyRemoveCallback(ProxyRemoverCallback proxyRemoveCallback) {
+        this.proxyRemoveCallback = proxyRemoveCallback;
     }
 
 }
