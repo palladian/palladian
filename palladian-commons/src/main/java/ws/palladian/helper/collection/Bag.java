@@ -231,7 +231,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     }
 
     /**
-     * @return An iterator over the (unique) items in this Bag.
+     * @return A set with (unique) items in this Bag.
      */
     public Set<T> uniqueItems() {
         return map.keySet();

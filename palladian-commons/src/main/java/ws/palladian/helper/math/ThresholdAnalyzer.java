@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -158,7 +159,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
     public Iterator<ThresholdEntry> iterator() {
         return new AbstractIterator<ThresholdEntry>() {
             // start in the bin, where we actually have entries (everything below gives same values as here).
-            int bin = Math.min(truePositiveItems.getMin().getKey(), retrievedItems.getMin().getKey());
+            int bin = Collections.min(retrievedItems.uniqueItems());
 
             @Override
             protected ThresholdEntry getNext() throws Finished {
