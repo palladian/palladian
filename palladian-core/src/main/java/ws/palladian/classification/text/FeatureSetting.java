@@ -139,7 +139,7 @@ public class FeatureSetting implements Serializable {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("FeatureSetting [");
-        builder.append("featureType=").append(textFeatureType).append(", ");
+        builder.append(textFeatureType).append(", ");
         builder.append("nGramLength=").append(minNGramLength);
         if (maxNGramLength > minNGramLength) {
             builder.append("...").append(maxNGramLength);
