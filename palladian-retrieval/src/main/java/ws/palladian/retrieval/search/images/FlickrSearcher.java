@@ -143,6 +143,31 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         }
     }
 
+    public static enum OrderBy implements Facet {
+
+        DATE_POSTED_ASC("date-posted-asc"), //
+        DATE_POSTED_DESC("date-posted-desc"), //
+        DATE_TAKEN_ASC("date-taken-asc"), //
+        DATE_TAKEN_DESC("date-taken-desc"), //
+        INTERESTINGNESS_DESC("interestingness-desc"), //
+        INTERESTINGNESS_ASC("interestingness-asc"), //
+        RELEVANCE("relevance"); //
+
+        private static final String ORDER_BY_IDENTIFIER = "flickr.order";
+
+        private final String orderByValue;
+
+        OrderBy(String orderByValue) {
+            this.orderByValue = orderByValue;
+        }
+
+        @Override
+        public String getIdentifier() {
+            return ORDER_BY_IDENTIFIER;
+        }
+
+    }
+
     /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.flickr.key";
 
@@ -367,6 +392,11 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                 if (licensesFacet.licenses.size() > 0) {
                     urlBuilder.append("&license=").append(licensesFacet.getLicensesString());
                 }
+            }
+            facet = query.getFacet(OrderBy.ORDER_BY_IDENTIFIER);
+            if (facet != null) {
+                OrderBy orderByFacet = (OrderBy)facet;
+                urlBuilder.append("&sort=").append(orderByFacet.orderByValue);
             }
             urlBuilder.append("&per_page=").append(perPage);
             urlBuilder.append("&page=").append(page);
