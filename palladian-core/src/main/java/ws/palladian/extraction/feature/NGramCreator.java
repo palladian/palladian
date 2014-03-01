@@ -1,6 +1,8 @@
 package ws.palladian.extraction.feature;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -32,6 +34,8 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
     private final int minLength;
     private final int maxLength;
     private final String[] considerableFeatureDescriptors;
+    private final boolean unique;
+    private final int limit;
 
     /**
      * <p>
@@ -70,17 +74,56 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
         this.minLength = minLength;
         this.maxLength = maxLength;
         this.considerableFeatureDescriptors = considerableFeatureDescriptors;
+        this.unique = false;
+        this.limit = Integer.MAX_VALUE;
+    }
+
+    /**
+     * <p>
+     * Create a new {@link NGramCreator} which calculates [minLength, maxLength]-grams.
+     * </p>
+     * 
+     * @param minLength The minimal length of the n-gram.
+     * @param maxLength The maximal length of the n-gram.
+     * @param unique <code>true</code> to skip duplicate values, <code>false</code> to keep duplicates.
+     * @param limit Limit the number of created annotations to the specified count.
+     * @param considerableFeatureDescriptors
+     */
+    public NGramCreator(int minLength, int maxLength, boolean unique, int limit,
+            String... considerableFeatureDescriptors) {
+        this.minLength = minLength;
+        this.maxLength = maxLength;
+        this.unique = unique;
+        this.limit = limit;
+        this.considerableFeatureDescriptors = considerableFeatureDescriptors;
     }
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         ListFeature<PositionAnnotation> annotations = BaseTokenizer.getTokenAnnotations(document);
-        List<PositionAnnotation> gramTokens = CollectionHelper.newArrayList();
-        for (int i = minLength; i <= maxLength; i++) {
-            List<PositionAnnotation> nGramTokens = createNGrams(document, annotations, i);
-            gramTokens.addAll(nGramTokens);
+        if (annotations.size() < limit) {
+            for (int i = minLength; i <= maxLength; i++) {
+                List<PositionAnnotation> nGramTokens = createNGrams(document, annotations, i);
+                annotations.addAll(nGramTokens);
+                if (annotations.size() >= limit) {
+                    break;
+                }
+            }
         }
-        annotations.addAll(gramTokens);
+        if (unique) {
+            List<PositionAnnotation> temp = CollectionHelper.newArrayList();
+            Set<String> deduplication = CollectionHelper.newHashSet();
+            for (PositionAnnotation ann : annotations) {
+                if (deduplication.add(ann.getValue())) {
+                    temp.add(ann);
+                }
+            }
+            annotations.clear();
+            annotations.addAll(temp);
+        }
+        if (annotations.size() >= limit) {
+            annotations.retainAll(new ArrayList<PositionAnnotation>(annotations.subList(0, limit)));
+        }
     }
 
     /**

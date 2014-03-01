@@ -44,7 +44,8 @@ public class PreprocessingPipeline extends ProcessingPipeline {
                     featureSetting.getMaxTerms()));
         } else {
             connectToPreviousProcessor(new RegExTokenizer());
-            connectToPreviousProcessor(new NGramCreator(minNGramLength, maxNGramLength));
+            connectToPreviousProcessor(new NGramCreator(minNGramLength, maxNGramLength, true,
+                    featureSetting.getMaxTerms()));
         }
 
         if (featureSetting.isWordUnigrams()) {
@@ -55,32 +56,7 @@ public class PreprocessingPipeline extends ProcessingPipeline {
 
         connectToPreviousProcessor(new DuplicateTokenRemover());
         connectToPreviousProcessor(new UnwantedTokenRemover());
-        // connectToPreviousProcessor(new TokenLimiter(featureSetting.getMaxTerms()));
     }
-
-    //    /** This PipelineProcessor limits the number of tokens to a specified count. */
-    //    private static final class TokenLimiter extends TextDocumentPipelineProcessor {
-    //        private final int maxTokens;
-    //
-    //        private TokenLimiter(int maxTokens) {
-    //            this.maxTokens = maxTokens;
-    //        }
-    //
-    //        @Override
-    //        public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-    //            List<PositionAnnotation> terms = CollectionHelper.newArrayList(BaseTokenizer.getTokenAnnotations(document));
-    //
-    //            if (terms.size() > maxTokens) {
-    //                // sort by occurrence positions
-    //                Collections.sort(terms);
-    //
-    //                terms = CollectionHelper.newArrayList(terms.subList(0, maxTokens));
-    //
-    //                document.getFeatureVector().removeAll(BaseTokenizer.PROVIDED_FEATURE);
-    //                document.getFeatureVector().addAll(terms);
-    //            }
-    //        }
-    //    }
 
     /** This PipelineProcessor removes undesired tokens. */
     private static final class UnwantedTokenRemover extends AbstractTokenRemover {
