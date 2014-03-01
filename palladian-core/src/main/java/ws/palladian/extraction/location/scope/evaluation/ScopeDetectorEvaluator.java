@@ -97,7 +97,8 @@ public class ScopeDetectorEvaluator {
         int misses = 0;
         StringBuilder detailedResultsBuilder = new StringBuilder();
         detailedResultsBuilder.append(documentIterator).append('\n');
-        detailedResultsBuilder.append(scopeDetector.getClass().getSimpleName()).append("\n\n\n");
+        detailedResultsBuilder.append(scopeDetector.getClass().getSimpleName()).append('\n');
+        detailedResultsBuilder.append(scopeDetector).append("\n\n\n");
         detailedResultsBuilder.append("document;expected;actual;error\n");
 
         for (LocationDocument document : documentIterator) {
