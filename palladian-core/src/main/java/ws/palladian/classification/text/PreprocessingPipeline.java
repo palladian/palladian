@@ -7,7 +7,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.extraction.feature.AbstractTokenRemover;
 import ws.palladian.extraction.feature.CharNGramCreator;
-import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.LowerCaser;
 import ws.palladian.extraction.feature.NGramCreator;
@@ -54,7 +53,6 @@ public class PreprocessingPipeline extends ProcessingPipeline {
             connectToPreviousProcessor(new LengthTokenRemover(minTermLength, maxTermLength));
         }
 
-        connectToPreviousProcessor(new DuplicateTokenRemover());
         connectToPreviousProcessor(new UnwantedTokenRemover());
     }
 
