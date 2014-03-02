@@ -177,4 +177,22 @@ public class GeoUtilsTest {
         assertEquals(1, clusters.size());
     }
 
+    @Test
+    public void testNormalizeLatitude() {
+        assertEquals(-90, GeoUtils.normalizeLatitude(-90), 0);
+        assertEquals(90, GeoUtils.normalizeLatitude(90), 0);
+        assertEquals(45, GeoUtils.normalizeLatitude(45), 0);
+        assertEquals(90, GeoUtils.normalizeLatitude(95), 0);
+        assertEquals(-90, GeoUtils.normalizeLatitude(-95), 0);
+    }
+
+    @Test
+    public void testNormalizeLongitude() {
+        assertEquals(-180, GeoUtils.normalizeLongitude(-180), 0);
+        assertEquals(180, GeoUtils.normalizeLongitude(180), 0);
+        assertEquals(0, GeoUtils.normalizeLongitude(0), 0);
+        assertEquals(-175, GeoUtils.normalizeLongitude(185), 0);
+        assertEquals(175, GeoUtils.normalizeLongitude(-185), 0);
+    }
+
 }
