@@ -175,13 +175,6 @@ public final class GeoUtils {
     }
 
     /**
-     * Normalize a longitude value to an interval -180 ... 180°.
-     */
-    public static double normalizeLongitude(double lng) {
-        return (lng + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
-    }
-
-    /**
      * <p>
      * Convert a DMS coordinate (degrees, minutes, seconds) to decimal degree.
      * </p>
@@ -295,6 +288,43 @@ public final class GeoUtils {
             }
             coordinateQueue.removeAll(currentCluster);
             result.add(currentCluster);
+        }
+        return result;
+    }
+
+    /**
+     * <p>
+     * Normalizes a latitude value to a range of [-90 .. 90] capping it to the bounds, if necessary.
+     * </p>
+     * 
+     * @param lat The latitude value to normalize.
+     * @return A latitude in the range of [-90 ... 90].
+     */
+    public static double normalizeLatitude(double lat) {
+        if (lat > 90) {
+            return 90;
+        }
+        if (lat < -90) {
+            return -90;
+        }
+        return lat;
+    }
+
+    /**
+     * <p>
+     * Normalizes a longitude value to a range of [-180 .. 180] by wrapping it, if necessary.
+     * </p>
+     * 
+     * @param lng The longitude value to normalize.
+     * @return A latitude in the range of [-180 ... 180].
+     */
+    public static double normalizeLongitude(double lng) {
+        double result = lng;
+        while (result < -180) {
+            result += 360;
+        }
+        while (result > 180) {
+            result -= 360;
         }
         return result;
     }

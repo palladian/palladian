@@ -23,13 +23,13 @@ import org.apache.commons.lang3.Validate;
  * @author pk
  */
 public abstract class AbstractGeoCoordinate implements GeoCoordinate {
-    
+
     /** Constant for formatting degrees. */
     private static final char DEGREES = '°';
-    
+
     /** Constant for formatting minutes. */
     private static final char MINUTES = '′';
-    
+
     /** Constant for formatting seconds. */
     private static final char SECONDS = '″';
 
@@ -130,7 +130,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         double long2 = getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.04);
         return new double[] {lat1, long1, lat2, long2};
     }
-    
+
     @Override
     public GeoCoordinate getCoordinate(double distance, double bearing) {
         Validate.isTrue(distance >= 0, "distance must be greater/equal zero");
@@ -143,8 +143,15 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         double resultLngRad = lngRad
                 + atan2(sin(bearingRad) * sin(d) * cos(latRad), cos(d) - sin(latRad) * sin(resultLatRad));
         double resultLat = toDegrees(resultLatRad);
-        double resultLng = toDegrees(GeoUtils.normalizeLongitude(resultLngRad));
+        double resultLng = toDegrees(normalizeLongitude(resultLngRad));
         return new ImmutableGeoCoordinate(resultLat, resultLng);
+    }
+
+    /**
+     * Normalize a longitude value to an interval -180 ... 180°.
+     */
+    private static double normalizeLongitude(double lng) {
+        return (lng + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
     }
 
     @Override
