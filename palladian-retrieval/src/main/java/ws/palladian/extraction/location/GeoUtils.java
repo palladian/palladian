@@ -175,13 +175,6 @@ public final class GeoUtils {
     }
 
     /**
-     * Normalize a longitude value to an interval -180 ... 180°.
-     */
-    public static double normalizeLongitude(double lng) {
-        return (lng + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
-    }
-
-    /**
      * <p>
      * Convert a DMS coordinate (degrees, minutes, seconds) to decimal degree.
      * </p>
