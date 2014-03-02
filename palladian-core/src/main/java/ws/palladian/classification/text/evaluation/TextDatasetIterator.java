@@ -19,6 +19,7 @@ import ws.palladian.processing.Trainable;
  */
 public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
 
+    private final String name;
     private final List<String> fileLines;
     private final String separationString;
     private final boolean isFirstFieldLink;
@@ -26,6 +27,7 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
 
     public TextDatasetIterator(Dataset dataset) {
         Validate.notNull(dataset, "dataset must not be null");
+        this.name = dataset.getName();
         this.fileLines = FileHelper.readFileToArray(dataset.getPath());
         this.separationString = dataset.getSeparationString();
         this.isFirstFieldLink = dataset.isFirstFieldLink();
@@ -39,14 +41,14 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
         this.separationString = separator;
         this.isFirstFieldLink = firstFieldLink;
         this.datasetRootPath = FileHelper.getFilePath(filePath);
+        this.name = FileHelper.getFileName(datasetRootPath);
     }
 
     @Override
     public Iterator<ClassifiedTextDocument> iterator() {
         final Iterator<String> lineIterator = fileLines.iterator();
         final int totalLines = fileLines.size();
-        final ProgressMonitor progressMonitor = new ProgressMonitor(totalLines, 1, "Dataset: "
-                + FileHelper.getFileName(datasetRootPath));
+        final ProgressMonitor progressMonitor = new ProgressMonitor(totalLines, 1, "Dataset: " + name);
 
         return new Iterator<ClassifiedTextDocument>() {
 
