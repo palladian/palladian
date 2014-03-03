@@ -399,9 +399,19 @@ public final class WikipediaUtil {
      */
     private static final boolean isBracketBalanced(String markup) {
         // check the balance of bracket-like characters
-        int open = markup.replace("{{", "").replace("[", "").replace("<", "").length();
-        int close = markup.replace("}}", "").replace("]", "").replace(">", "").length();
-        return open - close == 0;
+//        int open = markup.replace("{{", "").replace("[", "").replace("<", "").length();
+//        int close = markup.replace("}}", "").replace("]", "").replace(">", "").length();
+//        return open - close == 0;
+        if (StringHelper.countOccurrences(markup, "{{") != StringHelper.countOccurrences(markup, "}}")) {
+            return false;
+        }
+        if (StringHelper.countOccurrences(markup, "[") != StringHelper.countOccurrences(markup, "]")) {
+            return false;
+        }
+        if (StringHelper.countOccurrences(markup, "<") != StringHelper.countOccurrences(markup, ">")) {
+            return false;
+        }
+        return true;
     }
 
     private static final boolean isTagBalanced(String markup) {

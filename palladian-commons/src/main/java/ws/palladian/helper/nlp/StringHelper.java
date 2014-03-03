@@ -1516,7 +1516,12 @@ public final class StringHelper {
         if (text == null || search == null || text.isEmpty() || search.isEmpty()) {
             return 0;
         }
-        return (text.length() - text.replace(search, "").length()) / search.length();
+        // return (text.length() - text.replace(search, "").length()) / search.length();
+        int count = 0;
+        for (int i = text.indexOf(search); i != -1; i = text.indexOf(search, i + search.length())) {
+            count++;
+        }
+        return count;
     }
 
     /**
