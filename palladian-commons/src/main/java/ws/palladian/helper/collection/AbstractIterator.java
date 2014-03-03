@@ -14,6 +14,9 @@ import java.util.NoSuchElementException;
  */
 public abstract class AbstractIterator<E> implements Iterator<E> {
 
+    /** Constant, for the exception thrown, when iteration has no more elements. */
+    public static final Finished FINISHED = new Finished();
+
     /**
      * Thrown, when the iteration has no more elements (this exception is only used internally and is not re-thrown).
      * 
@@ -21,6 +24,11 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
      */
     @SuppressWarnings("serial")
     protected static final class Finished extends Exception {
+        /**
+         * @deprecated Refrain from instantiating this class (creating exceptions is expensive), use the predefined
+         *             {@link AbstractIterator#FINISHED} instead.
+         */
+        @Deprecated
         public Finished() {
             // no op.
         }
@@ -72,7 +80,8 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
      * </p>
      * 
      * @return The next element (may also be <code>null</code> in case one iterates over <code>null</code> items).
-     * @throws Finished Thrown when iteration ended and there are no more elements.
+     * @throws Finished Thrown when iteration ended and there are no more elements (use
+     *             {@link AbstractIterator#FINISHED}).
      */
     protected abstract E getNext() throws Finished;
 
