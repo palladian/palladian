@@ -8,13 +8,9 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Model;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMatrix;
-import ws.palladian.helper.collection.CountMatrix.IntegerMatrixVector;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -26,13 +22,13 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  */
 public final class DictionaryModel implements Model {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     /** The optional name of the model. */
     private String name = "NONAME";
 
     /** Term-category combinations with their counts. */
-    private final CountMatrix<String> termCategories = CountMatrix.create();
+    private final Map<String, CountingCategoryEntries> countingCategoryEntries = CollectionHelper.newHashMap();
 
     /** Categories with their counts. */
     private final Bag<String> categories = Bag.create();
@@ -60,60 +56,39 @@ public final class DictionaryModel implements Model {
     }
 
     public void updateTerm(String term, String category) {
-        termCategories.add(category, new String(term));
-    }
-
-    @Deprecated
-    public CategoryEntries getCategoryEntries(String term) {
-        CategoryEntriesMap categoryFrequencies = new CategoryEntriesMap();
-        IntegerMatrixVector<String> row = termCategories.getRow(term);
-        if (row != null) {
-            int sum = row.getSum();
-            for (VectorEntry<String, Integer> entry : row) {
-                categoryFrequencies.set(entry.key(), (double)entry.value() / sum);
-            }
+        CountingCategoryEntries counts = countingCategoryEntries.get(term);
+        if (counts == null) {
+            countingCategoryEntries.put(new String(term), new CountingCategoryEntries(category));
+        } else {
+            counts.increment(category);
         }
-        return categoryFrequencies;
     }
 
-    /**
-     * Get a vector denoting, how often the given term occurs in each category observed during training.
-     * 
-     * @param term The term for which to retrieve the counts.
-     * @return A vector.
-     */
-    public IntegerMatrixVector<String> getCategoryCounts(String term) {
-        return termCategories.getRow(term);
+    public CategoryEntries getCategoryEntries(String term) {
+        CountingCategoryEntries result = countingCategoryEntries.get(term);
+        return result != null ? result : CountingCategoryEntries.EMPTY;
     }
-
-//    public int getTermCount(String term) {
-//        return termCategories.getRow(term).getSum();
-//    }
 
     public int getNumTerms() {
-        return termCategories.rowCount();
+        return countingCategoryEntries.size();
     }
 
     public int getNumCategories() {
-        return termCategories.columnCount();
+        return getCategories().size();
     }
 
     @Override
     public Set<String> getCategories() {
-        return termCategories.getColumnKeys();
+        return categories.uniqueItems();
     }
 
     public Set<String> getTerms() {
-        return termCategories.getRowKeys();
+        return countingCategoryEntries.keySet();
     }
 
     public void addCategory(String catgegory) {
         categories.add(catgegory);
     }
-
-//    public double getPrior(String category) {
-//        return (double)categories.count(category) / categories.size();
-//    }
 
     public Map<String, Double> getPriors() {
         Map<String, Double> result = CollectionHelper.newHashMap();
@@ -133,14 +108,12 @@ public final class DictionaryModel implements Model {
      * @param printStream
      */
     public void toCsv(PrintStream printStream) {
-
         // create the file head
         printStream.print("Term,");
         printStream.print(StringUtils.join(categories, ","));
         printStream.print("\n");
-
         // one word per line with term frequencies per category
-        for (String term : termCategories.getRowKeys()) {
+        for (String term : countingCategoryEntries.keySet()) {
             printStream.print(term);
             printStream.print(",");
             // get word frequency for each category and current term
@@ -153,11 +126,7 @@ public final class DictionaryModel implements Model {
                 } else {
                     first = false;
                 }
-                if (probability == null) {
-                    printStream.print("0.0");
-                } else {
-                    printStream.print(probability);
-                }
+                printStream.print(probability != null ? probability : "0.0");
             }
             printStream.print("\n");
         }
@@ -166,11 +135,6 @@ public final class DictionaryModel implements Model {
 
     @Override
     public String toString() {
-
-        // ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        // toCsv(new PrintStream(stream));
-        // return stream.toString();
-
         StringBuilder builder = new StringBuilder();
         builder.append("DictionaryModel [featureSetting=");
         builder.append(featureSetting);

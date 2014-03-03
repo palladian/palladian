@@ -1,12 +1,11 @@
 package ws.palladian.classification.text;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.helper.collection.CountMatrix.IntegerMatrixVector;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
@@ -82,11 +81,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
         if (annotations != null) {
             for (PositionAnnotation annotation : annotations) {
-                IntegerMatrixVector<String> categoryVector = model.getCategoryCounts(annotation.getValue());
-                int sum = categoryVector.getSum();
-                for (VectorEntry<String, Integer> entry : categoryVector) {
-                    double frequency = (double)entry.value() / sum;
-                    builder.add(entry.key(), frequency * frequency);
+                CategoryEntries categoryVector = model.getCategoryEntries(annotation.getValue());
+                for (Category category : categoryVector) {
+                    double frequency = category.getProbability();
+                    builder.add(category.getName(), frequency * frequency);
                 }
             }
         }
