@@ -19,7 +19,7 @@ public class MatrixTest {
         test(new PairMatrix<Integer, Integer>());
     }
 
-    private void test(Matrix<Integer, Integer> matrix) {
+    private static void test(Matrix<Integer, Integer> matrix) {
         matrix.set(0, 0, 1);
         matrix.set(0, 1, 2);
         matrix.set(0, 2, 5);

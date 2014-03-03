@@ -1,7 +1,6 @@
 package ws.palladian.helper.collection;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -44,9 +43,10 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
     @Override
     public MatrixVector<K, V> getRow(K y) {
         Map<K, V> row = CollectionHelper.newHashMap();
-        for (Entry<Pair<K, K>, V> entry : matrixMap.entrySet()) {
-            if (entry.getKey().getRight().equals(y)) {
-                row.put(entry.getKey().getLeft(), entry.getValue());
+        for (K x : keysX) {
+            V entry = matrixMap.get(Pair.of(x, y));
+            if (entry != null) {
+                row.put(x, entry);
             }
         }
         return row.size() > 0 ? new MapMatrixVector<K, V>(y, row) : null;
@@ -55,9 +55,10 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
     @Override
     public MatrixVector<K, V> getColumn(K x) {
         Map<K, V> column = CollectionHelper.newHashMap();
-        for (Entry<Pair<K, K>, V> entry : matrixMap.entrySet()) {
-            if (entry.getKey().getLeft().equals(x)) {
-                column.put(entry.getKey().getRight(), entry.getValue());
+        for (K y : keysY) {
+            V entry = matrixMap.get(Pair.of(x, y));
+            if (entry != null) {
+                column.put(y, entry);
             }
         }
         return column.size() > 0 ? new MapMatrixVector<K, V>(x, column) : null;
