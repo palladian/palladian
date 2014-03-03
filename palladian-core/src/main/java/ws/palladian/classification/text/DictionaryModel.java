@@ -2,14 +2,13 @@ package ws.palladian.classification.text;
 
 import java.io.PrintStream;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Model;
-import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -28,10 +27,10 @@ public final class DictionaryModel implements Model {
     private String name = "NONAME";
 
     /** Term-category combinations with their counts. */
-    private final Map<String, CountingCategoryEntries> countingCategoryEntries = CollectionHelper.newHashMap();
+    private final Map<String, CountingCategoryEntries> termCategories = CollectionHelper.newHashMap();
 
     /** Categories with their counts. */
-    private final Bag<String> categories = Bag.create();
+    private final CountingCategoryEntries priors = new CountingCategoryEntries();
 
     /** Configuration for the feature extraction. */
     private final FeatureSetting featureSetting;
@@ -56,21 +55,21 @@ public final class DictionaryModel implements Model {
     }
 
     public void updateTerm(String term, String category) {
-        CountingCategoryEntries counts = countingCategoryEntries.get(term);
+        CountingCategoryEntries counts = termCategories.get(term);
         if (counts == null) {
-            countingCategoryEntries.put(new String(term), new CountingCategoryEntries(category));
+            termCategories.put(new String(term), new CountingCategoryEntries(category));
         } else {
             counts.increment(category);
         }
     }
 
     public CategoryEntries getCategoryEntries(String term) {
-        CountingCategoryEntries result = countingCategoryEntries.get(term);
+        CountingCategoryEntries result = termCategories.get(term);
         return result != null ? result : CountingCategoryEntries.EMPTY;
     }
 
     public int getNumTerms() {
-        return countingCategoryEntries.size();
+        return termCategories.size();
     }
 
     public int getNumCategories() {
@@ -79,24 +78,23 @@ public final class DictionaryModel implements Model {
 
     @Override
     public Set<String> getCategories() {
-        return categories.uniqueItems();
+        Set<String> categories = CollectionHelper.newHashSet();
+        for (Category category : priors) {
+            categories.add(category.getName());
+        }
+        return categories;
     }
 
     public Set<String> getTerms() {
-        return countingCategoryEntries.keySet();
+        return termCategories.keySet();
     }
 
-    public void addCategory(String catgegory) {
-        categories.add(catgegory);
+    public void addCategory(String category) {
+        priors.increment(category);
     }
-
-    public Map<String, Double> getPriors() {
-        Map<String, Double> result = CollectionHelper.newHashMap();
-        int sum = categories.size();
-        for (Entry<String, Integer> category : categories.unique()) {
-            result.put(category.getKey(), (double)category.getValue() / sum);
-        }
-        return result;
+    
+    public CategoryEntries getPriors() {
+        return priors;
     }
 
     /**
@@ -110,16 +108,17 @@ public final class DictionaryModel implements Model {
     public void toCsv(PrintStream printStream) {
         // create the file head
         printStream.print("Term,");
-        printStream.print(StringUtils.join(categories, ","));
+        printStream.print(StringUtils.join(priors, ","));
         printStream.print("\n");
         // one word per line with term frequencies per category
-        for (String term : countingCategoryEntries.keySet()) {
+        Set<String> categories = getCategories();
+        for (String term : termCategories.keySet()) {
             printStream.print(term);
             printStream.print(",");
             // get word frequency for each category and current term
             CategoryEntries frequencies = getCategoryEntries(term);
             boolean first = true;
-            for (String category : categories.uniqueItems()) {
+            for (String category : categories) {
                 Double probability = frequencies.getProbability(category);
                 if (!first) {
                     printStream.print(",");

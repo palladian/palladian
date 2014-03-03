@@ -92,10 +92,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         // If we have a category weight by matching terms from the document, use them to create the probability
         // distribution. Else wise return the prior probability distribution of the categories.
         if (builder.getTotalScore() == 0) {
-            builder = new CategoryEntriesBuilder(model.getPriors());
+            return model.getPriors();
         }
+        
         return builder.create();
-
     }
 
     // XXX ugly -- in case we have text documents and feature settings have been defined, do the preprocessing here

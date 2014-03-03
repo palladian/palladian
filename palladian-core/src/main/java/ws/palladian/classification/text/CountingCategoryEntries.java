@@ -67,7 +67,7 @@ final class CountingCategoryEntries extends AbstractCategoryEntries implements S
         this.totalCount = 1;
     }
 
-    private CountingCategoryEntries() {
+    public CountingCategoryEntries() {
         this.categories = new CountingCategory[0];
         this.totalCount = 0;
     }
