@@ -473,7 +473,7 @@ public final class StringHelper {
             char prevChar = searchString.charAt(index - 1);
             // leftBorder = isPunctuation(prevChar) || Character.isSpaceChar(prevChar) || prevChar == '-' || prevChar ==
             // '(';
-            leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar));
+            leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar) || prevChar == '-');
         }
         boolean rightBorder;
         if (index + word.length() == searchString.length()) {
@@ -482,7 +482,7 @@ public final class StringHelper {
             char nextChar = searchString.charAt(index + word.length());
             // rightBorder = isPunctuation(nextChar) || Character.isSpaceChar(nextChar) || nextChar == '-' || nextChar
             // == ')';
-            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
+            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || nextChar == '-');
         }
 
         if (leftBorder && rightBorder) {
