@@ -50,4 +50,14 @@ public interface CategoryEntries extends Iterable<Category> {
      */
     boolean contains(String category);
 
+    /**
+     * <p>
+     * Get a category by name.
+     * </p>
+     * 
+     * @param category The category name.
+     * @return The category, or <code>null</code> in case the category is not present.
+     */
+    Category getCategory(String categoryName);
+
 }

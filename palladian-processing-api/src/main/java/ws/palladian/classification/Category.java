@@ -12,4 +12,9 @@ public interface Category {
      */
     String getName();
 
+    /**
+     * @return An absolute count of this category, or <code>-1</code> in case this value is not provided.
+     */
+    int getCount();
+
 }

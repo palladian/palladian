@@ -4,17 +4,18 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
-import ws.palladian.helper.math.MathHelper;
 
 /**
  * @author pk
  */
-final class ImmutableCategoryEntries implements CategoryEntries {
+final class ImmutableCategoryEntries extends AbstractCategoryEntries {
 
+    /**
+     * The map must keep entries sorted by probability, so that the first entry has the highest probability; this way,
+     * querying the most probably category is fast.
+     */
     private final Map<String, Double> entryMap;
 
     /**
@@ -28,34 +29,9 @@ final class ImmutableCategoryEntries implements CategoryEntries {
 
     @Override
     public Iterator<Category> iterator() {
-//        Set<String> categories = entryMap.keySet();
-//        return Collections.unmodifiableSet(categories).iterator();
         return CollectionHelper.convert(entryMap.entrySet().iterator(), new ImmutableCategory.EntryConverter());
     }
 
-    @Override
-    public double getProbability(String categoryName) {
-        Validate.notEmpty(categoryName, "categoryName must not be empty");
-        Double result = entryMap.get(categoryName);
-        return result != null ? result : 0;
-    }
-
-    @Override
-    public String getMostLikelyCategory() {
-//        double maxProbability = -1;
-//        String maxName = null;
-//        for (Entry<String, Double> entry : entryMap.entrySet()) {
-//            if (entry.getValue() > maxProbability) {
-//                maxProbability = entry.getValue();
-//                maxName = entry.getKey();
-//            }
-//        }
-//        return maxName;
-        
-        // map entries are sorted already (constructor), so we just need to return the first entry
-        return CollectionHelper.getFirst(entryMap.keySet());
-    }
-    
     @Override
     public Category getMostLikely() {
         Entry<String, Double> entry = CollectionHelper.getFirst(entryMap.entrySet());
@@ -63,52 +39,24 @@ final class ImmutableCategoryEntries implements CategoryEntries {
     }
 
     @Override
-    public boolean contains(String category) {
-        return entryMap.containsKey(category);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder toStringBuilder = new StringBuilder();
-        toStringBuilder.append("CategoryEntries [");
-        boolean first = true;
-        for (Category category : this) {
-            if (first) {
-                first = false;
-            } else {
-                toStringBuilder.append(", ");
-            }
-            toStringBuilder.append(category.getName());
-            toStringBuilder.append("=");
-            toStringBuilder.append(MathHelper.round(category.getProbability(), 4));
-        }
-        toStringBuilder.append("]");
-        return toStringBuilder.toString();
+    public Category getCategory(String categoryName) {
+        Double probability = entryMap.get(categoryName);
+        return probability != null ? new ImmutableCategory(categoryName, probability) : null;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((entryMap == null) ? 0 : entryMap.hashCode());
-        return result;
+        return entryMap.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
+        if (obj == null || getClass() != obj.getClass())
             return false;
         ImmutableCategoryEntries other = (ImmutableCategoryEntries)obj;
-        if (entryMap == null) {
-            if (other.entryMap != null)
-                return false;
-        } else if (!entryMap.equals(other.entryMap))
-            return false;
-        return true;
+        return entryMap.equals(other.entryMap);
     }
 
 }
