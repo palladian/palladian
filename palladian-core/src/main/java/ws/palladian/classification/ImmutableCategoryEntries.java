@@ -1,5 +1,6 @@
 package ws.palladian.classification;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +30,8 @@ final class ImmutableCategoryEntries extends AbstractCategoryEntries {
 
     @Override
     public Iterator<Category> iterator() {
-        return CollectionHelper.convert(entryMap.entrySet().iterator(), new ImmutableCategory.EntryConverter());
+        Iterator<Entry<String, Double>> mapIterator = Collections.unmodifiableMap(entryMap).entrySet().iterator();
+        return CollectionHelper.convert(mapIterator, new ImmutableCategory.EntryConverter());
     }
 
     @Override
