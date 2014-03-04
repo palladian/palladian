@@ -19,6 +19,7 @@ import ws.palladian.retrieval.search.BaseTopsySearcher;
  * @see <a href="http://code.google.com/p/otterapi/">Topsy REST API</a>
  * @see <a href="http://manage.topsy.com/">Topsy API registration</a>
  */
+@Deprecated
 public final class TopsySearcher extends BaseTopsySearcher {
 
     private static final String SEARCHER_NAME = "Topsy";

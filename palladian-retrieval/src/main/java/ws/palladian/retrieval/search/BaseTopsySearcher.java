@@ -16,6 +16,7 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.WebContent;
 
+@Deprecated
 public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
 
     /** The identifier for the API key when provided via {@link Configuration}. */
@@ -107,5 +108,10 @@ public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
      * Subclass performs the parsing for each item in the JSON list.
      */
     protected abstract WebContent parse(JsonObject item) throws JsonException;
+    
+    @Override
+    public boolean isDeprecated() {
+        return true;
+    }
 
 }
