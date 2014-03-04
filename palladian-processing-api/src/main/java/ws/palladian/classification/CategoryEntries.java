@@ -18,9 +18,20 @@ public interface CategoryEntries extends Iterable<Category> {
      * </p>
      * 
      * @param categoryName The category name for which to retrieve the probability, not <code>null</code>.
-     * @return The probability, or 0 if no such entry exists.
+     * @return The probability, or <code>0</code> if no such entry exists.
      */
     double getProbability(String categoryName);
+
+    /**
+     * <p>
+     * Retrieve the count of a category.
+     * </p>
+     * 
+     * @param categoryName The category name for which to retrieve the count, not <code>null</code>.
+     * @return The count, or <code>0</code> if no such entry exists, or <code>-1</code> if the category provides no
+     *         count.
+     */
+    int getCount(String categoryName);
 
     /**
      * <p>
@@ -46,6 +57,7 @@ public interface CategoryEntries extends Iterable<Category> {
      * Check whether a category is present.
      * </p>
      * 
+     * @param category The category name, not <code>null</code>.
      * @return <code>true</code> if the category is present, <code>false</code> otherwise.
      */
     boolean contains(String category);
@@ -55,7 +67,7 @@ public interface CategoryEntries extends Iterable<Category> {
      * Get a category by name.
      * </p>
      * 
-     * @param category The category name.
+     * @param category The category name, not <code>null</code>.
      * @return The category, or <code>null</code> in case the category is not present.
      */
     Category getCategory(String categoryName);

@@ -16,6 +16,13 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
     }
 
     @Override
+    public int getCount(String categoryName) {
+        Validate.notNull(categoryName, "categoryName must not be null");
+        Category category = getCategory(categoryName);
+        return category != null ? category.getCount() : 0;
+    }
+
+    @Override
     public String getMostLikelyCategory() {
         Category mostLikely = getMostLikely();
         return mostLikely != null ? mostLikely.getName() : null;
@@ -34,11 +41,13 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
 
     @Override
     public boolean contains(String category) {
+        Validate.notNull(category, "category must not be null");
         return getCategory(category) != null;
     }
 
     @Override
     public Category getCategory(String categoryName) {
+        Validate.notNull(categoryName, "categoryName must not be null");
         for (Category category : this) {
             if (category.getName().equals(categoryName)) {
                 return category;
