@@ -15,6 +15,7 @@ import ws.palladian.retrieval.search.BaseTopsySearcher;
  * 
  * @author Philipp KAtz
  */
+@Deprecated
 public final class TopsyUrlSearcher extends BaseTopsySearcher {
 
     private static final String SEARCHER_NAME = "Topsy Links";
