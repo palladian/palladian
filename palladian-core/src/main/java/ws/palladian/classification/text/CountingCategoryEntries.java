@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
@@ -19,7 +21,7 @@ import ws.palladian.helper.collection.AbstractIterator;
  * @author pk
  * 
  */
-final class CountingCategoryEntries extends AbstractCategoryEntries implements Serializable {
+class CountingCategoryEntries extends AbstractCategoryEntries implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -56,17 +58,32 @@ final class CountingCategoryEntries extends AbstractCategoryEntries implements S
 
     }
 
-    /** An empty instance of this class (serves as null object). */
-    public static final CountingCategoryEntries EMPTY = new CountingCategoryEntries();
+    /** An empty, unmodifiable instance of this class (serves as null object). */
+    public static final CountingCategoryEntries EMPTY = new CountingCategoryEntries() {
+        private static final long serialVersionUID = 1L;
+
+        public void increment(String category) {
+            throw new UnsupportedOperationException("This instance is read only and cannot be modified.");
+        };
+    };
 
     private CountingCategory[] categories;
     private int totalCount;
 
+    /**
+     * Create a new {@link CountingCategoryEntries} and set the count for the given category to one.
+     * 
+     * @param category The category name.
+     */
     public CountingCategoryEntries(String category) {
+        Validate.notNull(category, "category must not be null");
         this.categories = new CountingCategory[] {new CountingCategory(category)};
         this.totalCount = 1;
     }
 
+    /**
+     * Create a new {@link CountingCategoryEntries}. If you need an empty, unmodifiable instance, use {@link #EMPTY}.
+     */
     public CountingCategoryEntries() {
         this.categories = new CountingCategory[0];
         this.totalCount = 0;
@@ -78,6 +95,7 @@ final class CountingCategoryEntries extends AbstractCategoryEntries implements S
      * @param category the category to increment, not <code>null</code>.
      */
     public void increment(String category) {
+        Validate.notNull(category, "category must not be null");
         totalCount++;
         for (int i = 0; i < categories.length; i++) {
             if (category.equals(categories[i].name)) {
@@ -105,9 +123,7 @@ final class CountingCategoryEntries extends AbstractCategoryEntries implements S
                 if (idx >= categories.length) {
                     throw FINISHED;
                 }
-                CountingCategory category = categories[idx];
-                idx++;
-                return category;
+                return categories[idx++];
             }
         };
     }
