@@ -28,34 +28,15 @@ public abstract class ActionIteratorAdapter<T> {
     /** Size of the transfer queue. */
     private static final int QUEUE_SIZE = 10;
 
-    /** A blocking queue with capacity of one, servers as transfer mechanism between producer and consumer. */
-    private final BlockingQueue<T> transferQueue = new LinkedBlockingQueue<T>(QUEUE_SIZE);
-
     /** State to signal the producer when to stop. */
     private volatile boolean producing = true;
+    
+    /** Count the number of threads, only for debugging purposes. */
+    private int threadCount = 0;
 
     public ActionIteratorAdapter() {
-        new Thread(ActionIteratorAdapter.class.getSimpleName() + "-ProducerThread") {
-            @SuppressWarnings("unchecked")
-            @Override
-            public void run() {
-                try {
-                    produce(new QueueAction());
-                } catch (Exception e) {
-                    if (e == STOP_PRODUCING || e.getCause() == STOP_PRODUCING) {
-                        return;
-                    }
-                    throw new IllegalStateException(e);
-                }
-                try {
-                    transferQueue.put((T)POISON);
-                } catch (InterruptedException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        }.start();
         try {
-            consume(new QueueIterator());
+            consume(new QueueIterable());
         } finally {
             producing = false;
         }
@@ -76,29 +57,68 @@ public abstract class ActionIteratorAdapter<T> {
      * 
      * @param iterator The iterator with data from the producer.
      */
-    protected abstract void consume(Iterator<T> iterator);
-    
-    private class QueueIterator extends AbstractIterator<T> {
+    protected abstract void consume(Iterable<T> iterable);
+
+    private final class ProducerThread extends Thread {
+        private final BlockingQueue<T> queue;
+
+        private ProducerThread(BlockingQueue<T> queue) {
+            super(ActionIteratorAdapter.class.getSimpleName() + "-ProducerThread-" + threadCount++);
+            this.queue = queue;
+        }
+
+        @SuppressWarnings("unchecked")
         @Override
-        protected T getNext() throws Finished {
+        public void run() {
             try {
-                T element = transferQueue.take();
-                if (element == POISON) {
-                    throw new Finished();
+                produce(new QueueAction(queue));
+            } catch (Exception e) {
+                if (e == STOP_PRODUCING || e.getCause() == STOP_PRODUCING) {
+                    return;
                 }
-                return element;
+                throw new IllegalStateException(e);
+            }
+            try {
+                queue.put((T)POISON);
             } catch (InterruptedException e) {
                 throw new IllegalStateException(e);
             }
         }
     }
 
-    private class QueueAction implements Action<T> {
+    private final class QueueIterable implements Iterable<T> {
+        @Override
+        public Iterator<T> iterator() {
+            final BlockingQueue<T> queue = new LinkedBlockingQueue<T>(QUEUE_SIZE);
+            new ProducerThread(queue).start();;
+            return new AbstractIterator<T>() {
+                @Override
+                protected T getNext() throws Finished {
+                    try {
+                        T element = queue.take();
+                        if (element == POISON) {
+                            throw FINISHED;
+                        }
+                        return element;
+                    } catch (InterruptedException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            };
+        }
+    }
+
+    private final class QueueAction implements Action<T> {
+        private final BlockingQueue<T> queue;
+
+        public QueueAction(BlockingQueue<T> queue) {
+            this.queue = queue;
+        }
 
         @Override
         public void process(T item) {
             try {
-                while (!transferQueue.offer(item, SLEEP_MS_BETWEEN_QUEUE_PUT, TimeUnit.MILLISECONDS)) {
+                while (!queue.offer(item, SLEEP_MS_BETWEEN_QUEUE_PUT, TimeUnit.MILLISECONDS)) {
                     if (!producing) {
                         throw STOP_PRODUCING;
                     }
@@ -106,16 +126,7 @@ public abstract class ActionIteratorAdapter<T> {
             } catch (InterruptedException e) {
                 throw new IllegalStateException(e);
             }
-//            if (!producing) {
-//                throw STOP_PRODUCING;
-//            }
-//            try {
-//                transferQueue.put(item);
-//            } catch (InterruptedException e) {
-//                throw new IllegalStateException(e);
-//            }
         }
     }
-
 
 }
