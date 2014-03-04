@@ -24,16 +24,25 @@ public class ActionIteratorAdapterTest {
             }
 
             @Override
-            protected void consume(Iterator<String> iterator) {
-                assertEquals("one", iterator.next());
-                assertEquals("two", iterator.next());
-                assertEquals("three", iterator.next());
-                assertEquals("four", iterator.next());
-                assertEquals("five", iterator.next());
-                assertFalse(iterator.hasNext());
+            protected void consume(Iterable<String> iterable) {
+                Iterator<String> iterator1 = iterable.iterator();
+                Iterator<String> iterator2 = iterable.iterator();
+                assertEquals("one", iterator1.next());
+                assertEquals("one", iterator2.next());
+                assertEquals("two", iterator1.next());
+                assertEquals("two", iterator2.next());
+                assertEquals("three", iterator1.next());
+                assertEquals("three", iterator2.next());
+                assertEquals("four", iterator1.next());
+                assertEquals("four", iterator2.next());
+                assertEquals("five", iterator1.next());
+                assertEquals("five", iterator2.next());
+                assertFalse(iterator1.hasNext());
+                assertFalse(iterator2.hasNext());
             }
 
         };
+
     }
 
 }
