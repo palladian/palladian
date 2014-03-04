@@ -16,9 +16,15 @@ import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
- * This classifier builds a weighed term look up table for the categories to classify new documents. XXX add second
- * dictionary: p(at|the), p(the|at) to counter the problem of sparse categories.
- * </p>
+ * This text classifier builds a dictionary from a pre-categorized list of text documents which can then be used to
+ * categorize new, uncategorized text documents. During learning, a weighted term look up table is created, to learn how
+ * probable each n-gram is for a given category. This look up table is used by during classification.
+ * 
+ * <p>
+ * This classifier won the first Research Garden competition where the goal was to classify product descriptions into
+ * eight different categories. See <a href=
+ * "https://web.archive.org/web/20120122045250/http://www.research-garden.de/c/document_library/get_file?uuid=e60fa8da-4f76-4e64-a692-f74d5ffcf475&amp;groupId=10137"
+ * >press release</a> (via archive.org).
  * 
  * @author David Urbansky
  * @author Philipp Katz
