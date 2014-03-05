@@ -9,8 +9,6 @@ import java.util.Arrays;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
+import ws.palladian.retrieval.wikipedia.WikipediaUtil;
 
 public class WikipediaPlaceNameCollector {
 
@@ -57,9 +55,7 @@ public class WikipediaPlaceNameCollector {
 
     static void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException,
             IOException {
-        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-        SAXParser parser = saxParserFactory.newSAXParser();
-        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
+        WikipediaUtil.parseDump(inputStream, new Action<WikipediaPage>() {
 
             @Override
             public void process(WikipediaPage page) {
@@ -88,7 +84,7 @@ public class WikipediaPlaceNameCollector {
 
                 FileHelper.appendFile("locationNames.txt", page.getCleanTitle() + "\n");
             }
-        }));
+        });
     }
 
     static void collectNameParts() {

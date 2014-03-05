@@ -1,20 +1,13 @@
 package ws.palladian.extraction.location.experimental;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.util.List;
 import java.util.Set;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -29,9 +22,7 @@ import ws.palladian.helper.io.Action;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil;
 
 class WikipediaCaseDictionaryCreator {
@@ -54,12 +45,8 @@ class WikipediaCaseDictionaryCreator {
         }
         Validate.isTrue(limit > 0, "limit must be greater zero");
         try {
-            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            SAXParser parser = saxParserFactory.newSAXParser();
-            InputStream inputStream = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(
-                    wikipediaDump)));
             final int[] counter = new int[] {0};
-            parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
+            WikipediaUtil.parseDump(wikipediaDump, new Action<WikipediaPage>() {
                 @Override
                 public void process(WikipediaPage page) {
                     if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
@@ -78,12 +65,10 @@ class WikipediaCaseDictionaryCreator {
                     pageText = WikipediaUtil.extractSentences(pageText);
                     addCounts(pageText);
                 }
-            }));
+            });
         } catch (StopException e) {
             // finished.
         } catch (FileNotFoundException e) {
-            throw new IllegalStateException(e);
-        } catch (ParserConfigurationException e) {
             throw new IllegalStateException(e);
         } catch (SAXException e) {
             throw new IllegalStateException(e);

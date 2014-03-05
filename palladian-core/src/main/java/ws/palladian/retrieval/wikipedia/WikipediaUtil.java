@@ -1,16 +1,26 @@
 package ws.palladian.retrieval.wikipedia;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.helper.UrlHelper;
@@ -18,6 +28,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.Action;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.CharStack;
 import ws.palladian.helper.nlp.StringHelper;
@@ -596,6 +608,48 @@ public final class WikipediaUtil {
         }
     }
 
+    /**
+     * Process the given Wikipedia dump.
+     * 
+     * @param wikipediaDump Path to the dump file, in multistream bz2 format.
+     * @param action The action to perform for each parsed page.
+     * @throws IOException In case the file cannot be read.
+     * @throws SAXException In case parsing fails.
+     */
+    public static void parseDump(File wikipediaDump, Action<WikipediaPage> action) throws IOException, SAXException {
+        Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
+        Validate.isTrue(wikipediaDump.isFile(), "wikipediaDump does not exist or is not a file");
+        Validate.notNull(action, "action must not be null");
+        InputStream inputStream = null;
+        try {
+            inputStream = new BufferedInputStream(new FileInputStream(wikipediaDump));
+            inputStream = new MultiStreamBZip2InputStream(inputStream);
+            WikipediaUtil.parseDump(inputStream, action);
+        } finally {
+            FileHelper.close(inputStream);
+        }
+    }
+
+    /**
+     * Process the given Wikipedia dump.
+     * 
+     * @param inputStream The input stream for the dump.
+     * @param action The action to perform for each parsed page.
+     * @throws IOException In case reading the input stream fails.
+     * @throws SAXException In case parsing fails.
+     */
+    public static void parseDump(InputStream inputStream, Action<WikipediaPage> action) throws IOException, SAXException {
+        Validate.notNull(inputStream, "inputStream must not be null");
+        Validate.notNull(action, "action must not be null");
+        try {
+            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            SAXParser parser = saxParserFactory.newSAXParser();
+            parser.parse(inputStream, new WikipediaPageContentHandler(action));
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private WikipediaUtil() {
         // leave me alone!
     }
@@ -604,7 +658,7 @@ public final class WikipediaUtil {
         WikipediaPageReference random = retrieveRandomArticle("http://en.wikipedia.org/w");
         System.out.println(random);
         System.exit(0);
-        
+
         // System.out.println(getDoubleBracketBalance("{{xx{{{{"));
         // System.exit(0);
         // String wikipediaPage = FileHelper.readFileToString("/Users/pk/Desktop/newYork.wikipedia");
