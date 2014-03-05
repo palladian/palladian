@@ -19,8 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -41,8 +39,8 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wikipedia.MarkupCoordinate;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
 import ws.palladian.retrieval.wikipedia.WikipediaTemplate;
+import ws.palladian.retrieval.wikipedia.WikipediaUtil;
 
 /**
  * <p>
@@ -103,8 +101,6 @@ public class WikipediaLocationImporter {
 
     private final Map<String, Integer> locationNamesIds;
 
-    private final SAXParserFactory saxParserFactory;
-
     private final int idOffset;
 
     private final Set<AlternativeNameExtraction> nameExtraction;
@@ -122,7 +118,6 @@ public class WikipediaLocationImporter {
         Validate.isTrue(idOffset >= 0);
         this.locationStore = locationStore;
         this.idOffset = idOffset;
-        this.saxParserFactory = SAXParserFactory.newInstance();
         this.locationNamesIds = CollectionHelper.newHashMap();
         this.nameExtraction = new HashSet<AlternativeNameExtraction>(Arrays.asList(nameExtraction));
     }
@@ -180,8 +175,7 @@ public class WikipediaLocationImporter {
 
     void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
-        SAXParser parser = saxParserFactory.newSAXParser();
-        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
+        WikipediaUtil.parseDump(inputStream, new Action<WikipediaPage>() {
 
             @Override
             public void process(WikipediaPage page) {
@@ -195,7 +189,7 @@ public class WikipediaLocationImporter {
                     LOGGER.debug("Ignoring '{}' by blacklist", page.getTitle());
                     return;
                 }
-                
+
                 List<WikipediaTemplate> infoboxes = page.getInfoboxes();
                 if (infoboxes.isEmpty()) {
                     LOGGER.debug("Page '{}' has no infobox; skip", page.getTitle());
@@ -229,8 +223,8 @@ public class WikipediaLocationImporter {
                 if (coordinate != null) {
                     String cleanArticleName = page.getCleanTitle();
                     int locationId = Integer.valueOf(page.getIdentifier()) + idOffset;
-                    locationStore
-                            .save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate, coordinate.getPopulation()));
+                    locationStore.save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate, coordinate
+                            .getPopulation()));
                     LOGGER.trace("Saved location with ID {}, name {}", page.getIdentifier(), cleanArticleName);
                     locationNamesIds.put(page.getTitle(), Integer.valueOf(page.getIdentifier()));
                     counter[0]++;
@@ -252,7 +246,7 @@ public class WikipediaLocationImporter {
                     }
                 }
             }
-        }));
+        });
         LOGGER.info("Finished importing {} locations", counter[0]);
     }
 
@@ -265,9 +259,8 @@ public class WikipediaLocationImporter {
      * @throws IOException
      */
     void importAlternativeNames(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
-        SAXParser parser = saxParserFactory.newSAXParser();
         final int[] counter = new int[] {0};
-        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
+        WikipediaUtil.parseDump(inputStream, new Action<WikipediaPage>() {
 
             @Override
             public void process(WikipediaPage page) {
@@ -298,7 +291,7 @@ public class WikipediaLocationImporter {
                 LOGGER.debug("Save alternative name {} for location with ID {}", name, id);
                 counter[0]++;
             }
-        }));
+        });
         LOGGER.info("Finished importing {} alternative names", counter[0]);
     }
 

@@ -1,13 +1,6 @@
 package ws.palladian.retrieval.wikipedia;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -21,13 +14,12 @@ import ws.palladian.helper.io.Action;
 
 /**
  * <p>
- * SAX handler for processing Wikipedia XML dumps. Mapping each page to a
- * {@link WikipediaPageCallback#callback(WikipediaPage)}.
+ * SAX handler for processing Wikipedia XML dumps. Mapping each page to a {@link WikipediaPage}.
  * </p>
  * 
  * @author Philipp Katz
  */
-public class WikipediaPageContentHandler extends DefaultHandler {
+class WikipediaPageContentHandler extends DefaultHandler {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPageContentHandler.class);
@@ -54,7 +46,7 @@ public class WikipediaPageContentHandler extends DefaultHandler {
      * 
      * @param callback The callback to trigger for parsed pages, not <code>null</code>.
      */
-    public WikipediaPageContentHandler(Action<WikipediaPage> callback) {
+    WikipediaPageContentHandler(Action<WikipediaPage> callback) {
         Validate.notNull(callback, "callback must not be null");
         this.callback = callback;
         this.stopWatch = new StopWatch();
@@ -109,33 +101,6 @@ public class WikipediaPageContentHandler extends DefaultHandler {
             buffer = new StringBuilder();
             bufferText = false;
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-        SAXParser parser = saxParserFactory.newSAXParser();
-        File redirects = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
-        InputStream inputStream = new MultiStreamBZip2InputStream(new BufferedInputStream(
-                new FileInputStream(redirects)));
-        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
-
-            @Override
-            public void process(WikipediaPage page) {
-                if (page.getIdentifier().equals("27394805")) {
-                    System.out.println(page);
-                    System.exit(0);
-                }
-//                if (page.isRedirect()) {
-//                    if (page.getRedirectTitle().contains("#")) {
-//                        System.out.println(page);
-//                    }
-//                }
-//                if (page.getTitle().equalsIgnoreCase("Sherkin")) {
-//                    System.out.println(page);
-//                    System.exit(0);
-//                }
-            }
-        }));
     }
 
 }
