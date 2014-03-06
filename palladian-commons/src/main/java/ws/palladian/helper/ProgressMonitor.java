@@ -116,8 +116,8 @@ public final class ProgressMonitor {
      * 
      * @param steps The number of steps to increment the counter with.
      */
-    public void incrementByAndPrintProgress(int steps) {
-        for (int i = 0; i < steps; i++) {
+    public void incrementByAndPrintProgress(long steps) {
+        for (long i = 0; i < steps; i++) {
             incrementAndPrintProgress();
         }
     }
@@ -141,9 +141,9 @@ public final class ProgressMonitor {
      * @param counter Counter for current iteration in a loop.
      */
     private String getProgress(long counter) {
-        StringBuilder progressString = new StringBuilder();
         try {
             if (showEveryPercent == 0 || counter % (showEveryPercent * totalCount / 100.0) < 1) {
+                StringBuilder progressString = new StringBuilder();
                 if (processName != null) {
                     progressString.append(processName).append(" ");
                 }
@@ -163,12 +163,12 @@ public final class ProgressMonitor {
                     stopWatch.start();
                 }
                 progressString.append(")");
+                return progressString.toString();
             }
         } catch (ArithmeticException e) {
         } catch (Exception e) {
         }
-
-        return progressString.toString();
+        return StringUtils.EMPTY;
     }
 
     public String getTotalElapsedTimeString() {
