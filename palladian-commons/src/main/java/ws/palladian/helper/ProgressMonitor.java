@@ -13,7 +13,7 @@ import ws.palladian.helper.math.MathHelper;
  * The ProgressMonitor eases the progress visualization needed in many long-running processes. Usage example:
  * 
  * <pre>
- * ProgressMonitor pm = new ProgressMonitor();
+ * ProgressMonitor pm = new ProgressMonitor(10);
  * for (int i = 0; i &lt; 10; i++) {
  *     performSophisticatedCalculations(i);
  *     pm.incrementAndPrintProgress();
@@ -87,26 +87,14 @@ public final class ProgressMonitor {
 
     /**
      * <p>
-     * Prints the current progress to the System's standard output.
+     * Increments the counter by one and prints the current progress to the System's standard output.
      * </p>
-     * 
-     * @param counter Counter for current iteration in a loop.
      */
-    public void printProgress(long counter) {
-        String progress = getProgress(counter);
+    public void incrementAndPrintProgress() {
+        String progress = getProgress(currentCount.incrementAndGet());
         if (!progress.isEmpty()) {
             System.out.println(progress);
         }
-    }
-
-    /**
-     * <p>
-     * Increments the counter by one and prints the current progress to the System's standard output.
-     * </p>
-     * 
-     */
-    public void incrementAndPrintProgress() {
-        printProgress(currentCount.incrementAndGet());
     }
 
     /**
