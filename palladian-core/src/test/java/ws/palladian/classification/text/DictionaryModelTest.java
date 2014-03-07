@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.Before;
@@ -11,6 +12,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 public class DictionaryModelTest {
 
@@ -83,6 +85,13 @@ public class DictionaryModelTest {
         FileHelper.serialize(model, tempFile);
         DictionaryModel deserializedModel = FileHelper.deserialize(tempFile);
         assertTrue(deserializedModel.equals(model));
+    }
+
+    @Test
+    public void testDeserialization() throws FileNotFoundException, IOException {
+        DictionaryModel model_v1 = FileHelper.deserialize(ResourceHelper
+                .getResourcePath("/model/testDictionaryModel_v1.ser"));
+        assertTrue(model_v1.equals(model));
     }
 
 }

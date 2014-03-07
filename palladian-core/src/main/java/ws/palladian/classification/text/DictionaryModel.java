@@ -30,7 +30,17 @@ import ws.palladian.helper.collection.CollectionHelper;
  */
 public final class DictionaryModel implements Model, Iterable<TermCategoryEntries> {
 
+    /**
+     * Do not change this from now on, use the {@link #VERSION} instead, if you make incompatible changes, and ensure
+     * backwards compatibility.
+     */
     private static final long serialVersionUID = 4L;
+
+    /**
+     * Version number which is written/checked when serializing/deserializing, if you make incompatible changes, update
+     * this constant and provide backwards compatibility, so that existing models do not break.
+     */
+    private static final int VERSION = 1;
 
     /** The initial size of the hash table. */
     private static final int INITIAL_SIZE = 1024;
@@ -39,7 +49,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     private static final float MAX_LOAD_FACTOR = 0.75f;
 
     /** The optional name of the model. */
-    private String name = "NONAME";
+    private transient String name = "NONAME";
 
     /** Hash table with term-category combinations with their counts. */
     private transient TermCategoryEntries[] entryArray;
@@ -57,7 +67,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
      * @param featureSetting The feature setting which was used for creating this model.
      */
     public DictionaryModel(FeatureSetting featureSetting) {
-        entryArray = new TermCategoryEntries[INITIAL_SIZE];
+        this.entryArray = new TermCategoryEntries[INITIAL_SIZE];
         this.numTerms = 0;
         this.priors = new TermCategoryEntries(null);
         this.featureSetting = featureSetting;
@@ -81,7 +91,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
      * </p>
      * 
      * @param terms The terms from the document, not <code>null</code>.
-     * @param category The category of the document, nt <code>null</code>.
+     * @param category The category of the document, not <code>null</code>.
      */
     public void addDocument(Collection<String> terms, String category) {
         Validate.notNull(terms, "terms must not be null");
@@ -171,7 +181,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
             categories.add(category.getName());
         }
         if (categories.isEmpty()) {
-            // ugly workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
+            // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method, 
             // we need to collect the category names from the term entries
             for (TermCategoryEntries entries : this) {
                 for (Category category : entries) {
@@ -275,9 +285,16 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     }
 
     // serialization code
+    
+    // Implementation note: in case you make any incompatible changes to the serialization protocol, provide backwards
+    // compatibility by using the #VERSION constant. Add a test case for the new version and make sure, deserialization
+    // of existing models still works (we keep a serialized form of each version from now on for the tests).
 
     private void writeObject(ObjectOutputStream out) throws IOException {
+        // map the category names to numeric indices, so that we can use "1" instead of "aVeryLongCategoryName"
         SortedSet<String> categoryIndices = new TreeSet<String>(getCategories());
+        // version (for being able to provide backwards compatibility from now on)
+        out.writeInt(VERSION);
         // header; number of categories; [ (categoryName, count) , ...]
         out.writeInt(categoryIndices.size());
         for (String categoryName : categoryIndices) {
@@ -299,9 +316,16 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         }
         // feature setting
         out.writeObject(featureSetting);
+        // name
+        out.writeObject(name);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        // version
+        int version = in.readInt();
+        if (version != VERSION) {
+            throw new IOException("Unsupported version: " + version);
+        }
         Map<Integer, String> categoryIndices = CollectionHelper.newHashMap();
         // header
         int numCategories = in.readInt();
@@ -329,6 +353,8 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         }
         // feature setting
         featureSetting = (FeatureSetting)in.readObject();
+        // name
+        name = (String)in.readObject();
     }
 
     // iterator over all entries
