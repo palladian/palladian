@@ -905,12 +905,15 @@ public final class FileHelper {
         }
     }
 
-    public static void trySerialize(Serializable object, String filePath) {
+    public static boolean trySerialize(Serializable object, String filePath) {
         try {
             serialize(object, filePath);
+            return true;
         } catch (IOException e) {
             // ignore.
         }
+
+        return false;
     }
 
     /**
