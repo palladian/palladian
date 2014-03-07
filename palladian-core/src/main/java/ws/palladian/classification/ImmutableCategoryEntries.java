@@ -45,6 +45,11 @@ final class ImmutableCategoryEntries extends AbstractCategoryEntries {
         Double probability = entryMap.get(categoryName);
         return probability != null ? new ImmutableCategory(categoryName, probability) : null;
     }
+    
+    @Override
+    public int size() {
+        return entryMap.size();
+    }
 
     @Override
     public int hashCode() {

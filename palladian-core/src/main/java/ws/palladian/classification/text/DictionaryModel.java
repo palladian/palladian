@@ -1,8 +1,15 @@
 package ws.palladian.classification.text;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -24,30 +31,35 @@ import ws.palladian.helper.collection.CollectionHelper;
 public final class DictionaryModel implements Model, Iterable<CountingCategoryEntries> {
 
     private static final long serialVersionUID = 4L;
-    
+
+    /** The initial size of the hashtable. */
     private static final int INITIAL_SIZE = 1024;
-    
+
+    /** The maximum load factor, until we do a re-hashing. */
     private static final float MAX_LOAD_FACTOR = 0.75f;
 
     /** The optional name of the model. */
     private String name = "NONAME";
-    
-    /** Term-category combinations with their counts. */
-    private CountingCategoryEntries[] entries = new CountingCategoryEntries[INITIAL_SIZE];
-    
+
+    /** Hash table with term-category combinations with their counts. */
+    private transient CountingCategoryEntries[] entries;
+
     /** The number of terms in this dictionary. */
-    private int numTerms = 0;
+    private transient int numEntries;
 
     /** Categories with their counts. */
-    private final CountingCategoryEntries priors = new CountingCategoryEntries();
+    private transient CountingCategoryEntries priors;
 
     /** Configuration for the feature extraction. */
-    private final FeatureSetting featureSetting;
+    private transient FeatureSetting featureSetting;
 
     /**
      * @param featureSetting The feature setting which was used for creating this model.
      */
     public DictionaryModel(FeatureSetting featureSetting) {
+        this.entries = new CountingCategoryEntries[INITIAL_SIZE];
+        this.numEntries = 0;
+        this.priors = new CountingCategoryEntries(null);
         this.featureSetting = featureSetting;
     }
 
@@ -63,10 +75,29 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         return featureSetting;
     }
 
+    /**
+     * <p>
+     * Add a document (represented by a {@link Collection} of terms) to this model.
+     * </p>
+     * 
+     * @param terms The terms from the document.
+     * @param category The category of the document.
+     */
+    public void addDocument(Collection<String> terms, String category) {
+        for (String term : terms) {
+            updateTerm(term, category);
+        }
+        priors.increment(category);
+    }
+
+    /**
+     * @deprecated Use {@link #addDocument(Collection, String)} instead.
+     */
+    @Deprecated
     public void updateTerm(String term, String category) {
         CountingCategoryEntries counts = get(term);
         if (counts == null) {
-            put(term, new CountingCategoryEntries(term, category));
+            put(new CountingCategoryEntries(term, category));
         } else {
             counts.increment(category);
         }
@@ -86,12 +117,12 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         return null;
     }
 
-    private void put(String term, CountingCategoryEntries entries) {
-        numTerms++;
-        if ((float)numTerms / this.entries.length > MAX_LOAD_FACTOR) {
+    private void put(CountingCategoryEntries entries) {
+        numEntries++;
+        if ((float)numEntries / this.entries.length > MAX_LOAD_FACTOR) {
             rehash();
         }
-        internalAdd(index(term.hashCode()), entries);
+        internalAdd(index(entries.getTerm().hashCode()), entries);
     }
 
     private void internalAdd(int idx, CountingCategoryEntries entries) {
@@ -123,16 +154,16 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
     }
 
     public int getNumTerms() {
-        return numTerms;
-    }
-
-    @Override
-    public Iterator<CountingCategoryEntries> iterator() {
-        return new DictionaryIterator();
+        return numEntries;
     }
 
     public int getNumCategories() {
         return getCategories().size();
+    }
+    
+    @Override
+    public Iterator<CountingCategoryEntries> iterator() {
+        return new DictionaryIterator();
     }
 
     @Override
@@ -142,10 +173,6 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
             categories.add(category.getName());
         }
         return categories;
-    }
-
-    public void addCategory(String category) {
-        priors.increment(category);
     }
 
     public CategoryEntries getPriors() {
@@ -183,6 +210,8 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         }
         printStream.flush();
     }
+    
+    // toString
 
     @Override
     public String toString() {
@@ -197,6 +226,106 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         return builder.toString();
     }
     
+    // hashCode + equals
+    
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + CollectionHelper.newHashSet(entries).hashCode();
+        result = prime * result + (featureSetting == null ? 0 : featureSetting.hashCode());
+        result = prime * result + numEntries;
+        result = prime * result + priors.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        DictionaryModel other = (DictionaryModel)obj;
+        if (!equalIgnoreOrder(entries, other.entries)) {
+            return false;
+        }
+        if (featureSetting == null) {
+            if (other.featureSetting != null) {
+                return false;
+            }
+        } else if (!featureSetting.equals(other.featureSetting)) {
+            return false;
+        }
+        if (numEntries != other.numEntries) {
+            return false;
+        }
+        if (!priors.equals(other.priors)) {
+            return false;
+        }
+        return true;
+    }
+    
+    // serialization code
+    
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        SortedSet<String> categoryIndices = new TreeSet<String>(getCategories());
+        // header; number of categories; [ (categoryName, count) , ...]
+        out.writeInt(categoryIndices.size());
+        for (String categoryName : categoryIndices) {
+            out.writeObject(categoryName);
+            out.writeInt(priors.getCount(categoryName));
+        }
+        // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
+        out.writeInt(numEntries);
+        for (CountingCategoryEntries termEntry : this) {
+            String term = termEntry.getTerm();
+            int numProbabilityEntries = termEntry.size();
+            out.writeObject(term);
+            out.writeInt(numProbabilityEntries);
+            for (Category category : termEntry) {
+                int categoryIdx = categoryIndices.headSet(category.getName()).size();
+                out.writeInt(categoryIdx);
+                out.writeInt(category.getCount());
+            }
+        }
+        // feature setting
+        out.writeObject(featureSetting);
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        Map<Integer, String> categoryIndices = CollectionHelper.newHashMap();
+        // header
+        int numCategories = in.readInt();
+        priors = new CountingCategoryEntries(null);
+        for (int i = 0; i < numCategories; i++) {
+            String categoryName = (String)in.readObject();
+            int categoryCount = in.readInt();
+            priors.increment(categoryName, categoryCount);
+            categoryIndices.put(i, categoryName);
+        }
+        // terms
+        int numberOfTerms = in.readInt();
+        entries = new CountingCategoryEntries[(int)Math.ceil(numberOfTerms * MAX_LOAD_FACTOR)];
+        for (int i = 0; i < numberOfTerms; i++) {
+            String term = (String)in.readObject();
+            CountingCategoryEntries categoryEntries = new CountingCategoryEntries(term);
+            int numProbabilityEntries = in.readInt();
+            for (int j = 0; j < numProbabilityEntries; j++) {
+                int categoryIdx = in.readInt();
+                String categoryName = categoryIndices.get(categoryIdx);
+                int categoryCount = in.readInt();
+                categoryEntries.increment(categoryName, categoryCount);
+            }
+            put(categoryEntries);
+        }
+        // feature setting
+        featureSetting = (FeatureSetting)in.readObject();
+    }
+    
+    // iterator over all entries
+
     private final class DictionaryIterator extends AbstractIterator<CountingCategoryEntries> {
         int entriesIdx = 0;
         CountingCategoryEntries next;
@@ -217,6 +346,24 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
             }
             throw FINISHED;
         }
+    }
+
+    // utility
+
+    /**
+     * <p>
+     * Check, if two arrays contain the same elements, no matter in what order and ignoring duplicates (e.g.
+     * <code>[2,1,2].equalIgnoreOrder([1,2])</code>).
+     * </p>
+     * 
+     * @param arrayA The first array, not <code>null</code>.
+     * @param arrayB The second array, not <code>null</code>.
+     * @return <code>true</code> in case both arrays contain exactly the same elements.
+     */
+    static boolean equalIgnoreOrder(Object[] arrayA, Object[] arrayB) {
+        Set<Object> tempA = CollectionHelper.newHashSet(arrayA);
+        Set<Object> tempB = CollectionHelper.newHashSet(arrayB);
+        return tempA.equals(tempB);
     }
 
 }
