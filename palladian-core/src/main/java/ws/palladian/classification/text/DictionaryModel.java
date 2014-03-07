@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Model;
+import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -71,14 +72,18 @@ public final class DictionaryModel implements Model {
 
     public CountingCategoryEntries get(String term) {
         int hash = hash(term.hashCode());
-        for (int idx = index(hash);; idx = next(idx)) {
-            CountingCategoryEntries current = termCategories[idx];
+        CountingCategoryEntries current = termCategories[index(hash)];
+        if (current == null) {
+            return null;
+        }
+        for (;;) {
             if (current == null) {
                 return null;
             }
             if (current.getTerm().equals(term)) {
                 return current;
             }
+            current = current.next;
         }
     }
 
@@ -93,15 +98,21 @@ public final class DictionaryModel implements Model {
     public void put(String term, CountingCategoryEntries entries) {
         numTerms++;
         double load = (double)numTerms / termCategories.length;
-        if (load > 0.25) { // FIXME reduce to 0.75
+        if (load > 0.75) {
             rehash();
         }
         int hash = hash(term.hashCode());
-        for (int idx = index(hash);; idx = next(idx)) {
-            if (termCategories[idx] == null) {
-                termCategories[idx] = entries;
-                break;
+        CountingCategoryEntries current = termCategories[index(hash)];
+        if (current == null) {
+            termCategories[index(hash)] = entries;
+            return;
+        }
+        for (;;) {
+            if (current.next == null) {
+                current.next = entries;
+                return;
             }
+            current = current.next;
         }
     }
 
@@ -110,17 +121,32 @@ public final class DictionaryModel implements Model {
         CountingCategoryEntries[] oldArray = termCategories;
         termCategories = new CountingCategoryEntries[oldArray.length * 2];
         for (CountingCategoryEntries entry : oldArray) {
-            if (entry != null) {
+//            System.out.println(entry);
+            for (;;) {
+                if (entry == null) {
+                    break;
+                }
                 int hash = hash(entry.getTerm().hashCode());
                 int idx = index(hash);
-                termCategories[idx] = entry;
+                if (termCategories[idx] == null) {
+                    termCategories[idx] = entry;
+                    break;
+                } else {
+                    // add at end
+                    CountingCategoryEntries temp = termCategories[idx];
+                    for (;;) {
+                        if (temp.next == null) {
+                            temp.next = entry;
+                            break;
+                        }else{
+                            temp = temp.next;
+                        }
+                    }
+                }
+                
             }
         }
         // System.out.println("end rehash, " + termCategories.length);
-    }
-
-    private int next(int idx) {
-        return (idx + 1) % termCategories.length;
     }
     
     private int index(int hash) {
