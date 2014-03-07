@@ -87,6 +87,7 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
     private CountingCategory[] categories;
     private int totalCount;
 
+    /** Pointer to the next entries; necessary linking to the next item in the bucket (hash table). */
     TermCategoryEntries next;
 
     /**
