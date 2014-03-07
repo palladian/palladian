@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +81,7 @@ public class DictionaryModelTest {
         File tempDir = FileHelper.getTempDir();
         String tempFile = new File(tempDir, "dictionaryModel.ser").getPath();
         FileHelper.serialize(model, tempFile);
-        Serializable deserializedModel = FileHelper.deserialize(tempFile);
+        DictionaryModel deserializedModel = FileHelper.deserialize(tempFile);
         assertTrue(deserializedModel.equals(model));
     }
 
