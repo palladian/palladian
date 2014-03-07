@@ -32,7 +32,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
 
     private static final long serialVersionUID = 4L;
 
-    /** The initial size of the hashtable. */
+    /** The initial size of the hash table. */
     private static final int INITIAL_SIZE = 1024;
 
     /** The maximum load factor, until we do a re-hashing. */
@@ -42,10 +42,10 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     private String name = "NONAME";
 
     /** Hash table with term-category combinations with their counts. */
-    private transient TermCategoryEntries[] entries;
+    private transient TermCategoryEntries[] entryArray;
 
     /** The number of terms in this dictionary. */
-    private transient int numEntries;
+    private transient int numTerms;
 
     /** Categories with their counts. */
     private transient TermCategoryEntries priors;
@@ -57,8 +57,8 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
      * @param featureSetting The feature setting which was used for creating this model.
      */
     public DictionaryModel(FeatureSetting featureSetting) {
-        this.entries = new TermCategoryEntries[INITIAL_SIZE];
-        this.numEntries = 0;
+        entryArray = new TermCategoryEntries[INITIAL_SIZE];
+        this.numTerms = 0;
         this.priors = new TermCategoryEntries(null);
         this.featureSetting = featureSetting;
     }
@@ -80,10 +80,12 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
      * Add a document (represented by a {@link Collection} of terms) to this model.
      * </p>
      * 
-     * @param terms The terms from the document.
-     * @param category The category of the document.
+     * @param terms The terms from the document, not <code>null</code>.
+     * @param category The category of the document, nt <code>null</code>.
      */
     public void addDocument(Collection<String> terms, String category) {
+        Validate.notNull(terms, "terms must not be null");
+        Validate.notNull(category, "category must not be null");
         for (String term : terms) {
             updateTerm(term, category);
         }
@@ -95,6 +97,8 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
      */
     @Deprecated
     public void updateTerm(String term, String category) {
+        Validate.notNull(term, "term must not be null");
+        Validate.notNull(category, "category must not be null");
         TermCategoryEntries counts = get(term);
         if (counts == null) {
             put(new TermCategoryEntries(term, category));
@@ -109,7 +113,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     }
 
     private TermCategoryEntries get(String term) {
-        for (TermCategoryEntries entry = entries[index(term.hashCode())]; entry != null; entry = entry.next) {
+        for (TermCategoryEntries entry = entryArray[index(term.hashCode())]; entry != null; entry = entry.next) {
             if (entry.getTerm().equals(term)) {
                 return entry;
             }
@@ -118,49 +122,43 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     }
 
     private void put(TermCategoryEntries entries) {
-        numEntries++;
-        if ((float)numEntries / this.entries.length > MAX_LOAD_FACTOR) {
+        numTerms++;
+        if ((float)numTerms / entryArray.length > MAX_LOAD_FACTOR) {
             rehash();
         }
         internalAdd(index(entries.getTerm().hashCode()), entries);
     }
 
     private void internalAdd(int idx, TermCategoryEntries entries) {
-        TermCategoryEntries current = this.entries[idx];
-        if (current == null) {
-            this.entries[idx] = entries;
-        } else {
-            for (;; current = current.next) {
-                if (current.next == null) {
-                    current.next = entries;
-                    break;
-                }
-            }
-        }
+        TermCategoryEntries current = entryArray[idx];
+        entryArray[idx] = entries;
+        entries.next = current;
     }
 
     private void rehash() {
-        TermCategoryEntries[] oldArray = entries;
-        entries = new TermCategoryEntries[oldArray.length * 2];
+        TermCategoryEntries[] oldArray = entryArray;
+        entryArray = new TermCategoryEntries[oldArray.length * 2];
         for (TermCategoryEntries entry : oldArray) {
-            if (entry != null) {
-                internalAdd(index(entry.getTerm().hashCode()), entry);
+            while (entry != null) {
+                TermCategoryEntries current = entry;
+                entry = current.next;
+                internalAdd(index(current.getTerm().hashCode()), current);
             }
         }
     }
 
     private int index(int hash) {
-        return Math.abs(hash % entries.length);
+        return Math.abs(hash % entryArray.length);
     }
 
     public int getNumTerms() {
-        return numEntries;
+        return numTerms;
     }
 
     public int getNumCategories() {
-        return getCategories().size();
+        return priors.size();
     }
-    
+
     @Override
     public Iterator<TermCategoryEntries> iterator() {
         return new DictionaryIterator();
@@ -171,6 +169,15 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         Set<String> categories = CollectionHelper.newHashSet();
         for (Category category : priors) {
             categories.add(category.getName());
+        }
+        if (categories.isEmpty()) {
+            // ugly workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
+            // we need to collect the category names from the term entries
+            for (TermCategoryEntries entries : this) {
+                for (Category category : entries) {
+                    categories.add(category.getName());
+                }
+            }
         }
         return categories;
     }
@@ -210,7 +217,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         }
         printStream.flush();
     }
-    
+
     // toString
 
     @Override
@@ -225,16 +232,16 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         builder.append("]");
         return builder.toString();
     }
-    
+
     // hashCode + equals
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + CollectionHelper.newHashSet(entries).hashCode();
+        result = prime * result + CollectionHelper.newHashSet(entryArray).hashCode();
         result = prime * result + (featureSetting == null ? 0 : featureSetting.hashCode());
-        result = prime * result + numEntries;
+        result = prime * result + numTerms;
         result = prime * result + priors.hashCode();
         return result;
     }
@@ -248,9 +255,6 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
             return false;
         }
         DictionaryModel other = (DictionaryModel)obj;
-        if (!equalIgnoreOrder(entries, other.entries)) {
-            return false;
-        }
         if (featureSetting == null) {
             if (other.featureSetting != null) {
                 return false;
@@ -258,17 +262,20 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         } else if (!featureSetting.equals(other.featureSetting)) {
             return false;
         }
-        if (numEntries != other.numEntries) {
+        if (numTerms != other.numTerms) {
             return false;
         }
         if (!priors.equals(other.priors)) {
             return false;
         }
+        if (!equalIgnoreOrder(entryArray, other.entryArray)) {
+            return false;
+        }
         return true;
     }
-    
+
     // serialization code
-    
+
     private void writeObject(ObjectOutputStream out) throws IOException {
         SortedSet<String> categoryIndices = new TreeSet<String>(getCategories());
         // header; number of categories; [ (categoryName, count) , ...]
@@ -278,7 +285,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
             out.writeInt(priors.getCount(categoryName));
         }
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
-        out.writeInt(numEntries);
+        out.writeInt(numTerms);
         for (TermCategoryEntries termEntry : this) {
             String term = termEntry.getTerm();
             int numProbabilityEntries = termEntry.size();
@@ -307,7 +314,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         }
         // terms
         int numberOfTerms = in.readInt();
-        entries = new TermCategoryEntries[(int)Math.ceil(numberOfTerms * MAX_LOAD_FACTOR)];
+        entryArray = new TermCategoryEntries[(int)Math.ceil(numberOfTerms * MAX_LOAD_FACTOR)];
         for (int i = 0; i < numberOfTerms; i++) {
             String term = (String)in.readObject();
             TermCategoryEntries categoryEntries = new TermCategoryEntries(term);
@@ -323,7 +330,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         // feature setting
         featureSetting = (FeatureSetting)in.readObject();
     }
-    
+
     // iterator over all entries
 
     private final class DictionaryIterator extends AbstractIterator<TermCategoryEntries> {
@@ -337,8 +344,8 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
                 next = next.next;
                 return result;
             }
-            for (entriesIdx++; entriesIdx < entries.length; entriesIdx++) {
-                TermCategoryEntries current = entries[entriesIdx];
+            while (entriesIdx < entryArray.length) {
+                TermCategoryEntries current = entryArray[entriesIdx++];
                 if (current != null) {
                     next = current.next;
                     return current;

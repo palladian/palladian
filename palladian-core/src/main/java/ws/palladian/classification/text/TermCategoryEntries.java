@@ -1,5 +1,6 @@
 package ws.palladian.classification.text;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
@@ -66,7 +67,7 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
             if (this == obj) {
                 return true;
             }
-            if (obj == null||getClass() != obj.getClass()){
+            if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
             CountingCategory other = (CountingCategory)obj;
@@ -175,7 +176,11 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
 
     @Override
     public int hashCode() {
-        return CollectionHelper.newHashSet(categories).hashCode();
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + CollectionHelper.newHashSet(categories).hashCode();
+        result = prime * result + Arrays.hashCode(term);
+        return result;
     }
 
     @Override
@@ -187,7 +192,13 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
             return false;
         }
         TermCategoryEntries other = (TermCategoryEntries)obj;
-        return DictionaryModel.equalIgnoreOrder(categories, other.categories);
+        if (!Arrays.equals(term, other.term)) {
+            return false;
+        }
+        if (!DictionaryModel.equalIgnoreOrder(categories, other.categories)) {
+            return false;
+        }
+        return true;
     }
 
 }
