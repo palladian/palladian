@@ -1,7 +1,6 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,9 +24,11 @@ public final class DictionaryModel implements Model {
 
     /** The optional name of the model. */
     private String name = "NONAME";
-
+    
     /** Term-category combinations with their counts. */
-    private final Map<String, CountingCategoryEntries> termCategories = CollectionHelper.newHashMap();
+    private CountingCategoryEntries[] termCategories = new CountingCategoryEntries[2];
+    
+    private int numTerms = 0;
 
     /** Categories with their counts. */
     private final CountingCategoryEntries priors = new CountingCategoryEntries();
@@ -55,21 +56,84 @@ public final class DictionaryModel implements Model {
     }
 
     public void updateTerm(String term, String category) {
-        CountingCategoryEntries counts = termCategories.get(term);
+        CountingCategoryEntries counts = get(term);
         if (counts == null) {
-            termCategories.put(new String(term), new CountingCategoryEntries(category));
+            put(term, new CountingCategoryEntries(term, category));
         } else {
             counts.increment(category);
         }
     }
 
     public CategoryEntries getCategoryEntries(String term) {
-        CountingCategoryEntries result = termCategories.get(term);
+        CountingCategoryEntries result = get(term);
         return result != null ? result : CountingCategoryEntries.EMPTY;
     }
 
+    public CountingCategoryEntries get(String term) {
+        int hash = hash(term.hashCode());
+        for (int idx = index(hash);; idx = next(idx)) {
+            CountingCategoryEntries current = termCategories[idx];
+            if (current == null) {
+                return null;
+            }
+            if (current.getTerm().equals(term)) {
+                return current;
+            }
+        }
+    }
+
+    private int hash(int h) {
+        // This function ensures that hashCodes that differ only by
+        // constant multiples at each bit position have a bounded
+        // number of collisions (approximately 8 at default load factor).
+        h ^= (h >>> 20) ^ (h >>> 12);
+        return h ^ (h >>> 7) ^ (h >>> 4);
+    }
+
+    public void put(String term, CountingCategoryEntries entries) {
+        numTerms++;
+        double load = (double)numTerms / termCategories.length;
+        if (load > 0.25) { // FIXME reduce to 0.75
+            rehash();
+        }
+        int hash = hash(term.hashCode());
+        for (int idx = index(hash);; idx = next(idx)) {
+            if (termCategories[idx] == null) {
+                termCategories[idx] = entries;
+                break;
+            }
+        }
+    }
+
+    private void rehash() {
+        // System.out.println("start rehash, " + termCategories.length);
+        CountingCategoryEntries[] oldArray = termCategories;
+        termCategories = new CountingCategoryEntries[oldArray.length * 2];
+        for (CountingCategoryEntries entry : oldArray) {
+            if (entry != null) {
+                int hash = hash(entry.getTerm().hashCode());
+                int idx = index(hash);
+                termCategories[idx] = entry;
+            }
+        }
+        // System.out.println("end rehash, " + termCategories.length);
+    }
+
+    private int next(int idx) {
+        return (idx + 1) % termCategories.length;
+    }
+    
+    private int index(int hash) {
+        return hash & (termCategories.length-1);
+    }
+
     public int getNumTerms() {
-        return termCategories.size();
+        return numTerms;
+    }
+    
+    private Iterable<String> terms() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public int getNumCategories() {
@@ -83,10 +147,6 @@ public final class DictionaryModel implements Model {
             categories.add(category.getName());
         }
         return categories;
-    }
-
-    public Set<String> getTerms() {
-        return termCategories.keySet();
     }
 
     public void addCategory(String category) {
@@ -112,7 +172,7 @@ public final class DictionaryModel implements Model {
         printStream.print("\n");
         // one word per line with term frequencies per category
         Set<String> categories = getCategories();
-        for (String term : termCategories.keySet()) {
+        for (String term : terms()) {
             printStream.print(term);
             printStream.print(",");
             // get word frequency for each category and current term

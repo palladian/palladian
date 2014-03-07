@@ -67,6 +67,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
         };
     };
 
+    private final char[] term;
     private CountingCategory[] categories;
     private int totalCount;
 
@@ -75,8 +76,9 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
      * 
      * @param category The category name.
      */
-    public CountingCategoryEntries(String category) {
+    public CountingCategoryEntries(String term, String category) {
         Validate.notNull(category, "category must not be null");
+        this.term = term.toCharArray();
         this.categories = new CountingCategory[] {new CountingCategory(category)};
         this.totalCount = 1;
     }
@@ -85,6 +87,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
      * Create a new {@link CountingCategoryEntries}. If you need an empty, unmodifiable instance, use {@link #EMPTY}.
      */
     public CountingCategoryEntries() {
+        this.term = null;
         this.categories = new CountingCategory[0];
         this.totalCount = 0;
     }
@@ -98,7 +101,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
         Validate.notNull(category, "category must not be null");
         totalCount++;
         for (int i = 0; i < categories.length; i++) {
-            if (category.equals(categories[i].name)) {
+            if (category.equals(categories[i].getName())) {
                 categories[i].count++;
                 return;
             }
@@ -111,6 +114,10 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
         System.arraycopy(categories, 0, newCategories, 0, categories.length);
         newCategories[categories.length] = new CountingCategory(category);
         categories = newCategories;
+    }
+    
+    public String getTerm() {
+        return new String(term);
     }
 
     @Override
