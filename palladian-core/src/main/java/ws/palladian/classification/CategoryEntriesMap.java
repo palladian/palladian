@@ -189,6 +189,11 @@ public final class CategoryEntriesMap extends AbstractCategoryEntries {
     public int hashCode() {
         return entryMap.hashCode();
     }
+    
+    @Override
+    public int size() {
+        return entryMap.size();
+    }
 
     @Override
     public boolean equals(Object obj) {

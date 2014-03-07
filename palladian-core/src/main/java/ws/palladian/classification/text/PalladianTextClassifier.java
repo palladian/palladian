@@ -1,11 +1,14 @@
 package ws.palladian.classification.text;
 
+import java.util.Set;
+
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
@@ -64,12 +67,13 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         @SuppressWarnings("unchecked")
         ListFeature<PositionAnnotation> annotations = trainable.getFeatureVector().get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
+        Set<String> terms = CollectionHelper.newHashSet();
         if (annotations != null) {
             for (PositionAnnotation annotation : annotations) {
-                model.updateTerm(annotation.getValue(), targetClass);
+                terms.add(annotation.getValue());
             }
         }
-        model.addCategory(targetClass);
+        model.addDocument(terms, targetClass);
         return model;
     }
 

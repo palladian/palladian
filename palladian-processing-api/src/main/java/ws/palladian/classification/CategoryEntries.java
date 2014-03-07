@@ -72,4 +72,9 @@ public interface CategoryEntries extends Iterable<Category> {
      */
     Category getCategory(String categoryName);
 
+    /**
+     * @return The number of (non-null) categories.
+     */
+    int size();
+
 }

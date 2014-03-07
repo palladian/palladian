@@ -1,7 +1,5 @@
 package ws.palladian.classification.text;
 
-import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
@@ -10,6 +8,7 @@ import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -21,19 +20,16 @@ import ws.palladian.helper.collection.AbstractIterator;
  * @author pk
  * 
  */
-class CountingCategoryEntries extends AbstractCategoryEntries implements Serializable {
+class CountingCategoryEntries extends AbstractCategoryEntries {
 
-    private static final long serialVersionUID = 1L;
-
-    private final class CountingCategory implements Category, Serializable {
-        private static final long serialVersionUID = 1L;
+    private final class CountingCategory implements Category {
 
         private final String name;
         private int count;
 
-        private CountingCategory(String name) {
+        private CountingCategory(String name, int count) {
             this.name = name;
-            this.count = 1;
+            this.count = count;
         }
 
         @Override
@@ -56,12 +52,31 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
             return name + "=" + count;
         }
 
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + count;
+            result = prime * result + name.hashCode();
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null||getClass() != obj.getClass()){
+                return false;
+            }
+            CountingCategory other = (CountingCategory)obj;
+            return count == other.count && name.equals(other.name);
+        }
+
     }
 
     /** An empty, unmodifiable instance of this class (serves as null object). */
-    public static final CountingCategoryEntries EMPTY = new CountingCategoryEntries() {
-        private static final long serialVersionUID = 1L;
-
+    public static final CountingCategoryEntries EMPTY = new CountingCategoryEntries(null) {
         public void increment(String category) {
             throw new UnsupportedOperationException("This instance is read only and cannot be modified.");
         };
@@ -70,7 +85,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
     private final char[] term;
     private CountingCategory[] categories;
     private int totalCount;
-    
+
     CountingCategoryEntries next;
 
     /**
@@ -81,15 +96,17 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
     public CountingCategoryEntries(String term, String category) {
         Validate.notNull(category, "category must not be null");
         this.term = term.toCharArray();
-        this.categories = new CountingCategory[] {new CountingCategory(category)};
+        this.categories = new CountingCategory[] {new CountingCategory(category, 1)};
         this.totalCount = 1;
     }
 
     /**
      * Create a new {@link CountingCategoryEntries}. If you need an empty, unmodifiable instance, use {@link #EMPTY}.
+     * 
+     * @param term The name of the term.
      */
-    public CountingCategoryEntries() {
-        this.term = null;
+    public CountingCategoryEntries(String term) {
+        this.term = term != null ? term.toCharArray() : new char[0];
         this.categories = new CountingCategory[0];
         this.totalCount = 0;
     }
@@ -100,24 +117,35 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
      * @param category the category to increment, not <code>null</code>.
      */
     public void increment(String category) {
+        increment(category, 1);
+    }
+
+    /**
+     * Increments a category count by the given value.
+     * 
+     * @param category the category to increment, not <code>null</code>.
+     * @param count the number by which to increment, greater/equal zero.
+     */
+    public void increment(String category, int count) {
         Validate.notNull(category, "category must not be null");
-        totalCount++;
+        Validate.isTrue(count >= 0, "count must be greater/equal zero");
+        totalCount += count;
         for (int i = 0; i < categories.length; i++) {
             if (category.equals(categories[i].getName())) {
-                categories[i].count++;
+                categories[i].count += count;
                 return;
             }
         }
-        appendToArray(category);
+        appendToArray(category, count);
     }
 
-    private void appendToArray(String category) {
+    private void appendToArray(String category, int count) {
         CountingCategory[] newCategories = new CountingCategory[categories.length + 1];
         System.arraycopy(categories, 0, newCategories, 0, categories.length);
-        newCategories[categories.length] = new CountingCategory(category);
+        newCategories[categories.length] = new CountingCategory(category, count);
         categories = newCategories;
     }
-    
+
     public String getTerm() {
         return new String(term);
     }
@@ -138,8 +166,13 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
     }
 
     @Override
+    public int size() {
+        return categories.length;
+    }
+
+    @Override
     public int hashCode() {
-        return Arrays.hashCode(categories);
+        return CollectionHelper.newHashSet(categories).hashCode();
     }
 
     @Override
@@ -151,7 +184,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
             return false;
         }
         CountingCategoryEntries other = (CountingCategoryEntries)obj;
-        return Arrays.equals(categories, other.categories);
+        return DictionaryModel.equalIgnoreOrder(categories, other.categories);
     }
 
 }
