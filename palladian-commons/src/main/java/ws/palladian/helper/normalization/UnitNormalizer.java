@@ -434,7 +434,7 @@ public class UnitNormalizer {
     public static double getNormalizedNumber(String unitText) throws NumberFormatException, NullPointerException {
 
         // add space in case it's missing "2.4Ghz" => "2.4 Ghz"
-        unitText = unitText.replaceAll("(\\d)([A-Za-z])", "$1 $2").trim();
+        unitText = unitText.replaceAll("(\\d)([A-Za-z\"])", "$1 $2").trim();
         String words[] = unitText.split(" ");
 
         if (words.length == 0) {
@@ -447,7 +447,7 @@ public class UnitNormalizer {
         for (int i = 1; i < words.length; i++) {
             newUnitText += words[i] + " ";
         }
-        return getNormalizedNumber(number, newUnitText, 3, "");
+        return getNormalizedNumber(number, newUnitText.trim(), 3, "");
     }
 
     public static double getNormalizedNumber(double number, String unitText) {
