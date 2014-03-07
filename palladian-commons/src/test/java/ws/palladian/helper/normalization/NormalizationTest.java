@@ -65,6 +65,7 @@ public class NormalizationTest {
     @Test
     public void testGetNormalizedNumber() {
 
+        assertEquals(8.89, UnitNormalizer.getNormalizedNumber("3.5\""), 0.1);
         assertEquals(20.0, UnitNormalizer.getNormalizedNumber("2cl"), 2);
         assertEquals(1600000000.0, UnitNormalizer.getNormalizedNumber(1.6, " GHz, 1024MB RAM"), 2);
         assertEquals(14.785, UnitNormalizer.getNormalizedNumber(0.5, "fluid ounce"), 0.1);
