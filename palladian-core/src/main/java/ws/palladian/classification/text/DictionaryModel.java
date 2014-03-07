@@ -28,7 +28,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class DictionaryModel implements Model, Iterable<CountingCategoryEntries> {
+public final class DictionaryModel implements Model, Iterable<TermCategoryEntries> {
 
     private static final long serialVersionUID = 4L;
 
@@ -42,13 +42,13 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
     private String name = "NONAME";
 
     /** Hash table with term-category combinations with their counts. */
-    private transient CountingCategoryEntries[] entries;
+    private transient TermCategoryEntries[] entries;
 
     /** The number of terms in this dictionary. */
     private transient int numEntries;
 
     /** Categories with their counts. */
-    private transient CountingCategoryEntries priors;
+    private transient TermCategoryEntries priors;
 
     /** Configuration for the feature extraction. */
     private transient FeatureSetting featureSetting;
@@ -57,9 +57,9 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
      * @param featureSetting The feature setting which was used for creating this model.
      */
     public DictionaryModel(FeatureSetting featureSetting) {
-        this.entries = new CountingCategoryEntries[INITIAL_SIZE];
+        this.entries = new TermCategoryEntries[INITIAL_SIZE];
         this.numEntries = 0;
-        this.priors = new CountingCategoryEntries(null);
+        this.priors = new TermCategoryEntries(null);
         this.featureSetting = featureSetting;
     }
 
@@ -95,21 +95,21 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
      */
     @Deprecated
     public void updateTerm(String term, String category) {
-        CountingCategoryEntries counts = get(term);
+        TermCategoryEntries counts = get(term);
         if (counts == null) {
-            put(new CountingCategoryEntries(term, category));
+            put(new TermCategoryEntries(term, category));
         } else {
             counts.increment(category);
         }
     }
 
     public CategoryEntries getCategoryEntries(String term) {
-        CountingCategoryEntries result = get(term);
-        return result != null ? result : CountingCategoryEntries.EMPTY;
+        TermCategoryEntries result = get(term);
+        return result != null ? result : TermCategoryEntries.EMPTY;
     }
 
-    private CountingCategoryEntries get(String term) {
-        for (CountingCategoryEntries entry = entries[index(term.hashCode())]; entry != null; entry = entry.next) {
+    private TermCategoryEntries get(String term) {
+        for (TermCategoryEntries entry = entries[index(term.hashCode())]; entry != null; entry = entry.next) {
             if (entry.getTerm().equals(term)) {
                 return entry;
             }
@@ -117,7 +117,7 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         return null;
     }
 
-    private void put(CountingCategoryEntries entries) {
+    private void put(TermCategoryEntries entries) {
         numEntries++;
         if ((float)numEntries / this.entries.length > MAX_LOAD_FACTOR) {
             rehash();
@@ -125,8 +125,8 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         internalAdd(index(entries.getTerm().hashCode()), entries);
     }
 
-    private void internalAdd(int idx, CountingCategoryEntries entries) {
-        CountingCategoryEntries current = this.entries[idx];
+    private void internalAdd(int idx, TermCategoryEntries entries) {
+        TermCategoryEntries current = this.entries[idx];
         if (current == null) {
             this.entries[idx] = entries;
         } else {
@@ -140,9 +140,9 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
     }
 
     private void rehash() {
-        CountingCategoryEntries[] oldArray = entries;
-        entries = new CountingCategoryEntries[oldArray.length * 2];
-        for (CountingCategoryEntries entry : oldArray) {
+        TermCategoryEntries[] oldArray = entries;
+        entries = new TermCategoryEntries[oldArray.length * 2];
+        for (TermCategoryEntries entry : oldArray) {
             if (entry != null) {
                 internalAdd(index(entry.getTerm().hashCode()), entry);
             }
@@ -162,7 +162,7 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
     }
     
     @Override
-    public Iterator<CountingCategoryEntries> iterator() {
+    public Iterator<TermCategoryEntries> iterator() {
         return new DictionaryIterator();
     }
 
@@ -193,7 +193,7 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         printStream.print(StringUtils.join(priors, ","));
         printStream.print('\n');
         Set<String> categories = getCategories();
-        for (CountingCategoryEntries entries : this) {
+        for (TermCategoryEntries entries : this) {
             printStream.print(entries.getTerm());
             printStream.print(',');
             boolean first = true;
@@ -279,7 +279,7 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         }
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(numEntries);
-        for (CountingCategoryEntries termEntry : this) {
+        for (TermCategoryEntries termEntry : this) {
             String term = termEntry.getTerm();
             int numProbabilityEntries = termEntry.size();
             out.writeObject(term);
@@ -298,7 +298,7 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         Map<Integer, String> categoryIndices = CollectionHelper.newHashMap();
         // header
         int numCategories = in.readInt();
-        priors = new CountingCategoryEntries(null);
+        priors = new TermCategoryEntries(null);
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
             int categoryCount = in.readInt();
@@ -307,10 +307,10 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
         }
         // terms
         int numberOfTerms = in.readInt();
-        entries = new CountingCategoryEntries[(int)Math.ceil(numberOfTerms * MAX_LOAD_FACTOR)];
+        entries = new TermCategoryEntries[(int)Math.ceil(numberOfTerms * MAX_LOAD_FACTOR)];
         for (int i = 0; i < numberOfTerms; i++) {
             String term = (String)in.readObject();
-            CountingCategoryEntries categoryEntries = new CountingCategoryEntries(term);
+            TermCategoryEntries categoryEntries = new TermCategoryEntries(term);
             int numProbabilityEntries = in.readInt();
             for (int j = 0; j < numProbabilityEntries; j++) {
                 int categoryIdx = in.readInt();
@@ -326,19 +326,19 @@ public final class DictionaryModel implements Model, Iterable<CountingCategoryEn
     
     // iterator over all entries
 
-    private final class DictionaryIterator extends AbstractIterator<CountingCategoryEntries> {
+    private final class DictionaryIterator extends AbstractIterator<TermCategoryEntries> {
         int entriesIdx = 0;
-        CountingCategoryEntries next;
+        TermCategoryEntries next;
 
         @Override
-        protected CountingCategoryEntries getNext() throws Finished {
+        protected TermCategoryEntries getNext() throws Finished {
             if (next != null) {
-                CountingCategoryEntries result = next;
+                TermCategoryEntries result = next;
                 next = next.next;
                 return result;
             }
             for (entriesIdx++; entriesIdx < entries.length; entriesIdx++) {
-                CountingCategoryEntries current = entries[entriesIdx];
+                TermCategoryEntries current = entries[entriesIdx];
                 if (current != null) {
                     next = current.next;
                     return current;
