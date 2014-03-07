@@ -1,14 +1,16 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Model;
-import ws.palladian.extraction.feature.TermCorpus;
+import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -19,16 +21,21 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class DictionaryModel implements Model {
+public final class DictionaryModel implements Model, Iterable<CountingCategoryEntries> {
 
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
+    
+    private static final int INITIAL_SIZE = 1024;
+    
+    private static final float MAX_LOAD_FACTOR = 0.75f;
 
     /** The optional name of the model. */
     private String name = "NONAME";
     
     /** Term-category combinations with their counts. */
-    private CountingCategoryEntries[] termCategories = new CountingCategoryEntries[2];
+    private CountingCategoryEntries[] entries = new CountingCategoryEntries[INITIAL_SIZE];
     
+    /** The number of terms in this dictionary. */
     private int numTerms = 0;
 
     /** Categories with their counts. */
@@ -70,96 +77,58 @@ public final class DictionaryModel implements Model {
         return result != null ? result : CountingCategoryEntries.EMPTY;
     }
 
-    public CountingCategoryEntries get(String term) {
-        int hash = hash(term.hashCode());
-        CountingCategoryEntries current = termCategories[index(hash)];
-        if (current == null) {
-            return null;
-        }
-        for (;;) {
-            if (current == null) {
-                return null;
+    private CountingCategoryEntries get(String term) {
+        for (CountingCategoryEntries entry = entries[index(term.hashCode())]; entry != null; entry = entry.next) {
+            if (entry.getTerm().equals(term)) {
+                return entry;
             }
-            if (current.getTerm().equals(term)) {
-                return current;
-            }
-            current = current.next;
         }
+        return null;
     }
 
-    private int hash(int h) {
-        // This function ensures that hashCodes that differ only by
-        // constant multiples at each bit position have a bounded
-        // number of collisions (approximately 8 at default load factor).
-        h ^= (h >>> 20) ^ (h >>> 12);
-        return h ^ (h >>> 7) ^ (h >>> 4);
-    }
-
-    public void put(String term, CountingCategoryEntries entries) {
+    private void put(String term, CountingCategoryEntries entries) {
         numTerms++;
-        double load = (double)numTerms / termCategories.length;
-        if (load > 0.75) {
+        if ((float)numTerms / this.entries.length > MAX_LOAD_FACTOR) {
             rehash();
         }
-        int hash = hash(term.hashCode());
-        CountingCategoryEntries current = termCategories[index(hash)];
+        internalAdd(index(term.hashCode()), entries);
+    }
+
+    private void internalAdd(int idx, CountingCategoryEntries entries) {
+        CountingCategoryEntries current = this.entries[idx];
         if (current == null) {
-            termCategories[index(hash)] = entries;
-            return;
-        }
-        for (;;) {
-            if (current.next == null) {
-                current.next = entries;
-                return;
+            this.entries[idx] = entries;
+        } else {
+            for (;; current = current.next) {
+                if (current.next == null) {
+                    current.next = entries;
+                    break;
+                }
             }
-            current = current.next;
         }
     }
 
     private void rehash() {
-        // System.out.println("start rehash, " + termCategories.length);
-        CountingCategoryEntries[] oldArray = termCategories;
-        termCategories = new CountingCategoryEntries[oldArray.length * 2];
+        CountingCategoryEntries[] oldArray = entries;
+        entries = new CountingCategoryEntries[oldArray.length * 2];
         for (CountingCategoryEntries entry : oldArray) {
-//            System.out.println(entry);
-            for (;;) {
-                if (entry == null) {
-                    break;
-                }
-                int hash = hash(entry.getTerm().hashCode());
-                int idx = index(hash);
-                if (termCategories[idx] == null) {
-                    termCategories[idx] = entry;
-                    break;
-                } else {
-                    // add at end
-                    CountingCategoryEntries temp = termCategories[idx];
-                    for (;;) {
-                        if (temp.next == null) {
-                            temp.next = entry;
-                            break;
-                        }else{
-                            temp = temp.next;
-                        }
-                    }
-                }
-                
+            if (entry != null) {
+                internalAdd(index(entry.getTerm().hashCode()), entry);
             }
         }
-        // System.out.println("end rehash, " + termCategories.length);
     }
-    
+
     private int index(int hash) {
-        return hash & (termCategories.length-1);
+        return Math.abs(hash % entries.length);
     }
 
     public int getNumTerms() {
         return numTerms;
     }
-    
-    private Iterable<String> terms() {
-        // TODO Auto-generated method stub
-        return null;
+
+    @Override
+    public Iterator<CountingCategoryEntries> iterator() {
+        return new DictionaryIterator();
     }
 
     public int getNumCategories() {
@@ -178,7 +147,7 @@ public final class DictionaryModel implements Model {
     public void addCategory(String category) {
         priors.increment(category);
     }
-    
+
     public CategoryEntries getPriors() {
         return priors;
     }
@@ -189,31 +158,28 @@ public final class DictionaryModel implements Model {
      * invoking {@link #toString()} as the dictionary can be written directly to a file or console.
      * </p>
      * 
-     * @param printStream
+     * @param printStream The print stream to which to write the model.
      */
     public void toCsv(PrintStream printStream) {
-        // create the file head
+        Validate.notNull(printStream, "printStream must not be null");
         printStream.print("Term,");
         printStream.print(StringUtils.join(priors, ","));
-        printStream.print("\n");
-        // one word per line with term frequencies per category
+        printStream.print('\n');
         Set<String> categories = getCategories();
-        for (String term : terms()) {
-            printStream.print(term);
-            printStream.print(",");
-            // get word frequency for each category and current term
-            CategoryEntries frequencies = getCategoryEntries(term);
+        for (CountingCategoryEntries entries : this) {
+            printStream.print(entries.getTerm());
+            printStream.print(',');
             boolean first = true;
             for (String category : categories) {
-                Double probability = frequencies.getProbability(category);
+                double probability = entries.getProbability(category);
                 if (!first) {
-                    printStream.print(",");
+                    printStream.print(',');
                 } else {
                     first = false;
                 }
-                printStream.print(probability != null ? probability : "0.0");
+                printStream.print(probability);
             }
-            printStream.print("\n");
+            printStream.print('\n');
         }
         printStream.flush();
     }
@@ -229,6 +195,28 @@ public final class DictionaryModel implements Model {
         builder.append(getNumCategories());
         builder.append("]");
         return builder.toString();
+    }
+    
+    private final class DictionaryIterator extends AbstractIterator<CountingCategoryEntries> {
+        int entriesIdx = 0;
+        CountingCategoryEntries next;
+
+        @Override
+        protected CountingCategoryEntries getNext() throws Finished {
+            if (next != null) {
+                CountingCategoryEntries result = next;
+                next = next.next;
+                return result;
+            }
+            for (entriesIdx++; entriesIdx < entries.length; entriesIdx++) {
+                CountingCategoryEntries current = entries[entriesIdx];
+                if (current != null) {
+                    next = current.next;
+                    return current;
+                }
+            }
+            throw FINISHED;
+        }
     }
 
 }
