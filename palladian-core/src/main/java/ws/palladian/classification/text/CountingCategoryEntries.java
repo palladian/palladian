@@ -70,6 +70,8 @@ class CountingCategoryEntries extends AbstractCategoryEntries implements Seriali
     private final char[] term;
     private CountingCategory[] categories;
     private int totalCount;
+    
+    CountingCategoryEntries next;
 
     /**
      * Create a new {@link CountingCategoryEntries} and set the count for the given category to one.
