@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.text.TermCategoryEntries;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
@@ -994,13 +995,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
                         // search for a known instance in the prefix
                         // go through the entity dictionary
-                        for (String term : entityDictionary.getTerms()) {
+                        for (TermCategoryEntries termEntries : entityDictionary) {
+                            String term = termEntries.getTerm();
 
                             int indexPrefix = annotation.getValue().substring(0, index + length).indexOf(term + " ");
                             if (indexPrefix > -1 && term.length() > 2) {
                                 ContextAnnotation wrappedAnnotation2 = new ContextAnnotation(
-                                        annotation.getStartPosition() + indexPrefix, term, entityDictionary
-                                                .getCategoryEntries(term).getMostLikelyCategory());
+                                        annotation.getStartPosition() + indexPrefix, term, termEntries.getMostLikelyCategory());
                                 toAdd.add(wrappedAnnotation2);
 
                                 LOGGER.debug("add from prefix " + wrappedAnnotation2.getValue());
@@ -1478,10 +1479,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         }
 
         // go through the entity dictionary
-        for (String term : entityDictionary.getTerms()) {
+        for (TermCategoryEntries categoryEntries : entityDictionary) {
+            String term = categoryEntries.getTerm();
             if (term.length() < length) {
                 int index = entityName.indexOf(" " + term.toLowerCase() + " ");
-                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
+                // CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
                 String mostLikelyCategory = categoryEntries.getMostLikelyCategory();
                 if (index > -1 && term.length() > 2) {
                     ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition() + index

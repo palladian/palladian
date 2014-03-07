@@ -20,7 +20,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author pk
  * 
  */
-class CountingCategoryEntries extends AbstractCategoryEntries {
+public class TermCategoryEntries extends AbstractCategoryEntries {
 
     private final class CountingCategory implements Category {
 
@@ -76,7 +76,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries {
     }
 
     /** An empty, unmodifiable instance of this class (serves as null object). */
-    public static final CountingCategoryEntries EMPTY = new CountingCategoryEntries(null) {
+    public static final TermCategoryEntries EMPTY = new TermCategoryEntries(null) {
         public void increment(String category) {
             throw new UnsupportedOperationException("This instance is read only and cannot be modified.");
         };
@@ -86,14 +86,14 @@ class CountingCategoryEntries extends AbstractCategoryEntries {
     private CountingCategory[] categories;
     private int totalCount;
 
-    CountingCategoryEntries next;
+    TermCategoryEntries next;
 
     /**
-     * Create a new {@link CountingCategoryEntries} and set the count for the given category to one.
+     * Create a new {@link TermCategoryEntries} and set the count for the given category to one.
      * 
      * @param category The category name.
      */
-    public CountingCategoryEntries(String term, String category) {
+    TermCategoryEntries(String term, String category) {
         Validate.notNull(category, "category must not be null");
         this.term = term.toCharArray();
         this.categories = new CountingCategory[] {new CountingCategory(category, 1)};
@@ -101,11 +101,11 @@ class CountingCategoryEntries extends AbstractCategoryEntries {
     }
 
     /**
-     * Create a new {@link CountingCategoryEntries}. If you need an empty, unmodifiable instance, use {@link #EMPTY}.
+     * Create a new {@link TermCategoryEntries}. If you need an empty, unmodifiable instance, use {@link #EMPTY}.
      * 
      * @param term The name of the term.
      */
-    public CountingCategoryEntries(String term) {
+    public TermCategoryEntries(String term) {
         this.term = term != null ? term.toCharArray() : new char[0];
         this.categories = new CountingCategory[0];
         this.totalCount = 0;
@@ -116,7 +116,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries {
      * 
      * @param category the category to increment, not <code>null</code>.
      */
-    public void increment(String category) {
+    void increment(String category) {
         increment(category, 1);
     }
 
@@ -126,7 +126,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries {
      * @param category the category to increment, not <code>null</code>.
      * @param count the number by which to increment, greater/equal zero.
      */
-    public void increment(String category, int count) {
+    void increment(String category, int count) {
         Validate.notNull(category, "category must not be null");
         Validate.isTrue(count >= 0, "count must be greater/equal zero");
         totalCount += count;
@@ -146,6 +146,9 @@ class CountingCategoryEntries extends AbstractCategoryEntries {
         categories = newCategories;
     }
 
+    /**
+     * @return The term which is represented by this category entries.
+     */
     public String getTerm() {
         return new String(term);
     }
@@ -183,7 +186,7 @@ class CountingCategoryEntries extends AbstractCategoryEntries {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        CountingCategoryEntries other = (CountingCategoryEntries)obj;
+        TermCategoryEntries other = (TermCategoryEntries)obj;
         return DictionaryModel.equalIgnoreOrder(categories, other.categories);
     }
 
