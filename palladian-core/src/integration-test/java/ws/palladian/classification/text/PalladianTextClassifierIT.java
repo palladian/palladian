@@ -85,7 +85,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.spamassassin.test");
         checkExistence("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6, 6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.98);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.86);
     }
 
     /**
