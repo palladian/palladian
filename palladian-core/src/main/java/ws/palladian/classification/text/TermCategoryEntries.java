@@ -87,7 +87,7 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
     private CountingCategory[] categories;
     private int totalCount;
 
-    /** Pointer to the next entries; necessary linking to the next item in the bucket (hash table). */
+    /** Pointer to the next entries; necessary for linking to the next item in the bucket (hash table). */
     TermCategoryEntries next;
 
     /**
@@ -107,7 +107,7 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
      * 
      * @param term The name of the term.
      */
-    public TermCategoryEntries(String term) {
+    TermCategoryEntries(String term) {
         this.term = term != null ? term.toCharArray() : new char[0];
         this.categories = new CountingCategory[0];
         this.totalCount = 0;
@@ -196,8 +196,15 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
         if (!Arrays.equals(term, other.term)) {
             return false;
         }
-        if (!DictionaryModel.equalIgnoreOrder(categories, other.categories)) {
+        if (this.size() != other.size()) {
             return false;
+        }
+        for (Category thisCategory : this) {
+            int thisCount = thisCategory.getCount();
+            int otherCount = other.getCount(thisCategory.getName());
+            if (thisCount != otherCount) {
+                return false;
+            }
         }
         return true;
     }

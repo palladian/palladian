@@ -63,7 +63,6 @@ public class DictionaryModelTest {
 
     @Test
     public void testDictionaryModel() {
-        // check dictionary
         assertEquals(1., model.getCategoryEntries(WORD_1).getProbability(CATEGORY_1), 0);
         assertEquals(2, model.getCategoryEntries(WORD_1).getCount(CATEGORY_1));
         assertEquals(1., model.getCategoryEntries(WORD_2).getProbability(CATEGORY_2), 0);
@@ -73,7 +72,6 @@ public class DictionaryModelTest {
         assertEquals(1., model.getCategoryEntries(WORD_4).getProbability(CATEGORY_2), 0);
         assertEquals(0., model.getCategoryEntries(WORD_5).getProbability(CATEGORY_1), 0);
         assertEquals(0., model.getCategoryEntries(WORD_5).getProbability(CATEGORY_2), 0);
-
         assertEquals(2, model.getCategories().size());
         assertEquals(4, model.getNumTerms());
     }
@@ -88,7 +86,7 @@ public class DictionaryModelTest {
     }
 
     @Test
-    public void testDeserialization() throws FileNotFoundException, IOException {
+    public void testBackwardsCompatibility() throws FileNotFoundException, IOException {
         DictionaryModel model_v1 = FileHelper.deserialize(ResourceHelper
                 .getResourcePath("/model/testDictionaryModel_v1.ser"));
         assertTrue(model_v1.equals(model));
