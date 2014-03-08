@@ -1,7 +1,5 @@
 package ws.palladian.classification.text.evaluation;
 
-import java.io.Serializable;
-
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -11,14 +9,7 @@ import ws.palladian.helper.io.FileHelper;
  * 
  * @author David Urbansky
  */
-public class Dataset implements Serializable {
-
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only change if the interface of this class changes.
-     * </p>
-     */
-    private static final long serialVersionUID = 2279776667597421134L;
+public class Dataset {
 
     /** The name of the dataset to identify it. */
     private String name = "NONAME";
@@ -113,14 +104,6 @@ public class Dataset implements Serializable {
         return separationString;
     }
 
-    public void setUsePercentTraining(int usePercentTraining) {
-        this.usePercentTraining = usePercentTraining;
-    }
-
-    public int getUsePercentTraining() {
-        return usePercentTraining;
-    }
-
     public void setFirstFieldLink(boolean firstFieldLink) {
         this.firstFieldLink = firstFieldLink;
     }
@@ -139,9 +122,7 @@ public class Dataset implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(name);
-        return builder.toString();
+        return name;
     }
 
 }

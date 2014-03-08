@@ -161,7 +161,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
     }
 
     private TermCategoryEntries get(String term) {
-        for (TermCategoryEntries entry = entryArray[index(term.hashCode())]; entry != null; entry = entry.newEntries) {
+        for (TermCategoryEntries entry = entryArray[index(term.hashCode())]; entry != null; entry = entry.nextEntries) {
             if (entry.getTerm().equals(term)) {
                 return entry;
             }
@@ -180,7 +180,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
     private void internalAdd(int idx, TermCategoryEntries entries) {
         TermCategoryEntries current = entryArray[idx];
         entryArray[idx] = entries;
-        entries.newEntries = current;
+        entries.nextEntries = current;
     }
 
     private void rehash() {
@@ -189,7 +189,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         for (TermCategoryEntries entry : oldArray) {
             while (entry != null) {
                 TermCategoryEntries current = entry;
-                entry = current.newEntries;
+                entry = current.nextEntries;
                 internalAdd(index(current.getTerm().hashCode()), current);
             }
         }
@@ -416,13 +416,13 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         protected TermCategoryEntries getNext() throws Finished {
             if (next != null) {
                 TermCategoryEntries result = next;
-                next = next.newEntries;
+                next = next.nextEntries;
                 return result;
             }
             while (entriesIdx < entryArray.length) {
                 TermCategoryEntries current = entryArray[entriesIdx++];
                 if (current != null) {
-                    next = current.newEntries;
+                    next = current.nextEntries;
                     return current;
                 }
             }
@@ -468,7 +468,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         private int totalCount;
 
         /** Pointer to the next entries; necessary for linking to the next item in the bucket (hash table). */
-        private TermCategoryEntries newEntries;
+        private TermCategoryEntries nextEntries;
 
         /**
          * Create a new {@link TermCategoryEntries} and set the count for the given category to one.
