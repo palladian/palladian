@@ -9,14 +9,13 @@ import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
  * A mutable {@link CategoryEntries} specifically for use with the text classifier. This class keeps absolute counts of
- * the categories internally. The data is stored in an array, which might seem odd at first sight, but saves a lot of
- * memory instead of using a HashMap e.g., which has plenty of overhead (imagine, that we keep millions of instances of
- * this class within a dictionary).
+ * the categories internally. The data is stored as a linked list, which might seem odd at first sight, but saves a lot
+ * of memory instead of using a HashMap e.g., which has plenty of overhead (imagine, that we keep millions of instances
+ * of this class within a dictionary).
  * 
  * @author pk
  * 
@@ -27,6 +26,8 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
 
         private final String name;
         private int count;
+        /** Pointer to the next category (linked list). */
+        private CountingCategory next;
 
         private CountingCategory(String name, int count) {
             this.name = name;
@@ -83,9 +84,20 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
         };
     };
 
+    /**
+     * The term, stored as character array to save memory (we have short terms, where String objects have a very high
+     * relative overhead).
+     */
     private final char[] term;
-    private CountingCategory[] categories;
-    private int totalCount;
+
+    /** Pointer to the first category entry (linked list). */
+    private CountingCategory first;
+
+    /** The number of category entries. */
+    private int categoryCount;
+
+    /** The sum of all counts of all category entries. */
+    int totalCount;
 
     /** Pointer to the next entries; necessary for linking to the next item in the bucket (hash table). */
     TermCategoryEntries next;
@@ -98,7 +110,8 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
     TermCategoryEntries(String term, String category) {
         Validate.notNull(category, "category must not be null");
         this.term = term.toCharArray();
-        this.categories = new CountingCategory[] {new CountingCategory(category, 1)};
+        this.first = new CountingCategory(category, 1);
+        this.categoryCount = 1;
         this.totalCount = 1;
     }
 
@@ -109,7 +122,8 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
      */
     TermCategoryEntries(String term) {
         this.term = term != null ? term.toCharArray() : new char[0];
-        this.categories = new CountingCategory[0];
+        this.first = null;
+        this.categoryCount = 0;
         this.totalCount = 0;
     }
 
@@ -132,20 +146,20 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
         Validate.notNull(category, "category must not be null");
         Validate.isTrue(count >= 0, "count must be greater/equal zero");
         totalCount += count;
-        for (int i = 0; i < categories.length; i++) {
-            if (category.equals(categories[i].getName())) {
-                categories[i].count += count;
+        for (CountingCategory current = first; current != null; current = current.next) {
+            if (category.equals(current.getName())) {
+                current.count += count;
                 return;
             }
         }
-        appendToArray(category, count);
+        append(category, count);
     }
 
-    private void appendToArray(String category, int count) {
-        CountingCategory[] newCategories = new CountingCategory[categories.length + 1];
-        System.arraycopy(categories, 0, newCategories, 0, categories.length);
-        newCategories[categories.length] = new CountingCategory(category, count);
-        categories = newCategories;
+    private void append(String category, int count) {
+        CountingCategory tmp = first;
+        first = new CountingCategory(category, count);
+        first.next = tmp;
+        categoryCount++;
     }
 
     /**
@@ -158,28 +172,48 @@ public class TermCategoryEntries extends AbstractCategoryEntries {
     @Override
     public Iterator<Category> iterator() {
         return new AbstractIterator<Category>() {
-            int idx = 0;
+            CountingCategory current = first;
 
             @Override
             protected Category getNext() throws Finished {
-                if (idx >= categories.length) {
+                if (current == null) {
                     throw FINISHED;
                 }
-                return categories[idx++];
+                Category tmp = current;
+                current = current.next;
+                return tmp;
             }
         };
     }
 
     @Override
     public int size() {
-        return categories.length;
+        return categoryCount;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getTerm()).append(": ");
+        boolean first = true;
+        for (Category category : this) {
+            if (first) {
+                first = false;
+            } else {
+                builder.append(',');
+            }
+            builder.append(category);
+        }
+        return builder.toString();
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + CollectionHelper.newHashSet(categories).hashCode();
+        for (Category category : this) {
+            result += category.hashCode();
+        }
         result = prime * result + Arrays.hashCode(term);
         return result;
     }

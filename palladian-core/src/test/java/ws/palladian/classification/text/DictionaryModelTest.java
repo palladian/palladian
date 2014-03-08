@@ -92,4 +92,18 @@ public class DictionaryModelTest {
         assertTrue(model_v1.equals(model));
     }
 
+    @Test
+    public void testTermCategoryEntries() {
+        TermCategoryEntries entries1 = new TermCategoryEntries(WORD_3);
+        entries1.increment(CATEGORY_1, 3);
+        entries1.increment(CATEGORY_2, 1);
+        assertEquals(2, entries1.size());
+        assertEquals(4, entries1.totalCount);
+        TermCategoryEntries entries2 = new TermCategoryEntries(WORD_3);
+        entries2.increment(CATEGORY_2, 1);
+        entries2.increment(CATEGORY_1, 3);
+        assertTrue(entries1.equals(entries2));
+        assertEquals(entries1.hashCode(), entries2.hashCode());
+    }
+
 }
