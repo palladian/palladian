@@ -79,6 +79,15 @@ public class PalladianTextClassifierIT {
         assertAccuracy(trainFile, testFile, featureSetting, 0.54);
     }
 
+    @Test
+    public void testSpamAssassinChar() {
+        String trainFile = config.getString("dataset.spamassassin.train");
+        String testFile = config.getString("dataset.spamassassin.test");
+        checkExistence("SpamAssassin", trainFile, testFile);
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6, 6).maxTerms(1000).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.98);
+    }
+
     /**
      * <p>
      * Use the training set, train a classifier, check accuracy on test set.
