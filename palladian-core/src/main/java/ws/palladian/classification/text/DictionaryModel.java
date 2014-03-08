@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Model;
@@ -22,13 +24,20 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
- * The model implementation for the {@link PalladianTextClassifier}.
- * </p>
+ * The model implementation for the {@link PalladianTextClassifier}. This class contains a hash table for terms and
+ * associated probabilities for each term in different categories. The internals of this class are optimized for low
+ * memory footprint, which means in particular, that no standard <code>java.util.*</code> classes are used for storage,
+ * because they have a high memory overhead. The term table uses closed addressing, associations between entries and
+ * categories are implemented as linked lists. In comparison to the former, "naive" implementation using nested hash
+ * maps, the memory consumption is lowered to approximately 60 %.
+ * <p>
+ * The following image gives an overview over the internal structure:<br/>
+ * <img src="doc-files/DictionaryModel.png" />
  * 
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class DictionaryModel implements Model, Iterable<TermCategoryEntries> {
+public final class DictionaryModel implements Model, Iterable<DictionaryModel.TermCategoryEntries> {
 
     /**
      * Do not change this from now on, use the {@link #VERSION} instead, if you make incompatible changes, and ensure
@@ -118,7 +127,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         for (String term : terms) {
             updateTerm(term, category);
         }
-        priors.increment(category);
+        priors.increment(category, 1);
     }
 
     /**
@@ -132,7 +141,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         if (counts == null) {
             put(new TermCategoryEntries(term, category));
         } else {
-            counts.increment(category);
+            counts.increment(category, 1);
         }
     }
 
@@ -152,7 +161,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     }
 
     private TermCategoryEntries get(String term) {
-        for (TermCategoryEntries entry = entryArray[index(term.hashCode())]; entry != null; entry = entry.next) {
+        for (TermCategoryEntries entry = entryArray[index(term.hashCode())]; entry != null; entry = entry.newEntries) {
             if (entry.getTerm().equals(term)) {
                 return entry;
             }
@@ -171,7 +180,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     private void internalAdd(int idx, TermCategoryEntries entries) {
         TermCategoryEntries current = entryArray[idx];
         entryArray[idx] = entries;
-        entries.next = current;
+        entries.newEntries = current;
     }
 
     private void rehash() {
@@ -180,7 +189,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         for (TermCategoryEntries entry : oldArray) {
             while (entry != null) {
                 TermCategoryEntries current = entry;
-                entry = current.next;
+                entry = current.newEntries;
                 internalAdd(index(current.getTerm().hashCode()), current);
             }
         }
@@ -407,18 +416,257 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         protected TermCategoryEntries getNext() throws Finished {
             if (next != null) {
                 TermCategoryEntries result = next;
-                next = next.next;
+                next = next.newEntries;
                 return result;
             }
             while (entriesIdx < entryArray.length) {
                 TermCategoryEntries current = entryArray[entriesIdx++];
                 if (current != null) {
-                    next = current.next;
+                    next = current.newEntries;
                     return current;
                 }
             }
             throw FINISHED;
         }
+    }
+
+    // inner classes
+
+    /**
+     * <p>
+     * A mutable {@link CategoryEntries} specifically for use with the text classifier. This class keeps absolute counts
+     * of the categories internally. The data is stored as a linked list, which might seem odd at first sight, but saves
+     * a lot of memory instead of using a HashMap e.g., which has plenty of overhead (imagine, that we keep millions of
+     * instances of this class within a dictionary).
+     * 
+     * @author pk
+     * 
+     */
+    public static class TermCategoryEntries extends AbstractCategoryEntries {
+
+        /** An empty, unmodifiable instance of this class (serves as null object). */
+        public static final TermCategoryEntries EMPTY = new TermCategoryEntries(null) {
+            @Override
+            void increment(String category, int count) {
+                throw new UnsupportedOperationException("This instance is read only and cannot be modified.");
+            };
+        };
+
+        /**
+         * The term, stored as character array to save memory (we have short terms, where String objects have a very
+         * high relative overhead).
+         */
+        private final char[] term;
+
+        /** Pointer to the first category entry (linked list). */
+        private CountingCategory firstCategory;
+
+        /** The number of category entries. */
+        private int categoryCount;
+
+        /** The sum of all counts of all category entries. */
+        private int totalCount;
+
+        /** Pointer to the next entries; necessary for linking to the next item in the bucket (hash table). */
+        private TermCategoryEntries newEntries;
+
+        /**
+         * Create a new {@link TermCategoryEntries} and set the count for the given category to one.
+         * 
+         * @param category The category name.
+         */
+        private TermCategoryEntries(String term, String category) {
+            Validate.notNull(category, "category must not be null");
+            this.term = term.toCharArray();
+            this.firstCategory = new CountingCategory(category, 1, this);
+            this.categoryCount = 1;
+            this.totalCount = 1;
+        }
+
+        /**
+         * Create a new {@link TermCategoryEntries}. If you need an empty, unmodifiable instance, use {@link #EMPTY}.
+         * 
+         * @param term The name of the term.
+         */
+        TermCategoryEntries(String term) {
+            this.term = term != null ? term.toCharArray() : new char[0];
+            this.firstCategory = null;
+            this.categoryCount = 0;
+            this.totalCount = 0;
+        }
+
+        /**
+         * Increments a category count by the given value.
+         * 
+         * @param category the category to increment, not <code>null</code>.
+         * @param count the number by which to increment, greater/equal zero.
+         */
+        void increment(String category, int count) {
+            Validate.notNull(category, "category must not be null");
+            Validate.isTrue(count >= 0, "count must be greater/equal zero");
+            totalCount += count;
+            for (CountingCategory current = firstCategory; current != null; current = current.nextCategory) {
+                if (category.equals(current.getName())) {
+                    current.count += count;
+                    return;
+                }
+            }
+            append(category, count);
+        }
+
+        private void append(String category, int count) {
+            CountingCategory tmp = firstCategory;
+            firstCategory = new CountingCategory(category, count, this);
+            firstCategory.nextCategory = tmp;
+            categoryCount++;
+        }
+
+        /**
+         * @return The term which is represented by this category entries.
+         */
+        public String getTerm() {
+            return new String(term);
+        }
+
+        /**
+         * @return The sum of all counts of all entries.
+         */
+        int getTotalCount() {
+            return totalCount;
+        }
+
+        @Override
+        public Iterator<Category> iterator() {
+            return new AbstractIterator<Category>() {
+                CountingCategory current = firstCategory;
+
+                @Override
+                protected Category getNext() throws Finished {
+                    if (current == null) {
+                        throw FINISHED;
+                    }
+                    Category tmp = current;
+                    current = current.nextCategory;
+                    return tmp;
+                }
+            };
+        }
+
+        @Override
+        public int size() {
+            return categoryCount;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append(getTerm()).append(": ");
+            boolean first = true;
+            for (Category category : this) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append(',');
+                }
+                builder.append(category);
+            }
+            return builder.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            for (Category category : this) {
+                result += category.hashCode();
+            }
+            result = prime * result + Arrays.hashCode(term);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            TermCategoryEntries other = (TermCategoryEntries)obj;
+            if (!Arrays.equals(term, other.term)) {
+                return false;
+            }
+            if (this.size() != other.size()) {
+                return false;
+            }
+            for (Category thisCategory : this) {
+                int thisCount = thisCategory.getCount();
+                int otherCount = other.getCount(thisCategory.getName());
+                if (thisCount != otherCount) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    }
+
+    private static final class CountingCategory implements Category {
+
+        private final String categoryName;
+        private int count;
+        /** Pointer to the next category (linked list). */
+        private CountingCategory nextCategory;
+        /** Reference to the container class. */
+        private final TermCategoryEntries entries;
+
+        private CountingCategory(String name, int count, TermCategoryEntries entries) {
+            this.categoryName = name;
+            this.count = count;
+            this.entries = entries;
+        }
+
+        @Override
+        public double getProbability() {
+            return (double)count / entries.totalCount;
+        }
+
+        @Override
+        public String getName() {
+            return categoryName;
+        }
+
+        @Override
+        public int getCount() {
+            return count;
+        }
+
+        @Override
+        public String toString() {
+            return categoryName + "=" + count;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + count;
+            result = prime * result + categoryName.hashCode();
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            CountingCategory other = (CountingCategory)obj;
+            return count == other.count && categoryName.equals(other.categoryName);
+        }
+
     }
 
 }
