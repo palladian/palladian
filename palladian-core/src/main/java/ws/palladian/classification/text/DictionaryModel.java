@@ -48,8 +48,8 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     /** The maximum load factor, until we do a re-hashing. */
     private static final float MAX_LOAD_FACTOR = 0.75f;
 
-    /** The optional name of the model. */
-    private transient String name = "NONAME";
+    /** Default, when no name is assigned. */
+    private static final String NO_NAME = "NONAME";
 
     /** Hash table with term-category combinations with their counts. */
     private transient TermCategoryEntries[] entryArray;
@@ -63,24 +63,43 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     /** Configuration for the feature extraction. */
     private transient FeatureSetting featureSetting;
 
+    /** The optional name of the model. */
+    private transient String name;
+
     /**
-     * @param featureSetting The feature setting which was used for creating this model.
+     * Create a new {@link DictionaryModel}.
+     * 
+     * @param featureSetting The feature setting which was used for creating this model, may be <code>null</code>.
      */
     public DictionaryModel(FeatureSetting featureSetting) {
         this.entryArray = new TermCategoryEntries[INITIAL_SIZE];
         this.numTerms = 0;
         this.priors = new TermCategoryEntries(null);
         this.featureSetting = featureSetting;
+        this.name = NO_NAME;
     }
 
+    /**
+     * @return The name of this model, or {@value #NO_NAME} in case no name was specified.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Set a name for this model.
+     * 
+     * @param name The name, not <code>null</code>.
+     */
     public void setName(String name) {
+        Validate.notNull(name, "name must not be null");
         this.name = name;
     }
 
+    /**
+     * @return The feature setting which was used for extracting the features in this model, or <code>null</code> in
+     *         case not specified.
+     */
     public FeatureSetting getFeatureSetting() {
         return featureSetting;
     }
@@ -117,7 +136,17 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         }
     }
 
-    public CategoryEntries getCategoryEntries(String term) {
+    /**
+     * <p>
+     * Get the probabilities for the given term in different categories.
+     * </p>
+     * 
+     * @param term The term, not <code>null</code>.
+     * @return The category probabilities for the specified term, or an empty {@link TermCategoryEntries} instance, in
+     *         case the term is not present in this model. Never <code>null</code>.
+     */
+    public TermCategoryEntries getCategoryEntries(String term) {
+        Validate.notNull(term, "term must not be null");
         TermCategoryEntries result = get(term);
         return result != null ? result : TermCategoryEntries.EMPTY;
     }
@@ -161,12 +190,18 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         return Math.abs(hash % entryArray.length);
     }
 
+    /**
+     * @return The number of distinct terms in this model.
+     */
     public int getNumTerms() {
         return numTerms;
     }
 
+    /**
+     * @return The number of distinct categories in this model.
+     */
     public int getNumCategories() {
-        return priors.size();
+        return getCategories().size();
     }
 
     @Override
@@ -181,7 +216,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
             categories.add(category.getName());
         }
         if (categories.isEmpty()) {
-            // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method, 
+            // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
             // we need to collect the category names from the term entries
             for (TermCategoryEntries entries : this) {
                 for (Category category : entries) {
@@ -192,6 +227,10 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         return categories;
     }
 
+    /**
+     * @return The prior probabilities for the trained categories. (e.g. category "A" appeared 10 times, category "B"
+     *         appeared 15 times during training would make a prior 10/25=0.4 for category "A").
+     */
     public CategoryEntries getPriors() {
         return priors;
     }
@@ -202,7 +241,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
      * invoking {@link #toString()} as the dictionary can be written directly to a file or console.
      * </p>
      * 
-     * @param printStream The print stream to which to write the model.
+     * @param printStream The print stream to which to write the model, not <code>null</code>.
      */
     public void toCsv(PrintStream printStream) {
         Validate.notNull(printStream, "printStream must not be null");
@@ -233,13 +272,9 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("DictionaryModel [featureSetting=");
-        builder.append(featureSetting);
-        builder.append(", numTerms=");
-        builder.append(getNumTerms());
-        builder.append(", numCategories=");
-        builder.append(getNumCategories());
-        builder.append("]");
+        builder.append("DictionaryModel [featureSetting=").append(featureSetting);
+        builder.append(", #terms=").append(getNumTerms());
+        builder.append(", #categories=").append(getNumCategories()).append("]");
         return builder.toString();
     }
 
@@ -278,14 +313,17 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         if (!priors.equals(other.priors)) {
             return false;
         }
-        if (!equalIgnoreOrder(entryArray, other.entryArray)) {
-            return false;
+        for (TermCategoryEntries thisEntries : this) {
+            TermCategoryEntries otherEntries = getCategoryEntries(thisEntries.getTerm());
+            if (!thisEntries.equals(otherEntries)) {
+                return false;
+            }
         }
         return true;
     }
 
     // serialization code
-    
+
     // Implementation note: in case you make any incompatible changes to the serialization protocol, provide backwards
     // compatibility by using the #VERSION constant. Add a test case for the new version and make sure, deserialization
     // of existing models still works (we keep a serialized form of each version from now on for the tests).
@@ -338,7 +376,7 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
         }
         // terms
         int numberOfTerms = in.readInt();
-        entryArray = new TermCategoryEntries[(int)Math.ceil(numberOfTerms * MAX_LOAD_FACTOR)];
+        entryArray = new TermCategoryEntries[INITIAL_SIZE];
         for (int i = 0; i < numberOfTerms; i++) {
             String term = (String)in.readObject();
             TermCategoryEntries categoryEntries = new TermCategoryEntries(term);
@@ -379,24 +417,6 @@ public final class DictionaryModel implements Model, Iterable<TermCategoryEntrie
             }
             throw FINISHED;
         }
-    }
-
-    // utility
-
-    /**
-     * <p>
-     * Check, if two arrays contain the same elements, no matter in what order and ignoring duplicates (e.g.
-     * <code>[2,1,2].equalIgnoreOrder([1,2])</code>).
-     * </p>
-     * 
-     * @param arrayA The first array, not <code>null</code>.
-     * @param arrayB The second array, not <code>null</code>.
-     * @return <code>true</code> in case both arrays contain exactly the same elements.
-     */
-    static boolean equalIgnoreOrder(Object[] arrayA, Object[] arrayB) {
-        Set<Object> tempA = CollectionHelper.newHashSet(arrayA);
-        Set<Object> tempB = CollectionHelper.newHashSet(arrayB);
-        return tempA.equals(tempB);
     }
 
 }
