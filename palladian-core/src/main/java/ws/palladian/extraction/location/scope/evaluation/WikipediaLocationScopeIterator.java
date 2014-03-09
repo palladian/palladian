@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
@@ -90,6 +91,10 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
                 }
                 WikipediaPage page = new WikipediaPage(0, 0, StringUtils.EMPTY, markupContent);
                 GeoCoordinate scope = page.getCoordinate();
+                if (scope != null) {
+                    // save some memory, we don't need all that additional information in MarkupGeoCoordinate
+                    scope = new ImmutableGeoCoordinate(scope.getLatitude(), scope.getLongitude());
+                }
                 Location scopeLocation = new ImmutableLocation(-1, UNDETERMINED, LocationType.UNDETERMINED, scope, null);
                 return new LocationDocument(currentFile.getName(), page.getCleanText(), null, scopeLocation);
             }
