@@ -990,4 +990,22 @@ public final class CollectionHelper {
         return true;
     }
 
+    /**
+     * <p>
+     * Count the number of elements in an {@link Iterator}.
+     * </p>
+     * 
+     * @param iterator The iterator, not <code>null</code>.
+     * @return The number of elements.
+     */
+    public static int count(Iterator<?> iterator) {
+        Validate.notNull(iterator, "iterator must not be null");
+        int count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count++;
+        }
+        return count;
+    }
+
 }
