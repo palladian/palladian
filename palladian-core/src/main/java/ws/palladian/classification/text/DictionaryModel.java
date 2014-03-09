@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -20,18 +21,24 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Model;
 import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
- * The model implementation for the {@link PalladianTextClassifier}. This class contains a hash table for terms and
- * associated probabilities for each term in different categories. The internals of this class are optimized for low
- * memory footprint, which means in particular, that no standard <code>java.util.*</code> classes are used for storage,
- * because they have a high memory overhead. The term table uses closed addressing, associations between entries and
- * categories are implemented as linked lists. In comparison to the former, "naive" implementation using nested hash
- * maps, the memory consumption is lowered to approximately 60 %.
+ * The model implementation for the {@link PalladianTextClassifier}. This class uses a <a
+ * href="http://en.wikipedia.org/wiki/Trie">trie</a> for terms and associated probabilities for each term in different
+ * categories. The internals of this class are optimized for low memory footprint, which means in particular, that no
+ * standard <code>java.util.*</code> classes are used for storage, because they have a high memory overhead. Each trie
+ * node links to its parent and to its children, further, it maintains a linked list for category probabilities, in case
+ * the term belongs to the dictionary. In comparison to the former, "naive" implementation using nested hash maps, the
+ * memory consumption is lowered to approximately 1/3, because the trie allows sharing common prefixes, which typically
+ * occur when extracting high amounts of n-grams.
  * <p>
- * The following image gives an overview over the internal structure:<br/>
+ * The following image gives an overview over the internal structure. The dictionary contains the terms "foo", "tea",
+ * "the", and "theme", for each of those terms, LinkedCategories are maintained, which keep the occurrence counts of the
+ * terms in the trained categories.
+ * <p>
  * <img src="doc-files/DictionaryModel.png" />
  * 
  * @author David Urbansky
@@ -51,23 +58,20 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
      */
     private static final int VERSION = 1;
 
-    /** The initial size of the hash table. */
-    private static final int INITIAL_SIZE = 1024;
-
-    /** The maximum load factor, until we do a re-hashing. */
-    private static final float MAX_LOAD_FACTOR = 0.75f;
-
     /** Default, when no name is assigned. */
     private static final String NO_NAME = "NONAME";
 
+    /**
+     * The key under which to store the prior probabilities; empty string so that the priors are stored in the root node
+     * of the trie.
+     */
+    private static final String PRIOR_KEY = StringUtils.EMPTY;
+
     /** Hash table with term-category combinations with their counts. */
-    private transient TermCategoryEntries[] entryArray;
+    private transient TermCategoryEntries entryTrie;
 
     /** The number of terms in this dictionary. */
     private transient int numTerms;
-
-    /** Categories with their counts. */
-    private transient TermCategoryEntries priors;
 
     /** Configuration for the feature extraction. */
     private transient FeatureSetting featureSetting;
@@ -81,9 +85,8 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
      * @param featureSetting The feature setting which was used for creating this model, may be <code>null</code>.
      */
     public DictionaryModel(FeatureSetting featureSetting) {
-        this.entryArray = new TermCategoryEntries[INITIAL_SIZE];
+        this.entryTrie = new TermCategoryEntries();
         this.numTerms = 0;
-        this.priors = new TermCategoryEntries(null);
         this.featureSetting = featureSetting;
         this.name = NO_NAME;
     }
@@ -127,7 +130,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         for (String term : terms) {
             updateTerm(term, category);
         }
-        priors.increment(category, 1);
+        entryTrie.getOrAdd(PRIOR_KEY, true).increment(category, 1);
     }
 
     /**
@@ -137,12 +140,11 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
     public void updateTerm(String term, String category) {
         Validate.notNull(term, "term must not be null");
         Validate.notNull(category, "category must not be null");
-        TermCategoryEntries counts = get(term);
-        if (counts == null) {
-            put(new TermCategoryEntries(term, category));
-        } else {
-            counts.increment(category, 1);
+        TermCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
+        if (categoryEntries.totalCount == 0) { // term was not present before
+            numTerms++;
         }
+        categoryEntries.increment(category, 1);
     }
 
     /**
@@ -156,47 +158,8 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
      */
     public TermCategoryEntries getCategoryEntries(String term) {
         Validate.notNull(term, "term must not be null");
-        TermCategoryEntries result = get(term);
-        return result != null ? result : TermCategoryEntries.EMPTY;
-    }
-
-    private TermCategoryEntries get(String term) {
-        for (TermCategoryEntries entry = entryArray[index(term.hashCode())]; entry != null; entry = entry.nextEntries) {
-            if (entry.getTerm().equals(term)) {
-                return entry;
-            }
-        }
-        return null;
-    }
-
-    private void put(TermCategoryEntries entries) {
-        numTerms++;
-        if ((float)numTerms / entryArray.length > MAX_LOAD_FACTOR) {
-            rehash();
-        }
-        internalAdd(index(entries.getTerm().hashCode()), entries);
-    }
-
-    private void internalAdd(int idx, TermCategoryEntries entries) {
-        TermCategoryEntries current = entryArray[idx];
-        entryArray[idx] = entries;
-        entries.nextEntries = current;
-    }
-
-    private void rehash() {
-        TermCategoryEntries[] oldArray = entryArray;
-        entryArray = new TermCategoryEntries[oldArray.length * 2];
-        for (TermCategoryEntries entry : oldArray) {
-            while (entry != null) {
-                TermCategoryEntries current = entry;
-                entry = current.nextEntries;
-                internalAdd(index(current.getTerm().hashCode()), current);
-            }
-        }
-    }
-
-    private int index(int hash) {
-        return Math.abs(hash % entryArray.length);
+        TermCategoryEntries node = entryTrie.get(term);
+        return node != null ? node : TermCategoryEntries.EMPTY;
     }
 
     /**
@@ -215,16 +178,18 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
 
     @Override
     public Iterator<TermCategoryEntries> iterator() {
-        return new DictionaryIterator();
+        return new TrieIterator(entryTrie);
     }
 
     @Override
     public Set<String> getCategories() {
         Set<String> categories = CollectionHelper.newHashSet();
-        for (Category category : priors) {
-            categories.add(category.getName());
-        }
-        if (categories.isEmpty()) {
+        CategoryEntries priors = getPriors();
+        if (priors.size() > 0) {
+            for (Category category : priors) {
+                categories.add(category.getName());
+            }
+        } else {
             // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
             // we need to collect the category names from the term entries
             for (TermCategoryEntries entries : this) {
@@ -241,7 +206,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
      *         appeared 15 times during training would make a prior 10/25=0.4 for category "A").
      */
     public CategoryEntries getPriors() {
-        return priors;
+        return entryTrie.get(PRIOR_KEY);
     }
 
     /**
@@ -255,7 +220,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
     public void toCsv(PrintStream printStream) {
         Validate.notNull(printStream, "printStream must not be null");
         printStream.print("Term,");
-        printStream.print(StringUtils.join(priors, ","));
+        printStream.print(StringUtils.join(getPriors(), ","));
         printStream.print('\n');
         Set<String> categories = getCategories();
         for (TermCategoryEntries entries : this) {
@@ -298,7 +263,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         }
         result = prime * result + (featureSetting == null ? 0 : featureSetting.hashCode());
         result = prime * result + numTerms;
-        result = prime * result + priors.hashCode();
+        result = prime * result + getPriors().hashCode();
         return result;
     }
 
@@ -321,11 +286,11 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         if (numTerms != other.numTerms) {
             return false;
         }
-        if (!priors.equals(other.priors)) {
+        if (!getPriors().equals(other.getPriors())) {
             return false;
         }
         for (TermCategoryEntries thisEntries : this) {
-            TermCategoryEntries otherEntries = getCategoryEntries(thisEntries.getTerm());
+            TermCategoryEntries otherEntries = other.getCategoryEntries(thisEntries.getTerm());
             if (!thisEntries.equals(otherEntries)) {
                 return false;
             }
@@ -346,6 +311,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         out.writeInt(VERSION);
         // header; number of categories; [ (categoryName, count) , ...]
         out.writeInt(categoryIndices.size());
+        CategoryEntries priors = getPriors();
         for (String categoryName : categoryIndices) {
             out.writeObject(categoryName);
             out.writeInt(priors.getCount(categoryName));
@@ -353,10 +319,8 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(numTerms);
         for (TermCategoryEntries termEntry : this) {
-            String term = termEntry.getTerm();
-            int numProbabilityEntries = termEntry.size();
-            out.writeObject(term);
-            out.writeInt(numProbabilityEntries);
+            out.writeObject(termEntry.getTerm());
+            out.writeInt(termEntry.size());
             for (Category category : termEntry) {
                 int categoryIdx = categoryIndices.headSet(category.getName()).size();
                 out.writeInt(categoryIdx);
@@ -376,21 +340,21 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
             throw new IOException("Unsupported version: " + version);
         }
         Map<Integer, String> categoryIndices = CollectionHelper.newHashMap();
+        entryTrie = new TermCategoryEntries();
         // header
         int numCategories = in.readInt();
-        priors = new TermCategoryEntries(null);
+        TermCategoryEntries priorEntries = entryTrie.getOrAdd(PRIOR_KEY, true);
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
             int categoryCount = in.readInt();
-            priors.increment(categoryName, categoryCount);
+            priorEntries.increment(categoryName, categoryCount);
             categoryIndices.put(i, categoryName);
         }
         // terms
-        int numberOfTerms = in.readInt();
-        entryArray = new TermCategoryEntries[INITIAL_SIZE];
-        for (int i = 0; i < numberOfTerms; i++) {
+        numTerms = in.readInt();
+        for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
-            TermCategoryEntries categoryEntries = new TermCategoryEntries(term);
+            TermCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
             int numProbabilityEntries = in.readInt();
             for (int j = 0; j < numProbabilityEntries; j++) {
                 int categoryIdx = in.readInt();
@@ -398,7 +362,6 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
                 int categoryCount = in.readInt();
                 categoryEntries.increment(categoryName, categoryCount);
             }
-            put(categoryEntries);
         }
         // feature setting
         featureSetting = (FeatureSetting)in.readObject();
@@ -408,91 +371,101 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
 
     // iterator over all entries
 
-    private final class DictionaryIterator extends AbstractIterator<TermCategoryEntries> {
-        int entriesIdx = 0;
-        TermCategoryEntries next;
+    private static final class TrieIterator extends AbstractIterator<TermCategoryEntries> {
+        private final Deque<Iterator<TermCategoryEntries>> stack;
+
+        private TrieIterator(TermCategoryEntries root) {
+            stack = new ArrayDeque<Iterator<TermCategoryEntries>>();
+            stack.push(root.children());
+        }
 
         @Override
         protected TermCategoryEntries getNext() throws Finished {
-            if (next != null) {
-                TermCategoryEntries result = next;
-                next = next.nextEntries;
-                return result;
-            }
-            while (entriesIdx < entryArray.length) {
-                TermCategoryEntries current = entryArray[entriesIdx++];
-                if (current != null) {
-                    next = current.nextEntries;
-                    return current;
+            for (;;) {
+                if (stack.isEmpty()) {
+                    throw FINISHED;
+                }
+                Iterator<TermCategoryEntries> current = stack.peek();
+                if (!current.hasNext()) {
+                    throw FINISHED;
+                }
+                TermCategoryEntries node = current.next();
+                if (!current.hasNext()) {
+                    stack.pop();
+                }
+                Iterator<TermCategoryEntries> children = node.children();
+                if (children.hasNext()) {
+                    stack.push(children);
+                }
+                if (node.hasData()) {
+                    return node;
                 }
             }
-            throw FINISHED;
         }
     }
 
     // inner classes
 
-    /**
-     * <p>
-     * A mutable {@link CategoryEntries} specifically for use with the text classifier. This class keeps absolute counts
-     * of the categories internally. The data is stored as a linked list, which might seem odd at first sight, but saves
-     * a lot of memory instead of using a HashMap e.g., which has plenty of overhead (imagine, that we keep millions of
-     * instances of this class within a dictionary).
-     * 
-     * @author pk
-     * 
-     */
     public static class TermCategoryEntries extends AbstractCategoryEntries {
 
-        /** An empty, unmodifiable instance of this class (serves as null object). */
-        public static final TermCategoryEntries EMPTY = new TermCategoryEntries(null) {
-            @Override
-            void increment(String category, int count) {
-                throw new UnsupportedOperationException("This instance is read only and cannot be modified.");
-            };
-        };
+        private static final char EMPTY_CHARACTER = '\u0000';
 
-        /**
-         * The term, stored as character array to save memory (we have short terms, where String objects have a very
-         * high relative overhead).
-         */
-        private final char[] term;
+        private static final TermCategoryEntries EMPTY = new TermCategoryEntries();
 
-        /** Pointer to the first category entry (linked list). */
-        private CountingCategory firstCategory;
+        private static final TermCategoryEntries[] EMPTY_ARRAY = new TermCategoryEntries[0];
 
-        /** The number of category entries. */
-        private int categoryCount;
+        private final char character;
 
-        /** The sum of all counts of all category entries. */
+        private final TermCategoryEntries parent;
+
+        private TermCategoryEntries[] children = EMPTY_ARRAY;
+
+        private LinkedCategory firstCategory;
+
         private int totalCount;
 
-        /** Pointer to the next entries; necessary for linking to the next item in the bucket (hash table). */
-        private TermCategoryEntries nextEntries;
-
-        /**
-         * Create a new {@link TermCategoryEntries} and set the count for the given category to one.
-         * 
-         * @param category The category name.
-         */
-        private TermCategoryEntries(String term, String category) {
-            Validate.notNull(category, "category must not be null");
-            this.term = term.toCharArray();
-            this.firstCategory = new CountingCategory(category, 1, this);
-            this.categoryCount = 1;
-            this.totalCount = 1;
+        private TermCategoryEntries() {
+            this(EMPTY_CHARACTER, null);
         }
 
-        /**
-         * Create a new {@link TermCategoryEntries}. If you need an empty, unmodifiable instance, use {@link #EMPTY}.
-         * 
-         * @param term The name of the term.
-         */
-        TermCategoryEntries(String term) {
-            this.term = term != null ? term.toCharArray() : new char[0];
-            this.firstCategory = null;
-            this.categoryCount = 0;
-            this.totalCount = 0;
+        private TermCategoryEntries(char character, TermCategoryEntries parent) {
+            this.character = character;
+            this.parent = parent;
+        }
+
+        private TermCategoryEntries get(CharSequence key) {
+            return getOrAdd(key, false);
+        }
+
+        private TermCategoryEntries getOrAdd(CharSequence key, boolean create) {
+            if (key == null || key.length() == 0) {
+                return this;
+            }
+            char head = key.charAt(0);
+            CharSequence tail = tail(key);
+            for (TermCategoryEntries node : children) {
+                if (head == node.character) {
+                    return node.getOrAdd(tail, create);
+                }
+            }
+            if (create) {
+                TermCategoryEntries newNode = new TermCategoryEntries(head, this);
+                if (children == EMPTY_ARRAY) {
+                    children = new TermCategoryEntries[] {newNode};
+                } else {
+                    TermCategoryEntries[] newArray = new TermCategoryEntries[children.length + 1];
+                    System.arraycopy(children, 0, newArray, 0, children.length);
+                    newArray[children.length] = newNode;
+                    children = newArray;
+                }
+                return newNode.getOrAdd(tail, create);
+            } else {
+                return null;
+            }
+        }
+
+        private CharSequence tail(CharSequence seq) {
+            return seq.length() > 1 ? seq.subSequence(1, seq.length()) : null;
         }
 
         /**
@@ -501,11 +474,9 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
          * @param category the category to increment, not <code>null</code>.
          * @param count the number by which to increment, greater/equal zero.
          */
-        void increment(String category, int count) {
-            Validate.notNull(category, "category must not be null");
-            Validate.isTrue(count >= 0, "count must be greater/equal zero");
+        private void increment(String category, int count) {
             totalCount += count;
-            for (CountingCategory current = firstCategory; current != null; current = current.nextCategory) {
+            for (LinkedCategory current = firstCategory; current != null; current = current.nextCategory) {
                 if (category.equals(current.getName())) {
                     current.count += count;
                     return;
@@ -515,30 +486,15 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         }
 
         private void append(String category, int count) {
-            CountingCategory tmp = firstCategory;
-            firstCategory = new CountingCategory(category, count, this);
+            LinkedCategory tmp = firstCategory;
+            firstCategory = new LinkedCategory(category, count, this);
             firstCategory.nextCategory = tmp;
-            categoryCount++;
-        }
-
-        /**
-         * @return The term which is represented by this category entries.
-         */
-        public String getTerm() {
-            return new String(term);
-        }
-
-        /**
-         * @return The sum of all counts of all entries.
-         */
-        int getTotalCount() {
-            return totalCount;
         }
 
         @Override
         public Iterator<Category> iterator() {
             return new AbstractIterator<Category>() {
-                CountingCategory current = firstCategory;
+                LinkedCategory current = firstCategory;
 
                 @Override
                 protected Category getNext() throws Finished {
@@ -552,25 +508,22 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
             };
         }
 
-        @Override
-        public int size() {
-            return categoryCount;
+        private Iterator<TermCategoryEntries> children() {
+            return new ArrayIterator<TermCategoryEntries>(children);
         }
 
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append(getTerm()).append(": ");
-            boolean first = true;
-            for (Category category : this) {
-                if (first) {
-                    first = false;
-                } else {
-                    builder.append(',');
+        private boolean hasData() {
+            return firstCategory != null;
+        }
+
+        public String getTerm() {
+            StringBuilder builder = new StringBuilder().append(character);
+            for (TermCategoryEntries current = parent; current != null; current = current.parent) {
+                if (current.character != EMPTY_CHARACTER) {
+                    builder.append(current.character);
                 }
-                builder.append(category);
             }
-            return builder.toString();
+            return builder.reverse().toString();
         }
 
         @Override
@@ -580,7 +533,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
             for (Category category : this) {
                 result += category.hashCode();
             }
-            result = prime * result + Arrays.hashCode(term);
+            result = prime * result + getTerm().hashCode();
             return result;
         }
 
@@ -593,10 +546,10 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
                 return false;
             }
             TermCategoryEntries other = (TermCategoryEntries)obj;
-            if (!Arrays.equals(term, other.term)) {
+            if (!getTerm().equals(other.getTerm())) {
                 return false;
             }
-            if (this.size() != other.size()) {
+            if (size() != other.size()) {
                 return false;
             }
             for (Category thisCategory : this) {
@@ -609,18 +562,34 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
             return true;
         }
 
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append(getTerm()).append(':');
+            boolean first = true;
+            for (Category category : this) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append(',');
+                }
+                builder.append(category);
+            }
+            return builder.toString();
+        }
+
     }
 
-    private static final class CountingCategory implements Category {
+    private static final class LinkedCategory implements Category {
 
         private final String categoryName;
         private int count;
         /** Pointer to the next category (linked list). */
-        private CountingCategory nextCategory;
+        private LinkedCategory nextCategory;
         /** Reference to the container class. */
         private final TermCategoryEntries entries;
 
-        private CountingCategory(String name, int count, TermCategoryEntries entries) {
+        private LinkedCategory(String name, int count, TermCategoryEntries entries) {
             this.categoryName = name;
             this.count = count;
             this.entries = entries;
@@ -663,7 +632,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
             if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
-            CountingCategory other = (CountingCategory)obj;
+            LinkedCategory other = (LinkedCategory)obj;
             return count == other.count && categoryName.equals(other.categoryName);
         }
 
