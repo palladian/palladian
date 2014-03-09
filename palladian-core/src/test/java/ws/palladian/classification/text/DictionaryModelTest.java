@@ -10,7 +10,6 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -91,20 +90,6 @@ public class DictionaryModelTest {
         DictionaryModel model_v1 = FileHelper.deserialize(ResourceHelper
                 .getResourcePath("/model/testDictionaryModel_v1.ser"));
         assertTrue(model_v1.equals(model));
-    }
-
-    @Test
-    public void testTermCategoryEntries() {
-        TermCategoryEntries entries1 = new TermCategoryEntries(WORD_3);
-        entries1.increment(CATEGORY_1, 3);
-        entries1.increment(CATEGORY_2, 1);
-        assertEquals(2, entries1.size());
-        assertEquals(4, entries1.getTotalCount());
-        TermCategoryEntries entries2 = new TermCategoryEntries(WORD_3);
-        entries2.increment(CATEGORY_2, 1);
-        entries2.increment(CATEGORY_1, 3);
-        assertTrue(entries1.equals(entries2));
-        assertEquals(entries1.hashCode(), entries2.hashCode());
     }
 
 }
