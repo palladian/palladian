@@ -17,12 +17,19 @@ public final class ImmutableCategory implements Category {
 
     private final String name;
     private final double probability;
+    private final int count;
 
     public ImmutableCategory(String name, double probability) {
+        this(name, probability, -1);
+    }
+
+    public ImmutableCategory(String name, double probability, int count) {
         Validate.notNull(name, "name must not be null");
         Validate.inclusiveBetween(0., 1., probability, "probability must be in range [0,1]");
+        Validate.isTrue(count == -1 || count >= 0, "count must be either -1, or greater/equal zero");
         this.probability = probability;
         this.name = name;
+        this.count = count;
     }
 
     @Override
@@ -37,7 +44,7 @@ public final class ImmutableCategory implements Category {
 
     @Override
     public int getCount() {
-        return -1;
+        return count;
     }
 
     @Override
