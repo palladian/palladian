@@ -19,6 +19,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.ImmutableCategory;
 import ws.palladian.classification.Model;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.ArrayIterator;
@@ -420,7 +421,7 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
 
         private TermCategoryEntries[] children = EMPTY_ARRAY;
 
-        private LinkedCategory firstCategory;
+        private LinkedCategoryCount firstCategory;
 
         private int totalCount;
 
@@ -476,8 +477,8 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
          */
         private void increment(String category, int count) {
             totalCount += count;
-            for (LinkedCategory current = firstCategory; current != null; current = current.nextCategory) {
-                if (category.equals(current.getName())) {
+            for (LinkedCategoryCount current = firstCategory; current != null; current = current.nextCategory) {
+                if (category.equals(current.categoryName)) {
                     current.count += count;
                     return;
                 }
@@ -486,24 +487,26 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
         }
 
         private void append(String category, int count) {
-            LinkedCategory tmp = firstCategory;
-            firstCategory = new LinkedCategory(category, count, this);
+            LinkedCategoryCount tmp = firstCategory;
+            firstCategory = new LinkedCategoryCount(category, count);
             firstCategory.nextCategory = tmp;
         }
 
         @Override
         public Iterator<Category> iterator() {
             return new AbstractIterator<Category>() {
-                LinkedCategory current = firstCategory;
+                LinkedCategoryCount current = firstCategory;
 
                 @Override
                 protected Category getNext() throws Finished {
                     if (current == null) {
                         throw FINISHED;
                     }
-                    Category tmp = current;
+                    String categoryName = current.categoryName;
+                    double probability = (double) current.count / totalCount;
+                    int count = current.count;
                     current = current.nextCategory;
-                    return tmp;
+                    return new ImmutableCategory(categoryName, probability, count);
                 }
             };
         }
@@ -580,60 +583,14 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
 
     }
 
-    private static final class LinkedCategory implements Category {
-
+    private static final class LinkedCategoryCount {
         private final String categoryName;
         private int count;
-        /** Pointer to the next category (linked list). */
-        private LinkedCategory nextCategory;
-        /** Reference to the container class. */
-        private final TermCategoryEntries entries;
+        private LinkedCategoryCount nextCategory;
 
-        private LinkedCategory(String name, int count, TermCategoryEntries entries) {
+        private LinkedCategoryCount(String name, int count) {
             this.categoryName = name;
             this.count = count;
-            this.entries = entries;
-        }
-
-        @Override
-        public double getProbability() {
-            return (double)count / entries.totalCount;
-        }
-
-        @Override
-        public String getName() {
-            return categoryName;
-        }
-
-        @Override
-        public int getCount() {
-            return count;
-        }
-
-        @Override
-        public String toString() {
-            return categoryName + "=" + count;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + count;
-            result = prime * result + categoryName.hashCode();
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-            LinkedCategory other = (LinkedCategory)obj;
-            return count == other.count && categoryName.equals(other.categoryName);
         }
 
     }
