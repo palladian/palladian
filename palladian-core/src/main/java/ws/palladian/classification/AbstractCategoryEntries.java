@@ -1,5 +1,7 @@
 package ws.palladian.classification;
 
+import java.util.Iterator;
+
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.Category;
@@ -54,6 +56,15 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
             }
         }
         return null;
+    }
+    
+    @Override
+    public int size() {
+        int count = 0;
+        for (Iterator<Category> iterator = this.iterator(); iterator.hasNext(); iterator.next()) {
+            count++;
+        }
+        return count;
     }
 
     @Override
