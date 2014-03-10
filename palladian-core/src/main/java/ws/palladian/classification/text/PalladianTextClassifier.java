@@ -2,15 +2,17 @@ package ws.palladian.classification.text;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
+import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.Trainable;
@@ -34,22 +36,33 @@ import ws.palladian.processing.features.PositionAnnotation;
  */
 public class PalladianTextClassifier implements Learner<DictionaryModel>, Classifier<DictionaryModel> {
 
+    public static interface Scorer {
+        double score(String term, String category, double probability, int termCount);
+    }
+
+    public static final class DefaultScorer implements Scorer {
+        @Override
+        public double score(String term, String category, double probability, int termCount) {
+            return probability * probability;
+        }
+    }
+
     private final ProcessingPipeline pipeline;
 
     private final FeatureSetting featureSetting;
 
+    private final Scorer scorer;
+
     public PalladianTextClassifier(FeatureSetting featureSetting) {
-        this.featureSetting = featureSetting;
-        if (featureSetting != null) {
-            this.pipeline = new PreprocessingPipeline(featureSetting);
-        } else {
-            this.pipeline = null;
-        }
+        this(featureSetting, new DefaultScorer());
     }
 
-    public PalladianTextClassifier(FeatureSetting featureSetting, ProcessingPipeline pipeline) {
+    public PalladianTextClassifier(FeatureSetting featureSetting, Scorer scorer) {
+        Validate.notNull(featureSetting, "featureSetting must not be null");
+        Validate.notNull(scorer, "scorer must not be null");
         this.featureSetting = featureSetting;
-        this.pipeline = pipeline;
+        this.pipeline = new PreprocessingPipeline(featureSetting);
+        this.scorer = scorer;
     }
 
     @Override
@@ -61,7 +74,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         return model;
     }
 
-    public DictionaryModel updateModel(Trainable trainable, DictionaryModel model) {
+    private void updateModel(Trainable trainable, DictionaryModel model) {
         process(trainable);
         String targetClass = trainable.getTargetClass();
         @SuppressWarnings("unchecked")
@@ -74,7 +87,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             }
         }
         model.addDocument(terms, targetClass);
-        return model;
     }
 
     @Override
@@ -91,10 +103,12 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
         if (annotations != null) {
             for (PositionAnnotation annotation : annotations) {
-                CategoryEntries categoryVector = model.getCategoryEntries(annotation.getValue());
-                for (Category category : categoryVector) {
-                    double frequency = category.getProbability();
-                    builder.add(category.getName(), frequency * frequency);
+                TermCategoryEntries categoryEntries = model.getCategoryEntries(annotation.getValue());
+                String term = annotation.getValue();
+                for (Category category : categoryEntries) {
+                    double score = scorer.score(term, category.getName(), category.getProbability(),
+                            categoryEntries.getTotalCount());
+                    builder.add(category.getName(), score);
                 }
             }
         }
@@ -104,19 +118,15 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         if (builder.getTotalScore() == 0) {
             return model.getPriors();
         }
-        
+
         return builder.create();
     }
 
     // XXX ugly -- in case we have text documents and feature settings have been defined, do the preprocessing here
     // FIXME!!!
     private void process(Classifiable classifiable) {
-        if (pipeline != null && classifiable instanceof TextDocument) {
-            try {
-                pipeline.process((TextDocument)classifiable);
-            } catch (DocumentUnprocessableException e) {
-                throw new IllegalStateException("error processing the document: " + e);
-            }
+        if (classifiable instanceof TextDocument) {
+            pipeline.process((TextDocument)classifiable);
         }
     }
 
