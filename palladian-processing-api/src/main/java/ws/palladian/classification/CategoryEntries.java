@@ -77,4 +77,9 @@ public interface CategoryEntries extends Iterable<Category> {
      */
     int size();
 
+    /**
+     * @return The sum of all category counts, or <code>-1</code>, in case no counts are available.
+     */
+    int getTotalCount();
+
 }

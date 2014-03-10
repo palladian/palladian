@@ -68,6 +68,18 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
     }
 
     @Override
+    public int getTotalCount() {
+        int totalCount = 0;
+        for (Category category : this) {
+            if (category.getCount() == -1) {
+                return -1; // in case, at least one item has a count of -1, we can determine no total count
+            }
+            totalCount += category.getCount();
+        }
+        return totalCount;
+    }
+
+    @Override
     public String toString() {
         StringBuilder toStringBuilder = new StringBuilder();
         toStringBuilder.append(this.getClass().getSimpleName()).append(" [");
