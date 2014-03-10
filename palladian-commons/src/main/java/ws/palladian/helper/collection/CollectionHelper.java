@@ -189,14 +189,11 @@ public final class CollectionHelper {
      * Print a human readable, line separated output of an Array.
      * </p>
      * 
-     * @param array
+     * @param array The array to print, not <code>null</code>.
      */
     public static void print(Object[] array) {
         Validate.notNull(array, "array must not be null");
-        for (Object o : array) {
-            System.out.println(o);
-        }
-        System.out.println("#Entries: " + array.length);
+        print(new ArrayIterator<Object>(array));
     }
 
     /**
@@ -213,21 +210,19 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Get a human readable, line separated output of an {@link Iterable}.
+     * Print a human readable, line separated output of an {@link Iterator}.
      * </p>
      * 
-     * @param iterable
-     * @return
+     * @param iterator The iterator to print, not <code>null</code>.
      */
-    public static String getPrint(Iterable<?> iterable) {
-        StringBuilder print = new StringBuilder();
+    public static void print(Iterator<?> iterator) {
+        Validate.notNull(iterator, "iterator must not be null");
         int count = 0;
-        for (Object entry : iterable) {
-            print.append(entry).append("\n");
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
             count++;
         }
-        print.append("#Entries: ").append(count).append("\n");
-        return print.toString();
+        System.out.println("#Entries: " + count);
     }
 
     /**
@@ -235,10 +230,11 @@ public final class CollectionHelper {
      * Print a human readable, line separated output of an {@link Iterable}.
      * </p>
      * 
-     * @param iterable
+     * @param iterable The iterable to print, not <code>null</code>.
      */
     public static void print(Iterable<?> iterable) {
-        System.out.println(getPrint(iterable));
+        Validate.notNull(iterable, "iterable must not be null");
+        print(iterable.iterator());
     }
 
     /**
@@ -334,7 +330,7 @@ public final class CollectionHelper {
         }
         return list;
     }
-    
+
     /**
      * <p>
      * Create a new {@link ArrayList} and fill it with the given elements. In contrast to
@@ -345,7 +341,7 @@ public final class CollectionHelper {
      * @param elements The elements to add to the {@link ArrayList}, not <code>null</code>.
      * @return A new {@link ArrayList} containing the given elements.
      */
-    public static <E> ArrayList<E> newArrayList(E...elements) {
+    public static <E> ArrayList<E> newArrayList(E... elements) {
         Validate.notNull(elements, "elements must not be null");
         return new ArrayList<E>(Arrays.asList(elements));
     }
