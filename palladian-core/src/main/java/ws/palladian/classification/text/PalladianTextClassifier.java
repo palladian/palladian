@@ -1,5 +1,7 @@
 package ws.palladian.classification.text;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -11,6 +13,7 @@ import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.ProcessingPipeline;
@@ -37,12 +40,12 @@ import ws.palladian.processing.features.PositionAnnotation;
 public class PalladianTextClassifier implements Learner<DictionaryModel>, Classifier<DictionaryModel> {
 
     public static interface Scorer {
-        double score(String term, String category, double probability, int termCount);
+        double score(String term, String category, double probability, int documentCount, int termCount);
     }
 
     public static final class DefaultScorer implements Scorer {
         @Override
-        public double score(String term, String category, double probability, int termCount) {
+        public double score(String term, String category, double probability, int documentCount, int termCount) {
             return probability * probability;
         }
     }
@@ -75,43 +78,74 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     }
 
     private void updateModel(Trainable trainable, DictionaryModel model) {
-        process(trainable);
+//        process(trainable);
         String targetClass = trainable.getTargetClass();
-        @SuppressWarnings("unchecked")
-        ListFeature<PositionAnnotation> annotations = trainable.getFeatureVector().get(ListFeature.class,
-                BaseTokenizer.PROVIDED_FEATURE);
+//        @SuppressWarnings("unchecked")
+//        ListFeature<PositionAnnotation> annotations = trainable.getFeatureVector().get(ListFeature.class,
+//                BaseTokenizer.PROVIDED_FEATURE);
+        String content = ((TextDocument)trainable).getContent();
+        Iterator<String> iterator = new NGramIterator(content, featureSetting.getMinNGramLength(), featureSetting.getMaxNGramLength());
+        iterator=CollectionHelper.limit(iterator, featureSetting.getMaxTerms());
         Set<String> terms = CollectionHelper.newHashSet();
-        if (annotations != null) {
-            for (PositionAnnotation annotation : annotations) {
-                terms.add(annotation.getValue());
-            }
+        while (iterator.hasNext()) {
+            terms.add(iterator.next());
         }
+//        if (annotations != null) {
+//            for (PositionAnnotation annotation : annotations) {
+//                terms.add(annotation.getValue());
+//            }
+//        }
         model.addDocument(terms, targetClass);
     }
 
     @Override
     public CategoryEntries classify(Classifiable classifiable, DictionaryModel model) {
 
-        process(classifiable);
+//        process(classifiable);
 
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         // iterate through all terms in the document
-        @SuppressWarnings("unchecked")
-        ListFeature<PositionAnnotation> annotations = classifiable.getFeatureVector().get(ListFeature.class,
-                BaseTokenizer.PROVIDED_FEATURE);
-
-        if (annotations != null) {
-            for (PositionAnnotation annotation : annotations) {
-                TermCategoryEntries categoryEntries = model.getCategoryEntries(annotation.getValue());
-                String term = annotation.getValue();
-                for (Category category : categoryEntries) {
-                    double score = scorer.score(term, category.getName(), category.getProbability(),
-                            categoryEntries.getTotalCount());
-                    builder.add(category.getName(), score);
-                }
-            }
+//        @SuppressWarnings("unchecked")
+//        ListFeature<PositionAnnotation> annotations = classifiable.getFeatureVector().get(ListFeature.class,
+//                BaseTokenizer.PROVIDED_FEATURE);
+        
+        String content = ((TextDocument)classifiable).getContent();
+        Iterator<String> iterator = new NGramIterator(content, featureSetting.getMinNGramLength(), featureSetting.getMaxNGramLength());
+        iterator=CollectionHelper.limit(iterator, featureSetting.getMaxTerms());
+        Bag<String>counts=Bag.create();
+        while (iterator.hasNext()) {
+            String term = iterator.next();
+            counts.add(term);
+//            TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
+//            for (Category category : categoryEntries) {
+//                double score = scorer.score(term, category.getName(), category.getProbability(),
+//                        categoryEntries.getTotalCount());
+//                builder.add(category.getName(), score);
+//            }
         }
+        for (Entry<String, Integer> entry : counts.unique()) {
+          String term = entry.getKey();
+        TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
+        int termCount=entry.getValue();
+          for (Category category : categoryEntries) {
+              double score = scorer.score(term, category.getName(), category.getProbability(),
+                      categoryEntries.getTotalCount(), termCount);
+              builder.add(category.getName(), score);
+          }
+        }
+
+//        if (annotations != null) {
+//            for (PositionAnnotation annotation : annotations) {
+//                TermCategoryEntries categoryEntries = model.getCategoryEntries(annotation.getValue());
+//                String term = annotation.getValue();
+//                for (Category category : categoryEntries) {
+//                    double score = scorer.score(term, category.getName(), category.getProbability(),
+//                            categoryEntries.getTotalCount());
+//                    builder.add(category.getName(), score);
+//                }
+//            }
+//        }
 
         // If we have a category weight by matching terms from the document, use them to create the probability
         // distribution. Else wise return the prior probability distribution of the categories.
