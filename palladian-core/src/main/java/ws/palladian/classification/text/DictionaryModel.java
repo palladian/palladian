@@ -528,6 +528,11 @@ public final class DictionaryModel implements Model, Iterable<DictionaryModel.Te
             }
             return builder.reverse().toString();
         }
+        
+        @Override
+        public int getTotalCount() {
+            return totalCount;
+        }
 
         @Override
         public int hashCode() {
