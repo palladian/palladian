@@ -129,6 +129,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             int dictionaryCount = categoryEntries.getTotalCount();
             for (Category category : categoryEntries) {
                 String categoryName = category.getName();
+                // XXX priors#getProbability slows down, because it requires hashmap lookup and we have two nested loops
+                // here, remove completely or put outside the loops and call it on the scorer through some separate hook
                 double score = scorer.score(term, categoryName, category.getProbability(), dictionaryCount,
                         documentCount, priors.getProbability(categoryName));
                 builder.add(categoryName, score);
