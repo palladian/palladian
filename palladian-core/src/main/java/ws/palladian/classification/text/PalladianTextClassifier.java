@@ -12,15 +12,12 @@ import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
-import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.ProcessingPipeline;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -39,14 +36,43 @@ import ws.palladian.processing.features.PositionAnnotation;
  */
 public class PalladianTextClassifier implements Learner<DictionaryModel>, Classifier<DictionaryModel> {
 
+    /**
+     * <p>
+     * Implementations of this interface allow to influence the scoring during classification. Usually (i.e. in cases
+     * where you cannot thoroughly verify, that a different scoring formula works better, using training and test data)
+     * you should stick to the provided {@link DefaultScorer}, which has proven to perform well in general
+     * classification cases through our extensive experiments.
+     * 
+     * @author pk
+     */
     public static interface Scorer {
-        double score(String term, String category, double probability, int documentCount, int termCount);
+        /**
+         * Score a term-category-pair in a document which has to be classified.
+         * 
+         * @param term The term (this value usually has no influence on the scoring, but is provided for debugging
+         *            purposes).
+         * @param category The category (for debugging purposes, see above).
+         * @param termCategoryProbability The probability, that the current term occurs within a document in the current
+         *            category. As extracted from the dictionary model.
+         * @param dictCount The absolute count of documents in the dictionary which contain the term.
+         * @param docCount The absolute count of the term in the current document.
+         * @param categoryProbability The probability in the dictionary for the current category.
+         * @return A score for the term-category pair, greater/equal zero.
+         */
+        double score(String term, String category, double termCategoryProbability, int dictCount, int docCount,
+                double categoryProbability);
     }
 
+    /**
+     * Default scorer implementation which scores a term-category-pair using the squared term-category probability.
+     * 
+     * @author pk
+     */
     public static final class DefaultScorer implements Scorer {
         @Override
-        public double score(String term, String category, double probability, int documentCount, int termCount) {
-            return probability * probability;
+        public double score(String term, String category, double termCategoryProbability, int dictCount, int docCount,
+                double categoryProbability) {
+            return termCategoryProbability * termCategoryProbability;
         }
     }
 
@@ -72,96 +98,48 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     public DictionaryModel train(Iterable<? extends Trainable> trainables) {
         DictionaryModel model = new DictionaryModel(featureSetting);
         for (Trainable trainable : trainables) {
-            updateModel(trainable, model);
+            String targetClass = trainable.getTargetClass();
+            String content = ((TextDocument)trainable).getContent();
+            Iterator<String> iterator = new NGramIterator(content, featureSetting.getMinNGramLength(),
+                    featureSetting.getMaxNGramLength());
+            Set<String> terms = CollectionHelper.newHashSet();
+            while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
+                terms.add(iterator.next());
+            }
+            model.addDocument(terms, targetClass);
         }
         return model;
     }
 
-    private void updateModel(Trainable trainable, DictionaryModel model) {
-//        process(trainable);
-        String targetClass = trainable.getTargetClass();
-//        @SuppressWarnings("unchecked")
-//        ListFeature<PositionAnnotation> annotations = trainable.getFeatureVector().get(ListFeature.class,
-//                BaseTokenizer.PROVIDED_FEATURE);
-        String content = ((TextDocument)trainable).getContent();
-        Iterator<String> iterator = new NGramIterator(content, featureSetting.getMinNGramLength(), featureSetting.getMaxNGramLength());
-        iterator=CollectionHelper.limit(iterator, featureSetting.getMaxTerms());
-        Set<String> terms = CollectionHelper.newHashSet();
-        while (iterator.hasNext()) {
-            terms.add(iterator.next());
-        }
-//        if (annotations != null) {
-//            for (PositionAnnotation annotation : annotations) {
-//                terms.add(annotation.getValue());
-//            }
-//        }
-        model.addDocument(terms, targetClass);
-    }
-
     @Override
     public CategoryEntries classify(Classifiable classifiable, DictionaryModel model) {
-
-//        process(classifiable);
-
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
-
-        // iterate through all terms in the document
-//        @SuppressWarnings("unchecked")
-//        ListFeature<PositionAnnotation> annotations = classifiable.getFeatureVector().get(ListFeature.class,
-//                BaseTokenizer.PROVIDED_FEATURE);
-        
         String content = ((TextDocument)classifiable).getContent();
-        Iterator<String> iterator = new NGramIterator(content, featureSetting.getMinNGramLength(), featureSetting.getMaxNGramLength());
-        iterator=CollectionHelper.limit(iterator, featureSetting.getMaxTerms());
-        Bag<String>counts=Bag.create();
-        while (iterator.hasNext()) {
-            String term = iterator.next();
-            counts.add(term);
-//            TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
-//            for (Category category : categoryEntries) {
-//                double score = scorer.score(term, category.getName(), category.getProbability(),
-//                        categoryEntries.getTotalCount());
-//                builder.add(category.getName(), score);
-//            }
+        Iterator<String> iterator = new NGramIterator(content, featureSetting.getMinNGramLength(),
+                featureSetting.getMaxNGramLength());
+        Bag<String> termCounts = Bag.create();
+        while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
+            termCounts.add(iterator.next());
         }
-        for (Entry<String, Integer> entry : counts.unique()) {
-          String term = entry.getKey();
-        TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
-        int termCount=entry.getValue();
-          for (Category category : categoryEntries) {
-              double score = scorer.score(term, category.getName(), category.getProbability(),
-                      categoryEntries.getTotalCount(), termCount);
-              builder.add(category.getName(), score);
-          }
+        CategoryEntries priors = new CategoryEntriesBuilder().add(model.getPriors()).create();
+        for (Entry<String, Integer> termCount : termCounts.unique()) {
+            String term = termCount.getKey();
+            TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
+            int documentCount = termCount.getValue();
+            int dictionaryCount = categoryEntries.getTotalCount();
+            for (Category category : categoryEntries) {
+                String categoryName = category.getName();
+                double score = scorer.score(term, categoryName, category.getProbability(), dictionaryCount,
+                        documentCount, priors.getProbability(categoryName));
+                builder.add(categoryName, score);
+            }
         }
-
-//        if (annotations != null) {
-//            for (PositionAnnotation annotation : annotations) {
-//                TermCategoryEntries categoryEntries = model.getCategoryEntries(annotation.getValue());
-//                String term = annotation.getValue();
-//                for (Category category : categoryEntries) {
-//                    double score = scorer.score(term, category.getName(), category.getProbability(),
-//                            categoryEntries.getTotalCount());
-//                    builder.add(category.getName(), score);
-//                }
-//            }
-//        }
-
         // If we have a category weight by matching terms from the document, use them to create the probability
         // distribution. Else wise return the prior probability distribution of the categories.
         if (builder.getTotalScore() == 0) {
-            return model.getPriors();
+            return priors;
         }
-
         return builder.create();
-    }
-
-    // XXX ugly -- in case we have text documents and feature settings have been defined, do the preprocessing here
-    // FIXME!!!
-    private void process(Classifiable classifiable) {
-        if (classifiable instanceof TextDocument) {
-            pipeline.process((TextDocument)classifiable);
-        }
     }
 
     public CategoryEntries classify(String text, DictionaryModel model) {
