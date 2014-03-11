@@ -14,6 +14,7 @@ public final class NGramIterator extends AbstractIterator<String> {
     private int length;
 
     public NGramIterator(String string, int minLength, int maxLength) {
+        Validate.notNull(string, "string must not be null");
         Validate.isTrue(minLength > 0, "minLength must be greater zero");
         Validate.isTrue(maxLength >= minLength, "maxLength must be greater/equal zero");
         this.string = string;
