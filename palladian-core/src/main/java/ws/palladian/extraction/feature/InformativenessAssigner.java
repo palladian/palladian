@@ -106,8 +106,8 @@ public class InformativenessAssigner {
         }
         saveFrequencyMap();
 
-        FileHelper.writeToFile("data/temp/tfmap.txt",
-                CollectionHelper.getPrint(tokenFrequencyMap.getSortedMap().entrySet()));
+//        FileHelper.writeToFile("data/temp/tfmap.txt",
+//                CollectionHelper.getPrint(tokenFrequencyMap.getSortedMap().entrySet()));
     }
 
     private List<String> getTexts() {

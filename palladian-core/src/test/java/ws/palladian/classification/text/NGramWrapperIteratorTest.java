@@ -45,14 +45,33 @@ public class NGramWrapperIteratorTest {
     }
 
     @Test
+    public void test_1_1() {
+        Iterator<String> iterator = new NGramWrapperIterator(new TokenIterator(STRING), 1, 1);
+        List<String> nGrams = CollectionHelper.newArrayList(iterator);
+        // CollectionHelper.print(nGrams);
+        assertEquals(4, nGrams.size());
+        assertEquals("the", nGrams.get(0));
+        assertEquals("quick", nGrams.get(1));
+        assertEquals("brown", nGrams.get(2));
+        assertEquals("fox", nGrams.get(3));
+    }
+
+    @Test
     public void test_2_2() {
         Iterator<String> iterator = new NGramWrapperIterator(new TokenIterator(STRING), 2, 2);
         List<String> nGrams = CollectionHelper.newArrayList(iterator);
-        CollectionHelper.print(nGrams);
+        // CollectionHelper.print(nGrams);
         assertEquals(3, nGrams.size());
-        assertEquals("the quick", nGrams.get(1));
-        assertEquals("quick brown", nGrams.get(4));
-        assertEquals("brown fox", nGrams.get(7));
+        assertEquals("the quick", nGrams.get(0));
+        assertEquals("quick brown", nGrams.get(1));
+        assertEquals("brown fox", nGrams.get(2));
+    }
+
+    @Test
+    public void test_5() {
+        Iterator<String> iterator = new NGramWrapperIterator(new TokenIterator(STRING), 5, 5);
+        List<String> nGrams = CollectionHelper.newArrayList(iterator);
+        assertEquals(0, nGrams.size());
     }
 
 }

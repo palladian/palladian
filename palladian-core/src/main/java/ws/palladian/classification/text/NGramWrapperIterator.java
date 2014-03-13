@@ -10,6 +10,8 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 public final class NGramWrapperIterator extends AbstractIterator<String> {
 
+    private static final char SPACE = ' ';
+
     private final Iterator<String> wrapped;
     private final int minLength;
     private final int maxLength;
@@ -35,44 +37,31 @@ public final class NGramWrapperIterator extends AbstractIterator<String> {
         }
         if (currentLength <= maxLength && currentLength <= tokenQueue.size()) {
             return createNGram();
-        } else if (tokenQueue.size() > minLength) {
+        } else if (tokenQueue.size() >= minLength) {
             currentLength = minLength;
             tokenQueue.poll();
             if (wrapped.hasNext()) {
                 tokenQueue.add(wrapped.next());
             }
-            return createNGram();
-        } else {
-            throw FINISHED;
+            if (tokenQueue.size() >= minLength) {
+                return createNGram();
+            }
         }
+        throw FINISHED;
     }
 
     private String createNGram() {
-        System.out.println("currentLength=" + currentLength + " queue=" + tokenQueue);
         StringBuilder builder = new StringBuilder();
         Iterator<String> queueIterator = tokenQueue.iterator();
-        int length = minLength;
-        boolean space = false;
-        while (queueIterator.hasNext() && length <= currentLength) {
-            String current = queueIterator.next();
-            if (length >= minLength) {
-                if (space) {
-                    builder.append(' ');
-                } else {
-                    space = true;
-                }
-                builder.append(current);
+        int length = 0;
+        while (queueIterator.hasNext() && length++ < currentLength) {
+            if (length > 1) {
+                builder.append(SPACE);
             }
-            length++;
+            builder.append(queueIterator.next());
         }
         currentLength++;
         return builder.toString();
-    }
-
-    public static void main(String[] args) {
-        Iterator<String> iterator = new TokenIterator("the quick brown fox");
-        iterator = new NGramWrapperIterator(iterator, 1, 2);
-        CollectionHelper.print(iterator);
     }
 
 }

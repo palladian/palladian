@@ -57,7 +57,7 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.wikipedia.train");
         String testFile = config.getString("dataset.wikipedia.test");
         checkExistence("Wikipedia", testFile, trainFile);
-        FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 3).maxTerms(10).create();
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.98);
     }
 
@@ -75,7 +75,7 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
-        FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 3).maxTerms(10).create();
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.54);
     }
 
@@ -84,7 +84,7 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.spamassassin.train");
         String testFile = config.getString("dataset.spamassassin.test");
         checkExistence("SpamAssassin", trainFile, testFile);
-        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6, 6).maxTerms(1000).create();
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.86);
     }
 

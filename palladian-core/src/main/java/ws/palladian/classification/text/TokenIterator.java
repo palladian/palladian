@@ -6,7 +6,6 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public final class TokenIterator extends AbstractIterator<String> {
 
@@ -23,11 +22,6 @@ public final class TokenIterator extends AbstractIterator<String> {
             return matcher.group();
         }
         throw FINISHED;
-    }
-    
-    public static void main(String[] args) {
-        TokenIterator iterator = new TokenIterator("the quick brown fox");
-        CollectionHelper.print(iterator);
     }
 
 }
