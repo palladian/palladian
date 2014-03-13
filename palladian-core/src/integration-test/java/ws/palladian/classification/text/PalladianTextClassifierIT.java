@@ -11,6 +11,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ws.palladian.classification.text.PalladianTextClassifier.DefaultScorer;
+import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.ProcessHelper;
@@ -49,7 +51,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.jrc.test");
         checkExistence("JRC", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.99);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.99, new DefaultScorer());
     }
 
     @Test
@@ -58,7 +60,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.wikipedia.test");
         checkExistence("Wikipedia", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.98);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.98, new DefaultScorer());
     }
 
     @Test
@@ -67,7 +69,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.88);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.88, new DefaultScorer());
     }
 
     @Test
@@ -76,7 +78,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.54);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.54, new DefaultScorer());
     }
 
     @Test
@@ -85,7 +87,16 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.spamassassin.test");
         checkExistence("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.86);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.86, new DefaultScorer());
+    }
+    
+    @Test
+    public void testSpamAssassin_categoryEqualization() {
+        String trainFile = config.getString("dataset.spamassassin.train");
+        String testFile = config.getString("dataset.spamassassin.test");
+        checkExistence("SpamAssassin", trainFile, testFile);
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.98, new PalladianTextClassifier.CategoryEqualizationScorer());
     }
 
     /**
@@ -96,11 +107,12 @@ public class PalladianTextClassifierIT {
      * @param trainFile The training data.
      * @param testFile The testing data.
      * @param featureSetting The feature setting for the classifier.
+     * @param scorer The scorer to use, <code>null</code> means {@link DefaultScorer}.
      * @param minAccuracy The minimum expected accuracy on the test data.
      */
     private static void assertAccuracy(String trainFile, String testFile, FeatureSetting featureSetting,
-            double minAccuracy) {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
+            double minAccuracy, Scorer scorer) {
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
         TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
         DictionaryModel model = classifier.train(trainIterator);
         TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
