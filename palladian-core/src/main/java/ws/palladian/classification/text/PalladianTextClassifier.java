@@ -26,7 +26,7 @@ import ws.palladian.processing.Trainable;
  * <p>
  * This text classifier builds a dictionary from a pre-categorized list of text documents which can then be used to
  * categorize new, uncategorized text documents. During learning, a weighted term look up table is created, to learn how
- * probable each n-gram is for a given category. This look up table is used by during classification.
+ * probable each n-gram is for a given category. This look up table is used during classification.
  * 
  * <p>
  * This classifier won the first Research Garden competition where the goal was to classify product descriptions into
@@ -92,6 +92,20 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             // If we have a category weight by matching terms from the document, use them to create the probability
             // distribution. Else wise return the prior probability distribution of the categories.
             return matched ? categoryScore : categoryProbability;
+        }
+    }
+
+    /**
+     * Scorer, which normalizes the result scores by the prior category probability. This may improve classification
+     * results for data with skewed class counts.
+     * 
+     * @author pk
+     */
+    public static class CategoryEqualizationScorer extends DefaultScorer {
+        @Override
+        public double scoreCategory(String category, double categoryScore, double categoryProbability, boolean matched) {
+            double score = super.scoreCategory(category, categoryScore, categoryProbability, matched);
+            return matched ? score / categoryProbability : score;
         }
     }
 
