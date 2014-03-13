@@ -385,6 +385,36 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Create a new {@link HashSet} and fill it with the content of the given {@link Iterable}.
+     * </p>
+     * 
+     * @param iterable The {@link Iterable} providing the content for the {@link Set}, not <code>null</code>.
+     * @return The {@link Set} with items from the {@link Iterator}.
+     */
+    public static <E> HashSet<E> newHashSet(Iterable<? extends E> elements) {
+        Validate.notNull(elements, "elements must not be null");
+        return newHashSet(elements.iterator());
+    }
+
+    /**
+     * <p>
+     * Create a new {@link HashSet} and fill it with the content of the given {@link Iterator}.
+     * </p>
+     * 
+     * @param iterator The {@link Iterator} providing the content for the {@link Set}, not <code>null</code>.
+     * @return The {@link Set} with items from the {@link Iterator}.
+     */
+    public static <E> HashSet<E> newHashSet(Iterator<? extends E> elements) {
+        Validate.notNull(elements, "elements must not be null");
+        HashSet<E> set = newHashSet();
+        while (elements.hasNext()) {
+            set.add(elements.next());
+        }
+        return set;
+    }
+
+    /**
+     * <p>
      * Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the TreeSet:
      * <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
      * </p>
