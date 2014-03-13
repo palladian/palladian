@@ -140,4 +140,17 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
         return total;
     }
 
+    /**
+     * <p>
+     * Get the score of a given category.
+     * </p>
+     * 
+     * @param categoryName The category name, not <code>null</code>.
+     * @return The score, or zero in case no score was set for the categoy.
+     */
+    public double getScore(String categoryName) {
+        Double score = entryMap.get(categoryName);
+        return score != null ? score : 0;
+    }
+
 }

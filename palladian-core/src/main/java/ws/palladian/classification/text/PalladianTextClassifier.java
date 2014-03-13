@@ -56,11 +56,21 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
          *            category. As extracted from the dictionary model.
          * @param dictCount The absolute count of documents in the dictionary which contain the term.
          * @param docCount The absolute count of the term in the current document.
-         * @param categoryProbability The probability in the dictionary for the current category.
          * @return A score for the term-category pair, greater/equal zero.
          */
-        double score(String term, String category, double termCategoryProbability, int dictCount, int docCount,
-                double categoryProbability);
+        double score(String term, String category, double termCategoryProbability, int dictCount, int docCount);
+
+        /**
+         * (Re)score a category, after all term-category-pairs have been scored.
+         * 
+         * @param category The category.
+         * @param termScore The determined term score (see {@link #score(String, String, double, int, int)}).
+         * @param categoryProbability The probability in the dictionary for the current category.
+         * @param matched Whether any terms matched during term-category-scoring (in case this is <code>false</code>,
+         *            all term scores are zero).
+         * @return A score for the category, greater/equal zero.
+         */
+        double scoreCategory(String category, double termScore, double categoryProbability, boolean matched);
     }
 
     /**
@@ -68,11 +78,17 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
      * 
      * @author pk
      */
-    public static final class DefaultScorer implements Scorer {
+    public static class DefaultScorer implements Scorer {
         @Override
-        public double score(String term, String category, double termCategoryProbability, int dictCount, int docCount,
-                double categoryProbability) {
+        public double score(String term, String category, double termCategoryProbability, int dictCount, int docCount) {
             return termCategoryProbability * termCategoryProbability;
+        }
+
+        @Override
+        public double scoreCategory(String category, double categoryScore, double categoryProbability, boolean matched) {
+            // If we have a category weight by matching terms from the document, use them to create the probability
+            // distribution. Else wise return the prior probability distribution of the categories.
+            return matched ? categoryScore : categoryProbability;
         }
     }
 
@@ -121,25 +137,24 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
         }
-        CategoryEntries priors = new CategoryEntriesBuilder().add(model.getPriors()).create();
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
             TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
-            int documentCount = termCount.getValue();
-            int dictionaryCount = categoryEntries.getTotalCount();
+            int docCount = termCount.getValue();
+            int dictCount = categoryEntries.getTotalCount();
             for (Category category : categoryEntries) {
                 String categoryName = category.getName();
-                // XXX priors#getProbability slows down, because it requires hashmap lookup and we have two nested loops
-                // here, remove completely or put outside the loops and call it on the scorer through some separate hook
-                double score = scorer.score(term, categoryName, category.getProbability(), dictionaryCount,
-                        documentCount, priors.getProbability(categoryName));
+                double score = scorer.score(term, categoryName, category.getProbability(), dictCount, docCount);
                 builder.add(categoryName, score);
             }
         }
-        // If we have a category weight by matching terms from the document, use them to create the probability
-        // distribution. Else wise return the prior probability distribution of the categories.
-        if (builder.getTotalScore() == 0) {
-            return priors;
+        boolean matched = builder.getTotalScore() != 0;
+        for (Category category : model.getPriors()) {
+            String categoryName = category.getName();
+            double termScore = builder.getScore(categoryName);
+            double categoryProbability = category.getProbability();
+            double newScore = scorer.scoreCategory(categoryName, termScore, categoryProbability, matched);
+            builder.set(categoryName, newScore);
         }
         return builder.create();
     }
