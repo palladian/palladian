@@ -3,9 +3,8 @@ package ws.palladian.classification.text;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 
-public final class NGramIterator extends AbstractIterator<String> {
+public final class CharacterNGramIterator extends AbstractIterator<String> {
 
     private final String string;
     private final int minLength;
@@ -13,7 +12,7 @@ public final class NGramIterator extends AbstractIterator<String> {
     private int offset;
     private int length;
 
-    public NGramIterator(String string, int minLength, int maxLength) {
+    public CharacterNGramIterator(String string, int minLength, int maxLength) {
         Validate.notNull(string, "string must not be null");
         Validate.isTrue(minLength > 0, "minLength must be greater zero");
         Validate.isTrue(maxLength >= minLength, "maxLength must be greater/equal zero");
@@ -37,11 +36,6 @@ public final class NGramIterator extends AbstractIterator<String> {
             length++;
         }
         return nGram;
-    }
-
-    public static void main(String[] args) {
-        NGramIterator iterator = new NGramIterator("the quick brown fox", 19, 20);
-        CollectionHelper.print(iterator);
     }
 
 }

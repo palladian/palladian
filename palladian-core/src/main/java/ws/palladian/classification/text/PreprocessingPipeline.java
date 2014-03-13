@@ -22,6 +22,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
+@Deprecated
 public class PreprocessingPipeline extends ProcessingPipeline {
 
     /**
