@@ -175,7 +175,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
         if (featureSetting.isWordUnigrams()) {
-            CollectionHelper.filter(tokenIterator, new Filter<String>() {
+            tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<String>() {
                 int minTermLength = featureSetting.getMinimumTermLength();
                 int maxTermLength = featureSetting.getMaximumTermLength();
 
@@ -185,7 +185,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                 }
             });
         }
-        CollectionHelper.filter(tokenIterator, new Filter<String>() {
+        // XXX looks a bit "magic" to me, does that really improve results in general?
+        tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<String>() {
             @Override
             public boolean accept(String item) {
                 return !StringHelper.containsAny(item, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(item);
