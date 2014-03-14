@@ -88,7 +88,7 @@ public class DictionaryTrieModelTest {
     @Test
     public void testBackwardsCompatibility() throws FileNotFoundException, IOException {
         DictionaryModel model_v1 = FileHelper.deserialize(ResourceHelper
-                .getResourcePath("/model/testDictionaryModel_v1.ser"));
+                .getResourcePath("/model/testDictionaryTrieModel_v1.ser"));
         assertTrue(model_v1.equals(model));
     }
 
