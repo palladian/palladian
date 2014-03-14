@@ -23,6 +23,7 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
+import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.PalladianTextClassifier;
@@ -102,7 +103,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
     private transient PalladianTextClassifier contextClassifier;
 
     /** This dictionary contains the entity terms as they are. */
-    private DictionaryModel entityDictionary;
+    private DictionaryTrieModel entityDictionary;
 
     /** A list containing the order of likelihood of the concepts. */
     private List<String> conceptLikelihoodOrder = new ArrayList<String>();
@@ -113,7 +114,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
     /** Context classifier for the left and right context around the annotations. */
     private DictionaryModel contextModel;
 
-    private DictionaryModel caseDictionary;
+    private DictionaryTrieModel caseDictionary;
 
     private CountMap<String> leftContextMap = CountMap.create();
 
@@ -178,10 +179,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         Validate.notNull(trainingMode, "trainingMode must not be null");
 
         // hold entities in a dictionary that are learned from the training data
-        entityDictionary = new DictionaryModel(null);
+        entityDictionary = new DictionaryTrieModel(null);
 
         // keep the case dictionary from the training data
-        caseDictionary = new DictionaryModel(null);
+        caseDictionary = new DictionaryTrieModel(null);
 
         // the n-gram settings for the entity classifier should be tuned, they do not have a big influence on the size
         // of the model (3-5 to 2-8 => 2MB)
@@ -433,7 +434,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param filePath The path to the dictionary file.
      */
     public void setEntityDictionary(String filePath) {
-        this.entityDictionary = new DictionaryModel(null);
+        this.entityDictionary = new DictionaryTrieModel(null);
 
         StopWatch stopWatch = new StopWatch();
         List<String> dictionaryEntries = FileHelper.readFileToArray(filePath);

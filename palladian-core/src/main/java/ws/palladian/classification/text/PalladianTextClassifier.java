@@ -126,7 +126,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
     @Override
     public DictionaryModel train(Iterable<? extends Trainable> trainables) {
-        DictionaryModel model = new DictionaryModel(featureSetting);
+        DictionaryModel model = new DictionaryTrieModel(featureSetting);
         for (Trainable trainable : trainables) {
             String targetClass = trainable.getTargetClass();
             String content = ((TextDocument)trainable).getContent();

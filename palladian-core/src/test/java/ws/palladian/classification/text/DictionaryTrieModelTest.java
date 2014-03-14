@@ -14,7 +14,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
-public class DictionaryModelTest {
+public class DictionaryTrieModelTest {
 
     private static final String CATEGORY_1 = "category1";
     private static final String CATEGORY_2 = "category2";
@@ -52,7 +52,7 @@ public class DictionaryModelTest {
          * rel(word4,c2) = 100%
          * </pre>
          */
-        model = new DictionaryModel(null);
+        model = new DictionaryTrieModel(null);
         model.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
         model.addDocument(CollectionHelper.newHashSet(WORD_2, WORD_4), CATEGORY_2);
         model.addDocument(CollectionHelper.newHashSet(WORD_3, WORD_4), CATEGORY_2);
