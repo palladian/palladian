@@ -206,5 +206,12 @@ public class MathHelperTest {
         assertEquals(0.333, MathHelper.round(1. / 3, 3), 0.);
         assertTrue(Double.isNaN(MathHelper.round(Double.NaN, 2)));
     }
+    
+    @Test
+    public void testConfidenceInterval() {
+        assertEquals(0.052, MathHelper.computeConfidenceInterval(1000, 0.999, 0.5), 0.001);
+        assertEquals(0.026, MathHelper.computeConfidenceInterval(1000, 0.9, 0.5), 0.001);
+        assertEquals(0.018, MathHelper.computeConfidenceInterval(1000, 0.75, 0.5), 0.001);
+    }
 
 }
