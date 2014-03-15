@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,31 +163,35 @@ public final class MathHelper {
 
     /**
      * <p>
-     * Calculate the confidence interval with a given confidence level and mean.
+     * Calculate the confidence interval with a given confidence level and mean. For more information see here: <a
+     * href="http://www.bioconsulting.com/calculation_of_the_confidence_interval.htm">Calculation Of The Confidence
+     * Interval</a>.
      * </p>
      * 
-     * <p>
-     * See here: http://www.bioconsulting.com/calculation_of_the_confidence_interval.htm
-     * </p>
-     * 
-     * @param samples The number of samples used.
-     * @param confidenceLevel Must be one of the following: 0.75, 0.85, 0.90, 0.95, 0.99.
-     * @param mean The mean, if unknown, assume worst case with mean = 0.5.
+     * @param samples The number of samples used, greater zero.
+     * @param confidenceLevel The level of confidence. Must be one of the following: {0.75, 0.85, 0.90, 0.95, 0.975,
+     *            0.975, 0.99, 0.999}.
+     * @param mean The mean, in range [0,1]. If unknown, assume worst case with mean = 0.5.
      * 
      * @return The calculated confidence interval.
      */
     public static double computeConfidenceInterval(int samples, double confidenceLevel, double mean) {
+        Validate.isTrue(samples > 0, "samples must be greater zero");
+        Validate.isTrue(0 <= mean && mean <= 1, "mean must be in range [0,1]");
 
-        Map<Double, Double> zValues = new HashMap<Double, Double>();
-        zValues.put(0.75, 1.151);
-        zValues.put(0.85, 1.139);
-        zValues.put(0.90, 1.645);
-        zValues.put(0.95, 1.96);
-        zValues.put(0.99, 2.577);
-
-        double chosenZ = zValues.get(confidenceLevel);
-
-        return Math.sqrt(chosenZ * chosenZ * mean * (1 - mean) / (samples - 1.0));
+        Map<Double, Double> locZMapping = CollectionHelper.newLinkedHashMap();
+        locZMapping.put(0.75, 1.151);
+        locZMapping.put(0.85, 1.139);
+        locZMapping.put(0.90, 1.645);
+        locZMapping.put(0.95, 1.96);
+        locZMapping.put(0.975, 2.243);
+        locZMapping.put(0.985, 2.43);
+        locZMapping.put(0.99, 2.577);
+        locZMapping.put(0.999, 3.3);
+        Double z = locZMapping.get(confidenceLevel);
+        Validate.isTrue(z != null, "confidence level must be one of: {" + StringUtils.join(locZMapping.keySet(), ", ")
+                + "}");
+        return z * Math.sqrt(mean * (1 - mean) / samples);
     }
 
     public static double round(double number, int digits) {
@@ -665,9 +670,9 @@ public final class MathHelper {
         double denominatorY = 0.;
 
         for (int i = 0; i < x.size(); i++) {
-            nominator += ((x.get(i) - avgX) * (y.get(i) - avgY));
-            denominatorX += Math.pow((x.get(i) - avgX), 2);
-            denominatorY += Math.pow((y.get(i) - avgY), 2);
+            nominator += (x.get(i) - avgX) * (y.get(i) - avgY);
+            denominatorX += Math.pow(x.get(i) - avgX, 2);
+            denominatorY += Math.pow(y.get(i) - avgY, 2);
         }
 
         double denominator = Math.sqrt(denominatorX * denominatorY);
