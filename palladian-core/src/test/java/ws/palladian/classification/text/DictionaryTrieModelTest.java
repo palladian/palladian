@@ -6,10 +6,13 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.classification.Category;
+import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -74,6 +77,19 @@ public class DictionaryTrieModelTest {
         assertEquals(0., model.getCategoryEntries(WORD_5).getProbability(CATEGORY_2), 0);
         assertEquals(2, model.getCategories().size());
         assertEquals(4, model.getNumTerms());
+    }
+
+    @Test
+    public void testRemove() {
+        TermCategoryEntries entries = model.getCategoryEntries(WORD_3);
+        Iterator<Category> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().getName().equals(CATEGORY_2)) {
+                iterator.remove();
+            }
+        }
+        assertEquals(3, entries.getTotalCount());
+        assertEquals(1, entries.getProbability(CATEGORY_1), 0);
     }
 
     @Test

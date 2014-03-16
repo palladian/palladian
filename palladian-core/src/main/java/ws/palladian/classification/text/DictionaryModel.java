@@ -3,6 +3,7 @@ package ws.palladian.classification.text;
 import java.io.PrintStream;
 import java.util.Collection;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Model;
 
@@ -28,6 +29,14 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
          * @return <code>true</code> in case the entries should be removed from the model, else <code>false</code>.
          */
         boolean remove(TermCategoryEntries entries);
+
+        /**
+         * Decide, whether t oremove the given category.
+         * 
+         * @param category The category.
+         * @return <code>true</code> in case the category should be removed from the model, else <code>false</code>.
+         */
+        boolean remove(Category category);
 
     }
 

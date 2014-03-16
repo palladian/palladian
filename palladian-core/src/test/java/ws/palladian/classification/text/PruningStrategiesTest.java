@@ -25,6 +25,15 @@ public class PruningStrategiesTest {
 
         pruningStrategy = new PruningStrategies.EntropyPruningStrategy(3, 1);
         assertTrue(pruningStrategy.remove(entries));
+    }
 
+    @Test
+    public void testCategoryProbabilityPruningStrategy() {
+        PruningStrategy pruningStrategy = new PruningStrategies.CategoryProbabilityPruningStrategy(0.1);
+        Map<String, Integer> entriesMap = MapBuilder.createPut("one", 100).put("two", 1).put("three", 50).create();
+        TermCategoryEntries entries = new MapTermCategoryEntries("test", entriesMap);
+        assertFalse(pruningStrategy.remove(entries.getCategory("one")));
+        assertTrue(pruningStrategy.remove(entries.getCategory("two")));
+        assertFalse(pruningStrategy.remove(entries.getCategory("three")));
     }
 }
