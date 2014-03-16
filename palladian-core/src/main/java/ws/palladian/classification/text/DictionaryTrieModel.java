@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -214,6 +215,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
                 iterator.remove();
             }
         }
+        entryTrie.clean();
         return oldCount - numTerms;
     }
 
@@ -398,7 +400,6 @@ public final class DictionaryTrieModel implements DictionaryModel {
                 throw new NoSuchElementException();
             }
             currentEntries.firstCategory = null;
-            // XXX remove node completely, if it is leaf
         }
 
     }
@@ -530,6 +531,27 @@ public final class DictionaryTrieModel implements DictionaryModel {
         @Override
         public int getTotalCount() {
             return totalCount;
+        }
+
+        /**
+         * Remove all empty nodes which have no children (saves memory, in case terms have been removed from the trie).
+         * 
+         * @return <code>true</code> in case this node is empty and has no children.
+         */
+        private boolean clean() {
+            boolean clean = true;
+            List<TrieCategoryEntries> temp = CollectionHelper.newArrayList();
+            for (int i = 0; i < children.length; i++) {
+                boolean childClean = children[i].clean();
+                if (!childClean) {
+                    temp.add(children[i]);
+                }
+                clean &= childClean;
+            }
+            int childCount = temp.size();
+            children = childCount > 0 ? temp.toArray(new TrieCategoryEntries[childCount]) : EMPTY_ARRAY;
+            clean &= !hasData();
+            return clean;
         }
 
         @Override
