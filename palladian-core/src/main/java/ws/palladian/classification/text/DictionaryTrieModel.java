@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -20,9 +21,11 @@ import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.ImmutableCategory;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.IteratorAdapter;
 
 /**
  * <p>
@@ -146,7 +149,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
 
     @Override
     public Iterator<TermCategoryEntries> iterator() {
-        return new TrieIterator(entryTrie);
+        return new IteratorAdapter<TermCategoryEntries>(new TrieIterator(entryTrie));
     }
 
     @Override
@@ -197,6 +200,20 @@ public final class DictionaryTrieModel implements DictionaryModel {
             printStream.print('\n');
         }
         printStream.flush();
+    }
+
+    @Override
+    public int prune(PruningStrategy strategy) {
+        Validate.notNull(strategy, "strategy must not be null");
+        int oldCount = numTerms;
+        Iterator<TermCategoryEntries> iterator = iterator();
+        while (iterator.hasNext()) {
+            if (strategy.remove(iterator.next())) {
+                numTerms--;
+                iterator.remove();
+            }
+        }
+        return oldCount - numTerms;
     }
 
     // toString
@@ -264,26 +281,34 @@ public final class DictionaryTrieModel implements DictionaryModel {
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         // map the category names to numeric indices, so that we can use "1" instead of "aVeryLongCategoryName"
-        SortedSet<String> categoryIndices = new TreeSet<String>(getCategories());
+        SortedSet<String> sortedCategoryNames = new TreeSet<String>(getCategories());
+        Map<String, Integer> categoryIndices = CollectionHelper.newHashMap();
+        int idx = 0;
+        for (String categoryName : sortedCategoryNames) {
+            categoryIndices.put(categoryName, idx++);
+        }
         // version (for being able to provide backwards compatibility from now on)
         out.writeInt(VERSION);
         // header; number of categories; [ (categoryName, count) , ...]
-        out.writeInt(categoryIndices.size());
+        out.writeInt(sortedCategoryNames.size());
         CategoryEntries priors = getPriors();
-        for (String categoryName : categoryIndices) {
+        for (String categoryName : sortedCategoryNames) {
             out.writeObject(categoryName);
             out.writeInt(priors.getCount(categoryName));
         }
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(numTerms);
+        String dictName = name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
+        ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Writing " + dictName);
         for (TermCategoryEntries termEntry : this) {
             out.writeObject(termEntry.getTerm());
             out.writeInt(termEntry.size());
             for (Category category : termEntry) {
-                int categoryIdx = categoryIndices.headSet(category.getName()).size();
+                int categoryIdx = categoryIndices.get(category.getName());
                 out.writeInt(categoryIdx);
                 out.writeInt(category.getCount());
             }
+            monitor.incrementAndPrintProgress();
         }
         // feature setting
         out.writeObject(featureSetting);
@@ -310,6 +335,8 @@ public final class DictionaryTrieModel implements DictionaryModel {
         }
         // terms
         numTerms = in.readInt();
+        String dictName = name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
+        ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Reading " + dictName);
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
             TrieCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
@@ -320,6 +347,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
                 int categoryCount = in.readInt();
                 categoryEntries.increment(categoryName, categoryCount);
             }
+            monitor.incrementAndPrintProgress();
         }
         // feature setting
         featureSetting = (FeatureSetting)in.readObject();
@@ -329,8 +357,9 @@ public final class DictionaryTrieModel implements DictionaryModel {
 
     // iterator over all entries
 
-    private static final class TrieIterator extends AbstractIterator<TermCategoryEntries> {
+    private static final class TrieIterator extends AbstractIterator<TrieCategoryEntries> {
         private final Deque<Iterator<TrieCategoryEntries>> stack;
+        private TrieCategoryEntries currentEntries;
 
         private TrieIterator(TrieCategoryEntries root) {
             stack = new ArrayDeque<Iterator<TrieCategoryEntries>>();
@@ -338,7 +367,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
         }
 
         @Override
-        protected TermCategoryEntries getNext() throws Finished {
+        protected TrieCategoryEntries getNext() throws Finished {
             for (;;) {
                 if (stack.isEmpty()) {
                     throw FINISHED;
@@ -356,10 +385,21 @@ public final class DictionaryTrieModel implements DictionaryModel {
                     stack.push(children);
                 }
                 if (node.hasData()) {
+                    currentEntries = node;
                     return node;
                 }
             }
         }
+
+        @Override
+        public void remove() {
+            if (currentEntries == null) {
+                throw new NoSuchElementException();
+            }
+            currentEntries.firstCategory = null;
+            // XXX remove node completely, if it is leaf
+        }
+
     }
 
     // inner classes
@@ -460,7 +500,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
                         throw FINISHED;
                     }
                     String categoryName = current.categoryName;
-                    double probability = (double) current.count / totalCount;
+                    double probability = (double)current.count / totalCount;
                     int count = current.count;
                     current = current.nextCategory;
                     return new ImmutableCategory(categoryName, probability, count);
@@ -485,7 +525,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
             }
             return builder.reverse().toString();
         }
-        
+
         @Override
         public int getTotalCount() {
             return totalCount;
