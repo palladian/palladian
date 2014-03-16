@@ -108,6 +108,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             return matched ? score / categoryProbability : score;
         }
     }
+    
+    private final DictionaryModel model;
 
     private final FeatureSetting featureSetting;
 
@@ -116,17 +118,26 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     public PalladianTextClassifier(FeatureSetting featureSetting) {
         this(featureSetting, new DefaultScorer());
     }
+    
+    public PalladianTextClassifier(DictionaryModel model, FeatureSetting featureSetting) {
+        Validate.notNull(model, "model must not be null");
+        Validate.notNull(featureSetting, "featureSetting must not be null");
+        this.model = model;
+        this.featureSetting = featureSetting;
+        this.scorer = new DefaultScorer();
+    }
 
     public PalladianTextClassifier(FeatureSetting featureSetting, Scorer scorer) {
         Validate.notNull(featureSetting, "featureSetting must not be null");
         Validate.notNull(scorer, "scorer must not be null");
+        this.model = new DictionaryTrieModel(featureSetting);
         this.featureSetting = featureSetting;
         this.scorer = scorer;
     }
 
     @Override
     public DictionaryModel train(Iterable<? extends Trainable> trainables) {
-        DictionaryModel model = new DictionaryTrieModel(featureSetting);
+//        DictionaryModel model = new DictionaryTrieModel(featureSetting);
         for (Trainable trainable : trainables) {
             String targetClass = trainable.getTargetClass();
             String content = ((TextDocument)trainable).getContent();
