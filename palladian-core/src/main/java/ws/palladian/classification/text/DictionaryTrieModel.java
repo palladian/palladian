@@ -23,9 +23,9 @@ import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.ImmutableCategory;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.Adapter;
 import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.IteratorAdapter;
 
 /**
  * <p>
@@ -149,7 +149,8 @@ public final class DictionaryTrieModel implements DictionaryModel {
 
     @Override
     public Iterator<TermCategoryEntries> iterator() {
-        return new IteratorAdapter<TermCategoryEntries>(new TrieIterator(entryTrie));
+        return CollectionHelper.convert(new TrieIterator(entryTrie),
+                Adapter.create(TrieCategoryEntries.class, TermCategoryEntries.class));
     }
 
     @Override
