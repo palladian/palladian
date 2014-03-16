@@ -207,16 +207,27 @@ public final class DictionaryTrieModel implements DictionaryModel {
     @Override
     public int prune(PruningStrategy strategy) {
         Validate.notNull(strategy, "strategy must not be null");
-        int oldCount = numTerms;
+        int removedTerms = 0;
+        int removedCategories = 0;
         Iterator<TermCategoryEntries> iterator = iterator();
         while (iterator.hasNext()) {
-            if (strategy.remove(iterator.next())) {
-                numTerms--;
+            TermCategoryEntries categoryEntries = iterator.next();
+            if (strategy.remove(categoryEntries)) {
+                removedTerms++;
                 iterator.remove();
+            } else {
+                Iterator<Category> categoryIterator = categoryEntries.iterator();
+                while (categoryIterator.hasNext()) {
+                    if (strategy.remove(categoryIterator.next())) {
+                        categoryIterator.remove();
+                        removedCategories++;
+                    }
+                }
             }
         }
+        numTerms -= removedTerms;
         entryTrie.clean();
-        return oldCount - numTerms;
+        return removedTerms + removedCategories;
     }
 
     // toString
@@ -301,7 +312,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
         }
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(numTerms);
-        String dictName = name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
+        String dictName = (name == null || name.equals(NO_NAME)) ? DictionaryTrieModel.class.getSimpleName() : name;
         ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Writing " + dictName);
         for (TermCategoryEntries termEntry : this) {
             out.writeObject(termEntry.getTerm());
@@ -338,7 +349,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
         }
         // terms
         numTerms = in.readInt();
-        String dictName = name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
+        String dictName = (name == null || name.equals(NO_NAME)) ? DictionaryTrieModel.class.getSimpleName() : name;
         ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Reading " + dictName);
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
@@ -494,18 +505,39 @@ public final class DictionaryTrieModel implements DictionaryModel {
         @Override
         public Iterator<Category> iterator() {
             return new AbstractIterator<Category>() {
-                LinkedCategoryCount current = firstCategory;
+                LinkedCategoryCount next = firstCategory;
+                LinkedCategoryCount current = null;
 
                 @Override
                 protected Category getNext() throws Finished {
-                    if (current == null) {
+                    if (next == null) {
                         throw FINISHED;
                     }
-                    String categoryName = current.categoryName;
-                    double probability = (double)current.count / totalCount;
-                    int count = current.count;
-                    current = current.nextCategory;
+                    String categoryName = next.categoryName;
+                    double probability = (double)next.count / totalCount;
+                    int count = next.count;
+                    current = next;
+                    next = next.nextCategory;
                     return new ImmutableCategory(categoryName, probability, count);
+                }
+
+                @Override
+                public void remove() {
+                    if (current == null) {
+                        throw new NoSuchElementException();
+                    }
+                    if (firstCategory == current) { // removing first element, update pointer
+                        firstCategory = current.nextCategory;
+                    } else { // removing element within tail, iterate to the predecessor and update next pointer
+                        for (LinkedCategoryCount temp = firstCategory; temp != null; temp = temp.nextCategory) {
+                            if (temp.nextCategory == current) {
+                                temp.nextCategory = current.nextCategory;
+                                break;
+                            }
+                        }
+                    }
+                    // update the total count
+                    totalCount -= current.count;
                 }
             };
         }
