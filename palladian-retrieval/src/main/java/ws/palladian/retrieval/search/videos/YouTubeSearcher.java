@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
@@ -40,6 +40,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * @author Philipp Katz
  * @see <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol">API documentation</a>
+ * @see <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol_api_query_parameters">API Query Parameters</a>
  */
 public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
@@ -52,8 +53,8 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     /** Key of the {@link Configuration} item which contains the API key. */
     public static final String CONFIG_API_KEY = "api.youtube.key";
 
-    /** Counter for total number of requests sent to YouTube. */
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    /** Counter for total number of requests sent to YouTube. */
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /** The pattern for parsing the date. */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -140,12 +141,11 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     }
 
     private String getRequestUrl(MultifacetQuery query, int startIndex, int numResults) throws SearcherException {
-        if (StringUtils.isBlank(query.getText())) {
-            throw new SearcherException("The query must supply a text.");
-        }
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("https://gdata.youtube.com/feeds/api/videos?q=");
-        urlBuilder.append(UrlHelper.encodeParameter(query.getText()));
+        if (StringUtils.isNotBlank(query.getText())) {
+            urlBuilder.append(UrlHelper.encodeParameter(query.getText()));
+        }
         Facet facet = query.getFacet(OrderBy.YOUTUBE_RESULT_ORDER);
         if (facet != null) {
             OrderBy orderByFacet = (OrderBy)facet;
@@ -162,9 +162,16 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         if (language != null) {
             urlBuilder.append("&lr=").append(language.getIso6391());
         }
+        GeoCoordinate coordinate = query.getCoordinate();
+        if (coordinate != null) {
+            urlBuilder.append("&location=");
+            urlBuilder.append(coordinate.getLatitude()).append(',');
+            urlBuilder.append(coordinate.getLongitude());
+            double radius = query.getRadius() != null ? query.getRadius() : 10;
+            urlBuilder.append("&locationRadius=");
+            urlBuilder.append(radius).append("km");
+        }
         urlBuilder.append("&safeSearch=none");
-        // TODO geo search is currently not available.
-        // see: https://code.google.com/p/gdata-issues/issues/detail?id=4234
         return urlBuilder.toString();
     }
 
@@ -187,7 +194,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
             String jsonString = httpResult.getStringContent();
             try {
                 JsonObject root = new JsonObject(jsonString);
-                TOTAL_REQUEST_COUNT.incrementAndGet();
+//                TOTAL_REQUEST_COUNT.incrementAndGet();
                 JsonObject feed = root.getJsonObject("feed");
                 numResults = feed.getJsonObject("openSearch$totalResults").getLong("$t");
                 JsonArray entries = feed.getJsonArray("entry");
@@ -278,15 +285,15 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         return null;
     }
 
-    /**
-     * <p>
-     * Get the number of HTTP requests sent to YouTube.
-     * </p>
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
-    }
+//    /**
+//     * <p>
+//     * Get the number of HTTP requests sent to YouTube.
+//     * </p>
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.get();
+//    }
 
 }
