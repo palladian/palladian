@@ -29,7 +29,6 @@
 		<module>palladian-retrieval</module>
 		<module>palladian-experimental</module>
 		<module>palladian-external-code</module>
-		<module>palladian-iirmodel</module>
 		<module>palladian-processing-api</module>
 		<module>palladian-external-liblinear</module>
 	</modules>
@@ -118,14 +117,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.8</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<!-- Configuration for maven-jar-plugin and maven-bundle-plugin for creating 
 				a Palladian bundle. I took this workflow from the Apache approach, as described 
@@ -158,44 +149,46 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<!-- Integration tests are skipped by default, and should only
-				run if explicitly requested; see profile integration-tests -->
+				<!-- Integration tests are skipped by default, and should only run if 
+					explicitly requested; see profile integration-tests -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.12.4</version>
 				<executions>
 					<execution>
 						<goals>
-              				<goal>integration-test</goal>
-              				<goal>verify</goal>
-		            	</goals>
-           	            <configuration>
-			                <!-- Skips integration tests if the value of skip.integration.tests property is true -->
-			                <skipTests>${skip.integration.tests}</skipTests>
-			            </configuration>
-	            	</execution>
-            	</executions>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+						<configuration>
+							<!-- Skips integration tests if the value of skip.integration.tests 
+								property is true -->
+							<skipTests>${skip.integration.tests}</skipTests>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
-			    <groupId>org.codehaus.mojo</groupId>
-			    <artifactId>build-helper-maven-plugin</artifactId>
-			    <version>1.7</version>
-			    <executions>
-			        <!-- States that the plugin's add-test-source goal is executed at generate-test-sources phase. -->
-			        <execution>
-			            <id>add-integration-test-sources</id>
-			            <phase>generate-test-sources</phase>
-			            <goals>
-			                <goal>add-test-source</goal>
-			            </goals>
-			            <configuration>
-			                <!-- Configures the source directory of integration tests. -->
-			                <sources>
-			                    <source>src/integration-test/java</source>
-			                </sources>
-			            </configuration>
-			        </execution>
-			    </executions>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<!-- States that the plugin's add-test-source goal is executed at generate-test-sources 
+						phase. -->
+					<execution>
+						<id>add-integration-test-sources</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<!-- Configures the source directory of integration tests. -->
+							<sources>
+								<source>src/integration-test/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -255,12 +248,12 @@
 		<logback.version>1.0.1</logback.version>
 	</properties>
 	<profiles>
-	    <profile>
-	        <id>integration-tests</id>
-	        <properties>
-	            <skip.integration.tests>false</skip.integration.tests>
-	        </properties>
-	    </profile>	
+		<profile>
+			<id>integration-tests</id>
+			<properties>
+				<skip.integration.tests>false</skip.integration.tests>
+			</properties>
+		</profile>
 	</profiles>
 	<!-- common dependencies -->
 	<dependencies>
@@ -281,14 +274,8 @@
 			<version>1.3</version>
 			<scope>test</scope>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>test</scope>
-		</dependency>
-		-->
+		<!-- <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
+			<version>${slf4j.version}</version> <scope>test</scope> </dependency> -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -304,42 +291,22 @@
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
-			<!-- dependency>
-				<groupId>uk.ac.shef.wit.simmetrics</groupId>
-				<artifactId>similaritymetrics</artifactId>
-				<version>1.6.2</version>
-			</dependency -->
-			<!-- dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.16</version>
-			</dependency -->
-			<!-- dependency>
-				<groupId>stax</groupId>
-				<artifactId>stax</artifactId>
-				<version>1.1.1-dev</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>xmlbeans-jsr173-api</artifactId>
-						<groupId>xmlbeans</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency -->
-			<!-- dependency>
-				<groupId>cc.mallet</groupId>
-				<artifactId>mallet</artifactId>
-				<version>2.0.7-RC2</version>
-			</dependency -->
+			<!-- dependency> <groupId>uk.ac.shef.wit.simmetrics</groupId> <artifactId>similaritymetrics</artifactId> 
+				<version>1.6.2</version> </dependency -->
+			<!-- dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId> 
+				<version>1.2.16</version> </dependency -->
+			<!-- dependency> <groupId>stax</groupId> <artifactId>stax</artifactId> 
+				<version>1.1.1-dev</version> <exclusions> <exclusion> <artifactId>xmlbeans-jsr173-api</artifactId> 
+				<groupId>xmlbeans</groupId> </exclusion> </exclusions> </dependency -->
+			<!-- dependency> <groupId>cc.mallet</groupId> <artifactId>mallet</artifactId> 
+				<version>2.0.7-RC2</version> </dependency -->
 			<dependency>
 				<groupId>edu.smu.tspell</groupId>
 				<artifactId>jaws-bin</artifactId>
 				<version>1.2</version>
 			</dependency>
-			<!-- dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-math</artifactId>
-				<version>2.1</version>
-			</dependency -->
+			<!-- dependency> <groupId>org.apache.commons</groupId> <artifactId>commons-math</artifactId> 
+				<version>2.1</version> </dependency -->
 			<dependency>
 				<groupId>com.aliasi</groupId>
 				<artifactId>lingpipe</artifactId>
@@ -395,11 +362,8 @@
 				<artifactId>opennlp-tools</artifactId>
 				<version>1.5.2-incubating</version>
 			</dependency>
-			<!-- dependency>
-				<groupId>com.uea.stemmer</groupId>
-				<artifactId>UEALite</artifactId>
-				<version>1.0</version>
-			</dependency -->
+			<!-- dependency> <groupId>com.uea.stemmer</groupId> <artifactId>UEALite</artifactId> 
+				<version>1.0</version> </dependency -->
 			<dependency>
 				<groupId>tud.iir.external</groupId>
 				<artifactId>juliener</artifactId>
@@ -415,31 +379,19 @@
 				<artifactId>snowball</artifactId>
 				<version>2010-08-04</version>
 			</dependency>
-			<!-- dependency>
-				<groupId>trove</groupId>
-				<artifactId>trove</artifactId>
-				<version>2.1.0</version>
-			</dependency -->
-			<!-- dependency>
-				<groupId>com.ibm.icu</groupId>
-				<artifactId>icu4j</artifactId>
-				<version>3.8</version>
-			</dependency -->
+			<!-- dependency> <groupId>trove</groupId> <artifactId>trove</artifactId> 
+				<version>2.1.0</version> </dependency -->
+			<!-- dependency> <groupId>com.ibm.icu</groupId> <artifactId>icu4j</artifactId> 
+				<version>3.8</version> </dependency -->
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>3.1</version>
 			</dependency>
-			<!-- dependency>
-				<groupId>commons-beanutils</groupId>
-				<artifactId>commons-beanutils</artifactId>
-				<version>1.8.3</version>
-			</dependency -->
-			<!-- dependency>
-				<groupId>nz.ac.waikato.cms.weka</groupId>
-				<artifactId>weka-dev</artifactId>
-				<version>3.7.7</version>
-			</dependency -->
+			<!-- dependency> <groupId>commons-beanutils</groupId> <artifactId>commons-beanutils</artifactId> 
+				<version>1.8.3</version> </dependency -->
+			<!-- dependency> <groupId>nz.ac.waikato.cms.weka</groupId> <artifactId>weka-dev</artifactId> 
+				<version>3.7.7</version> </dependency -->
 			<dependency>
 				<groupId>tw.edu.ntu.csie</groupId>
 				<artifactId>libsvm</artifactId>
@@ -448,39 +400,36 @@
 		</dependencies>
 	</dependencyManagement>
 	<repositories>
+		<!-- <repository> <releases> <enabled>true</enabled> </releases> <id>bonecp-repo</id> 
+			<name>BoneCP Repository</name> <url>http://jolbox.com/bonecp/downloads/maven</url> 
+			</repository> -->
+		<!-- <repository> -->
+		<!-- <id>Apache Repository</id> -->
+		<!-- <url>https://repository.apache.org</url> -->
+		<!-- </repository> -->
 		<repository>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<id>bonecp-repo</id>
-			<name>BoneCP Repository</name>
-			<url>http://jolbox.com/bonecp/downloads/maven</url>
-		</repository>
-		<repository>
-			<id>Apache Repository</id>
-			<url>https://repository.apache.org</url>
-		</repository>
-		<repository>
+			<!-- Contains JAI dependencies -->
 			<id>JBoss Repository</id>
 			<url>http://repository.jboss.org/nexus/content/groups/public-jboss
 			</url>
 		</repository>
+		<!-- <repository> -->
+		<!-- <id>MVN Repository</id> -->
+		<!-- <url>http://mvnrepository.com/</url> -->
+		<!-- </repository> -->
 		<repository>
-			<id>MVN Repository</id>
-			<url>http://mvnrepository.com/</url>
-		</repository>
-		<repository>
-		<id>weka</id>
+			<!-- Contains Weka and Jena dependencies -->
+			<id>weka</id>
 			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
 		</repository>
-		<repository>
-			<id>Maven HUB</id>
-			<url>http://mavenhub.com/mvn/central</url>
-		</repository>
-		<repository>
-			<id>Maven MSE</id>
-			<url>http://maven.mse.jhu.edu/m2repository/</url>
-		</repository>
+		<!-- <repository> -->
+		<!-- <id>Maven HUB</id> -->
+		<!-- <url>http://mavenhub.com/mvn/central</url> -->
+		<!-- </repository> -->
+		<!-- <repository> -->
+		<!-- <id>Maven MSE</id> -->
+		<!-- <url>http://maven.mse.jhu.edu/m2repository/</url> -->
+		<!-- </repository> -->
 		<repository>
 			<id>releases</id>
 			<url>http://effingo.de/nexus/content/groups/public</url>
@@ -494,6 +443,7 @@
 			<url>http://maven.twttr.com/</url>
 		</repository>
 		<repository>
+			<!-- Required for QuickDT -->
 			<id>sanity-maven-repo</id>
 			<name>Sanity's Maven repository on GitHub</name>
 			<url>http://sanity.github.com/maven-repo/repository/</url>
