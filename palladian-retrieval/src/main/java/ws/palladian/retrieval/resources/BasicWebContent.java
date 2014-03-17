@@ -4,8 +4,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
@@ -221,46 +224,35 @@ public class BasicWebContent implements WebContent {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("WebContent [");
+        List<String> toStringParts = CollectionHelper.newArrayList();
         if (id != -1) {
-            builder.append("id=");
-            builder.append(id);
+            toStringParts.add(String.format("id=%s", id));
         }
         if (url != null) {
-            builder.append("url=");
-            builder.append(url);
+            toStringParts.add(String.format("url=%s", url));
         }
         if (title != null) {
-            builder.append(", title=");
-            builder.append(title);
+            toStringParts.add(String.format("title=%s", title));
         }
         if (summary != null) {
-            builder.append(", summary=");
-            builder.append(summary);
+            toStringParts.add(String.format("summary=%s", summary));
         }
         if (published != null) {
-            builder.append(", published=");
-            builder.append(published);
+            toStringParts.add(String.format("published=%s", published));
         }
         if (coordinate != null) {
-            builder.append(", coordinate=");
-            builder.append(coordinate);
+            toStringParts.add(String.format("coordinate=%s", coordinate));
         }
         if (identifier != null) {
-            builder.append(", identifier=");
-            builder.append(identifier);
+            toStringParts.add(String.format("identifier=%s", identifier));
         }
         if (tags != null && tags.size() > 0) {
-            builder.append(", tags=");
-            builder.append(tags);
+            toStringParts.add(String.format("tags=%s", tags));
         }
         if (source != null) {
-            builder.append(", source=");
-            builder.append(source);
+            toStringParts.add(String.format("source=%s", source));
         }
-        builder.append("]");
-        return builder.toString();
+        return String.format("WebContent [%s]",StringUtils.join(toStringParts,','));
     }
 
     @Override
