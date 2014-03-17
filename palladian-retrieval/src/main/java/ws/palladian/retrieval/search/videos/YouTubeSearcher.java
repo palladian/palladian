@@ -179,10 +179,9 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     public SearchResults<WebVideo> search(MultifacetQuery query) throws SearcherException {
         List<WebVideo> webResults = new ArrayList<WebVideo>();
         Long numResults = null;
-        int numPages = (int)Math.ceil((double)query.getResultCount() / MAX_RESULTS_PER_PAGE);
 
-        for (int page = 1; page <= numPages; page++) {
-            String url = getRequestUrl(query, page, MAX_RESULTS_PER_PAGE);
+        for (int index = 1; index <= query.getResultCount(); index += MAX_RESULTS_PER_PAGE) {
+            String url = getRequestUrl(query, index, MAX_RESULTS_PER_PAGE);
             LOGGER.debug("Requesting with URL {}", url);
             HttpResult httpResult;
             try {
