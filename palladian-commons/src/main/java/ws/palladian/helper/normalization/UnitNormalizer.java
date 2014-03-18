@@ -57,6 +57,10 @@ public class UnitNormalizer {
         return UnitType.WEIGHT.contains(unit);
     }
 
+    private static boolean isAreaUnit(String unit) {
+        return UnitType.AREA.contains(unit);
+    }
+
     private static boolean isVolumeUnit(String unit) {
         return UnitType.VOLUME.contains(unit);
     }
@@ -151,6 +155,9 @@ public class UnitNormalizer {
         if (isWeightUnit(unit)) {
             return UnitType.WEIGHT.getUnitNames();
         }
+        if (isAreaUnit(unit)) {
+            return UnitType.AREA.getUnitNames();
+        }
         if (isVolumeUnit(unit)) {
             return UnitType.VOLUME.getUnitNames();
         }
@@ -211,6 +218,11 @@ public class UnitNormalizer {
 
         // weight
         if (isWeightUnit(unit1) && isWeightUnit(unit2)) {
+            return true;
+        }
+
+        // area
+        if (isAreaUnit(unit1) && isAreaUnit(unit2)) {
             return true;
         }
 
