@@ -1,5 +1,9 @@
 package ws.palladian.retrieval.resources;
 
+import java.util.List;
+
+import ws.palladian.helper.collection.CollectionHelper;
+
 /**
  * <p>
  * A {@link BasicWebContent} representing video links.
@@ -108,51 +112,24 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     }
 
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("WebVideo [");
+    protected List<String> getToStringParts() {
+        List<String> toStringParts = CollectionHelper.newArrayList(super.getToStringParts());
         if (videoUrl != null) {
-            builder.append("videoUrl=");
-            builder.append(videoUrl);
+            toStringParts.add(String.format("videoUrl=%s", videoUrl));
         }
         if (thumbnailUrl != null) {
-            builder.append(", thumbnailUrl=");
-            builder.append(thumbnailUrl);
+            toStringParts.add(String.format("thumbnailUrl=%s", thumbnailUrl));
         }
         if (duration != null) {
-            builder.append(", duration=");
-            builder.append(duration);
+            toStringParts.add(String.format("duration=%s", duration));
         }
         if (views != null) {
-            builder.append(", views=");
-            builder.append(views);
+            toStringParts.add(String.format("views=%s", views));
         }
         if (rating != null) {
-            builder.append(", rating=");
-            builder.append(rating);
+            toStringParts.add(String.format("rating=%s", rating));
         }
-        if (getUrl() != null) {
-            builder.append(", url=");
-            builder.append(getUrl());
-        }
-        if (getTitle() != null) {
-            builder.append(", title=");
-            builder.append(getTitle());
-        }
-        if (getSummary() != null) {
-            builder.append(", summary=");
-            builder.append(getSummary());
-        }
-        if (getPublished() != null) {
-            builder.append(", published=");
-            builder.append(getPublished());
-        }
-        if (getCoordinate() != null) {
-            builder.append(", coordinate=");
-            builder.append(getCoordinate());
-        }
-        builder.append("]");
-        return builder.toString();
+        return toStringParts;
     }
 
     @Override
