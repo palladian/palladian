@@ -149,6 +149,15 @@ public final class DictionaryTrieModel implements DictionaryModel {
     }
 
     @Override
+    public int getNumEntries() {
+        int numEntries = 0;
+        for (TermCategoryEntries entries : this) {
+            numEntries += entries.size();
+        }
+        return numEntries;
+    }
+
+    @Override
     public Iterator<TermCategoryEntries> iterator() {
         return CollectionHelper.convert(new TrieIterator(entryTrie),
                 Adapter.create(TrieCategoryEntries.class, TermCategoryEntries.class));
@@ -235,9 +244,13 @@ public final class DictionaryTrieModel implements DictionaryModel {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("DictionaryTrieModel [featureSetting=").append(featureSetting);
-        builder.append(", #terms=").append(getNumTerms());
-        builder.append(", #categories=").append(getNumCategories()).append("]");
+        builder.append("DictionaryTrieModel [");
+        if (featureSetting != null) {
+            builder.append("featureSetting=").append(featureSetting).append(", ");
+        }
+        builder.append("#terms=").append(getNumTerms());
+        builder.append(", #categories=").append(getNumCategories());
+        builder.append(", #entries=").append(getNumEntries()).append("]");
         return builder.toString();
     }
 

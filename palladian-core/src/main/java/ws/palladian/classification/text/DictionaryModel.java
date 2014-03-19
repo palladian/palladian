@@ -105,6 +105,11 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      * @return The number of distinct categories in this model.
      */
     int getNumCategories();
+    
+    /**
+     * @return The number of (non-zero) term-category entries in this model.
+     */
+    int getNumEntries();
 
     /**
      * @return The prior probabilities for the trained categories. (e.g. category "A" appeared 10 times, category "B"
