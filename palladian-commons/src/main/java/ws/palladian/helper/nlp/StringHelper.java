@@ -123,6 +123,24 @@ public final class StringHelper {
     }
 
     /**
+     * Shorten a string to a given length if necessary and add ellipsis.
+     * 
+     * @param string The string to shorten.
+     * @param maxLength The maximum length.
+     * @return The original string if it was shorter than the max. length, or a shortened string with appended "...", or
+     *         <code>null</code> in case the given string was null.
+     */
+    public static String shortenEllipsis(String string, int maxLength) {
+        if (string == null) {
+            return null;
+        }
+        if (string.length() <= maxLength) {
+            return string;
+        }
+        return string.substring(0, maxLength).concat(" ...");
+    }
+
+    /**
      * <p>
      * In some cases we have unicode characters and have to transform them to Ascii again. We use the following mapping:
      * http://www.unicodemap.org/range/2/Latin-1_Supplement/.

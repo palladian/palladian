@@ -15,7 +15,7 @@ public interface WebVideo extends WebContent {
     /**
      * @return The runtime of this video seconds, or <code>null</code> if no runtime was specified.
      */
-    Long getDuration();
+    Integer getDuration();
 
     /**
      * @return The number of views of this video, or <code>null</code> in case no view count was specified.

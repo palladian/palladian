@@ -25,7 +25,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
 
         protected String videoUrl;
         protected String thumbnailUrl;
-        protected Long duration;
+        protected Integer duration;
         protected Integer views;
         protected Double rating;
 
@@ -39,7 +39,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
             return this;
         }
 
-        public Builder setDuration(Long duration) {
+        public Builder setDuration(Integer duration) {
             this.duration = duration;
             return this;
         }
@@ -73,7 +73,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
 
     private final String videoUrl;
     private final String thumbnailUrl;
-    private final Long duration;
+    private final Integer duration;
     private final Integer views;
     private final Double rating;
 
@@ -92,7 +92,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     }
 
     @Override
-    public Long getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
