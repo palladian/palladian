@@ -14,6 +14,7 @@ import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -244,9 +245,9 @@ public class BasicWebContent implements WebContent {
         if (title != null) {
             toStringParts.add(String.format("title=%s", title));
         }
-        if (summary != null) {
-            toStringParts.add(String.format("summary=%s", summary));
-        }
+//        if (summary != null) {
+//            toStringParts.add(String.format("summary=%s", StringHelper.shortenEllipsis(summary, 100)));
+//        }
         if (published != null) {
             toStringParts.add(String.format("published=%s", published));
         }

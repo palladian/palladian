@@ -183,7 +183,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
             builder.setSummary(jsonVideo.getString("description"));
             builder.setPublished(parseDate(uploadDateString));
             builder.setUrl(String.format("https://vimeo.com/%s", id));
-            builder.setDuration(jsonVideo.getLong("duration"));
+            builder.setDuration(jsonVideo.getInt("duration"));
             if (jsonVideo.get("tags") != null) {
                 JsonArray tagArray = jsonVideo.queryJsonArray("/tags/tag");
                 for (int j = 0; j < tagArray.size(); j++) {

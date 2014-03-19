@@ -42,7 +42,7 @@ public final class BingVideoSearcher extends BaseBingSearcher<WebVideo> {
         builder.setTitle(currentResult.getString("Title"));
         builder.setUrl(currentResult.getString("MediaUrl"));
         // interpret a value of "0", as "no run time specified"
-        Long runTime = currentResult.getLong("RunTime");
+        Integer runTime = currentResult.getInt("RunTime");
         if (runTime != 0) {
             builder.setDuration(runTime);
         }

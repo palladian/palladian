@@ -144,6 +144,9 @@ public interface MultifacetQuery {
 
         @Override
         public MultifacetQuery create() {
+            if (startDate != null && endDate != null) {
+                Validate.isTrue(startDate.before(endDate), "startDate must be before endDate");
+            }
             return new ImmutableMultifacetQuery(this);
         }
 
