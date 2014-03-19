@@ -223,7 +223,17 @@ public class BasicWebContent implements WebContent {
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
+        List<String> toStringParts = getToStringParts();
+        String className = getClass().getSimpleName();
+        return String.format("%s [%s]", className, StringUtils.join(toStringParts, ','));
+    }
+
+    /**
+     * @return All attributes to return in the {@link #toString()} method. Take care to invoke the super method when
+     *         overriding this in sub classes.
+     */
+    protected List<String> getToStringParts() {
         List<String> toStringParts = CollectionHelper.newArrayList();
         if (id != -1) {
             toStringParts.add(String.format("id=%s", id));
@@ -252,7 +262,7 @@ public class BasicWebContent implements WebContent {
         if (source != null) {
             toStringParts.add(String.format("source=%s", source));
         }
-        return String.format("WebContent [%s]",StringUtils.join(toStringParts,','));
+        return toStringParts;
     }
 
     @Override

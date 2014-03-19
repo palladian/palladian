@@ -1,5 +1,8 @@
 package ws.palladian.retrieval.resources;
 
+import java.util.List;
+
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.images.ImageType;
 
@@ -177,73 +180,35 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
     public String getFileType() {
         return fileType;
     }
-
+    
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("WebImage [");
+    protected List<String> getToStringParts() {
+        List<String> toStringParts = CollectionHelper.newArrayList(super.getToStringParts());
         if (imageUrl != null) {
-            builder.append("imageUrl=");
-            builder.append(imageUrl);
+            toStringParts.add(String.format("imageUrl=%s", imageUrl));
         }
         if (thumbnailUrl != null) {
-            builder.append(", thumbnailUrl=");
-            builder.append(thumbnailUrl);
+            toStringParts.add(String.format("thumbnailUrl=%s", thumbnailUrl));
         }
         if (width != -1) {
-            builder.append(", width=");
-            builder.append(width);
+            toStringParts.add(String.format("width=%s", width));
         }
         if (height != -1) {
-            builder.append(", height=");
-            builder.append(height);
+            toStringParts.add(String.format("height=%s", height));
         }
         if (license != null && license != License.UNKNOWN) {
-            builder.append(", license=");
-            builder.append(license);
+            toStringParts.add(String.format("license=%s", license));
         }
         if (licenseLink != null) {
-            builder.append(", licenseLink=");
-            builder.append(licenseLink);
+            toStringParts.add(String.format("licenseLink=%s", licenseLink));
         }
         if (imageType != null && imageType != ImageType.UNKNOWN) {
-            builder.append(", imageType=");
-            builder.append(imageType);
+            toStringParts.add(String.format("imageType=%s", imageType));
         }
         if (fileType != null) {
-            builder.append(", fileType=");
-            builder.append(fileType);
+            toStringParts.add(String.format("fileType=%s", fileType));
         }
-        if (getUrl() != null) {
-            builder.append(", url=");
-            builder.append(getUrl());
-        }
-        if (getTitle() != null) {
-            builder.append(", title=");
-            builder.append(getTitle());
-        }
-        if (getSummary() != null) {
-            builder.append(", summary=");
-            builder.append(getSummary());
-        }
-        if (getPublished() != null) {
-            builder.append(", published=");
-            builder.append(getPublished());
-        }
-        if (getCoordinate() != null) {
-            builder.append(", coordinate=");
-            builder.append(getCoordinate());
-        }
-        if (getTags() != null && getTags().size() > 0) {
-            builder.append(", tags=");
-            builder.append(getTags());
-        }
-        if (getIdentifier() != null) {
-            builder.append(", identifier=");
-            builder.append(getIdentifier());
-        }
-        builder.append("]");
-        return builder.toString();
+        return toStringParts;
     }
 
     @Override
