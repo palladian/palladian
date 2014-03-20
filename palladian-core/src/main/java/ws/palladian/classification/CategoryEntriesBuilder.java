@@ -1,10 +1,10 @@
 package ws.palladian.classification;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
@@ -21,7 +21,7 @@ import ws.palladian.helper.collection.Factory;
  */
 public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
 
-    private final Map<String, Double> entryMap;
+    private final Map<String, MutableDouble> entryMap;
 
     /**
      * <p>
@@ -41,7 +41,10 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public CategoryEntriesBuilder(Map<String, Double> map) {
         Validate.notNull(map, "map must not be null");
-        entryMap = new HashMap<String, Double>(map);
+        entryMap = CollectionHelper.newHashMap();
+        for (Entry<String, Double> entry : map.entrySet()) {
+            entryMap.put(entry.getKey(), new MutableDouble(entry.getValue()));
+        }
     }
 
     /**
@@ -56,7 +59,12 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public CategoryEntriesBuilder set(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         Validate.isTrue(score >= 0, "score must be higher/equal zero");
-        entryMap.put(categoryName, score);
+        MutableDouble value = entryMap.get(categoryName);
+        if (value == null) {
+            entryMap.put(categoryName, new MutableDouble(score));
+        } else {
+            value.setValue(score);
+        }
         return this;
     }
 
@@ -73,7 +81,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
         Validate.notNull(categoryNames, "categoryName must not be null");
         Validate.isTrue(score >= 0, "score must be higher/equal zero");
         for (String categoryName : categoryNames) {
-            entryMap.put(categoryName, score);
+            set(categoryName, score);
         }
         return this;
     }
@@ -90,11 +98,11 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public CategoryEntriesBuilder add(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         Validate.isTrue(score >= 0, "score must be higher/equal zero");
-        Double existingScore = entryMap.get(categoryName);
-        if (existingScore == null) {
-            entryMap.put(categoryName, score);
+        MutableDouble value = entryMap.get(categoryName);
+        if (value == null) {
+            entryMap.put(categoryName, new MutableDouble(score));
         } else {
-            entryMap.put(categoryName, existingScore + score);
+            value.add(score);
         }
         return this;
     }
@@ -119,11 +127,11 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public CategoryEntries create() {
         double total = getTotalScore();
         Map<String, Double> map = CollectionHelper.newHashMap();
-        for (Entry<String, Double> entry : entryMap.entrySet()) {
+        for (Entry<String, MutableDouble> entry : entryMap.entrySet()) {
             if (total == 0) {
                 map.put(entry.getKey(), 0.);
             } else {
-                map.put(entry.getKey(), entry.getValue() / total);
+                map.put(entry.getKey(), entry.getValue().doubleValue() / total);
             }
         }
         return new ImmutableCategoryEntries(map);
@@ -134,8 +142,8 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public double getTotalScore() {
         double total = 0;
-        for (Double value : entryMap.values()) {
-            total += value;
+        for (MutableDouble value : entryMap.values()) {
+            total += value.doubleValue();
         }
         return total;
     }
@@ -149,8 +157,8 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * @return The score, or zero in case no score was set for the categoy.
      */
     public double getScore(String categoryName) {
-        Double score = entryMap.get(categoryName);
-        return score != null ? score : 0;
+        MutableDouble value = entryMap.get(categoryName);
+        return value != null ? value.doubleValue() : 0;
     }
 
 }
