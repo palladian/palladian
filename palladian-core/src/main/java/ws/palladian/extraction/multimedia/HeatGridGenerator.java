@@ -102,6 +102,12 @@ public final class HeatGridGenerator {
 
     private final int tileSize;
 
+    /**
+     * Create a new {@link HeatGridGenerator}.
+     * 
+     * @param colorCoder The {@link ColorCoder} for transforming the numeric values to colors, not <code>null</code>.
+     * @param tileSize The size of the tiles in pixels, must be greater zero.
+     */
     public HeatGridGenerator(ColorCoder colorCoder, int tileSize) {
         Validate.notNull(colorCoder, "colorCoder must not be null");
         Validate.isTrue(tileSize > 0, "tileSize must be greater zero");
@@ -132,10 +138,10 @@ public final class HeatGridGenerator {
         g2.fill(new Rectangle(0, 0, imageWidth, imageHeight));
         g2.setPaint(Color.RED);
 
-        int columnNumber = 0;
+        int rowNumber = 0;
         Set<String> columnKeys = data.getColumnKeys();
         for (NumericMatrixVector<String> row : data.rows()) {
-            int rowNumber = 0;
+            int columnNumber = 0;
             for (String columnKey : columnKeys) {
                 double value = row.get(columnKey);
                 if (value < 0 || value > 1) {
@@ -144,9 +150,9 @@ public final class HeatGridGenerator {
                 Color color = colorCoder.getColor(value);
                 g2.setColor(color);
                 g2.fill(new Rectangle(columnNumber * tileSize, rowNumber * tileSize, tileSize, tileSize));
-                rowNumber++;
+                columnNumber++;
             }
-            columnNumber++;
+            rowNumber++;
         }
 
         ImageHandler.saveImage(bufferedImage, "png", imagePath);
@@ -163,14 +169,14 @@ public final class HeatGridGenerator {
         // System.out.println(data.get("0", "0"));
 
         // generate random heat grid data
-        for (int i = 0; i < 100; i++) {
-            for (int j = 0; j < 100; j++) {
-                data.set(i + "", j + "", Math.random());
+        for (int x = 0; x < 200; x++) {
+            for (int y = 0; y < 100; y++) {
+                data.set(x + "", y + "", Math.random());
             }
         }
 
         HeatGridGenerator heatGridGenerator = new HeatGridGenerator(new PaletteColorCoder(), 30);
-        heatGridGenerator.generateHeatGrid(data, "heatgrid__.png");
+        heatGridGenerator.generateHeatGrid(data, "heatgrid.png");
 
     }
 
