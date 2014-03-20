@@ -6,46 +6,54 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CollectionHelper.Order;
 
 /**
  * @author pk
  */
 final class ImmutableCategoryEntries extends AbstractCategoryEntries {
 
-    /**
-     * The map must keep entries sorted by probability, so that the first entry has the highest probability; this way,
-     * querying the most probably category is fast.
-     */
-    private final Map<String, Double> entryMap;
+    /** The map with all {@link Category} entries, for quick access by category name. */
+    private final Map<String, Category> entryMap;
+
+    /** The most likely {@link Category}; determined and cached upon creation for quick access. */
+    private final Category mostLikely;
 
     /**
      * To be created by {@link CategoryEntriesBuilder} only.
      * 
-     * @param entryMap The map with the entries.
+     * @param probabilityMap The map with the entries.
      */
-    ImmutableCategoryEntries(Map<String, Double> entryMap) {
-        this.entryMap = CollectionHelper.sortByValue(entryMap, Order.DESCENDING);
+    ImmutableCategoryEntries(Map<String, Double> probabilityMap) {
+        Map<String, Category> entryMap = CollectionHelper.newHashMap();
+        Category mostLikely = null;
+        for (Entry<String, Double> entry : probabilityMap.entrySet()) {
+            String name = entry.getKey();
+            Double probability = entry.getValue();
+            Category category = new ImmutableCategory(name, probability);
+            entryMap.put(name, category);
+            if (mostLikely == null || mostLikely.getProbability() < probability) {
+                mostLikely = category;
+            }
+        }
+        this.entryMap = Collections.unmodifiableMap(entryMap);
+        this.mostLikely = mostLikely;
     }
 
     @Override
     public Iterator<Category> iterator() {
-        Iterator<Entry<String, Double>> mapIterator = Collections.unmodifiableMap(entryMap).entrySet().iterator();
-        return CollectionHelper.convert(mapIterator, new ImmutableCategory.EntryConverter());
+        return entryMap.values().iterator();
     }
 
     @Override
     public Category getMostLikely() {
-        Entry<String, Double> entry = CollectionHelper.getFirst(entryMap.entrySet());
-        return entry != null ? new ImmutableCategory(entry.getKey(), entry.getValue()) : null;
+        return mostLikely;
     }
 
     @Override
     public Category getCategory(String categoryName) {
-        Double probability = entryMap.get(categoryName);
-        return probability != null ? new ImmutableCategory(categoryName, probability) : null;
+        return entryMap.get(categoryName);
     }
-    
+
     @Override
     public int size() {
         return entryMap.size();
