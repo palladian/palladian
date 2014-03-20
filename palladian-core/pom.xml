@@ -19,6 +19,33 @@
 					<configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<archive>
+						<!-- I am not sure whether we need the OSGi manifest in the fat jar, 
+							as we should strive for a modular dependency management when Palladian is 
+							used in OGSi environments, so we might want to remove this later again. Philipp, 
+							2012-08-01 -->
+						<!-- manifestFile>${project.build.directory}/osgi/MANIFEST.MF</manifestFile -->
+						<manifest></manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- append to the packaging phase. -->
+						<goals>
+							<goal>single</goal> <!-- goals == mojos -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>

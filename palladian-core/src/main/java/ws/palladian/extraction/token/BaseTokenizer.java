@@ -11,6 +11,7 @@ import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -22,7 +23,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseTokenizer extends TextDocumentPipelineProcessor implements Tagger {
+public abstract class BaseTokenizer extends TextDocumentPipelineProcessor implements Tagger, FeatureProvider {
 
     /**
      * <p>
@@ -30,6 +31,15 @@ public abstract class BaseTokenizer extends TextDocumentPipelineProcessor implem
      * </p>
      */
     public static final String PROVIDED_FEATURE = "ws.palladian.features.tokens";
+    private final String featureName;
+
+    public BaseTokenizer() {
+        this.featureName = PROVIDED_FEATURE;
+    }
+
+    public BaseTokenizer(String featureName) {
+        this.featureName = featureName;
+    }
 
     /**
      * <p>
@@ -69,12 +79,17 @@ public abstract class BaseTokenizer extends TextDocumentPipelineProcessor implem
     @Override
     public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
         String text = document.getContent();
-        ListFeature<PositionAnnotation> tokensFeature = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> tokensFeature = new ListFeature<PositionAnnotation>(getCreatedFeatureName());
         List<? extends Annotation> annotations = getAnnotations(text);
         for (Annotation annotation : annotations) {
             tokensFeature.add(new PositionAnnotation(annotation.getValue(), annotation.getStartPosition()));
         }
         document.getFeatureVector().add(tokensFeature);
+    }
+
+    @Override
+    public String getCreatedFeatureName() {
+        return featureName;
     }
 
 }
