@@ -205,4 +205,10 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
         getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document);
     }
 
+    public void process(PipelineDocument<?> document) {
+        getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).put(document);
+        process();
+        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).poll();
+    }
+
 }
