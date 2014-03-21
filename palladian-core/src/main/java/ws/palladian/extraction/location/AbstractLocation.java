@@ -1,7 +1,9 @@
 package ws.palladian.extraction.location;
 
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -69,24 +71,21 @@ public abstract class AbstractLocation implements Location {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getClass().getSimpleName());
-        builder.append(" [id=");
-        builder.append(getId());
-        builder.append(", primaryName=");
-        builder.append(getPrimaryName());
-        // builder.append(", alternativeNames=");
-        // builder.append(alternativeNames);
-        builder.append(", type=");
-        builder.append(getType());
-        builder.append(", coordinate=");
-        builder.append(getCoordinate());
-        builder.append(", population=");
-        builder.append(getPopulation());
-        // builder.append(", ancestorIds=");
-        // builder.append(ancestorIds);
-        builder.append("]");
-        return builder.toString();
+        List<String> toStringParts = CollectionHelper.newArrayList();
+        if (getId() != -1) {
+            toStringParts.add(String.format("id=%s", getId()));
+        }
+        toStringParts.add(String.format("primaryName=%s", getPrimaryName()));
+        if (getType() != LocationType.UNDETERMINED) {
+            toStringParts.add(String.format("type=%s", getType()));
+        }
+        if (getCoordinate() != null) {
+            toStringParts.add(String.format("coordinate=%s", getCoordinate()));
+        }
+        if (getPopulation() != null) {
+            toStringParts.add(String.format("population=%s", getPopulation()));
+        }
+        return String.format("%s [%s]", getClass().getSimpleName(), StringUtils.join(toStringParts, ','));
     }
 
     // hashCode and equals
