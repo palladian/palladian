@@ -43,6 +43,11 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
             }
         };
     }
+    
+    @Override
+    public int size() {
+        return categoryCounts.size();
+    }
 
     @Override
     public String getTerm() {

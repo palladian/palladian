@@ -1,6 +1,5 @@
 package ws.palladian.classification.text;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -13,11 +12,9 @@ import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
-import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.collection.Function;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.Trainable;
@@ -114,6 +111,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     private final FeatureSetting featureSetting;
 
     private final Scorer scorer;
+    
+    private final Function<String, Iterator<String>> preprocessor;
 
     public PalladianTextClassifier(FeatureSetting featureSetting) {
         this(featureSetting, new DefaultScorer());
@@ -125,6 +124,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         this.model = model;
         this.featureSetting = featureSetting;
         this.scorer = new DefaultScorer();
+        this.preprocessor = new Preprocessor(featureSetting);
     }
 
     public PalladianTextClassifier(FeatureSetting featureSetting, Scorer scorer) {
@@ -133,6 +133,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         this.model = new DictionaryTrieModel(featureSetting);
         this.featureSetting = featureSetting;
         this.scorer = scorer;
+        this.preprocessor = new Preprocessor(featureSetting);
     }
 
     @Override
@@ -141,7 +142,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         for (Trainable trainable : trainables) {
             String targetClass = trainable.getTargetClass();
             String content = ((TextDocument)trainable).getContent();
-            Iterator<String> iterator = createTokenIterator(content, featureSetting);
+            Iterator<String> iterator = preprocessor.compute(content);
             Set<String> terms = CollectionHelper.newHashSet();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
@@ -155,7 +156,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     public CategoryEntries classify(Classifiable classifiable, DictionaryModel model) {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         String content = ((TextDocument)classifiable).getContent();
-        Iterator<String> iterator = createTokenIterator(content, featureSetting);
+        Iterator<String> iterator = preprocessor.compute(content);
         Bag<String> termCounts = Bag.create();
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
@@ -184,40 +185,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
     public CategoryEntries classify(String text, DictionaryModel model) {
         return classify(new TextDocument(text), model);
-    }
-
-    private static final Iterator<String> createTokenIterator(String content, final FeatureSetting featureSetting) {
-        String lowercaseContent = content.toLowerCase();
-        int minNGramLength = featureSetting.getMinNGramLength();
-        int maxNGramLength = featureSetting.getMaxNGramLength();
-        Iterator<String> tokenIterator;
-        if (featureSetting.getTextFeatureType() == TextFeatureType.CHAR_NGRAMS) {
-            tokenIterator = new CharacterNGramIterator(lowercaseContent, minNGramLength, maxNGramLength);
-        } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            tokenIterator = new TokenIterator(lowercaseContent);
-            tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
-        } else {
-            throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
-        }
-        if (featureSetting.isWordUnigrams()) {
-            tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<String>() {
-                int minTermLength = featureSetting.getMinimumTermLength();
-                int maxTermLength = featureSetting.getMaximumTermLength();
-
-                @Override
-                public boolean accept(String item) {
-                    return item.length() >= minTermLength && item.length() <= maxTermLength;
-                }
-            });
-        }
-        // XXX looks a bit "magic" to me, does that really improve results in general?
-        tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<String>() {
-            @Override
-            public boolean accept(String item) {
-                return !StringHelper.containsAny(item, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(item);
-            }
-        });
-        return tokenIterator;
     }
 
 }

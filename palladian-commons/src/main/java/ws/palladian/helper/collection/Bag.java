@@ -99,7 +99,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      */
     public static <T> Bag<T> create(Map<? extends T, ? extends Integer> map) {
         Validate.notNull(map, "map must not be null");
-        return create(new HashMap<T, Integer>(map));
+        return new Bag<T>(new HashMap<T, Integer>(map));
     }
 
     /** Private constructor, instances are created through the static methods. */
@@ -136,7 +136,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
                     currentCount = currentEntry.getValue() - 1;
                     return currentEntry.getKey();
                 }
-                throw new Finished();
+                throw FINISHED;
             }
 
             @Override
@@ -177,7 +177,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public void add(T item, int increment) {
         Validate.notNull(item, "item must not be null");
         if (increment != 0) {
-            Integer count = count(item);
+            int count = count(item);
             map.put(item, count += increment);
         }
     }
@@ -275,6 +275,17 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
         return new Bag<T>(sorted);
+    }
+
+    /**
+     * <p>
+     * Get a map with counts from this Bag.
+     * </p>
+     * 
+     * @return A map, where values represent the counts.
+     */
+    public Map<T, Integer> toMap() {
+        return new HashMap<T, Integer>(map);
     }
 
     // equals, hashCode
