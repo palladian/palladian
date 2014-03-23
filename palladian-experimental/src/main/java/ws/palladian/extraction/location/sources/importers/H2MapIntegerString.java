@@ -15,8 +15,8 @@ import org.h2.jdbcx.JdbcDataSource;
 
 import ws.palladian.persistence.BatchDataProvider;
 import ws.palladian.persistence.DatabaseManager;
-import ws.palladian.persistence.OneColumnRowConverter;
 import ws.palladian.persistence.RowConverter;
+import ws.palladian.persistence.RowConverters;
 
 public class H2MapIntegerString extends DatabaseManager implements Map<Integer, String> {
 
@@ -38,7 +38,7 @@ public class H2MapIntegerString extends DatabaseManager implements Map<Integer, 
 
     @Override
     public int size() {
-        return runSingleQuery(OneColumnRowConverter.INTEGER, "SELECT COUNT(*) FROM map");
+        return runSingleQuery(RowConverters.INTEGER, "SELECT COUNT(*) FROM map");
     }
 
     @Override
@@ -53,12 +53,12 @@ public class H2MapIntegerString extends DatabaseManager implements Map<Integer, 
 
     @Override
     public boolean containsValue(Object paramObject) {
-        return runSingleQuery(OneColumnRowConverter.INTEGER, "SELECT COUNT(*) FROM map WHERE value = ?", paramObject) > 0;
+        return runSingleQuery(RowConverters.INTEGER, "SELECT COUNT(*) FROM map WHERE value = ?", paramObject) > 0;
     }
 
     @Override
     public String get(Object paramObject) {
-        return runSingleQuery(OneColumnRowConverter.STRING, "SELECT value FROM map WHERE key = ?", paramObject);
+        return runSingleQuery(RowConverters.STRING, "SELECT value FROM map WHERE key = ?", paramObject);
     }
 
     @Override
@@ -104,12 +104,12 @@ public class H2MapIntegerString extends DatabaseManager implements Map<Integer, 
 
     @Override
     public Set<Integer> keySet() {
-        return new HashSet<Integer>(runQuery(OneColumnRowConverter.INTEGER, "SELECT key FROM map"));
+        return new HashSet<Integer>(runQuery(RowConverters.INTEGER, "SELECT key FROM map"));
     }
 
     @Override
     public Collection<String> values() {
-        return runQuery(OneColumnRowConverter.STRING, "SELECT value FROM map");
+        return runQuery(RowConverters.STRING, "SELECT value FROM map");
     }
 
     @Override
