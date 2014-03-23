@@ -108,11 +108,11 @@ public class BasicFeatureVector implements FeatureVector {
 
     @Override
     public Feature<?> get(String name) {
-//        Feature<?> ret = features.get(name);
-//        if (ret == null) {
-//            LOGGER.warn("Unable to find feature with name " + name);
-//        }
-//        return ret;
+        // Feature<?> ret = features.get(name);
+        // if (ret == null) {
+        // LOGGER.warn("Unable to find feature with name " + name);
+        // }
+        // return ret;
         return features.get(name);
     }
 
@@ -159,27 +159,17 @@ public class BasicFeatureVector implements FeatureVector {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((features == null) ? 0 : features.hashCode());
-        return result;
+        return features.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
+        if (obj == null || getClass() != obj.getClass())
             return false;
         BasicFeatureVector other = (BasicFeatureVector)obj;
-        if (features == null) {
-            if (other.features != null)
-                return false;
-        } else if (!features.equals(other.features))
-            return false;
-        return true;
+        return features.equals(other.features);
     }
 
     @Override

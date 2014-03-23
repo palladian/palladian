@@ -79,30 +79,26 @@ public final class Instance implements Trainable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((classifiable == null) ? 0 : classifiable.hashCode());
-        result = prime * result + ((targetClass == null) ? 0 : targetClass.hashCode());
+        result = prime * result + classifiable.hashCode();
+        result = prime * result + targetClass.hashCode();
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         Instance other = (Instance)obj;
-        if (classifiable == null) {
-            if (other.classifiable != null)
-                return false;
-        } else if (!classifiable.equals(other.classifiable))
+        if (!classifiable.equals(other.classifiable)) {
             return false;
-        if (targetClass == null) {
-            if (other.targetClass != null)
-                return false;
-        } else if (!targetClass.equals(other.targetClass))
+        }
+        if (!targetClass.equals(other.targetClass)) {
             return false;
+        }
         return true;
     }
 
@@ -115,4 +111,5 @@ public final class Instance implements Trainable {
         builder.append(targetClass);
         return builder.toString();
     }
+
 }
