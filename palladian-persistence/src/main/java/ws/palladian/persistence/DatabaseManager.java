@@ -292,7 +292,7 @@ public class DatabaseManager {
      */
     public final Integer runAggregateQuery(String sql) {
         Validate.notEmpty(sql, "sql must not be empty");
-        return runSingleQuery(OneColumnRowConverter.INTEGER, sql);
+        return runSingleQuery(RowConverters.INTEGER, sql);
     }
 
     /**

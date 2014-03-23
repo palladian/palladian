@@ -27,9 +27,9 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.persistence.OneColumnRowConverter;
 import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
+import ws.palladian.persistence.RowConverters;
 
 /**
  * <p>
@@ -200,7 +200,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public void addHierarchy(int childId, int parentId) {
-        String parentAncestorPath = runSingleQuery(OneColumnRowConverter.STRING, GET_ANCESTOR_IDS, parentId);
+        String parentAncestorPath = runSingleQuery(RowConverters.STRING, GET_ANCESTOR_IDS, parentId);
         String ancestorPath = (parentAncestorPath != null ? parentAncestorPath : "/") + parentId;
         String addAncestorPath = ancestorPath + "/";
         runUpdate(ADD_HIERARCHY, childId, addAncestorPath, addAncestorPath);
@@ -245,7 +245,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public int getHighestId() {
-        Integer id = runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
+        Integer id = runSingleQuery(RowConverters.INTEGER, GET_HIGHEST_LOCATION_ID);
         return id != null ? id : 0;
     }
 
@@ -274,7 +274,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public int size() {
-        return runSingleQuery(OneColumnRowConverter.INTEGER, GET_LOCATION_COUNT);
+        return runSingleQuery(RowConverters.INTEGER, GET_LOCATION_COUNT);
     }
 
 }

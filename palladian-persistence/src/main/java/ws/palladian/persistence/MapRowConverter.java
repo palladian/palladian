@@ -1,9 +1,5 @@
 package ws.palladian.persistence;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,25 +10,16 @@ import java.util.Map;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class MapRowConverter implements RowConverter<Map<String, Object>> {
+@Deprecated
+public final class MapRowConverter {
 
-    public final static RowConverter<Map<String, Object>> MAP = new MapRowConverter();
+    /**
+     * @deprecated Use {@link RowConverters#MAP} instead
+     */
+    public final static RowConverter<Map<String, Object>> MAP = RowConverters.MAP;
 
     private MapRowConverter() {
         // the one and only.
-    }
-
-    @Override
-    public Map<String, Object> convert(ResultSet resultSet) throws SQLException {
-        Map<String, Object> map = new HashMap<String, Object>();
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int numColumns = metaData.getColumnCount();
-        for (int i = 1; i <= numColumns; i++) {
-            String label = metaData.getColumnLabel(i);
-            Object value = resultSet.getObject(i);
-            map.put(label, value);
-        }
-        return map;
     }
 
 }
