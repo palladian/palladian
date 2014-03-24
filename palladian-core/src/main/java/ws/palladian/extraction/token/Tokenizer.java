@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +17,15 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import ws.palladian.classification.text.CharacterNGramIterator;
+import ws.palladian.classification.text.NGramWrapperIterator;
+import ws.palladian.classification.text.TokenIterator;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.RegExp;
@@ -179,24 +183,26 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateCharNGrams(String string, int n) {
-        Set<String> nGrams = new HashSet<String>();
-
-        int sl = string.length();
-        if (sl < n) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= sl - n; i++) {
-
-            StringBuilder nGram = new StringBuilder();
-            for (int j = i; j < i + n; j++) {
-                nGram.append(string.charAt(j));
-            }
-            nGrams.add(nGram.toString());
-
-        }
-
-        return nGrams;
+//        Set<String> nGrams = new HashSet<String>();
+//
+//        int sl = string.length();
+//        if (sl < n) {
+//            return nGrams;
+//        }
+//
+//        for (int i = 0; i <= sl - n; i++) {
+//
+//            StringBuilder nGram = new StringBuilder();
+//            for (int j = i; j < i + n; j++) {
+//                nGram.append(string.charAt(j));
+//            }
+//            nGrams.add(nGram.toString());
+//
+//        }
+//
+//        return nGrams;
+        Iterator<String> nGramIterator = new CharacterNGramIterator(string, n, n);
+        return CollectionHelper.newHashSet(nGramIterator);
     }
 
     /**
@@ -210,25 +216,25 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateWordNGrams(String string, int n) {
-        Set<String> nGrams = new HashSet<String>();
-
-        String[] words = string.split("\\s+");
-
-        if (words.length < n) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= words.length - n; i++) {
-
-            StringBuilder nGram = new StringBuilder();
-            for (int j = i; j < i + n; j++) {
-                nGram.append(words[j]).append(" ");
-            }
-            nGrams.add(nGram.toString().trim());
-
-        }
-
-        return nGrams;
+//        Set<String> nGrams = new HashSet<String>();
+//
+//        String[] words = string.split("\\s+");
+//
+//        if (words.length < n) {
+//            return nGrams;
+//        }
+//
+//        for (int i = 0; i <= words.length - n; i++) {
+//
+//            StringBuilder nGram = new StringBuilder();
+//            for (int j = i; j < i + n; j++) {
+//                nGram.append(words[j]).append(" ");
+//            }
+//            nGrams.add(nGram.toString().trim());
+//
+//        }
+//        return nGrams;
+        return calculateAllWordNGrams(string, n, n);
     }
 
     /**
@@ -246,45 +252,48 @@ public final class Tokenizer {
      * @return A list of n-grams.
      */
     public static List<String> calculateWordNGramsAsList(String string, int n) {
-        List<String> nGrams = new ArrayList<String>();
-
-        String[] words = string.split("\\s+");
-        words = filterEmptyWords(words);
-
-        if (words.length < n) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= words.length - n; i++) {
-
-            StringBuilder nGram = new StringBuilder();
-            for (int j = i; j < i + n; j++) {
-                nGram.append(words[j]).append(" ");
-            }
-            nGrams.add(nGram.toString().trim());
-
-        }
-
-        return nGrams;
+//        List<String> nGrams = new ArrayList<String>();
+//
+//        String[] words = string.split("\\s+");
+//        words = filterEmptyWords(words);
+//
+//        if (words.length < n) {
+//            return nGrams;
+//        }
+//
+//        for (int i = 0; i <= words.length - n; i++) {
+//
+//            StringBuilder nGram = new StringBuilder();
+//            for (int j = i; j < i + n; j++) {
+//                nGram.append(words[j]).append(" ");
+//            }
+//            nGrams.add(nGram.toString().trim());
+//
+//        }
+//
+//        return nGrams;
+        Iterator<String> tokenIterator = new TokenIterator(string);
+        tokenIterator = new NGramWrapperIterator(tokenIterator, n, n);
+        return CollectionHelper.newArrayList(tokenIterator);
     }
 
-    /**
-     * <p>
-     * Filters empty {@link String}s for N-Gram creation. Empty string may occur if the input {@link String} contains
-     * control characters.
-     * </p>
-     * 
-     * @param words The words to check.
-     */
-    private static String[] filterEmptyWords(String[] words) {
-        List<String> ret = new ArrayList<String>();
-        for (String word : words) {
-            if (!word.trim().isEmpty()) {
-                ret.add(word);
-            }
-        }
-        return ret.toArray(new String[ret.size()]);
-    }
+//    /**
+//     * <p>
+//     * Filters empty {@link String}s for N-Gram creation. Empty string may occur if the input {@link String} contains
+//     * control characters.
+//     * </p>
+//     * 
+//     * @param words The words to check.
+//     */
+//    private static String[] filterEmptyWords(String[] words) {
+//        List<String> ret = new ArrayList<String>();
+//        for (String word : words) {
+//            if (!word.trim().isEmpty()) {
+//                ret.add(word);
+//            }
+//        }
+//        return ret.toArray(new String[ret.size()]);
+//    }
 
     /**
      * <p>
@@ -298,12 +307,14 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllCharNGrams(String string, int n1, int n2) {
-        Set<String> nGrams = new HashSet<String>();
-        for (int n = n1; n <= n2; n++) {
-            nGrams.addAll(calculateCharNGrams(string, n));
-        }
-
-        return nGrams;
+//        Set<String> nGrams = new HashSet<String>();
+//        for (int n = n1; n <= n2; n++) {
+//            nGrams.addAll(calculateCharNGrams(string, n));
+//        }
+//
+//        return nGrams;
+        Iterator<String> tokenIterator = new CharacterNGramIterator(string, n1, n2);
+        return CollectionHelper.newHashSet(tokenIterator);
     }
 
     /**
@@ -318,12 +329,15 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllWordNGrams(String string, int n1, int n2) {
-        Set<String> nGrams = new HashSet<String>();
-        for (int n = n1; n <= n2; n++) {
-            nGrams.addAll(calculateWordNGrams(string, n));
-        }
-
-        return nGrams;
+//        Set<String> nGrams = new HashSet<String>();
+//        for (int n = n1; n <= n2; n++) {
+//            nGrams.addAll(calculateWordNGrams(string, n));
+//        }
+//
+//        return nGrams;
+        Iterator<String> tokenIterator = new TokenIterator(string);
+        tokenIterator = new NGramWrapperIterator(tokenIterator, n1, n2);
+        return CollectionHelper.newHashSet(tokenIterator);
     }
 
     /**
