@@ -491,7 +491,7 @@ public final class StringHelper {
             char prevChar = searchString.charAt(index - 1);
             // leftBorder = isPunctuation(prevChar) || Character.isSpaceChar(prevChar) || prevChar == '-' || prevChar ==
             // '(';
-            leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar));
+            leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar) || prevChar == '-');
         }
         boolean rightBorder;
         if (index + word.length() == searchString.length()) {
@@ -500,7 +500,7 @@ public final class StringHelper {
             char nextChar = searchString.charAt(index + word.length());
             // rightBorder = isPunctuation(nextChar) || Character.isSpaceChar(nextChar) || nextChar == '-' || nextChar
             // == ')';
-            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
+            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || nextChar == '-');
         }
 
         if (leftBorder && rightBorder) {
@@ -565,6 +565,25 @@ public final class StringHelper {
 
     public static String removeWord(String word, String searchString) {
         return PATTERN_LIMITED_WHITESPACES.matcher(replaceWord(word, "", searchString)).replaceAll(" ");
+    }
+
+    public static String removeStemmedWord(String word, String searchString) {
+        return PATTERN_LIMITED_WHITESPACES.matcher(replaceStemmedWord(word, "", searchString)).replaceAll(" ");
+    }
+
+    public static String replaceStemmedWord(String word, String replacement, String searchString) {
+
+        if (word == null || word.isEmpty()) {
+            return searchString;
+        }
+
+        // reconstruct the full word
+        List<String> fullWords = getRegexpMatches(word + "[A-Za-z]{0,5}", searchString);
+        for (String fullWord : fullWords) {
+            searchString = replaceWord(fullWord, replacement, searchString);
+        }
+
+        return searchString;
     }
 
     public static String replaceWord(String word, String replacement, String searchString) {
@@ -1821,6 +1840,10 @@ public final class StringHelper {
      */
     public static List<String> getRegexpMatches(String regexp, String text) {
         return getRegexpMatches(Pattern.compile(regexp), text);
+    }
+
+    public static List<String> getRegexpMatches(String regexp, String text, int patternArguments) {
+        return getRegexpMatches(Pattern.compile(regexp, patternArguments), text);
     }
 
     /**

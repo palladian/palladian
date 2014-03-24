@@ -86,6 +86,15 @@ public class StringHelperTest {
     }
 
     @Test
+    public void testRemoveStemmedWord() {
+        assertEquals("the in his car", StringHelper.removeStemmedWord("test", "the tester in his car"));
+        assertEquals("the : all good", StringHelper.removeStemmedWord("test", "the tested: all good"));
+        assertEquals("", StringHelper.removeStemmedWord("test", "testing"));
+        assertEquals(", right on", StringHelper.removeStemmedWord("test", "test, right on"));
+        assertEquals(", right on ", StringHelper.removeStemmedWord("test", "test, right on testing testost"));
+    }
+
+    @Test
     public void testReplaceWord() {
         assertEquals("a b", StringHelper.removeWord("test", "a test b"));
         assertEquals("atest b", StringHelper.removeWord("test", "atest b"));
