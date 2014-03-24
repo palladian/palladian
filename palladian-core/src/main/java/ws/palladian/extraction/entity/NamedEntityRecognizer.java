@@ -12,17 +12,11 @@ import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.entity.tagger.NerHelper;
-import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.Tagger;
-import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -31,7 +25,7 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * 
  * @author David Urbansky
  */
-public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor implements Tagger {
+public abstract class NamedEntityRecognizer implements Tagger {
 
     /** The logger for named entity recognizer classes. */
     protected static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
@@ -193,23 +187,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         // FileHelper.writeToFile(evaluationFile, evaluationDetails);
         return evaluationResult;
-    }
-    
-    @Override
-    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        String content = document.getContent();
-        // TODO merge annotation classes
-        List<? extends Annotation> annotations = getAnnotations(content);
-
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
-        ListFeature<PositionAnnotation> processedAnnotations = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
-        for (Annotation nerAnnotation : annotations) {
-            PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getStartPosition(),
-                    nerAnnotation.getEndPosition());
-            processedAnnotations.add(procAnnotation);
-
-        }
-        document.add(processedAnnotations);
     }
 
     public abstract String getName();
