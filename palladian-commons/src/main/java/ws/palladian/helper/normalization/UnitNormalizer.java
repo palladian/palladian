@@ -57,6 +57,10 @@ public class UnitNormalizer {
         return UnitType.WEIGHT.contains(unit);
     }
 
+    private static boolean isAreaUnit(String unit) {
+        return UnitType.AREA.contains(unit);
+    }
+
     private static boolean isVolumeUnit(String unit) {
         return UnitType.VOLUME.contains(unit);
     }
@@ -151,6 +155,9 @@ public class UnitNormalizer {
         if (isWeightUnit(unit)) {
             return UnitType.WEIGHT.getUnitNames();
         }
+        if (isAreaUnit(unit)) {
+            return UnitType.AREA.getUnitNames();
+        }
         if (isVolumeUnit(unit)) {
             return UnitType.VOLUME.getUnitNames();
         }
@@ -211,6 +218,11 @@ public class UnitNormalizer {
 
         // weight
         if (isWeightUnit(unit1) && isWeightUnit(unit2)) {
+            return true;
+        }
+
+        // area
+        if (isAreaUnit(unit1) && isAreaUnit(unit2)) {
             return true;
         }
 
@@ -434,7 +446,7 @@ public class UnitNormalizer {
     public static double getNormalizedNumber(String unitText) throws NumberFormatException, NullPointerException {
 
         // add space in case it's missing "2.4Ghz" => "2.4 Ghz"
-        unitText = unitText.replaceAll("(\\d)([A-Za-z])", "$1 $2").trim();
+        unitText = unitText.replaceAll("(\\d)([A-Za-z\"])", "$1 $2").trim();
         String words[] = unitText.split(" ");
 
         if (words.length == 0) {
@@ -447,7 +459,7 @@ public class UnitNormalizer {
         for (int i = 1; i < words.length; i++) {
             newUnitText += words[i] + " ";
         }
-        return getNormalizedNumber(number, newUnitText, 3, "");
+        return getNormalizedNumber(number, newUnitText.trim(), 3, "");
     }
 
     public static double getNormalizedNumber(double number, String unitText) {
@@ -555,6 +567,38 @@ public class UnitNormalizer {
         }
 
         return MathHelper.round(number, decimals);
+    }
+
+    /**
+     * <p>
+     * Transforms a given <b>normalized</b> value and transforms it to the most readable unit for its unit type. E.g.
+     * "0.5" with LENGTH will become "5mm".
+     * </p>
+     * 
+     * @param normalizedValue The value, normalized to its base value in its unit type.
+     * @param unitType The unit type of the normalized value.
+     * @return A pair with the transformed value and the used unit.
+     */
+    public static Pair<Double, List<String>> smartTransform(Double normalizedValue, UnitType unitType) {
+
+        double smallestReadableValue = normalizedValue;
+        Pair<List<String>, Double> bestMatchingTransformation = null;
+        for (Pair<List<String>, Double> entry : unitType.getUnits()) {
+
+            double transformed = normalizedValue / entry.getValue1();
+            if ((transformed < smallestReadableValue && transformed > 1)
+                    || (transformed > smallestReadableValue && smallestReadableValue < 1)
+                    || bestMatchingTransformation == null) {
+                bestMatchingTransformation = entry;
+                smallestReadableValue = transformed;
+            }
+
+        }
+
+        Pair<Double, List<String>> smartTransformationResult = new Pair<Double, List<String>>(smallestReadableValue,
+                bestMatchingTransformation.getValue0());
+
+        return smartTransformationResult;
     }
 
     /**
@@ -666,4 +710,5 @@ public class UnitNormalizer {
         // }
         // }
     }
+
 }

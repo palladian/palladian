@@ -12,6 +12,7 @@ import ws.palladian.processing.InputPort;
 import ws.palladian.processing.OutputPort;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.AbstractFeatureProvider;
 import ws.palladian.processing.features.ListFeature;
 import ws.palladian.processing.features.NumericFeature;
@@ -52,7 +53,7 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
      * @param input2FeatureDescriptor The descriptor for the second input {@code Feature}.
      */
     public TokenOverlapCalculator(String featureDescriptor, String input1FeatureIdentifier,
-            String input2FeatureIdentifier) {
+                                  String input2FeatureIdentifier) {
         super(new InputPort[] {new InputPort(INPUT_PORT_ONE_IDENTIFIER), new InputPort(INPUT_PORT_TWO_IDENTIFIER)},
                 new OutputPort[] {new OutputPort(PipelineProcessor.DEFAULT_OUTPUT_PORT_IDENTIFIER)}, featureDescriptor);
 
@@ -65,10 +66,8 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
         PipelineDocument<?> document1 = getInputPort(INPUT_PORT_ONE_IDENTIFIER).poll();
         PipelineDocument<?> document2 = getInputPort(INPUT_PORT_TWO_IDENTIFIER).poll();
 
-        final List<PositionAnnotation> input1Annotations = document1.get(
-                ListFeature.class, input1FeatureName);
-        final List<PositionAnnotation> input2Annotations = document2.get(
-                ListFeature.class, input2FeatureName);
+        final List<PositionAnnotation> input1Annotations = document1.get(ListFeature.class, input1FeatureName);
+        final List<PositionAnnotation> input2Annotations = document2.get(ListFeature.class, input2FeatureName);
 
         Set<String> setOfInput1 = new HashSet<String>();
         Set<String> setOfInput2 = new HashSet<String>();
@@ -94,5 +93,13 @@ public final class TokenOverlapCalculator extends AbstractFeatureProvider {
 
         document1.add(new NumericFeature(getCreatedFeatureName(), jaccardSimilarity));
         getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document1);
+    }
+
+    public void process(final TextDocument mainDocument, final TextDocument document) {
+        getInputPort(INPUT_PORT_ONE_IDENTIFIER).put(mainDocument);
+        getInputPort(INPUT_PORT_TWO_IDENTIFIER).put(document);
+
+        process();
+        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).poll();
     }
 }

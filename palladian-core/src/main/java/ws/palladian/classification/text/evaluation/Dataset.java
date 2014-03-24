@@ -66,7 +66,9 @@ public class Dataset {
 
     public void setPath(String path) {
         this.path = path;
-        setRootPath(FileHelper.getFilePath(getPath()));
+        if (rootPath.isEmpty()) {
+            setRootPath(FileHelper.getFilePath(getPath()));
+        }
     }
 
     /**

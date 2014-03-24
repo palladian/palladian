@@ -899,6 +899,7 @@ public final class MathHelper {
 
         // parse the rest
         stringNumber = stringNumber.replaceAll("[^0-9.]", "");
+        stringNumber = stringNumber.replaceAll("\\.(?!\\d)", "");
         stringNumber = stringNumber.trim();
         if (!stringNumber.isEmpty()) {
             value += Double.parseDouble(stringNumber);

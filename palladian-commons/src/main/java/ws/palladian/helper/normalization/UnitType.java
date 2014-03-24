@@ -437,6 +437,12 @@ public enum UnitType {
         UnitType.VOLUME.units.add(new Pair<List<String>, Double>(unitList, 14.7868));
 
         unitList = CollectionHelper.newArrayList();
+        unitList.add("centiliters");
+        unitList.add("centilitres");
+        unitList.add("cl");
+        UnitType.VOLUME.units.add(new Pair<List<String>, Double>(unitList, 10.));
+
+        unitList = CollectionHelper.newArrayList();
         unitList.add("teaspoons");
         unitList.add("teaspoon");
         unitList.add("tsps");

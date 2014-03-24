@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +41,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRouteParams;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -162,7 +168,13 @@ public class HttpRetriever {
     /** Hook for http* methods. */
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
+    /** Any of these status codes will cause a removal of the used proxy. */
     private Set<Integer> proxyRemoveStatusCodes = CollectionHelper.newHashSet();
+
+    /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
+    private ProxyRemoverCallback proxyRemoveCallback = null;
+
+    private static Scheme httpsScheme = null;
 
     // ////////////////////////////////////////////////////////////////
     // constructor
@@ -171,6 +183,19 @@ public class HttpRetriever {
     static {
         setNumConnections(DEFAULT_NUM_CONNECTIONS);
         setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
+
+        SSLSocketFactory sf;
+        try {
+            SSLContext sslContext = null;
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, null, null);
+            sf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            httpsScheme = new Scheme("https", 443, sf);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -417,6 +442,8 @@ public class HttpRetriever {
             backend.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
         }
 
+        backend.getConnectionManager().getSchemeRegistry().register(httpsScheme);
+
         return backend;
 
     }
@@ -528,9 +555,11 @@ public class HttpRetriever {
 
             addDownload(receivedBytes);
 
-            if (proxyRemoveStatusCodes.contains(statusCode)) {
+            if (proxyRemoveStatusCodes.contains(statusCode)
+                    || (proxyRemoveCallback != null && proxyRemoveCallback.shouldRemove(result))) {
                 proxyProvider.removeProxy(proxyUsed, statusCode);
-            }else {
+                throw new HttpException("invalid result, remove proxy: " + proxyUsed + ", URL: " + url);
+            } else {
                 proxyProvider.promoteProxy(proxyUsed);
             }
 
@@ -829,6 +858,14 @@ public class HttpRetriever {
 
     public void setProxyRemoveStatusCodes(Set<Integer> proxyRemoveStatusCodes) {
         this.proxyRemoveStatusCodes = proxyRemoveStatusCodes;
+    }
+
+    public ProxyRemoverCallback getProxyRemoveCallback() {
+        return proxyRemoveCallback;
+    }
+
+    public void setProxyRemoveCallback(ProxyRemoverCallback proxyRemoveCallback) {
+        this.proxyRemoveCallback = proxyRemoveCallback;
     }
 
 }
