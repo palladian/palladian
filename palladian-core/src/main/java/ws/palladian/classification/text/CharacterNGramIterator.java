@@ -25,16 +25,17 @@ public final class CharacterNGramIterator extends AbstractIterator<String> {
 
     @Override
     protected String getNext() throws Finished {
-        if (offset + length > string.length()) {
+        if (offset + minLength > string.length()) {
             throw FINISHED;
         }
         String nGram = string.substring(offset, offset + length);
-        if (length == maxLength) {
+        if (offset + length == string.length() || length == maxLength) {
             offset++;
             length = minLength;
         } else {
             length++;
         }
+        // System.out.println("offset=" + offset + ",ngram=" + nGram);
         return nGram;
     }
 
