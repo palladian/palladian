@@ -147,7 +147,7 @@ public class NerTest {
         assertEquals(21, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(15264, annotations.get(500).getStartPosition());
+        assertEquals(15175, annotations.get(500).getStartPosition());
         assertEquals(7, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
