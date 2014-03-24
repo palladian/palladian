@@ -64,7 +64,7 @@ public class NerTest {
         assertEquals(0, tagger.getRemoveAnnotations().size());
         assertEquals(89415, contextClassifier.getNumTerms());
         assertEquals(4, contextClassifier.getNumCategories());
-//        assertEquals(53513, annotationDictionary.getNumTerms());
+        assertEquals(53513, annotationDictionary.getNumTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // precision MUC: 62.71%, recall MUC: 75.17%, F1 MUC: 68.38%
@@ -121,7 +121,7 @@ public class NerTest {
         assertEquals(370, tagger.getRemoveAnnotations().size());
         assertEquals(89415, contextDictionary.getNumTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-//        assertEquals(59587, annotationDictionary.getNumTerms());
+        assertEquals(59587, annotationDictionary.getNumTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // precision MUC: 94.23%, recall MUC: 94.89%, F1 MUC: 94.56%
@@ -143,12 +143,12 @@ public class NerTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2217, annotations.size());
+        assertEquals(2239, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(15175, annotations.get(500).getStartPosition());
-        assertEquals(7, annotations.get(500).getValue().length());
+        assertEquals(15212, annotations.get(500).getStartPosition());
+        assertEquals(8, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
