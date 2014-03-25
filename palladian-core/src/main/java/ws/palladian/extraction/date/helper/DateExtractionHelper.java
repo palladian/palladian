@@ -133,44 +133,6 @@ public final class DateExtractionHelper {
         return result;
     }
 
-//    /**
-//     * Returns a hashmap of date are equal to given date.<br>
-//     * Date comparison stops at stopFlag.
-//     * 
-//     * @param <T>
-//     * @param date
-//     * @param dates
-//     * @return
-//     */
-//    public static <T extends ExtractedDate> List<T> getSameDatesMap(ExtractedDate date, List<T> dates,
-//            DateExactness compareDepth) {
-//        DateComparator dc = new DateComparator(compareDepth);
-//        List<T> result = CollectionHelper.newArrayList();
-//        for (T currentDate : dates) {
-//            if (dc.compare(date, currentDate) == 0) {
-//                result.add(currentDate);
-//            }
-//        }
-//        return result;
-//    }
-
-//    /**
-//     * <p>
-//     * Check if any of the {@link RatedDate}s has a rate higher than zero.
-//     * </p>
-//     * 
-//     * @param dates The dates to check.
-//     * @return <code>true</code> if at least one of the dates has a rate higher than zero, <code>false</code> otherwise.
-//     */
-//    public static boolean isAllZero(List<? extends RatedDate<?>> dates) {
-//        for (RatedDate<?> date : dates) {
-//            if (date.getRate() > 0) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-
     public static <D extends ExtractedDate> List<D> filterExactest(List<D> dates) {
         DateExactness highestExactness = DateExactness.UNSET;
         for (D date : dates) {
