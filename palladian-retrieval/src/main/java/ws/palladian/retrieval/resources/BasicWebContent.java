@@ -14,7 +14,6 @@ import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
