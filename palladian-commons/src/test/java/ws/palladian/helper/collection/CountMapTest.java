@@ -9,6 +9,7 @@ import org.junit.Test;
 
 public class CountMapTest {
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testCountMap() {
 
@@ -51,6 +52,7 @@ public class CountMapTest {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testCountMapAdd() {
         CountMap<String> countMap1 = CountMap.create();
@@ -71,6 +73,7 @@ public class CountMapTest {
         assertEquals(7, countMap1.getCount("four"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testRemoveAll() {
         CountMap<String> countMap = CountMap.create();

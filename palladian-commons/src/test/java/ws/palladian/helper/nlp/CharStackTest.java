@@ -14,7 +14,7 @@ public class CharStackTest {
         charStack.push('c');
         charStack.push('d');
         assertEquals("abcd", charStack.toString());
-        assertEquals(4, charStack.size());
+        assertEquals(4, charStack.length());
         assertEquals('d', charStack.peek());
         assertEquals("abcd", charStack.toString());
         assertEquals('d', charStack.pop());

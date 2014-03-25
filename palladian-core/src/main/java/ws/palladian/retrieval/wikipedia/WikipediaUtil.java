@@ -167,7 +167,7 @@ public final class WikipediaUtil {
             char previous = string.charAt(idx - 1);
             char current = string.charAt(idx);
             if (current == end2 && previous == end1) { // closing brackets
-                while (charStack.size() > 1) {
+                while (charStack.length() > 1) {
                     // remove from stack until we found opening brackets
                     if (charStack.pop() == begin2 && charStack.peek() == begin1) {
                         charStack.pop();

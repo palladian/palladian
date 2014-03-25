@@ -165,11 +165,11 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
             protected ThresholdEntry getNext() throws Finished {
                 double threshold = (double)bin++ / numBins;
                 if (threshold > 1) {
-                    throw new Finished();
+                    throw FINISHED;
                 }
                 ThresholdEntry entry = getEntry(threshold);
                 if (entry.rc == 0) { // no more useful information from here, stop.
-                    throw new Finished();
+                    throw FINISHED;
                 }
                 return entry;
             }
