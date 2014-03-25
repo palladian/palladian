@@ -40,7 +40,7 @@ class FilterIterator<E> extends AbstractIterator<E> {
                 return element;
             }
         }
-        throw new Finished();
+        throw FINISHED;
     }
 
     @Override

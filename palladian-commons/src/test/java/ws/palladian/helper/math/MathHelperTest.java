@@ -65,6 +65,7 @@ public class MathHelperTest {
         assertEquals(1, allCombinations.size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testComputeCosineSimilarity() {
         Double[] vector1 = {10.0, 50.0};

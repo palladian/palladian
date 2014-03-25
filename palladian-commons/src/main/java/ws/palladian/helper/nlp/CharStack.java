@@ -5,7 +5,7 @@ package ws.palladian.helper.nlp;
  * 
  * @author pk
  */
-public class CharStack {
+public class CharStack implements CharSequence {
 
     private final StringBuilder builder = new StringBuilder();
 
@@ -24,13 +24,24 @@ public class CharStack {
         return builder.charAt(builder.length() - 1);
     }
 
-    public int size() {
+    @Override
+    public String toString() {
+        return builder.toString();
+    }
+
+    @Override
+    public char charAt(int index) {
+        return builder.charAt(index);
+    }
+
+    @Override
+    public int length() {
         return builder.length();
     }
 
     @Override
-    public String toString() {
-        return builder.toString();
+    public CharSequence subSequence(int start, int end) {
+        return builder.subSequence(start, end);
     }
 
 }
