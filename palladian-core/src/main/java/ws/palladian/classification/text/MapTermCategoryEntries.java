@@ -53,5 +53,10 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
     public String getTerm() {
         return term;
     }
+    
+    @Override
+    public int getTotalCount() {
+        return countSum;
+    }
 
 }
