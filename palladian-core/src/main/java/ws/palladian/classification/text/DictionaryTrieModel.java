@@ -6,14 +6,14 @@ import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -21,6 +21,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.ImmutableCategory;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -167,25 +168,28 @@ public final class DictionaryTrieModel implements DictionaryModel {
     public Set<String> getCategories() {
         Set<String> categories = CollectionHelper.newHashSet();
         CategoryEntries priors = getPriors();
-        if (priors.size() > 0) {
-            for (Category category : priors) {
-                categories.add(category.getName());
-            }
-        } else {
-            // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
-            // we need to collect the category names from the term entries
-            for (TermCategoryEntries entries : this) {
-                for (Category category : entries) {
-                    categories.add(category.getName());
-                }
-            }
+        for (Category category : priors) {
+            categories.add(category.getName());
         }
         return categories;
     }
 
     @Override
     public CategoryEntries getPriors() {
-        return entryTrie.get(PRIOR_KEY);
+        CategoryEntries priors = entryTrie.get(PRIOR_KEY);
+        if (priors.size() > 0) {
+            return priors;
+        } else {
+            // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
+            // we need to collect the category names from the term entries
+            Map<String, Double> categories = CollectionHelper.newHashMap();
+            for (TermCategoryEntries entries : this) {
+                for (Category category : entries) {
+                    categories.put(category.getName(), 1.);
+                }
+            }
+            return new CategoryEntriesBuilder(categories).create();
+        }
     }
 
     @Override
@@ -308,20 +312,25 @@ public final class DictionaryTrieModel implements DictionaryModel {
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         // map the category names to numeric indices, so that we can use "1" instead of "aVeryLongCategoryName"
-        SortedSet<String> sortedCategoryNames = new TreeSet<String>(getCategories());
+        List<Category> sortedCategories = CollectionHelper.newArrayList(getPriors());
+        Collections.sort(sortedCategories,new Comparator<Category>(){
+            @Override
+            public int compare(Category c1, Category c2) {
+                return c1.getName().compareTo(c2.getName());
+            }
+        });
         Map<String, Integer> categoryIndices = CollectionHelper.newHashMap();
         int idx = 0;
-        for (String categoryName : sortedCategoryNames) {
-            categoryIndices.put(categoryName, idx++);
+        for (Category category : sortedCategories) {
+            categoryIndices.put(category.getName(), idx++);
         }
         // version (for being able to provide backwards compatibility from now on)
         out.writeInt(VERSION);
         // header; number of categories; [ (categoryName, count) , ...]
-        out.writeInt(sortedCategoryNames.size());
-        CategoryEntries priors = getPriors();
-        for (String categoryName : sortedCategoryNames) {
-            out.writeObject(categoryName);
-            out.writeInt(priors.getCount(categoryName));
+        out.writeInt(sortedCategories.size());
+        for (Category category : sortedCategories) {
+            out.writeObject(category.getName());
+            out.writeInt(category.getCount());
         }
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(numTerms);
