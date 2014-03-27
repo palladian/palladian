@@ -56,7 +56,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlickrSearcher.class);
 
     /** The name of this searcher. */
-    private static final String SEARCHER_NAME = "Flickr";
+    public static final String SEARCHER_NAME = "Flickr";
 
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
@@ -184,6 +184,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     public FlickrSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
+        System.out.println(apiKey);
         this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
@@ -413,11 +414,11 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      * Transforms the given parts back to an image URL.
      * </p>
      * 
-     * @param farmId
-     * @param serverId
-     * @param id
-     * @param secret
-     * @return
+     * @param farmId The farm ID, not <code>null</code> or empty.
+     * @param serverId The server ID, not <code>null</code> or empty.
+     * @param id The image ID, not <code>null</code> or empty.
+     * @param secret The secret, not <code>null</code> or empty.
+     * @return A URL pointing to the image.
      * @see <a href="http://www.flickr.com/services/api/misc.urls.html">URLs</a>
      */
     private String buildImageUrl(String farmId, String serverId, String id, String secret) {
@@ -429,9 +430,9 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      * Transforms the given parts to a page URL which gives details about the image.
      * </p>
      * 
-     * @param id
-     * @param userId
-     * @return
+     * @param id The image ID, not <code>null</code> or empty.
+     * @param userId The user ID, not <code>null</code> or empty.
+     * @return A URL pointing to the page with the image.
      */
     private String buildPageUrl(String id, String userId) {
         return String.format("http://www.flickr.com/photos/%s/%s", userId, id);

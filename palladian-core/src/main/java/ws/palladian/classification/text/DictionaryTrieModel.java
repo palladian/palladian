@@ -325,7 +325,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
         }
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(numTerms);
-        String dictName = (name == null || name.equals(NO_NAME)) ? DictionaryTrieModel.class.getSimpleName() : name;
+        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
         ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Writing " + dictName);
         for (TermCategoryEntries termEntry : this) {
             out.writeObject(termEntry.getTerm());
@@ -357,12 +357,12 @@ public final class DictionaryTrieModel implements DictionaryModel {
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
             int categoryCount = in.readInt();
-            priorEntries.increment(categoryName, categoryCount);
+            priorEntries.append(categoryName, categoryCount);
             categoryIndices.put(i, categoryName);
         }
         // terms
         numTerms = in.readInt();
-        String dictName = (name == null || name.equals(NO_NAME)) ? DictionaryTrieModel.class.getSimpleName() : name;
+        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
         ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Reading " + dictName);
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
@@ -372,7 +372,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
                 int categoryIdx = in.readInt();
                 String categoryName = categoryIndices.get(categoryIdx);
                 int categoryCount = in.readInt();
-                categoryEntries.increment(categoryName, categoryCount);
+                categoryEntries.append(categoryName, categoryCount);
             }
             monitor.incrementAndPrintProgress();
         }
@@ -499,20 +499,28 @@ public final class DictionaryTrieModel implements DictionaryModel {
          * @param count the number by which to increment, greater/equal zero.
          */
         private void increment(String category, int count) {
-            totalCount += count;
             for (LinkedCategoryCount current = firstCategory; current != null; current = current.nextCategory) {
                 if (category.equals(current.categoryName)) {
                     current.count += count;
+                    totalCount += count;
                     return;
                 }
             }
             append(category, count);
         }
 
+        /**
+         * Add a category with a given count (no duplicate checking takes place: only to be used, when one can make sure
+         * that it does not already exist).
+         * 
+         * @param category the category to add, not <code>null</code>.
+         * @param count the count to set for the category.
+         */
         private void append(String category, int count) {
             LinkedCategoryCount tmp = firstCategory;
             firstCategory = new LinkedCategoryCount(category, count);
             firstCategory.nextCategory = tmp;
+            totalCount += count;
         }
 
         @Override
@@ -563,6 +571,7 @@ public final class DictionaryTrieModel implements DictionaryModel {
             return firstCategory != null;
         }
 
+        @Override
         public String getTerm() {
             StringBuilder builder = new StringBuilder().append(character);
             for (TrieCategoryEntries current = parent; current != null; current = current.parent) {
@@ -586,10 +595,10 @@ public final class DictionaryTrieModel implements DictionaryModel {
         private boolean clean() {
             boolean clean = true;
             List<TrieCategoryEntries> temp = CollectionHelper.newArrayList();
-            for (int i = 0; i < children.length; i++) {
-                boolean childClean = children[i].clean();
+            for (TrieCategoryEntries entries : children) {
+                boolean childClean = entries.clean();
                 if (!childClean) {
-                    temp.add(children[i]);
+                    temp.add(entries);
                 }
                 clean &= childClean;
             }
