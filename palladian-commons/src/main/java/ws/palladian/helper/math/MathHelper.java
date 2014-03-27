@@ -2,6 +2,7 @@ package ws.palladian.helper.math;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -36,6 +37,11 @@ public final class MathHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
 
     private static final Map<Double, String> FRACTION_MAP;
+    
+    private static final Map<Double, Double> LOC_Z_MAPPING;
+    
+    /** The supported confidence levels. */
+    public static final Collection<Double> CONFIDENCE_LEVELS;
 
     static {
         FRACTION_MAP = new HashMap<Double, String>();
@@ -70,6 +76,18 @@ public final class MathHelper {
         FRACTION_MAP.put(0.3, "3/10");
         FRACTION_MAP.put(0.7, "7/10");
         FRACTION_MAP.put(0.9, "9/10");
+        
+        Map<Double, Double> locZMapping = CollectionHelper.newLinkedHashMap();
+        locZMapping.put(0.75, 1.151);
+        locZMapping.put(0.85, 1.139);
+        locZMapping.put(0.90, 1.645);
+        locZMapping.put(0.95, 1.96);
+        locZMapping.put(0.975, 2.243);
+        locZMapping.put(0.985, 2.43);
+        locZMapping.put(0.99, 2.577);
+        locZMapping.put(0.999, 3.3);
+        LOC_Z_MAPPING = Collections.unmodifiableMap(locZMapping);
+        CONFIDENCE_LEVELS = Collections.unmodifiableSet(locZMapping.keySet());
     }
 
     private MathHelper() {
@@ -169,28 +187,19 @@ public final class MathHelper {
      * </p>
      * 
      * @param samples The number of samples used, greater zero.
-     * @param confidenceLevel The level of confidence. Must be one of the following: {0.75, 0.85, 0.90, 0.95, 0.975,
-     *            0.975, 0.99, 0.999}.
+     * @param confidenceLevel The level of confidence. Must be one of the values in {@link #CONFIDENCE_LEVELS}.
      * @param mean The mean, in range [0,1]. If unknown, assume worst case with mean = 0.5.
      * 
      * @return The calculated confidence interval.
      */
-    public static double computeConfidenceInterval(int samples, double confidenceLevel, double mean) {
+    public static double computeConfidenceInterval(long samples, double confidenceLevel, double mean) {
         Validate.isTrue(samples > 0, "samples must be greater zero");
         Validate.isTrue(0 <= mean && mean <= 1, "mean must be in range [0,1]");
-
-        Map<Double, Double> locZMapping = CollectionHelper.newLinkedHashMap();
-        locZMapping.put(0.75, 1.151);
-        locZMapping.put(0.85, 1.139);
-        locZMapping.put(0.90, 1.645);
-        locZMapping.put(0.95, 1.96);
-        locZMapping.put(0.975, 2.243);
-        locZMapping.put(0.985, 2.43);
-        locZMapping.put(0.99, 2.577);
-        locZMapping.put(0.999, 3.3);
-        Double z = locZMapping.get(confidenceLevel);
-        Validate.isTrue(z != null, "confidence level must be one of: {" + StringUtils.join(locZMapping.keySet(), ", ")
-                + "}");
+        Double z = LOC_Z_MAPPING.get(confidenceLevel);
+        if (z == null) {
+            throw new IllegalArgumentException("confidence level must be one of: {"
+                    + StringUtils.join(CONFIDENCE_LEVELS, ", ") + "}, but was " + confidenceLevel);
+        }
         return z * Math.sqrt(mean * (1 - mean) / samples);
     }
 
