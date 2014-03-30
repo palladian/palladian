@@ -1,5 +1,6 @@
 package ws.palladian.classification.text;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,13 +18,21 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
     private final Map<String, Integer> categoryCounts;
 
     public MapTermCategoryEntries(String term, Map<String, Integer> categoryCounts) {
-        this.term = term;
-        this.categoryCounts = categoryCounts;
+        this(term, categoryCounts, sum(categoryCounts.values()));
+    }
+
+    private static final int sum(Collection<Integer> collection) {
         int sum = 0;
-        for (Integer count : categoryCounts.values()) {
+        for (Integer count : collection) {
             sum += count;
         }
-        this.countSum = sum;
+        return sum;
+    }
+
+    public MapTermCategoryEntries(String term, Map<String, Integer> categoryCounts, int countSum) {
+        this.term = term;
+        this.categoryCounts = categoryCounts;
+        this.countSum = countSum;
     }
 
     @Override
