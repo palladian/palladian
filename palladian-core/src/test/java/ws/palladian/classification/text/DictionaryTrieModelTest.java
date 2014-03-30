@@ -55,13 +55,14 @@ public class DictionaryTrieModelTest {
          * rel(word4,c2) = 100%
          * </pre>
          */
-        model = new DictionaryTrieModel(null);
-        model.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
-        model.addDocument(CollectionHelper.newHashSet(WORD_2, WORD_4), CATEGORY_2);
-        model.addDocument(CollectionHelper.newHashSet(WORD_3, WORD_4), CATEGORY_2);
-        model.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
-        model.addDocument(CollectionHelper.newHashSet(WORD_4), CATEGORY_2);
-        model.addDocument(CollectionHelper.newHashSet(WORD_3), CATEGORY_1);
+        DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
+        builder.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
+        builder.addDocument(CollectionHelper.newHashSet(WORD_2, WORD_4), CATEGORY_2);
+        builder.addDocument(CollectionHelper.newHashSet(WORD_3, WORD_4), CATEGORY_2);
+        builder.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
+        builder.addDocument(CollectionHelper.newHashSet(WORD_4), CATEGORY_2);
+        builder.addDocument(CollectionHelper.newHashSet(WORD_3), CATEGORY_1);
+        model = builder.create();
     }
 
     @Test

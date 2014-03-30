@@ -106,7 +106,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         }
     }
     
-    private final DictionaryModel model;
+    private final DictionaryBuilder dictionaryBuilder;
 
     private final FeatureSetting featureSetting;
 
@@ -114,23 +114,48 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     
     private final Function<String, Iterator<String>> preprocessor;
 
+    /**
+     * <p>
+     * Creates a new {@link PalladianTextClassifier} using the given configuration for feature extraction.
+     * 
+     * @param featureSetting The configuration for feature extraction, not <code>null</code>.
+     */
     public PalladianTextClassifier(FeatureSetting featureSetting) {
         this(featureSetting, new DefaultScorer());
     }
-    
-    public PalladianTextClassifier(DictionaryModel model, FeatureSetting featureSetting) {
-        Validate.notNull(model, "model must not be null");
+
+    /**
+     * <p>
+     * Creates a new {@link PalladianTextClassifier} using the specified builder for creating the dictionary and the
+     * given feature setting.
+     * 
+     * @param featureSetting The configuration for feature extraction, not <code>null</code>.
+     * @param dictionaryBuilder The builder for creating the model, not <code>null</code>.
+     */
+    public PalladianTextClassifier(FeatureSetting featureSetting, DictionaryBuilder dictionaryBuilder) {
+        Validate.notNull(dictionaryBuilder, "dictionaryBuilder must not be null");
         Validate.notNull(featureSetting, "featureSetting must not be null");
-        this.model = model;
+        this.dictionaryBuilder = dictionaryBuilder;
+        this.dictionaryBuilder.setFeatureSetting(featureSetting);
         this.featureSetting = featureSetting;
         this.scorer = new DefaultScorer();
         this.preprocessor = new Preprocessor(featureSetting);
     }
-
+    
+    /**
+     * <p>
+     * Creates a new {@link PalladianTextClassifier} using the specified builder for creating the dictionary and the
+     * given scorer.
+     * 
+     * @param featureSetting The configuration for feature extraction, not <code>null</code>.
+     * @param scorer The scorer to use, not <code>null</code>.
+     */
     public PalladianTextClassifier(FeatureSetting featureSetting, Scorer scorer) {
         Validate.notNull(featureSetting, "featureSetting must not be null");
         Validate.notNull(scorer, "scorer must not be null");
-        this.model = new DictionaryTrieModel(featureSetting);
+        Validate.notNull(scorer, "scorer must not be null");
+        this.dictionaryBuilder = new DictionaryTrieModel.Builder();
+        this.dictionaryBuilder.setFeatureSetting(featureSetting);
         this.featureSetting = featureSetting;
         this.scorer = scorer;
         this.preprocessor = new Preprocessor(featureSetting);
@@ -138,7 +163,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
     @Override
     public DictionaryModel train(Iterable<? extends Trainable> trainables) {
-//        DictionaryModel model = new DictionaryTrieModel(featureSetting);
         for (Trainable trainable : trainables) {
             String targetClass = trainable.getTargetClass();
             String content = ((TextDocument)trainable).getContent();
@@ -147,9 +171,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
-            model.addDocument(terms, targetClass);
+            dictionaryBuilder.addDocument(terms, targetClass);
         }
-        return model;
+        return dictionaryBuilder.create();
     }
 
     @Override
