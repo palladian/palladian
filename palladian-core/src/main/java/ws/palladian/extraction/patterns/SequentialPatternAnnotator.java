@@ -14,8 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.pos.BasePosTagger;
@@ -81,7 +79,8 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
      * @param maxSequentialPatternSize
      */
     public SequentialPatternAnnotator(final String[] keywords, final Integer minSequentialPatternSize,
-            final Integer maxSequentialPatternSize, final SpanExtractionStrategy extractionStrategy) {
+                                      final Integer maxSequentialPatternSize,
+                                      final SpanExtractionStrategy extractionStrategy) {
         super();
 
         Validate.notNull(keywords, "keywords must not be null");
@@ -102,10 +101,10 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
     public void processDocument(TextDocument document) {
         // LOGGER.debug(document.toString());
 
-        List<PositionAnnotation> posTags = new ArrayList<PositionAnnotation>(document.get(ListFeature.class,
-                BaseTokenizer.PROVIDED_FEATURE));
-        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>(document.get(ListFeature.class,
-                AbstractSentenceDetector.PROVIDED_FEATURE));
+        List<PositionAnnotation> posTags = new ArrayList<PositionAnnotation>(document.get(
+                ListFeature.class, BaseTokenizer.PROVIDED_FEATURE));
+        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>(document.get(
+                ListFeature.class, AbstractSentenceDetector.PROVIDED_FEATURE));
         List<PositionAnnotation> markedKeywords = new ArrayList<PositionAnnotation>(markKeywords(document));
 
         Collections.sort(posTags);
@@ -133,8 +132,8 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
                     sequentialPattern.add(currentMarkedKeyword.getValue());
                     i = currentMarkedKeyword.getEndPosition();
                 } else if (currentPosTag != null && Integer.valueOf(currentPosTag.getStartPosition()).equals(i)) {
-                    NominalFeature posTagFeature = currentPosTag.getFeatureVector().get(NominalFeature.class,
-                            BasePosTagger.PROVIDED_FEATURE);
+                    NominalFeature posTagFeature = currentPosTag.getFeatureVector().get(
+                            NominalFeature.class, BasePosTagger.PROVIDED_FEATURE);
                     // LOGGER.trace("currentPosTag: "+ currentPosTag.toString());
                     // LOGGER.trace("posTagFeature: "+posTagFeature);
                     sequentialPattern.add(posTagFeature.getValue());
@@ -155,8 +154,8 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
             }
 
             String[] arrayOfWholeSentencePattern = sequentialPattern.toArray(new String[sequentialPattern.size()]);
-            List<SequentialPattern> extractedPatterns = extractionStrategy.extract(arrayOfWholeSentencePattern,
-                    minSequentialPatternSize, maxSequentialPatternSize);
+            List<SequentialPattern> extractedPatterns = extractionStrategy.extract(
+                    arrayOfWholeSentencePattern, minSequentialPatternSize, maxSequentialPatternSize);
             feature.addAll(extractedPatterns);
 
         }
