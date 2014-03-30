@@ -140,6 +140,7 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      * @param strategy The pruning strategy to use.
      * @return The number of removed entries.
      */
+    // FIXME this contradicts the idea of the dictionary builder
     int prune(PruningStrategy strategy);
 
 }
