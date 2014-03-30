@@ -199,34 +199,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     }
 
     @Override
-    public int getNumCategories() {
-        return getCategories().size();
-    }
-
-    @Override
-    public int getNumEntries() {
-        int numEntries = 0;
-        for (TermCategoryEntries entries : this) {
-            numEntries += entries.size();
-        }
-        return numEntries;
-    }
-
-    @Override
     public Iterator<TermCategoryEntries> iterator() {
         return CollectionHelper.convert(new TrieIterator(entryTrie),
                 Adapter.create(TrieCategoryEntries.class, TermCategoryEntries.class));
     }
-
-//    @Override
-//    public Set<String> getCategories() {
-//        Set<String> categories = CollectionHelper.newHashSet();
-//        CategoryEntries priors = getPriors();
-//        for (Category category : priors) {
-//            categories.add(category.getName());
-//        }
-//        return categories;
-//    }
 
     @Override
     public CategoryEntries getPriors() {
@@ -245,31 +221,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             return new CategoryEntriesBuilder(categories).create();
         }
     }
-
-//    @Override
-//    public void toCsv(PrintStream printStream) {
-//        Validate.notNull(printStream, "printStream must not be null");
-//        printStream.print("Term,");
-//        printStream.print(StringUtils.join(getPriors(), ","));
-//        printStream.print('\n');
-//        Set<String> categories = getCategories();
-//        for (TermCategoryEntries entries : this) {
-//            printStream.print(entries.getTerm());
-//            printStream.print(',');
-//            boolean first = true;
-//            for (String category : categories) {
-//                double probability = entries.getProbability(category);
-//                if (!first) {
-//                    printStream.print(',');
-//                } else {
-//                    first = false;
-//                }
-//                printStream.print(probability);
-//            }
-//            printStream.print('\n');
-//        }
-//        printStream.flush();
-//    }
 
     @Override
     public int prune(PruningStrategy strategy) {
@@ -295,67 +246,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         numTerms -= removedTerms;
         entryTrie.clean();
         return removedTerms + removedCategories;
-    }
-
-    // toString
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("DictionaryTrieModel [");
-        if (featureSetting != null) {
-            builder.append("featureSetting=").append(featureSetting).append(", ");
-        }
-        builder.append("#terms=").append(getNumTerms());
-        builder.append(", #categories=").append(getNumCategories());
-        builder.append(", #entries=").append(getNumEntries()).append("]");
-        return builder.toString();
-    }
-
-    // hashCode + equals
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        for (TermCategoryEntries entries : this) {
-            result += entries.hashCode();
-        }
-        result = prime * result + (featureSetting == null ? 0 : featureSetting.hashCode());
-        result = prime * result + numTerms;
-        result = prime * result + getPriors().hashCode();
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        DictionaryTrieModel other = (DictionaryTrieModel)obj;
-        if (featureSetting == null) {
-            if (other.featureSetting != null) {
-                return false;
-            }
-        } else if (!featureSetting.equals(other.featureSetting)) {
-            return false;
-        }
-        if (numTerms != other.numTerms) {
-            return false;
-        }
-        if (!getPriors().equals(other.getPriors())) {
-            return false;
-        }
-        for (TermCategoryEntries thisEntries : this) {
-            TermCategoryEntries otherEntries = other.getCategoryEntries(thisEntries.getTerm());
-            if (!thisEntries.equals(otherEntries)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     // serialization code
