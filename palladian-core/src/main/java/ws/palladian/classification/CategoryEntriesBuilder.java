@@ -39,10 +39,10 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * 
      * @param map The map with categories and scores, not <code>null</code>.
      */
-    public CategoryEntriesBuilder(Map<String, Double> map) {
+    public CategoryEntriesBuilder(Map<String, ? extends Number> map) {
         Validate.notNull(map, "map must not be null");
         entryMap = CollectionHelper.newHashMap();
-        for (Entry<String, Double> entry : map.entrySet()) {
+        for (Entry<String, ? extends Number> entry : map.entrySet()) {
             entryMap.put(entry.getKey(), new MutableDouble(entry.getValue()));
         }
     }
