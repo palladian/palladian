@@ -25,7 +25,7 @@ public final class ImmutableCategory implements Category {
 
     public ImmutableCategory(String name, double probability, int count) {
         Validate.notNull(name, "name must not be null");
-        Validate.inclusiveBetween(0., 1., probability, "probability must be in range [0,1]");
+        Validate.inclusiveBetween(0., 1., probability, "probability must be in range [0,1], was %f", probability);
         Validate.isTrue(count == -1 || count >= 0, "count must be either -1, or greater/equal zero");
         this.probability = probability;
         this.name = name;

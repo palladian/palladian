@@ -49,6 +49,52 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author Philipp Katz
  */
 public final class DictionaryTrieModel implements DictionaryModel {
+    
+    public static final class Builder implements DictionaryBuilder {
+        
+        /** Trie with term-category combinations with their counts. */
+        private TrieCategoryEntries entryTrie = new TrieCategoryEntries();
+        /** Configuration for the feature extraction. */
+        private FeatureSetting featureSetting;
+        /** The name of this dictionary. */
+        private String name;
+        /** The number of terms stored in this dictionary. */
+        private int numTerms;
+
+        @Override
+        public DictionaryBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        @Override
+        public DictionaryBuilder setFeatureSetting(FeatureSetting featureSetting) {
+            this.featureSetting = featureSetting;
+            return this;
+        }
+
+        @Override
+        public DictionaryBuilder addDocument(Collection<String> terms, String category) {
+            Validate.notNull(terms, "terms must not be null");
+            Validate.notNull(category, "category must not be null");
+            for (String term : terms) {
+                TrieCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
+                if (categoryEntries.totalCount == 0) { // term was not present before
+                    numTerms++;
+                }
+                categoryEntries.increment(category, 1);
+            }
+            entryTrie.getOrAdd(PRIOR_KEY, true).increment(category, 1);
+            return this;
+        }
+        
+
+        @Override
+        public DictionaryModel create() {
+            return new DictionaryTrieModel(this);
+        }
+        
+    }
 
     /**
      * Do not change this from now on, use the {@link #VERSION} instead, if you make incompatible changes, and ensure
@@ -84,12 +130,22 @@ public final class DictionaryTrieModel implements DictionaryModel {
      * Create a new {@link DictionaryTrieModel}.
      * 
      * @param featureSetting The feature setting which was used for creating this model, may be <code>null</code>.
+     * @deprecated Use a {@link Builder} instead.
      */
+    @Deprecated
     public DictionaryTrieModel(FeatureSetting featureSetting) {
         this.entryTrie = new TrieCategoryEntries();
         this.numTerms = 0;
         this.featureSetting = featureSetting;
         this.name = NO_NAME;
+    }
+
+    /** Constructor invoked from the builder only. */
+    private DictionaryTrieModel(Builder builder) {
+        this.entryTrie = builder.entryTrie;
+        this.numTerms = builder.numTerms;
+        this.featureSetting = builder.featureSetting;
+        this.name = builder.name;
     }
 
     @Override

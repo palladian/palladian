@@ -66,7 +66,9 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      * Set a name for this model.
      * 
      * @param name The name, not <code>null</code>.
+     * @deprecated Use a {@link DictionaryBuilder} for creation.
      */
+    @Deprecated
     void setName(String name);
 
     /**
@@ -82,7 +84,9 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      * 
      * @param terms The terms from the document, not <code>null</code>.
      * @param category The category of the document, not <code>null</code>.
+     * @deprecated Use a {@link DictionaryBuilder} for creation.
      */
+    @Deprecated
     void addDocument(Collection<String> terms, String category);
 
     /**
