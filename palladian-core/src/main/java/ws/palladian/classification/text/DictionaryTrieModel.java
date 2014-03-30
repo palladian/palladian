@@ -3,7 +3,6 @@ package ws.palladian.classification.text;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,7 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -48,7 +46,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @author Philipp Katz
  */
-public final class DictionaryTrieModel implements DictionaryModel {
+public final class DictionaryTrieModel extends AbstractDictionaryModel {
     
     public static final class Builder implements DictionaryBuilder {
         
@@ -220,15 +218,15 @@ public final class DictionaryTrieModel implements DictionaryModel {
                 Adapter.create(TrieCategoryEntries.class, TermCategoryEntries.class));
     }
 
-    @Override
-    public Set<String> getCategories() {
-        Set<String> categories = CollectionHelper.newHashSet();
-        CategoryEntries priors = getPriors();
-        for (Category category : priors) {
-            categories.add(category.getName());
-        }
-        return categories;
-    }
+//    @Override
+//    public Set<String> getCategories() {
+//        Set<String> categories = CollectionHelper.newHashSet();
+//        CategoryEntries priors = getPriors();
+//        for (Category category : priors) {
+//            categories.add(category.getName());
+//        }
+//        return categories;
+//    }
 
     @Override
     public CategoryEntries getPriors() {
@@ -248,30 +246,30 @@ public final class DictionaryTrieModel implements DictionaryModel {
         }
     }
 
-    @Override
-    public void toCsv(PrintStream printStream) {
-        Validate.notNull(printStream, "printStream must not be null");
-        printStream.print("Term,");
-        printStream.print(StringUtils.join(getPriors(), ","));
-        printStream.print('\n');
-        Set<String> categories = getCategories();
-        for (TermCategoryEntries entries : this) {
-            printStream.print(entries.getTerm());
-            printStream.print(',');
-            boolean first = true;
-            for (String category : categories) {
-                double probability = entries.getProbability(category);
-                if (!first) {
-                    printStream.print(',');
-                } else {
-                    first = false;
-                }
-                printStream.print(probability);
-            }
-            printStream.print('\n');
-        }
-        printStream.flush();
-    }
+//    @Override
+//    public void toCsv(PrintStream printStream) {
+//        Validate.notNull(printStream, "printStream must not be null");
+//        printStream.print("Term,");
+//        printStream.print(StringUtils.join(getPriors(), ","));
+//        printStream.print('\n');
+//        Set<String> categories = getCategories();
+//        for (TermCategoryEntries entries : this) {
+//            printStream.print(entries.getTerm());
+//            printStream.print(',');
+//            boolean first = true;
+//            for (String category : categories) {
+//                double probability = entries.getProbability(category);
+//                if (!first) {
+//                    printStream.print(',');
+//                } else {
+//                    first = false;
+//                }
+//                printStream.print(probability);
+//            }
+//            printStream.print('\n');
+//        }
+//        printStream.flush();
+//    }
 
     @Override
     public int prune(PruningStrategy strategy) {

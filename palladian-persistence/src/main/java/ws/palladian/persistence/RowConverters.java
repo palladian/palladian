@@ -52,6 +52,14 @@ public final class RowConverters {
             return resultSet.getString(1);
         }
     };
+    
+    /** {@link RowConverter} for {@link Object} types. */
+    public static final RowConverter<Object> OBJECT = new RowConverter<Object>() {
+        @Override
+        public Object convert(ResultSet resultSet) throws SQLException {
+            return resultSet.getObject(1);
+        }
+    };
 
     /** {@link RowConverter} for converting all columns to a map. */
     public final static RowConverter<Map<String, Object>> MAP = new RowConverter<Map<String, Object>>() {
