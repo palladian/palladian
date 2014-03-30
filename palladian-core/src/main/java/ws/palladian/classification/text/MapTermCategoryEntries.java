@@ -36,7 +36,7 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
                     Entry<String, Integer> entry = entryIterator.next();
                     String name = entry.getKey();
                     int count = entry.getValue();
-                    double probability = (double)count / countSum;
+                    double probability = countSum > 0 ? (double)count / countSum : 0;
                     return new ImmutableCategory(name, probability, count);
                 }
                 throw FINISHED;
