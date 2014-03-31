@@ -58,6 +58,10 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
         for (String category : model.getCategories()) {
 
+            if (category.isEmpty()) {
+                continue;
+            }
+
             // initially set all category probabilities to their priors
             double probability = model.getPrior(category);
 
