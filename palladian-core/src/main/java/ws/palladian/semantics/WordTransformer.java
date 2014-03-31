@@ -78,108 +78,19 @@ public class WordTransformer {
         }
 
         // irregular nouns
-        IRREGULAR_NOUNS.put("addendum", "addenda");
-        IRREGULAR_NOUNS.put("alga", "algae");
-        IRREGULAR_NOUNS.put("alumna", "alumnae");
-        IRREGULAR_NOUNS.put("alumnus", "alumni");
-        IRREGULAR_NOUNS.put("analysis", "analyses");
-        IRREGULAR_NOUNS.put("antennas", "antenna");
-        IRREGULAR_NOUNS.put("apparatus", "apparatuses");
-        IRREGULAR_NOUNS.put("appendix", "appendices");
-        IRREGULAR_NOUNS.put("archive", "archives"); // would be converted to singular "archife"
-        IRREGULAR_NOUNS.put("automaton", "automata");
-        IRREGULAR_NOUNS.put("axis", "axes");
-        IRREGULAR_NOUNS.put("bacillus", "bacilli");
-        IRREGULAR_NOUNS.put("bacterium", "bacteria");
-        IRREGULAR_NOUNS.put("basis", "bases");
-        IRREGULAR_NOUNS.put("beau", "beaux");
-        IRREGULAR_NOUNS.put("bison", "bison");
-        IRREGULAR_NOUNS.put("calf", "calves");
-        IRREGULAR_NOUNS.put("child", "children");
-        IRREGULAR_NOUNS.put("corps", "corps");
-        IRREGULAR_NOUNS.put("crisis", "crises");
-        IRREGULAR_NOUNS.put("criterion", "criteria");
-        IRREGULAR_NOUNS.put("curriculum", "curricula");
-        IRREGULAR_NOUNS.put("datum", "data");
-        IRREGULAR_NOUNS.put("deer", "deer");
-        IRREGULAR_NOUNS.put("die", "dice");
-        IRREGULAR_NOUNS.put("diagnosis", "diagnoses");
-        IRREGULAR_NOUNS.put("echo", "echoes");
-        IRREGULAR_NOUNS.put("elf", "elves");
-        IRREGULAR_NOUNS.put("ellipsis", "ellipses");
-        IRREGULAR_NOUNS.put("embargo", "embargoes");
-        IRREGULAR_NOUNS.put("emphasis", "emphases");
-        IRREGULAR_NOUNS.put("erratum", "errata");
-        IRREGULAR_NOUNS.put("fireman", "firemen");
-        IRREGULAR_NOUNS.put("fish", "fish");
-        IRREGULAR_NOUNS.put("foot", "feet");
-        IRREGULAR_NOUNS.put("fungus", "fungi");
-        IRREGULAR_NOUNS.put("genus", "genera");
-        IRREGULAR_NOUNS.put("goose", "geese");
-        IRREGULAR_NOUNS.put("half", "halves");
-        IRREGULAR_NOUNS.put("hero", "heroes");
-        IRREGULAR_NOUNS.put("hippopotamus", "hippopotami");
-        IRREGULAR_NOUNS.put("hypothesis", "hypotheses");
-        IRREGULAR_NOUNS.put("index", "indices");
-        IRREGULAR_NOUNS.put("information", "information");
-        IRREGULAR_NOUNS.put("knife", "knives");
-        IRREGULAR_NOUNS.put("leaf", "leaves");
-        IRREGULAR_NOUNS.put("life", "lives");
-        IRREGULAR_NOUNS.put("loaf", "loaves");
-        IRREGULAR_NOUNS.put("louse", "lice");
-        IRREGULAR_NOUNS.put("man", "men");
-        IRREGULAR_NOUNS.put("matrix", "matrices");
-        IRREGULAR_NOUNS.put("means", "means");
-        IRREGULAR_NOUNS.put("medium", "media");
-        IRREGULAR_NOUNS.put("memorandum", "memoranda");
-        IRREGULAR_NOUNS.put("millennium", "milennia");
-        IRREGULAR_NOUNS.put("moose", "moose");
-        IRREGULAR_NOUNS.put("mosquito", "mosquitoes");
-        IRREGULAR_NOUNS.put("mouse", "mice");
-        IRREGULAR_NOUNS.put("movie", "movies");
-        IRREGULAR_NOUNS.put("neurosis", "neuroses");
-        IRREGULAR_NOUNS.put("news", "news");
-        IRREGULAR_NOUNS.put("nucleus", "nuclei");
-        IRREGULAR_NOUNS.put("oasis", "oases");
-        IRREGULAR_NOUNS.put("ovum", "ova");
-        IRREGULAR_NOUNS.put("ox", "oxen");
-        IRREGULAR_NOUNS.put("paralysis", "paralyses");
-        IRREGULAR_NOUNS.put("parenthesis", "parentheses");
-        IRREGULAR_NOUNS.put("person", "people");
-        IRREGULAR_NOUNS.put("phenomenon", "phenomena");
-        IRREGULAR_NOUNS.put("pike", "pike");
-        IRREGULAR_NOUNS.put("potato", "potatoes");
-        IRREGULAR_NOUNS.put("radius", "radiuses");
-        IRREGULAR_NOUNS.put("salmon", "salmon");
-        IRREGULAR_NOUNS.put("scissors", "scissors");
-        IRREGULAR_NOUNS.put("series", "series");
-        IRREGULAR_NOUNS.put("service", "services"); // would be converted to singular "servix"
-        IRREGULAR_NOUNS.put("sheep", "sheep");
-        IRREGULAR_NOUNS.put("shelf", "shelves");
-        IRREGULAR_NOUNS.put("shrimp", "shrimp");
-        IRREGULAR_NOUNS.put("species", "species");
-        IRREGULAR_NOUNS.put("status", "status");
-        IRREGULAR_NOUNS.put("stimulus", "stimuli");
-        IRREGULAR_NOUNS.put("stratum", "strata");
-        IRREGULAR_NOUNS.put("swine", "swine");
-        IRREGULAR_NOUNS.put("syllabus", "syllabuses");
-        IRREGULAR_NOUNS.put("symposium", "symposia");
-        IRREGULAR_NOUNS.put("synthesis", "syntheses");
-        IRREGULAR_NOUNS.put("synopsis", "synopses");
-        IRREGULAR_NOUNS.put("tableau", "tableaux");
-        IRREGULAR_NOUNS.put("thesis", "theses");
-        IRREGULAR_NOUNS.put("thief", "thieves");
-        IRREGULAR_NOUNS.put("tomato", "tomatoes");
-        IRREGULAR_NOUNS.put("tooth", "teeth");
-        IRREGULAR_NOUNS.put("torpedo", "torpedoes");
-        IRREGULAR_NOUNS.put("trout", "trout");
-        IRREGULAR_NOUNS.put("vertebra", "vertebrae");
-        IRREGULAR_NOUNS.put("vertex", "vertices");
-        IRREGULAR_NOUNS.put("veto", "vetoes");
-        IRREGULAR_NOUNS.put("vita", "vitae");
-        IRREGULAR_NOUNS.put("wife", "wives");
-        IRREGULAR_NOUNS.put("wolf", "wolves");
-        IRREGULAR_NOUNS.put("woman", "women");
+        inputStream = null;
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/irregularEnglishNouns.txt");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split(" ");
+                IRREGULAR_NOUNS.put(parts[1], parts[0]);
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
     }
 
     /**
