@@ -1,6 +1,7 @@
 package ws.palladian.classification.text;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,6 +17,15 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
     private final String term;
     private final int countSum;
     private final Map<String, Integer> categoryCounts;
+
+    /**
+     * Create an empty {@link MapTermCategoryEntries}.
+     * 
+     * @param term The term.
+     */
+    public MapTermCategoryEntries(String term) {
+        this(term, Collections.<String, Integer> emptyMap(), 0);
+    }
 
     public MapTermCategoryEntries(String term, Map<String, Integer> categoryCounts) {
         this(term, categoryCounts, sum(categoryCounts.values()));
@@ -52,7 +62,7 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
             }
         };
     }
-    
+
     @Override
     public int size() {
         return categoryCounts.size();
@@ -62,10 +72,42 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
     public String getTerm() {
         return term;
     }
-    
+
     @Override
     public int getTotalCount() {
         return countSum;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + categoryCounts.hashCode();
+        result = prime * result + term.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        MapTermCategoryEntries other = (MapTermCategoryEntries)obj;
+        if (countSum != other.countSum) {
+            return false;
+        }
+        if (!term.equals(other.term)) {
+            return false;
+        }
+        return categoryCounts.equals(other.categoryCounts);
+    }
+
+    @Override
+    public String toString() {
+        return term + ":" + categoryCounts + "(" + countSum + ")";
     }
 
 }
