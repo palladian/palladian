@@ -54,6 +54,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     public DictionaryModel updateModel(Trainable trainable, DictionaryModel model) {
         process(trainable);
         String targetClass = trainable.getTargetClass();
+        if (targetClass.isEmpty()) {
+            return null;
+        }
         @SuppressWarnings("unchecked")
         ListFeature<PositionAnnotation> annotations = trainable.getFeatureVector().get(ListFeature.class,
                 BaseTokenizer.PROVIDED_FEATURE);
