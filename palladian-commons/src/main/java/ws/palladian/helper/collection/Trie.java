@@ -59,7 +59,8 @@ public class Trie implements Serializable {
         return currentNode.value;
     }
 
-    private class TrieNode {
+    private class TrieNode implements Serializable {
+        private static final long serialVersionUID = -8622243829906159503L;
         TrieNode[] children = null;
         final char letter;
         Integer value;
