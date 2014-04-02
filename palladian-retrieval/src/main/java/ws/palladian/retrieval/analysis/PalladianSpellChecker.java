@@ -42,7 +42,7 @@ public class PalladianSpellChecker {
     /** Do not correct words that contain any of these characters. */
     private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/") + "]");
 
-    private final Trie words = new Trie();
+    private Trie words = new Trie();
 
     public PalladianSpellChecker(String file) {
 
@@ -189,7 +189,6 @@ public class PalladianSpellChecker {
             return word;
         }
 
-
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<Integer, String>();
         for (String s : list) {
@@ -221,6 +220,14 @@ public class PalladianSpellChecker {
         }
 
         return corrected;
+    }
+
+    public Trie getWords() {
+        return words;
+    }
+
+    public void setWords(Trie words) {
+        this.words = words;
     }
 
     public static void main(String[] args) throws IOException {
