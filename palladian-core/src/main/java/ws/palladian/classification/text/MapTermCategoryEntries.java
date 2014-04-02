@@ -107,7 +107,7 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
 
     @Override
     public String toString() {
-        return term + ":" + categoryCounts + "(" + countSum + ")";
+        return term + ":" + categoryCounts;
     }
 
 }

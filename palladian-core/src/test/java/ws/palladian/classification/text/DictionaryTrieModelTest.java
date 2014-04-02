@@ -79,6 +79,8 @@ public class DictionaryTrieModelTest {
         assertEquals(2, model.getNumCategories());
         assertEquals(4, model.getNumTerms());
         assertEquals(5, model.getNumEntries());
+        assertEquals(0.5, model.getPriors().getProbability(CATEGORY_1), 0);
+        assertEquals(0.5, model.getPriors().getProbability(CATEGORY_2), 0);
     }
 
     @Test
