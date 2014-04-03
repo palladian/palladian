@@ -29,6 +29,7 @@ public enum UnitType {
     WEIGHT, //
     SPEED, //
     TEMPERATURE, //
+    PIXEL, //
     OTHER;
 
     private List<Pair<List<String>, Double>> units = CollectionHelper.newArrayList();
@@ -62,24 +63,12 @@ public enum UnitType {
         UnitType.NONE.units.add(new Pair<List<String>, Double>(unitList, 1000000000.0));
 
         unitList = CollectionHelper.newArrayList();
-        unitList.add("mega pixels");
-        unitList.add("megapixels");
-        unitList.add("mega pixel");
-        unitList.add("megapixel");
         unitList.add("millions");
         unitList.add("million");
-        unitList.add("mpix");
-        unitList.add("mpixel");
-        unitList.add("mpx");
-        unitList.add("mp");
         UnitType.NONE.units.add(new Pair<List<String>, Double>(unitList, 1000000.0));
 
         unitList = CollectionHelper.newArrayList();
-        unitList.add("kilopixels");
-        unitList.add("kilo pixel");
-        unitList.add("kilopixel");
         unitList.add("thousand");
-        unitList.add("kpix");
         unitList.add("k");
         UnitType.NONE.units.add(new Pair<List<String>, Double>(unitList, 1000.0));
 
@@ -90,6 +79,30 @@ public enum UnitType {
         unitList.add("perc");
         unitList.add("%");
         UnitType.NONE.units.add(new Pair<List<String>, Double>(unitList, 0.01));
+
+        // PIXEL units are normalized to 1
+        unitList = CollectionHelper.newArrayList();
+        unitList.add("mega pixels");
+        unitList.add("megapixels");
+        unitList.add("mega pixel");
+        unitList.add("megapixel");
+        unitList.add("mpix");
+        unitList.add("mpixel");
+        unitList.add("mpx");
+        unitList.add("mp");
+        UnitType.PIXEL.units.add(new Pair<List<String>, Double>(unitList, 1000000.0));
+
+        unitList = CollectionHelper.newArrayList();
+        unitList.add("kilopixels");
+        unitList.add("kilo pixel");
+        unitList.add("kilopixel");
+        unitList.add("kpix");
+        unitList.add("k");
+        UnitType.PIXEL.units.add(new Pair<List<String>, Double>(unitList, 1000.0));
+
+        unitList = CollectionHelper.newArrayList();
+        unitList.add("pixel");
+        UnitType.PIXEL.units.add(new Pair<List<String>, Double>(unitList, 1.0));
 
         // TEMPERATURE units will not be normalized as there are non-linear projections
         for (TemperatureUnit tUnit : TemperatureUnit.values()) {
@@ -195,7 +208,6 @@ public enum UnitType {
         unitList.add("terra hertz");
         unitList.add("terrahertz");
         unitList.add("thz");
-        unitList.add("tb");
         UnitType.FREQUENCY.units.add(new Pair<List<String>, Double>(unitList, 1000000000000.0));
 
         unitList = CollectionHelper.newArrayList();
