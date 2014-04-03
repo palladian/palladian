@@ -44,6 +44,9 @@ public class PalladianSpellChecker {
 
     private Trie words = new Trie();
 
+    public PalladianSpellChecker() {
+    }
+
     public PalladianSpellChecker(String file) {
 
         StopWatch stopWatch = new StopWatch();
