@@ -88,7 +88,7 @@ public class PalladianPosTagger extends BasePosTagger {
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.NOMINAL), featureSetting);
     }
 
-    public void trainModel(String folderPath, String modelFilePath) throws IOException {
+    public UniversalClassifierModel trainModel(String folderPath, String modelFilePath) throws IOException {
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
@@ -138,6 +138,8 @@ public class PalladianPosTagger extends BasePosTagger {
         Cache.getInstance().putDataObject(modelFilePath, model);
 
         LOGGER.info("finished training tagger in " + stopWatch.getElapsedTimeString());
+
+        return model;
     }
 
     private FeatureVector extractFeatures(String previousTag, String word) {
