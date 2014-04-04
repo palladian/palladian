@@ -1,5 +1,7 @@
 package ws.palladian.helper.collection;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * A trie data structure. This makes string-based retrieval slightly faster than using a HashMap.
@@ -9,7 +11,9 @@ package ws.palladian.helper.collection;
  * @author David Urbansky
  * @see http://en.wikipedia.org/wiki/Trie
  */
-public class Trie {
+public class Trie implements Serializable {
+
+    private static final long serialVersionUID = 4746430928257360782L;
 
     private final TrieNode rootNode = new TrieNode(' ');
 
@@ -55,7 +59,8 @@ public class Trie {
         return currentNode.value;
     }
 
-    private class TrieNode {
+    private class TrieNode implements Serializable {
+        private static final long serialVersionUID = -8622243829906159503L;
         TrieNode[] children = null;
         final char letter;
         Integer value;
