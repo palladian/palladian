@@ -85,7 +85,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         @Override
         public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
                 int categoryCount, int numTerms) {
-            double termCategoryProbability = (double)termCategoryCount/dictCount;
+            if (dictCount == 0) {
+                return 0;
+            }
+            double termCategoryProbability = (double)termCategoryCount / dictCount;
             return termCategoryProbability * termCategoryProbability;
         }
 
@@ -96,7 +99,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             return matched ? categoryScore : categoryProbability;
         }
     }
-    
 
     /**
      * Scorer, which normalizes the result scores by the prior category probability. This may improve classification
@@ -174,7 +176,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             String content = ((TextDocument)trainable).getContent();
             Iterator<String> iterator = preprocessor.compute(content);
             Set<String> terms = CollectionHelper.newHashSet();
-//            Bag<String> terms = Bag.create();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
@@ -196,7 +197,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         CategoryEntries termPriors = model.getTermPriors();
         Set<String> categories = model.getCategories();
         int numTerms = model.getNumTerms();
-        
+
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
             TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
@@ -206,8 +207,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             for (Category category : categoryEntries) {
                 String categoryName = category.getName();
                 int categorySum = termPriors.getCount(category.getName());
-                double score = scorer.score(term, categoryName, category.getCount(), dictCount, docCount,
-                        categorySum, numTerms);
+                double score = scorer.score(term, categoryName, category.getCount(), dictCount, docCount, categorySum,
+                        numTerms);
+                assert !Double.isInfinite(score) && !Double.isNaN(score) : "score was NaN/infinity";
                 builder.add(categoryName, score);
                 zeroCountCategories.remove(categoryName);
             }
@@ -224,6 +226,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             double termScore = builder.getScore(categoryName);
             double categoryProbability = category.getProbability();
             double newScore = scorer.scoreCategory(categoryName, termScore, categoryProbability, matched);
+            assert !Double.isInfinite(newScore) && !Double.isNaN(newScore) : "newScore was NaN/infinity";
             builder.set(categoryName, newScore);
         }
         return builder.create();
