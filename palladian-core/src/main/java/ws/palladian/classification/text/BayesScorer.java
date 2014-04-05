@@ -18,24 +18,25 @@ public final class BayesScorer extends DefaultScorer {
 
     private final boolean laplace;
 
+    /** Use the predefined singleton constants. */
     private BayesScorer(boolean laplace) {
         this.laplace = laplace;
     }
 
     @Override
-    public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-            int categoryCount, int numTerms) {
+    public double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum,
+            int numTerms) {
         int numerator = termCategoryCount + (laplace ? 1 : 0);
-        int denominator = categoryCount + (laplace ? numTerms : 0);
-        double score = docCount * Math.log((double)numerator) / (denominator);
-        LOGGER.info("({},{}) {}/{}", term, category, numerator, denominator);
+        int denominator = categorySum + (laplace ? numTerms : 0);
+        double score = docCount * Math.log((double)numerator / denominator);
+        LOGGER.trace("({},{}) {}/{}", term, category, numerator, denominator);
         return score;
     }
 
     @Override
     public double scoreCategory(String category, double categoryScore, double categoryProbability, boolean matched) {
         double score = Math.pow(Math.E, categoryScore + Math.log(categoryProbability));
-        LOGGER.info("{} {}·{}={}", category, categoryProbability, categoryScore, score);
+        LOGGER.trace("{} {}·{}={}", category, categoryProbability, categoryScore, score);
         return score;
     }
 
