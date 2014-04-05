@@ -118,7 +118,12 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public CategoryEntriesBuilder add(CategoryEntries categoryEntries) {
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
         for (Category category : categoryEntries) {
-            add(category.getName(), category.getProbability());
+//            add(category.getName(), category.getProbability());
+            if (category.getCount() != -1) {
+                add(category.getName(), category.getCount());
+            } else {
+                add(category.getName(), category.getProbability());
+            }
         }
         return this;
     }

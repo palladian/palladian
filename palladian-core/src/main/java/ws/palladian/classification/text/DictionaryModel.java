@@ -120,7 +120,11 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      *         appeared 15 times during training would make a prior 10/25=0.4 for category "A").
      */
     CategoryEntries getPriors();
-    
+
+    /**
+     * @return The prior probabilities and counts for the trained categories measured trough the terms (i.e. the sum of
+     *         all terms in a specific category is represented here).
+     */
     CategoryEntries getTermPriors();
 
     /**

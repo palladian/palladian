@@ -71,6 +71,16 @@ public class PalladianTextClassifierIT {
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.88, new DefaultScorer());
     }
+    
+    @Test
+    public void test20NewsgroupsChar_Bayes() {
+        String trainFile = config.getString("dataset.20newsgroups.split1");
+        String testFile = config.getString("dataset.20newsgroups.split2");
+        checkExistence("20 Newsgroups", testFile, trainFile);
+//        FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.88, BayesScorer.NO_SMOOTHING);
+    }
 
     @Test
     public void test20NewsgroupsWord() {
@@ -79,6 +89,15 @@ public class PalladianTextClassifierIT {
         checkExistence("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.54, new DefaultScorer());
+    }
+    
+    @Test
+    public void test20NewsgroupsWord_Bayes() {
+        String trainFile = config.getString("dataset.20newsgroups.split1");
+        String testFile = config.getString("dataset.20newsgroups.split2");
+        checkExistence("20 Newsgroups", testFile, trainFile);
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.79, BayesScorer.LAPLACE_SMOOTHING);
     }
 
     @Test
@@ -91,12 +110,31 @@ public class PalladianTextClassifierIT {
     }
     
     @Test
-    public void testSpamAssassin_categoryEqualization() {
+    public void testSpamAssassinChar_categoryEqualization() {
         String trainFile = config.getString("dataset.spamassassin.train");
         String testFile = config.getString("dataset.spamassassin.test");
         checkExistence("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.98, new PalladianTextClassifier.CategoryEqualizationScorer());
+    }
+    
+    @Test
+    public void testImdbWord_PalladianScorer() {
+        String trainFile = config.getString("dataset.imdb.train");
+        String testFile = config.getString("dataset.imdb.test");
+        checkExistence("IMDB", trainFile, testFile);
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.74, new DefaultScorer());
+    }
+    
+    @Test
+    public void testImdbWord_BayesScorer() {
+        String trainFile = config.getString("dataset.imdb.train");
+        String testFile = config.getString("dataset.imdb.test");
+        checkExistence("IMDB", trainFile, testFile);
+//        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(8).maxTerms(1000).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.74, BayesScorer.LAPLACE_SMOOTHING);
     }
 
     /**
