@@ -59,10 +59,11 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
          * @param categorySum The absolute count sum of all terms in the current category.
          * @param numTerms The total number of unique terms in the dictionary model.
          * @param numDocs The total number of documents in the dictionary model.
+         * @param totalCategorySum The total count sum of all terms in all categories.
          * @return A score for the term-category pair, greater/equal zero.
          */
         double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum,
-                int numTerms, int numDocs);
+                int numTerms, int numDocs, int totalCategorySum);
 
         /**
          * (Re)score a category, after all term-category-pairs have been scored.
@@ -86,7 +87,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     public static class DefaultScorer implements Scorer {
         @Override
         public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-                int categorySum, int numTerms, int numDocs) {
+                int categorySum, int numTerms, int numDocs, int totalCategorySum) {
             if (dictCount == 0) { // prevent zero division
                 return 0;
             }
@@ -203,10 +204,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
         }
-
         CategoryEntries termSums = model.getTermPriors();
         int numTerms = model.getNumTerms();
         int numDocs = model.getPriors().getTotalCount();
+        int totalCategorySum = termSums.getTotalCount();
 
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
@@ -222,7 +223,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                 int categorySum = termSums.getCount(categoryName);
                 int count = categoryCounts.count(categoryName);
                 double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numTerms,
-                        numDocs);
+                        numDocs, totalCategorySum);
                 builder.add(categoryName, score);
             }
         }

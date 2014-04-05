@@ -1,8 +1,11 @@
 package ws.palladian.classification.text;
 
-import java.util.List;
+import static java.lang.Math.log;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Arrays;
+import java.util.Set;
+
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +14,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
- * Naive Bayes scorer. For more information, see e.g.
+ * Naive Bayes scorer. For more general information about Naive Bayes for text classification, see e.g.
  * "<a href="http://nlp.stanford.edu/IR-book/">An Introduction to Information Retrieval</a>"; Christopher D. Manning;
  * Prabhakar Raghavan; Hinrich Schütze; 2009, chapter 13 (pp. 253).
  * 
@@ -22,20 +25,22 @@ public final class BayesScorer implements Scorer {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BayesScorer.class);
 
-    /** BayesScorer without Laplace smoothing. */
-    public static final BayesScorer NO_SMOOTHING = new BayesScorer(false, true, false);
-
-    /** BayesScorer with Laplace smoothing. */
-    public static final BayesScorer LAPLACE_SMOOTHING = new BayesScorer(true, true, false);
-
-    /** BayesScorer with Laplace smoothing, ignoring prior probabilities. */
-    public static final BayesScorer LAPLACE_SMOOTHING_NO_PRIOR = new BayesScorer(true, false, false);
-
-    /** BayesScorer with Laplace smoothing, ignoring prior probabilities, using tf-idf frequencies. */
-    public static final BayesScorer LAPLACE_SMOOTHING_NO_PRIOR_FREQ = new BayesScorer(true, false, true);
-
-    /** BayesScorer with Laplace smoothing, using tf-idf frequencies. */
-    public static final BayesScorer LAPLACE_SMOOTHING_FREQ = new BayesScorer(true, true, true);
+    public static enum Options {
+        /** Enable Laplace smoothing. */
+        LAPLACE,
+        /** Use prior class probability. */
+        PRIORS,
+        /** Use tf-idf frequencies; transform each term's count to a tf-idf value. */
+        FREQUENCIES,
+        /**
+         * Use complement classes for prediction (see "<a href="http://people.csail.mit.edu/jrennie/papers/icml03-nb.pdf
+         * ">Tackling the Poor Assumptions of Naive Bayes Text Classifiers</a>";
+         * Jason D. M. Rennie; Lawrence Shih; Jaime Teevan; David R. Karger; 2003). This way, not the term counts in the
+         * regarded class, but the counts from all other classes are regarded for each class prediction. This leads to
+         * better classification accuracy.
+         */
+        COMPLEMENT
+    }
 
     private final boolean laplace;
 
@@ -43,51 +48,54 @@ public final class BayesScorer implements Scorer {
 
     private final boolean frequencies;
 
-    /** Use the predefined singleton constants. */
-    private BayesScorer(boolean laplace, boolean prior, boolean frequencies) {
-        this.laplace = laplace;
-        this.prior = prior;
-        this.frequencies = frequencies;
+    private final boolean complement;
+
+    private final Options[] options;
+
+    public BayesScorer(Options... options) {
+        Validate.notNull(options, "options must not be null");
+        this.options = options;
+        Set<Options> temp = CollectionHelper.newHashSet(options);
+        this.laplace = temp.contains(Options.LAPLACE);
+        this.prior = temp.contains(Options.PRIORS);
+        this.frequencies = temp.contains(Options.FREQUENCIES);
+        this.complement = temp.contains(Options.COMPLEMENT);
     }
 
     @Override
     public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-            int categorySum, int numTerms, int numDocs) {
-        int numerator = termCategoryCount + (laplace ? 1 : 0);
-        int denominator = categorySum + (laplace ? numTerms : 0);
+            int categorySum, int numTerms, int numDocs, int totalCategorySum) {
+        int numerator = (complement ? dictCount - termCategoryCount : termCategoryCount) + (laplace ? 1 : 0);
+        int denominator = (complement ? totalCategorySum - categorySum : categorySum) + (laplace ? numTerms : 0);
         if (numerator == 0 || denominator == 0) {
             return 0;
         }
-        double weight = docCount;
+        double weight;
         if (frequencies) { // gives minimal improvement
-            double idf = Math.log((numDocs + 1) / (dictCount + 1));
-            weight = Math.log(docCount + 1) * idf;
+            double idf = log((numDocs + 1) / (dictCount + 1));
+            weight = log(docCount + 1) * idf;
+        } else {
+            weight = docCount;
         }
-        double score = weight * Math.log((double)numerator / denominator);
+        double score = weight * log((double)numerator / denominator);
         LOGGER.trace("({},{}) ({}/{})^{} = {}", term, category, numerator, denominator, docCount, score);
         return score;
     }
 
     @Override
     public double scoreCategory(String category, double summedTermScore, double categoryProbability, boolean matched) {
-        double score = summedTermScore + (prior ? Math.log(categoryProbability) : 0);
+        double score = (complement ? -1 : 1) * summedTermScore + (prior ? log(categoryProbability) : 0);
         LOGGER.trace("{}: {}·{}={}", category, categoryProbability, summedTermScore, score);
         return score;
     }
 
     @Override
     public String toString() {
-        List<String> options = CollectionHelper.newArrayList();
-        if (laplace) {
-            options.add("laplace");
+        StringBuilder builder = new StringBuilder().append(getClass().getSimpleName());
+        if (options.length > 0) {
+            builder.append(" ").append(Arrays.toString(options));
         }
-        if (prior) {
-            options.add("prior");
-        }
-        if (frequencies) {
-            options.add("frequencies");
-        }
-        return "BayesScorer [" + StringUtils.join(options, ',') + "]";
+        return builder.toString();
     }
 
 }

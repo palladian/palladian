@@ -1,13 +1,14 @@
 package ws.palladian.classification.text;
 
 import static org.junit.Assert.assertEquals;
-import static ws.palladian.classification.text.BayesScorer.NO_SMOOTHING;
+import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
 
 import java.util.List;
 
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.text.BayesScorer.Options;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.ClassifiedTextDocument;
 
@@ -40,11 +41,20 @@ public class PalladianTextClassifierTest {
 
     @Test
     public void testPalladianTextClassifier_BayesScorer() {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, NO_SMOOTHING);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, new BayesScorer(PRIORS));
         DictionaryModel model = classifier.train(docs);
         CategoryEntries result = classifier.classify("Chinese Chinese Chinese Tokyo Japan", model);
         assertEquals("yes", result.getMostLikely().getName());
         assertEquals(0.74, result.getMostLikely().getProbability(), 0.01);
+    }
+    
+    @Test
+    public void testPalladianTextClassifier_BayesScorerComplement() {
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, new BayesScorer(Options.PRIORS,Options.COMPLEMENT));
+        DictionaryModel model = classifier.train(docs);
+        CategoryEntries result = classifier.classify("Chinese Chinese Chinese Tokyo Japan", model);
+        assertEquals("yes", result.getMostLikely().getName());
+        assertEquals(0.88, result.getMostLikely().getProbability(), 0.01);
     }
 
 }
