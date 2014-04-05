@@ -3,8 +3,8 @@ package ws.palladian.classification.text;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Set;
+import java.util.TreeSet;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.Category;
@@ -28,22 +28,27 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
     @Override
     public void toCsv(PrintStream printStream) {
         Validate.notNull(printStream, "printStream must not be null");
-        printStream.print("Term,");
-        printStream.print(StringUtils.join(getPriors(), ","));
+        printStream.print("Term");
+        Set<String> categories = new TreeSet<String>(getCategories());
+        for (String category : categories) {
+            printStream.print(',');
+            printStream.print(category);
+            printStream.print('=');
+            printStream.print(getPriors().getProbability(category));
+        }
         printStream.print('\n');
-        Set<String> categories = getCategories();
         for (TermCategoryEntries entries : this) {
             printStream.print(entries.getTerm());
             printStream.print(',');
             boolean first = true;
             for (String category : categories) {
-                double probability = entries.getProbability(category);
+                int count = entries.getCount(category);
                 if (!first) {
                     printStream.print(',');
                 } else {
                     first = false;
                 }
-                printStream.print(probability);
+                printStream.print(count);
             }
             printStream.print('\n');
         }
@@ -75,7 +80,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
     public void setName(String name) {
         throw new UnsupportedOperationException("Use a builder to set the name of the model");
     }
-    
+
     // toString
 
     @Override
