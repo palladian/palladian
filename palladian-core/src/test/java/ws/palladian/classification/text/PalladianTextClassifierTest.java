@@ -1,10 +1,9 @@
 package ws.palladian.classification.text;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntries;
@@ -12,24 +11,26 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.ClassifiedTextDocument;
 
 public class PalladianTextClassifierTest {
-    
-    private static final FeatureSetting featureSetting = FeatureSettingBuilder.words().create();
-    
-    private static List<ClassifiedTextDocument> docs;
 
-    @BeforeClass
-    public static void setUp() {
+    private static final FeatureSetting featureSetting = FeatureSettingBuilder.words().create();
+
+    private static final List<ClassifiedTextDocument> docs = createDocs();
+
+    private static List<ClassifiedTextDocument> createDocs() {
+        // sample data taken from "An Introduction to Information Retrieval";
+        // Christopher D. Manning; Prabhakar Raghavan; Hinrich Schütze; 2009, chapter 13 (pp. 253).
         List<ClassifiedTextDocument> docs = CollectionHelper.newArrayList();
         docs.add(new ClassifiedTextDocument("yes", "Chinese Beijing Chinese"));
         docs.add(new ClassifiedTextDocument("yes", "Chinese Chinese Shanghai"));
         docs.add(new ClassifiedTextDocument("yes", "Chinese Macao"));
         docs.add(new ClassifiedTextDocument("no", "Tokyo Japan Chinese"));
-        PalladianTextClassifierTest.docs = docs;
+        return docs;
     }
-    
+
     @Test
     public void testPalladianTextClassifier_PalladianScorer() {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, new PalladianTextClassifier.DefaultScorer());
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting,
+                new PalladianTextClassifier.DefaultScorer());
         DictionaryModel model = classifier.train(docs);
         CategoryEntries result = classifier.classify("Chinese Chinese Chinese Tokyo Japan", model);
         assertEquals("no", result.getMostLikely().getName());
@@ -42,9 +43,7 @@ public class PalladianTextClassifierTest {
         DictionaryModel model = classifier.train(docs);
         CategoryEntries result = classifier.classify("Chinese Chinese Chinese Tokyo Japan", model);
         assertEquals("yes", result.getMostLikely().getName());
-        CollectionHelper.print(result);
-        // CollectionHelper.print(model);
-        // model.toCsv(System.out);
+        assertEquals(0.58, result.getMostLikely().getProbability(), 0.01);
     }
 
 }

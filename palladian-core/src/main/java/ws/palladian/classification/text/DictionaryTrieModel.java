@@ -84,10 +84,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                     numTerms++;
                 }
                 categoryEntries.increment(category, 1);
-                termPriors.add(category, 1);
+                termPriors.add(category);
             }
-//            entryTrie.getOrAdd(PRIOR_KEY, true).increment(category, 1);
-            priors.add(category, 1);
+            priors.add(category);
             return this;
         }
         
@@ -111,17 +110,13 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
      */
     private static final int VERSION = 1;
 
-//    /**
-//     * The key under which to store the prior probabilities; empty string so that the priors are stored in the root node
-//     * of the trie.
-//     */
-//    private static final String PRIOR_KEY = StringUtils.EMPTY;
-
-    /** Hash table with term-category combinations with their counts. */
+    /** Trie with term-category combinations with their counts. */
     private transient TrieCategoryEntries entryTrie;
     
+    /** The priors, determined from the documents. */
     private transient CategoryEntries priors;
     
+    /** The priors, determined from the individual terms. */
     private transient CategoryEntries termPriors;
 
     /** The number of terms in this dictionary. */
@@ -163,25 +158,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     }
 
     @Override
-    public void setName(String name) {
-        Validate.notNull(name, "name must not be null");
-        this.name = name;
-    }
-
-    @Override
     public FeatureSetting getFeatureSetting() {
         return featureSetting;
     }
-
-//    @Override
-//    public void addDocument(Collection<String> terms, String category) {
-//        Validate.notNull(terms, "terms must not be null");
-//        Validate.notNull(category, "category must not be null");
-//        for (String term : terms) {
-//            updateTerm(term, category);
-//        }
-//        entryTrie.getOrAdd(PRIOR_KEY, true).increment(category, 1);
-//    }
 
     /**
      * @deprecated Use {@link #addDocument(Collection, String)} instead.
@@ -217,7 +196,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     @Override
     public CategoryEntries getPriors() {
-//        CategoryEntries priors = entryTrie.get(PRIOR_KEY);
         if (priors.size() > 0) {
             return priors;
         } else {
@@ -236,13 +214,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     @Override
     public CategoryEntries getTermPriors() {
         return termPriors;
-//        Bag<String> cateogrySums = Bag.create();
-//        for (TermCategoryEntries entries : this) {
-//            for (Category category : entries) {
-//                cateogrySums.add(category.getName(), category.getCount());
-//            }
-//        }
-//        return new CategoryEntriesBuilder(cateogrySums.toMap()).create();
     }
 
     @Override
@@ -330,11 +301,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         // header
         int numCategories = in.readInt();
         CategoryEntriesBuilder priorEntriesBuilder = new CategoryEntriesBuilder();
-//        TrieCategoryEntries priorEntries = entryTrie.getOrAdd(PRIOR_KEY, true);
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
             int categoryCount = in.readInt();
-//            priorEntries.append(categoryName, categoryCount);
             priorEntriesBuilder.set(categoryName, categoryCount);
             categoryIndices.put(i, categoryName);
         }
@@ -343,6 +312,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         numTerms = in.readInt();
         String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
         ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Reading " + dictName);
+        CategoryEntriesBuilder termPriorEntriesBuilder = new CategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
             TrieCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
@@ -352,9 +322,11 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 String categoryName = categoryIndices.get(categoryIdx);
                 int categoryCount = in.readInt();
                 categoryEntries.append(categoryName, categoryCount);
+                termPriorEntriesBuilder.add(categoryName, categoryCount);
             }
             monitor.incrementAndPrintProgress();
         }
+        termPriors = termPriorEntriesBuilder.create();
         // feature setting
         featureSetting = (FeatureSetting)in.readObject();
         // name
