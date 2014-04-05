@@ -29,6 +29,10 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * @author Philipp Katz
  */
 public class PalladianTextClassifierIT {
+    
+//    static {
+//        PalladianTextClassifier.learnCounts = true;
+//    }
 
     /** The configuration with the paths to the datasets. */
     private static PropertiesConfiguration config;

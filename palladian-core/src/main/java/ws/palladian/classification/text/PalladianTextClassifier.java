@@ -1,8 +1,8 @@
 package ws.palladian.classification.text;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -67,7 +67,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
          * (Re)score a category, after all term-category-pairs have been scored.
          * 
          * @param category The category.
-         * @param summedTermScore The determined term score (see {@link #score(String, String, double, int, int)}).
+         * @param summedTermScore The determined term score (see {@link #score(String, String, int, int, int, int, int)}).
          * @param categoryProbability The probability in the dictionary for the current category.
          * @param matched Whether any terms matched during term-category-scoring (in case this is <code>false</code>,
          *            all term scores are zero).
@@ -123,6 +123,13 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     private final Function<String, Iterator<String>> preprocessor;
 
     /**
+     * In case, this value is set to <code>true</code>, the counts of the terms are extracted during training. In case,
+     * this value is <code>false</code> only <code>1</code> or <code>0</code> is extracted (denoting
+     * occurrence/non-occurrence).
+     */
+    public static boolean learnCounts = false;
+
+    /**
      * <p>
      * Creates a new {@link PalladianTextClassifier} using the given configuration for feature extraction.
      * 
@@ -175,8 +182,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             String targetClass = trainable.getTargetClass();
             String content = ((TextDocument)trainable).getContent();
             Iterator<String> iterator = preprocessor.compute(content);
-            Set<String> terms = CollectionHelper.newHashSet();
-            // Bag<String> terms = Bag.create();
+            // Set<String> terms = CollectionHelper.newHashSet();
+            Collection<String> terms = learnCounts ? Bag.<String> create() : CollectionHelper.<String> newHashSet();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
