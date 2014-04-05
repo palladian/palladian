@@ -2,6 +2,7 @@ package ws.palladian.classification.text;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -60,7 +61,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.wikipedia.test");
         checkExistence("Wikipedia", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.98, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.99, new DefaultScorer());
     }
 
     @Test
@@ -69,17 +70,16 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.88, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.89, new DefaultScorer());
     }
-    
+
     @Test
     public void test20NewsgroupsChar_Bayes() {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
-//        FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.88, BayesScorer.NO_SMOOTHING);
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.87, BayesScorer.LAPLACE_SMOOTHING);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.54, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.81, new DefaultScorer());
     }
     
     @Test
@@ -106,7 +106,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.spamassassin.test");
         checkExistence("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.86, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.87, new DefaultScorer());
     }
     
     @Test
@@ -116,6 +116,15 @@ public class PalladianTextClassifierIT {
         checkExistence("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.98, new PalladianTextClassifier.CategoryEqualizationScorer());
+    }
+    
+    @Test
+    public void testSpamAssassinChar_BayesScorer() {
+        String trainFile = config.getString("dataset.spamassassin.train");
+        String testFile = config.getString("dataset.spamassassin.test");
+        checkExistence("SpamAssassin", trainFile, testFile);
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.97, BayesScorer.LAPLACE_SMOOTHING);
     }
     
     @Test
@@ -132,9 +141,8 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.imdb.train");
         String testFile = config.getString("dataset.imdb.test");
         checkExistence("IMDB", trainFile, testFile);
-//        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
-        FeatureSetting featureSetting = FeatureSettingBuilder.chars(8).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.74, BayesScorer.LAPLACE_SMOOTHING);
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.76, BayesScorer.LAPLACE_SMOOTHING);
     }
 
     /**
@@ -177,8 +185,9 @@ public class PalladianTextClassifierIT {
             }
         }
         if (!runTest) {
-            fail("Dataset for '" + datasetName
-                    + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.");
+            assumeTrue("Dataset for '" + datasetName
+                    + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.",
+                    false);
         }
     }
 
