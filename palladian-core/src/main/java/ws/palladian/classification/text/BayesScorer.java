@@ -1,9 +1,13 @@
 package ws.palladian.classification.text;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -19,16 +23,22 @@ public final class BayesScorer implements Scorer {
     private static final Logger LOGGER = LoggerFactory.getLogger(BayesScorer.class);
 
     /** BayesScorer without Laplace smoothing. */
-    public static final BayesScorer NO_SMOOTHING = new BayesScorer(false);
+    public static final BayesScorer NO_SMOOTHING = new BayesScorer(false, true);
 
     /** BayesScorer with Laplace smoothing. */
-    public static final BayesScorer LAPLACE_SMOOTHING = new BayesScorer(true);
+    public static final BayesScorer LAPLACE_SMOOTHING = new BayesScorer(true, true);
+
+    /** BayesScorer with Laplace smoothing, ignoring prior probabilities. */
+    public static final BayesScorer LAPLACE_SMOOTHING_NO_PRIOR = new BayesScorer(true, false);
 
     private final boolean laplace;
 
+    private final boolean prior;
+
     /** Use the predefined singleton constants. */
-    private BayesScorer(boolean laplace) {
+    private BayesScorer(boolean laplace, boolean prior) {
         this.laplace = laplace;
+        this.prior = prior;
     }
 
     @Override
@@ -46,18 +56,21 @@ public final class BayesScorer implements Scorer {
 
     @Override
     public double scoreCategory(String category, double summedTermScore, double categoryProbability, boolean matched) {
-        double score = summedTermScore + Math.log(categoryProbability);
+        double score = summedTermScore + (prior ? Math.log(categoryProbability) : 0);
         LOGGER.trace("{}: {}·{}={}", category, categoryProbability, summedTermScore, score);
         return score;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("BayesScorer [laplace=");
-        builder.append(laplace);
-        builder.append("]");
-        return builder.toString();
+        List<String> options = CollectionHelper.newArrayList();
+        if (laplace) {
+            options.add("laplace");
+        }
+        if (prior) {
+            options.add("prior");
+        }
+        return "BayesScorer [" + StringUtils.join(options, ',') + "]";
     }
 
 }
