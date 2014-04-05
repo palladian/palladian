@@ -118,7 +118,7 @@ public final class CategoryEntriesMap extends AbstractCategoryEntries {
      */
     public void set(String categoryName, double probability) {
         Validate.notNull(categoryName, "categoryName must not be null");
-        Validate.isTrue(probability >= 0, "probability must be higher/equal zero");
+//        Validate.isTrue(probability >= 0, "probability must be higher/equal zero");
         entryMap.put(categoryName, probability);
     }
 

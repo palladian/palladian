@@ -58,7 +58,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public CategoryEntriesBuilder set(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
-        Validate.isTrue(score >= 0, "score must be higher/equal zero");
+//        Validate.isTrue(score >= 0, "score must be higher/equal zero");
         MutableDouble value = entryMap.get(categoryName);
         if (value == null) {
             entryMap.put(categoryName, new MutableDouble(score));
@@ -97,7 +97,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public CategoryEntriesBuilder add(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
-        Validate.isTrue(score >= 0, "score must be higher/equal zero");
+//        Validate.isTrue(score >= 0, "score must be higher/equal zero");
         MutableDouble value = entryMap.get(categoryName);
         if (value == null) {
             entryMap.put(categoryName, new MutableDouble(score));

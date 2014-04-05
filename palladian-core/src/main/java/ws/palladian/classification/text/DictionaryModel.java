@@ -120,6 +120,8 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      *         appeared 15 times during training would make a prior 10/25=0.4 for category "A").
      */
     CategoryEntries getPriors();
+    
+    CategoryEntries getTermPriors();
 
     /**
      * <p>
