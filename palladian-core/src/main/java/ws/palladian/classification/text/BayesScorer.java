@@ -39,14 +39,14 @@ public final class BayesScorer extends DefaultScorer {
         if (numerator == 0 || denominator == 0) {
             return 0;
         }
-        double score = docCount * Math.log10((double)numerator / denominator);
+        double score = docCount * Math.log((double)numerator / denominator);
         LOGGER.trace("({},{}) ({}/{})^{} = {}", term, category, numerator, denominator, docCount, score);
         return score;
     }
 
     @Override
     public double scoreCategory(String category, double summedTermScore, double categoryProbability, boolean matched) {
-        double score = Math.pow(10, summedTermScore + Math.log10(categoryProbability));
+        double score = summedTermScore + Math.log(categoryProbability);
         LOGGER.trace("{}: {}·{}={}", category, categoryProbability, summedTermScore, score);
         return score;
     }

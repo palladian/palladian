@@ -13,11 +13,12 @@ import ws.palladian.helper.collection.Factory;
  * <p>
  * A builder for producing a {@link CategoryEntries} instance. The probability values of the resulting
  * {@link CategoryEntries} instance are normalized, so that they sum up to one and sorted by probability. The resulting
- * {@link CategoryEntries} object, which can be obtained using {@link #create()}, is immutable.
+ * {@link CategoryEntries} object, which can be obtained using {@link #create()}, is immutable. In case, the added
+ * scores are negative, the builder assumes that we're dealing with log probabilities; in this case, the probability
+ * values are "inverted". NaN/infinity values are not allowed and trigger an {@link IllegalArgumentException}.
  * </p>
  * 
  * @author pk
- * 
  */
 public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
 
@@ -43,7 +44,9 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
         Validate.notNull(map, "map must not be null");
         entryMap = CollectionHelper.newHashMap();
         for (Entry<String, ? extends Number> entry : map.entrySet()) {
-            entryMap.put(entry.getKey(), new MutableDouble(entry.getValue()));
+            double score = entry.getValue().doubleValue();
+            validateNumber(score);
+            entryMap.put(entry.getKey(), new MutableDouble(score));
         }
     }
 
@@ -58,7 +61,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public CategoryEntriesBuilder set(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
-//        Validate.isTrue(score >= 0, "score must be higher/equal zero");
+        validateNumber(score);
         MutableDouble value = entryMap.get(categoryName);
         if (value == null) {
             entryMap.put(categoryName, new MutableDouble(score));
@@ -79,7 +82,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public CategoryEntriesBuilder set(Iterable<String> categoryNames, double score) {
         Validate.notNull(categoryNames, "categoryName must not be null");
-        Validate.isTrue(score >= 0, "score must be higher/equal zero");
+        validateNumber(score);
         for (String categoryName : categoryNames) {
             set(categoryName, score);
         }
@@ -97,7 +100,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public CategoryEntriesBuilder add(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
-//        Validate.isTrue(score >= 0, "score must be higher/equal zero");
+        validateNumber(score);
         MutableDouble value = entryMap.get(categoryName);
         if (value == null) {
             entryMap.put(categoryName, new MutableDouble(score));
@@ -118,12 +121,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public CategoryEntriesBuilder add(CategoryEntries categoryEntries) {
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
         for (Category category : categoryEntries) {
-//            add(category.getName(), category.getProbability());
-            if (category.getCount() != -1) {
-                add(category.getName(), category.getCount());
-            } else {
-                add(category.getName(), category.getProbability());
-            }
+            add(category.getName(), category.getProbability());
         }
         return this;
     }
@@ -136,7 +134,12 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
             if (total == 0) {
                 map.put(entry.getKey(), 0.);
             } else {
-                map.put(entry.getKey(), entry.getValue().doubleValue() / total);
+                double normalized = entry.getValue().doubleValue() / total;
+                if (total < 0) {
+                    // in case we have summed up log probabilities; we need the "inverse"
+                    normalized = 1 - normalized;
+                }
+                map.put(entry.getKey(), normalized);
             }
         }
         return new ImmutableCategoryEntries(map);
@@ -164,6 +167,21 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public double getScore(String categoryName) {
         MutableDouble value = entryMap.get(categoryName);
         return value != null ? value.doubleValue() : 0;
+    }
+
+    /**
+     * Check for infinity/NaN values.
+     * 
+     * @param score The score to check.
+     * @throws IllegalArgumentException In case, a NaN/infinity was given.
+     */
+    private static void validateNumber(double score) {
+        if (Double.isNaN(score)) {
+            throw new IllegalArgumentException("value was NaN");
+        }
+        if (Double.isInfinite(score)) {
+            throw new IllegalArgumentException("value was infinite");
+        }
     }
 
 }

@@ -211,7 +211,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                 int categorySum = termSums.getCount(categoryName);
                 int count = categoryCounts.count(categoryName);
                 double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numTerms);
-                assert !Double.isInfinite(score) && !Double.isNaN(score) : "score was NaN/infinity";
                 builder.add(categoryName, score);
             }
         }
@@ -221,7 +220,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             double termScore = builder.getScore(categoryName);
             double categoryProbability = category.getProbability();
             double newScore = scorer.scoreCategory(categoryName, termScore, categoryProbability, matched);
-            assert !Double.isInfinite(newScore) && !Double.isNaN(newScore) : "newScore was NaN/infinity";
             builder.set(categoryName, newScore);
         }
         return builder.create();

@@ -1,6 +1,7 @@
 package ws.palladian.classification.text;
 
 import static org.junit.Assert.assertEquals;
+import static ws.palladian.classification.text.BayesScorer.NO_SMOOTHING;
 
 import java.util.List;
 
@@ -39,11 +40,11 @@ public class PalladianTextClassifierTest {
 
     @Test
     public void testPalladianTextClassifier_BayesScorer() {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, BayesScorer.LAPLACE_SMOOTHING);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, NO_SMOOTHING);
         DictionaryModel model = classifier.train(docs);
         CategoryEntries result = classifier.classify("Chinese Chinese Chinese Tokyo Japan", model);
         assertEquals("yes", result.getMostLikely().getName());
-        assertEquals(0.58, result.getMostLikely().getProbability(), 0.01);
+        assertEquals(0.74, result.getMostLikely().getProbability(), 0.01);
     }
 
 }

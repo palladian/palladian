@@ -38,4 +38,15 @@ public class CategoryEntriesBuilderTest {
         assertEquals(0.4, categoryEntries3.getProbability("D"), DELTA);
     }
 
+    @Test
+    public void testCategoryEntriesBuilder_negativeValues() {
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
+        builder.set("A", -20);
+        builder.set("B", -21);
+        builder.set("D", -19);
+        CategoryEntries categoryEntries = builder.create();
+        assertEquals("D", categoryEntries.getMostLikely().getName());
+        assertEquals(0.6833, categoryEntries.getMostLikely().getProbability(), DELTA);
+    }
+
 }
