@@ -3,6 +3,9 @@ package ws.palladian.classification.text;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
+import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
+import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
+import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -83,7 +86,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.87, BayesScorer.LAPLACE_SMOOTHING);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.90, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
 
     @Test
@@ -101,7 +104,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         checkExistence("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.79, BayesScorer.LAPLACE_SMOOTHING);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.81, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
 
     @Test
@@ -128,7 +131,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.spamassassin.test");
         checkExistence("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.97, BayesScorer.LAPLACE_SMOOTHING);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.97, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
     
     @Test
@@ -146,7 +149,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.imdb.test");
         checkExistence("IMDB", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.76, BayesScorer.LAPLACE_SMOOTHING);
+        assertAccuracy(trainFile, testFile, featureSetting, 0.76, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
 
     /**
