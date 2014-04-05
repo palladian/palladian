@@ -3,7 +3,7 @@ package ws.palladian.classification.text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.text.PalladianTextClassifier.DefaultScorer;
+import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 
 /**
  * <p>
@@ -13,7 +13,7 @@ import ws.palladian.classification.text.PalladianTextClassifier.DefaultScorer;
  * 
  * @author pk
  */
-public final class BayesScorer extends DefaultScorer {
+public final class BayesScorer implements Scorer {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BayesScorer.class);
