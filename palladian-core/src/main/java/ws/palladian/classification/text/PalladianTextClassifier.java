@@ -83,8 +83,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
      */
     public static class DefaultScorer implements Scorer {
         @Override
-        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-                int categoryCount, int numTerms) {
+        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum,
+                int numTerms) {
             if (dictCount == 0) {
                 return 0;
             }
