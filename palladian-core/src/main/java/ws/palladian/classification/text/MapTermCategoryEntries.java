@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.ImmutableCategory;
@@ -55,12 +57,18 @@ public final class MapTermCategoryEntries extends AbstractCategoryEntries implem
                     Entry<String, Integer> entry = entryIterator.next();
                     String name = entry.getKey();
                     int count = entry.getValue();
-                    double probability = countSum > 0 ? (double)count / countSum : 0;
-                    return new ImmutableCategory(name, probability, count);
+                    return new ImmutableCategory(name, count, countSum);
                 }
                 throw FINISHED;
             }
         };
+    }
+
+    @Override
+    public Category getCategory(String categoryName) {
+        Validate.notNull(categoryName, "categoryName must not be null");
+        Integer count = categoryCounts.get(categoryName);
+        return count != null ? new ImmutableCategory(categoryName, count, countSum) : null;
     }
 
     @Override

@@ -52,13 +52,16 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
          * @param term The term (this value usually has no influence on the scoring, but is provided for debugging
          *            purposes).
          * @param category The category (for debugging purposes, see above).
-         * @param termCategoryProbability The probability, that the current term occurs within a document in the current
-         *            category. As extracted from the dictionary model.
+         * @param termCategoryCount The absolute count of the term in the current category, as extracted from the
+         *            dictionary model.
          * @param dictCount The absolute count of documents in the dictionary which contain the term.
          * @param docCount The absolute count of the term in the current document.
+         * @param categorySum The absolute count sum of all terms in the current category.
+         * @param numTerms The total number of unique terms in the dictionary model.
          * @return A score for the term-category pair, greater/equal zero.
          */
-        double score(String term, String category, double termCategoryProbability, int dictCount, int docCount);
+        double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum,
+                int numTerms);
 
         /**
          * (Re)score a category, after all term-category-pairs have been scored.
@@ -80,7 +83,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
      */
     public static class DefaultScorer implements Scorer {
         @Override
-        public double score(String term, String category, double termCategoryProbability, int dictCount, int docCount) {
+        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
+                int categoryCount, int numTerms) {
+            double termCategoryProbability = (double)termCategoryCount/dictCount;
             return termCategoryProbability * termCategoryProbability;
         }
 
@@ -91,6 +96,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             return matched ? categoryScore : categoryProbability;
         }
     }
+    
 
     /**
      * Scorer, which normalizes the result scores by the prior category probability. This may improve classification
@@ -168,6 +174,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             String content = ((TextDocument)trainable).getContent();
             Iterator<String> iterator = preprocessor.compute(content);
             Set<String> terms = CollectionHelper.newHashSet();
+//            Bag<String> terms = Bag.create();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
@@ -185,14 +192,29 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
         }
+        
+        CategoryEntries termPriors = model.getTermPriors();
+        Set<String> categories = model.getCategories();
+        int numTerms = model.getNumTerms();
+        
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
             TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
             int docCount = termCount.getValue();
             int dictCount = categoryEntries.getTotalCount();
+            Set<String> zeroCountCategories = CollectionHelper.newHashSet(categories);
             for (Category category : categoryEntries) {
                 String categoryName = category.getName();
-                double score = scorer.score(term, categoryName, category.getProbability(), dictCount, docCount);
+                int categorySum = termPriors.getCount(category.getName());
+                double score = scorer.score(term, categoryName, category.getCount(), dictCount, docCount,
+                        categorySum, numTerms);
+                builder.add(categoryName, score);
+                zeroCountCategories.remove(categoryName);
+            }
+            // iterate non-matched
+            for (String categoryName : zeroCountCategories) {
+                int categoryCount = termPriors.getCount(categoryName);
+                double score = scorer.score(term, categoryName, 0, dictCount, docCount, categoryCount, numTerms);
                 builder.add(categoryName, score);
             }
         }

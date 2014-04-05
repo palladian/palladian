@@ -25,6 +25,7 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.Adapter;
 import ws.palladian.helper.collection.ArrayIterator;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -51,13 +52,15 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     public static final class Builder implements DictionaryBuilder {
         
         /** Trie with term-category combinations with their counts. */
-        private TrieCategoryEntries entryTrie = new TrieCategoryEntries();
+        private final TrieCategoryEntries entryTrie = new TrieCategoryEntries();
         /** Configuration for the feature extraction. */
         private FeatureSetting featureSetting;
         /** The name of this dictionary. */
         private String name;
         /** The number of terms stored in this dictionary. */
         private int numTerms;
+        private final Bag<String> priors = Bag.create();
+        private final Bag<String> termPriors = Bag.create();
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -81,8 +84,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                     numTerms++;
                 }
                 categoryEntries.increment(category, 1);
+                termPriors.add(category, 1);
             }
-            entryTrie.getOrAdd(PRIOR_KEY, true).increment(category, 1);
+//            entryTrie.getOrAdd(PRIOR_KEY, true).increment(category, 1);
+            priors.add(category, 1);
             return this;
         }
         
@@ -106,14 +111,18 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
      */
     private static final int VERSION = 1;
 
-    /**
-     * The key under which to store the prior probabilities; empty string so that the priors are stored in the root node
-     * of the trie.
-     */
-    private static final String PRIOR_KEY = StringUtils.EMPTY;
+//    /**
+//     * The key under which to store the prior probabilities; empty string so that the priors are stored in the root node
+//     * of the trie.
+//     */
+//    private static final String PRIOR_KEY = StringUtils.EMPTY;
 
     /** Hash table with term-category combinations with their counts. */
     private transient TrieCategoryEntries entryTrie;
+    
+    private transient CategoryEntries priors;
+    
+    private transient CategoryEntries termPriors;
 
     /** The number of terms in this dictionary. */
     private transient int numTerms;
@@ -144,6 +153,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         this.numTerms = builder.numTerms;
         this.featureSetting = builder.featureSetting;
         this.name = builder.name;
+        this.priors = new MapTermCategoryEntries(StringUtils.EMPTY,builder.priors.toMap());
+        this.termPriors = new MapTermCategoryEntries(StringUtils.EMPTY,builder.termPriors.toMap());
     }
 
     @Override
@@ -162,15 +173,15 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         return featureSetting;
     }
 
-    @Override
-    public void addDocument(Collection<String> terms, String category) {
-        Validate.notNull(terms, "terms must not be null");
-        Validate.notNull(category, "category must not be null");
-        for (String term : terms) {
-            updateTerm(term, category);
-        }
-        entryTrie.getOrAdd(PRIOR_KEY, true).increment(category, 1);
-    }
+//    @Override
+//    public void addDocument(Collection<String> terms, String category) {
+//        Validate.notNull(terms, "terms must not be null");
+//        Validate.notNull(category, "category must not be null");
+//        for (String term : terms) {
+//            updateTerm(term, category);
+//        }
+//        entryTrie.getOrAdd(PRIOR_KEY, true).increment(category, 1);
+//    }
 
     /**
      * @deprecated Use {@link #addDocument(Collection, String)} instead.
@@ -206,7 +217,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     @Override
     public CategoryEntries getPriors() {
-        CategoryEntries priors = entryTrie.get(PRIOR_KEY);
+//        CategoryEntries priors = entryTrie.get(PRIOR_KEY);
         if (priors.size() > 0) {
             return priors;
         } else {
@@ -220,6 +231,18 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             }
             return new CategoryEntriesBuilder(categories).create();
         }
+    }
+    
+    @Override
+    public CategoryEntries getTermPriors() {
+        return termPriors;
+//        Bag<String> cateogrySums = Bag.create();
+//        for (TermCategoryEntries entries : this) {
+//            for (Category category : entries) {
+//                cateogrySums.add(category.getName(), category.getCount());
+//            }
+//        }
+//        return new CategoryEntriesBuilder(cateogrySums.toMap()).create();
     }
 
     @Override
@@ -306,13 +329,16 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         entryTrie = new TrieCategoryEntries();
         // header
         int numCategories = in.readInt();
-        TrieCategoryEntries priorEntries = entryTrie.getOrAdd(PRIOR_KEY, true);
+        CategoryEntriesBuilder priorEntriesBuilder = new CategoryEntriesBuilder();
+//        TrieCategoryEntries priorEntries = entryTrie.getOrAdd(PRIOR_KEY, true);
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
             int categoryCount = in.readInt();
-            priorEntries.append(categoryName, categoryCount);
+//            priorEntries.append(categoryName, categoryCount);
+            priorEntriesBuilder.set(categoryName, categoryCount);
             categoryIndices.put(i, categoryName);
         }
+        priors = priorEntriesBuilder.create();
         // terms
         numTerms = in.readInt();
         String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
