@@ -300,19 +300,19 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         entryTrie = new TrieCategoryEntries();
         // header
         int numCategories = in.readInt();
-        CategoryEntriesBuilder priorEntriesBuilder = new CategoryEntriesBuilder();
+        Bag<String> priorEntriesBag = Bag.create();
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
             int categoryCount = in.readInt();
-            priorEntriesBuilder.set(categoryName, categoryCount);
+            priorEntriesBag.set(categoryName, categoryCount);
             categoryIndices.put(i, categoryName);
         }
-        priors = priorEntriesBuilder.create();
+        priors = new MapTermCategoryEntries("", priorEntriesBag.toMap());
         // terms
         numTerms = in.readInt();
         String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
         ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Reading " + dictName);
-        CategoryEntriesBuilder termPriorEntriesBuilder = new CategoryEntriesBuilder();
+        Bag<String> termPriorEntriesBuilder = Bag.create();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
             TrieCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
@@ -326,7 +326,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             }
             monitor.incrementAndPrintProgress();
         }
-        termPriors = termPriorEntriesBuilder.create();
+        termPriors = new MapTermCategoryEntries("", termPriorEntriesBuilder.toMap());
         // feature setting
         featureSetting = (FeatureSetting)in.readObject();
         // name
