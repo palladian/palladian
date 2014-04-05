@@ -167,7 +167,8 @@ public class PalladianTextClassifierIT {
         DictionaryModel model = classifier.train(trainIterator);
         TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
-        System.out.println("accuracy with " + featureSetting + " on " + testFile + " : " + evaluation.getAccuracy());
+        System.out.println("accuracy with " + featureSetting + " and " + scorer + " on " + testFile + " : "
+                + evaluation.getAccuracy());
         assertTrue("expected accuracy: " + minAccuracy + ", actual accuracy: " + evaluation.getAccuracy(),
                 evaluation.getAccuracy() >= minAccuracy);
     }

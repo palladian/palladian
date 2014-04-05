@@ -58,16 +58,18 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
          * @param docCount The absolute count of the term in the current document.
          * @param categorySum The absolute count sum of all terms in the current category.
          * @param numTerms The total number of unique terms in the dictionary model.
+         * @param numDocs The total number of documents in the dictionary model.
          * @return A score for the term-category pair, greater/equal zero.
          */
         double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum,
-                int numTerms);
+                int numTerms, int numDocs);
 
         /**
          * (Re)score a category, after all term-category-pairs have been scored.
          * 
          * @param category The category.
-         * @param summedTermScore The determined term score (see {@link #score(String, String, int, int, int, int, int)}).
+         * @param summedTermScore The determined term score (see
+         *            {@link #score(String, String, int, int, int, int, int, int)} ).
          * @param categoryProbability The probability in the dictionary for the current category.
          * @param matched Whether any terms matched during term-category-scoring (in case this is <code>false</code>,
          *            all term scores are zero).
@@ -84,7 +86,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     public static class DefaultScorer implements Scorer {
         @Override
         public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-                int categorySum, int numTerms) {
+                int categorySum, int numTerms, int numDocs) {
             if (dictCount == 0) { // prevent zero division
                 return 0;
             }
@@ -201,9 +203,11 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
         }
-        
+
         CategoryEntries termSums = model.getTermPriors();
         int numTerms = model.getNumTerms();
+        int numDocs = model.getPriors().getTotalCount();
+
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
             Bag<String> categoryCounts = Bag.create();
@@ -217,7 +221,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                 String categoryName = category.getName();
                 int categorySum = termSums.getCount(categoryName);
                 int count = categoryCounts.count(categoryName);
-                double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numTerms);
+                double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numTerms,
+                        numDocs);
                 builder.add(categoryName, score);
             }
         }

@@ -23,33 +23,47 @@ public final class BayesScorer implements Scorer {
     private static final Logger LOGGER = LoggerFactory.getLogger(BayesScorer.class);
 
     /** BayesScorer without Laplace smoothing. */
-    public static final BayesScorer NO_SMOOTHING = new BayesScorer(false, true);
+    public static final BayesScorer NO_SMOOTHING = new BayesScorer(false, true, false);
 
     /** BayesScorer with Laplace smoothing. */
-    public static final BayesScorer LAPLACE_SMOOTHING = new BayesScorer(true, true);
+    public static final BayesScorer LAPLACE_SMOOTHING = new BayesScorer(true, true, false);
 
     /** BayesScorer with Laplace smoothing, ignoring prior probabilities. */
-    public static final BayesScorer LAPLACE_SMOOTHING_NO_PRIOR = new BayesScorer(true, false);
+    public static final BayesScorer LAPLACE_SMOOTHING_NO_PRIOR = new BayesScorer(true, false, false);
+
+    /** BayesScorer with Laplace smoothing, ignoring prior probabilities, using tf-idf frequencies. */
+    public static final BayesScorer LAPLACE_SMOOTHING_NO_PRIOR_FREQ = new BayesScorer(true, false, true);
+
+    /** BayesScorer with Laplace smoothing, using tf-idf frequencies. */
+    public static final BayesScorer LAPLACE_SMOOTHING_FREQ = new BayesScorer(true, true, true);
 
     private final boolean laplace;
 
     private final boolean prior;
 
+    private final boolean frequencies;
+
     /** Use the predefined singleton constants. */
-    private BayesScorer(boolean laplace, boolean prior) {
+    private BayesScorer(boolean laplace, boolean prior, boolean frequencies) {
         this.laplace = laplace;
         this.prior = prior;
+        this.frequencies = frequencies;
     }
 
     @Override
     public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-            int categorySum, int numTerms) {
+            int categorySum, int numTerms, int numDocs) {
         int numerator = termCategoryCount + (laplace ? 1 : 0);
         int denominator = categorySum + (laplace ? numTerms : 0);
         if (numerator == 0 || denominator == 0) {
             return 0;
         }
-        double score = docCount * Math.log((double)numerator / denominator);
+        double weight = docCount;
+        if (frequencies) { // gives minimal improvement
+            double idf = Math.log((numDocs + 1) / (dictCount + 1));
+            weight = Math.log(docCount + 1) * idf;
+        }
+        double score = weight * Math.log((double)numerator / denominator);
         LOGGER.trace("({},{}) ({}/{})^{} = {}", term, category, numerator, denominator, docCount, score);
         return score;
     }
@@ -69,6 +83,9 @@ public final class BayesScorer implements Scorer {
         }
         if (prior) {
             options.add("prior");
+        }
+        if (frequencies) {
+            options.add("frequencies");
         }
         return "BayesScorer [" + StringUtils.join(options, ',') + "]";
     }
