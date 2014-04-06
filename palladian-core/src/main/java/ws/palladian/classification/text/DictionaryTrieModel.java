@@ -18,8 +18,8 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.ImmutableCategory;
+import ws.palladian.classification.ImmutableCategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.Adapter;
@@ -139,6 +139,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         this.numTerms = 0;
         this.featureSetting = featureSetting;
         this.name = NO_NAME;
+        this.documentCounts = ImmutableCategoryEntries.EMPTY;
+        this.termCounts = ImmutableCategoryEntries.EMPTY;
     }
 
     /** Constructor invoked from the builder only. */
@@ -200,13 +202,13 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         } else {
             // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
             // we need to collect the category names from the term entries
-            Map<String, Double> categories = CollectionHelper.newHashMap();
+            CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
             for (TermCategoryEntries entries : this) {
                 for (Category category : entries) {
-                    categories.put(category.getName(), 1.);
+                    builder.set(category.getName(), 1);
                 }
             }
-            return new CategoryEntriesBuilder(categories).create();
+            return builder.create();
         }
     }
 
