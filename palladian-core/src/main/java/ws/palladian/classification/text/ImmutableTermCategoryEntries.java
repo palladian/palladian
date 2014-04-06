@@ -7,6 +7,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.ImmutableCategoryEntries;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 
 public class ImmutableTermCategoryEntries extends AbstractCategoryEntries implements TermCategoryEntries {
@@ -14,6 +15,10 @@ public class ImmutableTermCategoryEntries extends AbstractCategoryEntries implem
     private final String term;
     private final CategoryEntries categoryEntries;
 
+    public ImmutableTermCategoryEntries(String term) {
+        this(term, ImmutableCategoryEntries.EMPTY);
+    }
+    
     public ImmutableTermCategoryEntries(String term, CategoryEntries categoryEntries) {
         Validate.notNull(term, "term must not be null");
         Validate.notNull(categoryEntries, "categoryEntries must not be null");

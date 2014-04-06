@@ -21,6 +21,23 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         this.entryMap = CollectionHelper.newHashMap();
     }
 
+    /**
+     * <p>
+     * Create a new {@link CountingCategoryEntriesBuilder} from a given {@link Map} with category and score values.
+     * </p>
+     * 
+     * @param map The map with categories and scores, not <code>null</code>.
+     */
+    public CountingCategoryEntriesBuilder(Map<String, ? extends Integer> map) {
+        Validate.notNull(map, "map must not be null");
+        entryMap = CollectionHelper.newHashMap();
+        for (Entry<String, ? extends Number> entry : map.entrySet()) {
+            int count = entry.getValue().intValue();
+            Validate.isTrue(count >= 0, "count must be greater/equal zero");
+            entryMap.put(entry.getKey(), new MutableInt(count));
+        }
+    }
+
     public CountingCategoryEntriesBuilder set(String categoryName, int count) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         Validate.isTrue(count >= 0, "count must be greater/equal zero");

@@ -28,6 +28,7 @@ import ws.palladian.extraction.location.scope.LeastDistanceScopeDetector;
 import ws.palladian.extraction.location.scope.MidpointScopeDetector;
 import ws.palladian.extraction.location.scope.RankingScopeDetector;
 import ws.palladian.extraction.location.scope.ScopeDetector;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.FatStats;
@@ -94,6 +95,7 @@ public class ScopeDetectorEvaluator {
         Validate.notNull(documentIterator, "documentIterator must not be null");
 
         Stats distanceStats = new FatStats();
+        StopWatch stopWatch = new StopWatch();
         int misses = 0;
         StringBuilder detailedResultsBuilder = new StringBuilder();
         detailedResultsBuilder.append(documentIterator).append('\n');
@@ -148,6 +150,10 @@ public class ScopeDetectorEvaluator {
 
         // write detailed results
         if (detailedResults) {
+            detailedResultsBuilder.append("\n\n");
+            detailedResultsBuilder.append("Time taken:\n");
+            detailedResultsBuilder.append(stopWatch.getElapsedTimeString()).append('\n');
+            detailedResultsBuilder.append(stopWatch.getElapsedTime(true)).append(" seconds");
             FileHelper.writeToFile(String.format(RESULT_DETAILS_FILE, System.currentTimeMillis()),
                     detailedResultsBuilder);
         }
