@@ -10,7 +10,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 /**
  * @author pk
  */
-final class ImmutableCategoryEntries extends AbstractCategoryEntries {
+public final class ImmutableCategoryEntries extends AbstractCategoryEntries {
 
     /** The map with all {@link Category} entries, for quick access by category name. */
     private final Map<String, Category> entryMap;
@@ -32,6 +32,19 @@ final class ImmutableCategoryEntries extends AbstractCategoryEntries {
             Category category = new ImmutableCategory(name, probability);
             entryMap.put(name, category);
             if (mostLikely == null || mostLikely.getProbability() < probability) {
+                mostLikely = category;
+            }
+        }
+        this.entryMap = Collections.unmodifiableMap(entryMap);
+        this.mostLikely = mostLikely;
+    }
+
+    public ImmutableCategoryEntries(Iterable<? extends ImmutableCategory> categories) {
+        Map<String, Category> entryMap = CollectionHelper.newHashMap();
+        Category mostLikely = null;
+        for (ImmutableCategory category : categories) {
+            entryMap.put(category.getName(), category);
+            if (mostLikely == null || mostLikely.getProbability() < category.getProbability()) {
                 mostLikely = category;
             }
         }

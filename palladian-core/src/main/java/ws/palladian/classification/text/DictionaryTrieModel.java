@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.AbstractCategoryEntries;
@@ -25,7 +24,6 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.Adapter;
 import ws.palladian.helper.collection.ArrayIterator;
-import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -48,19 +46,21 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author Philipp Katz
  */
 public final class DictionaryTrieModel extends AbstractDictionaryModel {
-    
+
     public static final class Builder implements DictionaryBuilder {
-        
+
         /** Trie with term-category combinations with their counts. */
         private final TrieCategoryEntries entryTrie = new TrieCategoryEntries();
+        /** Counter for categories based on documents. */
+        private final CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
+        /** Counter for categories based on terms. */
+        private final CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         /** Configuration for the feature extraction. */
         private FeatureSetting featureSetting;
         /** The name of this dictionary. */
         private String name;
         /** The number of terms stored in this dictionary. */
         private int numTerms;
-        private final Bag<String> priors = Bag.create();
-        private final Bag<String> termPriors = Bag.create();
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -84,18 +84,17 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                     numTerms++;
                 }
                 categoryEntries.increment(category, 1);
-                termPriors.add(category);
+                termCountBuilder.add(category, 1);
             }
-            priors.add(category);
+            documentCountBuilder.add(category, 1);
             return this;
         }
-        
 
         @Override
         public DictionaryModel create() {
             return new DictionaryTrieModel(this);
         }
-        
+
     }
 
     /**
@@ -112,12 +111,12 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     /** Trie with term-category combinations with their counts. */
     private transient TrieCategoryEntries entryTrie;
-    
+
     /** The priors, determined from the documents. */
-    private transient CategoryEntries documentPriors;
-    
+    private transient CategoryEntries documentCounts;
+
     /** The priors, determined from the individual terms. */
-    private transient CategoryEntries termPriors;
+    private transient CategoryEntries termCounts;
 
     /** The number of terms in this dictionary. */
     private transient int numTerms;
@@ -148,8 +147,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         this.numTerms = builder.numTerms;
         this.featureSetting = builder.featureSetting;
         this.name = builder.name;
-        this.documentPriors = new MapTermCategoryEntries(StringUtils.EMPTY,builder.priors.toMap());
-        this.termPriors = new MapTermCategoryEntries(StringUtils.EMPTY,builder.termPriors.toMap());
+        this.documentCounts = builder.documentCountBuilder.create();
+        this.termCounts = builder.termCountBuilder.create();
     }
 
     @Override
@@ -196,8 +195,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     @Override
     public CategoryEntries getDocumentCounts() {
-        if (documentPriors.size() > 0) {
-            return documentPriors;
+        if (documentCounts.size() > 0) {
+            return documentCounts;
         } else {
             // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
             // we need to collect the category names from the term entries
@@ -210,10 +209,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             return new CategoryEntriesBuilder(categories).create();
         }
     }
-    
+
     @Override
     public CategoryEntries getTermCounts() {
-        return termPriors;
+        return termCounts;
     }
 
     @Override
@@ -251,7 +250,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     private void writeObject(ObjectOutputStream out) throws IOException {
         // map the category names to numeric indices, so that we can use "1" instead of "aVeryLongCategoryName"
         List<Category> sortedCategories = CollectionHelper.newArrayList(getDocumentCounts());
-        Collections.sort(sortedCategories,new Comparator<Category>(){
+        Collections.sort(sortedCategories, new Comparator<Category>() {
             @Override
             public int compare(Category c1, Category c2) {
                 return c1.getName().compareTo(c2.getName());
@@ -300,19 +299,19 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         entryTrie = new TrieCategoryEntries();
         // header
         int numCategories = in.readInt();
-        Bag<String> priorEntriesBag = Bag.create();
+        CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
             int categoryCount = in.readInt();
-            priorEntriesBag.set(categoryName, categoryCount);
+            documentCountBuilder.set(categoryName, categoryCount);
             categoryIndices.put(i, categoryName);
         }
-        documentPriors = new MapTermCategoryEntries("", priorEntriesBag.toMap());
+        documentCounts = documentCountBuilder.create();
         // terms
         numTerms = in.readInt();
         String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
         ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Reading " + dictName);
-        Bag<String> termPriorEntriesBuilder = Bag.create();
+        CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
             TrieCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
@@ -322,11 +321,11 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 String categoryName = categoryIndices.get(categoryIdx);
                 int categoryCount = in.readInt();
                 categoryEntries.append(categoryName, categoryCount);
-                termPriorEntriesBuilder.add(categoryName, categoryCount);
+                termCountBuilder.add(categoryName, categoryCount);
             }
             monitor.incrementAndPrintProgress();
         }
-        termPriors = new MapTermCategoryEntries("", termPriorEntriesBuilder.toMap());
+        termCounts = termCountBuilder.create();
         // feature setting
         featureSetting = (FeatureSetting)in.readObject();
         // name
