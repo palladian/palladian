@@ -207,10 +207,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
         }
-        CategoryEntries termSums = model.getTermPriors();
-        int numUniqTerms = model.getNumTerms();
-        int numDocs = model.getPriors().getTotalCount();
-        int numTerms = termSums.getTotalCount();
+        CategoryEntries termSums = model.getTermCounts();
+        int numUniqTerms = model.getNumUniqTerms();
+        int numDocs = model.getNumDocuments();
+        int numTerms = model.getNumTerms();
 
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
@@ -231,7 +231,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             }
         }
         boolean matched = builder.getTotalScore() != 0;
-        for (Category category : model.getPriors()) {
+        for (Category category : model.getDocumentCounts()) {
             String categoryName = category.getName();
             double termScore = builder.getScore(categoryName);
             double categoryProbability = category.getProbability();

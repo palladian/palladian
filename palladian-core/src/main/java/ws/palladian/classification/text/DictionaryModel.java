@@ -103,29 +103,46 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
     /**
      * @return The number of distinct terms in this model.
      */
+    int getNumUniqTerms();
+
+    /**
+     * @return The number of terms in this model.
+     */
     int getNumTerms();
 
     /**
      * @return The number of distinct categories in this model.
      */
     int getNumCategories();
-    
+
     /**
      * @return The number of (non-zero) term-category entries in this model.
      */
     int getNumEntries();
+    
+    /**
+     * @return The number of documents in this model.
+     */
+    int getNumDocuments();
 
     /**
-     * @return The prior probabilities for the trained categories. (e.g. category "A" appeared 10 times, category "B"
-     *         appeared 15 times during training would make a prior 10/25=0.4 for category "A").
+     * <p>
+     * Get the counts/probabilities for the individual categories based on the documents in the training set. (e.g.
+     * there were 10 category "A" documents, 15 category "B" documents during training, this would make a prior
+     * probability 10/25=0.4 for category "A").
+     * 
+     * @return The counts for the trained categories based on the documents.
      */
-    CategoryEntries getPriors();
+    CategoryEntries getDocumentCounts();
 
     /**
-     * @return The prior probabilities and counts for the trained categories measured trough the terms (i.e. the sum of
-     *         all terms in a specific category is represented here).
+     * <p>
+     * Get the counts/probabilities for the individual categories based on the terms in the training set, in other
+     * words, this represents the count of all terms within the individual categories.
+     * 
+     * @return The counts for the trained categories measured trough the terms.
      */
-    CategoryEntries getTermPriors();
+    CategoryEntries getTermCounts();
 
     /**
      * <p>
