@@ -3,24 +3,22 @@ package ws.palladian.classification.text;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Map;
-
 import org.junit.Test;
 
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.text.DictionaryModel.PruningStrategy;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
-import ws.palladian.helper.collection.MapBuilder;
 
 public class PruningStrategiesTest {
     @Test
     public void testEntropyPruningStrategy() {
         PruningStrategy pruningStrategy = new PruningStrategies.EntropyPruningStrategy(3, .95);
-        Map<String, Integer> entriesMap = MapBuilder.createPut("one", 2).put("two", 8).put("three", 5).create();
-        TermCategoryEntries entries = new MapTermCategoryEntries("test", entriesMap);
+        TermCategoryEntries entries = new ImmutableTermCategoryEntries("test", new CategoryEntriesBuilder()
+                .set("one", 2).set("two", 8).set("three", 5).create());
         assertFalse(pruningStrategy.remove(entries));
 
-        entriesMap = MapBuilder.createPut("one", 5).put("two", 5).put("three", 5).create();
-        entries = new MapTermCategoryEntries("test", entriesMap);
+        entries = new ImmutableTermCategoryEntries("test", new CategoryEntriesBuilder().set("one", 5).set("two", 5)
+                .set("three", 5).create());
         assertTrue(pruningStrategy.remove(entries));
 
         pruningStrategy = new PruningStrategies.EntropyPruningStrategy(3, 1);
@@ -30,8 +28,8 @@ public class PruningStrategiesTest {
     @Test
     public void testCategoryProbabilityPruningStrategy() {
         PruningStrategy pruningStrategy = new PruningStrategies.CategoryProbabilityPruningStrategy(0.1);
-        Map<String, Integer> entriesMap = MapBuilder.createPut("one", 100).put("two", 1).put("three", 50).create();
-        TermCategoryEntries entries = new MapTermCategoryEntries("test", entriesMap);
+        TermCategoryEntries entries = new ImmutableTermCategoryEntries("test", new CategoryEntriesBuilder()
+                .set("one", 100).set("two", 1).set("three", 50).create());
         assertFalse(pruningStrategy.remove(entries.getCategory("one")));
         assertTrue(pruningStrategy.remove(entries.getCategory("two")));
         assertFalse(pruningStrategy.remove(entries.getCategory("three")));
