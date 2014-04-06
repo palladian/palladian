@@ -41,7 +41,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
      * Implementations of this interface allow to influence the scoring during classification. Usually (i.e. in cases
      * where you cannot thoroughly verify, that a different scoring formula works better, using training and test data)
      * you should stick to the provided {@link DefaultScorer}, which has proven to perform well in general
-     * classification cases through our extensive experiments.
+     * classification cases through our extensive experiments. The available attributes for scoring are depicted for a
+     * sample dictionary below:
+     * <p>
+     * <img src="doc-files/DictionaryExample.png" />
      * 
      * @author pk
      */

@@ -14,6 +14,8 @@ import ws.palladian.helper.collection.Function;
 public abstract class AbstractDictionaryModel implements DictionaryModel {
 
     private static final long serialVersionUID = 1L;
+    
+    private static final char CSV_SEPARATOR = ';';
 
     @Override
     public Set<String> getCategories() {
@@ -31,25 +33,22 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         printStream.print("Term");
         Set<String> categories = new TreeSet<String>(getCategories());
         for (String category : categories) {
-            printStream.print(',');
+            printStream.print(CSV_SEPARATOR);
             printStream.print(category);
             printStream.print('=');
-            printStream.print(getPriors().getProbability(category));
+            printStream.print(getPriors().getCount(category));
         }
-        printStream.print('\n');
+        printStream.print(CSV_SEPARATOR);
+        printStream.print("sum=" + getPriors().getTotalCount() + "\n");
         for (TermCategoryEntries entries : this) {
             printStream.print(entries.getTerm());
-            printStream.print(',');
-            boolean first = true;
             for (String category : categories) {
                 int count = entries.getCount(category);
-                if (!first) {
-                    printStream.print(',');
-                } else {
-                    first = false;
-                }
+                printStream.print(CSV_SEPARATOR);
                 printStream.print(count);
             }
+            printStream.print(CSV_SEPARATOR);
+            printStream.print(entries.getTotalCount());
             printStream.print('\n');
         }
         printStream.flush();
