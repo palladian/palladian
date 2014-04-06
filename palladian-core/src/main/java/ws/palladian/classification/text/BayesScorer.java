@@ -63,8 +63,8 @@ public final class BayesScorer implements Scorer {
     }
 
     @Override
-    public double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum,
-            int numUniqTerms, int numDocs, int numTerms) {
+    public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
+            int categorySum, int numUniqTerms, int numDocs, int numTerms) {
         int numerator = (complement ? dictCount - termCategoryCount : termCategoryCount) + (laplace ? 1 : 0);
         int denominator = (complement ? numTerms - categorySum : categorySum) + (laplace ? numTerms : 0);
         if (numerator == 0 || denominator == 0) {
@@ -87,6 +87,13 @@ public final class BayesScorer implements Scorer {
         double score = (complement ? -1 : 1) * summedTermScore + (prior ? log(categoryProbability) : 0);
         LOGGER.trace("{}: {}·{}={}", category, categoryProbability, summedTermScore, score);
         return score;
+    }
+
+    @Override
+    public boolean scoreNonMatches() {
+        // non-matches need to be scored, in case either Laplace or complement scoring is used; otherwise, the numerator
+        // of the fraction will always be zero, when termCategoryCount is zero.
+        return laplace || complement;
     }
 
     @Override

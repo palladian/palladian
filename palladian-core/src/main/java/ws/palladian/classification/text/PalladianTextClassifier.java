@@ -3,6 +3,7 @@ package ws.palladian.classification.text;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -80,6 +81,15 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
          * @return A score for the category, greater/equal zero.
          */
         double scoreCategory(String category, double summedTermScore, double categoryProbability, boolean matched);
+
+        /**
+         * Indicate, whether to call {@link #score(String, String, int, int, int, int, int, int, int)} in case,
+         * termCategoryCount is <code>0</code>. For the default scorer this is not necessary. Bayes scorer on the other
+         * requires this, in case e.g. smoothing is activated.
+         * 
+         * @return <code>true</code> to call the score method for zero termCategoryCounts, <code>false</code> otherwise.
+         */
+        boolean scoreNonMatches();
     }
 
     /**
@@ -103,6 +113,11 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             // If we have a category weight by matching terms from the document, use them to create the probability
             // distribution. Else wise return the prior probability distribution of the categories.
             return matched ? categoryScore : categoryProbability;
+        }
+
+        @Override
+        public boolean scoreNonMatches() {
+            return false;
         }
     }
 
@@ -206,27 +221,42 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
         }
-        CategoryEntries termSums = model.getTermCounts();
-        int numUniqTerms = model.getNumUniqTerms();
-        int numDocs = model.getNumDocuments();
-        int numTerms = model.getNumTerms();
+        final CategoryEntries termSums = model.getTermCounts();
+        final int numUniqTerms = model.getNumUniqTerms();
+        final int numDocs = model.getNumDocuments();
+        final int numTerms = model.getNumTerms();
+        final boolean scoreNonMatches = scorer.scoreNonMatches();
+        final Set<String> matchedCategories = CollectionHelper.newHashSet();
 
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
-            Bag<String> categoryCounts = Bag.create();
             TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
-            for (Category category : categoryEntries) {
-                categoryCounts.add(category.getName(), category.getCount());
-            }
             int docCount = termCount.getValue();
             int dictCount = categoryEntries.getTotalCount();
-            for (Category category : termSums) {
+            for (Category category : categoryEntries) {
                 String categoryName = category.getName();
                 int categorySum = termSums.getCount(categoryName);
-                int count = categoryCounts.count(categoryName);
+                int count = category.getCount();
                 double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numUniqTerms,
                         numDocs, numTerms);
                 builder.add(categoryName, score);
+                if (scoreNonMatches) {
+                    matchedCategories.add(categoryName);
+                }
+            }
+            // do the scoring for the non-matches; i.e. term-category combinations with count zero;
+            // this is necessary e.g. for the Bayes scoring
+            if (scoreNonMatches) {
+                for (Category category : termSums) {
+                    String categoryName = category.getName();
+                    if (!matchedCategories.contains(categoryName)) {
+                        int categorySum = category.getCount();
+                        double score = scorer.score(term, categoryName, 0, dictCount, docCount, categorySum,
+                                numUniqTerms, numDocs, numTerms);
+                        builder.add(categoryName, score);
+                    }
+                }
+                matchedCategories.clear();
             }
         }
         boolean matched = builder.getTotalScore() != 0;
