@@ -1,6 +1,10 @@
 package ws.palladian.classification.text;
 
 import static java.lang.Math.log;
+import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
+import static ws.palladian.classification.text.BayesScorer.Options.FREQUENCIES;
+import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
+import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -52,14 +56,26 @@ public final class BayesScorer implements Scorer {
 
     private final Options[] options;
 
+    /**
+     * Create a new Bayes scorer with the provided Options (see {@link Options} for an explanation).
+     * 
+     * @param options The options or empty, not <code>null</code>.
+     */
     public BayesScorer(Options... options) {
         Validate.notNull(options, "options must not be null");
         this.options = options;
         Set<Options> temp = CollectionHelper.newHashSet(options);
-        this.laplace = temp.contains(Options.LAPLACE);
-        this.prior = temp.contains(Options.PRIORS);
-        this.frequencies = temp.contains(Options.FREQUENCIES);
-        this.complement = temp.contains(Options.COMPLEMENT);
+        this.laplace = temp.contains(LAPLACE);
+        this.prior = temp.contains(PRIORS);
+        this.frequencies = temp.contains(FREQUENCIES);
+        this.complement = temp.contains(COMPLEMENT);
+    }
+
+    /**
+     * Create a new Bayes scorer with all Options enabled (see {@link Options} for an explanation).
+     */
+    public BayesScorer() {
+        this(LAPLACE, PRIORS, FREQUENCIES, COMPLEMENT);
     }
 
     @Override

@@ -119,6 +119,11 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         public boolean scoreNonMatches() {
             return false;
         }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName();
+        }
     }
 
     /**
