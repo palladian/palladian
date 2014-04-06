@@ -245,7 +245,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                 }
             }
             // do the scoring for the non-matches; i.e. term-category combinations with count zero;
-            // this is necessary e.g. for the Bayes scoring
+            // this is necessary e.g. for smoothing during the Bayes scoring. It's only done in case it is explicitly
+            // requested by Scorer#scoreNonMatches, because it takes time (especially with lots of categories).
             if (scoreNonMatches) {
                 for (Category category : termSums) {
                     String categoryName = category.getName();
