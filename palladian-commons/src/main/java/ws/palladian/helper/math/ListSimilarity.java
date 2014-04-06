@@ -24,10 +24,6 @@ public final class ListSimilarity {
         return rmse;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
