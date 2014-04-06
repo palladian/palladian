@@ -188,7 +188,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             String targetClass = trainable.getTargetClass();
             String content = ((TextDocument)trainable).getContent();
             Iterator<String> iterator = preprocessor.compute(content);
-            // Set<String> terms = CollectionHelper.newHashSet();
             Collection<String> terms = learnCounts ? Bag.<String> create() : CollectionHelper.<String> newHashSet();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
