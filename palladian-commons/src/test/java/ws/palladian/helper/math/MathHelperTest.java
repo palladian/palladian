@@ -7,21 +7,21 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class MathHelperTest {
 
-    private final Set<Integer> set1 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4));
-    private final Set<Integer> set2 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 6));
-    private final Set<Integer> set3 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4));
-    private final Set<Integer> set4 = new HashSet<Integer>(Arrays.asList(5, 6, 7, 8));
-    private final Set<Integer> set5 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+    private final Set<Integer> set1 = CollectionHelper.newHashSet(1, 2, 3, 4);
+    private final Set<Integer> set2 = CollectionHelper.newHashSet(1, 2, 3, 6);
+    private final Set<Integer> set3 = CollectionHelper.newHashSet(1, 2, 3, 4);
+    private final Set<Integer> set4 = CollectionHelper.newHashSet(5, 6, 7, 8);
+    private final Set<Integer> set5 = CollectionHelper.newHashSet(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
     private final Set<Integer> emptySet = Collections.emptySet();
 
     @Test
@@ -55,7 +55,7 @@ public class MathHelperTest {
     public void testComputeAllCombinations() {
 
         String[] items = {"a", "b", "c"};
-        Collection<List<Object>> allCombinations = MathHelper.computeAllCombinations(items);
+        Collection<List<String>> allCombinations = MathHelper.computeAllCombinations(items);
         // CollectionHelper.print(allCombinations);
         assertEquals(7, allCombinations.size());
 

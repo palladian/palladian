@@ -698,12 +698,9 @@ public final class MathHelper {
      * @return The fraction of the number if it was possible to transform, otherwise the number as a string.
      */
     public static String numberToFraction(Double number) {
-        String fraction = "";
+        String fraction = StringUtils.EMPTY;
 
-        String sign = "";
-        if (number < 0) {
-            sign = "-";
-        }
+        String sign = number >= 0 ? StringUtils.EMPTY : "-";
         number = Math.abs(number);
 
         int fullPart = (int)Math.floor(number);
@@ -733,7 +730,7 @@ public final class MathHelper {
             if (!fraction.equalsIgnoreCase("0")) {
                 fraction = fullPart + " " + fraction;
             } else {
-                fraction = fullPart + "";
+                fraction = String.valueOf(fullPart);
             }
         }
 
@@ -762,15 +759,15 @@ public final class MathHelper {
      * @param string A tokenized string to get the spans for.
      * @return A collection of spans.
      */
-    public static Collection<List<Object>> computeAllCombinations(Object[] items) {
+    public static <T> Collection<List<T>> computeAllCombinations(T[] items) {
 
         // create bitvector (all bit combinations other than all zeros)
         int bits = items.length;
-        List<List<Object>> combinations = new ArrayList<List<Object>>();
+        List<List<T>> combinations = new ArrayList<List<T>>();
 
         int max = (int)Math.pow(2, bits);
         for (long i = 1; i < max; i++) {
-            List<Object> combination = new LinkedList<Object>();
+            List<T> combination = new LinkedList<T>();
             if (computeCombinationRecursive(i, items, combination, 0)) {
                 combinations.add(combination);
             }
@@ -793,12 +790,12 @@ public final class MathHelper {
      *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
      * @return {@code true} if the computed combination was computed successfully.
      */
-    private static Boolean computeCombinationRecursive(Long bitPattern, Object[] items, List<Object> combination,
-            Integer currentIndex) {
+    private static <T> boolean computeCombinationRecursive(long bitPattern, T[] items, List<T> combination,
+            int currentIndex) {
         if (bitPattern % 2 != 0) {
             combination.add(items[currentIndex]);
         }
-        Long nextBitPattern = bitPattern / 2;
+        long nextBitPattern = bitPattern / 2;
         if (nextBitPattern < 1) {
             return true;
         } else {
@@ -894,7 +891,7 @@ public final class MathHelper {
         }
 
         for (String string : remove) {
-            stringNumber = stringNumber.replace(string, "");
+            stringNumber = stringNumber.replace(string, StringUtils.EMPTY);
         }
 
         // resolve fractions like "1/2"
@@ -903,12 +900,12 @@ public final class MathHelper {
             int nominator = Integer.parseInt(matcher.group(1));
             int denominator = Integer.parseInt(matcher.group(2));
             value += nominator / (double)denominator;
-            stringNumber = stringNumber.replace(matcher.group(), "");
+            stringNumber = stringNumber.replace(matcher.group(), StringUtils.EMPTY);
         }
 
         // parse the rest
-        stringNumber = stringNumber.replaceAll("[^0-9.]", "");
-        stringNumber = stringNumber.replaceAll("\\.(?!\\d)", "");
+        stringNumber = stringNumber.replaceAll("[^0-9.]", StringUtils.EMPTY);
+        stringNumber = stringNumber.replaceAll("\\.(?!\\d)", StringUtils.EMPTY);
         stringNumber = stringNumber.trim();
         if (!stringNumber.isEmpty()) {
             value += Double.parseDouble(stringNumber);
