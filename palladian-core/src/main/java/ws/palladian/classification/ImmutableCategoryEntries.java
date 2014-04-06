@@ -18,6 +18,9 @@ public final class ImmutableCategoryEntries extends AbstractCategoryEntries {
     /** The most likely {@link Category}; determined and cached upon creation for quick access. */
     private final Category mostLikely;
 
+    /** An empty instance. */
+    public static final CategoryEntries EMPTY = new ImmutableCategoryEntries(Collections.<ImmutableCategory> emptySet());
+
     /**
      * To be created by {@link CategoryEntriesBuilder} only.
      * 

@@ -238,6 +238,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         }
         numTerms -= removedTerms;
         entryTrie.clean();
+        // FIXME termCounts need to be updated
         return removedTerms + removedCategories;
     }
 
