@@ -60,14 +60,14 @@ public class NerTest {
         DictionaryModel caseDictionary = tagger.getCaseDictionary();
         DictionaryModel contextClassifier = tagger.getContextModel();
         DictionaryModel annotationDictionary = tagger.getAnnotationModel();
-        assertEquals(2185, tagger.getEntityDictionary().getNumTerms());
-        assertEquals(0, caseDictionary.getNumTerms());
+        assertEquals(2185, tagger.getEntityDictionary().getNumUniqTerms());
+        assertEquals(0, caseDictionary.getNumUniqTerms());
         assertEquals(0, caseDictionary.getNumCategories());
         assertEquals(1109, tagger.getLeftContextMap().size());
         assertEquals(0, tagger.getRemoveAnnotations().size());
-        assertEquals(89415, contextClassifier.getNumTerms());
+        assertEquals(89415, contextClassifier.getNumUniqTerms());
         assertEquals(4, contextClassifier.getNumCategories());
-        assertEquals(53513, annotationDictionary.getNumTerms());
+        assertEquals(53513, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // precision MUC: 62.71%, recall MUC: 75.17%, F1 MUC: 68.38%
@@ -116,15 +116,15 @@ public class NerTest {
         DictionaryModel caseDictionary = tagger.getCaseDictionary();
         DictionaryModel contextDictionary = tagger.getContextModel();
         DictionaryModel annotationDictionary = tagger.getAnnotationModel();
-        assertEquals(2185, entityDictionary.getNumTerms());
+        assertEquals(2185, entityDictionary.getNumUniqTerms());
         // assertEquals(4, entityDictionary.getNumCategories());
-        assertEquals(5818, caseDictionary.getNumTerms());
+        assertEquals(5818, caseDictionary.getNumUniqTerms());
         // assertEquals(3, caseDictionary.getNumCategories());
         assertEquals(1109, tagger.getLeftContextMap().size());
         assertEquals(370, tagger.getRemoveAnnotations().size());
-        assertEquals(89415, contextDictionary.getNumTerms());
+        assertEquals(89415, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(59587, annotationDictionary.getNumTerms());
+        assertEquals(59587, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // precision MUC: 94.23%, recall MUC: 94.89%, F1 MUC: 94.56%

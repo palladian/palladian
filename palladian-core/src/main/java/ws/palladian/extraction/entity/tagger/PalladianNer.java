@@ -311,10 +311,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      */
     protected void saveModel(String modelFilePath) {
 
-        LOGGER.info("entity dictionary contains " + entityDictionary.getNumTerms() + " entities");
+        LOGGER.info("entity dictionary contains " + entityDictionary.getNumUniqTerms() + " entities");
         // entityDictionary.saveAsCSV();
 
-        LOGGER.info("case dictionary contains " + caseDictionary.getNumTerms() + " entities");
+        LOGGER.info("case dictionary contains " + caseDictionary.getNumUniqTerms() + " entities");
         // caseDictionary.saveAsCSV();
 
         LOGGER.info("serializing Palladian NER to " + modelFilePath);
@@ -327,7 +327,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             throw new IllegalStateException("Error while serializing to \"" + modelFilePath + "\".", e);
         }
 
-        LOGGER.info("dictionary size: " + annotationModel.getNumTerms());
+        LOGGER.info("dictionary size: " + annotationModel.getNumUniqTerms());
 
         // write model meta information
         LOGGER.info("write model meta information");

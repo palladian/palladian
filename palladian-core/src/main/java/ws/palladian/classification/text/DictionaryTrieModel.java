@@ -114,7 +114,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     private transient TrieCategoryEntries entryTrie;
     
     /** The priors, determined from the documents. */
-    private transient CategoryEntries priors;
+    private transient CategoryEntries documentPriors;
     
     /** The priors, determined from the individual terms. */
     private transient CategoryEntries termPriors;
@@ -148,7 +148,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         this.numTerms = builder.numTerms;
         this.featureSetting = builder.featureSetting;
         this.name = builder.name;
-        this.priors = new MapTermCategoryEntries(StringUtils.EMPTY,builder.priors.toMap());
+        this.documentPriors = new MapTermCategoryEntries(StringUtils.EMPTY,builder.priors.toMap());
         this.termPriors = new MapTermCategoryEntries(StringUtils.EMPTY,builder.termPriors.toMap());
     }
 
@@ -184,7 +184,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     }
 
     @Override
-    public int getNumTerms() {
+    public int getNumUniqTerms() {
         return numTerms;
     }
 
@@ -195,9 +195,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     }
 
     @Override
-    public CategoryEntries getPriors() {
-        if (priors.size() > 0) {
-            return priors;
+    public CategoryEntries getDocumentCounts() {
+        if (documentPriors.size() > 0) {
+            return documentPriors;
         } else {
             // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
             // we need to collect the category names from the term entries
@@ -212,7 +212,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     }
     
     @Override
-    public CategoryEntries getTermPriors() {
+    public CategoryEntries getTermCounts() {
         return termPriors;
     }
 
@@ -250,7 +250,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         // map the category names to numeric indices, so that we can use "1" instead of "aVeryLongCategoryName"
-        List<Category> sortedCategories = CollectionHelper.newArrayList(getPriors());
+        List<Category> sortedCategories = CollectionHelper.newArrayList(getDocumentCounts());
         Collections.sort(sortedCategories,new Comparator<Category>(){
             @Override
             public int compare(Category c1, Category c2) {
@@ -307,7 +307,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             priorEntriesBag.set(categoryName, categoryCount);
             categoryIndices.put(i, categoryName);
         }
-        priors = new MapTermCategoryEntries("", priorEntriesBag.toMap());
+        documentPriors = new MapTermCategoryEntries("", priorEntriesBag.toMap());
         // terms
         numTerms = in.readInt();
         String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;

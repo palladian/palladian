@@ -19,7 +19,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
 
     @Override
     public Set<String> getCategories() {
-        return CollectionHelper.convertSet(getPriors(), new Function<Category, String>() {
+        return CollectionHelper.convertSet(getDocumentCounts(), new Function<Category, String>() {
             @Override
             public String compute(Category input) {
                 return input.getName();
@@ -36,10 +36,10 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
             printStream.print(CSV_SEPARATOR);
             printStream.print(category);
             printStream.print('=');
-            printStream.print(getPriors().getCount(category));
+            printStream.print(getDocumentCounts().getCount(category));
         }
         printStream.print(CSV_SEPARATOR);
-        printStream.print("sum=" + getPriors().getTotalCount() + "\n");
+        printStream.print("sum=" + getDocumentCounts().getTotalCount() + "\n");
         for (TermCategoryEntries entries : this) {
             printStream.print(entries.getTerm());
             for (String category : categories) {
@@ -67,6 +67,16 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         }
         return numEntries;
     }
+    
+    @Override
+    public int getNumDocuments() {
+        return getDocumentCounts().getTotalCount();
+    }
+    
+    @Override
+    public int getNumTerms() {
+        return getTermCounts().getTotalCount();
+    }
 
     // deprecated functionality
 
@@ -90,7 +100,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         if (getFeatureSetting() != null) {
             builder.append("featureSetting=").append(getFeatureSetting()).append(", ");
         }
-        builder.append("#terms=").append(getNumTerms());
+        builder.append("#terms=").append(getNumUniqTerms());
         builder.append(", #categories=").append(getNumCategories());
         builder.append(", #entries=").append(getNumEntries()).append("]");
         return builder.toString();
@@ -106,8 +116,8 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
             result += entries.hashCode();
         }
         result = prime * result + (getFeatureSetting() == null ? 0 : getFeatureSetting().hashCode());
-        result = prime * result + getNumTerms();
-        result = prime * result + getPriors().hashCode();
+        result = prime * result + getNumUniqTerms();
+        result = prime * result + getDocumentCounts().hashCode();
         return result;
     }
 
@@ -127,10 +137,10 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         } else if (!getFeatureSetting().equals(other.getFeatureSetting())) {
             return false;
         }
-        if (getNumTerms() != other.getNumTerms()) {
+        if (getNumUniqTerms() != other.getNumUniqTerms()) {
             return false;
         }
-        if (!getPriors().equals(other.getPriors())) {
+        if (!getDocumentCounts().equals(other.getDocumentCounts())) {
             return false;
         }
         for (TermCategoryEntries thisEntries : this) {
