@@ -63,10 +63,10 @@ public final class BayesScorer implements Scorer {
     }
 
     @Override
-    public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-            int categorySum, int numTerms, int numDocs, int totalCategorySum) {
+    public double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum,
+            int numUniqTerms, int numDocs, int numTerms) {
         int numerator = (complement ? dictCount - termCategoryCount : termCategoryCount) + (laplace ? 1 : 0);
-        int denominator = (complement ? totalCategorySum - categorySum : categorySum) + (laplace ? numTerms : 0);
+        int denominator = (complement ? numTerms - categorySum : categorySum) + (laplace ? numTerms : 0);
         if (numerator == 0 || denominator == 0) {
             return 0;
         }
