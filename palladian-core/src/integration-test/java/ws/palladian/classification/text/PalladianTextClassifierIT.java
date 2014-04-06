@@ -9,9 +9,11 @@ import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.ref.WeakReference;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -50,6 +52,17 @@ public class PalladianTextClassifierIT {
         // make sure, we have enough heap
         if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
             fail("Not enough memory. This test requires at least 1 GB heap memory.");
+        }
+    }
+    
+    @After
+    public void cleanup() {
+        // make sure, garbage collector runs
+        Object obj = new Object();
+        WeakReference<Object> ref = new WeakReference<Object>(obj);
+        obj = null;
+        while (ref.get() != null) {
+            System.gc();
         }
     }
 
