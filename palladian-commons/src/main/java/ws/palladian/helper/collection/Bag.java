@@ -66,6 +66,9 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     /** The internal map keeping the data. */
     private transient Map<T, Integer> map;
 
+    /** The sum of all counts in the map. */
+    private transient int size;
+
     /**
      * <p>
      * Create an empty Bag.
@@ -148,6 +151,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
                     throw new IllegalStateException();
                 }
                 int newValue = currentEntry.getValue() - 1;
+                size--;
                 if (newValue == 0) {
                     entryIterator.remove();
                 } else {
@@ -160,10 +164,6 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
 
     @Override
     public int size() {
-        int size = 0;
-        for (Integer value : map.values()) {
-            size += value;
-        }
         return size;
     }
 
@@ -182,6 +182,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
         if (increment != 0) {
             int count = count(item);
             map.put(item, count += increment);
+            size += increment;
         }
     }
 
@@ -209,6 +210,9 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public int set(T item, int count) {
         Validate.notNull(item, "item must not be null");
         Integer oldValue = (count == 0) ? map.remove(item) : map.put(item, count);
+        if (oldValue != null) {
+            size -= oldValue;
+        }
         return oldValue != null ? oldValue : 0;
     }
 
@@ -307,6 +311,9 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
             return false;
         }
         Bag<?> other = (Bag<?>)obj;
+        if (size != other.size) {
+            return false;
+        }
         return map.equals(other.map);
     }
 
@@ -335,6 +342,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
             T item = (T)in.readObject();
             int count = in.readInt();
             map.put(item, count);
+            size += count;
         }
     }
 
