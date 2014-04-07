@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PreprocessingPipeline;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -84,7 +84,7 @@ public class PalladianPosTagger extends BasePosTagger {
     }
 
     private UniversalClassifier getTagger() {
-        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 1, 7);
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(1, 7).create();
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.NOMINAL), featureSetting);
     }
 
@@ -95,8 +95,8 @@ public class PalladianPosTagger extends BasePosTagger {
 
         List<Instance> trainingInstances = CollectionHelper.newArrayList();
 
-        int c = 1;
         File[] trainingFiles = FileHelper.getFiles(folderPath);
+        ProgressMonitor progressMonitor = new ProgressMonitor(trainingFiles.length, 1);
         for (File file : trainingFiles) {
 
             String content = FileHelper.tryReadFileToString(file);
@@ -126,7 +126,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 previousTag = wordAndTag[1];
             }
 
-            ProgressHelper.printProgress(c++, trainingFiles.length, 1);
+            progressMonitor.incrementAndPrintProgress();
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
@@ -192,6 +192,7 @@ public class PalladianPosTagger extends BasePosTagger {
         int total = 0;
 
         File[] testFiles = FileHelper.getFiles(folderPath);
+        ProgressMonitor progressMonitor = new ProgressMonitor(testFiles.length, 1);
         for (File file : testFiles) {
 
             String content = FileHelper.tryReadFileToString(file);
@@ -227,7 +228,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 total++;
             }
 
-            ProgressHelper.printProgress(c++, testFiles.length, 1);
+            progressMonitor.incrementAndPrintProgress();
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
