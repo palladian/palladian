@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ import ws.palladian.classification.universal.UniversalClassifier.UniversalTraina
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -61,13 +64,11 @@ public class PalladianPosTagger extends BasePosTagger {
 
     @Override
     public void tag(List<PositionAnnotation> annotations) {
-        String previousTag = "";
         for (PositionAnnotation annotation : annotations) {
-            FeatureVector featureVector = extractFeatures(previousTag, annotation.getValue(), null);
+            FeatureVector featureVector = extractFeatures(annotation.getValue(), null);
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
             String tag = categoryEntries.getMostLikelyCategory();
             assignTag(annotation, Arrays.asList(new String[] {tag}));
-            previousTag = tag;
         }
     }
 
@@ -75,58 +76,73 @@ public class PalladianPosTagger extends BasePosTagger {
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(1, 7).create();
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.BAYES), featureSetting);
     }
+    
+    private static final class BrownCorpusIterator extends AbstractIterator<UniversalTrainable> {
+        
+        final ProgressMonitor progressMonitor;
+        final Iterator<File> trainingFiles;
+        Iterator<UniversalTrainable> currentInstances;
+        
+        public BrownCorpusIterator(String trainingDirectory) {
+            File[] trainingFilesArray = FileHelper.getFiles(trainingDirectory);
+            trainingFiles = new ArrayIterator<File>(trainingFilesArray);
+            progressMonitor = new ProgressMonitor(trainingFilesArray.length, 1);
+        }
 
-    public static UniversalClassifierModel trainModel(String folderPath) {
+        @Override
+        protected UniversalTrainable getNext() throws Finished {
+            if (currentInstances != null && currentInstances.hasNext()) {
+                return currentInstances.next();
+            }
+            if (trainingFiles.hasNext()) {
+                progressMonitor.incrementAndPrintProgress();
+                currentInstances = createInstances(trainingFiles.next());
+                return currentInstances.next();
+            }
+            throw FINISHED;
+        }
 
-        StopWatch stopWatch = new StopWatch();
-        LOGGER.info("start training the tagger");
-
-        List<UniversalTrainable> trainingInstances = CollectionHelper.newArrayList();
-
-        File[] trainingFiles = FileHelper.getFiles(folderPath);
-        ProgressMonitor progressMonitor = new ProgressMonitor(trainingFiles.length, 1);
-        for (File file : trainingFiles) {
-
-            String content = FileHelper.tryReadFileToString(file);
-
+        private Iterator<UniversalTrainable> createInstances(File inputFile) {
+            String content;
+            try {
+                content = FileHelper.readFileToString(inputFile);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
             String[] wordsAndTagPairs = content.split("\\s");
-
-            String previousTag = "";
-
+            List<UniversalTrainable> trainingInstances = CollectionHelper.newArrayList();
             for (String wordAndTagPair : wordsAndTagPairs) {
-
-                if (wordAndTagPair.isEmpty()) {
-                    continue;
-                }
-
                 String[] wordAndTag = wordAndTagPair.split("/");
                 String word = wordAndTag[0];
-
                 if (wordAndTag.length < 2 || word.isEmpty()) {
                     continue;
                 }
-
                 String tag = normalizeTag(wordAndTag[1]);
                 if (tag.isEmpty()) {
                     continue;
                 }
-                UniversalTrainable featureVector = extractFeatures(previousTag, wordAndTag[0], tag);
+                UniversalTrainable featureVector = extractFeatures(wordAndTag[0], tag);
                 trainingInstances.add(featureVector);
-
-                previousTag = wordAndTag[1];
             }
-
-            progressMonitor.incrementAndPrintProgress();
+            return trainingInstances.iterator();
         }
+        
+    }
 
-        LOGGER.info("all files read in {}", stopWatch.getElapsedTimeString());
-        UniversalClassifierModel model = getTagger().train(trainingInstances);
+    public static UniversalClassifierModel trainModel(final String folderPath) {
+        StopWatch stopWatch = new StopWatch();
+        LOGGER.info("start training the tagger");
+        UniversalClassifierModel model = getTagger().train(new Iterable<UniversalTrainable>() {
+            @Override
+            public Iterator<UniversalTrainable> iterator() {
+                return new BrownCorpusIterator(folderPath);
+            }
+        });
         LOGGER.info("finished training tagger in {}", stopWatch.getElapsedTimeString());
         return model;
     }
 
-    private static UniversalTrainable extractFeatures(String previousTag, String word, String targetClass) {
-
+    private static UniversalTrainable extractFeatures(String word, String targetClass) {
         int wordLength = word.length();
         InstanceBuilder builder = new InstanceBuilder();
         builder.set("startsUppercase", StringHelper.startsUppercase(word));
@@ -141,12 +157,7 @@ public class PalladianPosTagger extends BasePosTagger {
         builder.set("firstCharacter", word.substring(0, 1));
         builder.set("lastTwoCharacters", wordLength > 1 ? word.substring(wordLength - 2) : EMPTY);
         builder.set("word", word);
-
-        // instance.setNumericFeatures(Arrays.asList((double)word.length()));
-        // instance.setNominalFeatures(Arrays.asList(word));
-
-        FeatureVector featureVector = builder.create();
-        return new UniversalTrainable(word, featureVector, targetClass);
+        return new UniversalTrainable(word, builder.create(), targetClass);
     }
 
     public void evaluate(String folderPath) {
@@ -166,8 +177,6 @@ public class PalladianPosTagger extends BasePosTagger {
 
             String[] wordsAndTagPairs = content.split("\\s");
 
-            String previousTag = "";
-
             for (String wordAndTagPair : wordsAndTagPairs) {
 
                 if (wordAndTagPair.isEmpty()) {
@@ -181,12 +190,11 @@ public class PalladianPosTagger extends BasePosTagger {
                     continue;
                 }
 
-                FeatureVector featureVector = extractFeatures(previousTag, wordAndTag[0], null);
+                FeatureVector featureVector = extractFeatures(wordAndTag[0], null);
                 CategoryEntries categoryEntries = tagger.classify(featureVector, model);
                 String assignedTag = categoryEntries.getMostLikelyCategory();
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
 
-                previousTag = assignedTag;
                 matrix.add(correctTag, assignedTag);
 
                 if (assignedTag.equals(correctTag)) {
