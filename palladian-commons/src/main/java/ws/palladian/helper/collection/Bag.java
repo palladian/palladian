@@ -1,5 +1,8 @@
 package ws.palladian.helper.collection;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -61,7 +64,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     }
 
     /** The internal map keeping the data. */
-    private final Map<T, Integer> map;
+    private transient Map<T, Integer> map;
 
     /**
      * <p>
@@ -297,19 +300,14 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         Bag<?> other = (Bag<?>)obj;
-        if (map == null) {
-            if (other.map != null)
-                return false;
-        } else if (!map.equals(other.map))
-            return false;
-        return true;
+        return map.equals(other.map);
     }
 
     // toString
@@ -317,6 +315,27 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     @Override
     public String toString() {
         return "Bag " + map;
+    }
+
+    // serialization code; in case you change the internals of this class, make sure, serialization still works
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeInt(map.size());
+        for (Entry<T, Integer> entry : map.entrySet()) {
+            out.writeObject(entry.getKey());
+            out.writeInt(entry.getValue());
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        map = new HashMap<T, Integer>();
+        int numEntries = in.readInt();
+        for (int i = 0; i < numEntries; i++) {
+            @SuppressWarnings("unchecked")
+            T item = (T)in.readObject();
+            int count = in.readInt();
+            map.put(item, count);
+        }
     }
 
 }
