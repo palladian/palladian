@@ -4,7 +4,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +27,6 @@ import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -68,7 +67,7 @@ public class PalladianPosTagger extends BasePosTagger {
             FeatureVector featureVector = extractFeatures(annotation.getValue(), null);
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
             String tag = categoryEntries.getMostLikelyCategory();
-            assignTag(annotation, Arrays.asList(new String[] {tag}));
+            assignTag(annotation, Collections.singletonList(tag));
         }
     }
 
@@ -160,15 +159,8 @@ public class PalladianPosTagger extends BasePosTagger {
         return new UniversalTrainable(word, builder.create(), targetClass);
     }
 
-    public void evaluate(String folderPath) {
-        StopWatch stopWatch = new StopWatch();
-        LOGGER.info("start evaluating the tagger");
-
+    public ConfusionMatrix evaluate(String folderPath) {
         ConfusionMatrix matrix = new ConfusionMatrix();
-
-        int correct = 0;
-        int total = 0;
-
         File[] testFiles = FileHelper.getFiles(folderPath);
         ProgressMonitor progressMonitor = new ProgressMonitor(testFiles.length, 1);
         for (File file : testFiles) {
@@ -194,24 +186,11 @@ public class PalladianPosTagger extends BasePosTagger {
                 CategoryEntries categoryEntries = tagger.classify(featureVector, model);
                 String assignedTag = categoryEntries.getMostLikelyCategory();
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
-
                 matrix.add(correctTag, assignedTag);
-
-                if (assignedTag.equals(correctTag)) {
-                    correct++;
-                }
-                total++;
             }
-
             progressMonitor.incrementAndPrintProgress();
         }
-
-        LOGGER.info("all files read in {}", stopWatch.getElapsedTimeString());
-
-        LOGGER.info("Accuracy: {}", MathHelper.round(100.0 * correct / total, 2) + "%");
-        LOGGER.info("\n{}", matrix);
-
-        LOGGER.info("finished evaluating the tagger in {}", stopWatch.getElapsedTimeString());
+        return matrix;
     }
 
     @Override

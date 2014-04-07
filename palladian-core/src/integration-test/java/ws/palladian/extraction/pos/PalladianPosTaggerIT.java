@@ -1,12 +1,12 @@
 package ws.palladian.extraction.pos;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.helper.math.ConfusionMatrix;
 
 /**
  * <p>
@@ -55,12 +56,12 @@ public class PalladianPosTaggerIT {
     }
 
     @Test
-    public void test() throws IOException {
+    public void testTagging() {
 
         UniversalClassifierModel model = PalladianPosTagger.trainModel(trainDataSet);
         PalladianPosTagger ppt = new PalladianPosTagger(model);
 
-        String taggedString = "";
+        String taggedString;
 
         taggedString = ppt.getTaggedString("The quick brown fox jumps over the lazy dog.");
         // System.out.println(taggedString);
@@ -84,6 +85,18 @@ public class PalladianPosTaggerIT {
         // Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotations(taggedTextFilePath,
         // TaggingFormat.SLASHES);
         // CollectionHelper.print(annotations);
+    }
+
+    @Test
+    public void testAccuracy() {
+        UniversalClassifierModel model = PalladianPosTagger.trainModel(trainDataSet);
+        PalladianPosTagger ppt = new PalladianPosTagger(model);
+        ConfusionMatrix result = ppt.evaluate(testDataSet);
+        assertGreater("accuracy", 0.89, result.getAccuracy());
+    }
+
+    private static void assertGreater(String value, double expected, double actual) {
+        assertTrue("expected value of " + expected + " for " + value + ", was " + actual, actual > expected);
     }
 
 }
