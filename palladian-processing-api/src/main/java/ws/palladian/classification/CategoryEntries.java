@@ -39,7 +39,6 @@ public interface CategoryEntries extends Iterable<Category> {
      * </p>
      * 
      * @return The category with the highest relevance, or <code>null</code> in case no categories were classified.
-     * @deprecated Use {@link #getMostLikely()} instead.
      */
     String getMostLikelyCategory();
 

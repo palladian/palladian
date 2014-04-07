@@ -14,8 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ws.palladian.classification.universal.UniversalClassifierModel;
-import ws.palladian.helper.ProcessHelper;
-import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
@@ -42,9 +40,6 @@ public class PalladianPosTaggerIT {
             assumeDirectory(trainDataSet, testDataSet);
         } catch (FileNotFoundException e) {
             fail("palladian-test.properties not found; test is skipped!");
-        }
-        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
-            fail("Not enough memory. This test requires at least 1 GB heap memory.");
         }
     }
 
