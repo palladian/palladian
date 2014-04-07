@@ -9,6 +9,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.universal.UniversalClassifier.UniversalTrainable;
 import ws.palladian.classification.universal.UniversalClassifierModel;
+import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -28,6 +30,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
@@ -76,13 +79,18 @@ public class PalladianPosTagger extends BasePosTagger {
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.BAYES), featureSetting);
     }
     
+    /**
+     * An iterator for the Brown corpus dataset. Converts the individual documents to single token instances.
+     * 
+     * @author pk
+     */
     private static final class BrownCorpusIterator extends AbstractIterator<UniversalTrainable> {
-        
+
         final ProgressMonitor progressMonitor;
         final Iterator<File> trainingFiles;
         Iterator<UniversalTrainable> currentInstances;
-        
-        public BrownCorpusIterator(String trainingDirectory) {
+
+        BrownCorpusIterator(String trainingDirectory) {
             File[] trainingFilesArray = FileHelper.getFiles(trainingDirectory);
             trainingFiles = new ArrayIterator<File>(trainingFilesArray);
             progressMonitor = new ProgressMonitor(trainingFilesArray.length, 1);
@@ -125,10 +133,11 @@ public class PalladianPosTagger extends BasePosTagger {
             }
             return trainingInstances.iterator();
         }
-        
+
     }
 
     public static UniversalClassifierModel trainModel(final String folderPath) {
+        Validate.notEmpty(folderPath, "folderPath must not be empty");
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
         UniversalClassifierModel model = getTagger().train(new Iterable<UniversalTrainable>() {
@@ -159,38 +168,15 @@ public class PalladianPosTagger extends BasePosTagger {
         return new UniversalTrainable(word, builder.create(), targetClass);
     }
 
-    public ConfusionMatrix evaluate(String folderPath) {
-        ConfusionMatrix matrix = new ConfusionMatrix();
-        File[] testFiles = FileHelper.getFiles(folderPath);
-        ProgressMonitor progressMonitor = new ProgressMonitor(testFiles.length, 1);
-        for (File file : testFiles) {
-
-            String content = FileHelper.tryReadFileToString(file);
-
-            String[] wordsAndTagPairs = content.split("\\s");
-
-            for (String wordAndTagPair : wordsAndTagPairs) {
-
-                if (wordAndTagPair.isEmpty()) {
-                    continue;
-                }
-
-                String[] wordAndTag = wordAndTagPair.split("/");
-                String word = wordAndTag[0];
-
-                if (wordAndTag.length < 2 || word.isEmpty()) {
-                    continue;
-                }
-
-                FeatureVector featureVector = extractFeatures(wordAndTag[0], null);
-                CategoryEntries categoryEntries = tagger.classify(featureVector, model);
-                String assignedTag = categoryEntries.getMostLikelyCategory();
-                String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
-                matrix.add(correctTag, assignedTag);
+    public ConfusionMatrix evaluate(final String folderPath) {
+        Validate.notEmpty(folderPath, "folderPath must not be empty");
+        Iterable<? extends Trainable> testData = new Iterable<UniversalTrainable>() {
+            @Override
+            public Iterator<UniversalTrainable> iterator() {
+                return new BrownCorpusIterator(folderPath);
             }
-            progressMonitor.incrementAndPrintProgress();
-        }
-        return matrix;
+        };
+        return ClassifierEvaluation.evaluate(tagger, testData, model);
     }
 
     @Override
