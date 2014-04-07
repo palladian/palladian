@@ -77,7 +77,7 @@ public class ScopeDetectorEvaluator {
      */
     private static void writeHeader() {
         if (!RESULT_CSV_FILE.isFile()) {
-            String header = "detector;below1km;below10km;below100km;below1000km;meanError;medianError;minError;maxError;mse;rmse;misses\n";
+            String header = "detector;below1km;below10km;below100km;below1000km;meanError;medianError;minError;maxError;mse;rmse;misses;timeSeconds\n";
             FileHelper.writeToFile(RESULT_CSV_FILE.getPath(), header);
         }
     }
@@ -131,8 +131,10 @@ public class ScopeDetectorEvaluator {
                 detailedResultsBuilder.append(distance).append('\n');
             }
         }
+        
+        stopWatch.stop();
 
-        String line = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n", //
+        String line = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n", //
                 scopeDetector.toString(), //
                 distanceStats.getCumulativeProbability(1), //
                 distanceStats.getCumulativeProbability(10), //
@@ -144,7 +146,8 @@ public class ScopeDetectorEvaluator {
                 distanceStats.getMax(), //
                 distanceStats.getMse(), //
                 distanceStats.getRmse(), //
-                misses); //
+                misses,
+                stopWatch.getElapsedTime(true)); //
         writeHeader();
         FileHelper.appendFile(RESULT_CSV_FILE.getPath(), line);
 
