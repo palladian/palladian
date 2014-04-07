@@ -10,12 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
-import ws.palladian.classification.text.PreprocessingPipeline;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
+import ws.palladian.classification.universal.UniversalClassifier.UniversalTrainable;
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
@@ -24,9 +23,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.BasicFeatureVector;
-import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -69,7 +66,7 @@ public class PalladianPosTagger extends BasePosTagger {
         String previousTag = "";
         for (PositionAnnotation annotation : annotations) {
 
-            FeatureVector featureVector = extractFeatures(previousTag, annotation.getValue());
+            FeatureVector featureVector = extractFeatures(previousTag, annotation.getValue(), null);
 
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
             String tag = categoryEntries.getMostLikelyCategory();
@@ -88,7 +85,7 @@ public class PalladianPosTagger extends BasePosTagger {
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
 
-        List<Instance> trainingInstances = CollectionHelper.newArrayList();
+        List<UniversalTrainable> trainingInstances = CollectionHelper.newArrayList();
 
         File[] trainingFiles = FileHelper.getFiles(folderPath);
         ProgressMonitor progressMonitor = new ProgressMonitor(trainingFiles.length, 1);
@@ -113,10 +110,12 @@ public class PalladianPosTagger extends BasePosTagger {
                     continue;
                 }
 
-                FeatureVector featureVector = extractFeatures(previousTag, wordAndTag[0]);
-                Instance instance = new Instance(normalizeTag(wordAndTag[1]), featureVector);
-
-                trainingInstances.add(instance);
+                String tag = normalizeTag(wordAndTag[1]);
+                if (tag.isEmpty()) {
+                    continue;
+                }
+                UniversalTrainable featureVector = extractFeatures(previousTag, wordAndTag[0], tag);
+                trainingInstances.add(featureVector);
 
                 previousTag = wordAndTag[1];
             }
@@ -136,7 +135,7 @@ public class PalladianPosTagger extends BasePosTagger {
         return model;
     }
 
-    private FeatureVector extractFeatures(String previousTag, String word) {
+    private UniversalTrainable extractFeatures(String previousTag, String word, String targetClass) {
 
         String lastTwo = "";
         if (word.length() > 1) {
@@ -162,14 +161,15 @@ public class PalladianPosTagger extends BasePosTagger {
             featureVector.add(new NominalFeature(name.intern(), nominalFeature));
         }
 
-        PreprocessingPipeline preprocessingPipeline = new PreprocessingPipeline(tagger.getFeatureSetting());
-        TextDocument textDocument = new TextDocument(word);
-        preprocessingPipeline.process(textDocument);
-        for (Feature<?> feature : textDocument.getFeatureVector()) {
-            featureVector.add(feature);
-        }
-
-        return featureVector;
+//        PreprocessingPipeline preprocessingPipeline = new PreprocessingPipeline(tagger.getFeatureSetting());
+//        TextDocument textDocument = new TextDocument(word);
+//        preprocessingPipeline.process(textDocument);
+//        for (Feature<?> feature : textDocument.getFeatureVector()) {
+//            featureVector.add(feature);
+//        }
+        
+        
+        return new UniversalTrainable(word, featureVector, targetClass);
     }
 
     public void evaluate(String folderPath, String modelFilePath) {
@@ -211,7 +211,7 @@ public class PalladianPosTagger extends BasePosTagger {
                     continue;
                 }
 
-                FeatureVector featureVector = extractFeatures(previousTag, wordAndTag[0]);
+                FeatureVector featureVector = extractFeatures(previousTag, wordAndTag[0], null);
                 CategoryEntries categoryEntries = tagger.classify(featureVector, model);
                 String assignedTag = categoryEntries.getMostLikelyCategory();
                 String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();

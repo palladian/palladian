@@ -1,8 +1,6 @@
 package ws.palladian.classification.universal;
 
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -13,7 +11,6 @@ import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
@@ -27,15 +24,37 @@ import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.processing.Classifiable;
+import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 
 public class UniversalClassifier implements Learner<UniversalClassifierModel>, Classifier<UniversalClassifierModel> {
+    
+    public static final class UniversalTrainable extends TextDocument implements Trainable {
+
+        private final FeatureVector featureVector;
+        private final String targetClass;
+
+        public UniversalTrainable(String text, FeatureVector featureVector, String targetClass) {
+            super(text);
+            this.featureVector = featureVector;
+            this.targetClass = targetClass;
+        }
+
+        @Override
+        public FeatureVector getFeatureVector() {
+            return featureVector;
+        }
+
+        @Override
+        public String getTargetClass() {
+            return targetClass;
+        }
+
+    }
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
@@ -77,51 +96,51 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
         this.settings = settings;
     }
 
-    private void learnClassifierWeights(List<Instance> instances, UniversalClassifierModel model) {
-        int[] correctlyClassified = new int[3];
-        Arrays.fill(correctlyClassified, 0);
+//    private void learnClassifierWeights(List<Instance> instances, UniversalClassifierModel model) {
+//        int[] correctlyClassified = new int[3];
+//        Arrays.fill(correctlyClassified, 0);
+//
+//        int c = 1;
+//        for (Instance instance : instances) {
+//            UniversalClassificationResult result = internalClassify(instance.getFeatureVector(), model);
+//            int[] evaluatedResult = evaluateResults(instance, result);
+//            correctlyClassified[0] += evaluatedResult[0];
+//            correctlyClassified[1] += evaluatedResult[1];
+//            correctlyClassified[2] += evaluatedResult[2];
+//            ProgressHelper.printProgress(c++, instances.size(), 0);
+//        }
+//
+//        model.setWeights(correctlyClassified[0] / (double)instances.size(),
+//                correctlyClassified[1] / (double)instances.size(), correctlyClassified[2] / (double)instances.size());
+//
+//        LOGGER.debug("weight text   : " + model.getWeights()[0]);
+//        LOGGER.debug("weight numeric: " + model.getWeights()[1]);
+//        LOGGER.debug("weight nominal: " + model.getWeights()[2]);
+//    }
 
-        int c = 1;
-        for (Instance instance : instances) {
-            UniversalClassificationResult result = internalClassify(instance.getFeatureVector(), model);
-            int[] evaluatedResult = evaluateResults(instance, result);
-            correctlyClassified[0] += evaluatedResult[0];
-            correctlyClassified[1] += evaluatedResult[1];
-            correctlyClassified[2] += evaluatedResult[2];
-            ProgressHelper.printProgress(c++, instances.size(), 0);
-        }
-
-        model.setWeights(correctlyClassified[0] / (double)instances.size(),
-                correctlyClassified[1] / (double)instances.size(), correctlyClassified[2] / (double)instances.size());
-
-        LOGGER.debug("weight text   : " + model.getWeights()[0]);
-        LOGGER.debug("weight numeric: " + model.getWeights()[1]);
-        LOGGER.debug("weight nominal: " + model.getWeights()[2]);
-    }
-
-    private int[] evaluateResults(Instance instance, UniversalClassificationResult result) {
-
-        int[] correctlyClassified = new int[3];
-        Arrays.fill(correctlyClassified, 0);
-
-        // Since there are not weights yet the classifier weights all results with one.
-        CategoryEntries textResult = result.getTextResults();
-        if (textResult != null && textResult.getMostLikelyCategory() != null
-                && textResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
-            correctlyClassified[0]++;
-        }
-        CategoryEntries numericResult = result.getNumericResults();
-        if (numericResult != null && numericResult.getMostLikelyCategory() != null
-                && numericResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
-            correctlyClassified[1]++;
-        }
-        CategoryEntries nominalResult = result.getNominalResults();
-        if (nominalResult != null && nominalResult.getMostLikelyCategory() != null
-                && nominalResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
-            correctlyClassified[2]++;
-        }
-        return correctlyClassified;
-    }
+//    private int[] evaluateResults(Instance instance, UniversalClassificationResult result) {
+//
+//        int[] correctlyClassified = new int[3];
+//        Arrays.fill(correctlyClassified, 0);
+//
+//        // Since there are not weights yet the classifier weights all results with one.
+//        CategoryEntries textResult = result.getTextResults();
+//        if (textResult != null && textResult.getMostLikelyCategory() != null
+//                && textResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
+//            correctlyClassified[0]++;
+//        }
+//        CategoryEntries numericResult = result.getNumericResults();
+//        if (numericResult != null && numericResult.getMostLikelyCategory() != null
+//                && numericResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
+//            correctlyClassified[1]++;
+//        }
+//        CategoryEntries nominalResult = result.getNominalResults();
+//        if (nominalResult != null && nominalResult.getMostLikelyCategory() != null
+//                && nominalResult.getMostLikelyCategory().equals(instance.getTargetClass())) {
+//            correctlyClassified[2]++;
+//        }
+//        return correctlyClassified;
+//    }
 
     protected UniversalClassificationResult internalClassify(Classifiable classifiable, UniversalClassifierModel model) {
 
@@ -129,22 +148,22 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
         CategoryEntries numeric = null;
         CategoryEntries nominal = null;
 
-        FeatureVector featureVectorWithoutTerms = new BasicFeatureVector(classifiable.getFeatureVector());
-        featureVectorWithoutTerms.remove(BaseTokenizer.PROVIDED_FEATURE);
+//        FeatureVector featureVectorWithoutTerms = new BasicFeatureVector(classifiable.getFeatureVector());
+//        featureVectorWithoutTerms.remove(BaseTokenizer.PROVIDED_FEATURE);
 
         // classify text using the dictionary classifier
         if (model.getDictionaryModel() != null) {
-            text = textClassifier.classify(classifiable.getFeatureVector(), model.getDictionaryModel());
+            text = textClassifier.classify(classifiable, model.getDictionaryModel());
         }
 
         // classify numeric features with the KNN
         if (model.getKnnModel() != null) {
-            numeric = numericClassifier.classify(featureVectorWithoutTerms, model.getKnnModel());
+            numeric = numericClassifier.classify(classifiable, model.getKnnModel());
         }
 
         // classify nominal features with the Bayes classifier
         if (model.getBayesModel() != null) {
-            nominal = nominalClassifier.classify(featureVectorWithoutTerms, model.getBayesModel());
+            nominal = nominalClassifier.classify(classifiable, model.getBayesModel());
         }
         return new UniversalClassificationResult(text, numeric, nominal);
     }
@@ -274,10 +293,6 @@ class UniversalClassificationResult {
         return textCategories;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

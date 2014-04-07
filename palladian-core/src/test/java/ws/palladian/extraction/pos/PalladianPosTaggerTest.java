@@ -42,8 +42,8 @@ public class PalladianPosTaggerTest {
         } catch (FileNotFoundException e) {
             fail("palladian-test.properties not found; test is skipped!");
         }
-        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(1792)) {
-            fail("Not enough memory. This test requires at least 2 GB heap memory.");
+        if (ProcessHelper.getFreeMemory() < SizeUnit.GIGABYTES.toBytes(1)) {
+            fail("Not enough memory. This test requires at least 1 GB heap memory.");
         }
     }
 
