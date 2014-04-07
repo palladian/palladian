@@ -1,6 +1,5 @@
 package ws.palladian.classification.universal;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import ws.palladian.classification.Model;
@@ -17,18 +16,10 @@ public class UniversalClassifierModel implements Model {
     private final KnnModel knnModel;
     private final DictionaryModel dictionaryModel;
 
-    private final double[] weights;
-
-    public UniversalClassifierModel(NaiveBayesModel bayesModel, KnnModel knnModel, DictionaryModel dictionaryModel) {
+    UniversalClassifierModel(NaiveBayesModel bayesModel, KnnModel knnModel, DictionaryModel dictionaryModel) {
         this.bayesModel = bayesModel;
         this.knnModel = knnModel;
         this.dictionaryModel = dictionaryModel;
-
-        weights = new double[3];
-
-        weights[0] = 1.0;
-        weights[1] = 1.0;
-        weights[2] = 1.0;
     }
 
     public NaiveBayesModel getBayesModel() {
@@ -52,20 +43,8 @@ public class UniversalClassifierModel implements Model {
         builder.append(knnModel);
         builder.append(", dictionaryModel=");
         builder.append(dictionaryModel);
-        builder.append(", weights=");
-        builder.append(Arrays.toString(weights));
         builder.append("]");
         return builder.toString();
-    }
-
-    public double[] getWeights() {
-        return weights;
-    }
-
-    void setWeights(double... weights) {
-        this.weights[0] = weights[0];
-        this.weights[1] = weights[1];
-        this.weights[2] = weights[2];
     }
 
     @Override
