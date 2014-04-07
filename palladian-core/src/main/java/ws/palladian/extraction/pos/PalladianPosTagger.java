@@ -34,8 +34,6 @@ import ws.palladian.processing.features.PositionAnnotation;
  * Palladian version of a text-classification-based part-of-speech tagger.
  * </p>
  * 
- * XXX this is a super use case for an universal classifier using different types of features + neighbors
- * 
  * @author David Urbansky
  */
 public class PalladianPosTagger extends BasePosTagger {
@@ -45,30 +43,27 @@ public class PalladianPosTagger extends BasePosTagger {
 
     private static final String TAGGER_NAME = "Palladian POS-Tagger";
 
-    private UniversalClassifier tagger;
-    private UniversalClassifierModel model;
+    private final UniversalClassifier tagger = getTagger();
+
+    private final UniversalClassifierModel model;
 
     public PalladianPosTagger(String modelFilePath) {
         try {
             model = FileHelper.deserialize(modelFilePath);
-            tagger = getTagger();
         } catch (IOException e) {
             throw new IllegalStateException();
         }
     }
 
-    public PalladianPosTagger() {
-        tagger = getTagger();
+    public PalladianPosTagger(UniversalClassifierModel model) {
+        this.model = model;
     }
 
     @Override
     public void tag(List<PositionAnnotation> annotations) {
-
         String previousTag = "";
         for (PositionAnnotation annotation : annotations) {
-
             FeatureVector featureVector = extractFeatures(previousTag, annotation.getValue(), null);
-
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
             String tag = categoryEntries.getMostLikelyCategory();
             assignTag(annotation, Arrays.asList(new String[] {tag}));
@@ -76,12 +71,12 @@ public class PalladianPosTagger extends BasePosTagger {
         }
     }
 
-    private UniversalClassifier getTagger() {
+    private static UniversalClassifier getTagger() {
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(1, 7).create();
         return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.BAYES), featureSetting);
     }
 
-    public UniversalClassifierModel trainModel(String folderPath, String modelFilePath) throws IOException {
+    public static UniversalClassifierModel trainModel(String folderPath) {
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
@@ -125,18 +120,12 @@ public class PalladianPosTagger extends BasePosTagger {
         }
 
         LOGGER.info("all files read in {}", stopWatch.getElapsedTimeString());
-        model = tagger.train(trainingInstances);
-
-        // classifier.learnClassifierWeightsByCategory(trainingInstances);
-
-        FileHelper.serialize(model, modelFilePath);
-
+        UniversalClassifierModel model = getTagger().train(trainingInstances);
         LOGGER.info("finished training tagger in {}", stopWatch.getElapsedTimeString());
-
         return model;
     }
 
-    private UniversalTrainable extractFeatures(String previousTag, String word, String targetClass) {
+    private static UniversalTrainable extractFeatures(String previousTag, String word, String targetClass) {
 
         int wordLength = word.length();
         InstanceBuilder builder = new InstanceBuilder();
@@ -160,14 +149,7 @@ public class PalladianPosTagger extends BasePosTagger {
         return new UniversalTrainable(word, featureVector, targetClass);
     }
 
-    public void evaluate(String folderPath, String modelFilePath) {
-
-        try {
-            model = FileHelper.deserialize(modelFilePath);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-
+    public void evaluate(String folderPath) {
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start evaluating the tagger");
 

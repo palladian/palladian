@@ -13,6 +13,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.ResourceHelper;
@@ -24,7 +25,7 @@ import ws.palladian.helper.io.ResourceHelper;
  * 
  * @author David Urbansky
  */
-public class PalladianPosTaggerTest {
+public class PalladianPosTaggerIT {
 
     /** Path to the training data. */
     private static String trainDataSet;
@@ -42,7 +43,7 @@ public class PalladianPosTaggerTest {
         } catch (FileNotFoundException e) {
             fail("palladian-test.properties not found; test is skipped!");
         }
-        if (ProcessHelper.getFreeMemory() < SizeUnit.GIGABYTES.toBytes(1)) {
+        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
             fail("Not enough memory. This test requires at least 1 GB heap memory.");
         }
     }
@@ -61,28 +62,27 @@ public class PalladianPosTaggerTest {
     @Test
     public void test() throws IOException {
 
-        PalladianPosTagger ppt = new PalladianPosTagger();
-        ppt.trainModel(trainDataSet, "palladianEnPos.gz");
+        UniversalClassifierModel model = PalladianPosTagger.trainModel(trainDataSet);
+        PalladianPosTagger ppt = new PalladianPosTagger(model);
 
         String taggedString = "";
 
         taggedString = ppt.getTaggedString("The quick brown fox jumps over the lazy dog.");
-        System.out.println(taggedString);
+        // System.out.println(taggedString);
         assertEquals("The/AT quick/RB brown/JJ fox/NN jumps/NNS over/RP the/AT lazy/JJ dog/NN ./.", taggedString);
 
         taggedString = ppt.getTaggedString("I like my cake.");
-        System.out.println(taggedString);
+        // System.out.println(taggedString);
         assertEquals("I/PPSS like/CS my/PP$ cake/NN ./.", taggedString);
 
         taggedString = ppt.getTaggedString("Your gun is the best friend you have.");
-        System.out.println(taggedString);
+        // System.out.println(taggedString);
         assertEquals("Your/PP$ gun/NN is/BEZ the/AT best/JJT friend/NN you/PPSS have/HV ./.", taggedString);
 
         taggedString = ppt.getTaggedString("I'm here to say that we're about to do that.");
-        System.out.println(taggedString);
+        // System.out.println(taggedString);
         assertEquals("I/PPSS '/' m/NN here/RN to/TO say/VB that/CS we/PPSS '/' re/QL about/RB to/TO do/DO that/CS ./.",
                 taggedString);
-
 
         // XXX run evaluation on test data for integration tests
         // String taggedTextFilePath = FileHelper.readFileToString(DATASET_TEST_PATH + "ca01");
