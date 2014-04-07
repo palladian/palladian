@@ -1,5 +1,7 @@
 package ws.palladian.extraction.pos;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -10,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
+import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.universal.UniversalClassifier;
@@ -23,9 +26,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -77,7 +78,7 @@ public class PalladianPosTagger extends BasePosTagger {
 
     private UniversalClassifier getTagger() {
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(1, 7).create();
-        return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.NOMINAL), featureSetting);
+        return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.BAYES), featureSetting);
     }
 
     public UniversalClassifierModel trainModel(String folderPath, String modelFilePath) throws IOException {
@@ -137,38 +138,25 @@ public class PalladianPosTagger extends BasePosTagger {
 
     private UniversalTrainable extractFeatures(String previousTag, String word, String targetClass) {
 
-        String lastTwo = "";
-        if (word.length() > 1) {
-            lastTwo = word.substring(word.length() - 2);
-        }
+        int wordLength = word.length();
+        InstanceBuilder builder = new InstanceBuilder();
+        builder.set("startsUppercase", StringHelper.startsUppercase(word));
+        builder.set("length1", wordLength == 1);
+        builder.set("length2", wordLength == 2);
+        builder.set("length3", wordLength == 3);
+        builder.set("length", String.valueOf(wordLength));
+        builder.set("number", StringHelper.isNumberOrNumberWord(word));
+        builder.set("completelyUppercase", StringHelper.isCompletelyUppercase(word));
+        builder.set("normalizedLength", String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", EMPTY).length()));
+        builder.set("lastCharacter", word.substring(wordLength - 1));
+        builder.set("firstCharacter", word.substring(0, 1));
+        builder.set("lastTwoCharacters", wordLength > 1 ? word.substring(wordLength - 2) : EMPTY);
+        builder.set("word", word);
 
-        // instance.setTextFeature(word);
-
-        List<String> nominalFeatures = Arrays.asList(
-                // previousTag
-                String.valueOf(StringHelper.startsUppercase(word)), String.valueOf(word.length() == 1),
-                String.valueOf(word.length() == 2), String.valueOf(word.length() == 3), String.valueOf(word.length()),
-                String.valueOf(StringHelper.isNumberOrNumberWord(word)),
-                String.valueOf(StringHelper.isCompletelyUppercase(word)),
-                String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", "").length()), word.substring(word.length() - 1),
-                word.substring(0, 1), lastTwo, word);
         // instance.setNumericFeatures(Arrays.asList((double)word.length()));
         // instance.setNominalFeatures(Arrays.asList(word));
 
-        FeatureVector featureVector = new BasicFeatureVector();
-        for (String nominalFeature : nominalFeatures) {
-            String name = "nom" + featureVector.size();
-            featureVector.add(new NominalFeature(name.intern(), nominalFeature));
-        }
-
-//        PreprocessingPipeline preprocessingPipeline = new PreprocessingPipeline(tagger.getFeatureSetting());
-//        TextDocument textDocument = new TextDocument(word);
-//        preprocessingPipeline.process(textDocument);
-//        for (Feature<?> feature : textDocument.getFeatureVector()) {
-//            featureVector.add(feature);
-//        }
-        
-        
+        FeatureVector featureVector = builder.create();
         return new UniversalTrainable(word, featureVector, targetClass);
     }
 
@@ -239,20 +227,6 @@ public class PalladianPosTagger extends BasePosTagger {
     @Override
     public String getName() {
         return TAGGER_NAME;
-    }
-
-    public static void main(String[] args) {
-        // PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
-
-        // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
-        // palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
-        // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
-        // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
-        // palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
-
-        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog", "ppos_.gz")
-        // .getTaggedString());
-        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
 }
