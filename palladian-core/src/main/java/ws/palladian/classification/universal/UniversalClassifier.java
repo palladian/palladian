@@ -23,7 +23,7 @@ import ws.palladian.classification.numeric.KnnLearner;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.extraction.token.BaseTokenizer;
@@ -58,7 +58,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
     private final EnumSet<ClassifierSetting> settings;
 
     public UniversalClassifier() {
-        this(EnumSet.allOf(ClassifierSetting.class), new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 3, 7));
+        this(EnumSet.allOf(ClassifierSetting.class), FeatureSettingBuilder.chars(3, 7).create());
     }
 
     public UniversalClassifier(FeatureSetting featureSetting) {
@@ -66,7 +66,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
     }
 
     public UniversalClassifier(EnumSet<ClassifierSetting> settings) {
-        this(settings, new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 3, 7));
+        this(settings, FeatureSettingBuilder.chars(3, 7).create());
     }
 
     public UniversalClassifier(EnumSet<ClassifierSetting> settings, FeatureSetting featureSetting) {

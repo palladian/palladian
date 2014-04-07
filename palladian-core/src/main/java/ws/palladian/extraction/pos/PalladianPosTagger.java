@@ -17,7 +17,6 @@ import ws.palladian.classification.text.PreprocessingPipeline;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.universal.UniversalClassifierModel;
-import ws.palladian.helper.Cache;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -52,16 +51,12 @@ public class PalladianPosTagger extends BasePosTagger {
     private UniversalClassifierModel model;
 
     public PalladianPosTagger(String modelFilePath) {
-        model = (UniversalClassifierModel)Cache.getInstance().getDataObject(modelFilePath);
-        if (model == null) {
-            try {
-                model = FileHelper.deserialize(modelFilePath);
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
-            Cache.getInstance().putDataObject(modelFilePath, model);
+        try {
+            model = FileHelper.deserialize(modelFilePath);
+            tagger = getTagger();
+        } catch (IOException e) {
+            throw new IllegalStateException();
         }
-        tagger = getTagger();
     }
 
     public PalladianPosTagger() {
@@ -129,15 +124,14 @@ public class PalladianPosTagger extends BasePosTagger {
             progressMonitor.incrementAndPrintProgress();
         }
 
-        LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("all files read in {}", stopWatch.getElapsedTimeString());
         model = tagger.train(trainingInstances);
 
         // classifier.learnClassifierWeightsByCategory(trainingInstances);
 
         FileHelper.serialize(model, modelFilePath);
-        Cache.getInstance().putDataObject(modelFilePath, model);
 
-        LOGGER.info("finished training tagger in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("finished training tagger in {}", stopWatch.getElapsedTimeString());
 
         return model;
     }
@@ -180,14 +174,17 @@ public class PalladianPosTagger extends BasePosTagger {
 
     public void evaluate(String folderPath, String modelFilePath) {
 
-        model = (UniversalClassifierModel)Cache.getInstance().getDataObject(modelFilePath, new File(modelFilePath));
+        try {
+            model = FileHelper.deserialize(modelFilePath);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
 
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start evaluating the tagger");
 
         ConfusionMatrix matrix = new ConfusionMatrix();
 
-        int c = 1;
         int correct = 0;
         int total = 0;
 
@@ -231,12 +228,12 @@ public class PalladianPosTagger extends BasePosTagger {
             progressMonitor.incrementAndPrintProgress();
         }
 
-        LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("all files read in {}", stopWatch.getElapsedTimeString());
 
-        LOGGER.info("Accuracy: " + MathHelper.round(100.0 * correct / total, 2) + "%");
-        LOGGER.info("\n" + matrix);
+        LOGGER.info("Accuracy: {}", MathHelper.round(100.0 * correct / total, 2) + "%");
+        LOGGER.info("\n{}", matrix);
 
-        LOGGER.info("finished evaluating the tagger in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("finished evaluating the tagger in {}", stopWatch.getElapsedTimeString());
     }
 
     @Override
