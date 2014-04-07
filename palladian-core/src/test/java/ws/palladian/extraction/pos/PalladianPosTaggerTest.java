@@ -1,11 +1,21 @@
 package ws.palladian.extraction.pos;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.junit.Ignore;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import ws.palladian.helper.ProcessHelper;
+import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.io.ResourceHelper;
 
 /**
  * <p>
@@ -16,15 +26,43 @@ import org.junit.Test;
  */
 public class PalladianPosTaggerTest {
 
-    private static final String DATASET_TRAINING_PATH = "H:\\PalladianData\\Datasets\\Brown Corpus\\prepared\\train\\";// "PUT YOUR DATASET PATH IN HERE";
-    private static final String DATASET_TEST_PATH = "H:\\PalladianData\\Datasets\\Brown Corpus\\prepared\\test\\";// "PUT YOUR DATASET PATH IN HERE";
+    /** Path to the training data. */
+    private static String trainDataSet;
+    /** Path to the test data. */
+    private static String testDataSet;
 
-    @Ignore
+    @BeforeClass
+    public static void readConfiguration() throws ConfigurationException {
+        try {
+            PropertiesConfiguration config = new PropertiesConfiguration(
+                    ResourceHelper.getResourceFile("/palladian-test.properties"));
+            trainDataSet = config.getString("dataset.brown.train");
+            testDataSet = config.getString("dataset.brown.test");
+            assumeDirectory(trainDataSet, testDataSet);
+        } catch (FileNotFoundException e) {
+            fail("palladian-test.properties not found; test is skipped!");
+        }
+        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(1792)) {
+            fail("Not enough memory. This test requires at least 2 GB heap memory.");
+        }
+    }
+
+    /**
+     * Make sure, all given paths are pointing to directories.
+     * 
+     * @param paths
+     */
+    private static void assumeDirectory(String... paths) {
+        for (String path : paths) {
+            assumeTrue(path + " not present", new File(path).isDirectory());
+        }
+    }
+
     @Test
     public void test() throws IOException {
 
         PalladianPosTagger ppt = new PalladianPosTagger();
-        ppt.trainModel(DATASET_TRAINING_PATH, "palladianEnPos.gz");
+        ppt.trainModel(trainDataSet, "palladianEnPos.gz");
 
         String taggedString = "";
 
