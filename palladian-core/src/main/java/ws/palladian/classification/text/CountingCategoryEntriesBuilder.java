@@ -60,14 +60,14 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
     @Override
     public CategoryEntries create() {
         int totalCount = getTotalCount();
+        if (totalCount == 0) {
+            return ImmutableCategoryEntries.EMPTY;
+        }
         List<ImmutableCategory> entries = CollectionHelper.newArrayList();
         for (Entry<String, MutableInt> entry : entryMap.entrySet()) {
-            if (totalCount == 0) {
-            } else {
-                int count = entry.getValue().intValue();
-                double probability = (double)count / totalCount;
-                entries.add(new ImmutableCategory(entry.getKey(), probability, count));
-            }
+            int count = entry.getValue().intValue();
+            double probability = (double)count / totalCount;
+            entries.add(new ImmutableCategory(entry.getKey(), probability, count));
         }
         return new ImmutableCategoryEntries(entries);
     }
