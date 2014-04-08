@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -76,9 +75,9 @@ public class PalladianPosTagger extends BasePosTagger {
 
     private static UniversalClassifier getTagger() {
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(1, 7).create();
-        return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.BAYES), featureSetting);
+        return new UniversalClassifier(featureSetting, ClassifierSetting.TEXT, ClassifierSetting.BAYES);
     }
-    
+
     /**
      * An iterator for the Brown corpus dataset. Converts the individual documents to single token instances.
      * 

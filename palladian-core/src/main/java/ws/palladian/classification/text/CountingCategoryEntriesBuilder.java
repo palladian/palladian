@@ -1,12 +1,12 @@
 package ws.palladian.classification.text;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.ImmutableCategory;
 import ws.palladian.classification.ImmutableCategoryEntries;
@@ -63,13 +63,26 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         if (totalCount == 0) {
             return ImmutableCategoryEntries.EMPTY;
         }
-        List<ImmutableCategory> entries = CollectionHelper.newArrayList();
+//        List<ImmutableCategory> entries = CollectionHelper.newArrayList();
+//        for (Entry<String, MutableInt> entry : entryMap.entrySet()) {
+//            int count = entry.getValue().intValue();
+//            double probability = (double)count / totalCount;
+//            entries.add(new ImmutableCategory(entry.getKey(), probability, count));
+//        }
+//        return new ImmutableCategoryEntries(entries);
+        Map<String, Category> entries = CollectionHelper.newHashMap();
+        Category mostLikely = null;
         for (Entry<String, MutableInt> entry : entryMap.entrySet()) {
             int count = entry.getValue().intValue();
             double probability = (double)count / totalCount;
-            entries.add(new ImmutableCategory(entry.getKey(), probability, count));
+            String name = entry.getKey();
+            ImmutableCategory category = new ImmutableCategory(name, probability, count);
+            entries.put(name, category);
+            if (mostLikely == null || mostLikely.getProbability() < probability) {
+                mostLikely = category;
+            }
         }
-        return new ImmutableCategoryEntries(entries);
+        return new ImmutableCategoryEntries(entries, mostLikely);
     }
 
     public int getTotalCount() {

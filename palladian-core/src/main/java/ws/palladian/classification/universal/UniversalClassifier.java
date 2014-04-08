@@ -1,7 +1,8 @@
 package ws.palladian.classification.universal;
 
-import java.util.EnumSet;
+import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.NoNormalizer;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.Trainable;
@@ -66,17 +68,19 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
     /** The Bayes classifier for nominal classification. */
     private final NaiveBayesClassifier nominalClassifier;
 
-    private final EnumSet<ClassifierSetting> settings;
+    private final Set<ClassifierSetting> settings;
 
     public UniversalClassifier() {
-        this(EnumSet.allOf(ClassifierSetting.class), FeatureSettingBuilder.chars(3, 7).create());
+        this(FeatureSettingBuilder.chars(3, 7).create(), ClassifierSetting.values());
     }
 
-    public UniversalClassifier(EnumSet<ClassifierSetting> settings, FeatureSetting featureSetting) {
+    public UniversalClassifier(FeatureSetting featureSetting, ClassifierSetting... settings) {
+        Validate.notNull(featureSetting, "featureSetting must not be null");
+        Validate.notNull(settings, "settings must not be null");
         textClassifier = new PalladianTextClassifier(featureSetting);
         numericClassifier = new KnnClassifier(3);
         nominalClassifier = new NaiveBayesClassifier();
-        this.settings = settings;
+        this.settings = CollectionHelper.newHashSet(settings);
     }
 
     @Override
