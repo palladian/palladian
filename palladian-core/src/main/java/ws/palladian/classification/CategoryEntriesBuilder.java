@@ -124,20 +124,43 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     @Override
     public CategoryEntries create() {
         double total = getTotalScore();
-        Map<String, Double> map = CollectionHelper.newHashMap();
+        Map<String, Category> map = CollectionHelper.newHashMap();
+        Category mostLikely = null;
         for (Entry<String, MutableDouble> entry : entryMap.entrySet()) {
+            double probability;
             if (total == 0) {
-                map.put(entry.getKey(), 0.);
+                probability = 0.;
             } else {
-                double normalized = entry.getValue().doubleValue() / total;
+                probability = entry.getValue().doubleValue() / total;
                 if (total < 0) {
                     // in case we have summed up log probabilities; we need the "inverse"
-                    normalized = 1 - normalized;
+                    probability = 1 - probability;
                 }
-                map.put(entry.getKey(), normalized);
+            }
+            String name = entry.getKey();
+            Category category = new ImmutableCategory(name, probability);
+            map.put(name, category);
+            if (mostLikely == null || mostLikely.getProbability() < probability) {
+                mostLikely = category;
             }
         }
-        return new ImmutableCategoryEntries(map);
+        return new ImmutableCategoryEntries(map, mostLikely);
+        
+//        double total = getTotalScore();
+//        Map<String, Double> map = CollectionHelper.newHashMap();
+//        for (Entry<String, MutableDouble> entry : entryMap.entrySet()) {
+//            if (total == 0) {
+//                map.put(entry.getKey(), 0.);
+//            } else {
+//                double normalized = entry.getValue().doubleValue() / total;
+//                if (total < 0) {
+//                    // in case we have summed up log probabilities; we need the "inverse"
+//                    normalized = 1 - normalized;
+//                }
+//                map.put(entry.getKey(), normalized);
+//            }
+//        }
+//        return new ImmutableCategoryEntries(map);
     }
 
     /**
