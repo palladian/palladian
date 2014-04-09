@@ -143,6 +143,9 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         if (!getDocumentCounts().equals(other.getDocumentCounts())) {
             return false;
         }
+        if (!getTermCounts().equals(other.getTermCounts())) {
+            return false;
+        }
         for (TermCategoryEntries thisEntries : this) {
             TermCategoryEntries otherEntries = other.getCategoryEntries(thisEntries.getTerm());
             if (!thisEntries.equals(otherEntries)) {
