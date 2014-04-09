@@ -20,12 +20,12 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.Category;
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
+//import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.classification.text.DictionaryTrieModel;
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
@@ -40,10 +40,11 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.CollectionHelper.Order;
+//import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
@@ -116,7 +117,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
     private DictionaryTrieModel caseDictionary;
 
-    private CountMap<String> leftContextMap = CountMap.create();
+    private Bag<String> leftContextMap = Bag.create();
 
     private CountMatrix<String> patternProbabilityMatrix = CountMatrix.create();
 
@@ -186,10 +187,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
         // the n-gram settings for the entity classifier should be tuned, they do not have a big influence on the size
         // of the model (3-5 to 2-8 => 2MB)
-        entityClassifier = new PalladianTextClassifier(new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 2, 8));
+        entityClassifier = new PalladianTextClassifier(FeatureSettingBuilder.chars(2, 8).create());
 
         // be careful with the n-gram sizes, they heavily influence the model size
-        contextClassifier = new PalladianTextClassifier(new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 4, 5));
+        contextClassifier = new PalladianTextClassifier(FeatureSettingBuilder.chars(4, 5).create());
 
         conceptLikelihoodOrder = CollectionHelper.newArrayList();
 
@@ -309,7 +310,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param modelFilePath The file where the tagger should be saved to. You do not need to add the file ending but if
      *            you do, it should be "model.gz".
      */
-    protected void saveModel(String modelFilePath) {
+    private void saveModel(String modelFilePath) {
 
         LOGGER.info("entity dictionary contains " + entityDictionary.getNumUniqTerms() + " entities");
         // entityDictionary.saveAsCSV();
@@ -455,7 +456,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
                 continue;
             }
             addToEntityDictionary(split[1], split[0]);
-            ProgressHelper.printProgress(i++, dictionaryEntries.size(), 1, stopWatch);
+            i++;
         }
 
         LOGGER.info("Added {} entities to the dictionary in {}", i - 2, stopWatch.getElapsedTimeString());
@@ -565,14 +566,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         List<ClassifiedTextDocument> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("add additional training annotations");
-        int c = 1;
         for (ContextAnnotation annotation : annotations) {
             ClassifiedTextDocument textInstance = new ClassifiedTextDocument(annotation.getTag(), annotation.getValue());
             textInstances.add(textInstance);
             addToEntityDictionary(annotation);
-            ProgressHelper.printProgress(c++, annotations.size(), 1);
         }
-        LOGGER.info("add {} additional training annotations", c);
+        LOGGER.info("add {} additional training annotations", annotations.size());
 
         // fill the case dictionary
         List<String> tokens = Tokenizer.tokenize(FileFormatParser.getText(trainingFilePath, TaggingFormat.COLUMN));
@@ -632,7 +631,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         return true;
     }
 
-    private boolean hasAssignedType(CategoryEntries ces) {
+    private static boolean hasAssignedType(CategoryEntries ces) {
         String mostLikelyCategoryEntry = ces.getMostLikelyCategory();
         if (mostLikelyCategoryEntry == null) {
             return false;
@@ -648,7 +647,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      */
     private Annotations<ContextAnnotation> classifyCandidatesEnglish(List<ContextAnnotation> entityCandidates) {
         Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
-        int i = 1;
         for (ContextAnnotation annotation : entityCandidates) {
 
             List<ContextAnnotation> wrappedAnnotations = new Annotations<ContextAnnotation>();
@@ -670,8 +668,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
                     annotations.add(annotation);
                 }
             }
-
-            ProgressHelper.printProgress(i++, entityCandidates.size(), 1);
         }
 
         return annotations;
@@ -687,7 +683,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             List<ContextAnnotation> entityCandidates) {
         Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
 
-        int i = 1;
         for (ContextAnnotation annotation : entityCandidates) {
 
             CategoryEntries results = entityClassifier.classify(annotation.getValue(), annotationModel);
@@ -695,8 +690,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
                 annotation.setTags(results);
                 annotations.add(annotation);
             }
-
-            ProgressHelper.printProgress(i++, entityCandidates.size(), 1);
         }
 
         return annotations;
@@ -893,17 +886,18 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
                 if (categoryEntries != null && categoryEntries.iterator().hasNext()) {
 
                     // get only the most likely concept
-                    CategoryEntriesMap mostLikelyCes = new CategoryEntriesMap();
+                    CategoryEntriesBuilder mostLikelyBuilder = new CategoryEntriesBuilder();
                     if (conceptLikelihoodOrder != null) {
                         ol: for (String conceptName : conceptLikelihoodOrder) {
                             for (Category categoryEntry : categoryEntries) {
                                 if (categoryEntry.getProbability() > 0
                                         && categoryEntry.getName().equalsIgnoreCase(conceptName)) {
-                                    mostLikelyCes.set(categoryEntry.getName(), categoryEntry.getProbability());
+                                    mostLikelyBuilder.set(categoryEntry.getName(), categoryEntry.getProbability());
                                     break ol;
                                 }
                             }
                         }
+                        CategoryEntries mostLikelyCes = mostLikelyBuilder.create();
                         if (mostLikelyCes.iterator().hasNext()) {
                             categoryEntries = mostLikelyCes;
                         }
@@ -923,7 +917,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
 
         stopWatch.start();
-        Map<String, Integer> sortedMap = leftContextMap.getSortedMapDescending();
+        Bag<String> sortedMap = leftContextMap.createSorted(Order.DESCENDING);
 
         for (ContextAnnotation annotation : annotations) {
 
@@ -959,7 +953,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             // context for people
             // XXX move this up?
             if (unwrapEntitiesWithContext) {
-                for (Entry<String, Integer> leftContextEntry : sortedMap.entrySet()) {
+                for (Entry<String, Integer> leftContextEntry : sortedMap.unique()) {
 
                     String leftContext = leftContextEntry.getKey();
 
@@ -1139,7 +1133,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             }
 
             // count the number of matching patterns per entity type
-            CountMap<String> matchingPatternMap = CountMap.create();
+            Bag<String> matchingPatternMap = Bag.create();
 
             int sumOfMatchingPatterns = 0;
             for (String string : patternProbabilityMatrix.getColumnKeys()) {
@@ -1160,27 +1154,21 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
             for (String string : patternProbabilityMatrix.getColumnKeys()) {
                 Double probability = probabilityMap.get(string);
-                probability += matchingPatternMap.getCount(string) / (double)sumOfMatchingPatterns;
+                probability += matchingPatternMap.count(string) / (double)sumOfMatchingPatterns;
                 probabilityMap.put(string, probability);
             }
         }
 
-        CategoryEntriesMap ce = new CategoryEntriesMap();
-
-        double sum = 0;
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         for (String string : patternProbabilityMatrix.getColumnKeys()) {
-            sum += probabilityMap.get(string);
+            builder.set(string, probabilityMap.get(string));
         }
-        if (sum == 0) {
-            sum = 1;
-        }
-        for (String string : patternProbabilityMatrix.getColumnKeys()) {
-            ce.set(string, probabilityMap.get(string) / sum);
-        }
-
-        CategoryEntries ceMerge = CategoryEntriesMap.merge(ce, annotation.getTags());
+        
+        builder.add(annotation.getTags());
+        CategoryEntries ceMerge = builder.create();
         annotation.setTags(ceMerge);
+        
     }
 
     /**
@@ -1191,7 +1179,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param text The text to check for date fragments.
      * @return <tt>True</tt>, if the text contains a date fragment, <tt>false</tt> otherwise.
      */
-    private boolean containsDateFragment(String text) {
+    private static boolean containsDateFragment(String text) {
         for (String regExp : RegExp.DATE_FRAGMENTS) {
             if (text.toLowerCase().replaceAll(regExp.toLowerCase(), "").trim().isEmpty()) {
                 return true;
@@ -1209,7 +1197,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @return An object array containing the new cleased text on position 0 and the offset which was caused by the
      *         removal on position 1.
      */
-    private Pair<String, Integer> removeDateFragment(String text) {
+    private static Pair<String, Integer> removeDateFragment(String text) {
         String[] regExps = RegExp.DATE_FRAGMENTS;
 
         int offsetChange = 0;
@@ -1253,10 +1241,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
         LOGGER.debug("start analyzing contexts");
 
-        Map<String, CountMap<String>> contextMap = new TreeMap<String, CountMap<String>>();
-        CountMap<String> leftContextMapCountMap = CountMap.create();
-        leftContextMap = CountMap.create();
-        CountMap<String> tagCounts = CountMap.create();
+        Map<String, Bag<String>> contextMap = new TreeMap<String, Bag<String>>();
+        Bag<String> leftContextMapCountMap = Bag.create();
+        leftContextMap = Bag.create();
+        Bag<String> tagCounts = Bag.create();
 
         // get all training annotations including their features
         Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
@@ -1264,7 +1252,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         List<ClassifiedTextDocument> trainingInstances = CollectionHelper.newArrayList();
 
         // iterate over all annotations and analyze their left and right contexts for patterns
-        int c = 1;
         for (ContextAnnotation annotation : annotations) {
 
             String tag = annotation.getTag();
@@ -1276,7 +1263,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             String[] rightContexts = annotation.getRightContexts();
 
             if (contextMap.get(tag) == null) {
-                contextMap.put(tag, CountMap.<String> create());
+                contextMap.put(tag, Bag.<String> create());
             }
 
             // add the left contexts to the map
@@ -1299,12 +1286,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             ClassifiedTextDocument trainingInstance = new ClassifiedTextDocument(tag, text);
             trainingInstances.add(trainingInstance);
 
-            ProgressHelper.printProgress(c++, annotations.size(), 1);
         }
 
         // fill the leftContextMap with the context and the ratio of inside annotation / outside annotation
         for (String leftContext : leftContextMapCountMap.uniqueItems()) {
-            int outside = leftContextMapCountMap.getCount(leftContext);
+            int outside = leftContextMapCountMap.count(leftContext);
             int inside = 0;
 
             for (ContextAnnotation annotation : annotations) {
@@ -1325,11 +1311,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         trainContextClassifier(trainingInstances);
 
         StringBuilder csv = new StringBuilder();
-        for (Entry<String, CountMap<String>> entry : contextMap.entrySet()) {
+        for (Entry<String, Bag<String>> entry : contextMap.entrySet()) {
 
-            int tagCount = tagCounts.getCount(entry.getKey());
-            CountMap<String> patterns = contextMap.get(entry.getKey());
-            Map<String, Integer> sortedMap = patterns.getSortedMap();
+            int tagCount = tagCounts.count(entry.getKey());
+            Bag<String> patterns = contextMap.get(entry.getKey());
+            Map<String, Integer> sortedMap = patterns.createSorted(Order.ASCENDING).toMap();
 
             csv.append(entry.getKey()).append("###").append(tagCount).append("\n");
 
@@ -1344,10 +1330,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         }
 
         // tagMap to matrix
-        for (Entry<String, CountMap<String>> patternEntry : contextMap.entrySet()) {
+        for (Entry<String, Bag<String>> patternEntry : contextMap.entrySet()) {
 
             for (String tagEntry : patternEntry.getValue().uniqueItems()) {
-                int count = patternEntry.getValue().getCount(tagEntry);
+                int count = patternEntry.getValue().count(tagEntry);
                 patternProbabilityMatrix.set(patternEntry.getKey(), tagEntry.toLowerCase(), count);
             }
 
@@ -1364,25 +1350,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         return languageMode;
     }
 
-    // public void setLanguageMode(LanguageMode languageMode) {
-    // this.languageMode = languageMode;
-    // }
-    //
-    // public void setTrainingMode(TrainingMode trainingMode) {
-    // this.trainingMode = trainingMode;
-    // if (trainingMode == TrainingMode.Sparse) {
-    // removeDates = true;
-    // removeDateEntries = true;
-    // removeIncorrectlyTaggedInTraining = false;
-    // removeSentenceStartErrorsCaseDictionary = true;
-    // switchTagAnnotationsUsingPatterns = true;
-    // switchTagAnnotationsUsingDictionary = true;
-    // unwrapEntities = true;
-    // unwrapEntitiesWithContext = true;
-    // retraining = false;
-    // }
-    // }
-
     public TrainingMode getTrainingMode() {
         return trainingMode;
     }
@@ -1397,7 +1364,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         return caseDictionary;
     }
 
-    CountMap<String> getLeftContextMap() {
+    Bag<String> getLeftContextMap() {
         return leftContextMap;
     }
 
