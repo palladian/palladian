@@ -57,14 +57,14 @@ public class NerTest {
         boolean traininSuccessful = tagger.train(trainingFile, tudnerLiModel);
         assertTrue(traininSuccessful);
 
-        DictionaryModel caseDictionary = tagger.getCaseDictionary();
-        DictionaryModel contextClassifier = tagger.getContextModel();
-        DictionaryModel annotationDictionary = tagger.getAnnotationModel();
-        assertEquals(2185, tagger.getEntityDictionary().getNumUniqTerms());
+        DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
+        DictionaryModel contextClassifier = tagger.getModel().contextModel;
+        DictionaryModel annotationDictionary = tagger.getModel().annotationModel;
+        assertEquals(2185, tagger.getModel().entityDictionary.getNumUniqTerms());
         assertEquals(0, caseDictionary.getNumUniqTerms());
         assertEquals(0, caseDictionary.getNumCategories());
-        assertEquals(1109, tagger.getLeftContextMap().size());
-        assertEquals(0, tagger.getRemoveAnnotations().size());
+        assertEquals(1109, tagger.getModel().leftContextMap.size());
+        assertEquals(0, tagger.getModel().removeAnnotations.size());
         assertEquals(89415, contextClassifier.getNumUniqTerms());
         assertEquals(4, contextClassifier.getNumCategories());
         assertEquals(53513, annotationDictionary.getNumUniqTerms());
@@ -112,16 +112,16 @@ public class NerTest {
         boolean trainingSuccessful = tagger.train(trainingFile, tudnerEnModel);
         assertTrue(trainingSuccessful);
 
-        DictionaryModel entityDictionary = tagger.getEntityDictionary();
-        DictionaryModel caseDictionary = tagger.getCaseDictionary();
-        DictionaryModel contextDictionary = tagger.getContextModel();
-        DictionaryModel annotationDictionary = tagger.getAnnotationModel();
+        DictionaryModel entityDictionary = tagger.getModel().entityDictionary;
+        DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
+        DictionaryModel contextDictionary = tagger.getModel().contextModel;
+        DictionaryModel annotationDictionary = tagger.getModel().annotationModel;
         assertEquals(2185, entityDictionary.getNumUniqTerms());
         // assertEquals(4, entityDictionary.getNumCategories());
         assertEquals(5818, caseDictionary.getNumUniqTerms());
         // assertEquals(3, caseDictionary.getNumCategories());
-        assertEquals(1109, tagger.getLeftContextMap().size());
-        assertEquals(370, tagger.getRemoveAnnotations().size());
+        assertEquals(1109, tagger.getModel().leftContextMap.size());
+        assertEquals(370, tagger.getModel().removeAnnotations.size());
         assertEquals(89415, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
         assertEquals(59587, annotationDictionary.getNumUniqTerms());
