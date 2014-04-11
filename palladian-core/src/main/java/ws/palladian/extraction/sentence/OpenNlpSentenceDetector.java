@@ -4,17 +4,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.Span;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
 
-import ws.palladian.helper.Cache;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.PositionAnnotationFactory;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -40,40 +42,33 @@ public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
      *            href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP</a> sentence detector.
      */
     public OpenNlpSentenceDetector(File modelFile) {
-        super();
         Validate.notNull(modelFile, "The model file must not be null.");
         this.model = loadModel(modelFile);
     }
 
-    private final SentenceDetectorME loadModel(File modelFile) {
-        SentenceDetectorME sdetector = (SentenceDetectorME)Cache.getInstance().getDataObject(modelFile.getAbsolutePath());
-        if (sdetector == null) {
-            InputStream modelIn = null;
-            try {
-                modelIn = new FileInputStream(modelFile);
-                sdetector = new SentenceDetectorME(new SentenceModel(modelIn));
-                Cache.getInstance().putDataObject(modelFile.getAbsolutePath(), sdetector);
-            } catch (IOException e) {
-                throw new IllegalStateException("Error initializing OpenNLP Sentence Detector from \""
-                        + modelFile.getAbsolutePath() + "\": " + e.getMessage());
-            } finally {
-                FileHelper.close(modelIn);
-            }
+    private static final SentenceDetectorME loadModel(File modelFile) {
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(modelFile);
+            return new SentenceDetectorME(new SentenceModel(inputStream));
+        } catch (IOException e) {
+            throw new IllegalStateException("Error initializing OpenNLP Sentence Detector from \""
+                    + modelFile.getAbsolutePath() + "\": " + e.getMessage());
+        } finally {
+            FileHelper.close(inputStream);
         }
-        return sdetector;
     }
 
     @Override
-    public OpenNlpSentenceDetector detect(String text) {
+    public List<Annotation> getAnnotations(String text) {
+        List<Annotation> sentences = CollectionHelper.newArrayList();
         Span[] sentenceBoundaries = model.sentPosDetect(text);
-        PositionAnnotation[] sentenceAnnotations = new PositionAnnotation[sentenceBoundaries.length];
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(text);
         for (int i = 0; i < sentenceBoundaries.length; i++) {
             int start = sentenceBoundaries[i].getStart();
             int end = sentenceBoundaries[i].getEnd();
-            sentenceAnnotations[i] = annotationFactory.create(start, end);
+            String value = text.substring(start, end);
+            sentences.add(new ImmutableAnnotation(start, value, StringUtils.EMPTY));
         }
-        setSentences(sentenceAnnotations);
-        return this;
+        return sentences;
     }
 }

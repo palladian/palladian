@@ -6,14 +6,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -322,7 +319,7 @@ public class TokenizerTest {
     @Test
     public void testSentenceOnTextWithMaskBetweenSentences() throws Exception {
         String inputText = "Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.";
-        List<PositionAnnotation> sentences = Tokenizer.getSentences(new TextDocument(inputText), "testFeature");
+        List<Annotation> sentences = Tokenizer.getSentences(inputText, "testFeature");
         // XXX uncomment as soon as regex is fixed
         // assertEquals(2, sentences.size());
 
