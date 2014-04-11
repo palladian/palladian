@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.NumericValue;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -19,9 +19,9 @@ public class MinMaxNormalizerTest {
     @Test
     public void testMinMaxNormalization() {
         List<FeatureVector> vectors = CollectionHelper.newArrayList();
-        FeatureVector fv1 = new FeatureVectorBuilder().set("v1", 50.).set("v2", 1000.).create();
-        FeatureVector fv2 = new FeatureVectorBuilder().set("v1", 10.).set("v2", 10000.).create();
-        FeatureVector fv3 = new FeatureVectorBuilder().set("v1", 5.).set("v2", 10.).create();
+        FeatureVector fv1 = new InstanceBuilder().set("v1", 50.).set("v2", 1000.).create();
+        FeatureVector fv2 = new InstanceBuilder().set("v1", 10.).set("v2", 10000.).create();
+        FeatureVector fv3 = new InstanceBuilder().set("v1", 5.).set("v2", 10.).create();
         vectors.add(fv1);
         vectors.add(fv2);
         vectors.add(fv3);
@@ -44,8 +44,8 @@ public class MinMaxNormalizerTest {
     @Test
     public void testNormalizationWithEqualMinMax() throws Exception {
         Collection<FeatureVector> instances = CollectionHelper.newArrayList();
-        instances.add(new FeatureVectorBuilder().set("test", 0.9d).create());
-        instances.add(new FeatureVectorBuilder().set("test", 0.9d).create());
+        instances.add(new InstanceBuilder().set("test", 0.9d).create());
+        instances.add(new InstanceBuilder().set("test", 0.9d).create());
         Normalization normalization = new MinMaxNormalizer().calculate(instances);
 
         double result = normalization.normalize("test", 5.0d);

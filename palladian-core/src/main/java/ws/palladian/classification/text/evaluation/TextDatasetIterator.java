@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
@@ -73,7 +73,7 @@ public class TextDatasetIterator implements Iterable<Instance> {
                 }
                 String instanceCategory = new String(parts[1]);
                 progressMonitor.incrementAndPrintProgress();
-                return new FeatureVectorBuilder().setText(learningText).create(instanceCategory);
+                return new InstanceBuilder().setText(learningText).create(instanceCategory);
             }
 
             @Override

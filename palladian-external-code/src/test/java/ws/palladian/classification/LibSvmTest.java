@@ -26,7 +26,7 @@ import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -48,8 +48,8 @@ public class LibSvmTest {
     @Ignore
     public void test() {
         List<Instance> instances = new ArrayList<Instance>();
-        Instance instance1 = new FeatureVectorBuilder().set("a", "a").set("b", 0.9).create("A");
-        Instance instance2 = new FeatureVectorBuilder().set("a", "b").set("b", 0.1).create("B");
+        Instance instance1 = new InstanceBuilder().set("a", "a").set("b", 0.9).create("A");
+        Instance instance2 = new InstanceBuilder().set("a", "b").set("b", 0.1).create("B");
         instances.add(instance1);
         instances.add(instance2);
 
@@ -60,7 +60,7 @@ public class LibSvmTest {
         assertTrue(model.getCategories().contains("A"));
         assertTrue(model.getCategories().contains("B"));
 
-        FeatureVector classificationVector = new FeatureVectorBuilder().set("a", "a").set("b", 0.8).create();
+        FeatureVector classificationVector = new InstanceBuilder().set("a", "a").set("b", 0.8).create();
         CategoryEntries result = new LibSvmClassifier().classify(classificationVector, model);
         assertThat(result.getMostLikelyCategory(), Matchers.is("A"));
     }
@@ -97,7 +97,7 @@ public class LibSvmTest {
         for (String line : lines) {
             String[] elements = line.split("\\s");
             String targetClass = elements[0];
-            FeatureVectorBuilder featureVectorBuilder = new FeatureVectorBuilder();
+            InstanceBuilder featureVectorBuilder = new InstanceBuilder();
             for (int i = 1; i < elements.length; i++) {
                 String[] element = elements[i].split(":");
                 String name = element[0];

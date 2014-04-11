@@ -25,7 +25,7 @@ import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
@@ -152,7 +152,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             }
             Stats distances = stats.getDistanceStats(location);
 
-            FeatureVectorBuilder builder = new FeatureVectorBuilder();
+            InstanceBuilder builder = new InstanceBuilder();
             builder.set("midpointDistance", midpointDistance);
             builder.set("normalizedMidpointDistance", normalizedMidpointDistance);
             builder.set("centerpointDistance", centerpointDistance);

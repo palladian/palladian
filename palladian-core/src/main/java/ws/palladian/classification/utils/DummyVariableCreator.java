@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.NominalValue;
 import ws.palladian.core.Value;
 import ws.palladian.helper.StopWatch;
@@ -147,7 +147,7 @@ public class DummyVariableCreator implements Serializable {
      */
     public FeatureVector convert(FeatureVector featureVector) {
         Validate.notNull(featureVector, "featureVector must not be null");
-        FeatureVectorBuilder builder = new FeatureVectorBuilder();
+        InstanceBuilder builder = new InstanceBuilder();
         for (VectorEntry<String, Value> entry : featureVector) {
             String featureName = entry.key();
             Value featureValue = entry.value();

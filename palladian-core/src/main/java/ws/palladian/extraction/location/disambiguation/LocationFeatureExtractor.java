@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.GeoCoordinate;
@@ -113,7 +113,7 @@ class LocationFeatureExtractor {
                 Long population = location.getPopulation();
 
                 // extract features and add them to the feature vector
-                FeatureVectorBuilder builder = new FeatureVectorBuilder();
+                InstanceBuilder builder = new InstanceBuilder();
 
                 // annotation features
                 // fv.add(new NumericFeature("numCharacters", value.length()));

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
@@ -112,7 +112,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
             }
             String[] parts = line.split(fieldSeparator);
             line = null;
-            FeatureVectorBuilder builder = new FeatureVectorBuilder();
+            InstanceBuilder builder = new InstanceBuilder();
             for (int f = 0; f < parts.length - 1; f++) {
                 String name = headNames == null ? String.valueOf(f) : headNames[f];
                 String value = parts[f];

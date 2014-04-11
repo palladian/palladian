@@ -17,7 +17,7 @@ import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -52,11 +52,11 @@ public class LibLinearTest {
 
     private List<Instance> createSampleData() {
         List<Instance> data = CollectionHelper.newArrayList();
-        data.add(new FeatureVectorBuilder().set("a", 0).set("b", 0.1).set("c", 0.2).set("d", 0).set("e", 0).create("1"));
-        data.add(new FeatureVectorBuilder().set("a", 0).set("b", 0.1).set("c", 0.3).set("d", -1.2).set("e", 0).create("2"));
-        data.add(new FeatureVectorBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("d", 0).set("e", 0).create("1"));
-        data.add(new FeatureVectorBuilder().set("a", 0).set("b", 0.1).set("c", 0).set("d", 1.4).set("e", 0.5).create("2"));
-        data.add(new FeatureVectorBuilder().set("a", -0.1).set("b", -0.2).set("c", 0.1).set("d", 1.1).set("e", 0.1)
+        data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0.2).set("d", 0).set("e", 0).create("1"));
+        data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0.3).set("d", -1.2).set("e", 0).create("2"));
+        data.add(new InstanceBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("d", 0).set("e", 0).create("1"));
+        data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0).set("d", 1.4).set("e", 0.5).create("2"));
+        data.add(new InstanceBuilder().set("a", -0.1).set("b", -0.2).set("c", 0.1).set("d", 1.1).set("e", 0.1)
                 .create("3"));
         return data;
     }
@@ -64,7 +64,7 @@ public class LibLinearTest {
     @Test
     public void testUntrainedFeature() {
         LibLinearModel model = new LibLinearLearner().train(createSampleData());
-        FeatureVector featureVector = new FeatureVectorBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("e", 0)
+        FeatureVector featureVector = new InstanceBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("e", 0)
                 .set("f", 0).create();
         assertEquals("1", new LibLinearClassifier().classify(featureVector, model).getMostLikelyCategory());
     }

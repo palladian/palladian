@@ -13,7 +13,7 @@ import org.junit.Test;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -50,16 +50,16 @@ public class QuickDtTest {
         // sample data taken from https://github.com/sanity/quickdt
         List<Instance> instances = CollectionHelper.newArrayList();
 
-        instances.add(new FeatureVectorBuilder().set("height", 55.).set("weight", 168.).set("gender", "male").create("overweight"));
-        instances.add(new FeatureVectorBuilder().set("height", 75.).set("weight", 168.).set("gender", "female").create("healthy"));
-        instances.add(new FeatureVectorBuilder().set("height", 74.).set("weight", 143.).set("gender", "male").create("underweight"));
-        instances.add(new FeatureVectorBuilder().set("height", 49.).set("weight", 144.).set("gender", "female").create("underweight"));
-        instances.add(new FeatureVectorBuilder().set("height", 83.).set("weight", 223.).set("gender", "male").create("healthy"));
+        instances.add(new InstanceBuilder().set("height", 55.).set("weight", 168.).set("gender", "male").create("overweight"));
+        instances.add(new InstanceBuilder().set("height", 75.).set("weight", 168.).set("gender", "female").create("healthy"));
+        instances.add(new InstanceBuilder().set("height", 74.).set("weight", 143.).set("gender", "male").create("underweight"));
+        instances.add(new InstanceBuilder().set("height", 49.).set("weight", 144.).set("gender", "female").create("underweight"));
+        instances.add(new InstanceBuilder().set("height", 83.).set("weight", 223.).set("gender", "male").create("healthy"));
 
         QuickDtLearner learner = QuickDtLearner.tree();
         QuickDtModel model = learner.train(instances);
 
-        FeatureVector featureVector = new FeatureVectorBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
+        FeatureVector featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
         QuickDtClassifier classifier = new QuickDtClassifier();
         CategoryEntries prediction = classifier.classify(featureVector, model);
 
