@@ -4,7 +4,7 @@ import java.util.Map;
 
 import ws.palladian.helper.collection.CollectionHelper;
 
-public class FeatureVectorBuilder {
+public final class FeatureVectorBuilder {
 
     private final Map<String, Value> valueMap = CollectionHelper.newHashMap();
 

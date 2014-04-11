@@ -4,8 +4,8 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.Category;
-import ws.palladian.classification.CategoryEntries;
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.math.MathHelper;
 
 public abstract class AbstractCategoryEntries implements CategoryEntries {

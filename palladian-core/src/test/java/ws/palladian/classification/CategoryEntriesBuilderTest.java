@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.core.CategoryEntries;
+
 public class CategoryEntriesBuilderTest {
 
     private static final double DELTA = 0.0001;

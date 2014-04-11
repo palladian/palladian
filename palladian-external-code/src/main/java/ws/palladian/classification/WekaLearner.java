@@ -13,6 +13,8 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instances;
 import weka.core.SparseInstance;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BooleanFeature;

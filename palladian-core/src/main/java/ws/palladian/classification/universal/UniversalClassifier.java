@@ -6,10 +6,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Learner;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
@@ -21,36 +18,14 @@ import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.NoNormalizer;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
 
 public class UniversalClassifier implements Learner<UniversalClassifierModel>, Classifier<UniversalClassifierModel> {
-
-    public static final class UniversalTrainable extends TextDocument implements Trainable {
-
-        private final FeatureVector featureVector;
-        private final String targetClass;
-
-        public UniversalTrainable(String text, FeatureVector featureVector, String targetClass) {
-            super(text);
-            this.featureVector = featureVector;
-            this.targetClass = targetClass;
-        }
-
-        @Override
-        public FeatureVector getFeatureVector() {
-            return featureVector;
-        }
-
-        @Override
-        public String getTargetClass() {
-            return targetClass;
-        }
-
-    }
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
@@ -84,36 +59,36 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
     }
 
     @Override
-    public UniversalClassifierModel train(Iterable<? extends Trainable> trainables) {
+    public UniversalClassifierModel train(Iterable<? extends Instance> instances) {
         NaiveBayesModel nominalModel = null;
         KnnModel numericModel = null;
         DictionaryModel textModel = null;
         if (settings.contains(ClassifierSetting.TEXT)) {
             LOGGER.debug("training text classifier");
-            textModel = textClassifier.train(trainables);
+            textModel = textClassifier.train(instances);
         }
         if (settings.contains(ClassifierSetting.KNN)) {
             LOGGER.debug("training knn classifier");
-            numericModel = new KnnLearner(new NoNormalizer()).train(trainables);
+            numericModel = new KnnLearner(new NoNormalizer()).train(instances);
         }
         if (settings.contains(ClassifierSetting.BAYES)) {
             LOGGER.debug("training bayes classifier");
-            nominalModel = new NaiveBayesLearner().train(trainables);
+            nominalModel = new NaiveBayesLearner().train(instances);
         }
         return new UniversalClassifierModel(nominalModel, numericModel, textModel);
     }
 
     @Override
-    public CategoryEntries classify(Classifiable classifiable, UniversalClassifierModel model) {
+    public CategoryEntries classify(FeatureVector featureVector, UniversalClassifierModel model) {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         if (model.getDictionaryModel() != null) {
-            builder.add(textClassifier.classify(classifiable, model.getDictionaryModel()));
+            builder.add(textClassifier.classify(featureVector, model.getDictionaryModel()));
         }
         if (model.getKnnModel() != null) {
-            builder.add(numericClassifier.classify(classifiable, model.getKnnModel()));
+            builder.add(numericClassifier.classify(featureVector, model.getKnnModel()));
         }
         if (model.getBayesModel() != null) {
-            builder.add(nominalClassifier.classify(classifiable, model.getBayesModel()));
+            builder.add(nominalClassifier.classify(featureVector, model.getBayesModel()));
         }
         return builder.create();
     }

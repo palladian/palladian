@@ -24,6 +24,7 @@ import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.meta.Bagging;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;

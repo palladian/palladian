@@ -57,5 +57,10 @@ final class ImmutableFeatureVector implements FeatureVector {
     public Set<String> keys() {
         return valueMap.keySet();
     }
+    
+    @Override
+    public String toString() {
+        return valueMap.toString();
+    }
 
 }

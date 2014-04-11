@@ -7,16 +7,16 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Learner;
-import ws.palladian.classification.Model;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
+import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.ThresholdAnalyzer;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -35,15 +35,15 @@ public final class ClassifierEvaluation {
     // XXX misleading; I thought that would test multiple models, but it acutally combines the models?
     // document, and also have a look at comment in ClassificationUtils.classifyWithMultipleModels
     public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier,
-            Iterable<? extends Trainable> testData, M... models) {
+            Iterable<? extends Instance> testData, M... models) {
 
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
-        for (Trainable testInstance : testData) {
-            CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier, testInstance,
-                    models);
+        for (Instance testInstance : testData) {
+            CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier,
+                    testInstance.getVector(), models);
             String classifiedCategory = classification.getMostLikelyCategory();
-            String realCategory = testInstance.getTargetClass();
+            String realCategory = testInstance.getCategory();
             confusionMatrix.add(realCategory, classifiedCategory);
         }
 
@@ -56,14 +56,14 @@ public final class ClassifierEvaluation {
      * */
     @Deprecated
     public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, M model,
-            Iterable<? extends Trainable> testData) {
+            Iterable<? extends Instance> testData) {
 
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
-        for (Trainable testInstance : testData) {
-            CategoryEntries classification = classifier.classify(testInstance, model);
+        for (Instance testInstance : testData) {
+            CategoryEntries classification = classifier.classify(testInstance.getVector(), model);
             String classifiedCategory = classification.getMostLikelyCategory();
-            String realCategory = testInstance.getTargetClass();
+            String realCategory = testInstance.getCategory();
             confusionMatrix.add(realCategory, classifiedCategory);
         }
 
@@ -82,28 +82,28 @@ public final class ClassifierEvaluation {
      */
     @SuppressWarnings("unchecked")
     public static <M extends Model> ConfusionMatrix evaluate(Learner<M> learner, Classifier<M> classifier,
-            List<? extends Trainable> instances) {
+            List<? extends Instance> instances) {
         Validate.notNull(learner, "learner must not be null");
         Validate.notNull(classifier, "classifier must not be null");
         Validate.notNull(instances, "instances must not be null");
         Validate.isTrue(instances.size() > 2, "instances must contain at least two elements");
 
-        List<? extends Trainable> train = instances.subList(0, instances.size() / 2);
-        List<? extends Trainable> test = instances.subList(instances.size() / 2, instances.size() - 1);
+        List<? extends Instance> train = instances.subList(0, instances.size() / 2);
+        List<? extends Instance> test = instances.subList(instances.size() / 2, instances.size() - 1);
         M model = learner.train(train);
         return evaluate(classifier, test, model);
     }
 
     public static <M extends Model> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier, M model,
-            Iterable<? extends Trainable> testData, String correctClass) {
+            Iterable<? extends Instance> testData, String correctClass) {
         Validate.isTrue(model.getCategories().size() == 2, "binary model required");
 
         ThresholdAnalyzer thresholdAnalyzer = new ThresholdAnalyzer(100);
 
-        for (Trainable testInstance : testData) {
-            CategoryEntries classification = classifier.classify(testInstance, model);
+        for (Instance testInstance : testData) {
+            CategoryEntries classification = classifier.classify(testInstance.getVector(), model);
             double probability = classification.getProbability(correctClass);
-            String realCategory = testInstance.getTargetClass();
+            String realCategory = testInstance.getCategory();
             thresholdAnalyzer.add(realCategory.equals(correctClass), probability);
         }
 
@@ -130,7 +130,7 @@ public final class ClassifierEvaluation {
      */
     @SuppressWarnings("unchecked")
     public static <M extends Model> void createLearningCurves(Learner<M> learner, Classifier<M> classifier,
-            Collection<? extends Trainable> trainSet, Collection<? extends Trainable> testSet, String correctClass,
+            Collection<? extends Instance> trainSet, Collection<? extends Instance> testSet, String correctClass,
             int stepSize) {
         Validate.notNull(learner, "learner must not be null");
         Validate.notNull(classifier, "classifier must not be null");
@@ -142,14 +142,14 @@ public final class ClassifierEvaluation {
         String outputFile = String.format("learningCurves_%s.csv", System.currentTimeMillis());
         ProgressMonitor monitor = new ProgressMonitor((int)Math.ceil((double)trainSet.size() / stepSize), 0);
 
-        List<Trainable> trainList = new ArrayList<Trainable>(trainSet);
+        List<Instance> trainList = new ArrayList<Instance>(trainSet);
         Collections.shuffle(trainList);
 
         FileHelper.appendFile(outputFile,
                 "trainItems;trainPercent;trainPrecision;trainRecall;trainF1;testPrecision;testRecall;testF1;\n");
 
         for (int i = stepSize; i < trainSet.size(); i += stepSize) {
-            List<Trainable> currentTrainSet = trainList.subList(0, i);
+            List<Instance> currentTrainSet = trainList.subList(0, i);
             M model = learner.train(currentTrainSet);
             ConfusionMatrix trainResult = evaluate(classifier, currentTrainSet, model);
             ConfusionMatrix testResult = evaluate(classifier, testSet, model);

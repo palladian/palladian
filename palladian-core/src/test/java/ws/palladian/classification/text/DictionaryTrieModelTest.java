@@ -11,8 +11,8 @@ import java.util.Iterator;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.classification.Category;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
+import ws.palladian.core.Category;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;

@@ -15,6 +15,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
+import ws.palladian.core.Model;
 
 /**
  * @author Klemens Muthmann

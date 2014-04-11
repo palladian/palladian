@@ -7,7 +7,7 @@ import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
-import ws.palladian.processing.Trainable;
+import ws.palladian.core.Instance;
 
 /**
  * <p>
@@ -23,8 +23,8 @@ final class LearningCurveCreator {
         String trainPath = "/Users/pk/Desktop/Learning_Curves/fd_merged_reduced_train_all.csv";
         String testPath = "/Users/pk/Desktop/Learning_Curves/fd_merged_reduced_validation.csv";
 
-        List<Trainable> train = ClassificationUtils.readCsv(trainPath);
-        List<Trainable> validate = ClassificationUtils.readCsv(testPath);
+        List<Instance> train = ClassificationUtils.readCsv(trainPath);
+        List<Instance> validate = ClassificationUtils.readCsv(testPath);
 
         QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
         QuickDtClassifier classifier = new QuickDtClassifier();

@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.Model;
+import ws.palladian.core.Model;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.Matrix;
 

@@ -8,9 +8,9 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
@@ -53,7 +53,7 @@ public class CombinedDisambiguation implements LocationDisambiguation {
         final Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
         for (ClassifiableLocation location : classifiableLocations) {
-            CategoryEntries classification = classifier.classify(location, model);
+            CategoryEntries classification = classifier.classify(location.getFeatureVector(), model);
             scoredLocations.put(location.getId(), classification.getProbability("true"));
         }
         LOGGER.debug("# candidates before classification: {}", locations.allValues().size());

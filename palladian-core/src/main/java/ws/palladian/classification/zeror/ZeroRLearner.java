@@ -1,8 +1,8 @@
 package ws.palladian.classification.zeror;
 
-import ws.palladian.classification.Learner;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
 import ws.palladian.helper.collection.CountMap;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -15,10 +15,10 @@ import ws.palladian.processing.Trainable;
 public final class ZeroRLearner implements Learner<ZeroRModel> {
 
     @Override
-    public ZeroRModel train(Iterable<? extends Trainable> trainables) {
+    public ZeroRModel train(Iterable<? extends Instance> instances) {
         CountMap<String> categoryCounts = CountMap.create();
-        for (Trainable trainingInstance : trainables) {
-            categoryCounts.add(trainingInstance.getTargetClass());
+        for (Instance trainingInstance : instances) {
+            categoryCounts.add(trainingInstance.getCategory());
         }
         return new ZeroRModel(categoryCounts);
     }

@@ -6,18 +6,17 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.MinMaxNormalizer;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.helper.math.NumericVector;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -65,20 +64,20 @@ public final class KnnClassifier implements Classifier<KnnModel> {
     }
 
     @Override
-    public CategoryEntries classify(Classifiable classifiable, KnnModel model) {
+    public CategoryEntries classify(FeatureVector featureVector, KnnModel model) {
 
-        model.getNormalization().normalize(classifiable);
+        FeatureVector normalizedFeatureVector = model.getNormalization().normalize(featureVector);
 
         // initialize with all category names and a score of zero
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder().set(model.getCategories(), 0);
 
-        NumericVector<String> featureVector = ClassificationUtils.getNumericVector(classifiable);
+        NumericVector<String> numericVector = ClassificationUtils.getNumericVector(normalizedFeatureVector);
 
         // find k nearest neighbors, compare instance to every known instance
         List<Pair<String, Double>> neighbors = CollectionHelper.newArrayList();
         for (TrainingExample example : model.getTrainingExamples()) {
-            double distance = example.getVector().euclidean(featureVector);
-            neighbors.add(Pair.of(example.targetClass, distance));
+            double distance = example.getVector().euclidean(numericVector);
+            neighbors.add(Pair.of(example.category, distance));
         }
 
         // sort near neighbor map by distance

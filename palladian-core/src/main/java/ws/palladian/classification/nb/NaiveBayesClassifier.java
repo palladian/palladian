@@ -2,13 +2,14 @@ package ws.palladian.classification.nb;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.Classifier;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.NominalValue;
+import ws.palladian.core.NumericValue;
+import ws.palladian.core.Value;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -52,7 +53,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
     }
 
     @Override
-    public CategoryEntries classify(Classifiable classifiable, NaiveBayesModel model) {
+    public CategoryEntries classify(FeatureVector featureVector, NaiveBayesModel model) {
 
         CategoryEntriesBuilder categoryEntriesBuilder = new CategoryEntriesBuilder();
 
@@ -65,14 +66,15 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             // initially set all category probabilities to their priors
             double probability = model.getPrior(category);
 
-            for (Feature<?> feature : classifiable.getFeatureVector()) {
-                String featureName = feature.getName();
-                if (feature instanceof NominalFeature) {
-                    NominalFeature nominalFeature = (NominalFeature)feature;
-                    probability *= model.getProbability(featureName, nominalFeature.getValue(), category, laplace);
-                } else if (feature instanceof NumericFeature) {
-                    NumericFeature numericFeature = (NumericFeature)feature;
-                    double density = model.getDensity(featureName, numericFeature.getValue(), category);
+            for (VectorEntry<String, Value> feature : featureVector) {
+                String featureName = feature.key();
+                Value value = feature.value();
+                if (value instanceof NominalValue) {
+                    String nominalValue = ((NominalValue)value).getString();
+                    probability *= model.getProbability(featureName, nominalValue, category, laplace);
+                } else if (value instanceof NumericValue) {
+                    double doubleValue = ((NumericValue)value).getDouble();
+                    double density = model.getDensity(featureName, doubleValue, category);
                     if (density > 0) {
                         probability *= density;
                     }

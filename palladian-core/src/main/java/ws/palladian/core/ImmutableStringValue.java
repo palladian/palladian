@@ -16,4 +16,9 @@ public final class ImmutableStringValue implements NominalValue {
         return value;
     }
 
+    @Override
+    public String toString() {
+        return value;
+    }
+
 }

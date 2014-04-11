@@ -1,6 +1,7 @@
 package ws.palladian.extraction.pos;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,15 +13,18 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
-import ws.palladian.classification.universal.UniversalClassifier.UniversalTrainable;
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.ImmutableInstance;
+import ws.palladian.core.ImmutableTextValue;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -29,8 +33,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -66,7 +68,7 @@ public class PalladianPosTagger extends BasePosTagger {
     @Override
     public void tag(List<PositionAnnotation> annotations) {
         for (PositionAnnotation annotation : annotations) {
-            FeatureVector featureVector = extractFeatures(annotation.getValue(), null);
+            FeatureVector featureVector = extractFeatures(annotation.getValue());
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
             String tag = categoryEntries.getMostLikelyCategory();
             assignTag(annotation, Collections.singletonList(tag));
@@ -83,11 +85,11 @@ public class PalladianPosTagger extends BasePosTagger {
      * 
      * @author pk
      */
-    private static final class BrownCorpusIterator extends AbstractIterator<UniversalTrainable> {
+    private static final class BrownCorpusIterator extends AbstractIterator<Instance> {
 
         final ProgressMonitor progressMonitor;
         final Iterator<File> trainingFiles;
-        Iterator<UniversalTrainable> currentInstances;
+        Iterator<Instance> currentInstances;
 
         BrownCorpusIterator(String trainingDirectory) {
             File[] trainingFilesArray = FileHelper.getFiles(trainingDirectory);
@@ -96,7 +98,7 @@ public class PalladianPosTagger extends BasePosTagger {
         }
 
         @Override
-        protected UniversalTrainable getNext() throws Finished {
+        protected Instance getNext() throws Finished {
             if (currentInstances != null && currentInstances.hasNext()) {
                 return currentInstances.next();
             }
@@ -108,7 +110,7 @@ public class PalladianPosTagger extends BasePosTagger {
             throw FINISHED;
         }
 
-        private Iterator<UniversalTrainable> createInstances(File inputFile) {
+        private Iterator<Instance> createInstances(File inputFile) {
             String content;
             try {
                 content = FileHelper.readFileToString(inputFile);
@@ -116,7 +118,7 @@ public class PalladianPosTagger extends BasePosTagger {
                 throw new IllegalStateException(e);
             }
             String[] wordsAndTagPairs = content.split("\\s");
-            List<UniversalTrainable> trainingInstances = CollectionHelper.newArrayList();
+            List<Instance> trainingInstances = CollectionHelper.newArrayList();
             for (String wordAndTagPair : wordsAndTagPairs) {
                 String[] wordAndTag = wordAndTagPair.split("/");
                 String word = wordAndTag[0];
@@ -127,8 +129,8 @@ public class PalladianPosTagger extends BasePosTagger {
                 if (tag.isEmpty()) {
                     continue;
                 }
-                UniversalTrainable featureVector = extractFeatures(wordAndTag[0], tag);
-                trainingInstances.add(featureVector);
+                FeatureVector featureVector = extractFeatures(wordAndTag[0]);
+                trainingInstances.add(new ImmutableInstance(featureVector, tag));
             }
             return trainingInstances.iterator();
         }
@@ -139,9 +141,9 @@ public class PalladianPosTagger extends BasePosTagger {
         Validate.notEmpty(folderPath, "folderPath must not be empty");
         StopWatch stopWatch = new StopWatch();
         LOGGER.info("start training the tagger");
-        UniversalClassifierModel model = getTagger().train(new Iterable<UniversalTrainable>() {
+        UniversalClassifierModel model = getTagger().train(new Iterable<Instance>() {
             @Override
-            public Iterator<UniversalTrainable> iterator() {
+            public Iterator<Instance> iterator() {
                 return new BrownCorpusIterator(folderPath);
             }
         });
@@ -149,9 +151,9 @@ public class PalladianPosTagger extends BasePosTagger {
         return model;
     }
 
-    private static UniversalTrainable extractFeatures(String word, String targetClass) {
+    private static FeatureVector extractFeatures(String word) {
         int wordLength = word.length();
-        InstanceBuilder builder = new InstanceBuilder();
+        FeatureVectorBuilder builder = new FeatureVectorBuilder();
         builder.set("startsUppercase", StringHelper.startsUppercase(word));
         builder.set("length1", wordLength == 1);
         builder.set("length2", wordLength == 2);
@@ -164,14 +166,15 @@ public class PalladianPosTagger extends BasePosTagger {
         builder.set("firstCharacter", word.substring(0, 1));
         builder.set("lastTwoCharacters", wordLength > 1 ? word.substring(wordLength - 2) : EMPTY);
         builder.set("word", word);
-        return new UniversalTrainable(word, builder.create(), targetClass);
+        builder.set(VECTOR_TEXT_IDENTIFIER, new ImmutableTextValue(word));
+        return builder.create();
     }
 
     public ConfusionMatrix evaluate(final String folderPath) {
         Validate.notEmpty(folderPath, "folderPath must not be empty");
-        Iterable<? extends Trainable> testData = new Iterable<UniversalTrainable>() {
+        Iterable<Instance> testData = new Iterable<Instance>() {
             @Override
-            public Iterator<UniversalTrainable> iterator() {
+            public Iterator<Instance> iterator() {
                 return new BrownCorpusIterator(folderPath);
             }
         };

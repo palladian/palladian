@@ -13,11 +13,11 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import quickdt.randomForest.RandomForestBuilder;
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
 import ws.palladian.extraction.feature.HtmlCleaner;

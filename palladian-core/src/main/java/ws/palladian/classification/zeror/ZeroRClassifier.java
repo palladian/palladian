@@ -1,9 +1,9 @@
 package ws.palladian.classification.zeror;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.Classifier;
-import ws.palladian.processing.Classifiable;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
 
 /**
  * <p>
@@ -16,7 +16,7 @@ import ws.palladian.processing.Classifiable;
 public final class ZeroRClassifier implements Classifier<ZeroRModel> {
 
     @Override
-    public CategoryEntries classify(Classifiable classifiable, ZeroRModel model) {
+    public CategoryEntries classify(FeatureVector featureVector, ZeroRModel model) {
         return new CategoryEntriesBuilder(model.getCategoryProbabilities()).create();
     }
 

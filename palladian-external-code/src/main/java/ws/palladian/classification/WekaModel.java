@@ -8,6 +8,7 @@ import java.util.Set;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Instances;
+import ws.palladian.core.Model;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.FeatureVector;
 

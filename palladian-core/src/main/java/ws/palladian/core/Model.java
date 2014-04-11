@@ -1,4 +1,4 @@
-package ws.palladian.classification;
+package ws.palladian.core;
 
 import java.io.Serializable;
 import java.util.Set;

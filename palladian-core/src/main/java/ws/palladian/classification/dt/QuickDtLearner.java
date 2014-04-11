@@ -12,11 +12,13 @@ import quickdt.PredictiveModel;
 import quickdt.PredictiveModelBuilder;
 import quickdt.TreeBuilder;
 import quickdt.randomForest.RandomForestBuilder;
-import ws.palladian.classification.Learner;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Learner;
+import ws.palladian.core.NominalValue;
+import ws.palladian.core.NumericValue;
+import ws.palladian.core.Value;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -76,23 +78,28 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
     }
 
     @Override
-    public QuickDtModel train(Iterable<? extends Trainable> trainables) {
+    public QuickDtModel train(Iterable<? extends ws.palladian.core.Instance> instances) {
         Set<Instance> trainingInstances = CollectionHelper.newHashSet();
         Set<String> classes = CollectionHelper.newHashSet();
-        for (Trainable instance : trainables) {
-            Serializable[] input = getInput(instance);
-            trainingInstances.add(HashMapAttributes.create(input).classification(instance.getTargetClass()));
-            classes.add(instance.getTargetClass());
+        for (ws.palladian.core.Instance instance : instances) {
+            Serializable[] input = getInput(instance.getVector());
+            trainingInstances.add(HashMapAttributes.create(input).classification(instance.getCategory()));
+            classes.add(instance.getCategory());
         }
         PredictiveModel tree = builder.buildPredictiveModel(trainingInstances);
         return new QuickDtModel(tree, classes);
     }
 
-    static Serializable[] getInput(Classifiable classifiable) {
+    static Serializable[] getInput(FeatureVector featureVector) {
         List<Serializable> inputs = CollectionHelper.newArrayList();
-        for (Feature<?> feature : classifiable.getFeatureVector()) {
-            inputs.add(feature.getName());
-            inputs.add((Serializable)feature.getValue());
+        for (VectorEntry<String, Value> feature : featureVector) {
+            inputs.add(feature.key());
+            Value value = feature.value();
+            if (value instanceof NominalValue) {
+                inputs.add(((NominalValue)value).getString());
+            } else if (value instanceof NumericValue) {
+                inputs.add(((NumericValue)value).getDouble());
+            }
         }
         return inputs.toArray(new Serializable[inputs.size()]);
     }

@@ -17,14 +17,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.Category;
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSettingBuilder;
+import ws.palladian.classification.text.ImmutableTextInstance;
 import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
@@ -47,7 +48,6 @@ import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.ClassifiedTextDocument;
 import ws.palladian.processing.features.Annotation;
 
 /**
@@ -453,12 +453,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     private boolean trainLanguageIndependent(Annotations<ContextAnnotation> annotations,
             Annotations<ContextAnnotation> combinedAnnotations, String modelFilePath) {
 
-        List<ClassifiedTextDocument> textInstances = CollectionHelper.newArrayList();
+        List<ImmutableTextInstance> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("Start creating {} annotations for training", annotations.size());
         for (Annotation annotation : annotations) {
-            ClassifiedTextDocument document = new ClassifiedTextDocument(annotation.getTag(), annotation.getValue());
-            textInstances.add(document);
+            textInstances.add(new ImmutableTextInstance( annotation.getValue(),annotation.getTag()));
         }
 
         // save training entities in a dedicated dictionary
@@ -474,7 +473,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         return true;
     }
 
-    private void trainAnnotationClassifier(List<ClassifiedTextDocument> textInstances) {
+    private void trainAnnotationClassifier(List<ImmutableTextInstance> textInstances) {
         LOGGER.info("start training classifiers now...");
         model.annotationModel = entityClassifier.train(textInstances);
     }
@@ -537,12 +536,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
 
         // create instances with nominal and numeric features
-        List<ClassifiedTextDocument> textInstances = CollectionHelper.newArrayList();
+        List<ImmutableTextInstance> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("add additional training annotations");
         for (ContextAnnotation annotation : annotations) {
-            ClassifiedTextDocument textInstance = new ClassifiedTextDocument(annotation.getTag(), annotation.getValue());
-            textInstances.add(textInstance);
+            textInstances.add(new ImmutableTextInstance(annotation.getValue(),annotation.getTag()));
             addToEntityDictionary(annotation);
         }
         LOGGER.info("add {} additional training annotations", annotations.size());
@@ -585,7 +583,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                     }
                 }
 
-                ClassifiedTextDocument textInstance = new ClassifiedTextDocument(NO_ENTITY, wrongAnnotation.getValue());
+                ImmutableTextInstance textInstance = new ImmutableTextInstance(wrongAnnotation.getValue(), NO_ENTITY);
                 textInstances.add(textInstance);
 
                 if (addAnnotation) {
@@ -1177,7 +1175,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         // get all training annotations including their features
         Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
-        List<ClassifiedTextDocument> trainingInstances = CollectionHelper.newArrayList();
+        List<ImmutableTextInstance> trainingInstances = CollectionHelper.newArrayList();
 
         // iterate over all annotations and analyze their left and right contexts for patterns
         for (ContextAnnotation annotation : annotations) {
@@ -1211,8 +1209,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             tagCounts.add(tag);
 
             String text = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            ClassifiedTextDocument trainingInstance = new ClassifiedTextDocument(tag, text);
-            trainingInstances.add(trainingInstance);
+            trainingInstances.add(new ImmutableTextInstance(text, tag));
 
         }
 
@@ -1270,7 +1267,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         // FileHelper.writeToFile("data/temp/tagPatternAnalysis.csv", csv);
     }
 
-    private void trainContextClassifier(List<ClassifiedTextDocument> trainingInstances) {
+    private void trainContextClassifier(List<ImmutableTextInstance> trainingInstances) {
         model.contextModel = contextClassifier.train(trainingInstances);
     }
 

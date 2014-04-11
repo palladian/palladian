@@ -1,16 +1,16 @@
 package ws.palladian.core;
 
-final class ImmutableInstance implements Instance {
+public final class ImmutableInstance implements Instance {
 
     private final FeatureVector vector;
     private final String category;
 
-    ImmutableInstance(FeatureVector vector, String category) {
+    public ImmutableInstance(FeatureVector vector, String category) {
         this.vector = vector;
         this.category = category;
     }
 
-    ImmutableInstance(FeatureVector vector, boolean category) {
+    public ImmutableInstance(FeatureVector vector, boolean category) {
         this(vector, String.valueOf(category));
     }
 

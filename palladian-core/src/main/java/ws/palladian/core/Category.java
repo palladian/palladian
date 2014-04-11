@@ -1,4 +1,4 @@
-package ws.palladian.classification;
+package ws.palladian.core;
 
 /**
  * A category with name and probability, and an optional absolute count. Comparison should be implemented in such a way,

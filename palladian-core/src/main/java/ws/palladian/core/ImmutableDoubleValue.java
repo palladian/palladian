@@ -13,4 +13,9 @@ public final class ImmutableDoubleValue implements NumericValue {
         return value;
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
 }

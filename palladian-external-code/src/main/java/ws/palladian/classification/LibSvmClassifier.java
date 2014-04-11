@@ -8,6 +8,8 @@ import libsvm.svm_node;
 
 import org.apache.commons.lang.Validate;
 
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
 import ws.palladian.processing.Classifiable;
 
 /**

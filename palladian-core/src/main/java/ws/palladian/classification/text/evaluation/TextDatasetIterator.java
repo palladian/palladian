@@ -5,10 +5,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.text.ImmutableTextInstance;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.ClassifiedTextDocument;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -17,7 +16,7 @@ import ws.palladian.processing.Trainable;
  * 
  * @author Philipp Katz
  */
-public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
+public class TextDatasetIterator implements Iterable<ImmutableTextInstance> {
 
     private final String name;
     private final List<String> fileLines;
@@ -45,12 +44,12 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
     }
 
     @Override
-    public Iterator<ClassifiedTextDocument> iterator() {
+    public Iterator<ImmutableTextInstance> iterator() {
         final Iterator<String> lineIterator = fileLines.iterator();
         final int totalLines = fileLines.size();
         final ProgressMonitor progressMonitor = new ProgressMonitor(totalLines, 1, "Dataset: " + name);
 
-        return new Iterator<ClassifiedTextDocument>() {
+        return new Iterator<ImmutableTextInstance>() {
 
             @Override
             public boolean hasNext() {
@@ -58,7 +57,7 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
             }
 
             @Override
-            public ClassifiedTextDocument next() {
+            public ImmutableTextInstance next() {
                 String nextLine = lineIterator.next();
                 String[] parts = nextLine.split(separationString);
                 if (parts.length != 2) {
@@ -73,7 +72,7 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
                 }
                 String instanceCategory = new String(parts[1]);
                 progressMonitor.incrementAndPrintProgress();
-                return new ClassifiedTextDocument(instanceCategory, learningText);
+                return new ImmutableTextInstance(learningText, instanceCategory);
             }
 
             @Override
@@ -91,7 +90,7 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
         dataset.setPath(JRC_TRAIN_FILE);
 
         TextDatasetIterator datasetIterator = new TextDatasetIterator(dataset);
-        for (Trainable trainable : datasetIterator) {
+        for (ImmutableTextInstance trainable : datasetIterator) {
             assert (trainable != null);
         }
     }
