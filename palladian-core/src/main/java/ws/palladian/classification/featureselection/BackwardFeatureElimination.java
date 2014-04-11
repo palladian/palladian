@@ -25,6 +25,7 @@ import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
@@ -102,12 +103,12 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
     private final class TestRun implements Callable<TestRunResult> {
 
-        private final Collection<? extends Instance> trainData;
-        private final Collection<? extends Instance> testData;
+        private final Iterable<? extends Instance> trainData;
+        private final Iterable<? extends Instance> testData;
         private final List<String> featuresToEliminate;
         private final ProgressMonitor monitor;
 
-        public TestRun(Collection<? extends Instance> trainData, Collection<? extends Instance> testData,
+        public TestRun(Iterable<? extends Instance> trainData, Iterable<? extends Instance> testData,
                 List<String> featuresToEliminate, ProgressMonitor monitor) {
             this.trainData = trainData;
             this.testData = testData;
@@ -220,16 +221,16 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Collection<? extends Instance> trainSet,
-            Collection<? extends Instance> validationSet) {
+    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
         final FeatureRanking result = new FeatureRanking();
 
-        final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainSet);
+        Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
+        final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
         final List<String> eliminatedFeatures = CollectionHelper.newArrayList();
         final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
         final ProgressMonitor progressMonitor = new ProgressMonitor(iterations, 0);
         int featureIndex = 0;
-        
+
         LOGGER.info("# of features in dataset: {}", allFeatures.size());
         LOGGER.info("# of iterations: {}", iterations);
 

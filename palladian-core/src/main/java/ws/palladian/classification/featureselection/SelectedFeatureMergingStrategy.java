@@ -1,9 +1,6 @@
 package ws.palladian.classification.featureselection;
 
-import java.util.Collection;
-import java.util.Map;
-
-import ws.palladian.core.Instance;
+import ws.palladian.helper.math.NumericMatrix;
 
 /**
  * <p>
@@ -18,15 +15,10 @@ import ws.palladian.core.Instance;
  */
 public interface SelectedFeatureMergingStrategy {
     /**
-     * <p>
      * Merges the ranked features provided by {@code rankedFeaturesPerClass} into a {@link FeatureRanking}.
-     * </p>
      * 
-     * @param rankedFeaturesPerClass The ranked features per target class. The first key is the feature mapped to a
-     *            {@link Map} of target class to score.
-     * @param chiSquaredScores The chi-squared scores to merge with this merging strategy.
+     * @param chiSquareMatrix The chi-squared scores to merge with this merging strategy.
      * @return A merged ranking of the provided features.
      */
-    FeatureRanking merge(Collection<? extends Instance> dataset, Map<String, Map<String, Double>> chiSquaredScores);
-
+    FeatureRanking merge(NumericMatrix<String> chiSquareMatrix);
 }

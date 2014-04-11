@@ -2,7 +2,7 @@ package ws.palladian.core;
 
 import org.apache.commons.lang3.Validate;
 
-public final class ImmutableTextValue implements TextValue {
+final class ImmutableTextValue implements TextValue {
     
     private final String text;
 

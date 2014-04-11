@@ -1,6 +1,3 @@
-/**
- * Created on: 20.11.2012 08:33:41
- */
 package ws.palladian.classification.featureselection;
 
 import static org.hamcrest.Matchers.closeTo;
@@ -9,7 +6,6 @@ import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,7 +16,6 @@ import org.junit.Test;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
-
 
 /**
  * <p>
@@ -62,11 +57,11 @@ public class FeatureRankingTest {
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.22222, 0.0001)));
         assertThat(ranking.getAll().get(3).getValue(), is("d"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(2.22222, 0.0001)));
-        assertThat(ranking.getAll().get(2).getValue(), is("a"));
+        assertThat(ranking.getAll().get(2).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(2).getScore(), is(closeTo(5.0, 0.0001)));
-        assertThat(ranking.getAll().get(1).getValue(), is("c"));
+        assertThat(ranking.getAll().get(1).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(1).getScore(), is(closeTo(5.0, 0.0001)));
-        assertThat(ranking.getAll().get(0).getValue(), is("f"));
+        assertThat(ranking.getAll().get(0).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(0).getScore(), is(closeTo(5.0, 0.0001)));
     }
 
@@ -83,11 +78,11 @@ public class FeatureRankingTest {
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.0, 0.0001)));
         assertThat(ranking.getAll().get(3).getValue(), is("d"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(3.0, 0.0001)));
-        assertThat(ranking.getAll().get(2).getValue(), is("a"));
+        assertThat(ranking.getAll().get(2).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(2).getScore(), is(closeTo(4.0, 0.0001)));
-        assertThat(ranking.getAll().get(1).getValue(), is("c"));
+        assertThat(ranking.getAll().get(1).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(1).getScore(), is(closeTo(5.0, 0.0001)));
-        assertThat(ranking.getAll().get(0).getValue(), is("f"));
+        assertThat(ranking.getAll().get(0).getValue(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(0).getScore(), is(closeTo(6.0, 0.0001)));
     }
 

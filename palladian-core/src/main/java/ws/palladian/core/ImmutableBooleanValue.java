@@ -1,6 +1,6 @@
 package ws.palladian.core;
 
-public final class ImmutableBooleanValue implements BooleanValue {
+final class ImmutableBooleanValue implements BooleanValue {
 
     private final boolean value;
 

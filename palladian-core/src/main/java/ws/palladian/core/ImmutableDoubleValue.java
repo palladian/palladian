@@ -1,6 +1,6 @@
 package ws.palladian.core;
 
-public final class ImmutableDoubleValue implements NumericValue {
+final class ImmutableDoubleValue implements NumericValue {
 
     private final double value;
 

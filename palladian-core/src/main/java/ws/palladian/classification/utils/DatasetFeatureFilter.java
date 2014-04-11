@@ -4,8 +4,9 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.ImmutableInstance;
+import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.collection.Filter;
 
 /**
@@ -44,8 +45,8 @@ final class DatasetFeatureFilter implements Iterable<Instance> {
             @Override
             public Instance next() {
                 Instance item = iterator.next();
-                return new ImmutableInstance(ClassificationUtils.filterFeatures(item.getVector(), nameFilter),
-                        item.getCategory());
+                FeatureVector filteredFeatures = ClassificationUtils.filterFeatures(item.getVector(), nameFilter);
+                return new InstanceBuilder().add(filteredFeatures).create(item.getCategory());
             }
 
             @Override

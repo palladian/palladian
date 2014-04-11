@@ -1,15 +1,13 @@
-/**
- * Created on: 20.05.2013 10:21:22
- */
 package ws.palladian.classification.featureselection;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ws.palladian.core.Instance;
+import ws.palladian.helper.collection.Vector.VectorEntry;
+import ws.palladian.helper.math.NumericMatrix;
+import ws.palladian.helper.math.NumericMatrix.NumericMatrixVector;
 
 /**
  * <p>
@@ -23,21 +21,20 @@ import ws.palladian.core.Instance;
 public final class RoundRobinMergingStrategy implements SelectedFeatureMergingStrategy {
 
     @Override
-    public FeatureRanking merge(Collection<? extends Instance> dataset,
-            Map<String, Map<String, Double>> chiSquaredScores) {
+    public FeatureRanking merge(NumericMatrix<String> chiSquareMatrix) {
         FeatureRanking ret = new FeatureRanking();
         Map<String, FeatureRanking> rankingsPerTargetClass = new HashMap<String, FeatureRanking>();
 
         // this should usually only run once for non sparse features.
-        for (Entry<String, Map<String, Double>> scoredValue : chiSquaredScores.entrySet()) {
+        for (NumericMatrixVector<String> scoredValue : chiSquareMatrix.rows()) {
 
-            for (Entry<String, Double> entry : scoredValue.getValue().entrySet()) {
-                FeatureRanking rankingPerTargetClass = rankingsPerTargetClass.get(entry.getKey());
+            for (VectorEntry<String, Double> entry : scoredValue) {
+                FeatureRanking rankingPerTargetClass = rankingsPerTargetClass.get(entry.key());
                 if (rankingPerTargetClass == null) {
                     rankingPerTargetClass = new FeatureRanking();
                 }
-                rankingPerTargetClass.add(scoredValue.getKey(), entry.getValue());
-                rankingsPerTargetClass.put(entry.getKey(), rankingPerTargetClass);
+                rankingPerTargetClass.add(scoredValue.key(), entry.value());
+                rankingsPerTargetClass.put(entry.key(), rankingPerTargetClass);
             }
         }
 

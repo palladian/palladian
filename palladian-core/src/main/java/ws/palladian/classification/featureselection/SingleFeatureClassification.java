@@ -1,5 +1,6 @@
 package ws.palladian.classification.featureselection;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +16,9 @@ import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
@@ -60,7 +63,7 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
         this.classifier = classifier;
         this.scorer = scorer;
     }
-
+    
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset) {
         List<Instance> instances = new ArrayList<Instance>(dataset);
@@ -75,11 +78,12 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Collection<? extends Instance> trainSet,
-            Collection<? extends Instance> validationSet) {
+    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet,
+            Iterable<? extends Instance> validationSet) {
         final FeatureRanking result = new FeatureRanking();
 
-        final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainSet);
+        Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
+        final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
         final ProgressMonitor progressMonitor = new ProgressMonitor(allFeatures.size(), 0);
 
         for (String feature : allFeatures) {
@@ -99,8 +103,8 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
     }
 
     public static void main(String[] args) {
-        List<Instance> trainSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv");
-        List<Instance> validationSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv");
+        Iterable<Instance> trainSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv"));
+        CsvDatasetReader validationSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv"));
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -21,9 +20,8 @@ import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Model;
 import ws.palladian.core.NominalValue;
 import ws.palladian.core.NumericValue;
@@ -333,7 +331,7 @@ public final class ClassificationUtils {
         List<Instance> result = CollectionHelper.newArrayList();
         for (Instance instance : instances) {
             FeatureVector featureVector = ClassificationUtils.filterFeatures(instance.getVector(), nameFilter);
-            result.add(new ImmutableInstance(featureVector, instance.getCategory()));
+            result.add(new InstanceBuilder().add(featureVector).create(instance.getCategory()));
         }
         return result;
     }
@@ -361,11 +359,11 @@ public final class ClassificationUtils {
      * @return
      */
     // XXX currently, only get from first item in the dataset
-    public static Set<String> getFeatureNames(Collection<? extends Instance> dataset) {
+    public static Set<String> getFeatureNames(Iterable<? extends FeatureVector> dataset) {
         Validate.notNull(dataset, "dataset must not be null");
         Set<String> featureNames = CollectionHelper.newTreeSet();
-        Instance instance = CollectionHelper.getFirst(dataset);
-        for (VectorEntry<String, Value> entry : instance.getVector()) {
+        FeatureVector featureVector = CollectionHelper.getFirst(dataset);
+        for (VectorEntry<String, Value> entry : featureVector) {
             featureNames.add(entry.key());
         }
         return featureNames;

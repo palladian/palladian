@@ -49,6 +49,7 @@ public class Discretization {
         }
         return instanceBuilder.create();
     }
+
     /**
      * <p>
      * Descretize {@link NumericFeature}s following the algorithm proposed by Fayyad and Irani in
@@ -61,16 +62,11 @@ public class Discretization {
      * @return A {@link Binner} object capable of discretization of already encountered and unencountered values for the
      *         provided {@link NumericFeature}.
      */
-    public static Binner discretize(final String featureName, Collection<? extends Instance> dataset,
+    private static Binner discretize(final String featureName, Collection<? extends Instance> dataset,
             Comparator<Instance> comparator) {
-//        List<Trainable> sortedInstances = CollectionHelper.newArrayList();
-//        for (Trainable instance : dataset) {
-//
-//            sortedInstances.add(instance);
-//            Collections.sort(sortedInstances, comparator);
-//        }
         List<Instance> sortedInstances = new ArrayList<Instance>(dataset);
         Collections.sort(sortedInstances, comparator);
         return Binner.createBinner(sortedInstances, featureName);
     }
+
 }

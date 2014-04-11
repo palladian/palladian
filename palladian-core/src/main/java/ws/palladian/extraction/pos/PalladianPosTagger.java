@@ -19,9 +19,8 @@ import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -127,7 +126,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
                     continue;
                 }
                 FeatureVector featureVector = extractFeatures(wordAndTag[0]);
-                trainingInstances.add(new ImmutableInstance(featureVector, tag));
+                trainingInstances.add(new InstanceBuilder().add(featureVector).create(tag));
             }
             return trainingInstances.iterator();
         }
