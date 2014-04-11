@@ -22,10 +22,11 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSettingBuilder;
-import ws.palladian.classification.text.ImmutableTextInstance;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.Instance;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
@@ -453,11 +454,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     private boolean trainLanguageIndependent(Annotations<ContextAnnotation> annotations,
             Annotations<ContextAnnotation> combinedAnnotations, String modelFilePath) {
 
-        List<ImmutableTextInstance> textInstances = CollectionHelper.newArrayList();
+        List<Instance> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("Start creating {} annotations for training", annotations.size());
         for (Annotation annotation : annotations) {
-            textInstances.add(new ImmutableTextInstance( annotation.getValue(),annotation.getTag()));
+            textInstances.add(new FeatureVectorBuilder().setText(annotation.getValue()).create(annotation.getTag()));
         }
 
         // save training entities in a dedicated dictionary
@@ -473,7 +474,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         return true;
     }
 
-    private void trainAnnotationClassifier(List<ImmutableTextInstance> textInstances) {
+    private void trainAnnotationClassifier(List<Instance> textInstances) {
         LOGGER.info("start training classifiers now...");
         model.annotationModel = entityClassifier.train(textInstances);
     }
@@ -536,11 +537,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
 
         // create instances with nominal and numeric features
-        List<ImmutableTextInstance> textInstances = CollectionHelper.newArrayList();
+        List<Instance> textInstances = CollectionHelper.newArrayList();
 
         LOGGER.info("add additional training annotations");
         for (ContextAnnotation annotation : annotations) {
-            textInstances.add(new ImmutableTextInstance(annotation.getValue(),annotation.getTag()));
+            textInstances.add(new FeatureVectorBuilder().setText(annotation.getValue()).create(annotation.getTag()));
             addToEntityDictionary(annotation);
         }
         LOGGER.info("add {} additional training annotations", annotations.size());
@@ -583,8 +584,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                     }
                 }
 
-                ImmutableTextInstance textInstance = new ImmutableTextInstance(wrongAnnotation.getValue(), NO_ENTITY);
-                textInstances.add(textInstance);
+                textInstances.add(new FeatureVectorBuilder().setText(wrongAnnotation.getValue()).create(NO_ENTITY));
 
                 if (addAnnotation) {
                     model.removeAnnotations.add(wrongAnnotation.getValue());
@@ -1175,7 +1175,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         // get all training annotations including their features
         Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
-        List<ImmutableTextInstance> trainingInstances = CollectionHelper.newArrayList();
+        List<Instance> trainingInstances = CollectionHelper.newArrayList();
 
         // iterate over all annotations and analyze their left and right contexts for patterns
         for (ContextAnnotation annotation : annotations) {
@@ -1209,7 +1209,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             tagCounts.add(tag);
 
             String text = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            trainingInstances.add(new ImmutableTextInstance(text, tag));
+            trainingInstances.add(new FeatureVectorBuilder().setText(text).create(tag));
 
         }
 
@@ -1267,7 +1267,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         // FileHelper.writeToFile("data/temp/tagPatternAnalysis.csv", csv);
     }
 
-    private void trainContextClassifier(List<ImmutableTextInstance> trainingInstances) {
+    private void trainContextClassifier(List<Instance> trainingInstances) {
         model.contextModel = contextClassifier.train(trainingInstances);
     }
 

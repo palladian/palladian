@@ -1,7 +1,6 @@
 package ws.palladian.extraction.pos;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +21,6 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.FeatureVectorBuilder;
 import ws.palladian.core.ImmutableInstance;
-import ws.palladian.core.ImmutableTextValue;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
@@ -165,7 +163,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
         builder.set("firstCharacter", word.substring(0, 1));
         builder.set("lastTwoCharacters", wordLength > 1 ? word.substring(wordLength - 2) : EMPTY);
         builder.set("word", word);
-        builder.set(VECTOR_TEXT_IDENTIFIER, new ImmutableTextValue(word));
+        builder.setText(word);
         return builder.create();
     }
 
