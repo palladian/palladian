@@ -6,6 +6,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
+
 /**
  * @author pk
  */

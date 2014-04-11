@@ -1,22 +1,21 @@
 package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.Model;
 import ws.palladian.classification.utils.Normalization;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Model;
+import ws.palladian.core.NumericValue;
+import ws.palladian.core.Value;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.ImmutableNumericVector;
 import ws.palladian.helper.math.NumericVector;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -32,13 +31,13 @@ public final class KnnModel implements Model {
     private static final long serialVersionUID = -6528509220813706056L;
 
     /** Training examples which are used for classification. */
-    private List<TrainingExample> trainingExamples;
+    private final List<TrainingExample> trainingExamples;
 
     /**
      * An object carrying the information to normalize {@link FeatureVector}s based on the normalized
      * {@link #trainingExamples}.
      */
-    private Normalization normalization;
+    private final Normalization normalization;
 
     /**
      * <p>
@@ -47,17 +46,17 @@ public final class KnnModel implements Model {
      * 
      * @param trainingInstances The {@link Instance}s this model is based on.
      */
-    KnnModel(Iterable<? extends Trainable> trainingInstances, Normalization normalization) {
+    KnnModel(Iterable<? extends Instance> trainingInstances, Normalization normalization) {
         this.trainingExamples = initTrainingInstances(trainingInstances, normalization);
         this.normalization = normalization;
     }
 
-    private List<TrainingExample> initTrainingInstances(Iterable<? extends Trainable> instances,
+    private List<TrainingExample> initTrainingInstances(Iterable<? extends Instance> instances,
             Normalization normalization) {
-        List<TrainingExample> ret = new ArrayList<TrainingExample>();
-        for (Trainable instance : instances) {
-            normalization.normalize(instance);
-            ret.add(new TrainingExample(instance));
+        List<TrainingExample> ret = CollectionHelper.newArrayList();
+        for (Instance instance : instances) {
+            FeatureVector normalizedFeatureVector = normalization.normalize(instance.getVector());
+            ret.add(new TrainingExample(normalizedFeatureVector, instance.getCategory()));
         }
         return ret;
     }
@@ -84,7 +83,7 @@ public final class KnnModel implements Model {
     public Set<String> getCategories() {
         Set<String> categories = CollectionHelper.newHashSet();
         for (TrainingExample example : trainingExamples) {
-            categories.add(example.targetClass);
+            categories.add(example.category);
         }
         return categories;
     }
@@ -97,15 +96,17 @@ public final class KnnModel implements Model {
 
 class TrainingExample implements Serializable {
     private static final long serialVersionUID = 6007693177447711704L;
-    final String targetClass;
+    final String category;
     final Map<String, Double> features;
 
-    public TrainingExample(Trainable instance) {
-        targetClass = instance.getTargetClass();
+    public TrainingExample(FeatureVector featureVector, String category) {
+        this.category = category;
         features = new HashMap<String, Double>();
-        Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
-        for (NumericFeature feature : numericFeatures) {
-            features.put(feature.getName(), feature.getValue());
+        for (VectorEntry<String, Value> entry : featureVector) {
+            Value value = entry.value();
+            if (value instanceof NumericValue) {
+                features.put(entry.key(), ((NumericValue)entry.value()).getDouble());
+            }
         }
     }
     
@@ -115,6 +116,6 @@ class TrainingExample implements Serializable {
 
     @Override
     public String toString() {
-        return targetClass + ":" + features;
+        return category + ":" + features;
     }
 }

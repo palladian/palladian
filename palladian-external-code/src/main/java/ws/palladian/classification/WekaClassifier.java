@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import weka.core.Attribute;
 import weka.core.SparseInstance;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.ListFeature;

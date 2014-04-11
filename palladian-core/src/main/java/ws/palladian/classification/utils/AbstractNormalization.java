@@ -2,10 +2,11 @@ package ws.palladian.classification.utils;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.NumericValue;
+import ws.palladian.core.Value;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -17,16 +18,20 @@ import ws.palladian.processing.features.NumericFeature;
 abstract class AbstractNormalization implements Normalization {
 
     @Override
-    public final void normalize(Classifiable classifiable) {
-        Validate.notNull(classifiable, "classifiable must not be null");
-        FeatureVector featureVector = classifiable.getFeatureVector();
-        for (Feature<?> feature : featureVector) {
-            if (feature instanceof NumericFeature) {
-                NumericFeature numericFeature = (NumericFeature)feature;
-                // replace value.
-                featureVector.add(normalize(numericFeature));
+    public FeatureVector normalize(FeatureVector featureVector) {
+        Validate.notNull(featureVector, "featureVector must not be null");
+        FeatureVectorBuilder builder = new FeatureVectorBuilder();
+        for (VectorEntry<String, Value> entry : featureVector) {
+            String name = entry.key();
+            Value value = entry.value();
+            if (value instanceof NumericValue) {
+                double normalizedValue = normalize(name, ((NumericValue)value).getDouble());
+                builder.set(name, normalizedValue);
+            } else {
+                builder.set(name, value);
             }
         }
+        return builder.create();
     }
 
 }

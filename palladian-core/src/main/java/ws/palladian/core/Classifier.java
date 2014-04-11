@@ -1,10 +1,8 @@
-package ws.palladian.classification;
-
-import ws.palladian.processing.Classifiable;
+package ws.palladian.core;
 
 /**
  * <p>
- * A classifier uses a trained model to classify an instance into a category.
+ * A classifier uses a trained model to classify a feature vector into a category.
  * </p>
  * 
  * @author David Urbansky
@@ -19,10 +17,10 @@ public interface Classifier<M extends Model> {
      * Classify an object with the given model.
      * </p>
      * 
-     * @param classifiable The object to classify.
+     * @param featureVector The feature vector to classify.
      * @param model The model to use for the classification.
      * @return The classification result.
      */
-    CategoryEntries classify(Classifiable classifiable, M model);
+    CategoryEntries classify(FeatureVector featureVector, M model);
 
 }

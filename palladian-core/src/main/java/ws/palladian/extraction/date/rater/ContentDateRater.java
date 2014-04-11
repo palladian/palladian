@@ -10,11 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import quickdt.randomForest.RandomForestBuilder;
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -22,8 +24,6 @@ import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -110,7 +110,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
      * @throws IOException 
      */
     private static void buildModel(String inputCsv, String outputPath) throws IOException {
-        List<Trainable> instances = ClassificationUtils.readCsv(inputCsv, true);
+        List<Instance> instances = ClassificationUtils.readCsv(inputCsv, true);
         QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
         QuickDtModel model = learner.train(instances);
         FileHelper.serialize(model, outputPath);

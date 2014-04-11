@@ -4,27 +4,27 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.Instance;
+import ws.palladian.core.ImmutableInstance;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.Filter;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
- * Filter features from a dataset, represented by an {@link Iterable} of {@link Trainable}s.
+ * Filter features from a dataset, represented by an {@link Iterable} of {@link Instance}s.
  * </p>
  * 
  * @author pk
  */
-final class DatasetFeatureFilter implements Iterable<Trainable> {
+final class DatasetFeatureFilter implements Iterable<Instance> {
 
-    private final Iterable<? extends Trainable> dataset;
+    private final Iterable<? extends Instance> dataset;
     private final Filter<? super String> nameFilter;
 
     /**
      * @param dataset The {@link Iterable} dataset to filter, not <code>null</code>.
      * @param nameFilter The {@link Filter} for the feature's names to apply, not <code>null</code>.
      */
-    public DatasetFeatureFilter(Iterable<? extends Trainable> dataset, Filter<? super String> nameFilter) {
+    public DatasetFeatureFilter(Iterable<? extends Instance> dataset, Filter<? super String> nameFilter) {
         Validate.notNull(dataset, "dataset must not be null");
         Validate.notNull(nameFilter, "filter must not be null");
         this.dataset = dataset;
@@ -32,9 +32,9 @@ final class DatasetFeatureFilter implements Iterable<Trainable> {
     }
 
     @Override
-    public Iterator<Trainable> iterator() {
-        final Iterator<? extends Trainable> iterator = dataset.iterator();
-        return new Iterator<Trainable>() {
+    public Iterator<Instance> iterator() {
+        final Iterator<? extends Instance> iterator = dataset.iterator();
+        return new Iterator<Instance>() {
 
             @Override
             public boolean hasNext() {
@@ -42,9 +42,10 @@ final class DatasetFeatureFilter implements Iterable<Trainable> {
             }
 
             @Override
-            public Trainable next() {
-                Trainable item = iterator.next();
-                return new Instance(item.getTargetClass(), ClassificationUtils.filterFeatures(item, nameFilter));
+            public Instance next() {
+                Instance item = iterator.next();
+                return new ImmutableInstance(ClassificationUtils.filterFeatures(item.getVector(), nameFilter),
+                        item.getCategory());
             }
 
             @Override

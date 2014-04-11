@@ -12,17 +12,16 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.NominalValue;
+import ws.palladian.core.Value;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.nlp.StringPool;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.BasicFeatureVector;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -56,30 +55,30 @@ public class DummyVariableCreator implements Serializable {
      * 
      * @param trainingSet The dataset, not <code>null</code>.
      */
-    public DummyVariableCreator(Iterable<? extends Classifiable> trainingSet) {
-        Validate.notNull(trainingSet, "wrapped must not be null");
-        this.domain = determineDomains(trainingSet);
+    public DummyVariableCreator(Iterable<? extends FeatureVector> dataSet) {
+        Validate.notNull(dataSet, "dataSet must not be null");
+        this.domain = determineDomains(dataSet);
     }
 
-    private static MultiMap<String, String> determineDomains(Iterable<? extends Classifiable> dataset) {
+    private static MultiMap<String, String> determineDomains(Iterable<? extends FeatureVector> dataset) {
         LOGGER.debug("Determine domain for dataset ...");
         StopWatch stopWatch = new StopWatch();
         MultiMap<String, String> domain = DefaultMultiMap.createWithList();
         Set<String> nominalFeatureNames = null;
-        for (Classifiable trainable : dataset) {
+        for (FeatureVector featureVector : dataset) {
             if (nominalFeatureNames == null) {
-                nominalFeatureNames = getNominalFeatureNames(trainable);
+                nominalFeatureNames = getNominalFeatureNames(featureVector);
                 if (nominalFeatureNames.isEmpty()) {
                     LOGGER.debug("No nominal features in dataset.");
                     break;
                 }
             }
             for (String featureName : nominalFeatureNames) {
-                NominalFeature feature = trainable.getFeatureVector().get(NominalFeature.class, featureName);
-                if (feature == null) {
+                NominalValue value = (NominalValue)featureVector.get(featureName);
+                if (value == null) {
                     continue;
                 }
-                String featureValue = feature.getValue();
+                String featureValue = value.getString();
                 if (!domain.get(featureName).contains(featureValue)) {
                     domain.add(featureName, featureValue);
                 }
@@ -89,33 +88,34 @@ public class DummyVariableCreator implements Serializable {
         return domain;
     }
 
-    private static Set<String> getNominalFeatureNames(Classifiable trainable) {
-        Collection<NominalFeature> nominalFeatures = trainable.getFeatureVector().getAll(NominalFeature.class);
+    private static Set<String> getNominalFeatureNames(FeatureVector featureVector) {
         Set<String> nominalFeatureNames = CollectionHelper.newHashSet();
-        for (NominalFeature nominalFeature : nominalFeatures) {
-            nominalFeatureNames.add(nominalFeature.getName());
+        for (VectorEntry<String, Value> entry : featureVector) {
+            if (entry.value() instanceof NominalValue) {
+                nominalFeatureNames.add(entry.key());
+            }
         }
         return nominalFeatureNames;
     }
 
     /**
      * <p>
-     * Convert the {@link NominalFeature}s for the given {@link Iterable} dataset.
+     * Convert the nominal values for the given {@link Iterable} dataset.
      * </p>
      * 
      * @param data The dataset, not <code>null</code>.
      * @return Dataset with converted features.
      */
-    public Iterable<Classifiable> convert(final Iterable<? extends Classifiable> data) {
+    public Iterable<FeatureVector> convert(final Iterable<? extends FeatureVector> data) {
         Validate.notNull(data, "data must not be null");
 
-        return new Iterable<Classifiable>() {
+        return new Iterable<FeatureVector>() {
 
             @Override
-            public Iterator<Classifiable> iterator() {
-                return new Iterator<Classifiable>() {
+            public Iterator<FeatureVector> iterator() {
+                return new Iterator<FeatureVector>() {
 
-                    Iterator<? extends Classifiable> wrapped = data.iterator();
+                    Iterator<? extends FeatureVector> wrapped = data.iterator();
 
                     @Override
                     public boolean hasNext() {
@@ -123,7 +123,7 @@ public class DummyVariableCreator implements Serializable {
                     }
 
                     @Override
-                    public Classifiable next() {
+                    public FeatureVector next() {
                         return convert(wrapped.next());
                     }
 
@@ -139,37 +139,38 @@ public class DummyVariableCreator implements Serializable {
 
     /**
      * <p>
-     * Convert the {@link NominalFeature}s for the given {@link Classifiable}.
+     * Convert the nominal values for the given {@link FeatureVector}.
      * </p>
      * 
-     * @param classifiable The classifiable to convert, not <code>null</code>.
-     * @return A classifiable with converted nominal features.
+     * @param featureVector The feature vector to convert, not <code>null</code>.
+     * @return A feature vector with converted nominal features.
      */
-    public Classifiable convert(Classifiable classifiable) {
-        Validate.notNull(classifiable, "trainable must not be null");
-        FeatureVector convertedFeatureVector = new BasicFeatureVector();
-        for (Feature<?> feature : classifiable.getFeatureVector()) {
-            if (feature instanceof NominalFeature) {
-                NominalFeature nominalFeature = (NominalFeature)feature;
-                String nominalValue = nominalFeature.getValue();
-                Collection<String> featureDomain = domain.get(feature.getName());
+    public FeatureVector convert(FeatureVector featureVector) {
+        Validate.notNull(featureVector, "featureVector must not be null");
+        FeatureVectorBuilder builder = new FeatureVectorBuilder();
+        for (VectorEntry<String, Value> entry : featureVector) {
+            String featureName = entry.key();
+            Value featureValue = entry.value();
+            if (featureValue instanceof NominalValue) {
+                String nominalValue = ((NominalValue)featureValue).getString();
+                Collection<String> featureDomain = domain.get(featureName);
                 if (featureDomain.isEmpty()) {
-                    LOGGER.debug("Unknown feature {} will be dropped", feature.getName());
+                    LOGGER.debug("Unknown feature {} will be dropped", featureName);
                 } else if (featureDomain.size() < 3) {
                     double numericValue = nominalValue.equals(CollectionHelper.getFirst(featureDomain)) ? 1 : 0;
-                    convertedFeatureVector.add(new NumericFeature(feature.getName(), numericValue));
+                    builder.set(featureName, numericValue);
                 } else {
                     for (String domainValue : featureDomain) {
                         double numericValue = nominalValue.equals(domainValue) ? 1 : 0;
-                        String featureName = stringPool.get(feature.getName() + ":" + domainValue);
-                        convertedFeatureVector.add(new NumericFeature(featureName, numericValue));
+                        String newFeatureName = stringPool.get(featureName + ":" + domainValue);
+                        builder.set(newFeatureName, numericValue);
                     }
                 }
             } else {
-                convertedFeatureVector.add(feature);
+                builder.set(featureName, featureValue);
             }
         }
-        return convertedFeatureVector;
+        return builder.create();
     }
 
     @Override

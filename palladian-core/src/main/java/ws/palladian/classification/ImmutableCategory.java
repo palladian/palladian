@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.Category;
 import ws.palladian.helper.collection.Function;
 
 public final class ImmutableCategory implements Category {

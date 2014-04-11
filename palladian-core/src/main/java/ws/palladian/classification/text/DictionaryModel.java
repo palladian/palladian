@@ -3,9 +3,9 @@ package ws.palladian.classification.text;
 import java.io.PrintStream;
 import java.util.Collection;
 
-import ws.palladian.classification.Category;
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Model;
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Model;
 
 /**
  * A term-category dictionary used for classification with the text classifier.

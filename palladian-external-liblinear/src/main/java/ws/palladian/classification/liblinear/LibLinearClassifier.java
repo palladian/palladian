@@ -6,15 +6,15 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.Classifier;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
 import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
-import ws.palladian.processing.Classifiable;
 import de.bwaldvogel.liblinear.Linear;
 
 /**
@@ -35,14 +35,14 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
     }
 
     @Override
-    public CategoryEntries classify(Classifiable classifiable, LibLinearModel model) {
-        Validate.notNull(classifiable, "classifiable must not be null");
+    public CategoryEntries classify(FeatureVector featureVector, LibLinearModel model) {
+        Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(model, "model must not be null");
-        model.getNormalization().normalize(classifiable);
-        classifiable = model.getDummyCoder().convert(classifiable);
-        classifiable = removeUntrainedFeatures(classifiable, model);
+        featureVector = model.getNormalization().normalize(featureVector);
+        featureVector = model.getDummyCoder().convert(featureVector);
+        featureVector = removeUntrainedFeatures(featureVector, model);
         de.bwaldvogel.liblinear.Feature[] instance = LibLinearLearner.makeInstance(model.getFeatureLabels(),
-                classifiable, model.getLLModel().getBias());
+                featureVector, model.getLLModel().getBias());
         CategoryEntriesBuilder categoryEntriesBuilder = new CategoryEntriesBuilder();
         if (model.getLLModel().isProbabilityModel()) {
             double[] probabilities = new double[model.getCategories().size()];
@@ -61,11 +61,11 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
     /**
      * Remove those features, which we have not trained.
      */
-    private Classifiable removeUntrainedFeatures(Classifiable classifiable, LibLinearModel model) {
-        int oldSize = classifiable.getFeatureVector().size();
+    private FeatureVector removeUntrainedFeatures(FeatureVector classifiable, LibLinearModel model) {
+        int oldSize = classifiable.size();
         Filter<String> nameFilter = EqualsFilter.create(model.getFeatureLabels());
         classifiable = ClassificationUtils.filterFeatures(classifiable, nameFilter);
-        int numIgnored = oldSize - classifiable.getFeatureVector().size();
+        int numIgnored = oldSize - classifiable.size();
         if (numIgnored > 0 && LOGGER.isDebugEnabled()) {
             LOGGER.debug("Ignoring {} unknown features", numIgnored);
         }

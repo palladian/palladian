@@ -26,4 +26,9 @@ public final class ImmutableBooleanValue implements BooleanValue {
         return String.valueOf(value);
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
 }

@@ -1,15 +1,16 @@
 package ws.palladian.classification.utils;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.NumericValue;
+import ws.palladian.core.Value;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.SlimStats;
 import ws.palladian.helper.math.Stats;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * Common code for normalizers which calculate their {@link Normalization} based on {@link Stats} data.
@@ -30,20 +31,21 @@ abstract class AbstractStatsNormalizer implements Normalizer {
     protected abstract Normalization create(Map<String, Stats> statsMap);
 
     @Override
-    public final Normalization calculate(Iterable<? extends Classifiable> instances) {
-        Validate.notNull(instances, "instances must not be null");
+    public final Normalization calculate(Iterable<? extends FeatureVector> featureVectors) {
+        Validate.notNull(featureVectors, "featureVectors must not be null");
 
         Map<String, Stats> statsMap = LazyMap.create(SlimStats.FACTORY);
 
-        for (Classifiable instance : instances) {
-            Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
-            for (NumericFeature feature : numericFeatures) {
-                statsMap.get(feature.getName()).add(feature.getValue());
+        for (FeatureVector vector : featureVectors) {
+            for (VectorEntry<String, Value> vectorEntry : vector) {
+                Value value = vectorEntry.value();
+                if (value instanceof NumericValue) {
+                    statsMap.get(vectorEntry.key()).add(((NumericValue)value).getDouble());
+                }
             }
         }
 
         return create(statsMap);
-
     }
 
 }

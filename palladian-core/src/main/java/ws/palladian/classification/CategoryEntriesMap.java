@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.ConstantFactory;

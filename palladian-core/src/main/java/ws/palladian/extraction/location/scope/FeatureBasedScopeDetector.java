@@ -15,11 +15,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.Learner;
-import ws.palladian.classification.Model;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
@@ -28,6 +23,13 @@ import ws.palladian.classification.featureselection.BackwardFeatureElimination.F
 import ws.palladian.classification.featureselection.FeatureRanking;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.ImmutableInstance;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
+import ws.palladian.core.Model;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
@@ -46,11 +48,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVector;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -93,7 +90,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         Location selectedLocation = null;
 
         for (ClassifiableLocation location : classifiableLocations) {
-            CategoryEntries classificationResult = classifier.classify(location, scopeModel);
+            CategoryEntries classificationResult = classifier.classify(location.getFeatureVector(), scopeModel);
             double score = classificationResult.getProbability("true");
             LOGGER.trace("{} : {}", location.getPrimaryName(), score);
             if (selectedLocation == null || score > maximumScore) {
@@ -155,40 +152,40 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             }
             Stats distances = stats.getDistanceStats(location);
 
-            FeatureVector featureVector = new BasicFeatureVector();
-            featureVector.add(new NumericFeature("midpointDistance", midpointDistance));
-            featureVector.add(new NumericFeature("normalizedMidpointDistance", normalizedMidpointDistance));
-            featureVector.add(new NumericFeature("centerpointDistance", centerpointDistance));
-            featureVector.add(new NumericFeature("normalizedCenterpointDistance", normalizeCenterpointDistance));
-            featureVector.add(new NumericFeature("occurrenceCount", occurrenceCount));
-            featureVector.add(new NumericFeature("childCount", descendantCount));
-            featureVector.add(new NumericFeature("ancestorCount", ancestorCount));
-            featureVector.add(new NumericFeature("occurenceFrequency", occurenceFrequency));
-            featureVector.add(new NumericFeature("childPercentage", childPercentage));
-            featureVector.add(new NumericFeature("ancestorPercentage", ancestorPercentage));
-            featureVector.add(new NumericFeature("hierarchyDepth", hierarchyDepth));
-            featureVector.add(new NumericFeature("normalizedHierarchyDepth", normalizedHierarchyDepth));
-            featureVector.add(new NumericFeature("populationNorm", population / maxPopulation));
-            featureVector.add(new NumericFeature("populationMagnitude", MathHelper.getOrderOfMagnitude(population)));
-            featureVector.add(new NominalFeature("locationType", location.getType().toString()));
-            featureVector.add(new NumericFeature("disambiguationTrust", maxDisambiguationTrust));
-            featureVector.add(new NumericFeature("offsetFirst", (double)firstPosition / maxOffset));
-            featureVector.add(new NumericFeature("offsetLast", (double)lastPosition / maxOffset));
-            featureVector.add(new NumericFeature("offsetSpread", (double)(lastPosition - firstPosition) / maxOffset));
+            FeatureVectorBuilder builder = new FeatureVectorBuilder();
+            builder.set("midpointDistance", midpointDistance);
+            builder.set("normalizedMidpointDistance", normalizedMidpointDistance);
+            builder.set("centerpointDistance", centerpointDistance);
+            builder.set("normalizedCenterpointDistance", normalizeCenterpointDistance);
+            builder.set("occurrenceCount", occurrenceCount);
+            builder.set("childCount", descendantCount);
+            builder.set("ancestorCount", ancestorCount);
+            builder.set("occurenceFrequency", occurenceFrequency);
+            builder.set("childPercentage", childPercentage);
+            builder.set("ancestorPercentage", ancestorPercentage);
+            builder.set("hierarchyDepth", hierarchyDepth);
+            builder.set("normalizedHierarchyDepth", normalizedHierarchyDepth);
+            builder.set("populationNorm", population / maxPopulation);
+            builder.set("populationMagnitude", MathHelper.getOrderOfMagnitude(population));
+            builder.set("locationType", location.getType().toString());
+            builder.set("disambiguationTrust", maxDisambiguationTrust);
+            builder.set("offsetFirst", (double)firstPosition / maxOffset);
+            builder.set("offsetLast", (double)lastPosition / maxOffset);
+            builder.set("offsetSpread", (double)(lastPosition - firstPosition) / maxOffset);
             double minDistance = Double.isNaN(distances.getMin()) ? 0 : distances.getMin();
             double maxDistance = Double.isNaN(distances.getMax()) ? 0 : distances.getMax();
             double meanDistance = Double.isNaN(distances.getMean()) ? 0 : distances.getMean();
             double medianDistance = Double.isNaN(distances.getMedian()) ? 0 : distances.getMedian();
-            featureVector.add(new NumericFeature("minDistanceToOthers", minDistance));
-            featureVector.add(new NumericFeature("maxDistanceToOthers", maxDistance));
-            featureVector.add(new NumericFeature("meanDistanceToOthers", meanDistance));
-            featureVector.add(new NumericFeature("medianDistanceToOthers", medianDistance));
-            featureVector.add(new NumericFeature("normalizedMinDistanceToOthers", minDistance / overallMaxDist));
-            featureVector.add(new NumericFeature("normalizedMaxDistanceToOthers", maxDistance / overallMaxDist));
-            featureVector.add(new NumericFeature("normalizedMeanDistanceToOthers", meanDistance / overallMaxDist));
-            featureVector.add(new NumericFeature("normalizedMedianDistanceToOthers", medianDistance / overallMaxDist));
+            builder.set("minDistanceToOthers", minDistance);
+            builder.set("maxDistanceToOthers", maxDistance);
+            builder.set("meanDistanceToOthers", meanDistance);
+            builder.set("medianDistanceToOthers", medianDistance);
+            builder.set("normalizedMinDistanceToOthers", minDistance / overallMaxDist);
+            builder.set("normalizedMaxDistanceToOthers", maxDistance / overallMaxDist);
+            builder.set("normalizedMeanDistanceToOthers", meanDistance / overallMaxDist);
+            builder.set("normalizedMedianDistanceToOthers", medianDistance / overallMaxDist);
 
-            instances.add(new ClassifiableLocation(location, featureVector));
+            instances.add(new ClassifiableLocation(location, builder.create()));
         }
         return instances;
     }
@@ -216,7 +213,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             File csvFile, Learner<? extends Model> learner, Filter<? super String> featureFilter) throws IOException {
         Validate.notNull(documentIterator, "documentIterator must not be null");
 
-        Collection<Trainable> instances = CollectionHelper.newHashSet();
+        Collection<Instance> instances = CollectionHelper.newHashSet();
         for (LocationDocument trainDocument : documentIterator) {
             List<LocationAnnotation> annotations = extractor.getAnnotations(trainDocument.getText());
             Location mainLocation = trainDocument.getMainLocation();
@@ -249,7 +246,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             // 3) create positive and negative training examples
             for (ClassifiableLocation location : classifiableLocations) {
                 boolean positive = location == positiveCandidate;
-                instances.add(new Instance(positive, location));
+                instances.add(new ImmutableInstance(location.getFeatureVector(), positive));
             }
         }
 
@@ -284,8 +281,8 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
      */
     public static <M extends Model> void runFeatureElimination(File trainingCsv, File validationCsv,
             Learner<M> learner, Classifier<M> predictor) {
-        List<Trainable> trainSet = new CsvDatasetReader(trainingCsv).readAll();
-        List<Trainable> validationSet = new CsvDatasetReader(validationCsv).readAll();
+        List<Instance> trainSet = new CsvDatasetReader(trainingCsv).readAll();
+        List<Instance> validationSet = new CsvDatasetReader(validationCsv).readAll();
 
         FMeasureScorer scorer = new FMeasureScorer("true");
         BackwardFeatureElimination<M> featureElimination = new BackwardFeatureElimination<M>(learner, predictor, scorer);

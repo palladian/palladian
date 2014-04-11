@@ -8,26 +8,25 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.CategoryEntries;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.ClassifiedTextDocument;
 
 public class PalladianTextClassifierTest {
 
     private static final FeatureSetting featureSetting = FeatureSettingBuilder.words().create();
 
-    private static final List<ClassifiedTextDocument> docs = createDocs();
+    private static final List<ImmutableTextInstance> docs = createDocs();
 
     private static final String TEST_TEXT = "Chinese Chinese Chinese Tokyo Japan";
 
-    private static List<ClassifiedTextDocument> createDocs() {
+    private static List<ImmutableTextInstance> createDocs() {
         // sample data taken from "An Introduction to Information Retrieval";
         // Christopher D. Manning; Prabhakar Raghavan; Hinrich Schütze; 2009, chapter 13 (pp. 253).
-        List<ClassifiedTextDocument> docs = CollectionHelper.newArrayList();
-        docs.add(new ClassifiedTextDocument("yes", "Chinese Beijing Chinese"));
-        docs.add(new ClassifiedTextDocument("yes", "Chinese Chinese Shanghai"));
-        docs.add(new ClassifiedTextDocument("yes", "Chinese Macao"));
-        docs.add(new ClassifiedTextDocument("no", "Tokyo Japan Chinese"));
+        List<ImmutableTextInstance> docs = CollectionHelper.newArrayList();
+        docs.add(new ImmutableTextInstance("Chinese Beijing Chinese","yes"));
+        docs.add(new ImmutableTextInstance("Chinese Chinese Shanghai","yes"));
+        docs.add(new ImmutableTextInstance("Chinese Macao","yes"));
+        docs.add(new ImmutableTextInstance("Tokyo Japan Chinese","no"));
         return docs;
     }
 

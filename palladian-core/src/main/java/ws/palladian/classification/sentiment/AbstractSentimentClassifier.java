@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.classification.Category;
+import ws.palladian.core.Category;
 
 public abstract class AbstractSentimentClassifier {
     

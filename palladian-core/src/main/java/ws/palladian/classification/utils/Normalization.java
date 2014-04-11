@@ -2,9 +2,7 @@ package ws.palladian.classification.utils;
 
 import java.io.Serializable;
 
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.core.FeatureVector;
 
 /**
  * <p>
@@ -17,27 +15,24 @@ public interface Normalization extends Serializable {
 
     /**
      * <p>
-     * Normalize the given {@link NumericFeature} based on the normalization information. A new {@link NumericFeature}
-     * with normalized value is returned.
+     * Normalize the given value based on the normalization information.
      * </p>
      * 
-     * @param numericFeature The feature to normalize, not <code>null</code>.
-     * @return A normalized feature.
+     * @param name The name of the value to normalize, not <code>null</code>.
+     * @param value The value to normalize.
+     * @return The normalized value.
      * @throws IllegalArgumentException in case no normalization information for the given feature name is available.
      */
-    NumericFeature normalize(NumericFeature numericFeature);
+    double normalize(String name, double value);
 
-    // XXX it would be better to return a copy of the classifiable, as we might want to keep the original values, or
-    // normalizing several times will cause unexpected results
     /**
      * <p>
-     * Normalize a {@link FeatureVector} based in the normalization information. The values are modified directly in
-     * place.
+     * Normalize a {@link FeatureVector} based in the normalization information.
      * </p>
      * 
      * @param featureVector The FeatureVector to normalize, not <code>null</code>.
-     * @return
+     * @return A new FeatureVector with normalized values.
      */
-    void normalize(Classifiable classifiable);
+    FeatureVector normalize(FeatureVector featureVector);
 
 }

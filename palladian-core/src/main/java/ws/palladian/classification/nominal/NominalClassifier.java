@@ -1,16 +1,17 @@
 package ws.palladian.classification.nominal;
 
-import java.util.Collection;
 import java.util.Set;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Learner;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
+import ws.palladian.core.NominalValue;
+import ws.palladian.core.Value;
 import ws.palladian.helper.collection.CountMatrix;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.NominalFeature;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * @author David Urbansky
@@ -19,15 +20,18 @@ import ws.palladian.processing.features.NominalFeature;
 public final class NominalClassifier implements Learner<NominalClassifierModel>, Classifier<NominalClassifierModel> {
 
     @Override
-    public NominalClassifierModel train(Iterable<? extends Trainable> trainables) {
+    public NominalClassifierModel train(Iterable<? extends Instance> instances) {
 
         CountMatrix<String> cooccurrenceMatrix = CountMatrix.create();
 
-        for (Trainable trainable : trainables) {
-            String className = trainable.getTargetClass();
-            Collection<NominalFeature> nominalFeatures = trainable.getFeatureVector().getAll(NominalFeature.class);
-            for (NominalFeature nominalFeature : nominalFeatures) {
-                cooccurrenceMatrix.add(className, nominalFeature.getValue());
+        for (Instance instance : instances) {
+            String categoryName = instance.getCategory();
+            FeatureVector featureVector = instance.getVector();
+            for (VectorEntry<String, Value> entry : featureVector) {
+                Value value = entry.value();
+                if (value instanceof NominalValue) {
+                    cooccurrenceMatrix.add(categoryName, ((NominalValue)value).getString());
+                }
             }
         }
 
@@ -35,7 +39,7 @@ public final class NominalClassifier implements Learner<NominalClassifierModel>,
     }
 
     @Override
-    public CategoryEntries classify(Classifiable classifiable, NominalClassifierModel model) {
+    public CategoryEntries classify(FeatureVector featureVector, NominalClassifierModel model) {
 
         CountMatrix<String> cooccurrenceMatrix = model.getCooccurrenceMatrix();
 
@@ -45,18 +49,17 @@ public final class NominalClassifier implements Learner<NominalClassifierModel>,
         // category names
         Set<String> categories = cooccurrenceMatrix.getColumnKeys();
 
-        for (NominalFeature nominalFeature : classifiable.getFeatureVector().getAll(NominalFeature.class)) {
-
-            for (String category : categories) {
-
-                String featureValue = nominalFeature.getValue();
-                int cooccurrences = cooccurrenceMatrix.getCount(category, featureValue);
-                int rowSum = cooccurrenceMatrix.getRow(featureValue).getSum();
-
-                double score = (double)cooccurrences / rowSum;
-                builder.add(category, score);
+        for (VectorEntry<String, Value> entry : featureVector) {
+            Value value = entry.value();
+            if (value instanceof NominalValue) {
+                String nominalValue = ((NominalValue)value).getString();
+                for (String category : categories) {
+                    int cooccurrences = cooccurrenceMatrix.getCount(category, nominalValue);
+                    int rowSum = cooccurrenceMatrix.getRow(nominalValue).getSum();
+                    double score = (double)cooccurrences / rowSum;
+                    builder.add(category, score);
+                }
             }
-
         }
         return builder.create();
     }

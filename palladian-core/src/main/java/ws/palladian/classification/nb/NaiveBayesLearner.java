@@ -1,6 +1,10 @@
 package ws.palladian.classification.nb;
 
-import ws.palladian.classification.Learner;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
+import ws.palladian.core.NominalValue;
+import ws.palladian.core.NumericValue;
+import ws.palladian.core.Value;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.LazyMatrix;
 import ws.palladian.helper.collection.MapMatrix;
@@ -9,10 +13,6 @@ import ws.palladian.helper.collection.Matrix.MatrixVector;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.SlimStats;
 import ws.palladian.helper.math.Stats;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -27,7 +27,7 @@ import ws.palladian.processing.features.NumericFeature;
 public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
 
     @Override
-    public NaiveBayesModel train(Iterable<? extends Trainable> trainables) {
+    public NaiveBayesModel train(Iterable<? extends Instance> instances) {
 
         // store the counts of different categories
         Bag<String> categories = Bag.create();
@@ -36,18 +36,19 @@ public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
         // store mean and standard deviation for numeric features (name, category)
         Matrix<String, Stats> stats = LazyMatrix.create(SlimStats.FACTORY);
 
-        for (Trainable trainable : trainables) {
-            String category = trainable.getTargetClass();
+        for (Instance instance : instances) {
+            String category = instance.getCategory();
             categories.add(category);
 
-            for (Feature<?> feature : trainable.getFeatureVector()) {
-                String featureName = feature.getName();
+            for (VectorEntry<String, Value> entry : instance.getVector()) {
+                String featureName = entry.key();
+                Value value = entry.value();
 
-                if (feature instanceof NominalFeature) {
-                    String nominalValue = ((NominalFeature)feature).getValue();
+                if (value instanceof NominalValue) {
+                    String nominalValue = ((NominalValue)value).getString();
                     nominalCounts.get(featureName, nominalValue).add(category);
-                } else if (feature instanceof NumericFeature) {
-                    Double numericValue = ((NumericFeature)feature).getValue();
+                } else if (value instanceof NumericValue) {
+                    double numericValue = ((NumericValue)value).getDouble();
                     stats.get(featureName, category).add(numericValue);
                 }
             }

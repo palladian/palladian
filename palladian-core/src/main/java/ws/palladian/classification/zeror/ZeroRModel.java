@@ -3,7 +3,7 @@ package ws.palladian.classification.zeror;
 import java.util.Map;
 import java.util.Set;
 
-import ws.palladian.classification.Model;
+import ws.palladian.core.Model;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.CountMap;

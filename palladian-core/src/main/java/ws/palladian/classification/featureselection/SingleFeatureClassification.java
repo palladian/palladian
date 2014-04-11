@@ -10,21 +10,21 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Learner;
-import ws.palladian.classification.Model;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
+import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -62,11 +62,11 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
-        List<Trainable> instances = new ArrayList<Trainable>(dataset);
+    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset) {
+        List<Instance> instances = new ArrayList<Instance>(dataset);
         Collections.shuffle(instances);
-        List<Trainable> trainData = instances.subList(0, instances.size() / 2);
-        List<Trainable> testData = instances.subList(instances.size() / 2, instances.size());
+        List<Instance> trainData = instances.subList(0, instances.size() / 2);
+        List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
         return rankFeatures(trainData, testData);
     }
 
@@ -75,8 +75,8 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> trainSet,
-            Collection<? extends Trainable> validationSet) {
+    public FeatureRanking rankFeatures(Collection<? extends Instance> trainSet,
+            Collection<? extends Instance> validationSet) {
         final FeatureRanking result = new FeatureRanking();
 
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainSet);
@@ -84,8 +84,8 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
 
         for (String feature : allFeatures) {
             Filter<String> filter = EqualsFilter.create(feature);
-            List<Trainable> eliminatedTrainData = ClassificationUtils.filterFeatures(trainSet, filter);
-            List<Trainable> eliminatedTestData = ClassificationUtils.filterFeatures(validationSet, filter);
+            List<Instance> eliminatedTrainData = ClassificationUtils.filterFeatures(trainSet, filter);
+            List<Instance> eliminatedTestData = ClassificationUtils.filterFeatures(validationSet, filter);
 
             M model = learner.train(eliminatedTrainData);
             @SuppressWarnings("unchecked")
@@ -99,8 +99,8 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
     }
 
     public static void main(String[] args) {
-        List<Trainable> trainSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv");
-        List<Trainable> validationSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv");
+        List<Instance> trainSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv");
+        List<Instance> validationSet = ClassificationUtils.readCsv("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv");
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread

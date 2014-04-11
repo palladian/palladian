@@ -10,14 +10,14 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.processing.Trainable;
 
 public class ZeroRTest {
 
     @Test
     public void testNaiveBayesWithDiabetesData() throws FileNotFoundException {
-        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false)
+        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false)
                 .readAll();
         ConfusionMatrix matrix = evaluate(new ZeroRLearner(), new ZeroRClassifier(), instances);
         assertEquals(0.67, matrix.getAccuracy(), 0.01);

@@ -1,8 +1,8 @@
 package ws.palladian.extraction.entity;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AbstractAnnotation;

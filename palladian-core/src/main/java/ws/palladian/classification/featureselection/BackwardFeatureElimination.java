@@ -19,14 +19,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import quickdt.randomForest.RandomForestBuilder;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Learner;
-import ws.palladian.classification.Model;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
+import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
@@ -36,7 +37,6 @@ import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -102,12 +102,12 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
     private final class TestRun implements Callable<TestRunResult> {
 
-        private final Collection<? extends Trainable> trainData;
-        private final Collection<? extends Trainable> testData;
+        private final Collection<? extends Instance> trainData;
+        private final Collection<? extends Instance> testData;
         private final List<String> featuresToEliminate;
         private final ProgressMonitor monitor;
 
-        public TestRun(Collection<? extends Trainable> trainData, Collection<? extends Trainable> testData,
+        public TestRun(Collection<? extends Instance> trainData, Collection<? extends Instance> testData,
                 List<String> featuresToEliminate, ProgressMonitor monitor) {
             this.trainData = trainData;
             this.testData = testData;
@@ -121,8 +121,8 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
             LOGGER.debug("Starting elimination for {}", eliminatedFeature);
 
             Filter<String> filter = InverseFilter.create(EqualsFilter.create(featuresToEliminate));
-            List<Trainable> eliminatedTrainData = ClassificationUtils.filterFeatures(trainData, filter);
-            List<Trainable> eliminatedTestData = ClassificationUtils.filterFeatures(testData, filter);
+            List<Instance> eliminatedTrainData = ClassificationUtils.filterFeatures(trainData, filter);
+            List<Instance> eliminatedTestData = ClassificationUtils.filterFeatures(testData, filter);
 
             // create a new learner and classifier
             Learner<M> learner = learnerFactory.create();
@@ -203,11 +203,11 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
-        List<Trainable> instances = new ArrayList<Trainable>(dataset);
+    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset) {
+        List<Instance> instances = new ArrayList<Instance>(dataset);
         Collections.shuffle(instances);
-        List<Trainable> trainData = instances.subList(0, instances.size() / 2);
-        List<Trainable> testData = instances.subList(instances.size() / 2, instances.size());
+        List<Instance> trainData = instances.subList(0, instances.size() / 2);
+        List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
         return rankFeatures(trainData, testData);
     }
 
@@ -220,8 +220,8 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> trainSet,
-            Collection<? extends Trainable> validationSet) {
+    public FeatureRanking rankFeatures(Collection<? extends Instance> trainSet,
+            Collection<? extends Instance> validationSet) {
         final FeatureRanking result = new FeatureRanking();
 
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainSet);
@@ -291,22 +291,22 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         
         // take a sub sampling of TUD, LGL and Clust; make # of samples roughly equal for each data set
         
-        List<Trainable> tudTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_tud_train_1376394038036.csv", true);
-        List<Trainable> lglTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_lgl_train_1376399225449.csv", true);
-        List<Trainable> clustTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_clust_train_1376413884470.csv", true);
+        List<Instance> tudTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_tud_train_1376394038036.csv", true);
+        List<Instance> lglTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_lgl_train_1376399225449.csv", true);
+        List<Instance> clustTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_clust_train_1376413884470.csv", true);
         lglTrain = ClassificationUtils.drawRandomSubset(lglTrain, 30);
         clustTrain = ClassificationUtils.drawRandomSubset(clustTrain, 15);
-        List<Trainable> trainSet = CollectionHelper.newArrayList();
+        List<Instance> trainSet = CollectionHelper.newArrayList();
         trainSet.addAll(tudTrain);
         trainSet.addAll(lglTrain);
         trainSet.addAll(clustTrain);
         
-        List<Trainable> tudValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_tud_validation_1376419927925.csv", true);
-        List<Trainable> lglValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_lgl_validation_1376420924580.csv", true);
-        List<Trainable> clustValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_clust_validation_1376422975187.csv", true);
+        List<Instance> tudValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_tud_validation_1376419927925.csv", true);
+        List<Instance> lglValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_lgl_validation_1376420924580.csv", true);
+        List<Instance> clustValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_clust_validation_1376422975187.csv", true);
         lglValidate = ClassificationUtils.drawRandomSubset(lglValidate, 30);
         clustValidate = ClassificationUtils.drawRandomSubset(clustValidate, 15);
-        List<Trainable> validationSet = CollectionHelper.newArrayList();
+        List<Instance> validationSet = CollectionHelper.newArrayList();
         validationSet.addAll(tudValidate);
         validationSet.addAll(lglValidate);
         validationSet.addAll(clustValidate);

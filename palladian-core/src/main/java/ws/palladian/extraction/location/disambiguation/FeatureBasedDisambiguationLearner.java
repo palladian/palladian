@@ -13,10 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import quickdt.randomForest.RandomForestBuilder;
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.core.ImmutableInstance;
+import ws.palladian.core.Instance;
 import ws.palladian.extraction.location.AnnotationFilter;
 import ws.palladian.extraction.location.ContextClassifier;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
@@ -36,7 +37,6 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.Annotation;
 
 /**
@@ -95,7 +95,7 @@ public class FeatureBasedDisambiguationLearner {
     }
 
     public void learn(Iterator<LocationDocument> trainDocuments) throws IOException {
-        Set<Trainable> trainingData = createTrainingData(trainDocuments);
+        Set<Instance> trainingData = createTrainingData(trainDocuments);
         String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
         ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
         QuickDtModel model = learner.train(trainingData);
@@ -103,8 +103,8 @@ public class FeatureBasedDisambiguationLearner {
         FileHelper.serialize(model, modelFileName);
     }
 
-    private Set<Trainable> createTrainingData(Iterator<LocationDocument> trainDocuments) {
-        Set<Trainable> trainingData = CollectionHelper.newHashSet();
+    private Set<Instance> createTrainingData(Iterator<LocationDocument> trainDocuments) {
+        Set<Instance> trainingData = CollectionHelper.newHashSet();
         while (trainDocuments.hasNext()) {
             LocationDocument trainDocument = trainDocuments.next();
             String text = trainDocument.getText();
@@ -117,15 +117,15 @@ public class FeatureBasedDisambiguationLearner {
                     locationSource, classifiedEntities);
 
             Set<ClassifiableLocation> classifiableLocations = featureExtraction.extractFeatures(text, locations);
-            Set<Trainable> trainInstances = createTrainData(classifiableLocations, trainAnnotations);
+            Set<Instance> trainInstances = createTrainData(classifiableLocations, trainAnnotations);
             trainingData.addAll(trainInstances);
         }
         return trainingData;
     }
 
-    private Set<Trainable> createTrainData(Set<ClassifiableLocation> classifiableLocations,
+    private Set<Instance> createTrainData(Set<ClassifiableLocation> classifiableLocations,
             List<LocationAnnotation> positiveLocations) {
-        Set<Trainable> result = CollectionHelper.newHashSet();
+        Set<Instance> result = CollectionHelper.newHashSet();
         int numPositive = 0;
         for (ClassifiableLocation location : classifiableLocations) {
             boolean positiveClass = false;
@@ -148,7 +148,7 @@ public class FeatureBasedDisambiguationLearner {
                     break;
                 }
             }
-            result.add(new Instance(positiveClass, location));
+            result.add(new ImmutableInstance(location.getFeatureVector(), positiveClass));
         }
         double positivePercentage = MathHelper.round((float)numPositive / classifiableLocations.size() * 100, 2);
         LOGGER.info("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);

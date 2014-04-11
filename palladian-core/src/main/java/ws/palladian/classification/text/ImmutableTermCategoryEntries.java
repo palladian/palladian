@@ -5,10 +5,10 @@ import java.util.Iterator;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.AbstractCategoryEntries;
-import ws.palladian.classification.Category;
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.ImmutableCategoryEntries;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
 
 public class ImmutableTermCategoryEntries extends AbstractCategoryEntries implements TermCategoryEntries {
 

@@ -3,13 +3,12 @@ package ws.palladian.extraction.location.disambiguation;
 import java.util.Collection;
 import java.util.List;
 
+import ws.palladian.core.FeatureVector;
 import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>
@@ -18,7 +17,7 @@ import ws.palladian.processing.features.FeatureVector;
  * 
  * @author pk
  */
-public final class ClassifiableLocation extends AbstractLocation implements Classifiable {
+public final class ClassifiableLocation extends AbstractLocation {
 
     private final Location location;
     private final FeatureVector featureVector;
@@ -63,7 +62,6 @@ public final class ClassifiableLocation extends AbstractLocation implements Clas
         return location.getAncestorIds();
     }
 
-    @Override
     public FeatureVector getFeatureVector() {
         return featureVector;
     }

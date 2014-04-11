@@ -7,18 +7,20 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.Category;
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Learner;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.ImmutableTextValue;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
+import ws.palladian.core.TextValue;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Function;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -140,6 +142,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         }
     }
 
+    public static final String VECTOR_TEXT_IDENTIFIER = "text";
+
     private final DictionaryBuilder dictionaryBuilder;
 
     private final FeatureSetting featureSetting;
@@ -203,11 +207,11 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     }
 
     @Override
-    public DictionaryModel train(Iterable<? extends Trainable> trainables) {
-        for (Trainable trainable : trainables) {
-            String targetClass = trainable.getTargetClass();
-            String content = ((TextDocument)trainable).getContent();
-            Iterator<String> iterator = preprocessor.compute(content);
+    public DictionaryModel train(Iterable<? extends Instance> instances) {
+        for (Instance instance : instances) {
+            String targetClass = instance.getCategory();
+            TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
+            Iterator<String> iterator = preprocessor.compute(textValue.getText());
             Collection<String> terms = learnCounts ? Bag.<String> create() : CollectionHelper.<String> newHashSet();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
@@ -218,10 +222,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     }
 
     @Override
-    public CategoryEntries classify(Classifiable classifiable, DictionaryModel model) {
+    public CategoryEntries classify(FeatureVector featureVector, DictionaryModel model) {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
-        String content = ((TextDocument)classifiable).getContent();
-        Iterator<String> iterator = preprocessor.compute(content);
+        TextValue textValue = (TextValue)featureVector.get(VECTOR_TEXT_IDENTIFIER);
+        Iterator<String> iterator = preprocessor.compute(textValue.getText());
         Bag<String> termCounts = Bag.create();
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
@@ -277,7 +281,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     }
 
     public CategoryEntries classify(String text, DictionaryModel model) {
-        return classify(new TextDocument(text), model);
+        TextValue textValue = new ImmutableTextValue(text);
+        FeatureVector featureVector = new FeatureVectorBuilder().set(VECTOR_TEXT_IDENTIFIER, textValue).create();
+        return classify(featureVector, model);
     }
 
 }
