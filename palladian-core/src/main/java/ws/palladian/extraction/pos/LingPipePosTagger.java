@@ -13,12 +13,10 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.pos.filter.TagFilter;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
@@ -37,7 +35,7 @@ import com.aliasi.util.FastCache;
  * @author Martin Wunderwald
  * @author Philipp Katz
  */
-public final class LingPipePosTagger extends BasePosTagger {
+public final class LingPipePosTagger extends AbstractPosTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LingPipePosTagger.class);
@@ -48,26 +46,8 @@ public final class LingPipePosTagger extends BasePosTagger {
     /** The model used by the LingPipe POS tagger. */
     private final HiddenMarkovModel model;
 
-    /**
-     * <p>
-     * Used for filter and replace tags and thus reducing the set of possible tags.
-     * </p>
-     */
-    private final TagFilter tagFilter;
-
     /** The tokenizer used by the LingPipe POS tagger. */
     private static final LingPipeTokenizer TOKENIZER = new LingPipeTokenizer();
-
-    /**
-     * <p>
-     * Instantiate a new LingPipe POS tagger from the given model.
-     * </p>
-     * 
-     * @param modelFile The model used by the LingPipe POS tagger.
-     */
-    public LingPipePosTagger(File modelFile) {
-        this(modelFile, null);
-    }
 
     /**
      * <p>
@@ -76,9 +56,8 @@ public final class LingPipePosTagger extends BasePosTagger {
      * </p>
      * 
      * @param modelFile The model used by the LingPipe POS tagger.
-     * @param tagFilter Used for filter and replace tags and thus reducing the set of possible tags.
      */
-    public LingPipePosTagger(File modelFile, TagFilter tagFilter) {
+    public LingPipePosTagger(File modelFile) {
         Validate.notNull(modelFile, "modelFile must not be null");
         InputStream modelStream = null;
         try {
@@ -89,13 +68,11 @@ public final class LingPipePosTagger extends BasePosTagger {
         } finally {
             FileHelper.close(modelStream);
         }
-        this.tagFilter = tagFilter;
     }
 
-    public LingPipePosTagger(InputStream modelStream, TagFilter tagFilter) {
+    public LingPipePosTagger(InputStream modelStream) {
         Validate.notNull(modelStream, "modelStream must not be null");
         this.model = loadModel(modelStream);
-        this.tagFilter = tagFilter;
     }
 
     /**
@@ -123,20 +100,9 @@ public final class LingPipePosTagger extends BasePosTagger {
 
     @Override
     protected List<String> getTags(List<String> tokens) {
-
         FastCache<String, double[]> cache = new FastCache<String, double[]>(100);
         HmmDecoder posTagger = new HmmDecoder(model, null, cache);
-
-        Tagging<String> tagging = posTagger.tag(tokens);
-
-        List<String> result = CollectionHelper.newArrayList();
-        for (int i = 0; i < tagging.size(); i++) {
-            List<String> filteredTag = tagFilter == null ? Arrays.asList(new String[] {tagging.tag(i)}) : tagFilter
-                    .filter(tagging.tag(i));
-            result.add(filteredTag.get(0));
-        }
-        
-        return result;
+        return posTagger.tag(tokens).tags();
     }
 
     public void evaluate(String folderPath, String modelFilePath) {
@@ -146,17 +112,17 @@ public final class LingPipePosTagger extends BasePosTagger {
 
         ConfusionMatrix matrix = new ConfusionMatrix();
 
-        int c = 1; 
         int correct = 0;
         int total = 0;
 
-        int cacheSize = Integer.valueOf(100);
-        FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
+        FastCache<String, double[]> cache = new FastCache<String, double[]>(100);
 
         // construct chunker
         HmmDecoder posTagger = new HmmDecoder(model, null, cache);
 
         File[] testFiles = FileHelper.getFiles(folderPath);
+        ProgressMonitor progressMonitor = new ProgressMonitor(testFiles.length);
+        
         for (File file : testFiles) {
 
             String content = FileHelper.tryReadFileToString(file);
@@ -188,7 +154,7 @@ public final class LingPipePosTagger extends BasePosTagger {
                 total++;
             }
 
-            ProgressHelper.printProgress(c++, testFiles.length, 1);
+            progressMonitor.incrementAndPrintProgress();
         }
 
         LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
@@ -205,7 +171,7 @@ public final class LingPipePosTagger extends BasePosTagger {
     }
 
     @Override
-    protected BaseTokenizer getTokenizer() {
+    protected AbstractTokenizer getTokenizer() {
         return TOKENIZER;
     }
 

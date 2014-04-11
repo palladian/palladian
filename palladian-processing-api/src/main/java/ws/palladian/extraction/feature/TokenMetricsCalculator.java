@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
@@ -37,7 +37,7 @@ public final class TokenMetricsCalculator extends TextDocumentPipelineProcessor 
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> annotations = document.getFeatureVector().get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.getFeatureVector().get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         CountMap<String> occurrences = CountMap.create();
         Map<String, Integer> firstOccurrences = new HashMap<String, Integer>();
         Map<String, Integer> lastOccurrences = new HashMap<String, Integer>();

@@ -5,7 +5,7 @@ import java.util.List;
 
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.Tagger;
@@ -22,10 +22,10 @@ import ws.palladian.processing.features.ImmutableAnnotation;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public abstract class BasePosTagger implements Tagger {
+public abstract class AbstractPosTagger implements Tagger {
 
-    /** The default {@link BaseTokenizer} used if not overridden. */
-    private static final BaseTokenizer DEFAULT_TOKENIZER = new RegExTokenizer();
+    /** The default {@link AbstractTokenizer} used if not overridden. */
+    private static final AbstractTokenizer DEFAULT_TOKENIZER = new RegExTokenizer();
 
     @Override
     public List<Annotation> getAnnotations(String text) {
@@ -47,14 +47,14 @@ public abstract class BasePosTagger implements Tagger {
 
     /**
      * <p>
-     * Return the {@link BaseTokenizer} which this {@link PosTagger} uses when tagging String using {@link #tag(String)}
+     * Return the {@link AbstractTokenizer} which this {@link PosTagger} uses when tagging String using {@link #tag(String)}
      * . Per default, a {@link RegExTokenizer} is returned, subclasses may override this method, if a specific
-     * {@link BaseTokenizer} is required.
+     * {@link AbstractTokenizer} is required.
      * </p>
      * 
-     * @return The {@link BaseTokenizer} to use.
+     * @return The {@link AbstractTokenizer} to use.
      */
-    protected BaseTokenizer getTokenizer() {
+    protected AbstractTokenizer getTokenizer() {
         return DEFAULT_TOKENIZER;
     }
 

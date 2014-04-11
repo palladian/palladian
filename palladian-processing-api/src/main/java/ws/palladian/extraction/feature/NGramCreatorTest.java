@@ -9,9 +9,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.extraction.pos.BasePosTagger;
+import ws.palladian.extraction.pos.AbstractPosTagger;
 import ws.palladian.extraction.pos.LingPipePosTagger;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
@@ -57,7 +57,7 @@ public class NGramCreatorTest {
         pipeline.connectToPreviousProcessor(new NGramCreator(2));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
 
         assertEquals(10, annotations.size());
         assertEquals("quick brown", annotations.get(6).getValue());
@@ -78,10 +78,10 @@ public class NGramCreatorTest {
         pipeline.connectToPreviousProcessor(new LingPipeTokenizer());
         pipeline.connectToPreviousProcessor(new LingPipePosTagger(ResourceHelper
                 .getResourceFile("/model/pos-en-general-brown.HiddenMarkovModel")));
-        pipeline.connectToPreviousProcessor(new NGramCreator(BasePosTagger.PROVIDED_FEATURE));
+        pipeline.connectToPreviousProcessor(new NGramCreator(AbstractPosTagger.PROVIDED_FEATURE));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
 
         assertEquals(annotations.size(), 17);
         assertEquals("the quick", annotations.get(9).getValue());
@@ -89,15 +89,15 @@ public class NGramCreatorTest {
         assertEquals("brown fox", annotations.get(11).getValue());
         assertEquals("fox jumps", annotations.get(12).getValue());
 
-        assertThat(annotations.get(9).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+        assertThat(annotations.get(9).getFeatureVector().get(NominalFeature.class, AbstractPosTagger.PROVIDED_FEATURE)
                 .getValue(), is("ATJJ"));
-        assertThat(annotations.get(10).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+        assertThat(annotations.get(10).getFeatureVector().get(NominalFeature.class, AbstractPosTagger.PROVIDED_FEATURE)
                 .getValue(), is("JJJJ"));
-        assertThat(annotations.get(11).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+        assertThat(annotations.get(11).getFeatureVector().get(NominalFeature.class, AbstractPosTagger.PROVIDED_FEATURE)
                 .getValue(), is("JJNN"));
-        assertThat(annotations.get(12).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+        assertThat(annotations.get(12).getFeatureVector().get(NominalFeature.class, AbstractPosTagger.PROVIDED_FEATURE)
                 .getValue(), is("NNNNS"));
-        assertThat(annotations.get(13).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
+        assertThat(annotations.get(13).getFeatureVector().get(NominalFeature.class, AbstractPosTagger.PROVIDED_FEATURE)
                 .getValue(), is("NNSIN"));
     }
 
@@ -107,7 +107,7 @@ public class NGramCreatorTest {
         pipeline.connectToPreviousProcessor(new NGramCreator(2, 5, true, 10));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         assertEquals(10, annotations.size());
         assertEquals("the", annotations.get(0).getValue());
         assertEquals("quick brown", annotations.get(9).getValue());

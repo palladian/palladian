@@ -11,11 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.core.FeatureVectorBuilder;
-import ws.palladian.extraction.feature.StopTokenRemover;
+import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
+import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -23,7 +24,6 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 
 /**
  * <p>
@@ -39,7 +39,7 @@ class LocationFeatureExtractor {
 
     public static boolean debug = false;
 
-    private final StopTokenRemover stopTokenRemover = new StopTokenRemover(Language.ENGLISH);
+    private final StopWordRemover stopTokenRemover = new StopWordRemover(Language.ENGLISH);
     
     private final int contextSize;
     
@@ -98,7 +98,7 @@ class LocationFeatureExtractor {
             // boolean unique = isUnique(candidates);
             // boolean uniqueAndLong = unique && annotation.getValue().split("\\s").length > 2;
             // int maxDepth = getMaxDepth(candidates);
-            boolean stopword = stopTokenRemover.isStopword(value);
+            boolean stopword = stopTokenRemover.isStopWord(value);
 
             // int firstOccurence = getFirstOccurence(annotation, locations.keySet());
             // double firstOccurenceRelative = (double)firstOccurence / text.length();

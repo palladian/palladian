@@ -2,7 +2,7 @@ package ws.palladian.extraction.feature;
 
 import java.util.List;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
@@ -13,7 +13,7 @@ public final class TokenOverlapRemover extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         Annotation[] tokensArray = annotations.toArray(new PositionAnnotation[annotations.size()]);
         for (int i = 0; i < tokensArray.length; i++) {
             for (int j = i + 1; j < tokensArray.length; j++) {

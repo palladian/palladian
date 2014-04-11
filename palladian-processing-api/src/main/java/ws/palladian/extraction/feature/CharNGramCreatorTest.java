@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.ListFeature;
@@ -25,7 +25,7 @@ public class CharNGramCreatorTest {
         TextDocument document = new TextDocument(text);
         charNGramCreator.processDocument(document);
         List<PositionAnnotation> annotations = document.get(ListFeature.class,
-                BaseTokenizer.PROVIDED_FEATURE);
+                AbstractTokenizer.PROVIDED_FEATURE);
 
         for (PositionAnnotation annotation : annotations) {
             assertThat(annotation.getValue().length(), greaterThanOrEqualTo(1));
@@ -37,13 +37,13 @@ public class CharNGramCreatorTest {
         charNGramCreator = new CharNGramCreator(1, 5, true, Integer.MAX_VALUE);
         document = new TextDocument(text);
         charNGramCreator.processDocument(document);
-        annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         assertEquals(87, annotations.size());
 
         charNGramCreator = new CharNGramCreator(1, 5, false, 10);
         document = new TextDocument(text);
         charNGramCreator.processDocument(document);
-        annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         assertEquals(10, annotations.size());
 
     }

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.AbstractFeatureProvider;
@@ -22,7 +22,7 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
- * Takes a tokenized (see {@link BaseTokenizer}) as input and annotates all token matching one item from a dictionary.
+ * Takes a tokenized (see {@link AbstractTokenizer}) as input and annotates all token matching one item from a dictionary.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -61,7 +61,7 @@ public final class DictionaryAnnotator extends AbstractFeatureProvider {
         TextDocument document = (TextDocument)getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).poll();
 
         List<PositionAnnotation> annotations = document.get(ListFeature.class,
-                BaseTokenizer.PROVIDED_FEATURE);
+                AbstractTokenizer.PROVIDED_FEATURE);
         if (annotations.isEmpty()) {
             LOGGER.warn("No tokens found. Did you specify a Tokenizer before using the DictionaryAnnotator?");
         }

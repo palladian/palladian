@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
@@ -68,7 +68,7 @@ public class CharNGramCreator extends TextDocumentPipelineProcessor {
 
         PositionAnnotationFactory factory = new PositionAnnotationFactory(document);
 
-        ListFeature<PositionAnnotation> gramTokens = new ListFeature<PositionAnnotation>(BaseTokenizer.PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> gramTokens = new ListFeature<PositionAnnotation>(AbstractTokenizer.PROVIDED_FEATURE);
 
         Set<String> uniqueTokens = CollectionHelper.newHashSet();
 

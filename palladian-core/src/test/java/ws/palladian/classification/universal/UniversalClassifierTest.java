@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.classification.text.FeatureSettingBuilder;
@@ -42,7 +43,7 @@ public class UniversalClassifierTest {
      * @throws FileNotFoundException If the example dataset was not found.
      */
     @Test
-    // @Ignore // FIXME; see issue #282, #281
+    @Ignore // FIXME; see issue #282, #281
     public void test() throws FileNotFoundException {
 
         File datasetFile = getResourceFile("/classifier/saheart.csv");

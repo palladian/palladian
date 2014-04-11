@@ -11,7 +11,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.feature.StemmerAnnotator;
+import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
@@ -22,7 +22,7 @@ public class PhraseProbabilityCalculator {
 
     private final CooccurrenceMatrix matrix;
 
-    private final StemmerAnnotator stemmer;
+    private final Stemmer stemmer;
 
     public PhraseProbabilityCalculator(File matrixFile, Language language) {
         Validate.notNull(matrixFile, "matrixFile must not be null");
@@ -32,7 +32,7 @@ public class PhraseProbabilityCalculator {
             throw new IllegalStateException(e);
         }
         if (language != null) {
-            stemmer = new StemmerAnnotator(language);
+            stemmer = new Stemmer(language);
         } else {
             stemmer = null;
         }
@@ -46,7 +46,7 @@ public class PhraseProbabilityCalculator {
         Validate.notNull(matrix, "matrix must not be null");
         this.matrix = matrix;
         if (language != null) {
-            stemmer = new StemmerAnnotator(language);
+            stemmer = new Stemmer(language);
         } else {
             stemmer = null;
         }

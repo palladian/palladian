@@ -13,7 +13,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.semantics.Word;
 import ws.palladian.semantics.WordDB;
 
-public class WiktionaryPosTagger extends BasePosTagger {
+public class WiktionaryPosTagger extends AbstractPosTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WiktionaryPosTagger.class);

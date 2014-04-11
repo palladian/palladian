@@ -13,7 +13,7 @@ import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
- * A {@link BaseTokenizer} implementation based on regular expressions. Tokens are matched against the specified regular
+ * A {@link AbstractTokenizer} implementation based on regular expressions. Tokens are matched against the specified regular
  * expressions.
  * </p>
  * 
@@ -22,7 +22,7 @@ import ws.palladian.processing.features.ImmutableAnnotation;
  * @version 2.0
  * @since 0.1.7
  */
-public final class RegExTokenizer extends BaseTokenizer {
+public final class RegExTokenizer extends AbstractTokenizer {
 
     /** The pattern that needs to match for a token to be extracted as a new {@code Annotation}. */
     private final Pattern pattern;

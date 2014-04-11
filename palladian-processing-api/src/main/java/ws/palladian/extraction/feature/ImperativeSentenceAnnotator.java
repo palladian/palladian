@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
@@ -32,7 +32,7 @@ public final class ImperativeSentenceAnnotator extends TextDocumentPipelineProce
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        ListFeature<PositionAnnotation> tokenAnnotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> tokenAnnotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         ListFeature<PositionAnnotation> sentences = document.get(ListFeature.class, AbstractSentenceDetector.PROVIDED_FEATURE);
         ListFeature<PositionAnnotation> ret = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
 

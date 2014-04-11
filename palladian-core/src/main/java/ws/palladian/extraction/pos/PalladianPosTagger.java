@@ -40,7 +40,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * 
  * @author David Urbansky
  */
-public class PalladianPosTagger extends BasePosTagger {
+public class PalladianPosTagger extends AbstractPosTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianPosTagger.class);

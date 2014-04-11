@@ -21,7 +21,7 @@ import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
- * A {@link BaseTokenizer} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP
+ * A {@link AbstractTokenizer} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP
  * provides several different tokenizers, ranging from simple, rule-based ones to learnable tokenizers relying on a
  * trained model. For more information, see the documentation <a
  * href="http://opennlp.apache.org/documentation/1.5.2-incubating/manual/opennlp.html#tools.tokenizer">section on
@@ -30,7 +30,7 @@ import ws.palladian.processing.features.ImmutableAnnotation;
  * 
  * @author Philipp Katz
  */
-public final class OpenNlpTokenizer extends BaseTokenizer {
+public final class OpenNlpTokenizer extends AbstractTokenizer {
 
     /** The OpenNLP Tokenizer to use. */
     private final opennlp.tools.tokenize.Tokenizer tokenizer;
