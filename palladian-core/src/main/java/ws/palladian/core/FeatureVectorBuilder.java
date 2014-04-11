@@ -2,6 +2,7 @@ package ws.palladian.core;
 
 import java.util.Map;
 
+import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public final class FeatureVectorBuilder {
@@ -25,6 +26,11 @@ public final class FeatureVectorBuilder {
 
     public FeatureVectorBuilder set(String name, Value value) {
         valueMap.put(name, value);
+        return this;
+    }
+    
+    public FeatureVectorBuilder setText(String text) {
+        valueMap.put(PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER, new ImmutableTextValue(text));
         return this;
     }
 

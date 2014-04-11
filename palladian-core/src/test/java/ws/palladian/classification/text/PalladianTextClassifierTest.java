@@ -9,24 +9,26 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class PalladianTextClassifierTest {
 
     private static final FeatureSetting featureSetting = FeatureSettingBuilder.words().create();
 
-    private static final List<ImmutableTextInstance> docs = createDocs();
+    private static final List<Instance> docs = createDocs();
 
     private static final String TEST_TEXT = "Chinese Chinese Chinese Tokyo Japan";
 
-    private static List<ImmutableTextInstance> createDocs() {
+    private static List<Instance> createDocs() {
         // sample data taken from "An Introduction to Information Retrieval";
         // Christopher D. Manning; Prabhakar Raghavan; Hinrich Schütze; 2009, chapter 13 (pp. 253).
-        List<ImmutableTextInstance> docs = CollectionHelper.newArrayList();
-        docs.add(new ImmutableTextInstance("Chinese Beijing Chinese","yes"));
-        docs.add(new ImmutableTextInstance("Chinese Chinese Shanghai","yes"));
-        docs.add(new ImmutableTextInstance("Chinese Macao","yes"));
-        docs.add(new ImmutableTextInstance("Tokyo Japan Chinese","no"));
+        List<Instance> docs = CollectionHelper.newArrayList();
+        docs.add(new FeatureVectorBuilder().setText("Chinese Beijing Chinese").create("yes"));
+        docs.add(new FeatureVectorBuilder().setText("Chinese Chinese Shanghai").create("yes"));
+        docs.add(new FeatureVectorBuilder().setText("Chinese Macao").create("yes"));
+        docs.add(new FeatureVectorBuilder().setText("Tokyo Japan Chinese").create("no"));
         return docs;
     }
 

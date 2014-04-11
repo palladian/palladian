@@ -14,7 +14,6 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.FeatureVectorBuilder;
-import ws.palladian.core.ImmutableTextValue;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.TextValue;
@@ -281,8 +280,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     }
 
     public CategoryEntries classify(String text, DictionaryModel model) {
-        TextValue textValue = new ImmutableTextValue(text);
-        FeatureVector featureVector = new FeatureVectorBuilder().set(VECTOR_TEXT_IDENTIFIER, textValue).create();
+        FeatureVector featureVector = new FeatureVectorBuilder().setText(text).create();
         return classify(featureVector, model);
     }
 
