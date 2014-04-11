@@ -8,9 +8,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.PositionAnnotation;
 import ws.palladian.semantics.Word;
 import ws.palladian.semantics.WordDB;
 
@@ -45,19 +44,14 @@ public class WiktionaryPosTagger extends BasePosTagger {
         wordDb = new WordDB(wordDatabase.getPath());
     }
 
-    public WiktionaryPosTagger() {
-        this(new File("data/temp/wordDatabaseEnglish/"));
-    }
-    
     @Override
-    public void tag(List<PositionAnnotation> annotations) {
+    protected List<String> getTags(List<String> tokens) {
         
         
         // int lastIndex = -1;
+        List<String> tags = CollectionHelper.newArrayList();
 
-        for (PositionAnnotation annotation : annotations) {
-            
-            String token = annotation.getValue();
+        for (String token : tokens) {
 
             // int index = sentence.indexOf(token, lastIndex);
 
@@ -147,34 +141,14 @@ public class WiktionaryPosTagger extends BasePosTagger {
 
                 }
                 
-                annotation.getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, type));
-
-//                tagAnnotation = new TagAnnotation(sentence.indexOf(token), type, token);
+                tags.add(type);
             }
-
-//            lastIndex = index + 1;
 
         }
         
+        return tags;
         
     }
-
-
-//    @Override
-//    public PosTagger tag(String sentence) {
-//        List<String> tokens = Tokenizer.tokenize(sentence);
-//
-//        // you can load the database into the memory for faster read access (requires lots of RAM)
-//        // wordDB.loadDbToMemory();
-//
-//        TagAnnotations tagAnnotations = new TagAnnotations();
-//
-//
-//
-//        setTagAnnotations(tagAnnotations);
-//
-//        return this;
-//    }
 
     /**
      * Test the Wiktionary POS Tagger. You would need the model (either in data/temp/wordDatabaseEnglish or you have to

@@ -12,8 +12,8 @@ import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.Trainable;
 
 /**
  * @author Philipp Katz
@@ -23,7 +23,7 @@ public class BackwardFeatureEliminationTest {
     @Test
     public void testElimination() throws FileNotFoundException {
         String testFile = ResourceHelper.getResourcePath("/classifier/diabetes2.csv");
-        List<Trainable> instances = ClassificationUtils.readCsv(testFile, true);
+        List<Instance> instances = ClassificationUtils.readCsv(testFile, true);
 
         NaiveBayesLearner learner = new NaiveBayesLearner();
         NaiveBayesClassifier classifier = new NaiveBayesClassifier();

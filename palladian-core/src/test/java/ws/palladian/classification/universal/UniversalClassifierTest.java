@@ -5,6 +5,8 @@ package ws.palladian.classification.universal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting.BAYES;
+import static ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting.KNN;
 import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.File;
@@ -12,13 +14,14 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
+import ws.palladian.classification.text.FeatureSettingBuilder;
+import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -39,16 +42,16 @@ public class UniversalClassifierTest {
      * @throws FileNotFoundException If the example dataset was not found.
      */
     @Test
-    @Ignore // FIXME; see issue #282, #281
+    // @Ignore // FIXME; see issue #282, #281
     public void test() throws FileNotFoundException {
 
         File datasetFile = getResourceFile("/classifier/saheart.csv");
-        List<Trainable> instances = new CsvDatasetReader(datasetFile, true, ",").readAll();
+        List<Instance> instances = new CsvDatasetReader(datasetFile, true, ",").readAll();
 
-        List<Trainable> trainingSet = new ArrayList<Trainable>(instances.subList(0, (int)(instances.size() * 0.6)));
+        List<Instance> trainingSet = new ArrayList<Instance>(instances.subList(0, (int)(instances.size() * 0.6)));
         instances.removeAll(trainingSet);
 
-        UniversalClassifier objectOfClassUnderTest = new UniversalClassifier();
+        UniversalClassifier objectOfClassUnderTest = new UniversalClassifier(FeatureSettingBuilder.words().create(),BAYES, KNN);
         UniversalClassifierModel model = objectOfClassUnderTest.train(trainingSet);
 
         assertEquals(2, model.getCategories().size());

@@ -7,8 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -36,7 +35,7 @@ public class WebKnoxPosTagger extends BasePosTagger {
     
     private final HttpRetriever retriever;
 
-    public WebKnoxPosTagger(String appId, String apiKey) {
+    public WebKnoxPosTagger(String apiKey) {
         if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalArgumentException("The required API key is missing.");
         }
@@ -45,7 +44,7 @@ public class WebKnoxPosTagger extends BasePosTagger {
     }
 
     public WebKnoxPosTagger(Configuration configuration) {
-        this(configuration.getString("api.webknox.appId"), configuration.getString("api.webknox.apiKey"));
+        this(configuration.getString("api.webknox.apiKey"));
     }
 
     @Override
@@ -54,12 +53,11 @@ public class WebKnoxPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<PositionAnnotation> annotations) {
+    protected List<String> getTags(List<String> tokens) {
         StringBuilder text = new StringBuilder();
-        for (PositionAnnotation annotation : annotations) {
-            text.append(annotation.getValue()).append(" ");
+        for (String token : tokens) {
+            text.append(token).append(" ");
         }
-
 
         String taggedText = "";
         try {
@@ -73,23 +71,14 @@ public class WebKnoxPosTagger extends BasePosTagger {
             LOGGER.error(e.getMessage());
         }
 
-        //        TagAnnotations tagAnnotations = new TagAnnotations();
-
         String[] words = taggedText.split("\\s");
-        int i = 0;
+        List<String> tags = CollectionHelper.newArrayList();
         for (String word : words) {
             String[] parts = word.split("/");
-
             String tag = parts[1].toUpperCase();
-            annotations.get(i).getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, tag));
-            i++;
-
-            //            TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(parts[0]), tag,
-            //                    parts[0]);
-            //            tagAnnotations.add(tagAnnotation);
+            tags.add(tag);
         }
-
-
+        return tags;
     }
 
     public static void main(String[] args) {

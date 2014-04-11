@@ -31,9 +31,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
@@ -582,10 +581,10 @@ public final class Tokenizer {
      * @param mask The mask to add. This should be something that will never occur within the text itself.
      * @return The {@code maskedText} with the additional masks added during this run of the method.
      */
-    private static String maskAnnotations(TextDocument document, List<Annotation> annotations, String mask,
-            List<PositionAnnotation> annotationsForMaskedText, String maskedText) {
-        List<PositionAnnotation> tags = convert(document, annotations);
-        for (PositionAnnotation annotation : tags) {
+    private static String maskAnnotations(String text, List<Annotation> annotations, String mask,
+            List<Annotation> annotationsForMaskedText, String maskedText) {
+        List<Annotation> tags = convert(text, annotations);
+        for (Annotation annotation : tags) {
             // This check is necessary to handle nested masks. Such masks are not replaced in the text and should not be
             // added to the list of masks.
             if (maskedText.contains(annotation.getValue())) {
@@ -606,8 +605,8 @@ public final class Tokenizer {
      * @param featureName The name of the created {@link PositionAnnotation}s.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
-    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName) {
-        return getSentences(inputDocument, featureName, Language.ENGLISH);
+    public static List<Annotation> getSentences(String text, String featureName) {
+        return getSentences(text, featureName, Language.ENGLISH);
     }
 
     /**
@@ -621,13 +620,13 @@ public final class Tokenizer {
      * @param language The language of the text to split into sentences.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
-    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName,
+    public static List<Annotation> getSentences(String text, String featureName,
             Language language) {
         Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
         if (language == Language.GERMAN) {
             pattern = SENTENCE_SPLIT_PATTERN_DE;
         }
-        return getSentences(inputDocument, pattern, featureName);
+        return getSentences(text, pattern, featureName);
     }
 
     // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
@@ -642,25 +641,25 @@ public final class Tokenizer {
      * @param featureName The name of the created {@link PositionAnnotation}s.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
-    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, Pattern pattern, String featureName) {
-        String inputText = inputDocument.getContent();
+    public static List<Annotation> getSentences(String text, Pattern pattern, String featureName) {
+        String inputText = text;
         String mask = "PALLADIANMASK";
-        List<PositionAnnotation> masks = new ArrayList<PositionAnnotation>();
-        String maskedText = inputDocument.getContent();
+        List<Annotation> masks = CollectionHelper.newArrayList();
+        String maskedText = text;
 
         // recognize URLs so we don't break them
         List<Annotation> taggedUrlsAnnotations = URL_TAGGER.getAnnotations(inputText);
-        maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
+        maskedText = maskAnnotations(text, taggedUrlsAnnotations, mask, masks, maskedText);
 
         // recognize dates so we don't break them
         List<Annotation> taggedDates = DATE_TIME_TAGGER.getAnnotations(inputText);
-        maskedText = maskAnnotations(inputDocument, taggedDates, mask, masks, maskedText);
+        maskedText = maskAnnotations(text, taggedDates, mask, masks, maskedText);
 
         // recognize smileys so we don't break them
         List<Annotation> taggedSmileys = SMILEY_TAGGER.getAnnotations(inputText);
-        maskedText = maskAnnotations(inputDocument, taggedSmileys, mask, masks, maskedText);
+        maskedText = maskAnnotations(text, taggedSmileys, mask, masks, maskedText);
 
-        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>();
+        List<Annotation> sentences = CollectionHelper.newArrayList();
 
         // pattern to find the end of a sentence
         Matcher matcher = pattern.matcher(maskedText);
@@ -675,8 +674,7 @@ public final class Tokenizer {
             String value = StringHelper.rtrim(leftTrimmedValue);
 
             int leftIndex = lastIndex + leftOffset;
-            //            int rightIndex = leftIndex + value.length();
-            PositionAnnotation sentence = new PositionAnnotation(value, leftIndex);
+            Annotation sentence = new ImmutableAnnotation(leftIndex, value, StringUtils.EMPTY);
             sentences.add(sentence);
             lastIndex = endPosition;
         }
@@ -693,21 +691,20 @@ public final class Tokenizer {
             // Since there often is a line break at the end of a file this should not be added here.
             if (!value.isEmpty()) {
                 int leftIndex = lastIndex + leftOffset;
-                //                int rightIndex = leftIndex + value.length();
-                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(value, leftIndex);
+                Annotation lastSentenceAnnotation = new ImmutableAnnotation(leftIndex, value, StringUtils.EMPTY);
                 sentences.add(lastSentenceAnnotation);
             }
         }
 
         // replace masks back
-        Collections.sort(masks, new Comparator<PositionAnnotation>() {
+        Collections.sort(masks, new Comparator<Annotation>() {
 
             @Override
-            public int compare(PositionAnnotation o1, PositionAnnotation o2) {
+            public int compare(Annotation o1, Annotation o2) {
                 return Integer.valueOf(o1.getStartPosition()).compareTo(o2.getStartPosition());
             }
         });
-        return recalculatePositions(inputDocument, maskedText, masks, sentences, featureName);
+        return recalculatePositions(text, maskedText, masks, sentences, featureName);
     }
 
     /**
@@ -723,9 +720,9 @@ public final class Tokenizer {
      *            {@code inputDocument}.
      * @param featureName The name of the created {@link PositionAnnotation}s.
      */
-    private static List<PositionAnnotation> recalculatePositions(TextDocument inputDocument, String maskedText,
-            List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences, String featureName) {
-        List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
+    private static List<Annotation> recalculatePositions(String text, String maskedText,
+            List<Annotation> maskAnnotations, List<Annotation> sentences, String featureName) {
+        List<Annotation> ret = CollectionHelper.newArrayList();
 
         int lastOriginalEndPosition = 0;
         int lastEndPosition = 0;
@@ -733,7 +730,7 @@ public final class Tokenizer {
         Pattern maskPattern = Pattern.compile(mask);
         int maskLength = mask.length();
         int maskAnnotationIndex = 0;
-        for (PositionAnnotation sentence : sentences) {
+        for (Annotation sentence : sentences) {
             // The space between this and the last sentence is this sentences start position in the transformed text -
             // the last sentences end position in the transformed text.
             int spaceBetweenSentences = sentence.getStartPosition() - lastEndPosition;
@@ -752,7 +749,7 @@ public final class Tokenizer {
             // Search sentences for PALLADIANMASK
             Matcher maskMatcher = maskPattern.matcher(sentence.getValue());
             while (maskMatcher.find()) {
-                PositionAnnotation maskAnnotation = maskAnnotations.get(maskAnnotationIndex);
+                Annotation maskAnnotation = maskAnnotations.get(maskAnnotationIndex);
                 originalEndPosition += maskAnnotation.getValue().length() - maskLength;
                 maskAnnotationIndex++;
                 // handle contained masks by jumping over them
@@ -762,9 +759,9 @@ public final class Tokenizer {
                 // }
             }
 
-            String transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
+            String transformedValue = String.valueOf(text.subSequence(originalStartPosition,
                     originalEndPosition));
-            PositionAnnotation transformedSentence = new PositionAnnotation(transformedValue, originalStartPosition);
+            Annotation transformedSentence = new ImmutableAnnotation(originalStartPosition,transformedValue,StringUtils.EMPTY);
             ret.add(transformedSentence);
             lastOriginalEndPosition = originalEndPosition;
             lastEndPosition = sentence.getEndPosition();
@@ -783,17 +780,12 @@ public final class Tokenizer {
      * @return A list of {@link PositionAnnotation}s representing the provided {@link Annotations} on the provided
      *         {@link TextDocument}.
      */
-    private static List<PositionAnnotation> convert(TextDocument document, List<Annotation> annotations) {
-        List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
-
+    private static List<Annotation> convert(String text, List<Annotation> annotations) {
+        List<Annotation> ret = new ArrayList<Annotation>();
         for (Annotation annotation : annotations) {
             String value = annotation.getValue();
             int startPosition = annotation.getStartPosition();
-            //            int endPosition = annotation.getStartPosition() + annotation.getValue().length();
-            //            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
-            //                    value);
-            PositionAnnotation positionAnnotation = new PositionAnnotation(value, startPosition);
-
+            Annotation positionAnnotation = new ImmutableAnnotation(startPosition, value, StringUtils.EMPTY);
             ret.add(positionAnnotation);
         }
 

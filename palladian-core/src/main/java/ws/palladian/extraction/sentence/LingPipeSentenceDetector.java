@@ -1,13 +1,13 @@
-/**
- *
- */
 package ws.palladian.extraction.sentence;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.PositionAnnotationFactory;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.processing.features.Annotation;
+import ws.palladian.processing.features.ImmutableAnnotation;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
@@ -31,56 +31,29 @@ import com.aliasi.tokenizer.TokenizerFactory;
 public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
 
     /**
-     * <p>
      * The {@code SentenceChunker} instance used and containing the core implementation for splitting a processed text
      * into sentences.
-     * </p>
      */
     private final SentenceChunker sentenceChunker;
 
-    /**
-     * <p>
-     * Creates a new completely initialized sentence detector without any parameters. The state of the new object is set
-     * to default values.
-     * </p>
-     */
+    /** Create a new {@code LingPipeSentenceDetector}. */
     public LingPipeSentenceDetector() {
-        super();
-
-        TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-        SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
-        sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
-    }
-
-    /**
-     * <p>
-     * Creates a new {@code LingPipeSentenceDetector} annotating sentences and saving those {@link PositionAnnotationn}s as a
-     * {@link Feature} described by the provided feature identifiers.
-     * </p>
-     * 
-     * @param featureDescriptor The identifier for the created {@code Feature}.
-     */
-    public LingPipeSentenceDetector(String featureIdentifier) {
-        super(featureIdentifier);
-
         TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
         sentenceChunker = new SentenceChunker(tokenizerFactory, sentenceModel);
     }
 
     @Override
-    public LingPipeSentenceDetector detect(String text) {
+    public List<Annotation> getAnnotations(String text) {
         Validate.notNull(text, "text must not be null");
-
         Chunking chunking = sentenceChunker.chunk(text);
-        PositionAnnotation[] sentences = new PositionAnnotation[chunking.chunkSet().size()];
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(text);
-        int ite = 0;
+        List<Annotation> sentences = CollectionHelper.newArrayList();
         for (Chunk chunk : chunking.chunkSet()) {
-            sentences[ite] = annotationFactory.create(chunk.start(), chunk.end());
-            ite++;
+            int start = chunk.start();
+            int end = chunk.end();
+            String value = text.substring(start, end);
+            sentences.add(new ImmutableAnnotation(start, value, StringUtils.EMPTY));
         }
-        setSentences(sentences);
-        return this;
+        return sentences;
     }
 }

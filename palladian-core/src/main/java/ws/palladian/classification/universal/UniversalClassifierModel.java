@@ -50,9 +50,15 @@ public class UniversalClassifierModel implements Model {
     @Override
     public Set<String> getCategories() {
         Set<String> result = CollectionHelper.newHashSet();
-        result.addAll(bayesModel.getCategories());
-        result.addAll(knnModel.getCategories());
-        result.addAll(dictionaryModel.getCategories());
+        if (bayesModel != null) {
+            result.addAll(bayesModel.getCategories());
+        }
+        if (knnModel != null) {
+            result.addAll(knnModel.getCategories());
+        }
+        if (dictionaryModel != null) {
+            result.addAll(dictionaryModel.getCategories());
+        }
         return result;
     }
 

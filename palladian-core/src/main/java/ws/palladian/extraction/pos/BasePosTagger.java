@@ -13,7 +13,6 @@ import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ImmutableAnnotation;
-import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -71,15 +70,11 @@ public abstract class BasePosTagger implements Tagger {
     protected BaseTokenizer getTokenizer() {
         return DEFAULT_TOKENIZER;
     }
-
+    
     /**
-     * <p>
-     * Subclasses implement this method to perform the POS tagging. The POS tags can be assigned to each annotation
-     * using the provided convenience method {@link #assignTag(PositionAnnotation, String)}.
-     * </p>
-     * 
-     * @param tokens The list of annotations to process, this is the tokenized text.
-     * @return
+     * Get a list of tags for the given tokens.
+     * @param tokens The tokens to tag.
+     * @return The POS tags. The returned list must have the same size as the given tokens list.
      */
     protected abstract List<String> getTags(List<String> tokens);
 

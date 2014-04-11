@@ -2,22 +2,16 @@ package ws.palladian.extraction.sentence;
 
 import java.util.List;
 
-import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.PositionAnnotation;
+import org.apache.commons.lang3.StringUtils;
 
-public class PalladianSentenceDetector extends AbstractSentenceDetector {
+import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.processing.features.Annotation;
+
+public final class PalladianSentenceDetector extends AbstractSentenceDetector {
 
     @Override
-    public AbstractSentenceDetector detect(String text) {
-
-        TextDocument document = new TextDocument(text);
-        List<PositionAnnotation> sentences = Tokenizer.getSentences(document, getCreatedFeatureName());
-
-        PositionAnnotation[] sentencesArray = new PositionAnnotation[sentences.size()];
-        setSentences(sentences.toArray(sentencesArray));
-
-        return this;
+    public List<Annotation> getAnnotations(String text) {
+        return Tokenizer.getSentences(text, StringUtils.EMPTY);
     }
 
 }
