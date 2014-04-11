@@ -17,18 +17,18 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.classification.utils.Normalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
+import ws.palladian.core.NumericValue;
+import ws.palladian.core.Value;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -82,26 +82,28 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
     }
 
     @Override
-    public LibSvmModel train(Iterable<? extends Trainable> trainables) {
-        Validate.notNull(trainables, "Unable to train on an empty list of instances.");
+    public LibSvmModel train(Iterable<? extends Instance> instances) {
+        Validate.notNull(instances, "instances must not be null");
 
-        Normalization normalization = NORMALIZER.calculate(trainables);
-        DummyVariableCreator dummyCoder = new DummyVariableCreator(trainables);
+        Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(instances);
+        Normalization normalization = NORMALIZER.calculate(featureVectors);
+        DummyVariableCreator dummyCoder = new DummyVariableCreator(featureVectors);
 
         // determine feature and class names
         List<String> featureNames = CollectionHelper.newArrayList();
         List<String> classNames = CollectionHelper.newArrayList();
-        for (Trainable trainable : trainables) {
-            FeatureVector featureVector = dummyCoder.convert(trainable).getFeatureVector();
-            for (Feature<?> feature : featureVector) {
-                if (feature instanceof NumericFeature) {
-                    if (!featureNames.contains(feature.getName())) {
-                        featureNames.add(feature.getName());
+        for (Instance instance : instances) {
+            FeatureVector featureVector = dummyCoder.convert(instance.getVector());
+            for (VectorEntry<String, Value> entry : featureVector) {
+                Value value = entry.value();
+                if (value instanceof NumericValue) {
+                    if (!featureNames.contains(entry.key())) {
+                        featureNames.add(entry.key());
                     }
                 }
             }
-            if (!classNames.contains(trainable.getTargetClass())) {
-                classNames.add(trainable.getTargetClass());
+            if (!classNames.contains(instance.getCategory())) {
+                classNames.add(instance.getCategory());
             }
         }
 
@@ -110,7 +112,7 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
                     "The training data contains less than two different classes. Training not possible on such a dataset.");
         }
         svm_parameter params = getParameter();
-        svm_problem problem = createProblem(trainables, params, featureNames, classNames, normalization, dummyCoder);
+        svm_problem problem = createProblem(instances, params, featureNames, classNames, normalization, dummyCoder);
         String errorMessage = svm.svm_check_parameter(problem, params);
         if (errorMessage != null) {
             throw new IllegalStateException(errorMessage);
@@ -125,7 +127,7 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
      * libsvm classifier.
      * </p>
      * 
-     * @param trainables The Palladian instances to transform.
+     * @param instances The Palladian instances to transform.
      * @param params The parameters for the classifier. Required to set parameter which are based on the training set.
      * @param featureNames The indices of the features to process in the new model.
      * @param classes The possible classes to predict to. The index in the list is the index used to convert those
@@ -135,23 +137,19 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
      *            s.
      * @return A new {@link svm_problem} ready to train a libsvm classifier.
      */
-    private svm_problem createProblem(Iterable<? extends Trainable> trainables, svm_parameter params,
+    private svm_problem createProblem(Iterable<? extends Instance> instances, svm_parameter params,
             List<String> featureNames, List<String> classNames, Normalization normalization,
             DummyVariableCreator dummyCoder) {
 
         svm_problem ret = new svm_problem();
-        ret.l = 0;
-        for (@SuppressWarnings("unused")
-        Trainable trainable : trainables) {
-            ret.l++;
-        }
+        ret.l = CollectionHelper.count(instances.iterator());
         ret.x = new svm_node[ret.l][];
         ret.y = new double[ret.l];
 
         int i = 0;
-        for (Trainable trainable : trainables) {
-            ret.y[i] = classNames.indexOf(trainable.getTargetClass());
-            ret.x[i] = convertFeatureVector(trainable.getFeatureVector(), featureNames, normalization, dummyCoder);
+        for (Instance instance : instances) {
+            ret.y[i] = classNames.indexOf(instance.getCategory());
+            ret.x[i] = convertFeatureVector(instance.getVector(), featureNames, normalization, dummyCoder);
             i++;
         }
         return ret;
@@ -170,22 +168,22 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
      *            s.
      * @return An array of {@link svm_node}s representing an libsvm feature vector.
      */
-    static svm_node[] convertFeatureVector(Classifiable classifiable, List<String> featureNames,
+    static svm_node[] convertFeatureVector(FeatureVector featureVector, List<String> featureNames,
             Normalization normalization, DummyVariableCreator dummyCoder) {
 
-        normalization.normalize(classifiable);
-        classifiable = dummyCoder.convert(classifiable);
+        featureVector = normalization.normalize(featureVector);
+        featureVector = dummyCoder.convert(featureVector);
 
         List<svm_node> libSvmFeatureVector = CollectionHelper.newArrayList();
         for (int i = 0; i < featureNames.size(); i++) {
             String featureName = featureNames.get(i);
-            NumericFeature feature = classifiable.getFeatureVector().get(NumericFeature.class, featureName);
-            if (feature == null || feature.getValue() == null) {
+            NumericValue numericValue = (NumericValue)featureVector.get(featureName);
+            if (numericValue == null) {
                 continue;
             }
             svm_node node = new svm_node();
             node.index = i;
-            node.value = feature.getValue();
+            node.value = numericValue.getDouble();
             libSvmFeatureVector.add(node);
         }
         return libSvmFeatureVector.toArray(new svm_node[libSvmFeatureVector.size()]);

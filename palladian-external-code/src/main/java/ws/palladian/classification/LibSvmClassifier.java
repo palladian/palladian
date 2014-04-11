@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
-import ws.palladian.processing.Classifiable;
+import ws.palladian.core.FeatureVector;
 
 /**
  * <p>
@@ -29,11 +29,11 @@ public final class LibSvmClassifier implements Classifier<LibSvmModel> {
     }
 
     @Override
-    public CategoryEntries classify(Classifiable classifiable, LibSvmModel model) {
-        Validate.notNull(classifiable, "classifiable must not be null");
+    public CategoryEntries classify(FeatureVector featureVector, LibSvmModel model) {
+        Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(model, "model must not be null");
 
-        svm_node[] libsvmFeatureVector = LibSvmLearner.convertFeatureVector(classifiable, model.getSchema(),
+        svm_node[] libsvmFeatureVector = LibSvmLearner.convertFeatureVector(featureVector, model.getSchema(),
                 model.getNormalization(), model.getDummyCoder());
         double[] probabilities = new double[model.getCategories().size()];
         svm.svm_predict_probability(model.getModel(), libsvmFeatureVector, probabilities);
