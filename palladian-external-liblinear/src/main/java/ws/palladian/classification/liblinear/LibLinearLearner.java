@@ -136,7 +136,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
         for (Instance instance : instances) {
             FeatureVector featureVector = normalization.normalize(instance.getVector());
             featureVector = dummyCoder.convert(featureVector);
-            problem.x[index] = makeInstance(featureLabels, instance.getVector(), bias);
+            problem.x[index] = makeInstance(featureLabels, featureVector, bias);
             problem.y[index] = classIndices.indexOf(instance.getCategory());
             index++;
         }
