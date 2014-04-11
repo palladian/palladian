@@ -3,31 +3,18 @@ package ws.palladian.extraction.pos;
 import java.util.Iterator;
 import java.util.List;
 
-import ws.palladian.core.FeatureVector;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.Tagger;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
- * This is the abstract base class for all Part of Speech taggers offered by Palladian. It implements two interfaces:
- * 
- * <ol>
- * <li>{@link PosTagger}, which is the "traditional" API used in Palladian. It allows POS tagging for text supplied as
- * String. In this case, the text is tokenized using a default {@link BaseTokenizer} implementation specific for the
- * respective POS tagger. Subclasses may override {@link #getTokenizer()} if they require a specific tokenizer.</li>
- * 
- * <li>{@link PipelineProcessor}, which works based on token annotations provided by an {@link AnnotationFeature}. This
- * means, that the input document must be tokenized in advance, using one of the available {@link BaseTokenizer}
- * implementations. In this mode, the POS tags are appended to the token's {@link FeatureVector}s and can be retrieved
- * later using the {@link #PROVIDED_FEATURE_DESCRIPTOR}.</li>
- * </ol>
+ * This is the abstract base class for all Part of Speech taggers offered by Palladian.
  * </p>
  * 
  * @author Martin Wunderwald
@@ -70,9 +57,10 @@ public abstract class BasePosTagger implements Tagger {
     protected BaseTokenizer getTokenizer() {
         return DEFAULT_TOKENIZER;
     }
-    
+
     /**
      * Get a list of tags for the given tokens.
+     * 
      * @param tokens The tokens to tag.
      * @return The POS tags. The returned list must have the same size as the given tokens list.
      */

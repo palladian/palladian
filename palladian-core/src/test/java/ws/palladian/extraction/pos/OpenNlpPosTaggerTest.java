@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.features.Annotation;
 
 public class OpenNlpPosTaggerTest {
@@ -24,7 +23,7 @@ public class OpenNlpPosTaggerTest {
     }
 
     @Test
-    public void testOpenNlpPosTagger() throws DocumentUnprocessableException {
+    public void testOpenNlpPosTagger() {
         OpenNlpPosTagger posTagger = new OpenNlpPosTagger(modelFile);
         List<Annotation> annotations = posTagger.getAnnotations(TEXT);
         assertEquals(10, annotations.size());

@@ -14,7 +14,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.features.Annotation;
 
 /**
@@ -54,7 +53,7 @@ public class LingPipePosTaggerTest {
     }
 
     @Test
-    public void test() throws FileNotFoundException, DocumentUnprocessableException {
+    public void test() throws FileNotFoundException {
         File modelFile = ResourceHelper.getResourceFile(MODEL);
         LingPipePosTagger posTagger = new LingPipePosTagger(modelFile);
         List<Annotation> tokens = posTagger.getAnnotations(text);
