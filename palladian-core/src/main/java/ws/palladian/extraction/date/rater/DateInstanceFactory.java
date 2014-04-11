@@ -3,7 +3,7 @@ package ws.palladian.extraction.date.rater;
 import java.util.Arrays;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.helper.date.ExtractedDate;
@@ -57,7 +57,7 @@ final class DateInstanceFactory {
         String keyword = keywordString.indexOf(" ") > -1 ? "'" + keywordString + "'" : keywordString;
         
         // XXX replace numeric to nominal where applicable (needs new model).
-        FeatureVectorBuilder instanceBuilder = new FeatureVectorBuilder();
+        InstanceBuilder instanceBuilder = new InstanceBuilder();
         instanceBuilder.set("hour", date.get(ExtractedDate.HOUR) > -1 ? 1.0 : 0.0);
         instanceBuilder.set("minute", date.get(ExtractedDate.HOUR) > -1 ? 1.0 : 0.0);
         instanceBuilder.set("second", date.get(ExtractedDate.HOUR) > -1 ? 1.0 : 0.0);

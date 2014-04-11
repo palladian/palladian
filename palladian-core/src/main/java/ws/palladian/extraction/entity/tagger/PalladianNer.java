@@ -25,7 +25,7 @@ import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
@@ -458,7 +458,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         LOGGER.info("Start creating {} annotations for training", annotations.size());
         for (Annotation annotation : annotations) {
-            textInstances.add(new FeatureVectorBuilder().setText(annotation.getValue()).create(annotation.getTag()));
+            textInstances.add(new InstanceBuilder().setText(annotation.getValue()).create(annotation.getTag()));
         }
 
         // save training entities in a dedicated dictionary
@@ -541,7 +541,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         LOGGER.info("add additional training annotations");
         for (ContextAnnotation annotation : annotations) {
-            textInstances.add(new FeatureVectorBuilder().setText(annotation.getValue()).create(annotation.getTag()));
+            textInstances.add(new InstanceBuilder().setText(annotation.getValue()).create(annotation.getTag()));
             addToEntityDictionary(annotation);
         }
         LOGGER.info("add {} additional training annotations", annotations.size());
@@ -584,7 +584,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                     }
                 }
 
-                textInstances.add(new FeatureVectorBuilder().setText(wrongAnnotation.getValue()).create(NO_ENTITY));
+                textInstances.add(new InstanceBuilder().setText(wrongAnnotation.getValue()).create(NO_ENTITY));
 
                 if (addAnnotation) {
                     model.removeAnnotations.add(wrongAnnotation.getValue());
@@ -1209,7 +1209,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             tagCounts.add(tag);
 
             String text = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            trainingInstances.add(new FeatureVectorBuilder().setText(text).create(tag));
+            trainingInstances.add(new InstanceBuilder().setText(text).create(tag));
 
         }
 

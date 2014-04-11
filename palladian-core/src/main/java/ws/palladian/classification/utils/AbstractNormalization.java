@@ -3,7 +3,7 @@ package ws.palladian.classification.utils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.NumericValue;
 import ws.palladian.core.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -20,7 +20,7 @@ abstract class AbstractNormalization implements Normalization {
     @Override
     public FeatureVector normalize(FeatureVector featureVector) {
         Validate.notNull(featureVector, "featureVector must not be null");
-        FeatureVectorBuilder builder = new FeatureVectorBuilder();
+        InstanceBuilder builder = new InstanceBuilder();
         for (VectorEntry<String, Value> entry : featureVector) {
             String name = entry.key();
             Value value = entry.value();

@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -25,10 +25,10 @@ public class PalladianTextClassifierTest {
         // sample data taken from "An Introduction to Information Retrieval";
         // Christopher D. Manning; Prabhakar Raghavan; Hinrich Schütze; 2009, chapter 13 (pp. 253).
         List<Instance> docs = CollectionHelper.newArrayList();
-        docs.add(new FeatureVectorBuilder().setText("Chinese Beijing Chinese").create("yes"));
-        docs.add(new FeatureVectorBuilder().setText("Chinese Chinese Shanghai").create("yes"));
-        docs.add(new FeatureVectorBuilder().setText("Chinese Macao").create("yes"));
-        docs.add(new FeatureVectorBuilder().setText("Tokyo Japan Chinese").create("no"));
+        docs.add(new InstanceBuilder().setText("Chinese Beijing Chinese").create("yes"));
+        docs.add(new InstanceBuilder().setText("Chinese Chinese Shanghai").create("yes"));
+        docs.add(new InstanceBuilder().setText("Chinese Macao").create("yes"));
+        docs.add(new InstanceBuilder().setText("Tokyo Japan Chinese").create("no"));
         return docs;
     }
 

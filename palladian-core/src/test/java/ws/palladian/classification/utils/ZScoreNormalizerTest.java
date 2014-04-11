@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class ZScoreNormalizerTest {
@@ -16,11 +16,11 @@ public class ZScoreNormalizerTest {
     @Test
     public void testZScoreNormalization() {
         List<FeatureVector> features = CollectionHelper.newArrayList();
-        features.add(new FeatureVectorBuilder().set("v1", 35.).create());
-        features.add(new FeatureVectorBuilder().set("v1", 36.).create());
-        features.add(new FeatureVectorBuilder().set("v1", 46.).create());
-        features.add(new FeatureVectorBuilder().set("v1", 68.).create());
-        features.add(new FeatureVectorBuilder().set("v1", 70.).create());
+        features.add(new InstanceBuilder().set("v1", 35.).create());
+        features.add(new InstanceBuilder().set("v1", 36.).create());
+        features.add(new InstanceBuilder().set("v1", 46.).create());
+        features.add(new InstanceBuilder().set("v1", 68.).create());
+        features.add(new InstanceBuilder().set("v1", 70.).create());
 
         Normalization normalization = new ZScoreNormalizer().calculate(features);
         // System.out.println(normalization);
@@ -34,8 +34,8 @@ public class ZScoreNormalizerTest {
     @Test
     public void testNormalizationWithEqualMinMax() {
         Collection<FeatureVector> instances = CollectionHelper.newArrayList();
-        instances.add(new FeatureVectorBuilder().set("test", 0.9).create());
-        instances.add(new FeatureVectorBuilder().set("test", 0.9).create());
+        instances.add(new InstanceBuilder().set("test", 0.9).create());
+        instances.add(new InstanceBuilder().set("test", 0.9).create());
         Normalization normalization = new ZScoreNormalizer().calculate(instances);
         assertEquals(0, normalization.normalize("test", 0.9), 0.001);
         assertEquals(-0.9, normalization.normalize("test", 0), 0.001);

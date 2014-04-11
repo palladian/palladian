@@ -24,7 +24,7 @@ import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -43,10 +43,10 @@ public class WekaTest {
     @Test
     public void test() {
 
-        FeatureVectorBuilder builder = new FeatureVectorBuilder();
+        InstanceBuilder builder = new InstanceBuilder();
         Instance instance1 = builder.set("a", 2.3).set("b", "value1").set("v1", true).create("c1");
 
-        builder = new FeatureVectorBuilder();
+        builder = new InstanceBuilder();
         Instance instance = builder.set("a", 1.1).set("b", "value2").set("v1", true).set("v2", true).create("c2");
 
         List<Instance> trainingInstances = CollectionHelper.newArrayList();
@@ -58,7 +58,7 @@ public class WekaTest {
         assertTrue(model.getCategories().contains("c1"));
         assertTrue(model.getCategories().contains("c2"));
 
-        builder = new FeatureVectorBuilder();
+        builder = new InstanceBuilder();
         FeatureVector testVector = builder.set("a", 1.5).set("b", "value2").set("v1", true).set("v2", true).create();
         CategoryEntries result = new WekaClassifier().classify(testVector, model);
 

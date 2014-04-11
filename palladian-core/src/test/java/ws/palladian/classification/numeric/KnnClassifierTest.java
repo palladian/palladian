@@ -18,7 +18,7 @@ import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -45,14 +45,14 @@ public class KnnClassifierTest {
     public void testKnnClassifier() {
         // create some instances for the vector space
         List<Instance> trainingInstances = CollectionHelper.newArrayList();
-        trainingInstances.add(new FeatureVectorBuilder().set("f1", 3d).set("f2", 4d).set("f3", 5d).create("A"));
-        trainingInstances.add(new FeatureVectorBuilder().set("f1", 3d).set("f2", 6d).set("f3", 6d).create("A"));
-        trainingInstances.add(new FeatureVectorBuilder().set("f1", 4d).set("f2", 4d).set("f3", 4d).create("B"));
+        trainingInstances.add(new InstanceBuilder().set("f1", 3d).set("f2", 4d).set("f3", 5d).create("A"));
+        trainingInstances.add(new InstanceBuilder().set("f1", 3d).set("f2", 6d).set("f3", 6d).create("A"));
+        trainingInstances.add(new InstanceBuilder().set("f1", 4d).set("f2", 4d).set("f3", 4d).create("B"));
 
         // create the KNN classifier and add the training instances
         KnnLearner knnLearner = new KnnLearner(new NoNormalizer());
         KnnModel model = knnLearner.train(trainingInstances);
-        FeatureVector featureVector = new FeatureVectorBuilder().set("f1", 1d).set("f2", 2d).set("f3", 3d).create();
+        FeatureVector featureVector = new InstanceBuilder().set("f1", 1d).set("f2", 2d).set("f3", 3d).create();
 
         assertEquals(2, model.getCategories().size());
         assertTrue(model.getCategories().contains("A"));
@@ -135,7 +135,7 @@ public class KnnClassifierTest {
         // 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 =>
         // this is an actual instance from the
         // training data and should therefore also be classified as "1"
-        FeatureVectorBuilder instanceBuilder = new FeatureVectorBuilder();
+        InstanceBuilder instanceBuilder = new InstanceBuilder();
         instanceBuilder.set("0", 13.82);
         instanceBuilder.set("1", 1.75);
         instanceBuilder.set("2", 2.42);

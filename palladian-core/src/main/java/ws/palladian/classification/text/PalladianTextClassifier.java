@@ -13,7 +13,7 @@ import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.TextValue;
@@ -280,7 +280,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     }
 
     public CategoryEntries classify(String text, DictionaryModel model) {
-        FeatureVector featureVector = new FeatureVectorBuilder().setText(text).create();
+        FeatureVector featureVector = new InstanceBuilder().setText(text).create();
         return classify(featureVector, model);
     }
 

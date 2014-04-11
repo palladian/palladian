@@ -19,7 +19,7 @@ import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.ProgressMonitor;
@@ -150,7 +150,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
 
     private static FeatureVector extractFeatures(String word) {
         int wordLength = word.length();
-        FeatureVectorBuilder builder = new FeatureVectorBuilder();
+        InstanceBuilder builder = new InstanceBuilder();
         builder.set("startsUppercase", StringHelper.startsUppercase(word));
         builder.set("length1", wordLength == 1);
         builder.set("length2", wordLength == 2);

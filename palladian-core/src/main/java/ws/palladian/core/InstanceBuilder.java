@@ -5,31 +5,31 @@ import java.util.Map;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public final class FeatureVectorBuilder {
+public final class InstanceBuilder {
 
     private final Map<String, Value> valueMap = CollectionHelper.newHashMap();
 
-    public FeatureVectorBuilder set(String name, double value) {
+    public InstanceBuilder set(String name, double value) {
         valueMap.put(name, new ImmutableDoubleValue(value));
         return this;
     }
 
-    public FeatureVectorBuilder set(String name, String value) {
+    public InstanceBuilder set(String name, String value) {
         valueMap.put(name, new ImmutableStringValue(value));
         return this;
     }
 
-    public FeatureVectorBuilder set(String name, boolean value) {
+    public InstanceBuilder set(String name, boolean value) {
         valueMap.put(name, ImmutableBooleanValue.create(value));
         return this;
     }
 
-    public FeatureVectorBuilder set(String name, Value value) {
+    public InstanceBuilder set(String name, Value value) {
         valueMap.put(name, value);
         return this;
     }
     
-    public FeatureVectorBuilder setText(String text) {
+    public InstanceBuilder setText(String text) {
         valueMap.put(PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER, new ImmutableTextValue(text));
         return this;
     }

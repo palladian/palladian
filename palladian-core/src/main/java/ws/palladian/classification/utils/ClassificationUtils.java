@@ -21,7 +21,7 @@ import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Model;
@@ -306,7 +306,7 @@ public final class ClassificationUtils {
     public static FeatureVector filterFeatures(FeatureVector featureVector, Filter<? super String> nameFilter) {
         Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
-        FeatureVectorBuilder builder = new FeatureVectorBuilder();
+        InstanceBuilder builder = new InstanceBuilder();
         for (VectorEntry<String, Value> entry : featureVector) {
             if (nameFilter.accept(entry.key())) {
                 builder.set(entry.key(), entry.value());
