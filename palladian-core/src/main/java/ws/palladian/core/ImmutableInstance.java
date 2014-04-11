@@ -24,4 +24,9 @@ public final class ImmutableInstance implements Instance {
         return category;
     }
 
+    @Override
+    public String toString() {
+        return new StringBuilder().append("Instance ").append(vector).append('=').append(category).toString();
+    }
+
 }

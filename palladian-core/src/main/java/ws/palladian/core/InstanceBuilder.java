@@ -4,6 +4,7 @@ import java.util.Map;
 
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 public final class InstanceBuilder {
 
@@ -28,9 +29,16 @@ public final class InstanceBuilder {
         valueMap.put(name, value);
         return this;
     }
-    
+
     public InstanceBuilder setText(String text) {
         valueMap.put(PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER, new ImmutableTextValue(text));
+        return this;
+    }
+
+    public InstanceBuilder add(FeatureVector featureVector) {
+        for (VectorEntry<String, Value> entry : featureVector) {
+            set(entry.key(), entry.value());
+        }
         return this;
     }
 
