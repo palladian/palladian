@@ -43,6 +43,11 @@
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
 		</dependency -->
+		<dependency>
+			<groupId>ws.palladian</groupId>
+			<artifactId>palladian-core</artifactId>
+			<version>0.2.2-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
 

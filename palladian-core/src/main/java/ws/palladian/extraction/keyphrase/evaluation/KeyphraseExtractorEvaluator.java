@@ -14,8 +14,6 @@ import org.tartarus.snowball.ext.englishStemmer;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.extraction.keyphrase.extractors.MachineLearningBasedExtractor;
-import ws.palladian.extraction.keyphrase.extractors.RuleBasedExtractor;
 import ws.palladian.extraction.keyphrase.temp.Dataset2;
 import ws.palladian.extraction.keyphrase.temp.DatasetHelper;
 import ws.palladian.extraction.keyphrase.temp.DatasetItem;
@@ -202,8 +200,8 @@ public class KeyphraseExtractorEvaluator {
         //        evaluator.addExtractor(new TfidfExtractor());
         //        evaluator.addExtractor(new SimExtractor());
         //        evaluator.addExtractor(new MauiKeyphraseExtractor());
-        evaluator.addExtractor(new RuleBasedExtractor());
-        evaluator.addExtractor(new MachineLearningBasedExtractor());
+        // evaluator.addExtractor(new RuleBasedExtractor());
+        // evaluator.addExtractor(new MachineLearningBasedExtractor());
         //        evaluator.evaluate(trainDataset, testDataset);
         evaluator.evaluate(delicious1, delicious2);
         //        evaluator.evaluate(deliciousComplete, 2);
