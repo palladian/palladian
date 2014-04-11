@@ -1,23 +1,18 @@
 package ws.palladian.extraction.pos;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import ws.palladian.core.FeatureVector;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
-import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.Tagger;
-import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.ImmutableAnnotation;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
 
 /**
@@ -41,52 +36,27 @@ import ws.palladian.processing.features.PositionAnnotation;
  * @author Philipp Katz
  * @author Klemens Muthmann
  */
-public abstract class BasePosTagger extends TextDocumentPipelineProcessor implements Tagger {
+public abstract class BasePosTagger implements Tagger {
 
-    /**
-     * <p>
-     * The identifier of the feature provided by this {@link PipelineProcessor}.
-     * </p>
-     */
-    public static final String PROVIDED_FEATURE = "ws.palladian.features.pos";
-
-    /**
-     * <p>
-     * The default {@link BaseTokenizer} used if not overridden.
-     * </p>
-     */
+    /** The default {@link BaseTokenizer} used if not overridden. */
     private static final BaseTokenizer DEFAULT_TOKENIZER = new RegExTokenizer();
-
-    // ////////////////////////////////////////////
-    // Tagger API
-    // ////////////////////////////////////////////
 
     @Override
     public List<Annotation> getAnnotations(String text) {
-        TextDocument document = new TextDocument(text);
-        try {
-            BaseTokenizer tokenizer = getTokenizer();
-            tokenizer.processDocument(document);
-            this.processDocument(document);
-        } catch (DocumentUnprocessableException e) {
-            throw new IllegalArgumentException(e);
+        List<Annotation> tokenAnnotations = getTokenizer().getAnnotations(text);
+        List<String> tokens = CollectionHelper.convertList(tokenAnnotations, AnnotationValueConverter.INSTANCE);
+        List<String> posTags = getTags(tokens);
+        List<Annotation> result = CollectionHelper.newArrayList();
+        Iterator<String> tagsIterator = posTags.iterator();
+        for (Annotation annotation : tokenAnnotations) {
+            String tag = tagsIterator.next().toUpperCase();
+            result.add(new ImmutableAnnotation(annotation.getStartPosition(), annotation.getValue(), tag));
         }
-        @SuppressWarnings("unchecked")
-        List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().get(
-                ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
-        List<Annotation> ret = CollectionHelper.newArrayList();
-        for (PositionAnnotation annotation : annotationFeatureList) {
-            NominalFeature tagFeature = annotation.getFeatureVector().get(NominalFeature.class, PROVIDED_FEATURE);
-            String tag = tagFeature.getValue();
-            ret.add(new ImmutableAnnotation(annotation.getStartPosition(), annotation.getValue(), tag));
-        }
-        return ret;
+        return result;
     }
 
     public String getTaggedString(String text) {
-        List<Annotation> annotations = getAnnotations(text);
-        String taggedText = NerHelper.tag(text, annotations, TaggingFormat.SLASHES);
-        return taggedText;
+        return NerHelper.tag(text, getAnnotations(text), TaggingFormat.SLASHES);
     }
 
     /**
@@ -102,64 +72,19 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
         return DEFAULT_TOKENIZER;
     }
 
-    // ////////////////////////////////////////////
-    // PipelineProcessor API
-    // ////////////////////////////////////////////
-
-    @Override
-    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> annotationFeature = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
-        tag(annotationFeature);
-    }
-
-    // ////////////////////////////////////////////
-    // internal/subclass methods
-    // ////////////////////////////////////////////
-
     /**
      * <p>
      * Subclasses implement this method to perform the POS tagging. The POS tags can be assigned to each annotation
      * using the provided convenience method {@link #assignTag(PositionAnnotation, String)}.
      * </p>
      * 
-     * @param annotations The list of annotations to process, this is the tokenized text.
-     */
-    protected abstract void tag(List<PositionAnnotation> annotations);
-
-    /**
-     * <p>
-     * Helper method to convert a {@link List} of {@link PositionAnnotation}s to a {@link List} with their String
-     * values.
-     * </p>
-     * 
-     * @param annotations
+     * @param tokens The list of annotations to process, this is the tokenized text.
      * @return
      */
-    protected static List<String> getTokenList(List<PositionAnnotation> annotations) {
-        List<String> tokenList = new ArrayList<String>(annotations.size());
-        for (PositionAnnotation annotation : annotations) {
-            tokenList.add(annotation.getValue());
-        }
-        return tokenList;
-    }
+    protected abstract List<String> getTags(List<String> tokens);
 
     protected static String normalizeTag(String tag) {
         return tag.replaceAll("-.*", "");
-    }
-
-    /**
-     * <p>
-     * Helper method to assign a POS tag to a {@link PositionAnnotation}.
-     * </p>
-     * 
-     * @param annotation The annotation to assign the provided PoS tags as features to. This will usually be a token.
-     * @param tags The tags to assign to the provided annotation. Mostly this will only be one tag, but terms like
-     *            "I'll" consist of multiple words and thus it is possible to assign multiple tags.
-     */
-    protected static void assignTag(PositionAnnotation annotation, List<String> tags) {
-        for (String tag : tags) {
-            annotation.getFeatureVector().add(new NominalFeature(PROVIDED_FEATURE, tag.toUpperCase()));
-        }
     }
 
     public abstract String getName();

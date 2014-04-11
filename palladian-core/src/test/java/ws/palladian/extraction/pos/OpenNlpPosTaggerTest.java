@@ -9,17 +9,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.ProcessingPipeline;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.PositionAnnotation;
+import ws.palladian.processing.features.Annotation;
 
 public class OpenNlpPosTaggerTest {
 
-    private final TextDocument document = new TextDocument("The quick brown fox jumps over the lazy dog.");
+    private static final String TEXT = "The quick brown fox jumps over the lazy dog.";
     private File modelFile;
 
     @Before
@@ -29,44 +25,19 @@ public class OpenNlpPosTaggerTest {
 
     @Test
     public void testOpenNlpPosTagger() throws DocumentUnprocessableException {
-        ProcessingPipeline processingPipeline = new ProcessingPipeline();
-        processingPipeline.connectToPreviousProcessor(new RegExTokenizer());
-        processingPipeline.connectToPreviousProcessor(new OpenNlpPosTagger(modelFile));
-        processingPipeline.process(document);
-
-        List<PositionAnnotation> annotations = RegExTokenizer.getTokenAnnotations(document);
-
+        OpenNlpPosTagger posTagger = new OpenNlpPosTagger(modelFile);
+        List<Annotation> annotations = posTagger.getAnnotations(TEXT);
         assertEquals(10, annotations.size());
-        assertEquals("DT",
-                annotations.get(0).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals("JJ",
-                annotations.get(1).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals("JJ",
-                annotations.get(2).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals("NN",
-                annotations.get(3).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals("NNS",
-                annotations.get(4).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals("IN",
-                annotations.get(5).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals("DT",
-                annotations.get(6).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals("JJ",
-                annotations.get(7).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals("NN",
-                annotations.get(8).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
-        assertEquals(".",
-                annotations.get(9).getFeatureVector().get(NominalFeature.class, BasePosTagger.PROVIDED_FEATURE)
-                        .getValue());
+        assertEquals("DT", annotations.get(0).getTag());
+        assertEquals("JJ", annotations.get(1).getTag());
+        assertEquals("JJ", annotations.get(2).getTag());
+        assertEquals("NN", annotations.get(3).getTag());
+        assertEquals("NNS", annotations.get(4).getTag());
+        assertEquals("IN", annotations.get(5).getTag());
+        assertEquals("DT", annotations.get(6).getTag());
+        assertEquals("JJ", annotations.get(7).getTag());
+        assertEquals("NN", annotations.get(8).getTag());
+        assertEquals(".", annotations.get(9).getTag());
     }
 
 }

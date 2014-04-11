@@ -11,6 +11,7 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -87,7 +88,7 @@ public final class OpenNlpTokenizer extends BaseTokenizer {
         List<Annotation> annotations = CollectionHelper.newArrayList();
         for (Span span : spans) {
             String value = text.substring(span.getStart(), span.getEnd());
-            annotations.add(new ImmutableAnnotation(span.getStart(), value, PROVIDED_FEATURE));
+            annotations.add(new ImmutableAnnotation(span.getStart(), value, StringUtils.EMPTY));
         }
         return annotations;
     }

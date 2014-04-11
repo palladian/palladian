@@ -15,7 +15,6 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -35,7 +34,6 @@ public final class OpenNlpPosTagger extends BasePosTagger {
     private final POSTagger tagger;
 
     public OpenNlpPosTagger(File modelFile) {
-        super();
         Validate.notNull(modelFile, "The model file must not be null.");
         this.tagger = loadModel(modelFile);
     }
@@ -60,12 +58,8 @@ public final class OpenNlpPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<PositionAnnotation> annotations) {
-        List<String> tokenList = getTokenList(annotations);
-        String[] tags = tagger.tag(tokenList.toArray(new String[annotations.size()]));
-        for (int i = 0; i < tags.length; i++) {
-            assignTag(annotations.get(i), Arrays.asList(new String[] {tags[i]}));
-        }
+    protected List<String> getTags(List<String> tokens) {
+        return Arrays.asList(tagger.tag(tokens.toArray(new String[tokens.size()])));
     }
 
     @Override
