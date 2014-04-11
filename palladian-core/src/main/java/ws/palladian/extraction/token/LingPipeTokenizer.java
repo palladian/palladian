@@ -2,6 +2,8 @@ package ws.palladian.extraction.token;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ImmutableAnnotation;
@@ -34,7 +36,7 @@ public final class LingPipeTokenizer extends BaseTokenizer {
         List<Annotation> annotations = CollectionHelper.newArrayList();
         while (nextToken != null) {
             int startPosition = tokenizer.lastTokenStartPosition();
-            annotations.add(new ImmutableAnnotation(startPosition, nextToken, getCreatedFeatureName()));
+            annotations.add(new ImmutableAnnotation(startPosition, nextToken, StringUtils.EMPTY));
             nextToken = tokenizer.nextToken();
         }
         return annotations;

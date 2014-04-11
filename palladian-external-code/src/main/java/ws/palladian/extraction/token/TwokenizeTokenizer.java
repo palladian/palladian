@@ -2,6 +2,8 @@ package ws.palladian.extraction.token;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ImmutableAnnotation;
@@ -36,7 +38,7 @@ public final class TwokenizeTokenizer extends BaseTokenizer {
             }
 
             endPosition = startPosition + token.length();
-            annotations.add(new ImmutableAnnotation(startPosition, token, PROVIDED_FEATURE));
+            annotations.add(new ImmutableAnnotation(startPosition, token, StringUtils.EMPTY));
         }
 
         return annotations;

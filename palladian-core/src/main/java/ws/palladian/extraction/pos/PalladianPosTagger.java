@@ -5,7 +5,6 @@ import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TE
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,7 +32,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -66,13 +64,14 @@ public class PalladianPosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<PositionAnnotation> annotations) {
-        for (PositionAnnotation annotation : annotations) {
-            FeatureVector featureVector = extractFeatures(annotation.getValue());
+    protected List<String> getTags(List<String> tokens) {
+        List<String> tags = CollectionHelper.newArrayList();
+        for (String token : tokens) {
+            FeatureVector featureVector = extractFeatures(token);
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
-            String tag = categoryEntries.getMostLikelyCategory();
-            assignTag(annotation, Collections.singletonList(tag));
+            tags.add(categoryEntries.getMostLikelyCategory());
         }
+        return tags;
     }
 
     private static UniversalClassifier getTagger() {

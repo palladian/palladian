@@ -18,10 +18,10 @@ import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.processing.features.PositionAnnotation;
 
 import com.aliasi.hmm.HiddenMarkovModel;
 import com.aliasi.hmm.HmmDecoder;
@@ -122,22 +122,21 @@ public final class LingPipePosTagger extends BasePosTagger {
     }
 
     @Override
-    public void tag(List<PositionAnnotation> annotations) {
+    protected List<String> getTags(List<String> tokens) {
 
-        int cacheSize = Integer.valueOf(100);
-        FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
-
+        FastCache<String, double[]> cache = new FastCache<String, double[]>(100);
         HmmDecoder posTagger = new HmmDecoder(model, null, cache);
 
-        List<String> tokenList = getTokenList(annotations);
-        Tagging<String> tagging = posTagger.tag(tokenList);
+        Tagging<String> tagging = posTagger.tag(tokens);
 
+        List<String> result = CollectionHelper.newArrayList();
         for (int i = 0; i < tagging.size(); i++) {
             List<String> filteredTag = tagFilter == null ? Arrays.asList(new String[] {tagging.tag(i)}) : tagFilter
                     .filter(tagging.tag(i));
-
-            assignTag(annotations.get(i), filteredTag);
+            result.add(filteredTag.get(0));
         }
+        
+        return result;
     }
 
     public void evaluate(String folderPath, String modelFilePath) {
@@ -147,7 +146,7 @@ public final class LingPipePosTagger extends BasePosTagger {
 
         ConfusionMatrix matrix = new ConfusionMatrix();
 
-        int c = 1;
+        int c = 1; 
         int correct = 0;
         int total = 0;
 
@@ -231,4 +230,5 @@ public final class LingPipePosTagger extends BasePosTagger {
         // tagger.evaluate("data/datasets/pos/testSmall/",
         // "data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
     }
+    
 }

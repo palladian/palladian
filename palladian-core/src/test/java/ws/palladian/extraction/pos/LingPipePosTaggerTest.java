@@ -13,18 +13,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ws.palladian.extraction.token.BaseTokenizer;
-import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.PipelineProcessor;
-import ws.palladian.processing.ProcessingPipeline;
-import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -38,13 +29,8 @@ import ws.palladian.processing.features.PositionAnnotation;
 @RunWith(value = Parameterized.class)
 public class LingPipePosTaggerTest {
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private static final String MODEL = "/model/pos-en-general-brown.HiddenMarkovModel";
-    private final TextDocument document;
+    private final String text;
     private final String[] expectedTags;
 
     @Parameters
@@ -62,40 +48,19 @@ public class LingPipePosTaggerTest {
         return Arrays.asList(data);
     }
 
-    public LingPipePosTaggerTest(String document, String[] expectedTags) {
-        super();
-
-        this.document = new TextDocument(document);
+    public LingPipePosTaggerTest(String text, String[] expectedTags) {
+        this.text = text;
         this.expectedTags = expectedTags;
     }
 
     @Test
     public void test() throws FileNotFoundException, DocumentUnprocessableException {
         File modelFile = ResourceHelper.getResourceFile(MODEL);
-        PipelineProcessor tokenizer = new LingPipeTokenizer();
-        PipelineProcessor objectOfClassUnderTest = new LingPipePosTagger(modelFile);
-
-        ProcessingPipeline pipeline = new ProcessingPipeline();
-        pipeline.connectToPreviousProcessor(tokenizer);
-        pipeline.connectToPreviousProcessor(objectOfClassUnderTest);
-
-        pipeline.process(document);
-        FeatureVector featureVector = document.getFeatureVector();
-        ListFeature<PositionAnnotation> tokens = featureVector
-                .get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        LingPipePosTagger posTagger = new LingPipePosTagger(modelFile);
+        List<Annotation> tokens = posTagger.getAnnotations(text);
         for (int i = 0; i < tokens.size(); i++) {
-            Assert.assertThat(
-                    tokens.get(i).getFeatureVector()
-                            .get(NominalFeature.class, LingPipePosTagger.PROVIDED_FEATURE).getValue(),
-                    Matchers.is(expectedTags[i]));
+            Assert.assertThat(tokens.get(i).getTag(), Matchers.is(expectedTags[i]));
         }
     }
 
-    @Test
-    public void testSimple() throws FileNotFoundException {
-        File modelFile = ResourceHelper.getResourceFile(MODEL);
-        BasePosTagger tagger = new LingPipePosTagger(modelFile);
-        List<Annotation> tagResult = tagger.getAnnotations(document.getContent());
-        Assert.assertEquals(expectedTags.length, tagResult.size());
-    }
 }

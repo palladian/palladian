@@ -7,17 +7,16 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.TextDocument;
+import ws.palladian.processing.features.Annotation;
 
 public class OpenNlpTokenizerTest {
-    
+
+    private static final String TEXT = "The quick brown fox jumps over the lazy dog.";
+
     @Test
     public void testOpenNlpTokenizer() throws DocumentUnprocessableException {
         OpenNlpTokenizer tokenizer = new OpenNlpTokenizer();
-        TextDocument document = new TextDocument("The quick brown fox jumps over the lazy dog.");
-        tokenizer.processDocument(document);
-        
-        List<String> tokens = OpenNlpTokenizer.getTokens(document);
+        List<Annotation> tokens = tokenizer.getAnnotations(TEXT);
         assertEquals(10, tokens.size());
     }
 

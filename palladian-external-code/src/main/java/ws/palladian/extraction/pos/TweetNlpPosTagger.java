@@ -1,12 +1,10 @@
 package ws.palladian.extraction.pos;
 
-import java.util.Arrays;
 import java.util.List;
 
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.PositionAnnotation;
 import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
 
 /**
@@ -34,14 +32,11 @@ public class TweetNlpPosTagger extends BasePosTagger {
     }
 
     @Override
-    protected void tag(List<PositionAnnotation> annotations) {
+    protected List<String> getTags(List<String> tokens) {
         TweetTaggerInstance tweetTagger = TweetTaggerInstance.getInstance();
-        List<String> words = getTokenList(annotations);
-        List<String> tags = tweetTagger.getTagsForOneSentence(words);
-        assert words.size() == tags.size();
-        for (int i = 0; i < tags.size(); i++) {
-            assignTag(annotations.get(i), Arrays.asList(new String[] {tags.get(i)}));
-        }
+        List<String> tags = tweetTagger.getTagsForOneSentence(tokens);
+        assert tokens.size() == tags.size();
+        return tags;
     }
 
     @Override

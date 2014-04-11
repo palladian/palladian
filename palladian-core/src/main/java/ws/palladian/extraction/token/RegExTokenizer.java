@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
@@ -24,23 +24,8 @@ import ws.palladian.processing.features.ImmutableAnnotation;
  */
 public final class RegExTokenizer extends BaseTokenizer {
 
-    /**
-     * <p>
-     * The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
-     * </p>
-     */
+    /** The pattern that needs to match for a token to be extracted as a new {@code Annotation}. */
     private final Pattern pattern;
-
-    /**
-     * <p>
-     * The no argument constructor using {@link Tokenizer#SPLIT_PATTERN} to annotate token and saving them as
-     * {@link Feature} with the identifier {@link BaseTokenizer#PROVIDED_FEATURE}.
-     * </p>
-     * 
-     */
-    public RegExTokenizer() {
-        this(PROVIDED_FEATURE, Tokenizer.SPLIT_PATTERN);
-    }
 
     /**
      * <p>
@@ -48,13 +33,10 @@ public final class RegExTokenizer extends BaseTokenizer {
      * annotating token matching the provided {@code pattern}.
      * </p>
      * 
-     * @param featureName The name of the feature identifying the annotated token.
      * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
      */
-    public RegExTokenizer(String featureName, Pattern pattern) {
-        super(featureName);
+    public RegExTokenizer(Pattern pattern) {
         Validate.notNull(pattern, "pattern must not be null");
-
         this.pattern = pattern;
     }
 
@@ -64,12 +46,15 @@ public final class RegExTokenizer extends BaseTokenizer {
      * annotating token matching the provided regular expression.
      * </p>
      * 
-     * @param featureName The name of the feature created to store the annotations.
      * @param regex The regular expression to annotate in the input document. Refer to the {@link Pattern} class
      *            documentation for the regex format.
      */
-    public RegExTokenizer(String featureName, String regex) {
-        this(featureName, Pattern.compile(regex));
+    public RegExTokenizer(String regex) {
+        this(Pattern.compile(regex));
+    }
+    
+    public RegExTokenizer() {
+        this(Tokenizer.TOKEN_SPLIT_REGEX);
     }
 
     @Override
@@ -77,7 +62,7 @@ public final class RegExTokenizer extends BaseTokenizer {
         Matcher matcher = pattern.matcher(text);
         List<Annotation> annotations = CollectionHelper.newArrayList();
         while (matcher.find()) {
-            annotations.add(new ImmutableAnnotation(matcher.start(), matcher.group(), getCreatedFeatureName()));
+            annotations.add(new ImmutableAnnotation(matcher.start(), matcher.group(), StringUtils.EMPTY));
         }
         return annotations;
     }
