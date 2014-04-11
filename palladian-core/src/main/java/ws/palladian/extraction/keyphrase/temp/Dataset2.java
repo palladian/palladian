@@ -3,8 +3,6 @@ package ws.palladian.extraction.keyphrase.temp;
 import java.io.File;
 import java.util.ArrayList;
 
-import ws.palladian.processing.PipelineDocument;
-
 /**
  * <p>
  * A dataset typically used for classification evaluation tasks, it consists of multiple {@link DatasetItem}s.
