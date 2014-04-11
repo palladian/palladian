@@ -70,11 +70,13 @@
 			<artifactId>palladian-retrieval</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-processing-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		-->
 		<!-- dependency> <groupId>org.hamcrest</groupId> <artifactId>hamcrest-all</artifactId> 
 			<scope>test</scope> </dependency -->
 		<dependency>
