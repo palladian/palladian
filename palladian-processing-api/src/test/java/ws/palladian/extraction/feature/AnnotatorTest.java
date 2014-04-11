@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
@@ -33,17 +33,17 @@ public class AnnotatorTest {
     public void testStemmerAnnotator() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.connectToPreviousProcessor(new RegExTokenizer());
-        pipeline.connectToPreviousProcessor(new StemmerAnnotator(Language.ENGLISH));
+        pipeline.connectToPreviousProcessor(new Stemmer(Language.ENGLISH));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
 
         assertEquals(12, annotations.size());
-        assertEquals("tri", annotations.get(3).getFeatureVector().get(NominalFeature.class, StemmerAnnotator.STEM)
+        assertEquals("tri", annotations.get(3).getFeatureVector().get(NominalFeature.class, Stemmer.STEM)
                 .getValue());
-        assertEquals("token", annotations.get(7).getFeatureVector().get(NominalFeature.class, StemmerAnnotator.STEM)
+        assertEquals("token", annotations.get(7).getFeatureVector().get(NominalFeature.class, Stemmer.STEM)
                 .getValue());
-        assertEquals("languag", annotations.get(10).getFeatureVector().get(NominalFeature.class, StemmerAnnotator.STEM)
+        assertEquals("languag", annotations.get(10).getFeatureVector().get(NominalFeature.class, Stemmer.STEM)
                 .getValue());
 
     }
@@ -55,7 +55,7 @@ public class AnnotatorTest {
         pipeline.connectToPreviousProcessor(new StopTokenRemover(Language.ENGLISH));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
 
         assertEquals(7, annotations.size());
     }
@@ -67,7 +67,7 @@ public class AnnotatorTest {
         pipeline.connectToPreviousProcessor(new LengthTokenRemover(2));
         pipeline.process(document);
 
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
 
         assertEquals(9, annotations.size());
     }

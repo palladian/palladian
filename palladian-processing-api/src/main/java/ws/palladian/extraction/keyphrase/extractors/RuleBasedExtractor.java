@@ -15,15 +15,15 @@ import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.MapTermCorpus;
 import ws.palladian.extraction.feature.NGramCreator;
 import ws.palladian.extraction.feature.RegExTokenRemover;
-import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
+import ws.palladian.extraction.feature.Stemmer;
+import ws.palladian.extraction.feature.Stemmer.Mode;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
@@ -42,7 +42,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
     private final MapTermCorpus termCorpus;
     private final MapTermCorpus keyphraseCorpus;
 //    private final CooccurrenceMatrix<String> cooccurrenceMatrix;
-    private StemmerAnnotator stemmer;
+    private Stemmer stemmer;
 
     public RuleBasedExtractor() {
         termCorpus = new MapTermCorpus();
@@ -55,7 +55,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         trainingPipeline.add(new StopTokenRemover(Language.ENGLISH));
         trainingPipeline.add(new LengthTokenRemover(4));
         trainingPipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
-        stemmer = new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY);
+        stemmer = new Stemmer(Language.ENGLISH, Mode.MODIFY);
         trainingPipeline.add(stemmer);
         trainingPipeline.add(new DuplicateTokenRemover());
 
@@ -68,7 +68,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         extractionPipeline.add(new LengthTokenRemover(4));
         extractionPipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         extractionPipeline.add(stemmer);
-        extractionPipeline.add(new NGramCreator(3, StemmerAnnotator.UNSTEM));
+        extractionPipeline.add(new NGramCreator(3, Stemmer.UNSTEM));
         extractionPipeline.add(new TokenMetricsCalculator());
         extractionPipeline.add(new DuplicateTokenRemover());
         extractionPipeline.add(new IdfAnnotator(termCorpus));
@@ -90,7 +90,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         Set<String> terms = new HashSet<String>();
         for (PositionAnnotation annotation : annotations) {
             terms.add(annotation.getValue());
@@ -138,7 +138,7 @@ public final class RuleBasedExtractor extends KeyphraseExtractor {
     }
 
     private List<Keyphrase> extract(PipelineDocument<String> document) {
-        List<PositionAnnotation> annotations =  document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations =  document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (PositionAnnotation annotation : annotations) {
             String value = annotation.getValue();

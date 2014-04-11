@@ -2,7 +2,7 @@ package ws.palladian.extraction.feature;
 
 import java.util.List;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.ProcessingPipeline;
@@ -14,7 +14,7 @@ import ws.palladian.processing.features.PositionAnnotation;
 /**
  * <p>
  * A {@link PipelineProcessor} which works on token {@link PositionAnnotation}s provided by some implementation of
- * {@link BaseTokenizer}. This means, the {@link ProcessingPipeline} must provide a tokenizer before subclasses of this
+ * {@link AbstractTokenizer}. This means, the {@link ProcessingPipeline} must provide a tokenizer before subclasses of this
  * component do their work, else wise a {@link DocumentUnprocessableException} is thrown. Subclasses of this
  * {@link AbstractTokenProcessor} implement the {@link #processToken(PositionAnnotation)} method.
  * </p>
@@ -25,7 +25,7 @@ public abstract class AbstractTokenProcessor extends TextDocumentPipelineProcess
 
     @Override
     public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> tokenList = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> tokenList = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         for (PositionAnnotation annotation : tokenList) {
             processToken(annotation);
         }

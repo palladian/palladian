@@ -7,7 +7,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
@@ -100,7 +100,7 @@ public class NGramCreator extends TextDocumentPipelineProcessor {
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        ListFeature<PositionAnnotation> annotations = BaseTokenizer.getTokenAnnotations(document);
+        ListFeature<PositionAnnotation> annotations = AbstractTokenizer.getTokenAnnotations(document);
         if (annotations.size() < limit) {
             for (int i = minLength; i <= maxLength; i++) {
                 List<PositionAnnotation> nGramTokens = createNGrams(document, annotations, i);

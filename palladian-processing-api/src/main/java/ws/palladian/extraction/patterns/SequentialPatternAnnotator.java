@@ -16,10 +16,10 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
-import ws.palladian.extraction.pos.BasePosTagger;
+import ws.palladian.extraction.pos.AbstractPosTagger;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.extraction.sentence.AbstractSentenceDetector;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.ListFeature;
@@ -102,7 +102,7 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
         // LOGGER.debug(document.toString());
 
         List<PositionAnnotation> posTags = new ArrayList<PositionAnnotation>(document.get(
-                ListFeature.class, BaseTokenizer.PROVIDED_FEATURE));
+                ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE));
         List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>(document.get(
                 ListFeature.class, AbstractSentenceDetector.PROVIDED_FEATURE));
         List<PositionAnnotation> markedKeywords = new ArrayList<PositionAnnotation>(markKeywords(document));
@@ -133,7 +133,7 @@ public final class SequentialPatternAnnotator extends TextDocumentPipelineProces
                     i = currentMarkedKeyword.getEndPosition();
                 } else if (currentPosTag != null && Integer.valueOf(currentPosTag.getStartPosition()).equals(i)) {
                     NominalFeature posTagFeature = currentPosTag.getFeatureVector().get(
-                            NominalFeature.class, BasePosTagger.PROVIDED_FEATURE);
+                            NominalFeature.class, AbstractPosTagger.PROVIDED_FEATURE);
                     // LOGGER.trace("currentPosTag: "+ currentPosTag.toString());
                     // LOGGER.trace("posTagFeature: "+posTagFeature);
                     sequentialPattern.add(posTagFeature.getValue());

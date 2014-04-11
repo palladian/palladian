@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureVector;
@@ -27,7 +27,7 @@ public class TermCorpusBuilder extends TextDocumentPipelineProcessor {
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
         FeatureVector featureVector = document.getFeatureVector();
         @SuppressWarnings("unchecked")
-        List<PositionAnnotation> annotations = featureVector.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = featureVector.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         Set<String> tokenValues = new HashSet<String>();
         for (PositionAnnotation annotation : annotations) {
             tokenValues.add(annotation.getValue().toLowerCase());

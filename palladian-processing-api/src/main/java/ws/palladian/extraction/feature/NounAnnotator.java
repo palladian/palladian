@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.extraction.pos.BasePosTagger;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.pos.AbstractPosTagger;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.FeatureProvider;
@@ -20,8 +20,8 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
- * Annotates all nouns in a text. The text must have been processed by a {@link BaseTokenizer} and a
- * {@link BasePosTagger} using the Brown corpus tag set (or N) for nouns.
+ * Annotates all nouns in a text. The text must have been processed by a {@link AbstractTokenizer} and a
+ * {@link AbstractPosTagger} using the Brown corpus tag set (or N) for nouns.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -62,10 +62,10 @@ public final class NounAnnotator extends TextDocumentPipelineProcessor implement
         List<String> nounTagList = Arrays.asList(NOUN_TAGS);
         PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
         ListFeature<PositionAnnotation> listFeature = document.get(ListFeature.class,
-                BaseTokenizer.PROVIDED_FEATURE);
+                AbstractTokenizer.PROVIDED_FEATURE);
         for (PositionAnnotation token : listFeature) {
             NominalFeature posTag = token.getFeatureVector().get(NominalFeature.class,
-                    BasePosTagger.PROVIDED_FEATURE);
+                    AbstractPosTagger.PROVIDED_FEATURE);
             if (posTag == null) {
                 throw new DocumentUnprocessableException(
                         "At least one token has not PoS tag. The noun annotator requires the pipeline to call a PoSTagger in advance.");

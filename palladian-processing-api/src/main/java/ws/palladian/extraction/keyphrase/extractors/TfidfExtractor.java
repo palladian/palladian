@@ -16,14 +16,14 @@ import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.MapTermCorpus;
 import ws.palladian.extraction.feature.NGramCreator;
 import ws.palladian.extraction.feature.RegExTokenRemover;
-import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
+import ws.palladian.extraction.feature.Stemmer;
+import ws.palladian.extraction.feature.Stemmer.Mode;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
 import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
@@ -49,7 +49,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
         pipeline.connectToPreviousProcessor(new LengthTokenRemover(4));
         pipeline.connectToPreviousProcessor(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         pipeline.connectToPreviousProcessor(new NGramCreator(3));
-        pipeline.connectToPreviousProcessor(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
+        pipeline.connectToPreviousProcessor(new Stemmer(Language.ENGLISH, Mode.MODIFY));
         pipeline.connectToPreviousProcessor(new TokenMetricsCalculator());
         pipeline.connectToPreviousProcessor(new DuplicateTokenRemover());
         pipeline.connectToPreviousProcessor(new IdfAnnotator(termCorpus));
@@ -69,7 +69,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException(e);
         }
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         Set<String> terms = new HashSet<String>();
         for (PositionAnnotation annotation : annotations) {
             // FeatureVector featureVector = annotation.getFeatureVector();
@@ -104,7 +104,7 @@ public final class TfidfExtractor extends KeyphraseExtractor {
 
     private List<Keyphrase> extract(PipelineDocument<String> document) {
         List<Keyphrase> ret = new ArrayList<Keyphrase>();
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         List<Pair<String, Double>> keywords = new ArrayList<Pair<String,Double>>();
         for (PositionAnnotation annotation : annotations) {
             String value = annotation.getValue();

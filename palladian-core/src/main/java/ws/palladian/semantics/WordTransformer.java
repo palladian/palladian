@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.pos.BasePosTagger;
+import ws.palladian.extraction.feature.Stemmer;
+import ws.palladian.extraction.pos.AbstractPosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
@@ -396,12 +396,12 @@ public class WordTransformer {
 
     public static String stemGermanWord(String word) {
         // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
-        return new StemmerAnnotator(Language.GERMAN).stem(word);
+        return new Stemmer(Language.GERMAN).stem(word);
     }
 
     public static String stemEnglishWord(String word) {
         // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
-        return new StemmerAnnotator(Language.ENGLISH).stem(word);
+        return new Stemmer(Language.ENGLISH).stem(word);
     }
 
     /**
@@ -545,7 +545,7 @@ public class WordTransformer {
      * @param string The English sentence.
      * @return The detected English tense.
      */
-    public static EnglishTense getTense(String string, BasePosTagger posTagger) {
+    public static EnglishTense getTense(String string, AbstractPosTagger posTagger) {
         return getTense(string, posTagger.getAnnotations(string));
     }
 

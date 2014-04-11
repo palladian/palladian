@@ -26,8 +26,8 @@ import ws.palladian.extraction.feature.LengthTokenRemover;
 import ws.palladian.extraction.feature.MapTermCorpus;
 import ws.palladian.extraction.feature.NGramCreator;
 import ws.palladian.extraction.feature.RegExTokenRemover;
-import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
+import ws.palladian.extraction.feature.Stemmer;
+import ws.palladian.extraction.feature.Stemmer.Mode;
 import ws.palladian.extraction.feature.StopTokenRemover;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.extraction.feature.TfIdfAnnotator;
@@ -35,7 +35,7 @@ import ws.palladian.extraction.feature.TokenMetricsCalculator;
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
 import ws.palladian.extraction.keyphrase.features.AdditionalFeatureExtractor;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -65,7 +65,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private final MapTermCorpus termCorpus;
     private final MapTermCorpus keyphraseCorpus;
 //    private final CooccurrenceMatrix<String> cooccurrenceMatrix;
-    private final StemmerAnnotator stemmer;
+    private final Stemmer stemmer;
     private int trainCount;
     private final Map<PipelineDocument<String>, Set<String>> trainDocuments;
     private final QuickDtLearner learner=new QuickDtLearner(new RandomForestBuilder().numTrees(10));
@@ -85,7 +85,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         corpusGenerationPipeline.add(new StopTokenRemover(Language.ENGLISH));
         corpusGenerationPipeline.add(new LengthTokenRemover(4));
         corpusGenerationPipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
-        stemmer = new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY);
+        stemmer = new Stemmer(Language.ENGLISH, Mode.MODIFY);
         corpusGenerationPipeline.add(stemmer);
         corpusGenerationPipeline.add(new DuplicateTokenRemover());
 
@@ -98,7 +98,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         candidateGenerationPipeline.add(new LengthTokenRemover(4));
         candidateGenerationPipeline.add(new RegExTokenRemover("[^A-Za-z0-9-]+"));
         candidateGenerationPipeline.add(stemmer);
-        candidateGenerationPipeline.add(new NGramCreator(3, StemmerAnnotator.UNSTEM));
+        candidateGenerationPipeline.add(new NGramCreator(3, Stemmer.UNSTEM));
         candidateGenerationPipeline.add(new TokenMetricsCalculator());
         candidateGenerationPipeline.add(new DuplicateTokenConsolidator());
         candidateGenerationPipeline.add(new IdfAnnotator(termCorpus));
@@ -109,7 +109,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
 
             @Override
             public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-                List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
+                List<PositionAnnotation> tokenAnnotations = AbstractTokenizer.getTokenAnnotations(document);
                 for (PositionAnnotation annotation : tokenAnnotations) {
                     double prior = (double)(keyphraseCorpus.getCount(annotation.getValue()) + 1)
                             / keyphraseCorpus.getNumDocs();
@@ -170,7 +170,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
                 throw new IllegalStateException(e);
             }
             List<PositionAnnotation> annotationFeature = currentDoc.get(
-                    ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+                    ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
             totalKeyphrases += keywords.size();
             totallyMarked += markCandidates(annotationFeature, keywords);
             annotations.addAll(annotationFeature);
@@ -212,8 +212,8 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
     private FeatureVector cleanFeatureVector(FeatureVector featureVector) {
         FeatureVector result = new BasicFeatureVector(featureVector);
         result.remove(IS_KEYWORD);
-        result.remove(StemmerAnnotator.UNSTEM);
-        result.remove(BaseTokenizer.PROVIDED_FEATURE); // XXX was duplicate token annotation
+        result.remove(Stemmer.UNSTEM);
+        result.remove(AbstractTokenizer.PROVIDED_FEATURE); // XXX was duplicate token annotation
         result.remove(AdditionalFeatureExtractor.CASE_SIGNATURE);
         return result;
     }
@@ -245,7 +245,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         }
         for (PositionAnnotation annotation : annotations) {
             String stemmedValue = annotation.getValue();
-            String unstemmedValue = annotation.getFeatureVector().get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue();
+            String unstemmedValue = annotation.getFeatureVector().get(NominalFeature.class, Stemmer.UNSTEM).getValue();
 
             boolean isKeyword = modifiedKeywords.contains(stemmedValue);
             isKeyword |= modifiedKeywords.contains(stemmedValue.toLowerCase());
@@ -333,7 +333,7 @@ public final class MachineLearningBasedExtractor extends KeyphraseExtractor {
         } catch (DocumentUnprocessableException e) {
             throw new IllegalStateException();
         }
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         List<Keyphrase> keywords = new ArrayList<Keyphrase>();
         for (PositionAnnotation annotation : annotations) {
             FeatureVector featureVector = annotation.getFeatureVector();

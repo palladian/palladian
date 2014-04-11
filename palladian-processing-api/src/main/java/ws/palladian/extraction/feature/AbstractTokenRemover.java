@@ -3,7 +3,7 @@ package ws.palladian.extraction.feature;
 import java.util.Iterator;
 import java.util.List;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.TextDocument;
@@ -14,7 +14,7 @@ import ws.palladian.processing.features.PositionAnnotation;
 /**
  * <p>
  * Base class for token remover implementations. The {@link AbstractTokenRemover} operates on the
- * {@link AnnotationFeature} provided by {@link BaseTokenizer}s. Subclasses implement
+ * {@link AnnotationFeature} provided by {@link AbstractTokenizer}s. Subclasses implement
  * {@link #remove(PositionAnnotation)} to determine, whether to remove a {@link PositionAnnotation}.
  * </p>
  * 
@@ -36,18 +36,18 @@ public abstract class AbstractTokenRemover extends TextDocumentPipelineProcessor
     @Override
     public final void processDocument(TextDocument document) throws DocumentUnprocessableException {
         @SuppressWarnings("unchecked")
-        ListFeature<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
 
         // create a new List, as removing many items from an existing one is terribly expensive
         // (unless we were using a LinkedList, what we do not want)
-        ListFeature<PositionAnnotation> resultTokens = new ListFeature<PositionAnnotation>(BaseTokenizer.PROVIDED_FEATURE);
+        ListFeature<PositionAnnotation> resultTokens = new ListFeature<PositionAnnotation>(AbstractTokenizer.PROVIDED_FEATURE);
         for (Iterator<PositionAnnotation> tokenIterator = annotations.iterator(); tokenIterator.hasNext();) {
             PositionAnnotation annotation = tokenIterator.next();
             if (!remove(annotation)) {
                 resultTokens.add(annotation);
             }
         }
-        document.remove(BaseTokenizer.PROVIDED_FEATURE);
+        document.remove(AbstractTokenizer.PROVIDED_FEATURE);
         document.add(resultTokens);
     }
 

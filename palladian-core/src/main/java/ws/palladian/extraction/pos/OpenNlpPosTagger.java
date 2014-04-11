@@ -25,7 +25,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author Martin Wunderwald
  * @author Philipp Katz
  */
-public final class OpenNlpPosTagger extends BasePosTagger {
+public final class OpenNlpPosTagger extends AbstractPosTagger {
 
     /** The name of this POS tagger. */
     private static final String TAGGER_NAME = "OpenNLP POS-Tagger";

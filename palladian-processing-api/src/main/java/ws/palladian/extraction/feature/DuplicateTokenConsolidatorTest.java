@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.processing.DocumentUnprocessableException;
 import ws.palladian.processing.ProcessingPipeline;
@@ -24,7 +24,7 @@ public class DuplicateTokenConsolidatorTest {
         pipeline.connectToPreviousProcessor(new DuplicateTokenConsolidator());
         TextDocument document = (TextDocument)pipeline.process(new TextDocument(SAMPLE_TEXT));
 
-        List<PositionAnnotation> tokenAnnotations = BaseTokenizer.getTokenAnnotations(document);
+        List<PositionAnnotation> tokenAnnotations = AbstractTokenizer.getTokenAnnotations(document);
         PositionAnnotation token1 = tokenAnnotations.get(0);
         assertEquals("Das", token1.getValue());
         List<PositionAnnotation> duplicates1 = DuplicateTokenConsolidator.getDuplicateAnnotations(token1);

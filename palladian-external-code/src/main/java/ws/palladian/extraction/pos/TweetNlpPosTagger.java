@@ -2,7 +2,7 @@ package ws.palladian.extraction.pos;
 
 import java.util.List;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
 import ws.palladian.processing.features.Annotation;
 import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
@@ -21,7 +21,7 @@ import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
  * 
  * @author Philipp Katz
  */
-public class TweetNlpPosTagger extends BasePosTagger {
+public class TweetNlpPosTagger extends AbstractPosTagger {
 
     private static final String TAGGER_NAME = "ark-tweet-nlp";
     private static final TwokenizeTokenizer TOKENIZER = new TwokenizeTokenizer();
@@ -40,7 +40,7 @@ public class TweetNlpPosTagger extends BasePosTagger {
     }
 
     @Override
-    protected BaseTokenizer getTokenizer() {
+    protected AbstractTokenizer getTokenizer() {
         return TOKENIZER;
     }
 

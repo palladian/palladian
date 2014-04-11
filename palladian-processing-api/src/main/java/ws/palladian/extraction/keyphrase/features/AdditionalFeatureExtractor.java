@@ -6,9 +6,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
 import ws.palladian.extraction.feature.DuplicateTokenRemover;
-import ws.palladian.extraction.feature.StemmerAnnotator;
+import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.nlp.StringHelper;
@@ -23,7 +23,7 @@ import ws.palladian.processing.features.PositionAnnotation;
 /**
  * <p>
  * Annotator for various keyphrase extraction specific features. Requires documents to be processed by a
- * {@link BaseTokenizer}, a {@link StemmerAnnotator} and a {@link DuplicateTokenConsolidator} or
+ * {@link AbstractTokenizer}, a {@link Stemmer} and a {@link DuplicateTokenConsolidator} or
  * {@link DuplicateTokenRemover} first.
  * </p>
  * 
@@ -60,12 +60,12 @@ public final class AdditionalFeatureExtractor extends TextDocumentPipelineProces
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> annotations = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotations = document.get(ListFeature.class, AbstractTokenizer.PROVIDED_FEATURE);
         for (int i = 0; i < annotations.size(); i++) {
             PositionAnnotation annotation = annotations.get(i);
-            String unstemValue = annotation.getFeatureVector().get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue();
+            String unstemValue = annotation.getFeatureVector().get(NominalFeature.class, Stemmer.UNSTEM).getValue();
             if (unstemValue == null) {
-                throw new DocumentUnprocessableException("The necessary feature \"" + StemmerAnnotator.UNSTEM
+                throw new DocumentUnprocessableException("The necessary feature \"" + Stemmer.UNSTEM
                         + "\" is missing for Annotation \"" + annotation.getValue() + "\"");
             }
 
@@ -133,7 +133,7 @@ public final class AdditionalFeatureExtractor extends TextDocumentPipelineProces
 
         double completeUppercaseCount = 0;
         for (PositionAnnotation current : allAnnotations) {
-            if (StringUtils.isAllUpperCase(current.getFeatureVector().get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue())) {
+            if (StringUtils.isAllUpperCase(current.getFeatureVector().get(NominalFeature.class, Stemmer.UNSTEM).getValue())) {
                 completeUppercaseCount++;
             }
         }
@@ -149,7 +149,7 @@ public final class AdditionalFeatureExtractor extends TextDocumentPipelineProces
         CountMap<String> signatures = CountMap.create();
         for (PositionAnnotation current : allAnnotations) {
             String caseSignature = StringHelper.getCaseSignature(current.getFeatureVector()
-                    .get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue());
+                    .get(NominalFeature.class, Stemmer.UNSTEM).getValue());
             signatures.add(caseSignature);
         }
         return signatures.getHighest();
@@ -162,7 +162,7 @@ public final class AdditionalFeatureExtractor extends TextDocumentPipelineProces
 
         double uppercaseCount = 0;
         for (PositionAnnotation current : allAnnotations) {
-            if (StringHelper.startsUppercase(current.getFeatureVector().get(NominalFeature.class, StemmerAnnotator.UNSTEM).getValue())) {
+            if (StringHelper.startsUppercase(current.getFeatureVector().get(NominalFeature.class, Stemmer.UNSTEM).getValue())) {
                 uppercaseCount++;
             }
         }

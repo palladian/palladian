@@ -12,7 +12,7 @@ import ws.palladian.processing.features.Annotation;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseTokenizer implements Tagger {
+public abstract class AbstractTokenizer implements Tagger {
     
     public abstract List<Annotation> getAnnotations(String text);
 

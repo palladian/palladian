@@ -18,7 +18,7 @@ import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
  * 
  * @author Philipp Katz
  */
-public final class TwokenizeTokenizer extends BaseTokenizer {
+public final class TwokenizeTokenizer extends AbstractTokenizer {
 
     @Override
     public List<Annotation> getAnnotations(String text) {

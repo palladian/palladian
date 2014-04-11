@@ -7,8 +7,8 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.extraction.feature.DuplicateTokenConsolidator;
-import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.feature.StemmerAnnotator.Mode;
+import ws.palladian.extraction.feature.Stemmer;
+import ws.palladian.extraction.feature.Stemmer.Mode;
 import ws.palladian.extraction.token.RegExTokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.DocumentUnprocessableException;
@@ -22,7 +22,7 @@ public class AdditionalFeatureExtractorTest {
     public void testExtractAdditionalFeatures() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
         pipeline.connectToPreviousProcessor(new RegExTokenizer());
-        pipeline.connectToPreviousProcessor(new StemmerAnnotator(Language.ENGLISH, Mode.MODIFY));
+        pipeline.connectToPreviousProcessor(new Stemmer(Language.ENGLISH, Mode.MODIFY));
         pipeline.connectToPreviousProcessor(new DuplicateTokenConsolidator());
         pipeline.connectToPreviousProcessor(new AdditionalFeatureExtractor());
         TextDocument document = (TextDocument)pipeline.process(new TextDocument(

@@ -2,7 +2,7 @@ package ws.palladian.extraction.feature;
 
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.extraction.token.BaseTokenizer;
+import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.processing.PipelineDocument;
 import ws.palladian.processing.PipelineProcessor;
 import ws.palladian.processing.features.NumericFeature;
@@ -13,7 +13,7 @@ import ws.palladian.processing.features.PositionAnnotation;
  * The IDF Annotator puts Inverse Document Frequency values to the tokens. It therefore needs the following two
  * prerequisites: 1) An instance of {@link TermCorpus} must be provided, which is used for querying the IDF information.
  * 2) The {@link PipelineDocument}s processed by this {@link PipelineProcessor} need to be tokenized using an
- * implementation of {@link BaseTokenizer} .
+ * implementation of {@link AbstractTokenizer} .
  * </p>
  * 
  * @author Philipp Katz

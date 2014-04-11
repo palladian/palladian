@@ -23,7 +23,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * 
  * @author David Urbansky
  */
-public class WebKnoxPosTagger extends BasePosTagger {
+public class WebKnoxPosTagger extends AbstractPosTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebKnoxPosTagger.class);

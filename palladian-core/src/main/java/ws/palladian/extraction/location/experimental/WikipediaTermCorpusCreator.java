@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.feature.MapTermCorpus;
-import ws.palladian.extraction.feature.StemmerAnnotator;
+import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -32,7 +32,7 @@ class WikipediaTermCorpusCreator {
 
     private static final MapTermCorpus bigramCorpus = new MapTermCorpus();
 
-    private static final StemmerAnnotator stemmer = new StemmerAnnotator(Language.ENGLISH);
+    private static final Stemmer stemmer = new Stemmer(Language.ENGLISH);
 
     /**
      * @param wikipediaDump Path to the Wikipedia dump file (in .bz2 format).

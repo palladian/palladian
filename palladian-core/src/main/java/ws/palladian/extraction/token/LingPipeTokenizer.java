@@ -9,18 +9,19 @@ import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ImmutableAnnotation;
 
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
+import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
 
 /**
  * <p>
- * A {@link BaseTokenizer} implementation based on <a href="http://alias-i.com/lingpipe/">LingPipe</a>'s <a
+ * A {@link AbstractTokenizer} implementation based on <a href="http://alias-i.com/lingpipe/">LingPipe</a>'s <a
  * href="http://alias-i.com/lingpipe/docs/api/com/aliasi/tokenizer/IndoEuropeanTokenizerFactory.html"
  * >IndoEuropeanTokenizerFactory</a>.
  * </p>
  * 
  * @author Philipp Katz
  */
-public final class LingPipeTokenizer extends BaseTokenizer {
+public final class LingPipeTokenizer extends AbstractTokenizer {
 
     /** Factory for creating a LingPipe tokenizer. */
     private final TokenizerFactory tokenizerFactory;
@@ -31,9 +32,9 @@ public final class LingPipeTokenizer extends BaseTokenizer {
 
     @Override
     public List<Annotation> getAnnotations(String text) {
-        com.aliasi.tokenizer.Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
-        String nextToken = tokenizer.nextToken();
+        Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
         List<Annotation> annotations = CollectionHelper.newArrayList();
+        String nextToken = tokenizer.nextToken();
         while (nextToken != null) {
             int startPosition = tokenizer.lastTokenStartPosition();
             annotations.add(new ImmutableAnnotation(startPosition, nextToken, StringUtils.EMPTY));
