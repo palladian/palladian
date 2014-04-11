@@ -2,7 +2,7 @@ package ws.palladian.core;
 
 import org.apache.commons.lang3.Validate;
 
-public final class ImmutableStringValue implements NominalValue {
+final class ImmutableStringValue implements NominalValue {
 
     private final String value;
 

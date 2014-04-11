@@ -3,17 +3,15 @@ package ws.palladian.classification.discretization;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.ImmutableDoubleValue;
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.NumericValue;
 import ws.palladian.core.Value;
-import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -33,79 +31,47 @@ public final class Binner {
      * @return
      */
     public static Binner createBinner(List<Instance> dataset, String featureName) {
-        CollectionHelper.print(dataset);
+        // CollectionHelper.print(dataset);
 
         List<Integer> boundaryPoints = findBoundaryPoints(dataset);
-        List<NumericValue> features = CollectionHelper.newArrayList();
+        List<Double> values = CollectionHelper.newArrayList();
         for (Instance instance : dataset) {
             Value value = instance.getVector().get(featureName);
             if (value != null) {
-                features.add((NumericValue)value);
+                values.add(((NumericValue)value).getDouble());
             }else{
-                features.add(new ImmutableDoubleValue(0));
+                values.add(0.);
             }
         }
-        return new Binner(featureName, boundaryPoints, features);
+        return new Binner(featureName, boundaryPoints, values);
     }
 
     private final List<NumericBin> bins;
 
-    public Binner(String binName, List<Integer> boundaryPoints, List<NumericValue> features) {
-        System.out.println("binName="+binName);
-        System.out.println("boundaryPoints="+boundaryPoints);
-        System.out.println("features="+features);
+    public Binner(String binName, List<Integer> boundaryPoints, List<Double> values) {
+        Validate.notEmpty(values);
+        // System.out.println("binName="+binName);
+        // System.out.println("boundaryPoints="+boundaryPoints);
+        // System.out.println("features="+values);
         
-        Validate.notEmpty(features);
         bins = CollectionHelper.newArrayList();
 
         // boundary points may be empty if the dataset contains only instances with the same type or only one instance.
         // In this case only one bin for all features is necessary.
         if (boundaryPoints.isEmpty()) {
-            double lowerBound = Math.min(features.get(0).getDouble(), 0.0);
-            double upperBound = Math.max(features.get(features.size() - 1).getDouble(), 0.0);
+            double lowerBound = Math.min(values.get(0), 0.0);
+            double upperBound = Math.max(values.get(values.size() - 1), 0.0);
             bins.add(new NumericBin(binName, lowerBound, upperBound, 0.0d));
         } else {
 
             for (int i = 0; i < boundaryPoints.size(); i++) {
-                double lowerBound = i == 0 ? features.get(0).getDouble() : features.get(boundaryPoints.get(i - 1))
-                        .getDouble();
-                double upperBound = features.get(boundaryPoints.get(i)).getDouble();
+                double lowerBound = i == 0 ? values.get(0) : values.get(boundaryPoints.get(i - 1));
+                double upperBound = values.get(boundaryPoints.get(i));
                 bins.add(new NumericBin(binName, lowerBound, upperBound, (double)i));
             }
-            bins.add(new NumericBin(binName, features.get(boundaryPoints.get(boundaryPoints.size() - 1)).getDouble(),
-                    features.get(features.size() - 1).getDouble(), (double)boundaryPoints.size()));
+            bins.add(new NumericBin(binName, values.get(boundaryPoints.get(boundaryPoints.size() - 1)),
+                    values.get(values.size() - 1), (double)boundaryPoints.size()));
         }
-    }
-
-    public List<NumericBin> bin(List<NumericValue> features) {
-        List<NumericBin> ret = new ArrayList<NumericBin>(features.size());
-        for (NumericValue feature : features) {
-            int binPosition = Collections.binarySearch(bins, feature, new Comparator<NumericValue>() {
-
-                @Override
-                public int compare(NumericValue bin, NumericValue feature) {
-                    NumericBin numericBin = (NumericBin)bin;
-                    if (numericBin.belongsToBin(feature.getDouble())) {
-                        return 0;
-                    } else if (numericBin.isSmaller(feature.getDouble())) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                }
-            });
-
-            if (binPosition < 0) {
-                if (bins.get(0).isSmaller(feature.getDouble())) {
-                    ret.add(bins.get(0));
-                } else {
-                    ret.add(bins.get(bins.size() - 1));
-                }
-            } else {
-                ret.add(bins.get(binPosition));
-            }
-        }
-        return ret;
     }
 
     public NumericBin bin(NumericValue feature) {
@@ -150,11 +116,9 @@ public final class Binner {
     private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {
         List<Integer> boundaryPoints = new ArrayList<Integer>();
         int N = sortedDataset.size();
-    System.out.println(N);
         List<Instance> s = sortedDataset;
         for (int t = 1; t < sortedDataset.size(); t++) {
-            // if (!sortedDataset.get(t - 1).getTargetClass().equals(sortedDataset.get(t).getTargetClass())
-            if (sortedDataset.get(t - 1).getCategory() != sortedDataset.get(t).getCategory()
+             if (!sortedDataset.get(t - 1).getCategory().equals(sortedDataset.get(t).getCategory())
                     && gain(t, s) > (Math.log(N - 1) / Math.log(2)) - N + delta(t, s) / N) {
                 boundaryPoints.add(t);
             }
@@ -169,42 +133,22 @@ public final class Binner {
     }
 
     private static double delta(int t, List<Instance> s) {
-        double k = calculateNumberOfClasses(s);
+        double k = new DatasetStatistics(s).getCategoryPriors().size();
         List<Instance> s1 = s.subList(0, t);
         List<Instance> s2 = s.subList(t, s.size());
-        double k1 = calculateNumberOfClasses(s1);
-        double k2 = calculateNumberOfClasses(s2);
+        double k1 = new DatasetStatistics(s1).getCategoryPriors().size();
+        double k2 = new DatasetStatistics(s2).getCategoryPriors().size();
         return Math.log(Math.pow(3.0d, k) - 2) / Math.log(2.0d)
                 - (k * entropy(s) - k1 * entropy(s1) - k2 * entropy(s2));
     }
 
     private static double entropy(List<Instance> dataset) {
         double entropy = 0.0d;
-        Bag<String> occurrences = Bag.create();
-        for (Instance instance : dataset) {
-            occurrences.add(instance.getCategory());
-        }
-        for (String targetClass : occurrences.uniqueItems()) {
-            double probability = (double)occurrences.count(targetClass) / dataset.size();
-            entropy -= probability * Math.log(probability) / Math.log(2);
+        CategoryEntries priors = new DatasetStatistics(dataset).getCategoryPriors();
+        for (Category category : priors) {
+            entropy -= category.getProbability() * Math.log(category.getProbability()) / Math.log(2);
         }
         return entropy;
-    }
-
-    /**
-     * <p>
-     * Calculates the number of target classes from a list of {@link Instance}s.
-     * </p>
-     * 
-     * @param s The set of instances to calculate the target classes for.
-     * @return the number of target classes the provided dataset contains.
-     */
-    private static double calculateNumberOfClasses(List<Instance> s) {
-        Set<String> possibleClasses = new HashSet<String>();
-        for (Instance instance : s) {
-            possibleClasses.add(instance.getCategory());
-        }
-        return possibleClasses.size();
     }
 
 }

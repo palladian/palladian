@@ -1,24 +1,5 @@
-/**
- * Created on 30.06.2013 12:28:52
- */
 package ws.palladian.classification.featureselection;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.classification.discretization.Binner;
-import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 /**
  * <p>
  * Abstract base class for all {@link FeatureRanker}s. Implements common base functionality.
@@ -30,8 +11,8 @@ import ws.palladian.helper.collection.CountMap;
  */
 public abstract class AbstractFeatureRanker implements FeatureRanker {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureRanker.class);
+//    /** The logger for this class. */
+//    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureRanker.class);
 
 //    /**
 //     * <p>
@@ -87,12 +68,6 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
     //
     // return ret;
     // }
-
-
-
-
-
-
 
 
 }

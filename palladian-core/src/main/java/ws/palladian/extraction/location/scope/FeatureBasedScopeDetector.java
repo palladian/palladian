@@ -25,9 +25,8 @@ import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
-import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.extraction.location.GeoCoordinate;
@@ -246,7 +245,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             // 3) create positive and negative training examples
             for (ClassifiableLocation location : classifiableLocations) {
                 boolean positive = location == positiveCandidate;
-                instances.add(new ImmutableInstance(location.getFeatureVector(), positive));
+                instances.add(new InstanceBuilder().add(location.getFeatureVector()).create(positive));
             }
         }
 

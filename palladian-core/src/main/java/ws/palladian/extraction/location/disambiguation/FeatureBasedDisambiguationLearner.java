@@ -16,8 +16,8 @@ import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.location.AnnotationFilter;
 import ws.palladian.extraction.location.ContextClassifier;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
@@ -148,7 +148,7 @@ public class FeatureBasedDisambiguationLearner {
                     break;
                 }
             }
-            result.add(new ImmutableInstance(location.getFeatureVector(), positiveClass));
+            result.add(new InstanceBuilder().add(location.getFeatureVector()).create(positiveClass));
         }
         double positivePercentage = MathHelper.round((float)numPositive / classifiableLocations.size() * 100, 2);
         LOGGER.info("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);

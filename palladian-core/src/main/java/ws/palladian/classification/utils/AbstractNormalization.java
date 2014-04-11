@@ -15,7 +15,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * 
  * @author pk
  */
-abstract class AbstractNormalization implements Normalization {
+public abstract class AbstractNormalization implements Normalization {
 
     @Override
     public FeatureVector normalize(FeatureVector featureVector) {
