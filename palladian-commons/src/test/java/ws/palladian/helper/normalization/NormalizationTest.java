@@ -54,6 +54,9 @@ public class NormalizationTest {
     @Test
     public void testDetectUnit() {
 
+        assertEquals("ghz", UnitNormalizer.detectUnit("8 in ghz"));
+        assertEquals("hz", UnitNormalizer.detectUnit("8 hz"));
+        assertEquals("mhz", UnitNormalizer.detectUnit("mhz"));
         assertEquals("cm", UnitNormalizer.detectUnit("2cm- up to 8"));
         assertEquals("kilobytes", UnitNormalizer.detectUnit("how much are 100 kilobytes"));
         assertEquals("kilometers", UnitNormalizer.detectUnit("kilometers"));
