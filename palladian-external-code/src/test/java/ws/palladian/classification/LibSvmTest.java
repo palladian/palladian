@@ -25,14 +25,12 @@ import org.junit.Test;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.FeatureVectorBuilder;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVector;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -50,14 +48,8 @@ public class LibSvmTest {
     @Ignore
     public void test() {
         List<Instance> instances = new ArrayList<Instance>();
-        FeatureVector featureVector1 = new BasicFeatureVector();
-        featureVector1.add(new NominalFeature("a", "a"));
-        featureVector1.add(new NumericFeature("b", 0.9));
-        FeatureVector featureVector2 = new BasicFeatureVector();
-        featureVector2.add(new NominalFeature("a", "b"));
-        featureVector2.add(new NumericFeature("b", 0.1));
-        Instance instance1 = new Instance("A", featureVector1);
-        Instance instance2 = new Instance("B", featureVector2);
+        Instance instance1 = new FeatureVectorBuilder().set("a", "a").set("b", 0.9).create("A");
+        Instance instance2 = new FeatureVectorBuilder().set("a", "b").set("b", 0.1).create("B");
         instances.add(instance1);
         instances.add(instance2);
 
@@ -68,9 +60,7 @@ public class LibSvmTest {
         assertTrue(model.getCategories().contains("A"));
         assertTrue(model.getCategories().contains("B"));
 
-        FeatureVector classificationVector = new BasicFeatureVector();
-        classificationVector.add(new NominalFeature("a", "a"));
-        classificationVector.add(new NumericFeature("b", 0.8));
+        FeatureVector classificationVector = new FeatureVectorBuilder().set("a", "a").set("b", 0.8).create();
         CategoryEntries result = new LibSvmClassifier().classify(classificationVector, model);
         assertThat(result.getMostLikelyCategory(), Matchers.is("A"));
     }
@@ -107,22 +97,21 @@ public class LibSvmTest {
         for (String line : lines) {
             String[] elements = line.split("\\s");
             String targetClass = elements[0];
-            FeatureVector featureVector = new BasicFeatureVector();
+            FeatureVectorBuilder featureVectorBuilder = new FeatureVectorBuilder();
             for (int i = 1; i < elements.length; i++) {
                 String[] element = elements[i].split(":");
                 String name = element[0];
                 normalFeaturePathsSet.add(name);
-                Number value = Double.valueOf(element[1]);
-                featureVector.add(new NumericFeature(name, value));
+                featureVectorBuilder.set(name, Double.parseDouble(element[1]));
             }
-            ret.add(new Instance(targetClass, featureVector));
+            ret.add(featureVectorBuilder.create(targetClass));
         }
         return ret;
     }
 
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
-        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/adultData.txt"), false).readAll();
+        List<Instance> instances = new CsvDatasetReader(getResourceFile("/adultData.txt"), false).readAll();
         LibSvmLearner learner = new LibSvmLearner(new RBFKernel(1., 1.));
         ConfusionMatrix confusionMatrix = evaluate(learner, new LibSvmClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.81);
@@ -130,7 +119,7 @@ public class LibSvmTest {
 
     @Test
     public void testWithDiabetesData() throws FileNotFoundException {
-        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), false).readAll();
+        List<Instance> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), false).readAll();
         LibSvmLearner learner = new LibSvmLearner(new RBFKernel(1., 1.));
         ConfusionMatrix confusionMatrix = evaluate(learner, new LibSvmClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.79);
