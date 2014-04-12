@@ -7,9 +7,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.discretization.Discretizer;
-import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.classification.utils.Normalization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Value;

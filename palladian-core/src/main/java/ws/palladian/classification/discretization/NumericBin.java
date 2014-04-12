@@ -29,8 +29,13 @@ public final class NumericBin implements NumericValue {
 
     @Override
     public double getDouble() {
-        // TODO Auto-generated method stub
-        return 0;
+        return index;
+    }
+    
+
+    @Override
+    public String toString() {
+        return String.valueOf(getDouble());
     }
 
 }

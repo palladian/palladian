@@ -4,21 +4,20 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.discretization.DatasetStatistics;
 import ws.palladian.classification.discretization.Discretization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.Value;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -66,10 +65,22 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
 
         List<Instance> preparedData = prepare(dataset);
 
-        int workItems = preparedData.get(0).getVector().size() * preparedData.size();
-        ProgressMonitor monitor = new ProgressMonitor(workItems, 0.5, "Ranking Features");
-        InformationGainFormula formula = new InformationGainFormula(preparedData, monitor);
+//        int workItems = preparedData.get(0).getVector().size() * preparedData.size();
+//        ProgressMonitor monitor = new ProgressMonitor(workItems, 0.5, "Ranking Features");
+        InformationGainFormula formula = new InformationGainFormula(preparedData);
         
+        Set<String> featureNames = new DatasetStatistics(dataset).getFeatureNames();
+        
+        System.out.println("feature names  = " + featureNames);
+        
+        for (String featureName : featureNames) {
+            double gain = formula.calculateGain(featureName);
+            System.out.println(featureName + "=" + gain);
+            ret.put(featureName, gain);
+        }
+        
+        
+        /*
         // TODO This is evil since it assumes the first Trainable in the preparedData list contains all features. Again
         // a schema would help.
         for (VectorEntry<String, Value> preparedFeature : preparedData.get(0).getVector()) {
@@ -82,7 +93,8 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
                 ret.put(preparedFeature.key(), gain);
 //            }
         }
-
+         */
+        
         return ret;
     }
 
@@ -99,8 +111,11 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         List<Instance> ret = CollectionHelper.newArrayList();
 
         for (Instance instance : dataset) {
+            System.out.println(instance);
+            System.out.println("->");
             FeatureVector features = discretization.discretize(instance.getVector(), dataset);
             Instance preparedInstance = new InstanceBuilder().add(features).create(instance.getCategory());
+            System.out.println(preparedInstance);
             ret.add(preparedInstance );
         }
 
