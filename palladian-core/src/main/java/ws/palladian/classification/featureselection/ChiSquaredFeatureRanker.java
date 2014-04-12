@@ -15,6 +15,7 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.Value;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.CountMatrix.IntegerMatrixVector;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -45,11 +46,10 @@ public final class ChiSquaredFeatureRanker implements FeatureRanker {
      * Creates a new completely initialized {@link FeatureRanker}.
      * </p>
      * 
-     * @param mergingStrategy
-     *            A strategy describing how feature rankings for different
-     *            classes are merged.
+     * @param mergingStrategy A strategy describing how feature rankings for different classes are merged.
      */
     public ChiSquaredFeatureRanker(SelectedFeatureMergingStrategy mergingStrategy) {
+        Validate.notNull(mergingStrategy, "mergingStrategy must not be null");
         this.mergingStrategy = mergingStrategy;
     }
 
@@ -62,18 +62,19 @@ public final class ChiSquaredFeatureRanker implements FeatureRanker {
      * @param dataset The dataset for which to calculate chi squared values, not <code>null</code>
      * @return Matrix with the chi squared values. Each row in the matrix represents a feature, each column a class.
      */
-    public NumericMatrix<String> calculateChiSquareValues(Collection<? extends Instance> dataset) {
+    public NumericMatrix<String> calculateChiSquareValues(Iterable<? extends Instance> dataset) {
         Validate.notNull(dataset, "dataset must not be null");
 
-        int N = dataset.size();
+        int N = CollectionHelper.count(dataset.iterator());
         ProgressMonitor monitor = new ProgressMonitor(N, 1, "Counting cooccurrences.");
         CountMatrix<String> termCategoryCorrelations = CountMatrix.create();
         Bag<String> categoryCounts = Bag.create();
-        Normalization discretization = new Discretizer().calculate(ClassificationUtils.unwrapInstances(dataset));
+        // Normalization discretization = new Discretizer().calculate(ClassificationUtils.unwrapInstances(dataset));
         for (Instance instance : dataset) {
-            FeatureVector features = discretization.normalize(instance.getVector());
+            // FeatureVector featureVector = discretization.normalize(instance.getVector());
+            FeatureVector featureVector = instance.getVector();
             String category = instance.getCategory();
-            for (VectorEntry<String, Value> feature : features) {
+            for (VectorEntry<String, Value> feature : featureVector) {
                 termCategoryCorrelations.add(category, feature.key());
             }
             categoryCounts.add(category);
@@ -107,6 +108,7 @@ public final class ChiSquaredFeatureRanker implements FeatureRanker {
 
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset) {
+        Validate.notNull(dataset, "dataset must not be null");
         NumericMatrix<String> chiSquareMatrix = calculateChiSquareValues(dataset);
         return mergingStrategy.merge(chiSquareMatrix);
     }
