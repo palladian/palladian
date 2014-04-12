@@ -16,6 +16,8 @@ import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Value;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
@@ -31,11 +33,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  */
 public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
 
-    /**
-     * <p>
-     * The logger for objects of this class. Configure it using <code>/src/main/resources/log4j.properties</code>.
-     * </p>
-     */
+    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureRanker.class);
     
     private final Discretization discretization = new Discretization();
@@ -52,7 +50,6 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
      * probability that t and ci occur together.
      * </p>
      * 
-     * @param featurePath The feature name if you have a flat {@link FeatureVector} or the featurePath otherwise.
      * @param dataset The collection of instances to select features for.
      * @return A mapping from features to their information gain score. This score is zero for features that are
      *         equally distributed over all target classes but can take on negative and positive values. Higher scores
@@ -102,8 +99,6 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         List<Instance> ret = CollectionHelper.newArrayList();
 
         for (Instance instance : dataset) {
-            // deduplicate // TODO is this necessary? Is it possible to include a duplicate feature in the feature
-            // vector? is the same word at different positions the same feature?
             FeatureVector features = discretization.discretize(instance.getVector(), dataset);
             Instance preparedInstance = new InstanceBuilder().add(features).create(instance.getCategory());
             ret.add(preparedInstance );
@@ -120,15 +115,21 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
 
         // Dense features will have one score per value. This must be averaged to calculate a complete score for the
         // whole feature.
-        Map<String, List<Double>> scores = CollectionHelper.newHashMap();
+        Map<String, List<Double>> scores = LazyMap.create(new Factory<List<Double>>() {
+            @Override
+            public List<Double> create() {
+                return CollectionHelper.newArrayList();
+            }
+        });
         for (Entry<String, Double> entry : informationGainValues.entrySet()) {
             String name = entry.getKey();
-            List<Double> featureScores = scores.get(name);
-            if (featureScores == null) {
-                featureScores = CollectionHelper.newArrayList();
-            }
-            featureScores.add(entry.getValue());
-            scores.put(name, featureScores);
+//            List<Double> featureScores = scores.get(name);
+//            if (featureScores == null) {
+//                featureScores = CollectionHelper.newArrayList();
+//            }
+//            featureScores.add(entry.getValue());
+//            scores.put(name, featureScores);
+            scores.get(name).add(entry.getValue());
         }
 
         // average scores and add to ranking
