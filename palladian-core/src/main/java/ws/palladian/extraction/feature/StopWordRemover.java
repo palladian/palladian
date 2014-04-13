@@ -70,6 +70,10 @@ public class StopWordRemover extends TextDocumentPipelineProcessor {
         stopWords.add(word);
     }
 
+    public void removeStopWord(String word) {
+        stopWords.remove(word);
+    }
+
     @Override
     public void processDocument(TextDocument document) {
         String content = document.getContent();
