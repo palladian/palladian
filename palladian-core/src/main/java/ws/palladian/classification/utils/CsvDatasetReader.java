@@ -79,7 +79,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
                 String[] parts = line.split(fieldSeparator);
                 if (parts.length < 2) {
                     throw new IllegalStateException("Separator '" + fieldSeparator
-                            + "'was not found, lines cannot be split ('" + line + "').");
+                            + "' was not found, lines cannot be split ('" + line + "').");
                 }
                 if (lineNumber == 0) {
                     expectedColumns = parts.length;

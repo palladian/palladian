@@ -321,7 +321,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Bag " + map;
+        return map.toString();
     }
 
     // serialization code; in case you change the internals of this class, make sure, serialization still works
