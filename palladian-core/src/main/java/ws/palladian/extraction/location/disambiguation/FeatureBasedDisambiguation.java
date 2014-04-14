@@ -67,9 +67,9 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         Set<ClassifiableLocation> classifiableLocations = featureExtractor.extractFeatures(text, locations);
         Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
-        for (ClassifiableLocation location : classifiableLocations) {
-            CategoryEntries classification = classifier.classify(location.getFeatureVector(), model);
-            scoredLocations.put(location.getId(), classification.getProbability("true"));
+        for (ClassifiableLocation classifiableLocation : classifiableLocations) {
+            CategoryEntries classification = classifier.classify(classifiableLocation.getFeatureVector(), model);
+            scoredLocations.put(classifiableLocation.getLocation().getId(), classification.getProbability("true"));
         }
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
