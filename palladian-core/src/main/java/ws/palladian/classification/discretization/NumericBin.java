@@ -3,13 +3,11 @@ package ws.palladian.classification.discretization;
 import ws.palladian.core.NumericValue;
 
 public final class NumericBin implements NumericValue {
-    private final Double lowerBound;
-    private final Double upperBound;
-    private String name;
-    private Double index;
+    private final double lowerBound;
+    private final double upperBound;
+    private final double index;
 
-    public NumericBin(String name, Double lowerBound, Double upperBound, Double index) {
-        this.name = name;
+    public NumericBin(int index, double lowerBound, double upperBound) {
         this.index = index;
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
@@ -31,7 +29,6 @@ public final class NumericBin implements NumericValue {
     public double getDouble() {
         return index;
     }
-    
 
     @Override
     public String toString() {
