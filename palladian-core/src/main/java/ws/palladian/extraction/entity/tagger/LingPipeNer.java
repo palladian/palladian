@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -42,6 +45,9 @@ import com.aliasi.util.AbstractExternalizable;
  * 
  */
 public class LingPipeNer extends TrainableNamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(LingPipeNer.class);
 
     private static final int NUM_CHUNKINGS_RESCORED = 64;
     private static final int MAX_N_GRAM = 8;
@@ -75,7 +81,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
             File modelFile = new File(modelFilePath);
             // File devFile = new File(developmentFilePath);
 
-            LOGGER.info("setting up Chunker Estimator");
+            LOGGER.debug("setting up Chunker Estimator");
             TokenizerFactory factory = IndoEuropeanTokenizerFactory.INSTANCE;
             CharLmRescoringChunker chunkerEstimator = new CharLmRescoringChunker(factory, NUM_CHUNKINGS_RESCORED,
                     MAX_N_GRAM, NUM_CHARS, LM_INTERPOLATION);
@@ -84,18 +90,18 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
             // CharLmHmmChunker chunkerEstimator = new CharLmHmmChunker(factory,
             // hmmEstimator);
 
-            LOGGER.info("setting up Data Parser");
+            LOGGER.debug("setting up Data Parser");
             // GeneTagParser parser = new GeneTagParser();
             Conll2002ChunkTagParser parser = new Conll2002ChunkTagParser();
             parser.setHandler(chunkerEstimator);
 
-            LOGGER.info("training with data from file={}", corpusFile);
+            LOGGER.trace("training with data from file={}", corpusFile);
             parser.parse(corpusFile);
 
             // System.out.println("Training with Data from File=" + devFile);
             // parser.parse(devFile);
 
-            LOGGER.info("compiling and writing model to file={}", modelFile);
+            LOGGER.debug("compiling and writing model to file={}", modelFile);
             AbstractExternalizable.compileTo(chunkerEstimator, modelFile);
 
         } catch (IOException e) {
@@ -112,7 +118,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
 
         File modelFile = new File(configModelFilePath);
 
-        LOGGER.info("Reading chunker from file {}", modelFile);
+        LOGGER.debug("Reading chunker from file {}", modelFile);
         try {
             chunker = (Chunker)AbstractExternalizable.readObject(modelFile);
         } catch (Exception e) {
@@ -120,7 +126,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
             return false;
         }
 
-        LOGGER.info("Model {} successfully loaded in {}", modelFile, stopWatch.getElapsedTimeString());
+        LOGGER.debug("Model {} successfully loaded in {}", modelFile, stopWatch.getElapsedTimeString());
         return true;
     }
 
@@ -132,7 +138,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
         Set<Chunk> chunkSet = new HashSet<Chunk>();
         for (int i = 0; i < args.length; ++i) {
             Chunking chunking = chunker.chunk(args[i]);
-            LOGGER.debug("Chunking={}", chunking);
+            LOGGER.trace("Chunking={}", chunking);
             chunkSet.addAll(chunking.chunkSet());
         }
 

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.NominalValue;
+import ws.palladian.core.NullValue;
 import ws.palladian.core.Value;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -74,11 +75,12 @@ public class DummyVariableCreator implements Serializable {
                 }
             }
             for (String featureName : nominalFeatureNames) {
-                NominalValue value = (NominalValue)featureVector.get(featureName);
-                if (value == null) {
+                Value value = featureVector.get(featureName);
+                if (value == NullValue.NULL) {
                     continue;
                 }
-                String featureValue = value.getString();
+                NominalValue nominalValue = (NominalValue)value;
+                String featureValue = nominalValue.getString();
                 if (!domain.get(featureName).contains(featureValue)) {
                     domain.add(featureName, featureValue);
                 }

@@ -28,7 +28,7 @@ import ws.palladian.processing.features.Annotation;
 public abstract class NamedEntityRecognizer implements Tagger {
 
     /** The logger for named entity recognizer classes. */
-    protected static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
     
     public static final String PROVIDED_FEATURE = "ws.palladian.processing.entity.ner";
 

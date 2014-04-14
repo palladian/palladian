@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -36,6 +38,9 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @see <a href="http://wikimeta.com/api.html">API documentation</a>
  */
 public final class WikimetaNer extends NamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikimetaNer.class);
 
     /** The API key for accessing the service. */
     private final String apiKey;

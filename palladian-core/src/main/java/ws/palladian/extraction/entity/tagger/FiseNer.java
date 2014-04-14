@@ -2,6 +2,9 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.processing.features.Annotation;
@@ -28,6 +31,9 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @author Philipp Katz
  */
 public class FiseNer extends NamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FiseNer.class);
 
     /** The name of this {@link NamedEntityRecognizer}. */
     private static final String NER_NAME = "FISE NER";

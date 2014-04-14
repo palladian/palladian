@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -59,6 +62,9 @@ import de.julielab.jnet.utils.Utils;
  * 
  */
 public class JulieNer extends TrainableNamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(JulieNer.class);
 
     /** Hold the configuration settings here instead of a file. */
     private String configFileContent = "";

@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import opennlp.tools.namefind.NameFinderEventStream;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
@@ -72,6 +75,9 @@ import ws.palladian.processing.features.Annotation;
  * 
  */
 public class OpenNlpNer extends TrainableNamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpNer.class);
 
     /** Set this true if you evaluate on the CoNLL 2003 corpus. */
     private boolean conllEvaluation = false;
@@ -279,13 +285,13 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
 
         // let us get all tags that are used
         String[] tags = getUsedTags(tempTrainingFile);
-        LOGGER.info("Found {} tags in the training file, computing the models now", tags.length);
+        LOGGER.debug("Found {} tags in the training file, computing the models now", tags.length);
 
         // create one model for each used tag, that is delete all the other tags from the file and learn
         for (int i = 0; i < tags.length; i++) {
 
             String tag = tags[i].toUpperCase();
-            LOGGER.info("Start learning for tag {}", tag);
+            LOGGER.debug("Start learning for tag {}", tag);
 
             // XXX this is for the TUD dataset, for some reason opennlp does not find some concepts when they're only in
             // few places, so we delete all lines with no tags for the concepts with few mentions

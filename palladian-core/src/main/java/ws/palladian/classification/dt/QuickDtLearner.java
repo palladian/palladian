@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import quickdt.HashMapAttributes;
 import quickdt.Instance;
@@ -30,6 +32,9 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * @author Philipp Katz
  */
 public final class QuickDtLearner implements Learner<QuickDtModel> {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuickDtLearner.class);
 
     /** The builder used for creating the predictive mode. */
     private final PredictiveModelBuilder<? extends PredictiveModel> builder;
@@ -93,12 +98,15 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
     static Serializable[] getInput(FeatureVector featureVector) {
         List<Serializable> inputs = CollectionHelper.newArrayList();
         for (VectorEntry<String, Value> feature : featureVector) {
-            inputs.add(feature.key());
             Value value = feature.value();
             if (value instanceof NominalValue) {
+                inputs.add(feature.key());
                 inputs.add(((NominalValue)value).getString());
             } else if (value instanceof NumericValue) {
+                inputs.add(feature.key());
                 inputs.add(((NumericValue)value).getDouble());
+            } else {
+                LOGGER.trace("Unsupported type for {}: {}", feature.key(), value.getClass().getName());
             }
         }
         return inputs.toArray(new Serializable[inputs.size()]);
