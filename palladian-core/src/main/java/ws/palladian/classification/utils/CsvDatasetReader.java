@@ -116,14 +116,12 @@ public class CsvDatasetReader implements Iterable<Instance> {
             for (int f = 0; f < parts.length - 1; f++) {
                 String name = headNames == null ? String.valueOf(f) : headNames[f];
                 String value = parts[f];
-                // FIXME make better.
                 if (value.equals("?")) {
-                    // missing value, TODO maybe rethink what to do here and how
-                    // to handle missing values in general.
+                    builder.setNull(name);
                     continue;
                 }
-                try {
-                    Double doubleValue = Double.valueOf(value);
+                try { // XXX make better.
+                    double doubleValue = Double.parseDouble(value);
                     builder.set(name, doubleValue);
                 } catch (NumberFormatException e) {
                     String stringValue = stringPool.get(value);
