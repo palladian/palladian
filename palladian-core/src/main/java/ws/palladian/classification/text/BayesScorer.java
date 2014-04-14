@@ -100,9 +100,14 @@ public final class BayesScorer implements Scorer {
 
     @Override
     public double scoreCategory(String category, double summedTermScore, double categoryProbability, boolean matched) {
-        double score = (complement ? -1 : 1) * summedTermScore + (prior ? log(categoryProbability) : 0);
-        LOGGER.trace("{}: {}·{}={}", category, categoryProbability, summedTermScore, score);
-        return score;
+        if (matched) {
+            double score = (complement ? -1 : 1) * summedTermScore + (prior ? log(categoryProbability) : 0);
+            LOGGER.trace("{}: {}·{}={}", category, categoryProbability, summedTermScore, score);
+            return score;
+        } else {
+            LOGGER.trace("No match, returning categoryProbability {}={}", category, categoryProbability);
+            return categoryProbability;
+        }
     }
 
     @Override
