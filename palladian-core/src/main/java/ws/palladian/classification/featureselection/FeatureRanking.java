@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author Klemens Muthmann
@@ -34,6 +36,13 @@ public final class FeatureRanking {
     public FeatureRanking() {
         this.rankedFeatures = new LinkedList<RankedFeature>();
         this.isSorted = false;
+    }
+
+    public FeatureRanking(Map<String, Double> values) {
+        this();
+        for (Entry<String,Double>entry:values.entrySet()){
+            add(entry.getKey(),entry.getValue());
+        }
     }
 
     public void add(String featureIdentifier, double score) {
