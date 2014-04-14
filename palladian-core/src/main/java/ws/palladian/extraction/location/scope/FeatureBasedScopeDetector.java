@@ -91,10 +91,10 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         for (ClassifiableLocation location : classifiableLocations) {
             CategoryEntries classificationResult = classifier.classify(location.getFeatureVector(), scopeModel);
             double score = classificationResult.getProbability("true");
-            LOGGER.trace("{} : {}", location.getPrimaryName(), score);
+            LOGGER.trace("{} : {}", location.getLocation().getPrimaryName(), score);
             if (selectedLocation == null || score > maximumScore) {
                 maximumScore = score;
-                selectedLocation = location;
+                selectedLocation = location.getLocation();
             }
         }
 
@@ -225,11 +225,12 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             // 1) determine closest location to actual scope
             ClassifiableLocation positiveCandidate = null;
             double minDistance = Double.MAX_VALUE;
-            for (ClassifiableLocation location : classifiableLocations) {
-                double currentDistance = mainLocation.getCoordinate().distance(location.getCoordinate());
+            for (ClassifiableLocation classifiableLocation : classifiableLocations) {
+                double currentDistance = mainLocation.getCoordinate().distance(
+                        classifiableLocation.getLocation().getCoordinate());
                 if (currentDistance < minDistance) {
                     minDistance = currentDistance;
-                    positiveCandidate = location;
+                    positiveCandidate = classifiableLocation;
                 }
             }
 

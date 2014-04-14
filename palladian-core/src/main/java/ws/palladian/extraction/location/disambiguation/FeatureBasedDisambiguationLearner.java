@@ -127,20 +127,21 @@ public class FeatureBasedDisambiguationLearner {
             List<LocationAnnotation> positiveLocations) {
         Set<Instance> result = CollectionHelper.newHashSet();
         int numPositive = 0;
-        for (ClassifiableLocation location : classifiableLocations) {
+        for (ClassifiableLocation classifiableLocation : classifiableLocations) {
             boolean positiveClass = false;
             for (LocationAnnotation trainAnnotation : positiveLocations) {
                 // we cannot determine the correct location, if the training data did not provide coordinates
-                if (location.getCoordinate() == null) {
+                Location actualLocation = classifiableLocation.getLocation();
+                if (actualLocation.getCoordinate() == null) {
                     continue;
                 }
                 Location trainLocation = trainAnnotation.getLocation();
                 GeoCoordinate trainCoordinate = trainLocation.getCoordinate();
                 // XXX offsets are not considered here; necessary?
                 boolean samePlace = trainCoordinate != null
-                        && location.getCoordinate().distance(trainCoordinate) < MAX_DISTANCE;
-                boolean sameName = location.commonName(trainLocation);
-                boolean sameType = location.getType().equals(trainLocation.getType());
+                        && actualLocation.getCoordinate().distance(trainCoordinate) < MAX_DISTANCE;
+                boolean sameName = actualLocation.commonName(trainLocation);
+                boolean sameType = actualLocation.getType().equals(trainLocation.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms
                 if (samePlace && sameName && sameType) {
                     numPositive++;
@@ -148,7 +149,7 @@ public class FeatureBasedDisambiguationLearner {
                     break;
                 }
             }
-            result.add(new InstanceBuilder().add(location.getFeatureVector()).create(positiveClass));
+            result.add(new InstanceBuilder().add(classifiableLocation.getFeatureVector()).create(positiveClass));
         }
         double positivePercentage = MathHelper.round((float)numPositive / classifiableLocations.size() * 100, 2);
         LOGGER.info("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);
