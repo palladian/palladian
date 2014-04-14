@@ -3,14 +3,15 @@ package ws.palladian.classification.discretization;
 import static java.lang.Math.pow;
 import static ws.palladian.helper.math.MathHelper.log2;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import ws.palladian.core.Category;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.NumericValue;
@@ -19,148 +20,152 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * @author Klemens Muthmann
- * @version 1.0
- * @since 0.2.0
+ * @author Philipp Katz
  */
 public final class Binner {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Binner.class);
+
+    /**
+     * Comparator to sort {@link Instance}s based on a {@link NumericValue}.
+     * 
+     * @author pk
+     */
+    private static final class ValueComparator implements Comparator<Instance> {
+        private final String featureName;
+
+        private ValueComparator(String featureName) {
+            this.featureName = featureName;
+        }
+
+        @Override
+        public int compare(Instance i1, Instance i2) {
+            Value value1 = i1.getVector().get(featureName);
+            Value value2 = i2.getVector().get(featureName);
+            if (!(value1 instanceof NumericValue)) {
+                return !(value2 instanceof NumericValue) ? 0 : -1;
+            }
+            if (!(value2 instanceof NumericValue)) {
+                return 1;
+            }
+            double double1 = ((NumericValue)value1).getDouble();
+            double double2 = ((NumericValue)value2).getDouble();
+            return Double.compare(double1, double2);
+        }
+
+    }
+
+    private final List<Double> boundaries;
+
+    private final String featureName;
+
     /**
      * <p>
-     * Creates a new {@link Binner} for the {@link NumericFeature} identified by the provided {@code featureName} following the algorithm proposed by Fayyad and Irani in
-     * "Multi-Interval Discretization of Continuous-Valued Attributes for Classification Learning."
+     * Create a new {@link Binner} for specified numeric feature following the algorithm proposed by Fayyad and Irani in
+     * "<a href="http://ijcai.org/Past%20Proceedings/IJCAI-93-VOL2/PDF/022.pdf
+     * ">Multi-Interval Discretization of Continuous-Valued Attributes for Classification Learning</a>", 1993.
      * </p>
      * 
-     * @param dataset the dataset containing the provided feature.
-     * @param featureName The path to the {@link NumericFeature} to discretize.
-     * @return A {@link Binner} object capable of discretization of already encountered and unencountered values for the
-     *         provided {@link NumericFeature}.
+     * @param dataset The dataset, not <code>null</code>.
+     * @param featureName The name of the numeric feature for which to calculate bins.
      */
-    public static Binner createBinner(Collection<? extends Instance> dataset, final String featureName) {
-        Validate.notEmpty(dataset, "dataset must not be empty");
+    public Binner(Iterable<? extends Instance> dataset, String featureName) {
+        Validate.notNull(dataset, "dataset must not be null");
         Validate.notEmpty(featureName, "featureName must not be empty");
-        
-        List<Instance> sortedInstances = CollectionHelper.newArrayList(dataset);
-        Collections.sort(sortedInstances, new Comparator<Instance>() {
-
-            @Override
-            public int compare(Instance i1, Instance i2) {
-                NumericValue value1 = (NumericValue)i1.getVector().get(featureName);
-                NumericValue value2 = (NumericValue)i2.getVector().get(featureName);
-                double i1FeatureValue = value1 == null ? Double.MIN_VALUE : value1.getDouble();
-                double i2FeatureValue = value2 == null ? Double.MIN_VALUE : value2.getDouble();
-                return Double.compare(i1FeatureValue, i2FeatureValue);
-            }
-        });
-
-        List<Integer> boundaryPoints = findBoundaryPoints(sortedInstances);
-        List<Double> values = CollectionHelper.newArrayList();
-        for (Instance instance : sortedInstances) {
-            Value value = instance.getVector().get(featureName);
-            if (value != null) {
-                values.add(((NumericValue)value).getDouble());
-            }else{
-                values.add(0.);
-            }
-        }
-        
-        // boundary points may be empty if the dataset contains only instances with the same type or only one instance.
-        // In this case only one bin for all features is necessary.
-        List<NumericBin> bins = CollectionHelper.newArrayList();
-        if (boundaryPoints.isEmpty()) {
-            double lowerBound = Math.min(values.get(0), 0.0);
-            double upperBound = Math.max(values.get(values.size() - 1), 0.0);
-            bins.add(new NumericBin(0, lowerBound, upperBound));
-        } else {
-            for (int i = 0; i < boundaryPoints.size(); i++) {
-                double lowerBound = i == 0 ? values.get(0) : values.get(boundaryPoints.get(i - 1));
-                double upperBound = values.get(boundaryPoints.get(i));
-                bins.add(new NumericBin(i, lowerBound, upperBound));
-            }
-            bins.add(new NumericBin(boundaryPoints.size(),
-                    values.get(boundaryPoints.get(boundaryPoints.size() - 1)), values.get(values.size() - 1)));
-        }
-        return new Binner(bins);
+        this.boundaries = findBoundaries(dataset, featureName);
+        this.featureName = featureName;
     }
 
-    private final List<NumericBin> bins;
+    /**
+     * Find all the boundary points within the provided dataset.
+     * 
+     * @param dataset The dataset, not <code>null</code>.
+     * @return The values of the boundary points, each value denotes the beginning of a new bin, empty list in case no
+     *         boundary points were found.
+     */
+    private static List<Double> findBoundaries(Iterable<? extends Instance> dataset, String featureName) {
 
-    private Binner(List<NumericBin> bins) {
-        this.bins = bins;
-    }
+        List<Instance> sortedData = CollectionHelper.newArrayList(dataset);
+        Collections.sort(sortedData, new ValueComparator(featureName));
 
-    public NumericBin bin(NumericValue feature) {
-        int binPosition = Collections.binarySearch(bins, feature, new Comparator<NumericValue>() {
+        List<Double> boundaries = CollectionHelper.newArrayList();
 
-            @Override
-            public int compare(NumericValue bin, NumericValue feature) {
-                NumericBin numericBin = (NumericBin)bin;
-                if (numericBin.belongsToBin(feature.getDouble())) {
-                    return 0;
-                } else if (numericBin.isSmaller(feature.getDouble())) {
-                    return 1;
-                } else {
-                    return -1;
+        int n = sortedData.size();
+        CategoryEntries s = ClassificationUtils.getCategoryCounts(sortedData);
+        double ent_s = ClassificationUtils.entropy(s);
+        int k = s.size();
+
+        for (int t = 1; t < n; t++) {
+            String previousCategory = sortedData.get(t - 1).getCategory();
+            String currentCategory = sortedData.get(t).getCategory();
+            if (previousCategory.equals(currentCategory)) {
+                continue;
+            }
+
+            CategoryEntries s1 = ClassificationUtils.getCategoryCounts(sortedData.subList(0, t));
+            double ent_s1 = ClassificationUtils.entropy(s1);
+            int k1 = s1.size();
+
+            CategoryEntries s2 = ClassificationUtils.getCategoryCounts(sortedData.subList(t, n));
+            double ent_s2 = ClassificationUtils.entropy(s2);
+            int k2 = s2.size();
+
+            double gain = ent_s - (double)t / n * ent_s1 - (double)(n - t) / n * ent_s2;
+            double delta = log2(pow(3, k) - 2) - (k * ent_s - k1 * ent_s1 - k2 * ent_s2);
+            LOGGER.trace("t={}, gain={}, delta={}", t, gain, delta);
+
+            if (gain > log2(n - 1) / n + delta / n) {
+                Value value = sortedData.get(t).getVector().get(featureName);
+                if (value instanceof NumericValue) {
+                    double doubleValue = ((NumericValue)value).getDouble();
+                    if (!boundaries.contains(doubleValue)) {
+                        boundaries.add(doubleValue);
+                    }
                 }
             }
-        });
-
-        if (binPosition < 0) {
-            if (bins.get(0).isSmaller(feature.getDouble())) {
-                return bins.get(0);
-            } else {
-                return bins.get(bins.size() - 1);
-            }
-        } else {
-            return bins.get(binPosition);
         }
+        LOGGER.debug("# boundary points for {}: {}", featureName, boundaries.size());
+        return boundaries;
     }
 
     /**
-     * <p>
-     * Find all the boundary points within the provided dataset. The dataset needs to be sorted based on the
-     * {@link NumericFeature} the boundary points are searched for.
-     * </p>
+     * Get the bin for the given value.
      * 
-     * @param sortedDataset The dataset sorted by the values of the searched {@link NumericFeature}.
-     * @return The boundary points as a set of indices into the sorted dataset. Each element marks the location of one
-     *         boundary point. Each boundary point as such lies between the index provided by an element of the return
-     *         value and the previous index. So a value of 1 means there is a boundary point between the 0th and the 1st
-     *         instance.
+     * @param value The value.
+     * @return The bin for the value.
      */
-    private static List<Integer> findBoundaryPoints(List<Instance> sortedDataset) {
-        List<Integer> boundaryPoints = CollectionHelper.newArrayList();
-        int N = sortedDataset.size();
-        for (int t = 1; t < sortedDataset.size(); t++) {
-            if (!sortedDataset.get(t - 1).getCategory().equals(sortedDataset.get(t).getCategory())
-                    && gain(t, sortedDataset) > log2(N - 1) - N + delta(t, sortedDataset) / N) {
-                boundaryPoints.add(t);
+    public int bin(double value) {
+        int position = Collections.binarySearch(boundaries, value);
+        return position < 0 ? -position - 1 : position + 1;
+    }
+
+    /**
+     * Get the number of boundary points (i.e. numBoundaryPoints + 1 = numBins).
+     * 
+     * @return The number of boundary points.
+     */
+    public int getNumBoundaryPoints() {
+        return boundaries.size();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(featureName).append('\t');
+        stringBuilder.append("# ");
+        stringBuilder.append(boundaries.size());
+        stringBuilder.append('\t');
+        boolean first = true;
+        for (Double bin : boundaries) {
+            if (first) {
+                first = false;
+            } else {
+                stringBuilder.append('|');
             }
+            stringBuilder.append(bin);
         }
-        return boundaryPoints;
-    }
-
-    private static double gain(int t, List<Instance> s) {
-        List<Instance> s1 = s.subList(0, t);
-        List<Instance> s2 = s.subList(t, s.size());
-        return entropy(s) - s1.size() * entropy(s1) / s.size() - s2.size() * entropy(s2) / s.size();
-    }
-
-    private static double delta(int t, List<Instance> s) {
-        int k = new DatasetStatistics(s).getCategoryPriors().size();
-        List<Instance> s1 = s.subList(0, t);
-        List<Instance> s2 = s.subList(t, s.size());
-        int k1 = new DatasetStatistics(s1).getCategoryPriors().size();
-        int k2 = new DatasetStatistics(s2).getCategoryPriors().size();
-        return log2(pow(3, k) - 2) - (k * entropy(s) - k1 * entropy(s1) - k2 * entropy(s2));
-    }
-
-    private static double entropy(List<Instance> dataset) {
-        double entropy = 0.0d;
-        CategoryEntries priors = new DatasetStatistics(dataset).getCategoryPriors();
-        for (Category category : priors) {
-            entropy -= category.getProbability() * log2(category.getProbability());
-        }
-        return entropy;
+        return stringBuilder.toString();
     }
 
 }

@@ -47,7 +47,8 @@ final class ImmutableFeatureVector implements FeatureVector {
 
     @Override
     public Value get(String k) {
-        return valueMap.get(k);
+        Value value = valueMap.get(k);
+        return value != null ? value : NullValue.NULL;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package ws.palladian.classification.utils;
 
+import static ws.palladian.helper.math.MathHelper.log2;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
+import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
@@ -412,6 +416,22 @@ public final class ClassificationUtils {
                 return input.getVector();
             }
         });
+    }
+    
+    public static CategoryEntries getCategoryCounts(Iterable<? extends Instance> instances) {
+        CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
+        for (Instance instance : instances) {
+            builder.add(instance.getCategory(), 1);
+        }
+        return builder.create();
+    }
+
+    public static double entropy(CategoryEntries categoryEntries) {
+        double entropy = 0;
+        for (Category category : categoryEntries) {
+            entropy -= category.getProbability() * log2(category.getProbability());
+        }
+        return entropy;
     }
 
 }

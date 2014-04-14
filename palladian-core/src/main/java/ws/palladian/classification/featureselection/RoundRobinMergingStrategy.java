@@ -1,10 +1,10 @@
 package ws.palladian.classification.featureselection;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.NumericMatrix;
 import ws.palladian.helper.math.NumericMatrix.NumericMatrixVector;
@@ -23,7 +23,7 @@ public final class RoundRobinMergingStrategy implements SelectedFeatureMergingSt
     @Override
     public FeatureRanking merge(NumericMatrix<String> chiSquareMatrix) {
         FeatureRanking ret = new FeatureRanking();
-        Map<String, FeatureRanking> rankingsPerTargetClass = new HashMap<String, FeatureRanking>();
+        Map<String, FeatureRanking> rankingsPerTargetClass = CollectionHelper.newHashMap();
 
         // this should usually only run once for non sparse features.
         for (NumericMatrixVector<String> scoredValue : chiSquareMatrix.rows()) {

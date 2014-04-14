@@ -177,14 +177,14 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
         List<svm_node> libSvmFeatureVector = CollectionHelper.newArrayList();
         for (int i = 0; i < featureNames.size(); i++) {
             String featureName = featureNames.get(i);
-            NumericValue numericValue = (NumericValue)featureVector.get(featureName);
-            if (numericValue == null) {
-                continue;
+            Value value = featureVector.get(featureName);
+            if (value instanceof NumericValue) {
+                NumericValue numericValue = (NumericValue)value;
+                svm_node node = new svm_node();
+                node.index = i;
+                node.value = numericValue.getDouble();
+                libSvmFeatureVector.add(node);
             }
-            svm_node node = new svm_node();
-            node.index = i;
-            node.value = numericValue.getDouble();
-            libSvmFeatureVector.add(node);
         }
         return libSvmFeatureVector.toArray(new svm_node[libSvmFeatureVector.size()]);
     }

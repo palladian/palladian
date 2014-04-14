@@ -286,6 +286,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         return result;
     }
 
+    @SuppressWarnings("deprecation")
     public static void main(String[] args) {
         // List<Trainable> trainSet = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376006525521_all_train.csv", true);
         // List<Trainable> validationSet = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376012524940_all_valid.csv", true);
