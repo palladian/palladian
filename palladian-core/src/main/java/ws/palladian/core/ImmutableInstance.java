@@ -5,12 +5,12 @@ final class ImmutableInstance implements Instance {
     private final FeatureVector vector;
     private final String category;
 
-    public ImmutableInstance(FeatureVector vector, String category) {
+    ImmutableInstance(FeatureVector vector, String category) {
         this.vector = vector;
         this.category = category;
     }
 
-    public ImmutableInstance(FeatureVector vector, boolean category) {
+    ImmutableInstance(FeatureVector vector, boolean category) {
         this(vector, String.valueOf(category));
     }
 
