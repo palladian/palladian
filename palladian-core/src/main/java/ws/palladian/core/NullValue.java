@@ -7,5 +7,10 @@ public final class NullValue implements Value {
     private NullValue() {
         // use the singleton.
     }
+    
+    @Override
+    public String toString() {
+        return "NULL";
+    }
 
 }

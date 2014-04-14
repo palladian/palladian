@@ -37,14 +37,13 @@ public final class WekaClassifier implements Classifier<WekaModel> {
             Attribute attribute = schema.get(feature.key());
             int attributeIndex = attribute.index();
             Value featureValue = feature.value();
-
             if (featureValue instanceof NominalValue) {
                 NominalValue nominalValue = (NominalValue)featureValue;
                 int idx = attribute.indexOfValue(nominalValue.getString());
                 if (idx >= 0) {
                     indices.put(attributeIndex, (double)idx);
                 }
-            } else {
+            } else if (featureValue instanceof NumericValue) {
                 NumericValue numericValue = (NumericValue)featureValue;
                 indices.put(attributeIndex, numericValue.getDouble());
             }

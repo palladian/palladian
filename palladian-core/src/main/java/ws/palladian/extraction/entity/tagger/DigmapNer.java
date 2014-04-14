@@ -3,6 +3,8 @@ package ws.palladian.extraction.entity.tagger;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -35,6 +37,9 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @author Philipp Katz
  */
 public class DigmapNer extends NamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DigmapNer.class);
 
     /** The name of this {@link NamedEntityRecognizer}. */
     private static final String NER_NAME = "Digmap NER";

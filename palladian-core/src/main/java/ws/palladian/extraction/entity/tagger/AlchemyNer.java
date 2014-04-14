@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
@@ -364,6 +366,9 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @author David Urbansky
  */
 public class AlchemyNer extends NamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlchemyNer.AlchemyAnnotation.class);
 
     /**
      * <p>

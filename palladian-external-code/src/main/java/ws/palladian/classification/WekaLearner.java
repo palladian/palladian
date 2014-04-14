@@ -16,6 +16,7 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.NominalValue;
+import ws.palladian.core.NullValue;
 import ws.palladian.core.NumericValue;
 import ws.palladian.core.Value;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -118,11 +119,10 @@ public final class WekaLearner implements Learner<WekaModel> {
 
     private Map<Integer, Double> createWekaFeatureSet(FeatureVector vector, Instances data,
             Iterable<? extends Instance> instances) {
-      Map<Integer, Double> ret = CollectionHelper.newHashMap();
+        Map<Integer, Double> ret = CollectionHelper.newHashMap();
         for (VectorEntry<String, Value> entry : vector) {
             String effectiveFeatureName = entry.key();
             Value value = entry.value();
-
             if (value instanceof NominalValue) {
                 Attribute featureAttribute = data.attribute(effectiveFeatureName);
                 if (featureAttribute == null) {
@@ -134,7 +134,7 @@ public final class WekaLearner implements Learner<WekaModel> {
                 NominalValue nominalValue = (NominalValue)value;
                 double featureValue = featureAttribute.indexOfValue(nominalValue.getString());
                 ret.put(featureAttribute.index(), featureValue);
-            } else {
+            } else if (value instanceof NumericValue) {
                 Attribute featureAttribute = data.attribute(effectiveFeatureName);
                 if (featureAttribute == null) {
                     featureAttribute = new Attribute(effectiveFeatureName);
@@ -145,8 +145,7 @@ public final class WekaLearner implements Learner<WekaModel> {
                 ret.put(featureAttribute.index(), numericValue.getDouble());
             }
         }
-
-      return ret;
+        return ret;
     }
 
     // get domain for nominal feature, i.e. possible values
@@ -163,11 +162,12 @@ public final class WekaLearner implements Learner<WekaModel> {
     private FastVector getValues(String name, Iterable<? extends Instance> instances) {
         Set<String> nominalValues = new HashSet<String>();
         for (Instance instance : instances) {
-            NominalValue value = (NominalValue)instance.getVector().get(name);
-            if (value == null) {
+            Value value = instance.getVector().get(name);
+            if (value == null || value == NullValue.NULL) {
                 continue;
             }
-            nominalValues.add(value.getString());
+            NominalValue nominalValue = (NominalValue)value;
+            nominalValues.add(nominalValue.getString());
         }
         FastVector fvNominalValues = new FastVector(nominalValues.size());
         for (String nominalValue : nominalValues) {
