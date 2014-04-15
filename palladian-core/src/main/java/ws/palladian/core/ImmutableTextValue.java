@@ -4,38 +4,32 @@ import org.apache.commons.lang3.Validate;
 
 final class ImmutableTextValue extends AbstractValue implements TextValue {
 
-    private final String text;
+    private final String textValue;
 
     public ImmutableTextValue(String text) {
         Validate.notNull(text, "text must not be null");
-        this.text = text;
+        this.textValue = text;
     }
 
     @Override
     public String getText() {
-        return text;
+        return textValue;
     }
 
     @Override
     public String toString() {
-        return text;
+        return textValue;
     }
 
     @Override
     public int hashCode() {
-        return text.hashCode();
+        return textValue.hashCode();
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        ImmutableTextValue other = (ImmutableTextValue)obj;
-        return text.equals(other.text);
+    protected boolean equalsValue(Value value) {
+        ImmutableTextValue other = (ImmutableTextValue)value;
+        return textValue.equals(other.textValue);
     }
 
 }

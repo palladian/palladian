@@ -6,7 +6,18 @@ public abstract class AbstractValue implements Value {
     public abstract int hashCode();
 
     @Override
-    public abstract boolean equals(Object obj);
+    public final boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Value value = (Value)obj;
+        return equalsValue(value);
+    }
+
+    protected abstract boolean equalsValue(Value value);
 
     @Override
     public abstract String toString();

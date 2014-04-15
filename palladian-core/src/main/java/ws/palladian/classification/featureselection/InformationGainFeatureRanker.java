@@ -48,21 +48,12 @@ public final class InformationGainFeatureRanker implements FeatureRanker {
     private Map<String, Double> calculateInformationGain(Collection<? extends Instance> dataset) {
         Validate.notNull(dataset, "dataset must not be null");
         Map<String, Double> ret = CollectionHelper.newHashMap();
-
         List<Instance> preparedData = prepare(dataset);
-
         InformationGainFormula formula = new InformationGainFormula(preparedData);
-        
         Set<String> featureNames = new DatasetStatistics(dataset).getFeatureNames();
-        
-        System.out.println("feature names  = " + featureNames);
-        
         for (String featureName : featureNames) {
-            double gain = formula.calculateGain(featureName);
-            System.out.println(featureName + "=" + gain);
-            ret.put(featureName, gain);
+            ret.put(featureName, formula.calculateGain(featureName));
         }
-        
         return ret;
     }
 

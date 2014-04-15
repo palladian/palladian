@@ -63,9 +63,8 @@ public final class InformationGainFormula {
     private static CategoryEntries countFeatureOccurrences(Iterable<? extends Instance> dataset, String featureName) {
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         for (Instance dataItem : dataset) {
-            Value theValue = dataItem.getVector().get(featureName);
-            String value = theValue.toString();
-            builder.add(value, 1);
+            Value value = dataItem.getVector().get(featureName);
+            builder.add(value.toString(), 1);
         }
         return builder.create();
     }
@@ -81,9 +80,8 @@ public final class InformationGainFormula {
     private static CategoryEntries countJointOccurrences(Iterable<? extends Instance> dataset, String featureName) {
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         for (Instance dataItem : dataset) {
-            Value theValue = dataItem.getVector().get(featureName);
-            String value = theValue.toString();
-            builder.add(dataItem.getCategory() + "###" + value, 1);
+            Value value = dataItem.getVector().get(featureName);
+            builder.add(dataItem.getCategory() + "###" + value.toString(), 1);
         }
         return builder.create();
     }
