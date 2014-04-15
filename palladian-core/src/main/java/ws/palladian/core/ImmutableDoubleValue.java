@@ -2,37 +2,31 @@ package ws.palladian.core;
 
 final class ImmutableDoubleValue extends AbstractValue implements NumericValue {
 
-    private final double value;
+    private final double doubleValue;
 
     public ImmutableDoubleValue(double value) {
-        this.value = value;
+        this.doubleValue = value;
     }
 
     @Override
     public double getDouble() {
-        return value;
+        return doubleValue;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return String.valueOf(doubleValue);
     }
 
     @Override
     public int hashCode() {
-        return Double.valueOf(value).hashCode();
+        return Double.valueOf(doubleValue).hashCode();
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        ImmutableDoubleValue other = (ImmutableDoubleValue)obj;
-        return Double.doubleToLongBits(value) == Double.doubleToLongBits(other.value);
+    protected boolean equalsValue(Value value) {
+        ImmutableDoubleValue other = (ImmutableDoubleValue)value;
+        return Double.doubleToLongBits(doubleValue) == Double.doubleToLongBits(other.doubleValue);
     }
 
 }

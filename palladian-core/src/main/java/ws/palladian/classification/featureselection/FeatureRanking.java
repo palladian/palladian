@@ -84,6 +84,15 @@ public final class FeatureRanking {
         int n = Math.round(rankedFeatures.size() * percent / 100.0f);
         return getTopN(n);
     }
+    
+    public RankedFeature getFeature(String featureName) {
+        for (RankedFeature rankedFeature : rankedFeatures) {
+            if (rankedFeature.getValue().equals(featureName)) {
+                return rankedFeature;
+            }
+        }
+        return null;
+    }
 
     private void sort() {
         if (isSorted) {

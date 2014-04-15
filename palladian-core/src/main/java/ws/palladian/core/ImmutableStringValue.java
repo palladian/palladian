@@ -4,38 +4,32 @@ import org.apache.commons.lang3.Validate;
 
 final class ImmutableStringValue extends AbstractValue implements NominalValue {
 
-    private final String value;
+    private final String stringValue;
 
     public ImmutableStringValue(String value) {
         Validate.notNull(value, "value must not be null");
-        this.value = value;
+        this.stringValue = value;
     }
 
     @Override
     public String getString() {
-        return value;
+        return stringValue;
     }
 
     @Override
     public String toString() {
-        return value;
+        return stringValue;
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return stringValue.hashCode();
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        ImmutableStringValue other = (ImmutableStringValue)obj;
-        return value.equals(other.value);
+    protected boolean equalsValue(Value value) {
+        ImmutableStringValue other = (ImmutableStringValue)value;
+        return stringValue.equals(other.stringValue);
     }
 
 }

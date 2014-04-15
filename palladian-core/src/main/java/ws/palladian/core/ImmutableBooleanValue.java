@@ -2,7 +2,7 @@ package ws.palladian.core;
 
 final class ImmutableBooleanValue extends AbstractValue implements BooleanValue {
 
-    private final boolean value;
+    private final boolean booleanValue;
 
     public static final ImmutableBooleanValue TRUE = new ImmutableBooleanValue(true);
 
@@ -13,39 +13,33 @@ final class ImmutableBooleanValue extends AbstractValue implements BooleanValue 
     }
 
     private ImmutableBooleanValue(boolean value) {
-        this.value = value;
+        this.booleanValue = value;
     }
 
     @Override
     public boolean getBoolean() {
-        return value;
+        return booleanValue;
     }
 
     @Override
     public String getString() {
-        return String.valueOf(value);
+        return String.valueOf(booleanValue);
     }
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return String.valueOf(booleanValue);
     }
 
     @Override
     public int hashCode() {
-        return Boolean.valueOf(value).hashCode();
+        return Boolean.valueOf(booleanValue).hashCode();
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        ImmutableBooleanValue other = (ImmutableBooleanValue)obj;
-        return value == other.value;
+    protected boolean equalsValue(Value value) {
+        ImmutableBooleanValue other = (ImmutableBooleanValue)value;
+        return this.booleanValue == other.booleanValue;
     }
 
 }

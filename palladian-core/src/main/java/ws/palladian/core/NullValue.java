@@ -19,13 +19,7 @@ public final class NullValue extends AbstractValue {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
+    protected boolean equalsValue(Value value) {
         return true;
     }
 
