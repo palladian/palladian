@@ -2,7 +2,7 @@ package ws.palladian.core;
 
 import org.apache.commons.lang3.Validate;
 
-final class ImmutableStringValue implements NominalValue {
+final class ImmutableStringValue extends AbstractValue implements NominalValue {
 
     private final String value;
 
@@ -19,6 +19,23 @@ final class ImmutableStringValue implements NominalValue {
     @Override
     public String toString() {
         return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ImmutableStringValue other = (ImmutableStringValue)obj;
+        return value.equals(other.value);
     }
 
 }
