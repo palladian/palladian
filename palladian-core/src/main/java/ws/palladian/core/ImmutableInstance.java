@@ -26,7 +26,34 @@ final class ImmutableInstance implements Instance {
 
     @Override
     public String toString() {
-        return new StringBuilder().append("Instance ").append(vector).append('=').append(category).toString();
+        return vector + "=" + category;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + category.hashCode();
+        result = prime * result + vector.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ImmutableInstance other = (ImmutableInstance)obj;
+        if (!category.equals(other.category)) {
+            return false;
+        }
+        if (!vector.equals(other.vector)) {
+            return false;
+        }
+        return true;
     }
 
 }
