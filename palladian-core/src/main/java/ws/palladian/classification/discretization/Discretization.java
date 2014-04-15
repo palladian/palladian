@@ -1,5 +1,6 @@
 package ws.palladian.classification.discretization;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,10 +21,11 @@ public final class Discretization {
 
     public Discretization(Iterable<? extends Instance> dataset) {
         Validate.notNull(dataset, "dataset must not be null");
-        Set<String> numericFeatureNames = getNumericFeatureNames(dataset);
+        Collection<Instance> datasetCopy = CollectionHelper.newArrayList(dataset);
+        Set<String> numericFeatureNames = getNumericFeatureNames(datasetCopy);
         ProgressMonitor progressMonitor = new ProgressMonitor(numericFeatureNames.size());
         for (String featureName : numericFeatureNames) {
-            binners.put(featureName, new Binner(dataset, featureName));
+            binners.put(featureName, new Binner(datasetCopy, featureName));
             progressMonitor.incrementAndPrintProgress();
         }
     }
