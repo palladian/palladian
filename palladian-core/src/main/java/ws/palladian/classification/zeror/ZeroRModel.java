@@ -4,9 +4,9 @@ import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.core.Model;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
-import ws.palladian.helper.collection.CountMap;
 
 /**
  * <p>
@@ -21,10 +21,10 @@ public final class ZeroRModel implements Model {
 
     private final Map<String, Double> categoryProbabilities;
 
-    ZeroRModel(CountMap<String> categoryCounts) {
+    ZeroRModel(Bag<String> categoryCounts) {
         Map<String, Double> map = CollectionHelper.newHashMap();
         for (String categoryName : categoryCounts.uniqueItems()) {
-            map.put(categoryName, (double)categoryCounts.getCount(categoryName) / categoryCounts.totalSize());
+            map.put(categoryName, (double)categoryCounts.count(categoryName) / categoryCounts.size());
         }
         categoryProbabilities = CollectionHelper.sortByValue(map, Order.DESCENDING);
     }

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.discretization.Binner.Interval;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
@@ -60,7 +61,7 @@ public final class Discretization {
             if (featureValue instanceof NumericValue) {
                 NumericValue numericValue = (NumericValue)featureValue;
                 Binner binner = binners.get(featureName);
-                int bin = binner.bin(numericValue.getDouble());
+                Interval bin = binner.getBin(numericValue.getDouble());
                 instanceBuilder.set(featureName, bin);
             } else {
                 instanceBuilder.set(featureName, featureValue);
