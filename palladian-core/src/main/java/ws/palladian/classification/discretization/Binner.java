@@ -3,30 +3,85 @@ package ws.palladian.classification.discretization;
 import static java.lang.Math.pow;
 import static ws.palladian.helper.math.MathHelper.log2;
 
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.core.AbstractValue;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
+import ws.palladian.core.NominalValue;
 import ws.palladian.core.NullValue;
 import ws.palladian.core.NumericValue;
 import ws.palladian.core.Value;
+import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class Binner {
+public final class Binner implements Iterable<Binner.Interval> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Binner.class);
+
+    public static final class Interval extends AbstractValue implements NominalValue {
+
+        private final double lowererBound;
+        private final double upperBound;
+
+        /**
+         * @param lowererBound The lower bound, exclusive.
+         * @param upperBound The upper bound, inclusive.
+         */
+        public Interval(double lowererBound, double upperBound) {
+            Validate.isTrue(lowererBound <= upperBound, "lowerBound must be smaller/equal to upperBound");
+            this.lowererBound = lowererBound;
+            this.upperBound = upperBound;
+        }
+
+        @Override
+        public String getString() {
+            NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append('(').append(format.format(lowererBound));
+            stringBuilder.append(',');
+            stringBuilder.append(format.format(upperBound)).append(']');
+            return stringBuilder.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return getString().hashCode();
+        }
+
+        @Override
+        protected boolean equalsValue(Value value) {
+            Interval other = (Interval)value;
+            if (lowererBound != other.lowererBound) {
+                return false;
+            }
+            if (upperBound != other.upperBound) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return getString();
+        }
+
+    }
 
     /**
      * Comparator to sort {@link Instance}s based on a {@link NumericValue}.
@@ -150,14 +205,46 @@ public final class Binner {
     }
 
     /**
-     * Get the bin for the given value.
+     * Get the bin index for the given value.
      * 
      * @param value The value.
      * @return The bin for the value.
      */
     public int bin(double value) {
         int position = Collections.binarySearch(boundaries, value);
-        return position < 0 ? -position - 1 : position + 1;
+        return position < 0 ? -position - 1 : position;
+    }
+
+    /**
+     * Get the bin for the given value.
+     * 
+     * @param value The value.
+     * @return The bin for the value.
+     */
+    public Interval getBin(double value) {
+        int index = bin(value);
+        return getBinAtIdx(index);
+    }
+
+    private Interval getBinAtIdx(int index) {
+        double lowererBound = index == 0 ? Double.NEGATIVE_INFINITY : boundaries.get(index - 1);
+        double upperBound = index == boundaries.size() ? Double.POSITIVE_INFINITY : boundaries.get(index);
+        return new Interval(lowererBound, upperBound);
+    }
+
+    @Override
+    public Iterator<Interval> iterator() {
+        return new AbstractIterator<Binner.Interval>() {
+            int idx = 0;
+
+            @Override
+            protected Interval getNext() throws Finished {
+                if (idx > getNumBoundaryPoints()) {
+                    throw FINISHED;
+                }
+                return getBinAtIdx(idx++);
+            }
+        };
     }
 
     /**
@@ -180,15 +267,12 @@ public final class Binner {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(featureName).append('\t');
-        stringBuilder.append("# ");
-        stringBuilder.append(boundaries.size());
-        stringBuilder.append('\t');
         boolean first = true;
-        for (Double bin : boundaries) {
+        for (Interval bin : this) {
             if (first) {
                 first = false;
             } else {
-                stringBuilder.append('|');
+                stringBuilder.append(',');
             }
             stringBuilder.append(bin);
         }

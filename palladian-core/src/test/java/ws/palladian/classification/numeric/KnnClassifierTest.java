@@ -73,7 +73,7 @@ public class KnnClassifierTest {
     public void testKnnClassifierLoadFromFile() throws Exception {
         // create the KNN classifier and add the training instances
         KnnLearner knnLearner = new KnnLearner(new NoNormalizer());
-        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/wineData.txt"), false).readAll();
+        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/wineData.csv")).readAll();
         KnnModel model = knnLearner.train(instances);
         assertEquals(3, model.getCategories().size());
 
@@ -87,7 +87,7 @@ public class KnnClassifierTest {
     public void testKnnClassifierSerialization() throws Exception {
         // create the KNN classifier and add the training instances
         KnnLearner knnLearner = new KnnLearner();
-        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/wineData.txt"), false).readAll();
+        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/wineData.csv")).readAll();
         KnnModel model = knnLearner.train(instances);
         File tempDir = FileHelper.getTempDir();
         String tempFile = new File(tempDir, "/testKNN.gz").getPath();
@@ -136,19 +136,19 @@ public class KnnClassifierTest {
         // this is an actual instance from the
         // training data and should therefore also be classified as "1"
         InstanceBuilder instanceBuilder = new InstanceBuilder();
-        instanceBuilder.set("0", 13.82);
-        instanceBuilder.set("1", 1.75);
-        instanceBuilder.set("2", 2.42);
-        instanceBuilder.set("3", 14d);
-        instanceBuilder.set("4", 111d);
-        instanceBuilder.set("5", 3.88);
-        instanceBuilder.set("6", 3.74);
-        instanceBuilder.set("7", .32);
-        instanceBuilder.set("8", 1.87);
-        instanceBuilder.set("9", 7.05);
-        instanceBuilder.set("10", 1.01);
-        instanceBuilder.set("11", 3.26);
-        instanceBuilder.set("12", 1190d);
+        instanceBuilder.set("alcohol", 13.82);
+        instanceBuilder.set("malicAcid", 1.75);
+        instanceBuilder.set("ash", 2.42);
+        instanceBuilder.set("alcalinityOfAsh", 14d);
+        instanceBuilder.set("magnesium", 111d);
+        instanceBuilder.set("totalPhenols", 3.88);
+        instanceBuilder.set("flavanoids", 3.74);
+        instanceBuilder.set("nonflavanoidPhenols", .32);
+        instanceBuilder.set("proanthocyanins", 1.87);
+        instanceBuilder.set("colorIntensity", 7.05);
+        instanceBuilder.set("hue", 1.01);
+        instanceBuilder.set("od280/od315ofDilutedWines", 3.26);
+        instanceBuilder.set("proline", 1190d);
         return instanceBuilder.create();
     }
 
