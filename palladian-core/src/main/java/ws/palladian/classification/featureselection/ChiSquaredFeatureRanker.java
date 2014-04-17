@@ -59,7 +59,7 @@ public final class ChiSquaredFeatureRanker implements FeatureRanker {
      * @param dataset The dataset for which to calculate chi squared values, not <code>null</code>
      * @return Matrix with the chi squared values. Each row in the matrix represents a feature, each column a class.
      */
-    public NumericMatrix<String> calculateChiSquareValues(Iterable<? extends Instance> dataset) {
+    public static NumericMatrix<String> calculateChiSquareValues(Iterable<? extends Instance> dataset) {
         Validate.notNull(dataset, "dataset must not be null");
 
         int N = CollectionHelper.count(dataset.iterator());

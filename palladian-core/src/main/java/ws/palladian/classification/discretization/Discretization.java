@@ -14,6 +14,7 @@ import ws.palladian.core.NumericValue;
 import ws.palladian.core.Value;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 public final class Discretization {
@@ -69,7 +70,18 @@ public final class Discretization {
         }
         return instanceBuilder.create();
     }
-    
+
+    public Iterable<Instance> discretize(Iterable<? extends Instance> dataset) {
+        Validate.notNull(dataset, "dataset must not be null");
+        return CollectionHelper.convert(dataset, new Function<Instance, Instance>() {
+            @Override
+            public Instance compute(Instance input) {
+                FeatureVector features = discretize(input.getVector());
+                return new InstanceBuilder().add(features).create(input.getCategory());
+            }
+        });
+    }
+
     public Binner getBinner(String featureName) {
         Validate.notEmpty(featureName, "featureName must not be empty");
         return binners.get(featureName);

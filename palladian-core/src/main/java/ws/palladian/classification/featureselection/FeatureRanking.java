@@ -1,6 +1,3 @@
-/**
- * Created on: 05.02.2013 16:29:25
- */
 package ws.palladian.classification.featureselection;
 
 import java.util.Collections;
