@@ -40,7 +40,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.conn.params.ConnRouteParams;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.AbstractHttpClient;
@@ -100,13 +100,13 @@ public class HttpRetriever {
     private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
     /** The default timeout for a connection to be established, in milliseconds. */
-    public static final long DEFAULT_CONNECTION_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
+    public static final int DEFAULT_CONNECTION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
 
     /** The default timeout for a connection to be established when checking for redirects, in milliseconds. */
-    public static final long DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = TimeUnit.SECONDS.toMillis(1);
+    public static final int DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = (int) TimeUnit.SECONDS.toMillis(1);
 
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
-    public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(180);
+    public static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(180);
 
     /** The maximum number of redirected URLs to check. */
     public static final int MAX_REDIRECTS = 10;
@@ -115,7 +115,7 @@ public class HttpRetriever {
      * The default timeout which specifies the maximum interval for new packets to wait when checking for redirects, in
      * milliseconds.
      */
-    public static final long DEFAULT_SOCKET_TIMEOUT_REDIRECTS = TimeUnit.SECONDS.toMillis(1);
+    public static final int DEFAULT_SOCKET_TIMEOUT_REDIRECTS = (int) TimeUnit.SECONDS.toMillis(1);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 1;
@@ -146,10 +146,10 @@ public class HttpRetriever {
     private static long sessionDownloadedBytes = 0;
 
     /** The timeout for connections when checking for redirects. */
-    private long connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
+    private int connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
 
     /** The socket timeout when checking for redirects. */
-    private long socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
+    private int socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
     /** Number of retries for one request, if error occurs. */
     private int numRetries = DEFAULT_NUM_RETRIES;
@@ -174,7 +174,7 @@ public class HttpRetriever {
     /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
     private ProxyRemoverCallback proxyRemoveCallback = null;
 
-    private static Scheme httpsScheme = null;
+    private static final Scheme httpsScheme;
 
     // ////////////////////////////////////////////////////////////////
     // constructor
@@ -183,18 +183,15 @@ public class HttpRetriever {
     static {
         setNumConnections(DEFAULT_NUM_CONNECTIONS);
         setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
-
-        SSLSocketFactory sf;
         try {
-            SSLContext sslContext = null;
-            sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, null, null);
-            sf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            SSLSocketFactory sf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             httpsScheme = new Scheme("https", 443, sf);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         } catch (KeyManagementException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
     }
 
@@ -224,7 +221,8 @@ public class HttpRetriever {
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
-        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+//        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
     }
 
     /**
@@ -556,7 +554,7 @@ public class HttpRetriever {
             addDownload(receivedBytes);
 
             if (proxyRemoveStatusCodes.contains(statusCode)
-                    || (proxyRemoveCallback != null && proxyRemoveCallback.shouldRemove(result))) {
+                    || proxyRemoveCallback != null && proxyRemoveCallback.shouldRemove(result)) {
                 proxyProvider.removeProxy(proxyUsed, statusCode);
                 throw new HttpException("invalid result, remove proxy: " + proxyUsed + ", URL: " + url);
             } else {
@@ -583,7 +581,7 @@ public class HttpRetriever {
             return null;
         }
         HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
-        backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
+        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
 
         // set proxy authentication if available
         if (StringUtils.isNotEmpty(proxy.getUsername())) {
@@ -625,8 +623,8 @@ public class HttpRetriever {
         params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
         HttpProtocolParams.setUserAgent(httpParams, REDIRECT_USER_AGENT);
 
-        HttpConnectionParams.setSoTimeout(params, (int)socketTimeoutRedirects);
-        HttpConnectionParams.setConnectionTimeout(params, (int)connectionTimeoutRedirects);
+        HttpConnectionParams.setSoTimeout(params, socketTimeoutRedirects);
+        HttpConnectionParams.setConnectionTimeout(params, connectionTimeoutRedirects);
 
         DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, params);
         DecompressingHttpClient client = new DecompressingHttpClient(backend);
@@ -754,8 +752,8 @@ public class HttpRetriever {
     // Configuration options
     // ////////////////////////////////////////////////////////////////
 
-    public void setConnectionTimeout(long connectionTimeout) {
-        HttpConnectionParams.setConnectionTimeout(httpParams, (int)connectionTimeout);
+    public void setConnectionTimeout(int connectionTimeout) {
+        HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout);
     }
 
     /**
@@ -766,8 +764,8 @@ public class HttpRetriever {
      * 
      * @param socketTimeout timeout The new socket timeout time in milliseconds
      */
-    public void setSocketTimeout(long socketTimeout) {
-        HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
+    public void setSocketTimeout(int socketTimeout) {
+        HttpConnectionParams.setSoTimeout(httpParams, socketTimeout);
     }
 
     public void setNumRetries(int numRetries) {
@@ -844,11 +842,11 @@ public class HttpRetriever {
         return proxyProvider;
     }
 
-    public void setConnectionTimeoutRedirects(long connectionTimeoutRedirects) {
+    public void setConnectionTimeoutRedirects(int connectionTimeoutRedirects) {
         this.connectionTimeoutRedirects = connectionTimeoutRedirects;
     }
 
-    public void setSocketTimeoutRedirects(long socketTimeoutRedirects) {
+    public void setSocketTimeoutRedirects(int socketTimeoutRedirects) {
         this.socketTimeoutRedirects = socketTimeoutRedirects;
     }
 
