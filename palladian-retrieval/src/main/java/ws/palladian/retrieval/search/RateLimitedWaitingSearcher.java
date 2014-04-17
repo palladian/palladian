@@ -35,9 +35,14 @@ public final class RateLimitedWaitingSearcher<R extends WebContent> extends Abst
      * </p>
      * 
      * @param searcher The searcher to wrap, not <code>null</code>.
+     * @return A new {@link RateLimitedWaitingSearcher}.
      */
-    public RateLimitedWaitingSearcher(Searcher<R> searcher) {
+    public static <R extends WebContent> RateLimitedWaitingSearcher<R> create(Searcher<R> searcher) {
         Validate.notNull(searcher, "searcher must not be null");
+        return new RateLimitedWaitingSearcher<R>(searcher);
+    }
+
+    private RateLimitedWaitingSearcher(Searcher<R> searcher) {
         this.searcher = searcher;
     }
 

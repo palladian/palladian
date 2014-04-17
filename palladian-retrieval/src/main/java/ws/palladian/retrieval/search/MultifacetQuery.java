@@ -95,7 +95,7 @@ public interface MultifacetQuery {
         }
 
         public Builder setResultCount(int resultCount) {
-            Validate.isTrue(resultCount > 0, "resultCount must be greater zero.");
+            Validate.isTrue(resultCount > 0, "resultCount must be greater zero, was %d.", resultCount);
             this.resultCount = resultCount;
             return this;
         }

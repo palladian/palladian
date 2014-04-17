@@ -1,8 +1,9 @@
 package ws.palladian.retrieval.search.socialmedia;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +28,10 @@ import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.Facet;
 import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.RateLimitedException;
 import ws.palladian.retrieval.search.SearchResults;
@@ -51,11 +54,56 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InstagramSearcher.class);
 
+    /**
+     * Facet which enables the "deep coordinate retrieval" mode. This is only relevant when using coordinates as query
+     * facet. When enabled, not only the coordinate endpoint of Instagram is queried (<code>/media/search</code>), but
+     * we also query the locations endpoint (<code>/locations/search</code>) with the coordinate and then search for
+     * images in all locations. This gives in general more results, but also results in considerably more API requests
+     * for each query.
+     * 
+     * @author pk
+     */
+    public static enum DeepCoordinateRetrieval implements Facet {
+        DEEP;
+
+        private static final String INSTAGRAM_DEEP_COORDINATE_RETRIEVAL_ID = "instagram.deepCoordinateRetrieval";
+
+        @Override
+        public String getIdentifier() {
+            return INSTAGRAM_DEEP_COORDINATE_RETRIEVAL_ID;
+        }
+    }
+
+    /**
+     * Facet, which allows searching Instagram by a Instagram-specific location ID.
+     * 
+     * @see <a href="http://instagram.com/developer/endpoints/locations/">Location Endpoints</a>
+     * @author pk
+     */
+    public static final class LocationId implements Facet {
+        private static final String INSTAGRAM_LOCATION_ID = "instagram.locationId";
+
+        private final int locationId;
+
+        public LocationId(int locationId) {
+            this.locationId = locationId;
+        }
+
+        public int getLocationId() {
+            return locationId;
+        }
+
+        @Override
+        public String getIdentifier() {
+            return INSTAGRAM_LOCATION_ID;
+        }
+    }
+
     /** The identifier for the {@link Configuration} key with the access token. */
     public static final String CONFIG_ACCESS_TOKEN = "api.instagram.accessToken";
 
     /** Name of this searcher. */
-    private static final String SEARCHER_NAME = "Instagram";
+    public static final String SEARCHER_NAME = "Instagram";
 
     /** Instagram allows maximum 5000 requests/hour; however, we take a smaller value to be on the save side. */
     private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.HOURS, 4500);
@@ -95,30 +143,12 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         return SEARCHER_NAME;
     }
 
-    private List<WebImage> processResult(int resultCount, String queryUrl) throws SearcherException {
-        List<WebImage> result = new ArrayList<WebImage>();
-
+    private List<WebImage> fetchResult(int resultCount, String queryUrl) throws SearcherException {
+        List<WebImage> result = CollectionHelper.newArrayList();
         page: for (;;) {
-
-            THROTTLE.hold();
-            HttpResult httpResult;
-            try {
-                httpResult = retriever.httpGet(queryUrl);
-                if (httpResult.getStatusCode() == 503) {
-                    throw new RateLimitedException("Rate limit exceeded.", null);
-                }
-                if (httpResult.errorStatus()) {
-                    throw new SearcherException("Received HTTP code " + httpResult.getStatusCode()
-                            + " while accessing \"" + queryUrl + "\" ("
-                            + getErrorMessage(httpResult.getStringContent()) + ")");
-                }
-            } catch (HttpException e) {
-                throw new SearcherException("Encountered HTTP exception while accessing \"" + queryUrl + "\": "
-                        + e.getMessage(), e);
-            }
-
+            HttpResult httpResult = performGet(queryUrl);
             String jsonString = httpResult.getStringContent();
-
+            LOGGER.trace("JSON = {}", jsonString);
             try {
                 JsonObject jsonResult = new JsonObject(jsonString);
                 if (jsonResult.get("data") instanceof JsonArray) {
@@ -136,7 +166,6 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                     // single result
                     result.add(parseJsonObject(jsonResult.getJsonObject("data")));
                 }
-
                 if (jsonResult.get("pagination") == null) {
                     break;
                 }
@@ -145,14 +174,41 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                     break;
                 }
                 queryUrl = paginationJson.getString("next_url");
-
             } catch (JsonException e) {
                 throw new SearcherException("Parse exception while parsing JSON data: \"" + jsonString + "\", URL: \""
                         + queryUrl + "\"", e);
             }
-
         }
         return result;
+    }
+
+    /**
+     * Perform a HTTP get, check rate limits (proactive using the {@link RequestThrottle}, and after request by checking
+     * the status code.
+     * 
+     * @param queryUrl The URL to GET.
+     * @return The {@link HttpResult} for the GET operation.
+     * @throws RateLimitedException In case the service gave a rate limited error.
+     * @throws SearcherException In other cases of HTTP errors.
+     */
+    private HttpResult performGet(String queryUrl) throws RateLimitedException, SearcherException {
+        LOGGER.debug("GET {}", queryUrl);
+        THROTTLE.hold();
+        HttpResult httpResult;
+        try {
+            httpResult = retriever.httpGet(queryUrl);
+            if (httpResult.getStatusCode() == 503) {
+                throw new RateLimitedException("Rate limit exceeded.", null);
+            }
+            if (httpResult.errorStatus()) {
+                throw new SearcherException("Received HTTP code " + httpResult.getStatusCode() + " while accessing \""
+                        + queryUrl + "\" (" + getErrorMessage(httpResult.getStringContent()) + ")");
+            }
+        } catch (HttpException e) {
+            throw new SearcherException("Encountered HTTP exception while accessing \"" + queryUrl + "\": "
+                    + e.getMessage(), e);
+        }
+        return httpResult;
     }
 
     /**
@@ -162,25 +218,22 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * @return A parsed WebImage.
      * @throws JsonException In case parsing failes.
      */
-    private WebImage parseJsonObject(JsonObject data) throws JsonException {
+    private static WebImage parseJsonObject(JsonObject data) throws JsonException {
         BasicWebImage.Builder builder = new BasicWebImage.Builder();
-
         builder.setUrl(data.getString("link"));
         builder.setPublished(new Date(data.getLong("created_time") * 1000));
-
         JsonObject imageData = data.getJsonObject("images").getJsonObject("standard_resolution");
         builder.setImageUrl(imageData.getString("url"));
         builder.setWidth(imageData.getInt("width"));
         builder.setHeight(imageData.getInt("height"));
-
         if (data.get("caption") != null) {
             builder.setTitle(data.getJsonObject("caption").getString("text"));
         }
         if (data.get("location") != null) {
-            JsonObject jsonLocaiton = data.getJsonObject("location");
-            if (jsonLocaiton.get("longitude") != null && jsonLocaiton.get("latitude") != null) {
-                double longitude = jsonLocaiton.getDouble("longitude");
-                double latitude = jsonLocaiton.getDouble("latitude");
+            JsonObject jsonLocation = data.getJsonObject("location");
+            if (jsonLocation.get("longitude") != null && jsonLocation.get("latitude") != null) {
+                double longitude = jsonLocation.getDouble("longitude");
+                double latitude = jsonLocation.getDouble("latitude");
                 builder.setCoordinate(latitude, longitude);
             }
         }
@@ -203,7 +256,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * @param stringContent The result string.
      * @return A formatted error message, or an empty String, in case the response could not be parsed.
      */
-    private String getErrorMessage(String stringContent) {
+    private static String getErrorMessage(String stringContent) {
         try {
             if (StringUtils.isNotBlank(stringContent)) {
                 JsonObject json = new JsonObject(stringContent);
@@ -219,10 +272,11 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
 
     @Override
     public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
-
         String id = query.getId();
         String tag = getTag(query);
-        String queryUrl;
+        List<WebImage> results;
+        Facet facet = query.getFacet(LocationId.INSTAGRAM_LOCATION_ID);
+        LocationId locationIdFacet = facet != null ? (LocationId)facet : null;
 
         // we search by URL; but first, we need to get the ID ...
         if (query.getUrl() != null) {
@@ -230,36 +284,95 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         }
 
         if (id != null) {
-            queryUrl = String.format("https://api.instagram.com/v1/media/%s?access_token=%s", id, accessToken);
+            String queryUrl = String.format("https://api.instagram.com/v1/media/%s?access_token=%s", id, accessToken);
+            results = fetchResult(query.getResultCount(), queryUrl);
         } else if (tag != null) {
-            queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s",
+            String queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s",
                     UrlHelper.encodeParameter(tag), accessToken);
+            results = fetchResult(query.getResultCount(), queryUrl);
+        } else if (locationIdFacet != null) {
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append("https://api.instagram.com/v1/locations/");
+            urlBuilder.append(locationIdFacet.getLocationId());
+            urlBuilder.append("/media/recent");
+            urlBuilder.append("?access_token=").append(accessToken);
+            if (query.getStartDate() != null) {
+                urlBuilder.append("&min_timestamp=").append(unixTimestamp(query.getStartDate()));
+            }
+            if (query.getEndDate() != null) {
+                urlBuilder.append("&max_timestamp=").append(unixTimestamp(query.getEndDate()));
+            }
+            results = fetchResult(query.getResultCount(), urlBuilder.toString());
         } else if (query.getCoordinate() != null) {
-            GeoCoordinate coordinate = query.getCoordinate();
+            final GeoCoordinate coordinate = query.getCoordinate();
+            // 5000 meters is maximum radius
+            int radius = query.getRadius() != null ? (int)Math.min(query.getRadius() * 1000, 5000) : 5000;
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append("https://api.instagram.com/v1/media/search");
             urlBuilder.append("?lat=").append(coordinate.getLatitude());
             urlBuilder.append("&lng=").append(coordinate.getLongitude());
             if (query.getStartDate() != null) {
-                long minTimestamp = query.getStartDate().getTime() / 1000;
-                urlBuilder.append("&min_timestamp=").append(minTimestamp);
+                urlBuilder.append("&min_timestamp=").append(unixTimestamp(query.getStartDate()));
             }
             if (query.getEndDate() != null) {
-                long maxTimestamp = query.getEndDate().getTime() / 1000;
-                urlBuilder.append("&max_timestamp=").append(maxTimestamp);
+                urlBuilder.append("&max_timestamp=").append(unixTimestamp(query.getEndDate()));
             }
-            // 5000 meteres is maximum radius
-            double radius = query.getRadius() != null ? query.getRadius() * 1000 : 5000;
             urlBuilder.append("&distance=").append(radius);
             urlBuilder.append("&access_token=").append(accessToken);
-            queryUrl = urlBuilder.toString();
+            results = fetchResult(query.getResultCount(), urlBuilder.toString());
+            // "deep coordinate retrieval" mode; in addition to the explicit coordinate search, we look for locations
+            // matching the given coordinate radius, and use those locations for finding images; experiments show, that
+            // this way we can retrieve much more content. On the other hand, we have to perform considerably more API
+            // request this way.
+            Facet deepFacet = query.getFacet(DeepCoordinateRetrieval.INSTAGRAM_DEEP_COORDINATE_RETRIEVAL_ID);
+            if (deepFacet != null) {
+                List<LocationId> locationIds = getIdsForCoordinate(coordinate, radius);
+                results = CollectionHelper.newArrayList();
+                for (LocationId locationId : locationIds) {
+                    MultifacetQuery.Builder locationIdQueryBuilder = new MultifacetQuery.Builder();
+                    locationIdQueryBuilder.addFacet(locationId);
+                    locationIdQueryBuilder.setStartDate(query.getStartDate());
+                    locationIdQueryBuilder.setEndDate(query.getEndDate());
+                    locationIdQueryBuilder.setResultCount(query.getResultCount());
+                    List<WebImage> currentResults = search(locationIdQueryBuilder.create()).getResultList();
+                    LOGGER.debug("Found {} results for location with ID {}", currentResults.size(),
+                            locationId.getLocationId());
+                    results.addAll(currentResults);
+                }
+                // limit to the requested result count; order by proximity to coordinate
+                if (results.size() > query.getResultCount()) {
+                    Collections.sort(results, new Comparator<WebContent>() {
+                        @Override
+                        public int compare(WebContent content1, WebContent content2) {
+                            GeoCoordinate c1 = content1.getCoordinate();
+                            GeoCoordinate c2 = content2.getCoordinate();
+                            if (c1 == null) {
+                                return c2 == null ? 0 : 1;
+                            }
+                            if (c2 == null) {
+                                return -1;
+                            }
+                            return Double.compare(coordinate.distance(c1), coordinate.distance(c2));
+                        }
+                    });
+                    results = results.subList(0, query.getResultCount());
+                }
+            }
         } else {
             throw new SearcherException(
-                    "Search must either provide a tag, a geographic coordinate and a radius, a URL or an Instagram ID.");
+                    "Search must either provide a tag, a geographic coordinate and a radius, an Instagram location ID, a URL or an Instagram image ID.");
         }
+        return new SearchResults<WebImage>(results);
+    }
 
-        LOGGER.debug("Query URL: {}", queryUrl);
-        return new SearchResults<WebImage>(processResult(query.getResultCount(), queryUrl));
+    /**
+     * Transforms a {@link Date} to a UNIX timestamp.
+     * 
+     * @param date The date.
+     * @return A UNIX timestamp.
+     */
+    private static long unixTimestamp(Date date) {
+        return date.getTime() / 1000;
     }
 
     /**
@@ -292,7 +405,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * this is mainly for legacy reasons; try to get tags from explicit tag set (preferred) or extract from given text
      * (deprecated)
      */
-    private String getTag(MultifacetQuery query) {
+    private static String getTag(MultifacetQuery query) {
         Collection<String> allTags = CollectionHelper.newArrayList();
         if (query.getTags().size() > 0) {
             allTags = query.getTags();
@@ -309,6 +422,36 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                     firstTag);
         }
         return firstTag;
+    }
+
+    /**
+     * When searching by {@link GeoCoordinate}s, we can first retrieve all available locations for that coordinate
+     * (seems, that we can get 20 locations maximum), and then use the obtained location IDs to retrieve content. This
+     * seems to yield in more results than the <code>/media/search</code> endpoint.
+     * 
+     * @param coordinate The coordinate.
+     * @param distance The distance.
+     * @return A list of location IDs for the given coordinate+distance, or an empty list.
+     * @throws SearcherException In case, the query fails.
+     */
+    private List<LocationId> getIdsForCoordinate(GeoCoordinate coordinate, int distance) throws SearcherException {
+        Validate.notNull(coordinate, "coordinate must not be null");
+        Validate.isTrue(distance >= 0, "distance must be greater/equal zero");
+        List<LocationId> locationIds = CollectionHelper.newArrayList();
+        String coordinateToLocationsQueryUrl = String.format(
+                "https://api.instagram.com/v1/locations/search?lat=%s&lng=%s&distance=%s&access_token=%s",
+                coordinate.getLatitude(), coordinate.getLongitude(), distance, accessToken);
+        HttpResult httpResult = performGet(coordinateToLocationsQueryUrl);
+        try {
+            JsonArray jsonData = new JsonObject(httpResult.getStringContent()).getJsonArray("data");
+            for (int i = 0; i < jsonData.size(); i++) {
+                JsonObject currentData = (JsonObject)jsonData.get(i);
+                locationIds.add(new LocationId(currentData.getInt("id")));
+            }
+        } catch (JsonException e) {
+            throw new SearcherException("Exception while parsing JSON (" + httpResult.getStringContent() + ").");
+        }
+        return locationIds;
     }
 
 }
