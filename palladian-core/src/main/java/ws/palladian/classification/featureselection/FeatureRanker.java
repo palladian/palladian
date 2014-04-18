@@ -14,8 +14,6 @@ import ws.palladian.core.Instance;
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 3.0
- * @since 0.1.8
  */
 public interface FeatureRanker {
 

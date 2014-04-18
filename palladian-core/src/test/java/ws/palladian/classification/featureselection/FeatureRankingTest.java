@@ -51,17 +51,17 @@ public class FeatureRankingTest {
         FeatureRanking ranking = featureSelector.rankFeatures(fixture);
         // System.out.println(ranking);
 
-        assertThat(ranking.getAll().get(5).getValue(), is("e"));
+        assertThat(ranking.getAll().get(5).getName(), is("e"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.875, 0.0001)));
-        assertThat(ranking.getAll().get(4).getValue(), is("b"));
+        assertThat(ranking.getAll().get(4).getName(), is("b"));
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.22222, 0.0001)));
-        assertThat(ranking.getAll().get(3).getValue(), is("d"));
+        assertThat(ranking.getAll().get(3).getName(), is("d"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(2.22222, 0.0001)));
-        assertThat(ranking.getAll().get(2).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(2).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(2).getScore(), is(closeTo(5.0, 0.0001)));
-        assertThat(ranking.getAll().get(1).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(1).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(1).getScore(), is(closeTo(5.0, 0.0001)));
-        assertThat(ranking.getAll().get(0).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(0).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(0).getScore(), is(closeTo(5.0, 0.0001)));
     }
 
@@ -72,17 +72,17 @@ public class FeatureRankingTest {
         FeatureRanking ranking = featureSelector.rankFeatures(fixture);
         // System.out.println(ranking);
 
-        assertThat(ranking.getAll().get(5).getValue(), is("e"));
+        assertThat(ranking.getAll().get(5).getName(), is("e"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.0, 0.0001)));
-        assertThat(ranking.getAll().get(4).getValue(), is("b"));
+        assertThat(ranking.getAll().get(4).getName(), is("b"));
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.0, 0.0001)));
-        assertThat(ranking.getAll().get(3).getValue(), is("d"));
+        assertThat(ranking.getAll().get(3).getName(), is("d"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(3.0, 0.0001)));
-        assertThat(ranking.getAll().get(2).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(2).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(2).getScore(), is(closeTo(4.0, 0.0001)));
-        assertThat(ranking.getAll().get(1).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(1).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(1).getScore(), is(closeTo(5.0, 0.0001)));
-        assertThat(ranking.getAll().get(0).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(0).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(0).getScore(), is(closeTo(6.0, 0.0001)));
     }
 
@@ -93,17 +93,17 @@ public class FeatureRankingTest {
         FeatureRanking ranking = featureSelector.rankFeatures(fixture);
         // System.out.println(ranking);
 
-        assertThat(ranking.getAll().get(5).getValue(), is("e"));
+        assertThat(ranking.getAll().get(5).getName(), is("e"));
         assertThat(ranking.getAll().get(5).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(4).getValue(), isOneOf("b", "d"));
+        assertThat(ranking.getAll().get(4).getName(), isOneOf("b", "d"));
         assertThat(ranking.getAll().get(4).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(3).getValue(), isOneOf("b", "d"));
+        assertThat(ranking.getAll().get(3).getName(), isOneOf("b", "d"));
         assertThat(ranking.getAll().get(3).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(2).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(2).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(2).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(1).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(1).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(1).getScore(), is(notNullValue()));
-        assertThat(ranking.getAll().get(0).getValue(), isOneOf("a", "c", "f"));
+        assertThat(ranking.getAll().get(0).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(0).getScore(), is(notNullValue()));
     }
 
@@ -118,8 +118,7 @@ public class FeatureRankingTest {
         FeatureRanking ranking = featureSelector.rankFeatures(dataset);
         // System.out.println(ranking);
 
-        assertThat(ranking.getAll().get(0).getValue(), is("numeric"));
-        assertThat(ranking.getAll().get(0).getIdentifier(), is("feature"));
+        assertThat(ranking.getAll().get(0).getName(), is("numeric"));
         assertThat(ranking.getAll().get(0).getScore(), is(notNullValue()));
     }
 }

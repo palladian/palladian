@@ -7,6 +7,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.discretization.Discretization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Value;
@@ -27,8 +28,6 @@ import ws.palladian.helper.math.NumericMatrix;
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 1.0
- * @since 0.2.0
  */
 public final class ChiSquaredFeatureRanker implements FeatureRanker {
 
@@ -66,13 +65,16 @@ public final class ChiSquaredFeatureRanker implements FeatureRanker {
         ProgressMonitor monitor = new ProgressMonitor(N, 1, "Counting cooccurrences.");
         CountMatrix<String> termCategoryCorrelations = CountMatrix.create();
         Bag<String> categoryCounts = Bag.create();
-        // Normalization discretization = new Discretizer().calculate(ClassificationUtils.unwrapInstances(dataset));
-        for (Instance instance : dataset) {
-            // FeatureVector featureVector = discretization.normalize(instance.getVector());
+
+        Discretization discretization = new Discretization(dataset);
+        Iterable<Instance> discretizedDataset = discretization.discretize(dataset);
+
+        for (Instance instance : discretizedDataset) {
             FeatureVector featureVector = instance.getVector();
             String category = instance.getCategory();
             for (VectorEntry<String, Value> feature : featureVector) {
-                termCategoryCorrelations.add(category, feature.key());
+                String featureValueIdentifier = feature.key() + "###" + feature.value().toString();
+                termCategoryCorrelations.add(category, featureValueIdentifier);
             }
             categoryCounts.add(category);
             monitor.incrementAndPrintProgress();

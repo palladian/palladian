@@ -1,7 +1,6 @@
 package ws.palladian.classification.featureselection;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -9,22 +8,8 @@ import java.util.Map.Entry;
 
 /**
  * @author Klemens Muthmann
- * @version 1.0
- * @since 0.2.0
  */
 public final class FeatureRanking {
-
-    /**
-     * @author Klemens Muthmann
-     * @version 1.0
-     * @since 0.2.0
-     */
-    private final class FeatureRankingComparator implements Comparator<RankedFeature> {
-        @Override
-        public int compare(RankedFeature o1, RankedFeature o2) {
-            return Double.compare(o2.getScore(), o1.getScore());
-        }
-    }
 
     private boolean isSorted;
 
@@ -35,27 +20,22 @@ public final class FeatureRanking {
         this.isSorted = false;
     }
 
-    public FeatureRanking(Map<String, Double> values) {
+    public FeatureRanking(Map<String, ? extends Number> values) {
         this();
-        for (Entry<String,Double>entry:values.entrySet()){
-            add(entry.getKey(),entry.getValue());
+        for (Entry<String, ? extends Number> entry : values.entrySet()) {
+            add(entry.getKey(), entry.getValue().doubleValue());
         }
     }
 
     public void add(String featureIdentifier, double score) {
-        rankedFeatures.add(new RankedFeature("feature", featureIdentifier, score));
-        isSorted = false;
-    }
-
-    public void addSparse(String featureIdentifier, String featureValue, double score) {
-        rankedFeatures.add(new RankedFeature(featureIdentifier, featureValue, score));
+        rankedFeatures.add(new RankedFeature(featureIdentifier, score));
         isSorted = false;
     }
 
     public List<RankedFeature> getAboveThreshold(double threshold) {
         sort();
-        RankedFeature key = new RankedFeature("dummy", "dummy", threshold);
-        int n = Collections.binarySearch(rankedFeatures, key, new FeatureRankingComparator());
+        RankedFeature key = new RankedFeature("dummy", threshold);
+        int n = Collections.binarySearch(rankedFeatures, key);
         return getTopN(n);
     }
 
@@ -81,10 +61,10 @@ public final class FeatureRanking {
         int n = Math.round(rankedFeatures.size() * percent / 100.0f);
         return getTopN(n);
     }
-    
+
     public RankedFeature getFeature(String featureName) {
         for (RankedFeature rankedFeature : rankedFeatures) {
-            if (rankedFeature.getValue().equals(featureName)) {
+            if (rankedFeature.getName().equals(featureName)) {
                 return rankedFeature;
             }
         }
@@ -95,7 +75,7 @@ public final class FeatureRanking {
         if (isSorted) {
             return;
         } else {
-            Collections.sort(rankedFeatures, new FeatureRankingComparator());
+            Collections.sort(rankedFeatures);
             isSorted = true;
         }
     }

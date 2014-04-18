@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -222,7 +223,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
     public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
-        final FeatureRanking result = new FeatureRanking();
+        Map<String, Integer> ranks = CollectionHelper.newHashMap();
 
         Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
@@ -271,11 +272,11 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
                 // LOGGER.debug("Eliminating {} gives {}", currentFeature, score);
                 LOGGER.info("Selected {} for elimination, score {}", selectedFeature, highestScore);
                 eliminatedFeatures.add(selectedFeature);
-                result.add(selectedFeature, featureIndex++);
+                ranks.put(selectedFeature, featureIndex++);
             }
-            
+
             executor.shutdown();
-            
+
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
         } catch (ExecutionException e) {
@@ -283,7 +284,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-        return result;
+        return new FeatureRanking(ranks);
     }
 
     @SuppressWarnings("deprecation")
