@@ -1,20 +1,17 @@
 package ws.palladian.classification;
 
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.Category;
-import ws.palladian.helper.collection.Function;
 
 public final class ImmutableCategory implements Category {
 
-    public static final class EntryConverter implements Function<Entry<String, Double>, Category> {
-        @Override
-        public Category compute(final Entry<String, Double> input) {
-            return new ImmutableCategory(input.getKey(), input.getValue());
-        }
-    }
+//    public static final class EntryConverter implements Function<Entry<String, Double>, Category> {
+//        @Override
+//        public Category compute(final Entry<String, Double> input) {
+//            return new ImmutableCategory(input.getKey(), input.getValue());
+//        }
+//    }
 
     private final String name;
     private final double probability;

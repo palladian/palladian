@@ -18,7 +18,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
@@ -378,13 +378,13 @@ public final class ClassificationUtils {
             Classifier<M> classifier, T classifiable, M... models) {
 
         // merge the results
-        CategoryEntries mergedCategoryEntries = new CategoryEntriesMap();
+        CategoryEntriesBuilder mergedCategoryEntries = new CategoryEntriesBuilder();
         for (M model : models) {
             CategoryEntries categoryEntries = classifier.classify(classifiable, model);
-            mergedCategoryEntries = CategoryEntriesMap.merge(categoryEntries, mergedCategoryEntries);
+            mergedCategoryEntries.add(categoryEntries);
         }
 
-        return mergedCategoryEntries;
+        return mergedCategoryEntries.create();
     }
 
     /**

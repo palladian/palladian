@@ -1,16 +1,17 @@
 package ws.palladian.extraction.entity;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
+import ws.palladian.classification.ImmutableCategoryEntries;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.AbstractAnnotation;
+import ws.palladian.processing.features.Annotation;
 
 public class ContextAnnotation extends AbstractAnnotation {
 
     /** The category of the instance, null if not classified. */
-    private CategoryEntriesMap tags = new CategoryEntriesMap();
+    private CategoryEntries tags = ImmutableCategoryEntries.EMPTY;
 
     /** The start index of the annotation in the annotated text. */
     private int offset;
@@ -27,7 +28,7 @@ public class ContextAnnotation extends AbstractAnnotation {
     public ContextAnnotation(int offset, String value, String tag, String leftContext, String rightContext) {
         this.offset = offset;
         this.value = value;
-        tags.set(tag, 1);
+        this.tags = new CategoryEntriesBuilder().set(tag, 1).create();
         this.leftContext = leftContext;
         this.rightContext = rightContext;
     }
@@ -68,7 +69,7 @@ public class ContextAnnotation extends AbstractAnnotation {
     }
 
     public void setTags(CategoryEntries tags) {
-        this.tags = new CategoryEntriesMap(tags);
+        this.tags = tags;
     }
 
     public String getLeftContext() {

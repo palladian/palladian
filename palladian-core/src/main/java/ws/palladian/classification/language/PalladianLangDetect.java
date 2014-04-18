@@ -6,10 +6,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
@@ -55,12 +55,6 @@ public class PalladianLangDetect implements LanguageClassifier {
         this.possibleClasses = possibleClasses;
     }
 
-    // public ClassifierPerformance evaluate(Dataset dataset) {
-    // FIXME!!!
-    // return ClassifierEvaluator.evaluate(palladianClassifier, dataset);
-    // return palladianClassifier.evaluate(dataset);
-    // }
-
     /**
      * Train the language detector on a dataset.
      * 
@@ -73,52 +67,18 @@ public class PalladianLangDetect implements LanguageClassifier {
     }
 
     public static void train(Dataset dataset, String classifierName, String classifierPath, FeatureSetting fs) {
-
-        // take the time for the learning
         StopWatch stopWatch = new StopWatch();
-
-
-        // specify feature settings that should be used by the classifier
-        FeatureSetting featureSetting = fs;
-
-        if (featureSetting == null) {
-            // we want to create character-level n-grams
-            // the minimum length of our n-grams should be 4
-            // the maximum length of our n-grams should be 7
-            featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 4, 7);
-        }
-        
-        // create a text classifier by giving a name and a path where it should be saved to
+        FeatureSetting featureSetting = fs != null ? fs : FeatureSettingBuilder.chars(4, 7).create();
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting);
-        // TextClassifier classifier = new DictionaryClassifier(classifierName,classifierPath);
-
-        // now we can train the classifier using the given dataset
-        // classifier.train(dataset);
-        // classifier.save(classifierPath);
-        // classifierManager.trainClassifier(dataset, classifier);
-
         TextDatasetIterator datasetIterator = new TextDatasetIterator(dataset);
         DictionaryModel trainedModel = classifier.train(datasetIterator);
-
-        // test the classifier
-        // Dataset testDataset = new Dataset();
-        //
-        // // set the path to the dataset, the first field is a link, and columns are separated with a space
-        // testDataset.setPath("C:\\Data\\datasets\\JRCLanguageCorpus\\indexAll22Languages_ipc20_split2.txt");
-        //
-        // testDataset.setFirstFieldLink(true);
-        // testDataset.setSeparationString(" ");
-        //
-        // System.out.println(classifier.evaluate(testDataset));
-
         String fileName = classifierPath + classifierName + ".gz";
         try {
             FileHelper.serialize(trainedModel, fileName);
         } catch (IOException e) {
             throw new IllegalStateException("Error while serializing to \"" + fileName + "\".", e);
         }
-
-        LOGGER.info("finished training classifier in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("finished training classifier in {}", stopWatch.getElapsedTimeString());
     }
 
     @Override
@@ -137,14 +97,13 @@ public class PalladianLangDetect implements LanguageClassifier {
         if (possibleClasses == null) {
             return categoryEntries;
         }
-        CategoryEntriesMap narrowedCategories = new CategoryEntriesMap();
+        CategoryEntriesBuilder narrowedCategories = new CategoryEntriesBuilder();
         for (Category category : categoryEntries) {
             if (possibleClasses.contains(category.getName())) {
                 narrowedCategories.set(category.getName(), category.getProbability());
             }
         }
-        narrowedCategories.sort();
-        return narrowedCategories;
+        return narrowedCategories.create();
     }
 
     public static void main(String[] args) throws IOException {

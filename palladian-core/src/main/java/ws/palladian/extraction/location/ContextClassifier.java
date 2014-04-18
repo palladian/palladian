@@ -9,7 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
@@ -67,14 +67,12 @@ public class ContextClassifier {
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("ClassifiedAnnotation [classification=");
-            builder.append(categoryEntries);
-            builder.append(", startPosition");
-            builder.append(getStartPosition());
-            builder.append(", tag=");
-            builder.append(getTag());
-            builder.append(", value=");
+            builder.append("ClassifiedAnnotation [value=");
             builder.append(getValue());
+            builder.append(", startPosition=");
+            builder.append(getStartPosition());
+            builder.append(", classification=");
+            builder.append(categoryEntries);
             builder.append("]");
             return builder.toString();
         }
@@ -102,7 +100,7 @@ public class ContextClassifier {
     }
 
     public CategoryEntries classify(String text, Annotation annotation) {
-        CategoryEntriesMap result = new CategoryEntriesMap();
+        CategoryEntriesBuilder result = new CategoryEntriesBuilder();
         for (String rule : rules.keySet()) {
             if (rule.startsWith("* ")) { // note the space
                 // suffix rules
@@ -112,7 +110,7 @@ public class ContextClassifier {
                 if (token.equalsIgnoreCase(context)) {
                     result.add(rules.get(rule), 1);
                 }
-            } else if (rule.endsWith("* ")) {
+            } else if (rule.endsWith(" *")) {
                 // prefix rules
                 String token = rule.substring(0, rule.length() - 2);
                 int windowSize = token.split("\\s").length;
@@ -141,9 +139,7 @@ public class ContextClassifier {
                 LOGGER.warn("rule " + rule + " cannot be interpreted.");
             }
         }
-        result.computeProbabilities();
-        result.sort();
-        return result;
+        return result.create();
     }
 
     private boolean containsIgnoreCase(Collection<String> collection, String string) {
@@ -167,24 +163,19 @@ public class ContextClassifier {
                 result.add(new ClassifiedAnnotation(annotation, classification));
             }
         } else if (mode == ClassificationMode.PROPAGATION) {
-            Map<String, CategoryEntriesMap> collectedProbabilities = LazyMap.create(new Factory<CategoryEntriesMap>() {
-                @Override
-                public CategoryEntriesMap create() {
-                    return new CategoryEntriesMap();
-                }
-            });
+            Map<String, CategoryEntriesBuilder> collectedProbabilities = LazyMap
+                    .create(new Factory<CategoryEntriesBuilder>() {
+                        @Override
+                        public CategoryEntriesBuilder create() {
+                            return new CategoryEntriesBuilder();
+                        }
+                    });
             for (Annotation annotation : annotations) {
                 CategoryEntries classification = classify(text, annotation);
-                CategoryEntries existingClassification = collectedProbabilities.get(annotation.getValue());
-                CategoryEntriesMap newClassification = CategoryEntriesMap.merge(existingClassification, classification);
-                collectedProbabilities.put(annotation.getValue(), newClassification);
-            }
-            for (CategoryEntriesMap categoryEntry : collectedProbabilities.values()) {
-                categoryEntry.computeProbabilities();
-                categoryEntry.sort();
+                collectedProbabilities.get(annotation.getValue()).add(classification);
             }
             for (Annotation annotation : annotations) {
-                CategoryEntriesMap classification = collectedProbabilities.get(annotation.getValue());
+                CategoryEntries classification = collectedProbabilities.get(annotation.getValue()).create();
                 result.add(new ClassifiedAnnotation(annotation, classification));
             }
         }
