@@ -82,7 +82,7 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
     @Override
     public String toString() {
         StringBuilder toStringBuilder = new StringBuilder();
-        toStringBuilder.append(this.getClass().getSimpleName()).append(" [");
+        toStringBuilder.append('[');
         boolean first = true;
         for (Category category : this) {
             if (first) {
@@ -91,10 +91,10 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
                 toStringBuilder.append(", ");
             }
             toStringBuilder.append(category.getName());
-            toStringBuilder.append("=");
+            toStringBuilder.append('=');
             toStringBuilder.append(MathHelper.round(category.getProbability(), 4));
         }
-        toStringBuilder.append("]");
+        toStringBuilder.append(']');
         return toStringBuilder.toString();
     }
 

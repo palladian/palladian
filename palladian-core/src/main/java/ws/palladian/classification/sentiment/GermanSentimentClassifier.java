@@ -11,8 +11,9 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -182,10 +183,10 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
                 lastToken = token;
             }
             
-            CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
-            categoryEntries.add(positiveCategory, positiveSentimentSumSentence);
-            categoryEntries.add(negativeCategory, negativeSentimentSumSentence);
-            categoryEntries.computeProbabilities();
+            CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
+            builder.add(positiveCategory, positiveSentimentSumSentence);
+            builder.add(negativeCategory, negativeSentimentSumSentence);
+            CategoryEntries categoryEntries = builder.create();
 
             double probabilityMostLikelySentiment = categoryEntries.getProbability(categoryEntries.getMostLikelyCategory());
             if (probabilityMostLikelySentiment > confidenceThreshold
@@ -202,7 +203,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 //        categoryEntries.add(positiveCategoryEntry);
 //        categoryEntries.add(negativeCategoryEntry);
         
-        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         int positiveSentences = 0;
         if (getOpinionatedSentences().get("positive") != null) {
             positiveSentences = getOpinionatedSentences().get("positive").size();
@@ -212,11 +213,10 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             negativeSentences = getOpinionatedSentences().get("negative").size();
         }
 
-        categoryEntries.add(positiveCategory, positiveSentences);
-        categoryEntries.add(negativeCategory, negativeSentences);
-        categoryEntries.computeProbabilities();
+        builder.add(positiveCategory, positiveSentences);
+        builder.add(negativeCategory, negativeSentences);
         
-        return categoryEntries.getMostLikely();
+        return builder.create().getMostLikely();
     }
 
     public static void main(String[] args) throws IOException {

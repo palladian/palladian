@@ -23,13 +23,16 @@ public class ContextClassifierTest {
         List<? extends Annotation> annotations = tagger.getAnnotations(text);
         List<ClassifiedAnnotation> classifiedAnnotations = classifier.classify(annotations, text);
         assertEquals("LOC", classifiedAnnotations.get(1).getCategoryEntries().getMostLikelyCategory());
+        assertEquals(1.0, classifiedAnnotations.get(1).getCategoryEntries().getMostLikely().getProbability(), 0);
         assertEquals("LOC", classifiedAnnotations.get(2).getCategoryEntries().getMostLikelyCategory());
+        assertEquals(1.0, classifiedAnnotations.get(2).getCategoryEntries().getMostLikely().getProbability(), 0);
         // CollectionHelper.print(classifiedAnnotations);
 
         text = "Well, accommodation is nice in Sri Lanka.";
         annotations = tagger.getAnnotations(text);
         classifiedAnnotations = classifier.classify(annotations, text);
         assertEquals("LOC", classifiedAnnotations.get(1).getCategoryEntries().getMostLikelyCategory());
+        assertEquals(1.0, classifiedAnnotations.get(1).getCategoryEntries().getMostLikely().getProbability(), 0);
         // CollectionHelper.print(classifiedAnnotations);
 
     }
