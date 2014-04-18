@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -78,9 +79,8 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet,
-            Iterable<? extends Instance> validationSet) {
-        final FeatureRanking result = new FeatureRanking();
+    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
+        Map<String, Double> scores = CollectionHelper.newHashMap();
 
         Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
@@ -97,9 +97,9 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
             Double score = scorer.compute(confusionMatrix);
             LOGGER.info("Finished testing with {}: {}", feature, score);
             progressMonitor.incrementAndPrintProgress();
-            result.add(feature, score);
+            scores.put(feature, score);
         }
-        return result;
+        return new FeatureRanking(scores);
     }
 
     public static void main(String[] args) {

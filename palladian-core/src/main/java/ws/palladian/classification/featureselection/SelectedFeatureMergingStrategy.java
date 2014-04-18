@@ -10,8 +10,6 @@ import ws.palladian.helper.math.NumericMatrix;
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 1.0
- * @since 0.2.1
  */
 public interface SelectedFeatureMergingStrategy {
     /**
