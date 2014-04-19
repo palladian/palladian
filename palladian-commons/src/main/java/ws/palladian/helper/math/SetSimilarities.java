@@ -3,6 +3,8 @@ package ws.palladian.helper.math;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -30,8 +32,13 @@ public final class SetSimilarities {
 
         @Override
         public <T> double calculate(Set<T> s1, Set<T> s2) {
+            Validate.notNull(s1, "s1 must not be null");
+            Validate.notNull(s2, "s2 must not be null");
+            if (s1.isEmpty() || s2.isEmpty()) {
+                return 0;
+            }
             Set<T> intersection = CollectionHelper.intersect(s1, s2);
-            if (intersection.size() == 0) {
+            if (intersection.isEmpty()) {
                 return 0;
             }
             return (double)(2 * intersection.size()) / (s1.size() + s2.size());
@@ -57,8 +64,13 @@ public final class SetSimilarities {
 
         @Override
         public <T> double calculate(Set<T> s1, Set<T> s2) {
+            Validate.notNull(s1, "s1 must not be null");
+            Validate.notNull(s2, "s2 must not be null");
+            if (s1.isEmpty() || s2.isEmpty()) {
+                return 0;
+            }
             Set<T> intersection = CollectionHelper.intersect(s1, s2);
-            if (intersection.size() == 0) {
+            if (intersection.isEmpty()) {
                 return 0;
             }
             Set<T> union = new HashSet<T>(s1);
@@ -86,7 +98,9 @@ public final class SetSimilarities {
 
         @Override
         public <T> double calculate(Set<T> s1, Set<T> s2) {
-            if (s1.size() == 0 || s2.size() == 0) {
+            Validate.notNull(s1, "s1 must not be null");
+            Validate.notNull(s2, "s2 must not be null");
+            if (s1.isEmpty() || s2.isEmpty()) {
                 return 0;
             }
             Set<T> intersection = CollectionHelper.intersect(s1, s2);
