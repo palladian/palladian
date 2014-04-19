@@ -6,23 +6,13 @@ import static org.junit.Assert.assertTrue;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class MathHelperTest {
-
-    private final Set<Integer> set1 = CollectionHelper.newHashSet(1, 2, 3, 4);
-    private final Set<Integer> set2 = CollectionHelper.newHashSet(1, 2, 3, 6);
-    private final Set<Integer> set3 = CollectionHelper.newHashSet(1, 2, 3, 4);
-    private final Set<Integer> set4 = CollectionHelper.newHashSet(5, 6, 7, 8);
-    private final Set<Integer> set5 = CollectionHelper.newHashSet(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-    private final Set<Integer> emptySet = Collections.emptySet();
 
     @Test
     public void testRandomSample() {
@@ -71,25 +61,6 @@ public class MathHelperTest {
         Double[] vector1 = {10.0, 50.0};
         Double[] vector2 = {8.0, 66.0};
         assertEquals(0.997, MathHelper.round(MathHelper.computeCosineSimilarity(vector1, vector2), 3), 0);
-    }
-
-    @Test
-    public void testCalculateJaccardSimilarity() {
-        assertEquals(0.6, MathHelper.computeJaccardSimilarity(set1, set2), 0);
-        assertEquals(1.0, MathHelper.computeJaccardSimilarity(set1, set3), 0);
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, set4), 0);
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(emptySet, emptySet), 0);
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(emptySet, set1), 0);
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, emptySet), 0);
-    }
-
-    @Test
-    public void testCalculateOverlapCoefficient() {
-        assertEquals(0.75, MathHelper.computeOverlapCoefficient(set1, set2), 0);
-        assertEquals(1, MathHelper.computeOverlapCoefficient(set1, set5), 0);
-        assertEquals(0.0, MathHelper.computeOverlapCoefficient(emptySet, emptySet), 0);
-        assertEquals(0.0, MathHelper.computeOverlapCoefficient(emptySet, set1), 0);
-        assertEquals(0.0, MathHelper.computeOverlapCoefficient(set1, emptySet), 0);
     }
 
     @Test

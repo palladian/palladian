@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -9,11 +10,18 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.helper.StopWatch;
 
+/**
+ * Micro benchmark for Set operations.
+ * 
+ * @author pk
+ */
 class CollectionHelperBenchmark {
 
-    private static interface IntersectTester {
-        <K> Set<K> intersect(Set<K> setA, Set<K> setB);
+    private static interface Tester {
+        <K> Set<K> execute(Set<K> setA, Set<K> setB);
     }
+    
+    private static final Random RANDOM = new Random();
 
     /**
      * old intersect method
@@ -41,36 +49,84 @@ class CollectionHelperBenchmark {
      * Total time: 1m:1s:917ms
      */
     public static void intersectBenchmark() {
-        final Random random = new Random();
         final int numRuns = 10000;
         List<Pair<Set<Integer>, Set<Integer>>> testSets = CollectionHelper.newArrayList();
-        testSets.add(Pair.of(createRandomSet(100000, random), createRandomSet(100000, random)));
-        testSets.add(Pair.of(createRandomSet(10000, random), createRandomSet(100000, random)));
-        testSets.add(Pair.of(createRandomSet(1000, random), createRandomSet(100000, random)));
-        testSets.add(Pair.of(createRandomSet(100, random), createRandomSet(100000, random)));
-        testSets.add(Pair.of(createRandomSet(10, random), createRandomSet(100000, random)));
-        testSets.add(Pair.of(createRandomSet(100000, random), createRandomSet(10000, random)));
-        testSets.add(Pair.of(createRandomSet(100000, random), createRandomSet(1000, random)));
-        testSets.add(Pair.of(createRandomSet(100000, random), createRandomSet(100, random)));
-        testSets.add(Pair.of(createRandomSet(100000, random), createRandomSet(10, random)));
+        testSets.add(Pair.of(createRandomSet(100000), createRandomSet(100000)));
+        testSets.add(Pair.of(createRandomSet(10000), createRandomSet(100000)));
+        testSets.add(Pair.of(createRandomSet(1000), createRandomSet(100000)));
+        testSets.add(Pair.of(createRandomSet(100), createRandomSet(100000)));
+        testSets.add(Pair.of(createRandomSet(10), createRandomSet(100000)));
+        testSets.add(Pair.of(createRandomSet(1), createRandomSet(100000)));
+        testSets.add(Pair.of(Collections.<Integer> emptySet(), createRandomSet(100000)));
+        testSets.add(Pair.of(createRandomSet(100000), createRandomSet(10000)));
+        testSets.add(Pair.of(createRandomSet(100000), createRandomSet(1000)));
+        testSets.add(Pair.of(createRandomSet(100000), createRandomSet(100)));
+        testSets.add(Pair.of(createRandomSet(100000), createRandomSet(10)));
+        testSets.add(Pair.of(createRandomSet(100000), createRandomSet(1)));
+        testSets.add(Pair.of(createRandomSet(100000), Collections.<Integer> emptySet()));
 
         System.out.println("old intersect method");
-        benchmark(numRuns, testSets, new IntersectTester() {
+        benchmark(numRuns, testSets, new Tester() {
             @Override
-            public <K> Set<K> intersect(Set<K> setA, Set<K> setB) {
-                return oldIntersect(setA, setB);
+            public <K> Set<K> execute(Set<K> setA, Set<K> setB) {
+                HashSet<K> intersection = new HashSet<K>(setA);
+                intersection.retainAll(setB);
+                return intersection;
             }
         });
         System.out.println("new intersect method");
-        benchmark(numRuns, testSets, new IntersectTester() {
+        benchmark(numRuns, testSets, new Tester() {
             @Override
-            public <K> Set<K> intersect(Set<K> setA, Set<K> setB) {
+            public <K> Set<K> execute(Set<K> setA, Set<K> setB) {
                 return CollectionHelper.intersect(setA, setB);
+            }
+        });
+        System.out.println("---------------------------------------");
+        System.out.println("old union method");
+        benchmark(numRuns, testSets, new Tester() {
+            @Override
+            public <K> Set<K> execute(Set<K> setA, Set<K> setB) {
+                HashSet<K> union = new HashSet<K>(setA);
+                union.addAll(setB);
+                return union;
+            }
+        });
+        System.out.println("new union method");
+        benchmark(numRuns, testSets, new Tester() {
+            @Override
+            public <K> Set<K> execute(Set<K> setA, Set<K> setB) {
+                boolean swap = setA.size() > setB.size();
+                Set<K> largerSet = swap ? setA : setB;
+                Set<K> smallerSet = swap ? setB : setA;
+                Set<K> union = new HashSet<K>(largerSet);
+                union.addAll(smallerSet);
+                return union;
+            }
+        });
+        System.out.println("new union method ver. 2");
+        benchmark(numRuns, testSets, new Tester() {
+            @Override
+            public <K> Set<K> execute(Set<K> setA, Set<K> setB) {
+                int maxSize = Math.max(setA.size(), setB.size());
+                Set<K> union = new HashSet<K>(maxSize);
+                union.addAll(setA);
+                union.addAll(setB);
+                return union;
+            }
+        });
+        System.out.println("new union method ver. 3");
+        benchmark(numRuns, testSets, new Tester() {
+            @Override
+            public <K> Set<K> execute(Set<K> setA, Set<K> setB) {
+                Set<K> union = new HashSet<K>(setA.size() + setB.size()); // this is a "worst case" size estimate
+                union.addAll(setA);
+                union.addAll(setB);
+                return union;
             }
         });
     }
 
-    private static void benchmark(int numRuns, List<Pair<Set<Integer>, Set<Integer>>> testSets, IntersectTester tester) {
+    private static void benchmark(int numRuns, List<Pair<Set<Integer>, Set<Integer>>> testSets, Tester tester) {
         StopWatch totalStopWatch = new StopWatch();
         for (Pair<Set<Integer>, Set<Integer>> testSet : testSets) {
             StopWatch currentStopWatch = new StopWatch();
@@ -80,7 +136,7 @@ class CollectionHelperBenchmark {
                 if (i % 1000 == 0) {
                     System.out.print('.');
                 }
-                tester.intersect(setA, setB);
+                tester.execute(setA, setB);
             }
             System.out.print(' ');
             System.out.println("|setA| = " + setA.size() + ", |setB| = " + setB.size() + ": " + currentStopWatch);
@@ -88,18 +144,12 @@ class CollectionHelperBenchmark {
         System.out.println("Total time: " + totalStopWatch);
     }
 
-    private static Set<Integer> createRandomSet(int maxSize, Random random) {
+    private static Set<Integer> createRandomSet(int maxSize) {
         Set<Integer> result = new HashSet<Integer>();
         while (result.size() < maxSize) {
-            result.add(random.nextInt(Integer.MAX_VALUE));
+            result.add(RANDOM.nextInt(Integer.MAX_VALUE));
         }
         return result;
-    }
-
-    public static <T> Set<T> oldIntersect(Set<T> setA, Set<T> setB) {
-        HashSet<T> intersection = new HashSet<T>(setA);
-        intersection.retainAll(setB);
-        return intersection;
     }
 
     public static void main(String[] args) {
