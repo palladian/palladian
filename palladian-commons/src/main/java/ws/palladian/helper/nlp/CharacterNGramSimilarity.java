@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.SetSimilarities;
+import ws.palladian.helper.math.SetSimilarity;
 
 /**
  * <p>

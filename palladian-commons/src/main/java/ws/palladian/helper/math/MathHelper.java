@@ -102,24 +102,28 @@ public final class MathHelper {
      * @param setA The first set, not <code>null</code>.
      * @param setB The second set, not <code>null</code>.
      * @return The Jaccard similarity in the range [0, 1].
+     * @deprecated Use {@link SetSimilarities#JACCARD}.
      */
+    @Deprecated
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
-        Validate.notNull(setA, "setA must not be null");
-        Validate.notNull(setB, "setB must not be null");
-
-        Set<T> intersection = CollectionHelper.newHashSet();
-        intersection.addAll(setA);
-        intersection.retainAll(setB);
-
-        if (intersection.size() == 0) {
-            return 0;
-        }
-
-        Set<T> union = CollectionHelper.newHashSet();
-        union.addAll(setA);
-        union.addAll(setB);
-
-        return (double)intersection.size() / union.size();
+//        Validate.notNull(setA, "setA must not be null");
+//        Validate.notNull(setB, "setB must not be null");
+//
+//        Set<T> intersection = CollectionHelper.newHashSet();
+//        intersection.addAll(setA);
+//        intersection.retainAll(setB);
+//
+//        if (intersection.size() == 0) {
+//            return 0;
+//        }
+//
+//        Set<T> union = CollectionHelper.newHashSet();
+//        union.addAll(setA);
+//        union.addAll(setB);
+//
+//        return (double)intersection.size() / union.size();
+        
+        return SetSimilarities.JACCARD.calculate(setA, setB);
     }
 
     /**
@@ -131,20 +135,24 @@ public final class MathHelper {
      * @param setA The first set.
      * @param setB The second set.
      * @return The overlap coefficient in the range [0, 1].
+     * @deprecated Use {@link SetSimilarities#OVERLAP}.
      */
+    @Deprecated
     public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
-        if (setA.size() == 0 || setB.size() == 0) {
-            return 0;
-        }
-
-        Set<T> intersection = CollectionHelper.newHashSet();
-        intersection.addAll(setA);
-        intersection.retainAll(setB);
-
-        return (double)intersection.size() / Math.min(setA.size(), setB.size());
+//        if (setA.size() == 0 || setB.size() == 0) {
+//            return 0;
+//        }
+//
+//        Set<T> intersection = CollectionHelper.newHashSet();
+//        intersection.addAll(setA);
+//        intersection.retainAll(setB);
+//
+//        return (double)intersection.size() / Math.min(setA.size(), setB.size());
+        
+        return SetSimilarities.OVERLAP.calculate(setA, setB);
     }
 
-    /** Use {@link NumericVector} instead. */
+    /** @deprecated Use {@link NumericVector} instead. */
     @Deprecated
     public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
 
@@ -155,7 +163,7 @@ public final class MathHelper {
         return dotProduct / (magnitude1 * magnitude2);
     }
 
-    /** Use {@link NumericVector} instead. */
+    /** @deprecated Use {@link NumericVector} instead. */
     @Deprecated
     public static double computeDotProduct(Double[] vector1, Double[] vector2) {
         double dotProduct = 0.0;
@@ -167,7 +175,7 @@ public final class MathHelper {
         return dotProduct;
     }
 
-    /** Use {@link NumericVector} instead. */
+    /** @deprecated Use {@link NumericVector} instead. */
     @Deprecated
     public static double computeMagnitude(Double[] vector) {
         double magnitude = 0.0;

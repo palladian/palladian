@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.helper.math.SetSimilarities;
+
 public class TokenSimilarityTest {
 
     private static final double DELTA = 0.001;

@@ -1,4 +1,4 @@
-package ws.palladian.helper.nlp;
+package ws.palladian.helper.math;
 
 import java.util.Collection;
 
