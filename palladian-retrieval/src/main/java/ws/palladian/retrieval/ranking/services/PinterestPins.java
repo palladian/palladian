@@ -30,7 +30,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class PinterestPins extends BaseRankingService implements RankingService {
+public final class PinterestPins extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PinterestPins.class);

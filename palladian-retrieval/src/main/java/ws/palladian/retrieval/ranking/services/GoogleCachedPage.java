@@ -24,7 +24,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  * @author David Urbansky
  */
-public final class GoogleCachedPage extends BaseRankingService implements RankingService {
+public final class GoogleCachedPage extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCachedPage.class);

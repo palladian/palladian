@@ -26,7 +26,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * @see <a href="https://developer.foursquare.com">foursquare for Developers</a>
  */
-public final class Foursquare extends BaseRankingService implements RankingService {
+public final class Foursquare extends AbstractRankingService implements RankingService {
 
     /** {@link Configuration} key for the client id. */
     public static final String CONFIG_CLIENT_ID = "api.foursquare.clientId";

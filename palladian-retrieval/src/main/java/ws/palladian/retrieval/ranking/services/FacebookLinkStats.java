@@ -32,7 +32,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  * @author Julien Schmehl
  */
-public final class FacebookLinkStats extends BaseRankingService implements RankingService {
+public final class FacebookLinkStats extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookLinkStats.class);

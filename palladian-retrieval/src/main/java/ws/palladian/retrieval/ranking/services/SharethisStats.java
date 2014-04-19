@@ -35,7 +35,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.sharethis.com/
  * @see http://help.sharethis.com/api/sharing-api#social-destinations
  */
-public final class SharethisStats extends BaseRankingService implements RankingService {
+public final class SharethisStats extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SharethisStats.class);

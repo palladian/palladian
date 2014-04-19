@@ -30,7 +30,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.majesticseo.com/api_domainstats.php
  * @author Philipp Katz
  */
-public final class MajesticSeo extends BaseRankingService implements RankingService {
+public final class MajesticSeo extends AbstractRankingService implements RankingService {
 
     /** {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.majestic.key";

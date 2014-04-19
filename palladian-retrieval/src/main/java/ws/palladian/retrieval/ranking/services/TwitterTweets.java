@@ -24,7 +24,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class TwitterTweets extends BaseRankingService implements RankingService {
+public final class TwitterTweets extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterTweets.class);
