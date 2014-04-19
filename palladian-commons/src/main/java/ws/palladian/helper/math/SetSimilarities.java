@@ -1,4 +1,4 @@
-package ws.palladian.helper.nlp;
+package ws.palladian.helper.math;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -6,6 +6,11 @@ import java.util.Set;
 
 import ws.palladian.helper.collection.CollectionHelper;
 
+/**
+ * Predefined {@link SetSimilarity} implementations.
+ * 
+ * @author pk
+ */
 public final class SetSimilarities {
 
     private SetSimilarities() {
@@ -17,9 +22,11 @@ public final class SetSimilarities {
 
         @Override
         public <T> double calculate(Collection<T> c1, Collection<T> c2) {
-            Set<T> nGramsCommon = new HashSet<T>(c1);
-            nGramsCommon.retainAll(c2);
-            return (double)(2 * nGramsCommon.size()) / (c1.size() + c2.size());
+            Set<T> intersection = CollectionHelper.intersect(new HashSet<T>(c1), new HashSet<T>(c2));
+            if (intersection.size() == 0) {
+                return 0;
+            }
+            return (double)(2 * intersection.size()) / (c1.size() + c2.size());
         }
 
         @Override
@@ -33,8 +40,6 @@ public final class SetSimilarities {
 
         @Override
         public <T> double calculate(Collection<T> c1, Collection<T> c2) {
-//            Set<T> intersection = new HashSet<T>(c1);
-//            intersection.retainAll(c2);
             Set<T> intersection = CollectionHelper.intersect(new HashSet<T>(c1), new HashSet<T>(c2));
             if (intersection.size() == 0) {
                 return 0;
@@ -58,8 +63,6 @@ public final class SetSimilarities {
             if (c1.size() == 0 || c2.size() == 0) {
                 return 0;
             }
-//            Set<T> intersection = new HashSet<T>(c1);
-//            intersection.retainAll(c2);
             Set<T> intersection = CollectionHelper.intersect(new HashSet<T>(c1), new HashSet<T>(c2));
             return (double)intersection.size() / Math.min(c1.size(), c2.size());
         }

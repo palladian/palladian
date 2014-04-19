@@ -5,6 +5,16 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.math.SetSimilarities;
+import ws.palladian.helper.math.SetSimilarity;
+
+/**
+ * <p>
+ * {@link StringSimilarity} which measures the similarity between two strings by applying a {@link SetSimilarity}
+ * measure (such as Jaccard, Overlap, etc. See {@link SetSimilarities} for available implementations.)
+ * 
+ * @author pk
+ */
 public class TokenSimilarity implements StringSimilarity {
 
     private final SetSimilarity similarity;
