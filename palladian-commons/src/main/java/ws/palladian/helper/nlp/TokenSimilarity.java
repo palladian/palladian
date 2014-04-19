@@ -1,10 +1,10 @@
 package ws.palladian.helper.nlp;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.SetSimilarities;
 import ws.palladian.helper.math.SetSimilarity;
 
@@ -39,8 +39,8 @@ public class TokenSimilarity implements StringSimilarity {
             return 1;
         }
 
-        List<String> split1 = Arrays.asList(s1lower.split("\\s"));
-        List<String> split2 = Arrays.asList(s2lower.split("\\s"));
+        Set<String> split1 = CollectionHelper.newHashSet(s1lower.split("\\s"));
+        Set<String> split2 = CollectionHelper.newHashSet(s2lower.split("\\s"));
         return similarity.calculate(split1, split2);
     }
 

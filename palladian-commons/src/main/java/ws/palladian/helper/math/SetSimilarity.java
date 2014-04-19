@@ -1,8 +1,8 @@
 package ws.palladian.helper.math;
 
-import java.util.Collection;
+import java.util.Set;
 
 /** A similarity measure between two sets. */
 public interface SetSimilarity {
-    <T> double calculate(Collection<T> c1, Collection<T> c2);
+    <T> double calculate(Set<T> s1, Set<T> s2);
 }
