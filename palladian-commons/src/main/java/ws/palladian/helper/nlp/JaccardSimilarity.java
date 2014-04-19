@@ -13,7 +13,9 @@ import ws.palladian.helper.math.MathHelper;
  * </p>
  * 
  * @author David Urbansky
+ * @deprecated Use {@link TokenSimilarity} instead.
  */
+@Deprecated
 public class JaccardSimilarity implements StringSimilarity {
 
     @Override

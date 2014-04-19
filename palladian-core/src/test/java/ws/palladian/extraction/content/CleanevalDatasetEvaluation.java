@@ -6,7 +6,7 @@ import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 import ws.palladian.helper.nlp.LevenshteinSimilarity;
-import ws.palladian.helper.nlp.NGramSimilarity;
+import ws.palladian.helper.nlp.CharacterNGramSimilarity;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.StringSimilarity;
 
@@ -19,7 +19,7 @@ public class CleanevalDatasetEvaluation {
         double totalScore3 = 0.;
 
         StringSimilarity similarity1 = new LevenshteinSimilarity();
-        StringSimilarity similarity2 = new NGramSimilarity(5);
+        StringSimilarity similarity2 = new CharacterNGramSimilarity(5);
         StringSimilarity similarity3 = new JaroWinklerSimilarity();
 
         String resultFileName = extractor.getExtractorName() + "_results.csv";

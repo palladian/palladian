@@ -4,13 +4,13 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class NGramSimilarityTest {
+public class CharacterNGramSimilarityTest {
 
     private static final double DELTA = 0.01;
 
     @Test
     public void testNGramSimilarity() {
-        NGramSimilarity similarity = new NGramSimilarity(3, NGramSimilarity.DICE);
+        CharacterNGramSimilarity similarity = new CharacterNGramSimilarity(3, SetSimilarities.DICE);
         assertEquals(1.0, similarity.getSimilarity("", ""), DELTA);
         assertEquals(0.0, similarity.getSimilarity("", "string"), DELTA);
         assertEquals(1.0, similarity.getSimilarity("a", "a"), DELTA);
@@ -24,7 +24,7 @@ public class NGramSimilarityTest {
 
     @Test
     public void testNGramSimilarityJaccard() {
-        NGramSimilarity similarity = new NGramSimilarity(3, NGramSimilarity.JACCARD);
+        CharacterNGramSimilarity similarity = new CharacterNGramSimilarity(3, SetSimilarities.JACCARD);
         assertEquals(1.0, similarity.getSimilarity("", ""), DELTA);
         assertEquals(0.0, similarity.getSimilarity("", "string"), DELTA);
         assertEquals(1.0, similarity.getSimilarity("a", "a"), DELTA);
@@ -38,7 +38,7 @@ public class NGramSimilarityTest {
 
     @Test
     public void testNGramSimilarityOverlap() {
-        NGramSimilarity similarity = new NGramSimilarity(3, NGramSimilarity.OVERLAP);
+        CharacterNGramSimilarity similarity = new CharacterNGramSimilarity(3, SetSimilarities.OVERLAP);
         assertEquals(1.0, similarity.getSimilarity("", ""), DELTA);
         assertEquals(0.0, similarity.getSimilarity("", "string"), DELTA);
         assertEquals(1.0, similarity.getSimilarity("a", "a"), DELTA);
