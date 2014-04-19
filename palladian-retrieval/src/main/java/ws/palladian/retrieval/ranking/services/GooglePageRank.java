@@ -26,7 +26,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Julien Schmehl
  * @author Philipp Katz
  */
-public final class GooglePageRank extends BaseRankingService implements RankingService {
+public final class GooglePageRank extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GooglePageRank.class);

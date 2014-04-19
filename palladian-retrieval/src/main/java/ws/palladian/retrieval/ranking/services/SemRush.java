@@ -23,7 +23,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class SemRush extends BaseRankingService implements RankingService {
+public final class SemRush extends AbstractRankingService implements RankingService {
 
     /** The id of this service. */
     private static final String SERVICE_ID = "semrush";

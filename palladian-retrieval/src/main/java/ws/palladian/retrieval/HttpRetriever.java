@@ -374,12 +374,15 @@ public class HttpRetriever {
         Validate.notNull(request, "request must not be null");
 
         HttpUriRequest httpRequest;
+        String url;
         switch (request.getMethod()) {
             case GET:
-                httpRequest = new HttpGet(createUrl(request));
+                url = createUrl(request);
+                httpRequest = new HttpGet(url);
                 break;
             case POST:
-                HttpPost httpPost = new HttpPost(request.getUrl());
+                url = request.getUrl();
+                HttpPost httpPost = new HttpPost(url);
                 List<NameValuePair> postParams = CollectionHelper.newArrayList();
                 for (Entry<String, String> param : request.getParameters().entrySet()) {
                     postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
@@ -392,7 +395,8 @@ public class HttpRetriever {
                 httpRequest = httpPost;
                 break;
             case HEAD:
-                httpRequest = new HttpHead(createUrl(request));
+                url = createUrl(request);
+                httpRequest = new HttpHead(url);
                 break;
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
@@ -402,7 +406,7 @@ public class HttpRetriever {
             httpRequest.setHeader(header.getKey(), header.getValue());
         }
 
-        return execute(request.getUrl(), httpRequest);
+        return execute(url, httpRequest);
     }
 
     // ////////////////////////////////////////////////////////////////

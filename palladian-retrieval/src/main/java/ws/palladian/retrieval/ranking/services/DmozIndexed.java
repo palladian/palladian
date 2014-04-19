@@ -19,7 +19,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  * @author David Urbansky
  */
-public final class DmozIndexed extends BaseRankingService implements RankingService {
+public final class DmozIndexed extends AbstractRankingService implements RankingService {
 
     /** The id of this service. */
     private static final String SERVICE_ID = "DMOZ";
