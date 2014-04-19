@@ -35,7 +35,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Julien Schmehl
  * @see http://www.plurk.com
  */
-public final class PlurkPosts extends BaseRankingService implements RankingService {
+public final class PlurkPosts extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PlurkPosts.class);
