@@ -49,7 +49,7 @@ class CollectionHelperBenchmark {
      * Total time: 1m:1s:917ms
      */
     public static void intersectBenchmark() {
-        final int numRuns = 10000;
+        final int numRuns = 1000;
         List<Pair<Set<Integer>, Set<Integer>>> testSets = CollectionHelper.newArrayList();
         testSets.add(Pair.of(createRandomSet(100000), createRandomSet(100000)));
         testSets.add(Pair.of(createRandomSet(10000), createRandomSet(100000)));
@@ -133,7 +133,7 @@ class CollectionHelperBenchmark {
             Set<Integer> setA = testSet.getLeft();
             Set<Integer> setB = testSet.getRight();
             for (int i = 0; i < numRuns; i++) {
-                if (i % 1000 == 0) {
+                if (i % 100 == 0) {
                     System.out.print('.');
                 }
                 tester.execute(setA, setB);
