@@ -7,15 +7,15 @@ import org.apache.commons.lang3.Validate;
 
 public class TokenSimilarity implements StringSimilarity {
 
-    private final SetSimilarity setSimilarity;
+    private final SetSimilarity similarity;
 
     public TokenSimilarity() {
         this(SetSimilarities.JACCARD);
     }
 
-    public TokenSimilarity(SetSimilarity setSimilarity) {
-        Validate.notNull(setSimilarity, "setSimilarity must not be null");
-        this.setSimilarity = setSimilarity;
+    public TokenSimilarity(SetSimilarity similarity) {
+        Validate.notNull(similarity, "similarity must not be null");
+        this.similarity = similarity;
     }
 
     @Override
@@ -31,16 +31,12 @@ public class TokenSimilarity implements StringSimilarity {
 
         List<String> split1 = Arrays.asList(s1lower.split("\\s"));
         List<String> split2 = Arrays.asList(s2lower.split("\\s"));
-        return setSimilarity.calculate(split1, split2);
+        return similarity.calculate(split1, split2);
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("TokenSimilarity [setSimilarity=");
-        builder.append(setSimilarity);
-        builder.append("]");
-        return builder.toString();
+        return new StringBuilder().append("token-").append(similarity).append("-similarity").toString();
     }
 
 }

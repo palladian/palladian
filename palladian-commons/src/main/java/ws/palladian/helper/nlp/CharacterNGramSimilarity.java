@@ -84,13 +84,7 @@ public class CharacterNGramSimilarity implements StringSimilarity {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("NGramSimilarity [n=");
-        builder.append(n);
-        builder.append(", setSimilarity=");
-        builder.append(setSimilarity.getClass().getName());
-        builder.append("]");
-        return builder.toString();
+        return new StringBuilder().append(n).append("-gram-").append(setSimilarity).append("-similarity").toString();
     }
 
 }
