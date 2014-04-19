@@ -23,7 +23,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  * @author Philipp Katz
  */
-public final class CompositeRankingService extends BaseRankingService implements RankingService {
+public final class CompositeRankingService extends AbstractRankingService implements RankingService {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CompositeRankingService.class);

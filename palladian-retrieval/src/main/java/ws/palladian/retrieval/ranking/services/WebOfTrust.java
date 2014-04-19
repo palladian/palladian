@@ -32,7 +32,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.mywot.com/en/api
  * @see http://www.mywot.com/wiki/API
  */
-public final class WebOfTrust extends BaseRankingService implements RankingService {
+public final class WebOfTrust extends AbstractRankingService implements RankingService {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebOfTrust.class);

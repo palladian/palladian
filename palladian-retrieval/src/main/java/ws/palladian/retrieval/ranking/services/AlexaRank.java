@@ -29,7 +29,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * @see http://www.alexa.com/help/traffic-learn-more
  */
-public final class AlexaRank extends BaseRankingService implements RankingService {
+public final class AlexaRank extends AbstractRankingService implements RankingService {
 
     /** The id of this service. */
     private static final String SERVICE_ID = "alexa";

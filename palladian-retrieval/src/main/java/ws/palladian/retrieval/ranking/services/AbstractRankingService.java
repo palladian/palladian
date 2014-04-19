@@ -21,15 +21,15 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  * @author Philipp Katz
  */
-public abstract class BaseRankingService implements RankingService {
+public abstract class AbstractRankingService implements RankingService {
     
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseRankingService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRankingService.class);
 
-    /** DocumentRetriever for HTTP downloading purposes. */
+    /** HttpRetriever for HTTP downloading purposes. */
     protected final HttpRetriever retriever;
 
-    public BaseRankingService() {
+    public AbstractRankingService() {
         retriever = HttpRetrieverFactory.getHttpRetriever();
         
         // we use a rather short timeout here, as responses are short.

@@ -24,7 +24,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * @see http://www.webutation.net
  */
-public final class Webutation extends BaseRankingService implements RankingService {
+public final class Webutation extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Webutation.class);

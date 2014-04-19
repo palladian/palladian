@@ -24,7 +24,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class SistrixVisibilityIndex extends BaseRankingService implements RankingService {
+public final class SistrixVisibilityIndex extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SistrixVisibilityIndex.class);
