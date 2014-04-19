@@ -1,6 +1,6 @@
 package ws.palladian.helper.nlp;
 
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -56,8 +56,8 @@ public class CharacterNGramSimilarity implements StringSimilarity {
         if (s1lower.equals(s2lower)) {
             return 1;
         }
-        List<String> nGrams1 = createNGrams(s1lower, n);
-        List<String> nGrams2 = createNGrams(s2lower, n);
+        Set<String> nGrams1 = createNGrams(s1lower, n);
+        Set<String> nGrams2 = createNGrams(s2lower, n);
         return setSimilarity.calculate(nGrams1, nGrams2);
     }
 
@@ -71,13 +71,13 @@ public class CharacterNGramSimilarity implements StringSimilarity {
      * @param n The length of the n-grams to create.
      * @return The n-grams.
      */
-    private List<String> createNGrams(String s, int n) {
+    private Set<String> createNGrams(String s, int n) {
         StringBuilder temp = new StringBuilder();
         temp.append(StringUtils.repeat('#', n - 1));
         temp.append(s);
         temp.append(StringUtils.repeat('#', n - 1));
         s = temp.toString();
-        List<String> ret = CollectionHelper.newArrayList();
+        Set<String> ret = CollectionHelper.newHashSet();
         for (int i = 0; i <= s.length() - n; i++) {
             ret.add(s.substring(i, i + n));
         }
