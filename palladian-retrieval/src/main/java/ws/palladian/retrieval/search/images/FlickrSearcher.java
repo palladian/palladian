@@ -184,7 +184,6 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     public FlickrSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
-        System.out.println(apiKey);
         this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
