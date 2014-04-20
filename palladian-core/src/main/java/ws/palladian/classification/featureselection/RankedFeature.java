@@ -2,6 +2,7 @@ package ws.palladian.classification.featureselection;
 
 /**
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
 public final class RankedFeature implements Comparable<RankedFeature> {
     private final String name;
@@ -27,7 +28,11 @@ public final class RankedFeature implements Comparable<RankedFeature> {
 
     @Override
     public int compareTo(RankedFeature other) {
-        return Double.compare(other.score, this.score);
+        int scoreComparison = Double.compare(other.score, this.score);
+        if (scoreComparison == 0) {
+            return this.name.compareTo(other.name);
+        }
+        return scoreComparison;
     }
 
 }
