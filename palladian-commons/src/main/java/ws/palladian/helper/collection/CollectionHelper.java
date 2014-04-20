@@ -934,7 +934,7 @@ public final class CollectionHelper {
      * 
      * @param setA The first set, not <code>null</code>.
      * @param setB The second set, not <code>null</code>.
-     * @return A new set which contains only elements occuring in both given sets.
+     * @return A new set which contains only elements occurring in both given sets.
      */
     public static <T> Set<T> intersect(Set<T> setA, Set<T> setB) {
         Validate.notNull(setA, "setA must not be null");

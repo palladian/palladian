@@ -1,6 +1,5 @@
 package ws.palladian.helper.math;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -73,9 +72,8 @@ public final class SetSimilarities {
             if (intersection.isEmpty()) {
                 return 0;
             }
-            Set<T> union = new HashSet<T>(s1);
-            union.addAll(s2);
-            return (double)intersection.size() / union.size();
+            int unionSize = s1.size() + s2.size() - intersection.size();
+            return (double) intersection.size() / unionSize;
         }
 
         @Override
