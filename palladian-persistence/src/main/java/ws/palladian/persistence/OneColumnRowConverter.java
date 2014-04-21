@@ -17,44 +17,24 @@ public final class OneColumnRowConverter {
         // prevent instances.
     }
 
-    /**
-     * <p>
-     * A {@link RowConverter} for {@link Boolean} types.
-     * </p>
-     * @deprecated Use {@link RowConverters#BOOLEAN} instead
-     */
+    /** @deprecated Use {@link RowConverters#BOOLEAN} instead */
+    @Deprecated
     public final static RowConverter<Boolean> BOOLEAN = RowConverters.BOOLEAN;
 
-    /**
-     * <p>
-     * A {@link RowConverter} for {@link Integer} types.
-     * </p>
-     * @deprecated Use {@link RowConverters#INTEGER} instead
-     */
+    /** @deprecated Use {@link RowConverters#INTEGER} instead */
+    @Deprecated
     public final static RowConverter<Integer> INTEGER = RowConverters.INTEGER;
 
-    /**
-     * <p>
-     * A {@link RowConverter} for {@link Double} types.
-     * </p>
-     * @deprecated Use {@link RowConverters#DOUBLE} instead
-     */
+    /** @deprecated Use {@link RowConverters#DOUBLE} instead */
+    @Deprecated
     public final static RowConverter<Double> DOUBLE = RowConverters.DOUBLE;
 
-    /**
-     * <p>
-     * A {@link RowConverter} for {@link Long} types.
-     * </p>
-     * @deprecated Use {@link RowConverters#LONG} instead
-     */
+    /** @deprecated Use {@link RowConverters#LONG} instead */
+    @Deprecated
     public final static RowConverter<Long> LONG = RowConverters.LONG;
 
-    /**
-     * <p>
-     * A {@link RowConverter} for {@link String} types.
-     * </p>
-     * @deprecated Use {@link RowConverters#STRING} instead
-     */
+    /** @deprecated Use {@link RowConverters#STRING} instead */
+    @Deprecated
     public final static RowConverter<String> STRING = RowConverters.STRING;
 
 }
