@@ -67,6 +67,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
 
         private String internalToString(String format) {
             NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+            numberFormat.setMaximumFractionDigits(5);
             return String.format(format, numberFormat.format(t), numberFormat.format(pr), numberFormat.format(rc),
                     numberFormat.format(getF1()), makeBar(getF1()));
         }
