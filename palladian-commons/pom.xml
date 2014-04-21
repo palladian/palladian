@@ -9,6 +9,10 @@
 	<artifactId>palladian-commons</artifactId>
 	<name>Palladian: Commons</name>
 	<description>Common functionality shared by Palladian modules</description>
+	<properties>
+		<timestamp>${maven.build.timestamp}</timestamp>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -18,6 +22,19 @@
 				<configuration>
 					<configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>templating-maven-plugin</artifactId>
+				<version>1.0-alpha-3</version>
+				<executions>
+					<execution>
+						<id>filter-src</id>
+						<goals>
+							<goal>filter-sources</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
