@@ -13,9 +13,8 @@ import java.util.Map;
 @Deprecated
 public final class MapRowConverter {
 
-    /**
-     * @deprecated Use {@link RowConverters#MAP} instead
-     */
+    /** @deprecated Use {@link RowConverters#MAP} instead */
+    @Deprecated
     public final static RowConverter<Map<String, Object>> MAP = RowConverters.MAP;
 
     private MapRowConverter() {

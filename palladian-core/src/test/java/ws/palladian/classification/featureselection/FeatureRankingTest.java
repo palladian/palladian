@@ -53,9 +53,9 @@ public class FeatureRankingTest {
 
         assertThat(ranking.getAll().get(5).getName(), is("e"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.875, 0.0001)));
-        assertThat(ranking.getAll().get(4).getName(), is("b"));
+        assertThat(ranking.getAll().get(4).getName(), is("d"));
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.22222, 0.0001)));
-        assertThat(ranking.getAll().get(3).getName(), is("d"));
+        assertThat(ranking.getAll().get(3).getName(), is("b"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(2.22222, 0.0001)));
         assertThat(ranking.getAll().get(2).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(2).getScore(), is(closeTo(5.0, 0.0001)));
@@ -74,9 +74,9 @@ public class FeatureRankingTest {
 
         assertThat(ranking.getAll().get(5).getName(), is("e"));
         assertThat(ranking.getAll().get(5).getScore(), is(closeTo(1.0, 0.0001)));
-        assertThat(ranking.getAll().get(4).getName(), is("b"));
+        assertThat(ranking.getAll().get(4).getName(), is("d"));
         assertThat(ranking.getAll().get(4).getScore(), is(closeTo(2.0, 0.0001)));
-        assertThat(ranking.getAll().get(3).getName(), is("d"));
+        assertThat(ranking.getAll().get(3).getName(), is("b"));
         assertThat(ranking.getAll().get(3).getScore(), is(closeTo(3.0, 0.0001)));
         assertThat(ranking.getAll().get(2).getName(), isOneOf("a", "c", "f"));
         assertThat(ranking.getAll().get(2).getScore(), is(closeTo(4.0, 0.0001)));
