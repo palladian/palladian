@@ -1,5 +1,8 @@
 package ws.palladian.classification.featureselection;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 /**
  * @author Klemens Muthmann
  * @author Philipp Katz
@@ -23,7 +26,9 @@ public final class RankedFeature implements Comparable<RankedFeature> {
 
     @Override
     public String toString() {
-        return name + "=" + score;
+        NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+        format.setMaximumFractionDigits(5);
+        return name + "=" + format.format(score);
     }
 
     @Override
