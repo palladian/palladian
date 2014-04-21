@@ -706,7 +706,7 @@ public class DatabaseManager {
      */
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<? extends Object> args) {
         Validate.notNull(converter, "converter must not be null");
-        Validate.notNull(sql, "sql must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
         return runSingleQuery(converter, new BasicQuery(sql, args));
     }
@@ -865,6 +865,47 @@ public class DatabaseManager {
         }
 
         return affectedRows;
+    }
+
+    /**
+     * Run an update by directly modifying the rows of the ResultSet. <b>Note:</b> The callback needs to invoke
+     * {@link ResultSet#updateRow()} explicitly, in case a row was updated. Example:
+     * 
+     * <pre>
+     * ResultSetCallback callback = new ResultSetCallback() {
+     *     &#064;Override
+     *     public void processResult(ResultSet resultSet, int number) throws SQLException {
+     *         int value = resultSet.getInt(&quot;value&quot;);
+     *         resultSet.updateInt(&quot;value2&quot;, value + 42);
+     *         resultSet.updateRow();
+     *     }
+     * };
+     * </pre>
+     * 
+     * @param callback The callback which receives the ResultSet for each matching row, not <code>null</code>.
+     * @param sql The query.
+     * @return Number of rows returned by the query.
+     */
+    public final int runUpdate(ResultSetCallback callback, String sql) {
+        Validate.notNull(callback, "callback must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Connection connection = null;
+        Statement s = null;
+        ResultSet rs = null;
+        int counter = 0;
+        try {
+            connection = getConnection();
+            s = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            rs = s.executeQuery(sql);
+            while (rs.next() && callback.isLooping()) {
+                callback.processResult(rs, ++counter);
+            }
+        } catch (SQLException e) {
+            logError(e, sql);
+        } finally {
+            close(connection, s, rs);
+        }
+        return counter;
     }
 
     // //////////////////////////////////////////////////////////////////////////////
