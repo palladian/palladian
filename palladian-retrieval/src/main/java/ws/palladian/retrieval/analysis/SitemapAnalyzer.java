@@ -159,8 +159,8 @@ public class SitemapAnalyzer {
         LOGGER.info("starting to process each page (" + urls.size() + " in total), time elapsed: "
                 + stopWatch.getElapsedTimeString());
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        httpRetriever.setConnectionTimeout(TimeUnit.SECONDS.toMillis(120));
-        httpRetriever.setSocketTimeout(TimeUnit.SECONDS.toMillis(120));
+        httpRetriever.setConnectionTimeout((int)TimeUnit.SECONDS.toMillis(120));
+        httpRetriever.setSocketTimeout((int)TimeUnit.SECONDS.toMillis(120));
         DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
         documentRetriever.setNumThreads(getNumThreads());
         documentRetriever.getWebDocuments(urls, retrieverCallback);

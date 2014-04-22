@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,8 @@ public final class GoogleNewsSearcher extends BaseGoogleSearcher<WebContent> {
     @Override
     protected WebContent parseResult(JsonObject resultData) throws JsonException {
         BasicWebContent.Builder builder = new BasicWebContent.Builder();
-        builder.setTitle(resultData.getString("titleNoFormatting"));
-        builder.setSummary(resultData.getString("content"));
+        builder.setTitle(StringEscapeUtils.unescapeHtml4(resultData.getString("titleNoFormatting")));
+        builder.setSummary(StringEscapeUtils.unescapeHtml4(resultData.getString("content")));
         builder.setUrl(resultData.getString("unescapedUrl"));
         builder.setPublished(parseDate(resultData.getString("publishedDate")));
         return builder.create();

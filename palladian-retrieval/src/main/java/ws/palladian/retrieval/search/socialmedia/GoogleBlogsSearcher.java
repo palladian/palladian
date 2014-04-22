@@ -1,11 +1,12 @@
 package ws.palladian.retrieval.search.socialmedia;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseGoogleSearcher;
-
 
 /**
  * <p>
@@ -25,8 +26,8 @@ public final class GoogleBlogsSearcher extends BaseGoogleSearcher<WebContent> {
     @Override
     protected WebContent parseResult(JsonObject resultData) throws JsonException {
         BasicWebContent.Builder builder = new BasicWebContent.Builder();
-        builder.setTitle(resultData.getString("titleNoFormatting"));
-        builder.setSummary(resultData.getString("content"));
+        builder.setTitle(StringEscapeUtils.unescapeHtml4(resultData.getString("titleNoFormatting")));
+        builder.setSummary(StringEscapeUtils.unescapeHtml4(resultData.getString("content")));
         builder.setUrl(resultData.getString("postUrl"));
         return builder.create();
     }
