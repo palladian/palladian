@@ -1,5 +1,7 @@
 package ws.palladian.retrieval.search.images;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
@@ -26,7 +28,7 @@ public final class GoogleImageSearcher extends BaseGoogleSearcher<WebImage> {
         BasicWebImage.Builder builder = new BasicWebImage.Builder();
         builder.setUrl(resultData.getString("originalContextUrl"));
         builder.setImageUrl(resultData.getString("unescapedUrl"));
-        builder.setTitle(resultData.getString("content"));
+        builder.setTitle(StringEscapeUtils.unescapeHtml4(resultData.getString("content")));
         builder.setWidth(resultData.getInt("width"));
         builder.setHeight(resultData.getInt("height"));
         return builder.create();
