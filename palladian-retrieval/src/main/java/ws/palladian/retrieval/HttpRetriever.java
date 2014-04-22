@@ -44,6 +44,7 @@ import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
@@ -221,7 +222,8 @@ public class HttpRetriever {
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
-//        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
+        // httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
     }
 
@@ -441,6 +443,14 @@ public class HttpRetriever {
         }
 
         backend.getConnectionManager().getSchemeRegistry().register(httpsScheme);
+        
+        // set the cookie store; this is scoped on *one* request and discarded after that;
+        // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
+        // "one request" actually means, that we have a e.g. a GET and receive several redirects,
+        // where cookies previously set cookies are necessary; this is not a typical case, 
+        // and if we should encounter any issues by this change, remove this code (and the modification 
+        // in the constructor) again.
+        backend.setCookieStore(new BasicCookieStore());
 
         return backend;
 

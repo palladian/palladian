@@ -1,5 +1,7 @@
 package ws.palladian.retrieval.search.web;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
@@ -24,8 +26,8 @@ public final class GoogleSearcher extends BaseGoogleSearcher<WebContent> {
     @Override
     protected WebContent parseResult(JsonObject resultData) throws JsonException {
         BasicWebContent.Builder builder = new BasicWebContent.Builder();
-        builder.setTitle(resultData.getString("titleNoFormatting"));
-        builder.setSummary(resultData.getString("content"));
+        builder.setTitle(StringEscapeUtils.unescapeHtml4(resultData.getString("titleNoFormatting")));
+        builder.setSummary(StringEscapeUtils.unescapeHtml4(resultData.getString("content")));
         builder.setUrl(resultData.getString("unescapedUrl"));
         return builder.create();
     }
