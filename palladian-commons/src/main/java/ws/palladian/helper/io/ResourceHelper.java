@@ -37,7 +37,7 @@ public final class ResourceHelper {
      *             If the file cannot be found at the specified location.
      */
     public static String getResourcePath(String resourceLocation) throws FileNotFoundException {
-        checkJUnit();
+        checkUnit();
         Validate.notEmpty(resourceLocation, "resourceLocation must not be empty");
 
         resourceLocation = stripPath(resourceLocation);
@@ -48,14 +48,14 @@ public final class ResourceHelper {
             throw new FileNotFoundException(resourceLocation + " could not be found or accessed");
         }
 
-//        String resourcePath;
-//        try {
-//            resourcePath = URLDecoder.decode(url.getFile(), "UTF-8");
-//        } catch (UnsupportedEncodingException e) {
-//            throw new IllegalStateException(e);
-//        }
-//        return resourcePath;
-        
+        //        String resourcePath;
+        //        try {
+        //            resourcePath = URLDecoder.decode(url.getFile(), "UTF-8");
+        //        } catch (UnsupportedEncodingException e) {
+        //            throw new IllegalStateException(e);
+        //        }
+        //        return resourcePath;
+
         return url.getFile();
     }
 
@@ -84,7 +84,7 @@ public final class ResourceHelper {
      * @throws FileNotFoundException If the file cannot be found at the specified location.
      */
     public static File getResourceFile(String resourceLocation) throws FileNotFoundException {
-        checkJUnit();
+        checkUnit();
         Validate.notEmpty(resourceLocation, "resourceLocation must not be empty");
         String resourcePath = getResourcePath(resourceLocation);
         return new File(resourcePath);
@@ -100,7 +100,7 @@ public final class ResourceHelper {
      * @throws FileNotFoundException If the file cannot be found at the specified location.
      */
     public static InputStream getResourceStream(String resourceLocation) throws FileNotFoundException {
-        checkJUnit();
+        checkUnit();
         Validate.notEmpty(resourceLocation, "resourceLocation must not be empty");
 
         resourceLocation = stripPath(resourceLocation);
@@ -116,15 +116,16 @@ public final class ResourceHelper {
     /**
      * Verify, that this method was called from JUnit, else wise throw an {@link IllegalStateException}.
      */
-    private static void checkJUnit() {
+    private static void checkUnit() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement element : stackTrace) {
-            if (element.getClassName().startsWith("org.junit.runners")) {
+            if (element.getClassName().startsWith("org.junit.runners")
+                    || element.getClassName().startsWith("org.spockframework")) {
                 return;
             }
         }
         throw new IllegalStateException(ResourceHelper.class.getName()
-                + " must only be used for JUnit testing. See class documentation for an explanation why.");
+                + " must only be used for Unit testing. See class documentation for an explanation why.");
     }
 
 }
