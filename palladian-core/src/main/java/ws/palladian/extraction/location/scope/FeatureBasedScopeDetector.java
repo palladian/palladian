@@ -133,7 +133,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             int descendantCount = stats.countDescendants(location);
             int ancestorCount = stats.countAncestors(location);
             double occurenceFrequency = (double)occurrenceCount / annotations.size();
-            double childPercentage = (double)descendantCount / annotations.size();
+            double descendantPercentage = (double)descendantCount / annotations.size();
             double ancestorPercentage = (double)ancestorCount / annotations.size();
             int hierarchyDepth = location.getAncestorIds().size();
             double normalizedHierarchyDepth = (double)hierarchyDepth / maxHierarchyDepth;
@@ -160,7 +160,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             builder.set("childCount", descendantCount);
             builder.set("ancestorCount", ancestorCount);
             builder.set("occurenceFrequency", occurenceFrequency);
-            builder.set("childPercentage", childPercentage);
+            builder.set("childPercentage", descendantPercentage);
             builder.set("ancestorPercentage", ancestorPercentage);
             builder.set("hierarchyDepth", hierarchyDepth);
             builder.set("normalizedHierarchyDepth", normalizedHierarchyDepth);
