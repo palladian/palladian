@@ -136,6 +136,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         
         /** The training mode. */
         private TrainingMode trainingMode;
+        
+        /**
+         * @return The tags which are supported by this model.
+         */
+        public Set<String> getTags() {
+            return entityDictionary.getCategories();
+        }
 
     }
 
