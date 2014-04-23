@@ -216,7 +216,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         for (LocationDocument trainDocument : documentIterator) {
             List<LocationAnnotation> annotations = extractor.getAnnotations(trainDocument.getText());
             Location mainLocation = trainDocument.getMainLocation();
-            if (annotations.isEmpty() || mainLocation == null) {
+            if (annotations.isEmpty() || mainLocation == null || mainLocation.getCoordinate() == null) {
                 continue;
             }
 
