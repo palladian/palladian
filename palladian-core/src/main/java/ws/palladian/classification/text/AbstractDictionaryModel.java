@@ -40,6 +40,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         }
         printStream.print(CSV_SEPARATOR);
         printStream.print("sum=" + getDocumentCounts().getTotalCount() + "\n");
+        printStream.flush();
         for (TermCategoryEntries entries : this) {
             printStream.print(entries.getTerm());
             for (String category : categories) {
@@ -50,8 +51,8 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
             printStream.print(CSV_SEPARATOR);
             printStream.print(entries.getTotalCount());
             printStream.print('\n');
+            printStream.flush();
         }
-        printStream.flush();
     }
 
     @Override
