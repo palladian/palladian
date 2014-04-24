@@ -2,12 +2,15 @@ package ws.palladian.classification.text;
 
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Function;
 
@@ -31,7 +34,8 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
     public void toCsv(PrintStream printStream) {
         Validate.notNull(printStream, "printStream must not be null");
         printStream.print("Term");
-        Set<String> categories = new TreeSet<String>(getCategories());
+        List<String> categories = CollectionHelper.newArrayList(getCategories());
+        Collections.sort(categories); // sort category names alphabetically
         for (String category : categories) {
             printStream.print(CSV_SEPARATOR);
             printStream.print(category);
@@ -41,18 +45,23 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         printStream.print(CSV_SEPARATOR);
         printStream.print("sum=" + getDocumentCounts().getTotalCount() + "\n");
         printStream.flush();
+        ProgressMonitor monitor = new ProgressMonitor(getNumTerms(), 0.1);
         for (TermCategoryEntries entries : this) {
             printStream.print(entries.getTerm());
+            CategoryEntries temp = new CountingCategoryEntriesBuilder().add(entries).create();
             for (String category : categories) {
-                int count = entries.getCount(category);
                 printStream.print(CSV_SEPARATOR);
-                printStream.print(count);
+                int count = temp.getCount(category);
+                if (count > 0) { // do not print zeros
+                    printStream.print(count);
+                }
             }
             printStream.print(CSV_SEPARATOR);
             printStream.print(entries.getTotalCount());
             printStream.print('\n');
-            printStream.flush();
+            monitor.incrementAndPrintProgress();
         }
+        printStream.flush();
     }
 
     @Override

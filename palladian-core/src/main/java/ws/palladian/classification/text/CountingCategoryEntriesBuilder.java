@@ -57,6 +57,14 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         return this;
     }
 
+    public CountingCategoryEntriesBuilder add(CategoryEntries entries) {
+        Validate.notNull(entries, "entries must not be null");
+        for (Category entry : entries) {
+            add(entry.getName(), entry.getCount());
+        }
+        return this;
+    }
+
     @Override
     public CategoryEntries create() {
         int totalCount = getTotalCount();
