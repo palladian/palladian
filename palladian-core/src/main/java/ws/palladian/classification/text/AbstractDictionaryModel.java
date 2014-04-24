@@ -45,7 +45,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         printStream.print(CSV_SEPARATOR);
         printStream.print("sum=" + getDocumentCounts().getTotalCount() + "\n");
         printStream.flush();
-        ProgressMonitor monitor = new ProgressMonitor(getNumTerms(), 0.1);
+        ProgressMonitor monitor = new ProgressMonitor(getNumUniqTerms(), 0.1);
         for (TermCategoryEntries entries : this) {
             printStream.print(entries.getTerm());
             CategoryEntries temp = new CountingCategoryEntriesBuilder().add(entries).create();
