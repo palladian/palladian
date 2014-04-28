@@ -105,7 +105,7 @@ public class ScopeDetectorEvaluator {
 
         for (LocationDocument document : documentIterator) {
             Location mainLocation = document.getMainLocation();
-            if (mainLocation == null) {
+            if (mainLocation == null || mainLocation.getCoordinate() == null) {
                 // these will simply be ignored
                 LOGGER.debug("*** no reference scope provided in {}", document.getFileName());
                 continue;
