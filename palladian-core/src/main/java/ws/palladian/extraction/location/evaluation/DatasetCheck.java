@@ -13,8 +13,8 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.io.FileHelper;
@@ -30,6 +30,8 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 final class DatasetCheck {
+
+    private static final String MAIN_ROLE_ATTRIBUTE = " role=\"main\"";
 
     private static final Pattern TAG_REGEX = Pattern.compile("<([^>]*)>([^<]*)<(/?)([^>]*)>");
 
@@ -54,12 +56,7 @@ final class DatasetCheck {
         }
 
         // keep tag -> values
-        Map<String, CountMap<String>> assignedTagCounts = LazyMap.create(new Factory<CountMap<String>>() {
-            @Override
-            public CountMap<String> create() {
-                return CountMap.create();
-            }
-        });
+        Map<String, Bag<String>> assignedTagCounts = LazyMap.create(new Bag.BagFactory<String>());
 
         int tokenCount = 0;
         int scopedDocCount = 0;
@@ -171,8 +168,8 @@ final class DatasetCheck {
         int totalTags = 0;
         int totalUniqueTags = 0;
         for (String tag : assignedTagCounts.keySet()) {
-            int count = assignedTagCounts.get(tag).totalSize();
-            int uniqueCount = assignedTagCounts.get(tag).uniqueSize();
+            int count = assignedTagCounts.get(tag).size();
+            int uniqueCount = assignedTagCounts.get(tag).unique().size();
             System.out.println(tag + " total: " + count + ", unique: " + uniqueCount);
             totalTags += count;
             totalUniqueTags += uniqueCount;
@@ -194,14 +191,19 @@ final class DatasetCheck {
      */
     static void getNonDisambiguatedStatistics(File datasetPath) {
         File coordinatesFile = new File(datasetPath, "coordinates.csv");
-        Map<String, Map<Integer, GeoCoordinate>> coordinates = TudLoc2013DatasetIterable.readCoordinates(coordinatesFile);
-        CountMap<String> totalTypeCounts = CountMap.create();
-        CountMap<String> disambiguatedTypeCounts = CountMap.create();
+        Map<String, Map<Integer, GeoCoordinate>> coordinates = TudLoc2013DatasetIterable
+                .readCoordinates(coordinatesFile);
+        Bag<String> totalTypeCounts = Bag.create();
+        Bag<String> disambiguatedTypeCounts = Bag.create();
+        int mainRoleCount = 0;
 
         File[] files = FileHelper.getFiles(datasetPath.getPath(), "text");
         for (File file : files) {
             String inputText = FileHelper.tryReadFileToString(file);
-            inputText = inputText.replace(" role=\"main\"", "");
+            if (inputText.contains(MAIN_ROLE_ATTRIBUTE)) {
+                mainRoleCount++;
+            }
+            inputText = inputText.replace(MAIN_ROLE_ATTRIBUTE, "");
             Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(inputText);
             for (ContextAnnotation annotation : annotations) {
                 totalTypeCounts.add(annotation.getTag());
@@ -211,24 +213,24 @@ final class DatasetCheck {
                 }
             }
         }
-        for (String tag : disambiguatedTypeCounts.keySet()) {
-            int count = totalTypeCounts.getCount(tag);
-            int disambiguatedCount = disambiguatedTypeCounts.getCount(tag);
+        for (String tag : disambiguatedTypeCounts.uniqueItems()) {
+            int count = totalTypeCounts.count(tag);
+            int disambiguatedCount = disambiguatedTypeCounts.count(tag);
             float disambiguatedPercentage = (float)disambiguatedCount / count * 100;
             System.out.println(tag + " total: " + count + ", disambiguated: " + disambiguatedCount + ", percentage: "
                     + MathHelper.round(disambiguatedPercentage, 2));
         }
         System.out.println();
-        System.out.println("# total disambiguated: " + disambiguatedTypeCounts.totalSize());
+        System.out.println("# total disambiguated: " + disambiguatedTypeCounts.size());
         System.out.println("% total disambiguated: "
-                + MathHelper.round((float)disambiguatedTypeCounts.totalSize() / totalTypeCounts.totalSize() * 100, 2));
+                + MathHelper.round((float)disambiguatedTypeCounts.size() / totalTypeCounts.size() * 100, 2));
+        System.out.println("# role='main' annotations: " + mainRoleCount);
     }
-
 
     public static void main(String[] args) {
         File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/0-all");
-        // getNonDisambiguatedStatistics(datasetPath);
-        performCheck(datasetPath);
+        getNonDisambiguatedStatistics(datasetPath);
+        // performCheck(datasetPath);
     }
 
 }
