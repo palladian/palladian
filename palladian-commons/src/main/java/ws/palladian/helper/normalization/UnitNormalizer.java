@@ -80,52 +80,11 @@ public class UnitNormalizer {
     }
 
     public static String detectUnit(String text, UnitType unitType) {
-        // TODO why special treatment even tho it's the same?
-        switch (unitType) {
-            case LENGTH:
-                for (String unit : UnitType.LENGTH.getUnitNames()) {
-                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
-                        return unit;
-                    }
-                }
-                break;
-            case FREQUENCY:
-                for (String unit : UnitType.FREQUENCY.getUnitNames()) {
-                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
-                        return unit;
-                    }
-                }
-                break;
-            case DIGITAL:
-                for (String unit : UnitType.DIGITAL.getUnitNames()) {
-                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
-                        return unit;
-                    }
-                }
-                break;
-            case TEMPERATURE:
-                for (String unit : UnitType.TEMPERATURE.getUnitNames()) {
-                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
-                        return unit;
-                    }
-                }
-                break;
-            case WEIGHT:
-                for (String unit : UnitType.WEIGHT.getUnitNames()) {
-                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
-                        return unit;
-                    }
-                }
-                break;
-            case TIME:
-                for (String unit : UnitType.TIME.getUnitNames()) {
-                    if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
-                        return unit;
-                    }
-                }
-                break;
+        for (String unit : unitType.getUnitNames()) {
+            if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+                return unit;
+            }
         }
-
         return null;
     }
 
