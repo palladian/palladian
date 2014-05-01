@@ -1,5 +1,12 @@
 package ws.palladian.helper;
 
+/**
+ * A progress reporter is used for monitoring the progress of long-running computations. Therefore, an instance of this
+ * interface is handed to the computation method.
+ * 
+ * @author pk
+ * @see ProgressMonitor
+ */
 public interface ProgressReporter {
 
     /**
@@ -33,16 +40,17 @@ public interface ProgressReporter {
      * Indicate, that the task has completed.
      */
     void finishTask();
-    
+
     /**
      * @return The current progress in range [0,1].
      */
     double getProgress();
 
     /**
-     * Create a child progress reporter.
+     * Create a child progress reporter. This is used in cases where a longer operation is broken up into individual
+     * parts, and each part reports separately.
      * 
-     * @param percentage The percentage of work, which the child progress will contribute in range of [0,1].
+     * @param percentage The percentage of work, which the child progress will contribute; in range of [0,1].
      * @return A new progress reporter for a sub progress.
      */
     ProgressReporter createSubProgress(double percentage);

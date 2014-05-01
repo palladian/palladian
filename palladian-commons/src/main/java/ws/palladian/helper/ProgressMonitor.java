@@ -28,7 +28,7 @@ import ws.palladian.helper.date.DateHelper;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class ProgressMonitor implements ProgressReporter {
+public final class ProgressMonitor extends AbstractProgressReporter {
 
     private static final int PROGRESS_BAR_LENGTH = 50;
 
@@ -143,11 +143,6 @@ public final class ProgressMonitor implements ProgressReporter {
     }
 
     @Override
-    public void increment() {
-        increment(1);
-    }
-
-    @Override
     public void increment(long steps) {
         synchronized (this) {
             currentSteps += steps;
@@ -176,11 +171,6 @@ public final class ProgressMonitor implements ProgressReporter {
     @Override
     public double getProgress() {
         return currentProgress;
-    }
-
-    @Override
-    public ProgressReporter createSubProgress(double percentage) {
-        return new SubProgressReporter(this, percentage);
     }
 
     /**
