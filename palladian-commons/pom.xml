@@ -9,10 +9,6 @@
 	<artifactId>palladian-commons</artifactId>
 	<name>Palladian: Commons</name>
 	<description>Common functionality shared by Palladian modules</description>
-	<properties>
-		<timestamp>${maven.build.timestamp}</timestamp>
-		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-	</properties>
 	<build>
 		<plugins>
 			<plugin>
