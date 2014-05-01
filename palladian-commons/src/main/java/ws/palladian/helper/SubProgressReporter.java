@@ -2,7 +2,7 @@ package ws.palladian.helper;
 
 import org.apache.commons.lang3.Validate;
 
-public final class SubProgressReporter implements ProgressReporter {
+final class SubProgressReporter extends AbstractProgressReporter {
 
     private final ProgressReporter parent;
 
@@ -12,7 +12,7 @@ public final class SubProgressReporter implements ProgressReporter {
 
     private long steps;
 
-    public SubProgressReporter(ProgressReporter parent, double percentage) {
+    SubProgressReporter(ProgressReporter parent, double percentage) {
         Validate.notNull(parent, "parent must not be null");
         Validate.isTrue(0 <= percentage && percentage <= 1, "percentage must be in range [0,1]");
         this.parent = parent;
@@ -23,11 +23,6 @@ public final class SubProgressReporter implements ProgressReporter {
     @Override
     public void startTask(String description, long totalSteps) {
         this.totalSteps = totalSteps;
-    }
-
-    @Override
-    public void increment() {
-        increment(1);
     }
 
     @Override
@@ -52,11 +47,6 @@ public final class SubProgressReporter implements ProgressReporter {
     @Override
     public double getProgress() {
         return (double)steps / totalSteps;
-    }
-
-    @Override
-    public ProgressReporter createSubProgress(double percentage) {
-        return new SubProgressReporter(this, percentage);
     }
 
 }
