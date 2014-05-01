@@ -58,6 +58,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         Validate.notNull(dataset, "dataset must not be null");
         Map<String, Double> informationGainValues = CollectionHelper.newHashMap();
 
+        progress.startTask("Information Gain", -1);
         Discretization discretization = new Discretization(dataset, progress.createSubProgress(0.5));
         Iterable<Instance> preparedData = discretization.discretize(dataset);
 

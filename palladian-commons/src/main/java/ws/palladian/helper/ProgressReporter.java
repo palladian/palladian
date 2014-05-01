@@ -18,9 +18,9 @@ public interface ProgressReporter {
     /**
      * Increments the counter by the step size.
      * 
-     * @param count The number of steps to increment the counter with.
+     * @param steps The number of steps to increment the counter with.
      */
-    void increment(long count);
+    void increment(long steps);
 
     /**
      * Increments the percentage by the given value.

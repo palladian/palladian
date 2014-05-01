@@ -419,7 +419,7 @@ public final class GeonamesImporter {
                 hierarchyMappings.put(childId, CollectionHelper.getFirst(parentIds));
             }
         }
-        LOGGER.info("Finished importing hierarchy in {}", monitor.getTotalElapsedTimeString());
+        LOGGER.info("Finished importing hierarchy.");
     }
 
     /**
@@ -456,7 +456,7 @@ public final class GeonamesImporter {
                 locationStore.addAlternativeNames(geonameid, Collections.singletonList(name));
             }
         });
-        LOGGER.info("Finished importing alternative names in {}", monitor.getTotalElapsedTimeString());
+        LOGGER.info("Finished importing alternative names.");
     }
 
     /**
@@ -490,7 +490,7 @@ public final class GeonamesImporter {
                 monitor.incrementAndPrintProgress();
             }
         });
-        LOGGER.debug("Finished processing, took {}", monitor.getTotalElapsedTimeString());
+        LOGGER.debug("Finished processing.");
     }
 
     /**
