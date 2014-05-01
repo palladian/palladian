@@ -24,6 +24,7 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Filter;
@@ -39,7 +40,7 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * @author Philipp Katz
  * @param <M> Type of the model.
  */
-public final class SingleFeatureClassification<M extends Model> implements FeatureRanker {
+public final class SingleFeatureClassification<M extends Model> extends AbstractFeatureRanker {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleFeatureClassification.class);
@@ -66,7 +67,7 @@ public final class SingleFeatureClassification<M extends Model> implements Featu
     }
     
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset) {
+    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
         List<Instance> instances = new ArrayList<Instance>(dataset);
         Collections.shuffle(instances);
         List<Instance> trainData = instances.subList(0, instances.size() / 2);

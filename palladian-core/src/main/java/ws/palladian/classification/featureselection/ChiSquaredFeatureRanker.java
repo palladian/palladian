@@ -11,7 +11,9 @@ import ws.palladian.classification.discretization.Discretization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Value;
+import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMatrix;
@@ -29,7 +31,7 @@ import ws.palladian.helper.math.NumericMatrix;
  * 
  * @author Klemens Muthmann
  */
-public final class ChiSquaredFeatureRanker implements FeatureRanker {
+public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ChiSquaredFeatureRanker.class);
@@ -66,7 +68,7 @@ public final class ChiSquaredFeatureRanker implements FeatureRanker {
         CountMatrix<String> termCategoryCorrelations = CountMatrix.create();
         Bag<String> categoryCounts = Bag.create();
 
-        Discretization discretization = new Discretization(dataset);
+        Discretization discretization = new Discretization(dataset, NoProgress.INSTANCE);
         Iterable<Instance> discretizedDataset = discretization.discretize(dataset);
 
         for (Instance instance : discretizedDataset) {
@@ -106,7 +108,7 @@ public final class ChiSquaredFeatureRanker implements FeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset) {
+    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
         NumericMatrix<String> chiSquareMatrix = calculateChiSquareValues(dataset);
         return mergingStrategy.merge(chiSquareMatrix);

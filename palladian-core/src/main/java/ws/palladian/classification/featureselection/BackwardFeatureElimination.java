@@ -30,7 +30,8 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
-import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.NoProgress;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.EqualsFilter;
@@ -50,7 +51,7 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * @author Philipp Katz
  * @param <M> Type of the model.
  */
-public final class BackwardFeatureElimination<M extends Model> implements FeatureRanker {
+public final class BackwardFeatureElimination<M extends Model> extends AbstractFeatureRanker {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BackwardFeatureElimination.class);
@@ -107,14 +108,14 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         private final Iterable<? extends Instance> trainData;
         private final Iterable<? extends Instance> testData;
         private final List<String> featuresToEliminate;
-        private final ProgressMonitor monitor;
+        private final ProgressReporter progress;
 
         public TestRun(Iterable<? extends Instance> trainData, Iterable<? extends Instance> testData,
-                List<String> featuresToEliminate, ProgressMonitor monitor) {
+                List<String> featuresToEliminate, ProgressReporter progress) {
             this.trainData = trainData;
             this.testData = testData;
             this.featuresToEliminate = featuresToEliminate;
-            this.monitor = monitor;
+            this.progress = progress;
         }
 
         @Override
@@ -136,7 +137,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
             Double score = scorer.compute(confusionMatrix);
 
             LOGGER.debug("Finished elimination for {}", eliminatedFeature);
-            monitor.incrementAndPrintProgress();
+            progress.increment();
             return new TestRunResult(score, eliminatedFeature);
         }
 
@@ -205,12 +206,12 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset) {
+    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
         List<Instance> instances = new ArrayList<Instance>(dataset);
         Collections.shuffle(instances);
         List<Instance> trainData = instances.subList(0, instances.size() / 2);
         List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
-        return rankFeatures(trainData, testData);
+        return rankFeatures(trainData, testData, progress);
     }
 
     /**
@@ -220,16 +221,18 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
      * 
      * @param trainSet The training set, not <code>null</code>.
      * @param validationSet The validation/testing set, not <code>null</code>.
+     * @param progress A progress instance.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
+    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet,
+            Iterable<? extends Instance> validationSet, ProgressReporter progress) {
         Map<String, Integer> ranks = CollectionHelper.newHashMap();
 
         Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
         final List<String> eliminatedFeatures = CollectionHelper.newArrayList();
         final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
-        final ProgressMonitor progressMonitor = new ProgressMonitor(iterations, 0);
+        progress.startTask("Backwards feature elimination", iterations);
         int featureIndex = 0;
 
         LOGGER.info("# of features in dataset: {}", allFeatures.size());
@@ -237,7 +240,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
         try {
             // run with all features
-            TestRun initialRun = new TestRun(trainSet, validationSet, Arrays.asList("<none>"), progressMonitor);
+            TestRun initialRun = new TestRun(trainSet, validationSet, Arrays.asList("<none>"), progress);
             TestRunResult startScore = initialRun.call();
             LOGGER.info("Score with all features {}", startScore.score);
 
@@ -255,7 +258,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
                 for (String currentFeature : featuresToCheck) {
                     List<String> featuresToEliminate = new ArrayList<String>(eliminatedFeatures);
                     featuresToEliminate.add(currentFeature);
-                    runs.add(new TestRun(trainSet, validationSet, featuresToEliminate, progressMonitor));
+                    runs.add(new TestRun(trainSet, validationSet, featuresToEliminate, progress));
                 }
 
                 List<Future<TestRunResult>> runFutures = executor.invokeAll(runs);
@@ -358,7 +361,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
 
         BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<QuickDtModel>(
                 learnerFactory, predictorFactory, scorer, 4);
-        FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet);
+        FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet, NoProgress.INSTANCE);
         CollectionHelper.print(featureRanking.getAll());
     }
 

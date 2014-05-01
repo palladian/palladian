@@ -12,7 +12,8 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.NumericValue;
 import ws.palladian.core.Value;
-import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.NoProgress;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -22,14 +23,19 @@ public final class Discretization {
     private final Map<String, Binner> binners = CollectionHelper.newHashMap();
 
     public Discretization(Iterable<? extends Instance> dataset) {
+        this(dataset, NoProgress.INSTANCE);
+    }
+    
+    public Discretization(Iterable<? extends Instance> dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
         Collection<Instance> datasetCopy = CollectionHelper.newArrayList(dataset);
         Set<String> numericFeatureNames = getNumericFeatureNames(datasetCopy);
-        ProgressMonitor progressMonitor = new ProgressMonitor(numericFeatureNames.size());
+        progress.startTask("Discretizing", numericFeatureNames.size());
         for (String featureName : numericFeatureNames) {
             binners.put(featureName, new Binner(datasetCopy, featureName));
-            progressMonitor.incrementAndPrintProgress();
+            progress.increment();
         }
+        progress.finishTask();
     }
 
     /**

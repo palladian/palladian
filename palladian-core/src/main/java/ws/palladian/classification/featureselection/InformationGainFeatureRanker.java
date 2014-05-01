@@ -13,6 +13,7 @@ import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Value;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
@@ -50,21 +51,28 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class InformationGainFeatureRanker implements FeatureRanker {
+public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset) {
+    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
         Map<String, Double> informationGainValues = CollectionHelper.newHashMap();
-        Discretization discretization = new Discretization(dataset);
+
+        Discretization discretization = new Discretization(dataset, progress.createSubProgress(0.5));
         Iterable<Instance> preparedData = discretization.discretize(dataset);
+
         CategoryEntries categoryCounts = ClassificationUtils.getCategoryCounts(dataset);
         double entropy = ClassificationUtils.entropy(categoryCounts);
         Set<String> featureNames = new DatasetStatistics(preparedData).getFeatureNames();
+
+        ProgressReporter informationGainProgress = progress.createSubProgress(0.5);
+        informationGainProgress.startTask("Calculating gain", featureNames.size());
         for (String featureName : featureNames) {
             double gain = entropy - conditionalEntropy(featureName, preparedData);
             informationGainValues.put(featureName, gain);
+            informationGainProgress.increment();
         }
+        informationGainProgress.finishTask();
         return new FeatureRanking(informationGainValues);
     }
 

@@ -1,12 +1,13 @@
 package ws.palladian.helper;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.math.MathHelper;
 
 /**
  * <p>
@@ -25,14 +26,41 @@ import ws.palladian.helper.math.MathHelper;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class ProgressMonitor {
+public final class ProgressMonitor implements ProgressReporter {
 
-    private final static char PROGRESS_CHAR = '■';
-    private final StopWatch stopWatch = new StopWatch();
-    private final String processName;
-    private final AtomicLong currentCount = new AtomicLong(0);
-    private final long totalCount;
+    // private final static char PROGRESS_CHAR = '■';
+    private final static char PROGRESS_CHAR = '=';
+    
     private final double showEveryPercent;
+    
+    private final StopWatch stopWatch = new StopWatch();
+    
+    private String description;
+    
+    private double progress;
+    
+    private final AtomicLong currentCount = new AtomicLong(0);
+    
+    private long totalSteps = -1;
+    
+    /**
+     * <p>
+     * Create a new {@link ProgressMonitor}.
+     * 
+     * @param showEveryPercent Step size for outputting the progress in range [0,100].
+     */
+    public ProgressMonitor(double showEveryPercent) {
+        Validate.inclusiveBetween(0., 100., showEveryPercent, "showEveryPercent must be in range [0,100]");
+        this.showEveryPercent = showEveryPercent;
+    }
+
+    /**
+     * <p>
+     * Create a new {@link ProgressMonitor} which updates the status every one percent.
+     */
+    public ProgressMonitor() {
+        this(1.);
+    }
 
     /**
      * <p>
@@ -40,8 +68,9 @@ public final class ProgressMonitor {
      * </p>
      * 
      * @param totalCount The total iterations to perform, greater/equal zero.
-     * @param showEveryPercent Step size for outputting the progress in range [0,100].
+     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
+    @Deprecated
     public ProgressMonitor(long totalCount) {
         this(totalCount, 1);
     }
@@ -53,7 +82,9 @@ public final class ProgressMonitor {
      * 
      * @param totalCount The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
+     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
+    @Deprecated
     public ProgressMonitor(long totalCount, double showEveryPercent) {
         this(totalCount, showEveryPercent, null);
     }
@@ -66,19 +97,22 @@ public final class ProgressMonitor {
      * @param totalCount The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      * @param processName The name of the process, for identification purposes when outputting the bar.
+     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
+    @Deprecated
     public ProgressMonitor(long totalCount, double showEveryPercent, String processName) {
         Validate.isTrue(totalCount >= 0, "totalCount must be greater/equal zero");
         Validate.inclusiveBetween(0., 100., showEveryPercent, "showEveryPercent must be in range [0,100]");
-        this.totalCount = totalCount;
+        this.totalSteps = totalCount;
         this.showEveryPercent = showEveryPercent;
-        this.processName = processName;
+        this.description = processName;
     }
 
-    private String createProgressBar(double percent) {
+
+    private static String createProgressBar(double progress) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
-        int scaledPercent = (int)Math.round(percent / 2);
+        int scaledPercent = (int)Math.round(progress * 50);
         stringBuilder.append(StringUtils.repeat(PROGRESS_CHAR, scaledPercent));
         stringBuilder.append(StringUtils.repeat(' ', Math.max(50 - scaledPercent, 0)));
         stringBuilder.append(']');
@@ -88,64 +122,53 @@ public final class ProgressMonitor {
     /**
      * <p>
      * Increments the counter by one and prints the current progress to the System's standard output.
-     * </p>
+     * 
+     * @deprecated Use {@link #increment()} instead.
      */
+    @Deprecated
     public void incrementAndPrintProgress() {
-        String progress = getProgress(currentCount.incrementAndGet());
-        if (!progress.isEmpty()) {
-            System.out.println(progress);
-        }
+        incrementByAndPrintProgress(1);
     }
 
     /**
      * <p>
      * Increments the counter by the step size and prints the current progress to the System's standard output.
-     * </p>
      * 
      * @param steps The number of steps to increment the counter with.
+     * @deprecated Use {@link #increment(long)} instead.
      */
+    @Deprecated
     public void incrementByAndPrintProgress(long steps) {
-        for (long i = 0; i < steps; i++) {
-            incrementAndPrintProgress();
-        }
+        set((double)currentCount.addAndGet(steps) / totalSteps);
     }
 
     /**
-     * <p>
-     * Increments the counter by one and gets the current progress.
-     * </p>
-     * 
-     * @param counter Counter for current iteration in a loop.
-     */
-    public String incrementAndGetProgress() {
-        return getProgress(currentCount.incrementAndGet());
-    }
-
-    /**
-     * <p>
      * Returns the current progress.
-     * </p>
      * 
      * @param counter Counter for current iteration in a loop.
      */
-    private String getProgress(long counter) {
+    private String getProgress(long counter, double progress) {
         try {
-            if (showEveryPercent == 0 || counter % (showEveryPercent * totalCount / 100.0) < 1) {
+            if (showEveryPercent == 0 || totalSteps < 0 || counter % (showEveryPercent * totalSteps / 100.0) < 1) {
                 StringBuilder progressString = new StringBuilder();
-                if (processName != null) {
-                    progressString.append(processName).append(" ");
+                if (description != null) {
+                    progressString.append(description).append(" ");
                 }
-                double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
-                progressString.append(createProgressBar(percent));
-                progressString.append(" ").append(percent).append("% (");
-                progressString.append(totalCount - counter).append(" remaining");
-                if (stopWatch != null && percent > 0) {
-                    long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
+                NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+//                if (totalSteps >= 0) {
+                    progressString.append(createProgressBar(progress));
+                    progressString.append(" ").append(format.format(100 * progress)).append("% (");
+//                }
+                if (counter > 0) {
+                    progressString.append(totalSteps - counter).append(" remaining, ");
+                }
+                if (progress > 0) {
+                    long msRemaining = (long)((1 - progress) * stopWatch.getTotalElapsedTime() / progress);
                     // if elapsed not possible (timer started long before progress helper used) =>
                     // long msRemaining = (long)((100 - percent) * stopWatch.getElapsedTime() / 10); => in case total
-                    progressString.append(", elapsed: ").append(stopWatch.getTotalElapsedTimeString());
+                    progressString.append("elapsed: ").append(stopWatch.getTotalElapsedTimeString());
                     progressString.append(", iteration: ").append(stopWatch.getElapsedTimeString());
-                    if (counter < totalCount) {
+                    if (counter < totalSteps) {
                         progressString.append(", ~remaining: ").append(DateHelper.formatDuration(0, msRemaining, true));
                     }
                     stopWatch.start();
@@ -154,7 +177,9 @@ public final class ProgressMonitor {
                 return progressString.toString();
             }
         } catch (ArithmeticException e) {
+    e.printStackTrace();
         } catch (Exception e) {
+    e.printStackTrace();
         }
         return StringUtils.EMPTY;
     }
@@ -163,17 +188,48 @@ public final class ProgressMonitor {
         return stopWatch.getTotalElapsedTimeString();
     }
 
-    public long getCurrentCount() {
-        return currentCount.get();
+    @Override
+    public void startTask(String description, long totalSteps) {
+        this.totalSteps = totalSteps;
+        this.description = description;
     }
 
-    public static void main(String[] args) {
-        int totalCount = 1759600335;
-        ProgressMonitor pm = new ProgressMonitor(totalCount, .5, "My Progress");
-        for (int i = 1; i <= totalCount; i++) {
-            // ThreadHelper.deepSleep(200);
-            pm.incrementAndPrintProgress();
+    @Override
+    public void increment() {
+        incrementAndPrintProgress();
+    }
+
+    @Override
+    public void increment(long by) {
+        incrementByAndPrintProgress(by);
+    }
+
+    private void set(double progress) {
+        this.progress = progress;
+        String progressString = getProgress(currentCount.get(), progress);
+        if (!progressString.isEmpty()) {
+            System.out.println(progressString);
         }
+    }
+
+    @Override
+    public void add(double progress) {
+        set(Math.min(this.progress + progress, 1));
+    }
+
+    @Override
+    public void finishTask() {
+        set(1);
+    }
+    
+    @Override
+    public double getProgress() {
+        return progress;
+    }
+
+    @Override
+    public ProgressReporter createSubProgress(double percentage) {
+        return new SubProgressReporter(this, percentage);
     }
 
 }
