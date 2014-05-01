@@ -72,7 +72,7 @@ public final class HotelsBaseImporter {
         };
 
         FileHelper.performActionOnEveryLine(locationFilePath, action);
-        LOGGER.info("imported {} locations in {}", totalLocations, monitor.getTotalElapsedTimeString());
+        LOGGER.info("imported {} locations.");
     }
 
     public static void main(String[] args) throws IOException {

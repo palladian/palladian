@@ -337,8 +337,7 @@ public class DatasetCreator {
         // write the seed file into a special folder
         FileHelper.writeToFile(new File(datasetLocation, seedFileName + "/seeds/seeds.txt").getPath(), seedFileCopy);
 
-        LOGGER.info("created dataset for concept {} with {} seeds in {}", seedFileName, seedEntities.size(),
-                progressMonitor.getTotalElapsedTimeString());
+        LOGGER.info("created dataset for concept {} with {} seeds", seedFileName, seedEntities.size());
     }
 
     /**

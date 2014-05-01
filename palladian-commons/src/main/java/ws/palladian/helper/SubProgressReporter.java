@@ -6,17 +6,17 @@ public final class SubProgressReporter implements ProgressReporter {
 
     private final ProgressReporter parent;
 
-    private final double percentageFraction;
+    private final double parentPercentage;
 
     private long totalSteps;
 
     private long steps;
 
-    SubProgressReporter(ProgressReporter progress, double percentage) {
-        Validate.notNull(progress, "progress must not be null");
+    public SubProgressReporter(ProgressReporter parent, double percentage) {
+        Validate.notNull(parent, "parent must not be null");
         Validate.isTrue(0 <= percentage && percentage <= 1, "percentage must be in range [0,1]");
-        this.parent = progress;
-        this.percentageFraction = percentage;
+        this.parent = parent;
+        this.parentPercentage = percentage;
         this.totalSteps = -1;
     }
 
@@ -38,7 +38,7 @@ public final class SubProgressReporter implements ProgressReporter {
 
     @Override
     public void add(double progress) {
-        parent.add(progress * percentageFraction);
+        parent.add(progress * parentPercentage);
     }
 
     @Override

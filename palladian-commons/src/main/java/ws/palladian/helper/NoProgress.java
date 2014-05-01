@@ -9,7 +9,7 @@ public final class NoProgress implements ProgressReporter {
     }
 
     @Override
-    public void startTask(String description, long steps) {
+    public void startTask(String description, long totalSteps) {
     }
 
     @Override

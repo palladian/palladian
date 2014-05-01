@@ -10,6 +10,7 @@ public class ProgressReporterTest {
     @Test
     public void testProgressReporter() {
         ProgressReporter reporter = new ProgressMonitor(0.);
+        reporter.startTask(null, -1);
         assertEquals(0, reporter.getProgress(), DELTA);
         ProgressReporter subReporter1 = reporter.createSubProgress(.5);
         subReporter1.startTask(null, 10);
