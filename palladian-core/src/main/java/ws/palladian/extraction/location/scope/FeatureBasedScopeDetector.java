@@ -39,6 +39,7 @@ import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguatio
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
@@ -286,7 +287,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
 
         FMeasureScorer scorer = new FMeasureScorer("true");
         BackwardFeatureElimination<M> featureElimination = new BackwardFeatureElimination<M>(learner, predictor, scorer);
-        FeatureRanking featureRanking = featureElimination.rankFeatures(trainSet, validationSet);
+        FeatureRanking featureRanking = featureElimination.rankFeatures(trainSet, validationSet, NoProgress.INSTANCE);
         CollectionHelper.print(featureRanking.getAll());
     }
 

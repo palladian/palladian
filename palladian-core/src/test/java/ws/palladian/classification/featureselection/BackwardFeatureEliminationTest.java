@@ -13,6 +13,7 @@ import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.Instance;
+import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**
@@ -29,7 +30,7 @@ public class BackwardFeatureEliminationTest {
         NaiveBayesClassifier classifier = new NaiveBayesClassifier();
         BackwardFeatureElimination<NaiveBayesModel> elimination = new BackwardFeatureElimination<NaiveBayesModel>(
                 learner, classifier);
-        FeatureRanking ranking = elimination.rankFeatures(instances);
+        FeatureRanking ranking = elimination.rankFeatures(instances, NoProgress.INSTANCE);
         String bestFeatureValue = ranking.getAll().get(0).getName();
 
         // this is not really a good test, as the BackwardFeatureElimination shuffles the dataset; the top ranked

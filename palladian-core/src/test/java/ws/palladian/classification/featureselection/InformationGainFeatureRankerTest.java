@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Instance;
+import ws.palladian.helper.ProgressMonitor;
 
 public class InformationGainFeatureRankerTest {
 
@@ -20,7 +21,7 @@ public class InformationGainFeatureRankerTest {
     public void testInformationGain_playData() throws FileNotFoundException {
         File testFile = getResourceFile("/classifier/playData.txt");
         List<Instance> dataset = new CsvDatasetReader(testFile, true).readAll();
-        FeatureRanking result = new InformationGainFeatureRanker().rankFeatures(dataset);
+        FeatureRanking result = new InformationGainFeatureRanker().rankFeatures(dataset, new ProgressMonitor());
         // values verified with Weka
         assertEquals(0.2467, result.getFeature("Outlook").getScore(), DELTA);
         assertEquals(0.1518, result.getFeature("Humidity").getScore(), DELTA);
@@ -32,7 +33,7 @@ public class InformationGainFeatureRankerTest {
     public void testInformationGain_wineData() throws FileNotFoundException {
         File testFile = getResourceFile("/classifier/wineData.csv");
         List<Instance> dataset = new CsvDatasetReader(testFile).readAll();
-        FeatureRanking result = new InformationGainFeatureRanker().rankFeatures(dataset);
+        FeatureRanking result = new InformationGainFeatureRanker().rankFeatures(dataset, new ProgressMonitor());
         assertEquals(1.0151, result.getFeature("flavanoids").getScore(), DELTA);
         assertEquals(0.8278, result.getFeature("proline").getScore(), DELTA);
         assertEquals(0.7438, result.getFeature("colorIntensity").getScore(), DELTA);

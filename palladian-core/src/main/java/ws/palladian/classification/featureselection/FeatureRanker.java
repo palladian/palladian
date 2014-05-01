@@ -1,11 +1,9 @@
-/**
- * Created on: 02.10.2012 17:27:44
- */
 package ws.palladian.classification.featureselection;
 
 import java.util.Collection;
 
 import ws.palladian.core.Instance;
+import ws.palladian.helper.ProgressReporter;
 
 /**
  * <p>
@@ -18,5 +16,7 @@ import ws.palladian.core.Instance;
 public interface FeatureRanker {
 
     FeatureRanking rankFeatures(Collection<? extends Instance> dataset);
+    
+    FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress);
 
 }

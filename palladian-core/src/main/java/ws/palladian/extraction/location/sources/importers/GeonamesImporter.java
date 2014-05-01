@@ -409,10 +409,7 @@ public final class GeonamesImporter {
                 if (type == null || type.equals("ADM")) {
                     childParents.add(childId, parentId);
                 }
-                String progress = monitor.incrementAndGetProgress();
-                if (!progress.isEmpty()) {
-                    LOGGER.info(progress);
-                }
+                monitor.incrementAndPrintProgress();
             }
         });
         // only add relation, if unambiguous
@@ -439,10 +436,7 @@ public final class GeonamesImporter {
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String progress = monitor.incrementAndGetProgress();
-                if (!progress.isEmpty()) {
-                    LOGGER.info(progress);
-                }
+                monitor.incrementAndPrintProgress();
                 String[] split = line.split("\\t");
                 if (split.length < 4) {
                     return;
@@ -493,10 +487,7 @@ public final class GeonamesImporter {
                 }
                 GeonameLocation geonameLocation = new GeonameLocation(line);
                 callback.readLocation(geonameLocation);
-                String progress = monitor.incrementAndGetProgress();
-                if (progress.length() > 0) {
-                    LOGGER.info(progress);
-                }
+                monitor.incrementAndPrintProgress();
             }
         });
         LOGGER.debug("Finished processing, took {}", monitor.getTotalElapsedTimeString());
