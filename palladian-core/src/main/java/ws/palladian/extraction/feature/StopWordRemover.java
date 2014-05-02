@@ -118,7 +118,7 @@ public class StopWordRemover implements Filter<String> {
     
     @Override
     public boolean accept(String item) {
-        return isStopWord(item);
+        return !isStopWord(item);
     }
 
     public boolean isStopWord(String word) {
