@@ -83,17 +83,4 @@ public class TextDatasetIterator implements Iterable<Instance> {
         };
     }
 
-    public static void main(String[] args) {
-        String JRC_TRAIN_FILE = "/Users/pk/Dropbox/Uni/Datasets/Wikipedia76Languages/languageDocumentIndex_random1000_train.txt";
-        Dataset dataset = new Dataset("JRC");
-        dataset.setFirstFieldLink(true);
-        dataset.setSeparationString(" ");
-        dataset.setPath(JRC_TRAIN_FILE);
-
-        TextDatasetIterator datasetIterator = new TextDatasetIterator(dataset);
-        for (Instance trainable : datasetIterator) {
-            assert (trainable != null);
-        }
-    }
-
 }

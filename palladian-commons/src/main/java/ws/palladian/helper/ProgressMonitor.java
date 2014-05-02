@@ -182,6 +182,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         int output = (int)Math.floor(currentProgress * (100 / showEveryPercent));
         if (showEveryPercent == 0 || output != lastOutput) {
             NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+            format.setMaximumFractionDigits(getDecimalDigitCount(showEveryPercent));
             long elapsedTime = System.currentTimeMillis() - startTime;
             long remainingTime = (long)(elapsedTime / currentProgress) - elapsedTime;
             List<String> statistics = CollectionHelper.newArrayList();
@@ -221,6 +222,18 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         stringBuilder.append(StringUtils.repeat(' ', Math.max(PROGRESS_BAR_LENGTH - scaledPercent, 0)));
         stringBuilder.append(']');
         return stringBuilder.toString();
+    }
+
+    /**
+     * Get the number of decimal digits for a double value. Does not consider scientific notations currently.
+     * 
+     * @param value The value.
+     * @return The number of decimal digits.
+     */
+    private static int getDecimalDigitCount(double value) {
+        String stringValue = Double.toString(value).replaceAll("0+$", ""); // remove trailing zeros
+        int idx = stringValue.indexOf('.');
+        return idx > 0 ? stringValue.length() - idx - 1 : 0;
     }
 
     public static void main(String[] args) {
