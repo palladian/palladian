@@ -124,7 +124,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         this.fileType = webImage.getFileType();
     }
 
-    private BasicWebImage(Builder builder) {
+    protected BasicWebImage(Builder builder) {
         super(builder);
         this.imageUrl = builder.imageUrl;
         this.thumbnailUrl = builder.thumbnailUrl;
