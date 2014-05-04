@@ -443,6 +443,7 @@ public enum UnitType {
         unitList = CollectionHelper.newArrayList();
         unitList.add("tablespoons");
         unitList.add("tablespoon");
+        unitList.add("Tbsps");
         unitList.add("tbsps");
         unitList.add("tbsp");
         unitList.add("T");
