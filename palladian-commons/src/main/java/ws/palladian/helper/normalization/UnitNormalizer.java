@@ -433,6 +433,9 @@ public class UnitNormalizer {
             if (isWeightUnit(word)) {
                 unitType = UnitType.WEIGHT;
             }
+            if (isVolumeUnit(word)) {
+                unitType = UnitType.VOLUME;
+            }
             if (isTemperatureUnit(word)) {
                 unitType = UnitType.TEMPERATURE;
             }
