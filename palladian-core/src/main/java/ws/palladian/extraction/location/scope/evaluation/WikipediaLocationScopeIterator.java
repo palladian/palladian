@@ -27,7 +27,6 @@ import ws.palladian.retrieval.wikipedia.WikipediaPage;
  */
 public final class WikipediaLocationScopeIterator implements Iterable<LocationDocument> {
 
-    private static final String UNDETERMINED = "undetermined";
     private final File datasetPath;
     private final File[] wikiPages;
 
@@ -95,7 +94,8 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
                     // save some memory, we don't need all that additional information in MarkupGeoCoordinate
                     scope = new ImmutableGeoCoordinate(scope.getLatitude(), scope.getLongitude());
                 }
-                Location scopeLocation = new ImmutableLocation(-1, UNDETERMINED, LocationType.UNDETERMINED, scope, null);
+                Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
+                        LocationType.UNDETERMINED, scope, null);
                 return new LocationDocument(currentFile.getName(), page.getCleanText(), null, scopeLocation);
             }
 
