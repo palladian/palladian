@@ -868,7 +868,7 @@ public final class FileHelper {
 
     public static <T extends Serializable> T tryDeserialize(String filePath) {
         try {
-            return deserialize(filePath);
+            return FileHelper.<T> deserialize(filePath);
         } catch (IOException e) {
             return null;
         }
