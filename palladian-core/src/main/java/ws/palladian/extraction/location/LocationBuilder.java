@@ -22,7 +22,7 @@ public final class LocationBuilder implements Factory<Location> {
     private int id;
     private String primaryName;
     private Set<AlternativeName> alternativeNames;
-    private LocationType type;
+    private LocationType type = LocationType.UNDETERMINED;
     private Long population;
     private List<Integer> ancestorIds;
     private GeoCoordinate coordinate;
