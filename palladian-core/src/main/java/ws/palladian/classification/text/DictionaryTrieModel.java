@@ -275,7 +275,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(numTerms);
         String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
-        ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Writing " + dictName);
+        ProgressMonitor monitor = new ProgressMonitor();
+        monitor.startTask("Writing " + dictName, numTerms);
         for (TermCategoryEntries termEntry : this) {
             out.writeObject(termEntry.getTerm());
             out.writeInt(termEntry.size());
@@ -284,7 +285,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 out.writeInt(categoryIdx);
                 out.writeInt(category.getCount());
             }
-            monitor.incrementAndPrintProgress();
+            monitor.increment();
         }
         // feature setting
         out.writeObject(featureSetting);
@@ -313,7 +314,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         // terms
         numTerms = in.readInt();
         String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
-        ProgressMonitor monitor = new ProgressMonitor(numTerms, 1, "Reading " + dictName);
+        ProgressMonitor monitor = new ProgressMonitor();
+        monitor.startTask("Reading " + dictName, numTerms);
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
@@ -326,7 +328,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 categoryEntries.append(categoryName, categoryCount);
                 termCountBuilder.add(categoryName, categoryCount);
             }
-            monitor.incrementAndPrintProgress();
+            monitor.increment();
         }
         termCounts = termCountBuilder.create();
         // feature setting
