@@ -1,5 +1,6 @@
 package ws.palladian.helper.io;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 
 /**
  * Input stream which gives feedback using a {@link ProgressMonitor}. Use this, when reading large files and you want to
@@ -18,43 +20,47 @@ import ws.palladian.helper.ProgressMonitor;
  * @author pk
  * 
  */
-public final class ProgressMonitorInputStream extends FilterInputStream {
+public final class ProgressReporterInputStream extends FilterInputStream {
 
-    private final ProgressMonitor monitor;
+    private final ProgressReporter reporter;
 
     /**
-     * Create a {@link ProgressMonitorInputStream} for the given {@link InputStream}.
+     * Create a {@link ProgressReporterInputStream} for the given {@link InputStream}.
      * 
      * @param inputStream The input stream, not <code>null</code>.
+     * @param reporter The progress reporter, not <code>null</code>.
      * @see <b>Important:</b> In case, you need to handle a file which size is bigger than {@link Integer#MAX_VALUE},
-     *      use the {@link #ProgressMonitorInputStream(File)} constructor!
+     *      use the {@link #ProgressReporterInputStream(File)} constructor!
      */
-    public ProgressMonitorInputStream(InputStream inputStream) {
+    public ProgressReporterInputStream(InputStream inputStream, ProgressReporter reporter) {
         super(inputStream);
         Validate.notNull(inputStream, "inputStream must not be null");
-        int available;
+        Validate.notNull(reporter, "reporter must not be null");
         try {
-            available = inputStream.available();
+            reporter.startTask(null, inputStream.available());
         } catch (IOException e) {
-            available = -1;
+            // ignore
         }
-        this.monitor = available > 0 ? new ProgressMonitor(available) : null;
+        this.reporter = reporter;
     }
 
     /**
-     * Create a {@link ProgressMonitorInputStream} reading from the specified file.
+     * Create a {@link ProgressReporterInputStream} reading from the specified file.
      * 
      * @param file The file, not <code>null</code>.
+     * @param reporter The progress reporter, not <code>null</code>.
      * @throws FileNotFoundException In case the file could not be found.
      * @throws IllegalArgumentException In case the given file is no file.
      */
-    public ProgressMonitorInputStream(File file) throws FileNotFoundException {
-        super(new FileInputStream(file));
+    public ProgressReporterInputStream(File file, ProgressReporter reporter) throws FileNotFoundException {
+        super(new BufferedInputStream(new FileInputStream(file)));
         Validate.notNull(file, "file must not be null");
+        Validate.notNull(reporter, "reporter must not be null");
         if (!file.isFile()) {
             throw new IllegalArgumentException(file + " is no a file");
         }
-        monitor = new ProgressMonitor(file.length());
+        reporter.startTask(file.getName(), file.length());
+        this.reporter = reporter;
     }
 
     @Override
@@ -81,7 +87,7 @@ public final class ProgressMonitorInputStream extends FilterInputStream {
     @Override
     public long skip(long n) throws IOException {
         long length = super.skip(n);
-        monitor.incrementByAndPrintProgress(length);
+        reporter.increment(length);
         return length;
     }
 
@@ -101,8 +107,8 @@ public final class ProgressMonitorInputStream extends FilterInputStream {
     }
 
     private void updateProgress(long length) {
-        if (monitor != null && length > 0) {
-            monitor.incrementByAndPrintProgress(length);
+        if (length > 0) {
+            reporter.increment(length);
         }
     }
 

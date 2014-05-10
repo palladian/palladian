@@ -1,8 +1,6 @@
 package ws.palladian.retrieval.wikipedia;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
@@ -23,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -30,6 +30,7 @@ import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.Action;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ProgressReporterInputStream;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.CharStack;
 import ws.palladian.helper.nlp.StringHelper;
@@ -622,9 +623,10 @@ public final class WikipediaUtil {
         Validate.notNull(action, "action must not be null");
         InputStream inputStream = null;
         try {
-            inputStream = new BufferedInputStream(new FileInputStream(wikipediaDump));
+            ProgressReporter reporter = new ProgressMonitor();
+            inputStream = new ProgressReporterInputStream(wikipediaDump, reporter);
             inputStream = new MultiStreamBZip2InputStream(inputStream);
-            WikipediaUtil.parseDump(inputStream, action);
+            parseDump(inputStream, action);
         } finally {
             FileHelper.close(inputStream);
         }
@@ -654,9 +656,18 @@ public final class WikipediaUtil {
         // leave me alone!
     }
 
-    public static void main(String[] args) {
-        WikipediaPageReference random = retrieveRandomArticle("http://en.wikipedia.org/w");
-        System.out.println(random);
+    public static void main(String[] args) throws IOException, SAXException {
+        final int[] counter = {0};
+        parseDump(new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2"), new Action<WikipediaPage>() {
+            @Override
+            public void process(WikipediaPage item) {
+                counter[0]++;
+            }
+        });
+        System.out.println(counter[0]);
+
+        // WikipediaPageReference random = retrieveRandomArticle("http://en.wikipedia.org/w");
+        // System.out.println(random);
         System.exit(0);
 
         // System.out.println(getDoubleBracketBalance("{{xx{{{{"));
