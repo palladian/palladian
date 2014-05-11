@@ -85,7 +85,8 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
 
         Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
-        final ProgressMonitor progressMonitor = new ProgressMonitor(allFeatures.size(), 0);
+        final ProgressReporter progressMonitor = new ProgressMonitor();
+        progressMonitor.startTask("Single feature classification", allFeatures.size());
 
         for (String feature : allFeatures) {
             Filter<String> filter = EqualsFilter.create(feature);
@@ -97,7 +98,7 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
             ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, eliminatedTestData, model);
             Double score = scorer.compute(confusionMatrix);
             LOGGER.info("Finished testing with {}: {}", feature, score);
-            progressMonitor.incrementAndPrintProgress();
+            progressMonitor.increment();
             scores.put(feature, score);
         }
         return new FeatureRanking(scores);

@@ -13,6 +13,7 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
@@ -140,7 +141,8 @@ public final class ClassifierEvaluation {
         Validate.notNull(correctClass, "correctClass must not be null");
 
         String outputFile = String.format("learningCurves_%s.csv", System.currentTimeMillis());
-        ProgressMonitor monitor = new ProgressMonitor((int)Math.ceil((double)trainSet.size() / stepSize), 0);
+        ProgressReporter reporter = new ProgressMonitor();
+        reporter.startTask("Creating learning curves", (int)Math.ceil((double)trainSet.size() / stepSize));
 
         List<Instance> trainList = new ArrayList<Instance>(trainSet);
         Collections.shuffle(trainList);
@@ -165,7 +167,7 @@ public final class ClassifierEvaluation {
             // System.out.println(resultLine);
             resultLine.append('\n');
             FileHelper.appendFile(outputFile, resultLine);
-            monitor.incrementAndPrintProgress();
+            reporter.increment();
         }
 
     }

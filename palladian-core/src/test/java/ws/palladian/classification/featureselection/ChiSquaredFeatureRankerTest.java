@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Instance;
+import ws.palladian.helper.ProgressMonitor;
 
 public class ChiSquaredFeatureRankerTest {
 
@@ -20,7 +21,8 @@ public class ChiSquaredFeatureRankerTest {
     public void testInformationGain_wineData_average() throws FileNotFoundException {
         File testFile = getResourceFile("/classifier/wineData.csv");
         List<Instance> dataset = new CsvDatasetReader(testFile).readAll();
-        FeatureRanking result = new ChiSquaredFeatureRanker(new AverageMergingStrategy()).rankFeatures(dataset);
+        FeatureRanking result = new ChiSquaredFeatureRanker(new AverageMergingStrategy()).rankFeatures(dataset,
+                new ProgressMonitor());
         // CollectionHelper.print(result.getAll());
         assertEquals(125.9867, result.getFeature("od280/od315ofDilutedWines").getScore(), DELTA);
         assertEquals(128.5980, result.getFeature("colorIntensity").getScore(), DELTA);
@@ -41,7 +43,8 @@ public class ChiSquaredFeatureRankerTest {
     public void testInformationGain_wineData_roundRobin() throws FileNotFoundException {
         File testFile = getResourceFile("/classifier/wineData.csv");
         List<Instance> dataset = new CsvDatasetReader(testFile).readAll();
-        FeatureRanking result = new ChiSquaredFeatureRanker(new RoundRobinMergingStrategy()).rankFeatures(dataset);
+        FeatureRanking result = new ChiSquaredFeatureRanker(new RoundRobinMergingStrategy()).rankFeatures(dataset,
+                new ProgressMonitor());
         // CollectionHelper.print(result.getAll());
         assertEquals(37, result.getFeature("od280/od315ofDilutedWines").getScore(), DELTA);
         assertEquals(37, result.getFeature("colorIntensity").getScore(), DELTA);
