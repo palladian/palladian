@@ -17,7 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -179,7 +179,7 @@ public class JRCCorpusConverter {
 
         String indexFileName = FileHelper.appendToFileName(indexFilePath, "_ipc" + instancesPerClass);
         final FileWriter indexFile = new FileWriter(indexFileName);
-        final CountMap<String> countMap = CountMap.create();
+        final Bag<String> countMap = Bag.create();
 
         LineAction la = new LineAction() {
             @Override
@@ -189,7 +189,7 @@ public class JRCCorpusConverter {
                     return;
                 }
 
-                if (countMap.getCount(parts[1]) >= instancesPerClass) {
+                if (countMap.count(parts[1]) >= instancesPerClass) {
                     return;
                 }
 

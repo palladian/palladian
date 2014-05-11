@@ -12,7 +12,6 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Value;
 import ws.palladian.helper.NoProgress;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -57,14 +56,23 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * doing. Otherwise use the {@link FeatureRanker} interface.
      * </p>
      * 
-     * @param dataset The dataset for which to calculate chi squared values, not <code>null</code>
+     * @param dataset The dataset for which to calculate chi squared values, not <code>null</code>.
+     * @param progress A {@link ProgressReporter}, or <code>null</code> in case no progress should be reported.
      * @return Matrix with the chi squared values. Each row in the matrix represents a feature, each column a class.
      */
-    public static NumericMatrix<String> calculateChiSquareValues(Iterable<? extends Instance> dataset) {
+    public static NumericMatrix<String> calculateChiSquareValues(Iterable<? extends Instance> dataset,
+            ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
 
+        if (progress == null) {
+            progress = NoProgress.INSTANCE;
+        }
+
+        progress.startTask("Calculating chi² ranking", -1);
+
         int N = CollectionHelper.count(dataset.iterator());
-        ProgressMonitor monitor = new ProgressMonitor(N, 1, "Counting cooccurrences.");
+        ProgressReporter cooccurrenceProgress = progress.createSubProgress(0.5);
+        cooccurrenceProgress.startTask("Counting cooccurrences.", N);
         CountMatrix<String> termCategoryCorrelations = CountMatrix.create();
         Bag<String> categoryCounts = Bag.create();
 
@@ -79,10 +87,11 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
                 termCategoryCorrelations.add(category, featureValueIdentifier);
             }
             categoryCounts.add(category);
-            monitor.incrementAndPrintProgress();
+            cooccurrenceProgress.increment();
         }
 
-        monitor = new ProgressMonitor(termCategoryCorrelations.rowCount(), 1, "Calculating chi² values.");
+        ProgressReporter chiSquareProgress = progress.createSubProgress(0.5);
+        chiSquareProgress.startTask("Calculating chi² values.", termCategoryCorrelations.rowCount());
         NumericMatrix<String> result = new NumericMatrix<String>();
         for (IntegerMatrixVector<String> termOccurence : termCategoryCorrelations.rows()) {
             String featureName = termOccurence.key();
@@ -102,7 +111,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
                 LOGGER.trace("Chi² value is {}", chiSquare);
                 result.set(categoryName, featureName, chiSquare);
             }
-            monitor.incrementAndPrintProgress();
+            chiSquareProgress.increment();
         }
         return result;
     }
@@ -110,7 +119,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
-        NumericMatrix<String> chiSquareMatrix = calculateChiSquareValues(dataset);
+        NumericMatrix<String> chiSquareMatrix = calculateChiSquareValues(dataset, progress);
         return mergingStrategy.merge(chiSquareMatrix);
     }
 
