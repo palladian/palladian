@@ -139,17 +139,20 @@ public class FeatureSetting implements Serializable {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("FeatureSetting [");
-        builder.append(textFeatureType).append(", ");
-        builder.append("nGramLength=").append(minNGramLength);
+        builder.append(minNGramLength);
         if (maxNGramLength > minNGramLength) {
-            builder.append("...").append(maxNGramLength);
+            builder.append('-').append(maxNGramLength);
         }
-        builder.append(", ");
+        builder.append('-').append(textFeatureType);
         if (isWordUnigrams()) {
-            builder.append("termLength=").append(minimumTermLength);
-            builder.append("...").append(maximumTermLength).append(", ");
+            if (minimumTermLength != DEFAULT_MIN_TERM_LENGTH || maximumTermLength != DEFAULT_MAX_TERM_LENGTH) {
+                builder.append(", termLength=").append(minimumTermLength);
+                builder.append('-').append(maximumTermLength);
+            }
         }
-        builder.append("maxTerms=").append(maxTerms);
+        if (DEFAULT_MAX_TERMS != maxTerms) {
+            builder.append(", maxTerms=").append(maxTerms);
+        }
         builder.append("]");
         return builder.toString();
     }
