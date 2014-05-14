@@ -391,6 +391,10 @@ public enum UnitType {
 
         // VOLUME units are normalized to milliliter
         unitList = CollectionHelper.newArrayList();
+        unitList.add("m³");
+        UnitType.VOLUME.units.add(new Pair<List<String>, Double>(unitList, 1000000.));
+
+        unitList = CollectionHelper.newArrayList();
         unitList.add("gallons");
         unitList.add("gallon");
         unitList.add("gal");
@@ -443,6 +447,7 @@ public enum UnitType {
         unitList = CollectionHelper.newArrayList();
         unitList.add("tablespoons");
         unitList.add("tablespoon");
+        unitList.add("Tbsps");
         unitList.add("tbsps");
         unitList.add("tbsp");
         unitList.add("T");
