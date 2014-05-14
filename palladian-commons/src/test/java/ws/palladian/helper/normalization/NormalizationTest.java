@@ -52,6 +52,14 @@ public class NormalizationTest {
     }
 
     @Test
+    public void testGetUnitType() {
+
+        assertEquals(UnitType.WEIGHT, UnitNormalizer.getUnitType("g"));
+        assertEquals(UnitType.VOLUME, UnitNormalizer.getUnitType("tablespoon"));
+
+    }
+
+    @Test
     public void testDetectUnit() {
 
         assertEquals("ghz", UnitNormalizer.detectUnit("8 in ghz"));

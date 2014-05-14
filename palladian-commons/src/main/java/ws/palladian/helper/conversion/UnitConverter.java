@@ -91,6 +91,9 @@ public class UnitConverter {
 
         for (String toUnit : possibleUnits) {
             double divisor = UnitNormalizer.unitLookup(toUnit);
+            if (divisor < 0) {
+                continue;
+            }
             if (divisor > bestMatchDivisor && divisor < normalizedAmount) {
                 bestMatchDivisor = divisor;
                 bestMatchUnit = toUnit;
