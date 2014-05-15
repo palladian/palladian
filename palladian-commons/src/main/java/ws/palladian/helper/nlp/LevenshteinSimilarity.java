@@ -11,6 +11,8 @@ import org.apache.commons.lang3.Validate;
  * @author Philipp Katz
  */
 public class LevenshteinSimilarity implements StringSimilarity {
+    
+    private static final String NAME = "Levenshtein";
 
     @Override
     public double getSimilarity(String s1, String s2) {
@@ -19,6 +21,11 @@ public class LevenshteinSimilarity implements StringSimilarity {
 
         int distance = StringUtils.getLevenshteinDistance(s1, s2);
         return 1 - (float)distance / Math.max(s1.length(), s2.length());
+    }
+    
+    @Override
+    public String toString() {
+        return NAME;
     }
 
 }
