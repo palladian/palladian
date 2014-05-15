@@ -14,12 +14,10 @@ import ws.palladian.helper.nlp.StringHelper;
 
 public final class CleanevalDataset implements ContentExtractionDataset {
 
-    private final File cleanEvalDirectory;
     private final List<File> txtFiles;
 
     public CleanevalDataset(File cleanEvalDirectory) {
         Validate.notNull(cleanEvalDirectory, "cleanEvalDirectory must not be null");
-        this.cleanEvalDirectory = cleanEvalDirectory;
         this.txtFiles = FileHelper.getFiles(cleanEvalDirectory, new FileFilter() {
             @Override
             public boolean accept(File file) {
@@ -69,13 +67,13 @@ public final class CleanevalDataset implements ContentExtractionDataset {
     }
 
     private static final String cleanup(String expectedText) {
-        expectedText = expectedText.replaceAll("URL: [^ ]+", "");
-        expectedText = expectedText.replaceAll("\\<.+?\\>", "");
-        expectedText = StringHelper.replaceProtectedSpace(expectedText);
-        expectedText = StringHelper.removeLineBreaks(expectedText);
-        expectedText = expectedText.replaceAll("\\s+", " ");
-        expectedText = expectedText.trim();
-        return expectedText;
+        String cleanText = expectedText.replaceAll("URL: [^\\s]+", "");
+        cleanText = cleanText.replaceAll("<[^>]*>", "");
+        cleanText = StringHelper.replaceProtectedSpace(cleanText);
+        cleanText = StringHelper.removeLineBreaks(cleanText);
+        cleanText = cleanText.replaceAll("\\s+", " ");
+        cleanText = cleanText.trim();
+        return cleanText;
     }
 
     @Override
@@ -85,15 +83,11 @@ public final class CleanevalDataset implements ContentExtractionDataset {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("CleanevalDataset [cleanEvalDirectory=");
-        builder.append(cleanEvalDirectory);
-        builder.append("]");
-        return builder.toString();
+        return "CleanEvalDataset";
     }
 
     public static void main(String[] args) {
-        CleanevalDataset dataset = new CleanevalDataset(new File("/Users/pk/Desktop/CleanEval"));
+        CleanevalDataset dataset = new CleanevalDataset(new File("/Users/pk/Desktop/CleanEvalTest"));
         for (ContentExtractionDatasetItem item : dataset) {
             System.out.println(item);
             System.out.println(item.getExpectedText());

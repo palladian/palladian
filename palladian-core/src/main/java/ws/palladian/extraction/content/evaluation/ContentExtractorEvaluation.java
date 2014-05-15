@@ -7,15 +7,19 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.content.WebPageContentExtractor;
+import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.CharacterNGramSimilarity;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 import ws.palladian.helper.nlp.LevenshteinSimilarity;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.StringSimilarity;
 
-public class ContentExtractorEvaluation {
+public final class ContentExtractorEvaluation {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentExtractorEvaluation.class);
@@ -34,20 +38,34 @@ public class ContentExtractorEvaluation {
 
     private final List<ContentExtractionDataset> datasets = CollectionHelper.newArrayList();
 
-    public void add(WebPageContentExtractor extractor) {
+    public void addExtractor(WebPageContentExtractor extractor) {
         Validate.notNull(extractor, "extractor must not be null");
         extractors.add(extractor);
     }
 
-    public void add(ContentExtractionDataset dataset) {
+    public void addDataset(ContentExtractionDataset dataset) {
         Validate.notNull(dataset, "dataset must not be null");
         datasets.add(dataset);
     }
 
     public void evaluate() {
 
+        ProgressReporter progress = new ProgressMonitor();
+        long numSteps = 0;
+        for (ContentExtractionDataset dataset : datasets) {
+            numSteps += dataset.size();
+        }
+        numSteps *= extractors.size();
+        progress.startTask("ContentExtractorEvaluation", numSteps);
+
         for (WebPageContentExtractor extractor : extractors) {
+
             for (ContentExtractionDataset dataset : datasets) {
+
+                StringBuilder resultCsv = new StringBuilder();
+                double[] avgSimilarities = new double[SIMILARITIES.size()];
+                StopWatch stopWatch = new StopWatch();
+
                 for (ContentExtractionDatasetItem item : dataset) {
 
                     File htmlFile = item.getHtmlFile();
@@ -59,18 +77,16 @@ public class ContentExtractorEvaluation {
                     }
 
                     String expectedText = item.getExpectedText();
-                    expectedText = cleanup(expectedText);
-
                     String extractedText = extractor.getResultText();
-                    extractedText = cleanup(extractedText);
 
                     double[] similarities = new double[SIMILARITIES.size()];
                     boolean startCorrect = false;
                     boolean endCorrect = false;
 
                     for (int i = 0; i < SIMILARITIES.size(); i++) {
-                        StringSimilarity similarity = SIMILARITIES.get(i);
-                        similarities[i] = similarity.getSimilarity(expectedText, extractedText);
+                        double similarity = SIMILARITIES.get(i).getSimilarity(expectedText, extractedText);
+                        similarities[i] = similarity;
+                        avgSimilarities[i] += similarity;
                     }
 
                     if (expectedText.length() > 25 && extractedText.length() > 25) {
@@ -84,23 +100,42 @@ public class ContentExtractorEvaluation {
                         endCorrect = expectedEnd.equals(extractedEnd);
                     }
 
-                    String resultLine = String.format("%s;%f;%f;%f;%b;%b\n", htmlFile.getName(), similarities[0],
-                            similarities[1], similarities[2], startCorrect, endCorrect);
-
-                    System.out.println(resultLine);
-
+                    resultCsv.append(htmlFile.getName()).append(';');
+                    for (double similarity : similarities) {
+                        resultCsv.append(similarity).append(';');
+                    }
+                    resultCsv.append(startCorrect).append(';');
+                    resultCsv.append(endCorrect);
+                    progress.increment();
                 }
+                StringBuilder fileContent = new StringBuilder();
+                fileContent.append(extractor.getExtractorName()).append('\n');
+                fileContent.append(dataset.toString()).append("\n\n");
+                fileContent.append("Time: ").append(stopWatch.getElapsedTime()).append('\n');
+                fileContent.append('\n');
+                fileContent.append("Average similarities:\n");
+                for (int i = 0; i < SIMILARITIES.size(); i++) {
+                    fileContent.append(SIMILARITIES.get(i).toString());
+                    fileContent.append(": ");
+                    fileContent.append(avgSimilarities[i] / dataset.size()).append('\n');
+                }
+                fileContent.append('\n');
+                fileContent.append("Individual similarities:\n");
+                fileContent.append(resultCsv);
+                String fileName = "ContentExtractorEvaluation_" + extractor.getExtractorName() + "_"
+                        + dataset.toString() + "_" + System.currentTimeMillis() + ".csv";
+                FileHelper.writeToFile(fileName, fileContent);
             }
         }
     }
 
-    private static final String cleanup(String expectedText) {
-        expectedText = expectedText.replaceAll("URL: [^ ]+", "");
-        expectedText = expectedText.replaceAll("\\<.+?\\>", "");
-        expectedText = StringHelper.replaceProtectedSpace(expectedText);
-        expectedText = StringHelper.removeLineBreaks(expectedText);
-        expectedText = expectedText.replaceAll("\\s+", " ");
-        expectedText = expectedText.trim();
-        return expectedText;
+    public static void main(String[] args) {
+        CleanevalDataset dataset = new CleanevalDataset(new File("/Users/pk/Desktop/CleanEval"));
+        ContentExtractorEvaluation evaluation = new ContentExtractorEvaluation();
+        // evaluation.addExtractor(new PalladianContentExtractor());
+        evaluation.addExtractor(new ReadabilityContentExtractor());
+        evaluation.addDataset(dataset);
+        evaluation.evaluate();
     }
+
 }
