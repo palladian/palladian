@@ -1,8 +1,12 @@
-package ws.palladian.extraction.content;
+package ws.palladian.extraction.content.evaluation;
 
 import java.io.File;
 import java.util.List;
 
+import ws.palladian.extraction.content.AlchemyApiContentExtractor;
+import ws.palladian.extraction.content.PalladianContentExtractor;
+import ws.palladian.extraction.content.ReadItLaterContentExtractor;
+import ws.palladian.extraction.content.WebPageContentExtractor;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;

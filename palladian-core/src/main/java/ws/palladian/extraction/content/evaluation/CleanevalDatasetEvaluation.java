@@ -1,7 +1,9 @@
-package ws.palladian.extraction.content;
+package ws.palladian.extraction.content.evaluation;
 
 import java.io.File;
 
+import ws.palladian.extraction.content.PalladianContentExtractor;
+import ws.palladian.extraction.content.WebPageContentExtractor;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;

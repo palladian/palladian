@@ -1,4 +1,4 @@
-package ws.palladian.extraction.content;
+package ws.palladian.extraction.content.evaluation;
 
 import java.io.File;
 import java.util.HashMap;
@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.extraction.content.PalladianContentExtractor;
+import ws.palladian.extraction.content.ReadabilityContentExtractor;
+import ws.palladian.extraction.content.WebPageContentExtractor;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
