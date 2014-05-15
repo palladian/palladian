@@ -1966,5 +1966,13 @@ public final class FileHelper {
         }
         return counter;
     }
+    
+    public static List<File> getFiles(File path, FileFilter filter) {
+        Validate.notNull(path, "path must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        List<File> files = CollectionHelper.newArrayList();
+        traverseFiles(path, filter, new CollectorAction<File>(files));
+        return files;
+    }
 
 }
