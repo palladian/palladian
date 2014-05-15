@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Set;
  * @param <K> Type of the indices.
  * @param <V> Type of the data.
  */
-public interface Matrix<K, V> {
+public interface Matrix<K, V> extends Serializable {
 
     /**
      * <p>
