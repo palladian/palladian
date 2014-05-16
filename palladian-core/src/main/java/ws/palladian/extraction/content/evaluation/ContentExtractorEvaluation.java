@@ -106,6 +106,7 @@ public final class ContentExtractorEvaluation {
                     }
                     resultCsv.append(startCorrect).append(';');
                     resultCsv.append(endCorrect);
+                    resultCsv.append('\n');
                     progress.increment();
                 }
                 StringBuilder fileContent = new StringBuilder();
