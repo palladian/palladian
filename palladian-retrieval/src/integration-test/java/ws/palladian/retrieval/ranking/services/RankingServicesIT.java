@@ -57,6 +57,7 @@ public class RankingServicesIT {
         rankers.add(new Object[] {new GooglePlusLikes()});
         rankers.add(new Object[] {new LinkedInShares()});
         rankers.add(new Object[] {new MajesticSeo(configuration)});
+        rankers.add(new Object[] {new OpenLinkProfiler()});
         rankers.add(new Object[] {new PinterestPins()});
         rankers.add(new Object[] {new PlurkPosts(configuration)});
         rankers.add(new Object[] {new RedditStats()});
