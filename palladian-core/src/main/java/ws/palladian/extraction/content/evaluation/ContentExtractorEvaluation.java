@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.content.WebPageContentExtractor;
+import ws.palladian.extraction.content.evaluation.ContentExtractionDataset.ContentExtractionPage;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
@@ -64,19 +65,21 @@ public final class ContentExtractorEvaluation {
 
                 StringBuilder resultCsv = new StringBuilder();
                 double[] avgSimilarities = new double[SIMILARITIES.size()];
+                int numStartCorrect = 0;
+                int numEndCorrect = 0;
                 StopWatch stopWatch = new StopWatch();
 
-                for (ContentExtractionDatasetItem item : dataset) {
+                for (ContentExtractionPage page : dataset) {
 
-                    File htmlFile = item.getHtmlFile();
+                    File htmlFile = page.getHtmlFile();
 
                     try {
                         extractor.setDocument(htmlFile);
                     } catch (Exception e) {
-                        LOGGER.warn("Encountered {} for {}", e, item);
+                        LOGGER.warn("Encountered {} for {}", e, page);
                     }
 
-                    String expectedText = item.getExpectedText();
+                    String expectedText = page.getExpectedText();
                     String extractedText = extractor.getResultText();
 
                     double[] similarities = new double[SIMILARITIES.size()];
@@ -99,6 +102,12 @@ public final class ContentExtractorEvaluation {
                         startCorrect = expectedStart.equals(extractedStart);
                         endCorrect = expectedEnd.equals(extractedEnd);
                     }
+                    if (startCorrect) {
+                        numStartCorrect++;
+                    }
+                    if (endCorrect) {
+                        numEndCorrect++;
+                    }
 
                     resultCsv.append(htmlFile.getName()).append(';');
                     for (double similarity : similarities) {
@@ -112,14 +121,20 @@ public final class ContentExtractorEvaluation {
                 StringBuilder fileContent = new StringBuilder();
                 fileContent.append(extractor.getExtractorName()).append('\n');
                 fileContent.append(dataset.toString()).append("\n\n");
-                fileContent.append("Time: ").append(stopWatch.getElapsedTime()).append('\n');
+                fileContent.append("Time: ").append(stopWatch.getElapsedTime());
+                fileContent.append(" (").append(stopWatch.getElapsedTimeString()).append(')').append('\n');
                 fileContent.append('\n');
                 fileContent.append("Average similarities:\n");
+                int numPages = dataset.size();
                 for (int i = 0; i < SIMILARITIES.size(); i++) {
                     fileContent.append(SIMILARITIES.get(i).toString());
                     fileContent.append(": ");
-                    fileContent.append(avgSimilarities[i] / dataset.size()).append('\n');
+                    fileContent.append(avgSimilarities[i] / numPages).append('\n');
                 }
+                fileContent.append('\n');
+                fileContent.append("# pages: ").append(numPages).append('\n');
+                fileContent.append("% correct start: ").append(100 * (double)numStartCorrect / numPages).append('\n');
+                fileContent.append("% correct end: ").append(100 * (double)numEndCorrect / numPages).append('\n');
                 fileContent.append('\n');
                 fileContent.append("Individual similarities:\n");
                 fileContent.append(resultCsv);

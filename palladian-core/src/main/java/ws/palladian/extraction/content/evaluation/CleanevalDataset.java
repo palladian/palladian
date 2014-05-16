@@ -27,15 +27,15 @@ public final class CleanevalDataset implements ContentExtractionDataset {
     }
 
     @Override
-    public Iterator<ContentExtractionDatasetItem> iterator() {
-        return new AbstractIterator<ContentExtractionDatasetItem>() {
+    public Iterator<ContentExtractionPage> iterator() {
+        return new AbstractIterator<ContentExtractionPage>() {
             Iterator<File> iterator = txtFiles.iterator();
 
             @Override
-            protected ContentExtractionDatasetItem getNext() throws Finished {
+            protected ContentExtractionPage getNext() throws Finished {
                 if (iterator.hasNext()) {
                     final File txtFile = iterator.next();
-                    return new ContentExtractionDatasetItem() {
+                    return new ContentExtractionPage() {
 
                         @Override
                         public File getHtmlFile() {
@@ -88,9 +88,9 @@ public final class CleanevalDataset implements ContentExtractionDataset {
 
     public static void main(String[] args) {
         CleanevalDataset dataset = new CleanevalDataset(new File("/Users/pk/Desktop/CleanEvalTest"));
-        for (ContentExtractionDatasetItem item : dataset) {
-            System.out.println(item);
-            System.out.println(item.getExpectedText());
+        for (ContentExtractionPage contentExtractionPage : dataset) {
+            System.out.println(contentExtractionPage);
+            System.out.println(contentExtractionPage.getExpectedText());
             System.exit(0);
         }
     }
