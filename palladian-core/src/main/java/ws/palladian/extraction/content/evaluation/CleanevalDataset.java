@@ -12,6 +12,16 @@ import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
+/**
+ * <p>
+ * Reader for the CleanEval dataset. See: '<a
+ * href="http://clic.cimec.unitn.it/marco/publications/lrec2008/lrec08-cleaneval.pdf">CleanEval: a competition for
+ * cleaning webpages</a>'; Marco Baroni, Francis Chantree, Adam Kilgarriff, Serge Sharoff, 2008. The dataset can be
+ * downloaded from <a href="http://nlp.fi.muni.cz/~xpomikal/cleaneval/">here</a>; necessary are the files
+ * 'GoldStandard.tar.gz' and 'finalrun-input.tar.gz'.
+ * 
+ * @author pk
+ */
 public final class CleanevalDataset implements ContentExtractionDataset {
 
     private final List<File> txtFiles;
@@ -59,7 +69,7 @@ public final class CleanevalDataset implements ContentExtractionDataset {
                         public String toString() {
                             return getHtmlFile().getPath();
                         }
-                        
+
                         @Override
                         public String getUrl() {
                             return null;

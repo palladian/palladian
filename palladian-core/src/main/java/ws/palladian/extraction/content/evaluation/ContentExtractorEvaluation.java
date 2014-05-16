@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.content.WebPageContentExtractor;
+import ws.palladian.extraction.content.evaluation.BoilerpipeDataset.Mode;
 import ws.palladian.extraction.content.evaluation.ContentExtractionDataset.ContentExtractionPage;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
@@ -149,7 +150,8 @@ public final class ContentExtractorEvaluation {
         ContentExtractorEvaluation evaluation = new ContentExtractorEvaluation();
         evaluation.addExtractor(new ReadabilityContentExtractor());
         // evaluation.addDataset(new CleanevalDataset(new File("/Users/pk/Desktop/CleanEval")));
-        evaluation.addDataset(new TudContentExtractionDataset(new File("/Users/pk/Desktop/TUD_ContentExtractionDataset_2014-01-28")));
+        // evaluation.addDataset(new TudContentExtractionDataset(new File("/Users/pk/Desktop/TUD_ContentExtractionDataset_2014-01-28")));
+        evaluation.addDataset(new BoilerpipeDataset(new File("/Users/pk/Desktop/L3S-GN1-20100130203947-00001"), Mode.MAIN_CONTENT));
         evaluation.evaluate();
     }
 
