@@ -5,25 +5,52 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.helper.io.LineAction;
 
-public final class CleanevalDataset implements ContentExtractionDataset {
+public final class TudContentExtractionDataset implements ContentExtractionDataset {
 
     private final List<File> txtFiles;
+    private final Map<String, String> fileUrlMapping;
 
-    public CleanevalDataset(File cleanEvalDirectory) {
-        Validate.notNull(cleanEvalDirectory, "cleanEvalDirectory must not be null");
-        this.txtFiles = FileHelper.getFiles(cleanEvalDirectory, new FileFilter() {
+    public TudContentExtractionDataset(File tudDatasetDirectory) {
+        Validate.notNull(tudDatasetDirectory, "tudDatasetDirectory must not be null");
+        if (!tudDatasetDirectory.isDirectory()) {
+            throw new IllegalArgumentException(tudDatasetDirectory + " is not a directory.");
+        }
+        this.fileUrlMapping = readFileUrlMapping(tudDatasetDirectory);
+        this.txtFiles = FileHelper.getFiles(tudDatasetDirectory, new FileFilter() {
             @Override
             public boolean accept(File file) {
                 return file.getName().endsWith(".txt");
             }
         });
+    }
+
+    private static Map<String, String> readFileUrlMapping(File tudDatasetDirectory) {
+        final Map<String, String> mapping = CollectionHelper.newHashMap();
+        File csvFile = new File(tudDatasetDirectory, "___index.csv");
+        if (!csvFile.isFile()) {
+            throw new IllegalStateException(csvFile + " does not exist.");
+        }
+        FileHelper.performActionOnEveryLine(csvFile, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] split = line.split(";");
+                if (split.length == 4) {
+                    String pageId = split[0];
+                    String url = split[1];
+                    mapping.put(pageId, url);
+                }
+            }
+        });
+        return mapping;
     }
 
     @Override
@@ -45,8 +72,7 @@ public final class CleanevalDataset implements ContentExtractionDataset {
                         @Override
                         public String getExpectedText() {
                             try {
-                                String textContent = FileHelper.readFileToString(txtFile);
-                                return cleanup(textContent);
+                                return FileHelper.readFileToString(txtFile);
                             } catch (IOException e) {
                                 throw new IllegalStateException(
                                         "Could not read "
@@ -59,26 +85,16 @@ public final class CleanevalDataset implements ContentExtractionDataset {
                         public String toString() {
                             return getHtmlFile().getPath();
                         }
-                        
+
                         @Override
                         public String getUrl() {
-                            return null;
+                            return fileUrlMapping.get(txtFile.getName().replace(".txt", ""));
                         }
                     };
                 }
                 throw FINISHED;
             }
         };
-    }
-
-    private static final String cleanup(String expectedText) {
-        String cleanText = expectedText.replaceAll("URL: [^\\s]+", "");
-        cleanText = cleanText.replaceAll("<[^>]*>", "");
-        cleanText = StringHelper.replaceProtectedSpace(cleanText);
-        cleanText = StringHelper.removeLineBreaks(cleanText);
-        cleanText = cleanText.replaceAll("\\s+", " ");
-        cleanText = cleanText.trim();
-        return cleanText;
     }
 
     @Override
@@ -88,16 +104,7 @@ public final class CleanevalDataset implements ContentExtractionDataset {
 
     @Override
     public String toString() {
-        return "CleanEvalDataset";
-    }
-
-    public static void main(String[] args) {
-        CleanevalDataset dataset = new CleanevalDataset(new File("/Users/pk/Desktop/CleanEvalTest"));
-        for (ContentExtractionPage contentExtractionPage : dataset) {
-            System.out.println(contentExtractionPage);
-            System.out.println(contentExtractionPage.getExpectedText());
-            System.exit(0);
-        }
+        return "TudContentExtractionDataset";
     }
 
 }

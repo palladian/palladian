@@ -79,8 +79,8 @@ public final class ContentExtractorEvaluation {
                         LOGGER.warn("Encountered {} for {}", e, page);
                     }
 
-                    String expectedText = page.getExpectedText();
-                    String extractedText = extractor.getResultText();
+                    String expectedText = page.getExpectedText().trim();
+                    String extractedText = extractor.getResultText().trim();
 
                     double[] similarities = new double[SIMILARITIES.size()];
                     boolean startCorrect = false;
@@ -146,11 +146,10 @@ public final class ContentExtractorEvaluation {
     }
 
     public static void main(String[] args) {
-        CleanevalDataset dataset = new CleanevalDataset(new File("/Users/pk/Desktop/CleanEval"));
         ContentExtractorEvaluation evaluation = new ContentExtractorEvaluation();
-        // evaluation.addExtractor(new PalladianContentExtractor());
         evaluation.addExtractor(new ReadabilityContentExtractor());
-        evaluation.addDataset(dataset);
+        // evaluation.addDataset(new CleanevalDataset(new File("/Users/pk/Desktop/CleanEval")));
+        evaluation.addDataset(new TudContentExtractionDataset(new File("/Users/pk/Desktop/TUD_ContentExtractionDataset_2014-01-28")));
         evaluation.evaluate();
     }
 
