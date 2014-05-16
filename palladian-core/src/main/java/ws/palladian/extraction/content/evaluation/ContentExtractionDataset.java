@@ -1,6 +1,16 @@
 package ws.palladian.extraction.content.evaluation;
 
-public interface ContentExtractionDataset extends Iterable<ContentExtractionDatasetItem> {
+import java.io.File;
+
+public interface ContentExtractionDataset extends Iterable<ContentExtractionDataset.ContentExtractionPage> {
+    
+    interface ContentExtractionPage {
+
+        File getHtmlFile();
+
+        String getExpectedText();
+
+    }
     
     int size();
 
