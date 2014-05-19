@@ -73,7 +73,7 @@ public class EventlySearcher extends EventSearcher {
 
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType) throws SearcherException {
+            EventType eventType, int maxResults) throws SearcherException {
         List<Event> events = CollectionHelper.newArrayList();
 
         String requestUrl = buildRequest(keywords, location, eventType);
@@ -108,6 +108,10 @@ public class EventlySearcher extends EventSearcher {
                 // XXX the API does not consider the city when searching events
                 if (event.getVenueCity().equalsIgnoreCase(location)) {
                     events.add(event);
+                }
+
+                if (events.size() >= maxResults) {
+                    break;
                 }
             }
 
