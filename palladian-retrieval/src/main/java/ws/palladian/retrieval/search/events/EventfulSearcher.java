@@ -86,7 +86,7 @@ public class EventfulSearcher extends EventSearcher {
 
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType) throws SearcherException {
+            EventType eventType, int maxResults) throws SearcherException {
 
         List<Event> events = CollectionHelper.newArrayList();
 
@@ -97,7 +97,7 @@ public class EventfulSearcher extends EventSearcher {
 
         int currentPageNumber = 1;
         boolean nextPageAvailable = true;
-        while (nextPageAvailable) {
+        while (nextPageAvailable && events.size() < maxResults) {
 
             nextPageAvailable = false;
 
