@@ -101,13 +101,4 @@ public final class CleanevalDataset implements ContentExtractionDataset {
         return "CleanEvalDataset";
     }
 
-    public static void main(String[] args) {
-        CleanevalDataset dataset = new CleanevalDataset(new File("/Users/pk/Desktop/CleanEvalTest"));
-        for (ContentExtractionPage contentExtractionPage : dataset) {
-            System.out.println(contentExtractionPage);
-            System.out.println(contentExtractionPage.getExpectedText());
-            System.exit(0);
-        }
-    }
-
 }

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.StringReader;
 
+import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -40,6 +41,7 @@ public class BoilerpipeContentExtractor extends WebPageContentExtractor {
     }
 
     public BoilerpipeContentExtractor(ExtractorBase extractor) {
+        Validate.notNull(extractor, "extractor must not be null");
         this.extractor = extractor;
     }
 
@@ -94,7 +96,7 @@ public class BoilerpipeContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getExtractorName() {
-        return "BoilerpipeContentExtractor";
+        return "BoilerpipeContentExtractor(" + extractor.getClass().getSimpleName() + ")";
     }
 
 }
