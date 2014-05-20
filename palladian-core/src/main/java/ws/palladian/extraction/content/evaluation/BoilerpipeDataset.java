@@ -144,7 +144,7 @@ public final class BoilerpipeDataset implements ContentExtractionDataset {
 
     @Override
     public String toString() {
-        return "L3S-GN1-Dataset";
+        return "L3S-GN1-Dataset(" + mode + ")";
     }
 
 }

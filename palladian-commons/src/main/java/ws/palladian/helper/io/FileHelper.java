@@ -1954,6 +1954,9 @@ public final class FileHelper {
         Validate.notNull(action, "action must not be null");
         int counter = 0;
         File[] files = path.listFiles();
+        if (files == null) {
+            throw new IllegalArgumentException("Given path '" + path + "' does not point to a directory.");
+        }
         for (File file : files) {
             if (file.isDirectory()) {
                 traverseFiles(file, filter, action);

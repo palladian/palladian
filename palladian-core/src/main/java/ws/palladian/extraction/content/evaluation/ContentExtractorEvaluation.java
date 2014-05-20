@@ -7,6 +7,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.content.WebPageContentExtractor;
 import ws.palladian.extraction.content.evaluation.BoilerpipeDataset.Mode;
@@ -60,6 +61,14 @@ public final class ContentExtractorEvaluation {
         numSteps *= extractors.size();
         progress.startTask("ContentExtractorEvaluation", numSteps);
 
+        String summaryFileName = "_contentExtractorEvaluation_" + System.currentTimeMillis() + ".csv";
+        StringBuilder csvHeader = new StringBuilder().append("extractor;dataset;");
+        for (StringSimilarity similarity : SIMILARITIES) {
+            csvHeader.append(similarity.toString()).append(';');
+        }
+        csvHeader.append("startCorrect;endCorrect;time\n");
+        FileHelper.appendFile(summaryFileName, csvHeader);
+
         for (WebPageContentExtractor extractor : extractors) {
 
             for (ContentExtractionDataset dataset : datasets) {
@@ -92,7 +101,6 @@ public final class ContentExtractorEvaluation {
                         similarities[i] = similarity;
                         avgSimilarities[i] += similarity;
                     }
-
                     if (expectedText.length() > 25 && extractedText.length() > 25) {
                         // check, whether the beginning/end of the text were extracted correctly:
                         String expectedStart = expectedText.substring(0, 25);
@@ -127,6 +135,8 @@ public final class ContentExtractorEvaluation {
                 fileContent.append('\n');
                 fileContent.append("Average similarities:\n");
                 int numPages = dataset.size();
+                double startCorrectPercentage = 100 * (double)numStartCorrect / numPages;
+                double endCorrectPercentage = 100 * (double)numEndCorrect / numPages;
                 for (int i = 0; i < SIMILARITIES.size(); i++) {
                     fileContent.append(SIMILARITIES.get(i).toString());
                     fileContent.append(": ");
@@ -134,14 +144,25 @@ public final class ContentExtractorEvaluation {
                 }
                 fileContent.append('\n');
                 fileContent.append("# pages: ").append(numPages).append('\n');
-                fileContent.append("% correct start: ").append(100 * (double)numStartCorrect / numPages).append('\n');
-                fileContent.append("% correct end: ").append(100 * (double)numEndCorrect / numPages).append('\n');
+                fileContent.append("% correct start: ").append(startCorrectPercentage).append('\n');
+                fileContent.append("% correct end: ").append(endCorrectPercentage).append('\n');
                 fileContent.append('\n');
                 fileContent.append("Individual similarities:\n");
                 fileContent.append(resultCsv);
                 String fileName = "ContentExtractorEvaluation_" + extractor.getExtractorName() + "_"
                         + dataset.toString() + "_" + System.currentTimeMillis() + ".csv";
                 FileHelper.writeToFile(fileName, fileContent);
+                // summary
+                StringBuilder summaryCsv = new StringBuilder();
+                summaryCsv.append(extractor.getExtractorName()).append(';');
+                summaryCsv.append(dataset.toString()).append(';');
+                for (int i = 0; i < SIMILARITIES.size(); i++) {
+                    summaryCsv.append(avgSimilarities[i] / numPages).append(';');
+                }
+                summaryCsv.append(startCorrectPercentage).append(';');
+                summaryCsv.append(endCorrectPercentage).append(';');
+                summaryCsv.append(stopWatch.getElapsedTime()).append('\n');
+                FileHelper.appendFile(summaryFileName, summaryCsv);
             }
         }
     }
@@ -149,9 +170,11 @@ public final class ContentExtractorEvaluation {
     public static void main(String[] args) {
         ContentExtractorEvaluation evaluation = new ContentExtractorEvaluation();
         evaluation.addExtractor(new ReadabilityContentExtractor());
-        // evaluation.addDataset(new CleanevalDataset(new File("/Users/pk/Desktop/CleanEval")));
-        // evaluation.addDataset(new TudContentExtractionDataset(new File("/Users/pk/Desktop/TUD_ContentExtractionDataset_2014-01-28")));
+        evaluation.addExtractor(new PalladianContentExtractor());
+        evaluation.addDataset(new CleanevalDataset(new File("/Users/pk/Desktop/CleanEval")));
+        evaluation.addDataset(new TudContentExtractionDataset(new File("/Users/pk/Desktop/TUD_ContentExtractionDataset_2014-01-28")));
         evaluation.addDataset(new BoilerpipeDataset(new File("/Users/pk/Desktop/L3S-GN1-20100130203947-00001"), Mode.MAIN_CONTENT));
+        evaluation.addDataset(new BoilerpipeDataset(new File("/Users/pk/Desktop/L3S-GN1-20100130203947-00001"), Mode.WHOLE_CONTENT));
         evaluation.evaluate();
     }
 
