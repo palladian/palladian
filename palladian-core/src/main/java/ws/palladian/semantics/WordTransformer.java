@@ -49,6 +49,9 @@ public class WordTransformer {
             List<String> list = FileHelper.readFileToArray(inputStream);
             for (String string : list) {
                 String[] parts = string.split("\t");
+                if (parts[1].isEmpty()) {
+                    continue;
+                }
                 GERMAN_SINGULAR_PLURAL.put(parts[1].toLowerCase(), parts[3].toLowerCase());
             }
 
