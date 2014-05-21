@@ -370,7 +370,7 @@ public class WordTransformer {
             }
         }
 
-        return plural;
+        return singular;
     }
 
     public static String stemGermanWords(String words) {
@@ -600,7 +600,8 @@ public class WordTransformer {
     public static void main(String[] args) {
 
         // System.out.println(WordTransformer.stemEnglishWord("bleed"));
-        System.out.println(WordTransformer.getThirdPersonSingular("cross"));
+        // System.out.println(WordTransformer.getThirdPersonSingular("cross"));
+        System.out.println(WordTransformer.wordToSingularGerman("arasdften"));
         System.exit(0);
 
         // 335ms
