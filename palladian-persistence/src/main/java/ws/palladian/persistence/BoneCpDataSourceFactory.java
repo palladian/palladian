@@ -21,22 +21,9 @@ public final class BoneCpDataSourceFactory implements DataSourceFactory {
         // singleton.
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.persistence.DataSourceFactory#createDataSource(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-     */
     @Override
     public DataSource createDataSource(String jdbcUrl, String username, String password) {
-
-//        try {
-//            // load the database driver (make sure this is in your classpath!)
-//            Class.forName(driver);
-//        } catch (ClassNotFoundException e) {
-//            throw new IllegalStateException("error loading database driver : " + driver, e);
-//        }
-
-        // setup the connection pool
         BoneCPConfig boneConfig = new BoneCPConfig();
-
         boneConfig.setJdbcUrl(jdbcUrl);
         boneConfig.setUsername(username);
         boneConfig.setPassword(password);
@@ -49,29 +36,7 @@ public final class BoneCpDataSourceFactory implements DataSourceFactory {
         // slightly improve performance, too).
         boneConfig.setDisableConnectionTracking(true);
 
-        // recommended 3-4 depending on app
         boneConfig.setPartitionCount(3);
-
-        // only enable this for debugging purposes!
-        // boneConfig.setCloseConnectionWatch(true);
-
-        // BoneCP is reluctant/lazy to change auto-commit state. This means, that logic connections which are handed
-        // back to the pool and which auto-commit state has been disabled and enabled again, might actually still be
-        // in auto-commit = false, which has led to long hangs (java.sql.SQLException: Lock wait timeout exceeded;
-        // try restarting transaction). This hook ensures, that all connections handed out by pool have their
-        // auto-commit enabled.
-        // ConnectionHook connectionHook = new AbstractConnectionHook() {
-        // @Override
-        // public void onCheckOut(ConnectionHandle connection) {
-        // try {
-        // connection.setAutoCommit(true);
-        // } catch (SQLException e) {
-        // throw new IllegalStateException(e);
-        // }
-        // }
-        // };
-        // boneConfig.setConnectionHook(connectionHook);
-
         return new BoneCPDataSource(boneConfig);
     }
 
