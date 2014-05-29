@@ -65,6 +65,10 @@ public class UnitNormalizer {
         return UnitType.VOLUME.contains(unit);
     }
 
+    private static boolean isSoundVolumeUnit(String unit) {
+        return UnitType.POWER_RATIO.contains(unit);
+    }
+
     private static boolean isTemperatureUnit(String unit) {
         return UnitType.TEMPERATURE.contains(unit);
     }
@@ -119,6 +123,9 @@ public class UnitNormalizer {
         }
         if (isVolumeUnit(unit)) {
             return UnitType.VOLUME.getUnitNames();
+        }
+        if (isSoundVolumeUnit(unit)) {
+            return UnitType.POWER_RATIO.getUnitNames();
         }
         if (isTemperatureUnit(unit)) {
             return UnitType.TEMPERATURE.getUnitNames();
@@ -187,6 +194,11 @@ public class UnitNormalizer {
 
         // volume
         if (isVolumeUnit(unit1) && isVolumeUnit(unit2)) {
+            return true;
+        }
+
+        // volume
+        if (isSoundVolumeUnit(unit1) && isSoundVolumeUnit(unit2)) {
             return true;
         }
 
