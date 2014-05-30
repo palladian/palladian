@@ -23,7 +23,6 @@ public final class MidpointScopeDetector extends AbstractRankingScopeDetector {
         super(extractor);
     }
 
-
     @Override
     public Location getScope(Collection<LocationAnnotation> annotations) {
         Validate.notNull(annotations, "locations must not be null");

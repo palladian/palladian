@@ -1,7 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -438,33 +437,23 @@ public class AlchemyNer extends NamedEntityRecognizer {
 
         Annotations<AlchemyAnnotation> annotations = new Annotations<AlchemyAnnotation>();
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
+        LOGGER.debug("sending {} text chunks, total text length {}", textChunks.size(), inputText.length());
 
-        LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
-
-        Set<String> checkedEntities = new HashSet<String>();
+        Set<String> checkedEntities = CollectionHelper.newHashSet();
         for (String textChunk : textChunks) {
 
-            String response = null;
-
             try {
-
                 HttpResult httpResult = getHttpResult(textChunk.toString());
-                response = httpResult.getStringContent();
-
+                String response = httpResult.getStringContent();
                 if (response.contains("daily-transaction-limit-exceeded")) {
-                    LOGGER.warn("--- LIMIT EXCEEDED ---");
-                    break;
+                    throw new IllegalStateException("API daily transaction limit exceeded");
                 }
                 JsonObject json = new JsonObject(response);
-
                 JsonArray entities = json.getJsonArray("entities");
                 for (int i = 0; i < entities.size(); i++) {
-
                     JsonObject entity = entities.getJsonObject(i);
-
                     String entityName = entity.getString("text");
                     String entityType = entity.getString("type");
-
                     List<String> subTypeList = CollectionHelper.newArrayList();
                     if (entity.get("disambiguated") != null) {
                         JsonObject disambiguated = entity.getJsonObject("disambiguated");
@@ -475,30 +464,23 @@ public class AlchemyNer extends NamedEntityRecognizer {
                             }
                         }
                     }
-
                     // skip entities that have been processed already
                     if (!checkedEntities.add(entityName)) {
                         continue;
                     }
-
                     // get locations of named entity
                     List<Integer> entityOffsets = NerHelper.getEntityOffsets(inputText, entityName);
-
                     for (Integer offset : entityOffsets) {
                         annotations.add(new AlchemyAnnotation(offset, entityName, entityType, subTypeList));
                     }
-
                 }
             } catch (HttpException e) {
-                LOGGER.error(getName() + " error performing HTTP POST, " + e.getMessage());
+                throw new IllegalStateException("Error performing HTTP POST", e);
             } catch (JsonException e) {
-                LOGGER.error(getName() + " could not parse JSON '" + response + "':" + e.getMessage());
+                throw new IllegalStateException("Error while parsing JSON response", e);
             }
         }
-
         annotations.sort();
-        // CollectionHelper.print(annotations);
-
         return annotations;
     }
 
