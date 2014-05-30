@@ -2,11 +2,10 @@ package ws.palladian.extraction.location;
 
 import java.io.Serializable;
 
-// FIXME this is a class for the API module
 public final class ImmutableGeoCoordinate extends AbstractGeoCoordinate implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     private final double lat;
     private final double lng;
 
