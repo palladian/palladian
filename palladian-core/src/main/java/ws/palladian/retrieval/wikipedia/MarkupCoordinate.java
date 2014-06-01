@@ -1,7 +1,7 @@
 package ws.palladian.retrieval.wikipedia;
 
-import ws.palladian.extraction.location.AbstractGeoCoordinate;
-import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.helper.geo.AbstractGeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
 
 /**
  * <p>

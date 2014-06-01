@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.geo.GeoCoordinate;
+
 /**
  * <p>
  * Immutable default implementation of a {@link Location}.

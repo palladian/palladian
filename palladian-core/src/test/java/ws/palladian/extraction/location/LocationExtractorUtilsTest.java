@@ -17,6 +17,8 @@ import org.junit.Test;
 
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
 public class LocationExtractorUtilsTest {
 

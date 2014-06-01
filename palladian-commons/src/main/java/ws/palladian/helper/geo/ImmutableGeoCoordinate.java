@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.helper.geo;
 
 import java.io.Serializable;
 

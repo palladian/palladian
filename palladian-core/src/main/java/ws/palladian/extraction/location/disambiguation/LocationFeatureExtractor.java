@@ -13,7 +13,6 @@ import java.util.Set;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
@@ -22,6 +21,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.processing.features.Annotation;
 

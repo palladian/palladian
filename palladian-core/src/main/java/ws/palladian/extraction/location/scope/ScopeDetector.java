@@ -1,6 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
-import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>

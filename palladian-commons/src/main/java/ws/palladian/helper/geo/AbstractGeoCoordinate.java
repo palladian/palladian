@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location;
+package ws.palladian.helper.geo;
 
 import static java.lang.Math.asin;
 import static java.lang.Math.atan2;
@@ -7,7 +7,7 @@ import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
-import static ws.palladian.extraction.location.GeoUtils.EARTH_RADIUS_KM;
+import static ws.palladian.helper.geo.GeoUtils.EARTH_RADIUS_KM;
 
 import java.text.NumberFormat;
 import java.util.Locale;
