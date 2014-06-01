@@ -36,17 +36,6 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     @Override
     public double distance(GeoCoordinate other) {
         Validate.notNull(other, "other must not be null");
-
-//        double lat1 = getLatitude();
-//        double lng1 = getLongitude();
-//        double lat2 = other.getLatitude();
-//        double lng2 = other.getLongitude();
-//        return 2
-//                * GeoUtils.EARTH_RADIUS_KM
-//                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
-//                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-//                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
-
         double lat1 = toRadians(getLatitude());
         double lon1 = toRadians(getLongitude());
         double lat2 = toRadians(other.getLatitude());
@@ -122,7 +111,6 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     @Override
     public double[] getBoundingBox(double distance) {
         Validate.isTrue(distance >= 0, "distance must be equal/greater zero");
-
         // http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/
         double lat1 = getLatitude() - distance / 111.04;
         double lat2 = getLatitude() + distance / 111.04;
@@ -174,12 +162,12 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         AbstractGeoCoordinate other = (AbstractGeoCoordinate)obj;
         if (Double.doubleToLongBits(getLatitude()) != Double.doubleToLongBits(other.getLatitude()))
             return false;

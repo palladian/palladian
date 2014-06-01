@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.evaluation;
 
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.CORRECT;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR2;
@@ -38,11 +39,11 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.YahooLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -58,6 +59,46 @@ import ws.palladian.processing.features.Annotation;
  */
 @SuppressWarnings(value="unused")
 public final class LocationExtractionEvaluator {
+    
+    // TODO combine all evaluation data (includes class GeoEvaluationResult)
+    public static final class LocationEvaluationResult {
+        
+        final double mucPr;
+        final double mucRc;
+        final double mucF1;
+        final double geoPr;
+        final double geoRc;
+        final double geoF1;
+
+        LocationEvaluationResult(double mucPr, double mucRc, double mucF1, double geoPr, double geoRc, double geoF1) {
+            this.mucPr = mucPr;
+            this.mucRc = mucRc;
+            this.mucF1 = mucF1;
+            this.geoPr = geoPr;
+            this.geoRc = geoRc;
+            this.geoF1 = geoF1;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("LocationEvaluationResult [mucPr=");
+            builder.append(mucPr);
+            builder.append(", mucRc=");
+            builder.append(mucRc);
+            builder.append(", mucF1=");
+            builder.append(mucF1);
+            builder.append(", geoPr=");
+            builder.append(geoPr);
+            builder.append(", geoRc=");
+            builder.append(geoRc);
+            builder.append(", geoF1=");
+            builder.append(geoF1);
+            builder.append("]");
+            return builder.toString();
+        }
+
+    }
 
     private final List<File> datasetPaths = CollectionHelper.newArrayList();
 
@@ -89,11 +130,12 @@ public final class LocationExtractionEvaluator {
 
     public void runAll(boolean detailedReport) {
         int numIterations = datasetPaths.size() * extractors.size();
-        ProgressMonitor monitor = new ProgressMonitor(numIterations, 0, "LocationExtractionEvaluation");
+        ProgressReporter progress = new ProgressMonitor();
+        progress.startTask("LocationExtractionEvaluation", numIterations);
         for (File datasetPath : datasetPaths) {
             for (LocationExtractor extractor : extractors) {
                 run(extractor, datasetPath, detailedReport);
-                monitor.incrementAndPrintProgress();
+                progress.increment();
             }
         }
     }
@@ -121,8 +163,9 @@ public final class LocationExtractionEvaluator {
      * @param datasetDirectory The directory with the dataset, not <code>null</code>.
      * @param detailedReport <code>true</code> to write detailed evaluation results (*_allErrors.csv, *_distances.csv),
      *            <code>false</code> to only write the _locations_summary.csv.
+     * @return Result with summary evaluation measures.
      */
-    public static void run(LocationExtractor extractor, File datasetDirectory, boolean detailedReport) {
+    public static LocationEvaluationResult run(LocationExtractor extractor, File datasetDirectory, boolean detailedReport) {
         Validate.notNull(extractor, "extractor must not be null");
         Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
 
@@ -330,6 +373,9 @@ public final class LocationExtractionEvaluator {
         if (detailedReport) {
             geoResult.writeDetailedReport(new File("data/temp/" + timestamp + "_distances.csv"));
         }
+        
+        return new LocationEvaluationResult(micro.getPrecision(MUC), micro.getRecall(MUC), micro.getF1(MUC),
+                geoResult.getPrecision(), geoResult.getRecall(), geoResult.getF1());
     }
 
     private static List<LocationExtractor> createForParameterOptimization(LocationDatabase database) {
