@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.resources.WebContent;
 
 /**

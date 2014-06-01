@@ -10,9 +10,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * Default implementation of a {@link MultifacetQuery}.

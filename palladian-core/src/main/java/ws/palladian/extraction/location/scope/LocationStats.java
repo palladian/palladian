@@ -8,11 +8,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;
 

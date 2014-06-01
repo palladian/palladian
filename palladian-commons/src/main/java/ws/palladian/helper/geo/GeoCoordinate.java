@@ -1,6 +1,5 @@
-package ws.palladian.extraction.location;
+package ws.palladian.helper.geo;
 
-// FIXME this is a class for the API module
 /**
  * <p>
  * Implementations of this interface represent geographic coordinates represented by latitude and longitude values.
@@ -23,8 +22,8 @@ public interface GeoCoordinate {
     /**
      * <p>
      * Get the distance in kilometers between this and the given {@link GeoCoordinate} on the earth (assuming an earth
-     * radius of {@link GeoUtils#EARTH_RADIUS_KM}). <b>Implemenation hint:</b> Calculations using the Haversine formula are usually
-     * expensive. In case, this method is run in a busy loop, consider using
+     * radius of {@link GeoUtils#EARTH_RADIUS_KM}). <b>Implemenation hint:</b> Calculations using the Haversine formula
+     * are usually expensive. In case, this method is run in a busy loop, consider using
      * {@link GeoUtils#approximateDistance(GeoCoordinate, GeoCoordinate)} which sacrifices accuracy, but which is
      * magnitudes faster.
      * </p>
@@ -54,7 +53,7 @@ public interface GeoCoordinate {
      *         [south, west, north, east].
      */
     double[] getBoundingBox(double distance);
-    
+
     /**
      * <p>
      * Get a new point form this {@link GeoCoordinate} with the specified distance and bearing.

@@ -2,10 +2,10 @@ package ws.palladian.extraction.location.scope;
 
 import java.util.List;
 
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 public abstract class AbstractRankingScopeDetector implements RankingScopeDetector {
 

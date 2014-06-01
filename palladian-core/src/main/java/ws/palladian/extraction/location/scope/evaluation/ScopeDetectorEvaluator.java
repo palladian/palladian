@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.dt.QuickDtModel;
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
@@ -30,6 +28,8 @@ import ws.palladian.extraction.location.scope.RankingScopeDetector;
 import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;

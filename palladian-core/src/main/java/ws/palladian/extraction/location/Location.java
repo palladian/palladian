@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.helper.geo.GeoCoordinate;
+
 /**
  * <p>
  * This interface defines a geographic location, like a city, country, continent, etc. Use {@link AbstractLocation} for

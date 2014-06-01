@@ -20,12 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import ws.palladian.extraction.location.GeoUtils;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.Action;

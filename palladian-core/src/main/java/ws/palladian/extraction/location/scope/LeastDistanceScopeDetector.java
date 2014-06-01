@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 public final class LeastDistanceScopeDetector extends AbstractRankingScopeDetector {
 

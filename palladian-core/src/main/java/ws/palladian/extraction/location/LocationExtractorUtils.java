@@ -12,6 +12,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * @author Philipp Katz
