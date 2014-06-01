@@ -87,89 +87,91 @@ public final class Tokenizer {
      */
     public static List<String> tokenize(String inputString) {
 
-        List<String> tokens = new ArrayList<String>();
-
-        Matcher matcher = SPLIT_PATTERN.matcher(inputString);
-        while (matcher.find()) {
-            tokens.add(matcher.group(0));
-        }
-
-        return tokens;
+//        List<String> tokens = new ArrayList<String>();
+//
+//        Matcher matcher = SPLIT_PATTERN.matcher(inputString);
+//        while (matcher.find()) {
+//            tokens.add(matcher.group(0));
+//        }
+//
+//        return tokens;
+        TokenIterator tokenIterator = new TokenIterator(inputString);
+        return CollectionHelper.newArrayList(tokenIterator);
     }
 
-    /**
-     * <p>
-     * Calculate all spans for a given string.
-     * </p>
-     * <p>
-     * For example, the string "a b c" will return 7 spans (2^3=8 but all empty is not allowed, hence 7):
-     * 
-     * <pre>
-     * a b c
-     * a b
-     * a c
-     * b c
-     * c
-     * b
-     * a
-     * </pre>
-     * 
-     * </p>
-     * 
-     * @param string A tokenized string to get the spans for.
-     * @param lengthThreshold The maximum length for extracted spans. For the above example set this to 3 to get all
-     *            spans or to a smaller value to get only spans of that length or smaller. If the value is larger than
-     *            the amount of tokens in {@code string} all spans are returned, if it is smaller than 1 all patterns of
-     *            length 1 will be returned nevertheless.
-     * @return A collection of spans.
-     */
-    public static Collection<List<String>> getAllSpans(String[] tokens, Integer lengthThreshold) {
+//    /**
+//     * <p>
+//     * Calculate all spans for a given string.
+//     * </p>
+//     * <p>
+//     * For example, the string "a b c" will return 7 spans (2^3=8 but all empty is not allowed, hence 7):
+//     * 
+//     * <pre>
+//     * a b c
+//     * a b
+//     * a c
+//     * b c
+//     * c
+//     * b
+//     * a
+//     * </pre>
+//     * 
+//     * </p>
+//     * 
+//     * @param string A tokenized string to get the spans for.
+//     * @param lengthThreshold The maximum length for extracted spans. For the above example set this to 3 to get all
+//     *            spans or to a smaller value to get only spans of that length or smaller. If the value is larger than
+//     *            the amount of tokens in {@code string} all spans are returned, if it is smaller than 1 all patterns of
+//     *            length 1 will be returned nevertheless.
+//     * @return A collection of spans.
+//     */
+//    public static Collection<List<String>> getAllSpans(String[] tokens, Integer lengthThreshold) {
+//
+//        // create bitvector (all bit combinations other than all zeros)
+//        int bits = tokens.length;
+//        List<List<String>> spans = new ArrayList<List<String>>();
+//
+//        int max = (int)Math.pow(2, bits);
+//        for (long i = 1; i < max; i++) {
+//            List<String> span = new LinkedList<String>();
+//            if (extractSpanRecursive(i, tokens, span, 0, Math.max(lengthThreshold - 1, 0))) {
+//                spans.add(span);
+//            }
+//        }
+//
+//        return spans;
+//    }
 
-        // create bitvector (all bit combinations other than all zeros)
-        int bits = tokens.length;
-        List<List<String>> spans = new ArrayList<List<String>>();
-
-        int max = (int)Math.pow(2, bits);
-        for (long i = 1; i < max; i++) {
-            List<String> span = new LinkedList<String>();
-            if (extractSpanRecursive(i, tokens, span, 0, Math.max(lengthThreshold - 1, 0))) {
-                spans.add(span);
-            }
-        }
-
-        return spans;
-    }
-
-    /**
-     * <p>
-     * Recursive extraction function for text spans.
-     * </p>
-     * 
-     * @param bitPattern The pattern describing the indices in the list of {@code tokens} to include in the resulting
-     *            span.
-     * @param tokens The list of tokens to construct spans from.
-     * @param span The result span will be constructed into this list.
-     * @param currentIndex The current index in the list of tokens. For this call the algorithm needs to decide whether
-     *            to include the token at that position in the span or not based on whether the value in
-     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
-     * @param maxSpanLength The maximum length for extracted spans. All spans beyond that length will cause the function
-     *            to abort processing and return {@code false}.
-     * @return {@code true} if the extracted span is smaller or equal to {@code maxSpanLength}; {@code false} otherwise.
-     */
-    private static Boolean extractSpanRecursive(Long bitPattern, String[] tokens, List<String> span,
-            Integer currentIndex, Integer maxSpanLength) {
-        if (bitPattern % 2 != 0) {
-            span.add(tokens[currentIndex]);
-        }
-        Long nextBitPattern = bitPattern / 2;
-        if (nextBitPattern < 1) {
-            return true;
-        } else if (span.size() > maxSpanLength) {
-            return false;
-        } else {
-            return extractSpanRecursive(nextBitPattern, tokens, span, ++currentIndex, maxSpanLength);
-        }
-    }
+//    /**
+//     * <p>
+//     * Recursive extraction function for text spans.
+//     * </p>
+//     * 
+//     * @param bitPattern The pattern describing the indices in the list of {@code tokens} to include in the resulting
+//     *            span.
+//     * @param tokens The list of tokens to construct spans from.
+//     * @param span The result span will be constructed into this list.
+//     * @param currentIndex The current index in the list of tokens. For this call the algorithm needs to decide whether
+//     *            to include the token at that position in the span or not based on whether the value in
+//     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
+//     * @param maxSpanLength The maximum length for extracted spans. All spans beyond that length will cause the function
+//     *            to abort processing and return {@code false}.
+//     * @return {@code true} if the extracted span is smaller or equal to {@code maxSpanLength}; {@code false} otherwise.
+//     */
+//    private static Boolean extractSpanRecursive(Long bitPattern, String[] tokens, List<String> span,
+//            Integer currentIndex, Integer maxSpanLength) {
+//        if (bitPattern % 2 != 0) {
+//            span.add(tokens[currentIndex]);
+//        }
+//        Long nextBitPattern = bitPattern / 2;
+//        if (nextBitPattern < 1) {
+//            return true;
+//        } else if (span.size() > maxSpanLength) {
+//            return false;
+//        } else {
+//            return extractSpanRecursive(nextBitPattern, tokens, span, ++currentIndex, maxSpanLength);
+//        }
+//    }
 
     /**
      * <p>
@@ -402,7 +404,7 @@ public final class Tokenizer {
      * @param position The position in the sentence.
      * @return The whole sentence.
      */
-    public static String getSentence(String string, int position, Language language) {
+    private static String getSentence(String string, int position, Language language) {
         if (position < 0) {
             return string;
         }
@@ -596,18 +598,18 @@ public final class Tokenizer {
         return maskedText;
     }
 
-    /**
-     * <p>
-     * Splits the text of {@code inputDocument} into sentences.
-     * </p>
-     * 
-     * @param inputDocument The {@link TextDocument} to split into sentences.
-     * @param featureName The name of the created {@link PositionAnnotation}s.
-     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
-     */
-    public static List<Annotation> getSentences(String text, String featureName) {
-        return getSentences(text, featureName, Language.ENGLISH);
-    }
+//    /**
+//     * <p>
+//     * Splits the text of {@code inputDocument} into sentences.
+//     * </p>
+//     * 
+//     * @param inputDocument The {@link TextDocument} to split into sentences.
+//     * @param featureName The name of the created {@link PositionAnnotation}s.
+//     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+//     */
+//    public static List<Annotation> getSentences(String text, String featureName) {
+//        return getSentences(text, featureName, Language.ENGLISH);
+//    }
 
     /**
      * <p>
@@ -620,14 +622,32 @@ public final class Tokenizer {
      * @param language The language of the text to split into sentences.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
-    public static List<Annotation> getSentences(String text, String featureName,
-            Language language) {
+    public static List<Annotation> getAnnotatedSentences(String text, Language language) {
         Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
         if (language == Language.GERMAN) {
             pattern = SENTENCE_SPLIT_PATTERN_DE;
         }
-        return getSentences(text, pattern, featureName);
+        return getSentences(text, pattern);
     }
+//    /**
+//     * <p>
+//     * Splits the text of {@code inputDocument} into sentences. The text should be in the language provided as parameter
+//     * {@code language}.
+//     * </p>
+//     * 
+//     * @param inputDocument The {@link TextDocument} to split into sentences.
+//     * @param featureName The name of the created {@link PositionAnnotation}s.
+//     * @param language The language of the text to split into sentences.
+//     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+//     */
+//    public static List<Annotation> getSentences(String text, String featureName,
+//            Language language) {
+//        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
+//        if (language == Language.GERMAN) {
+//            pattern = SENTENCE_SPLIT_PATTERN_DE;
+//        }
+//        return getSentences(text, pattern, featureName);
+//    }
 
     // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
     // mixture of URLs and several sentence at the moment.
@@ -638,10 +658,9 @@ public final class Tokenizer {
      * 
      * @param inputDocument The {@link TextDocument} to split into sentences.
      * @param pattern The {@link Pattern} to use to split sentences.
-     * @param featureName The name of the created {@link PositionAnnotation}s.
      * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
      */
-    public static List<Annotation> getSentences(String text, Pattern pattern, String featureName) {
+    private static List<Annotation> getSentences(String text, Pattern pattern) {
         String inputText = text;
         String mask = "PALLADIANMASK";
         List<Annotation> masks = CollectionHelper.newArrayList();
@@ -704,7 +723,7 @@ public final class Tokenizer {
                 return Integer.valueOf(o1.getStartPosition()).compareTo(o2.getStartPosition());
             }
         });
-        return recalculatePositions(text, maskedText, masks, sentences, featureName);
+        return recalculatePositions(text, maskedText, masks, sentences);
     }
 
     /**
@@ -721,7 +740,7 @@ public final class Tokenizer {
      * @param featureName The name of the created {@link PositionAnnotation}s.
      */
     private static List<Annotation> recalculatePositions(String text, String maskedText,
-            List<Annotation> maskAnnotations, List<Annotation> sentences, String featureName) {
+            List<Annotation> maskAnnotations, List<Annotation> sentences) {
         List<Annotation> ret = CollectionHelper.newArrayList();
 
         int lastOriginalEndPosition = 0;

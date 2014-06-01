@@ -41,22 +41,22 @@ public class TokenizerTest {
         assertEquals(4, Tokenizer.calculateWordNGrams("all the lilacs\n\n\nin   ohio", 2).size());
     }
 
-    /**
-     * <p>
-     * Test if extraction of spans works correctly or not
-     * </p>
-     */
-    @Test
-    public void testCalculateSpans() {
-        // CollectionHelper.print(Tokenizer.getAllSpans("a b c"));
-        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 3).size(), is(7));
-        // Test a value smaller than the amount of tokens
-        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 1).size(), is(3));
-        // Test a value below 1. Should return the same result as when using 1.
-        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, -10).size(), is(3));
-        // Test a value larger than the maximum amount of tokens. Should return the same result as when using 3.
-        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 20).size(), is(7));
-    }
+//    /**
+//     * <p>
+//     * Test if extraction of spans works correctly or not
+//     * </p>
+//     */
+//    @Test
+//    public void testCalculateSpans() {
+//        // CollectionHelper.print(Tokenizer.getAllSpans("a b c"));
+//        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 3).size(), is(7));
+//        // Test a value smaller than the amount of tokens
+//        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 1).size(), is(3));
+//        // Test a value below 1. Should return the same result as when using 1.
+//        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, -10).size(), is(3));
+//        // Test a value larger than the maximum amount of tokens. Should return the same result as when using 3.
+//        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 20).size(), is(7));
+//    }
 
     @Test
     public void testTokenize() {
@@ -319,7 +319,7 @@ public class TokenizerTest {
     @Test
     public void testSentenceOnTextWithMaskBetweenSentences() throws Exception {
         String inputText = "Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.";
-        List<Annotation> sentences = Tokenizer.getSentences(inputText, "testFeature");
+        List<Annotation> sentences = Tokenizer.getAnnotatedSentences(inputText, Language.ENGLISH);
         // XXX uncomment as soon as regex is fixed
         // assertEquals(2, sentences.size());
 
