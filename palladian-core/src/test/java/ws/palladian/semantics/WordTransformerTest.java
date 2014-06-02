@@ -61,6 +61,7 @@ public class WordTransformerTest {
 
     @Test
     public void testWordToPluralGerman() {
+        assertEquals("arten", WordTransformer.wordToPlural("arten", Language.GERMAN));
         assertEquals("Ketten", WordTransformer.wordToPlural("Kette", Language.GERMAN));
         assertEquals("Apfelkuchen", WordTransformer.wordToPlural("Apfelkuchen", Language.GERMAN));
         assertEquals("Eilsendungadressen", WordTransformer.wordToPlural("Eilsendungadresse", Language.GERMAN));
