@@ -12,7 +12,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
@@ -55,7 +54,7 @@ public class FeatureBasedDisambiguationLearner {
     /** Maximum distance between train and candidate location to be considered positive. */
     private static final int MAX_DISTANCE = 50;
     
-    private final QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
+    private final QuickDtLearner learner;
 
     private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor(
             FeatureBasedDisambiguation.CONTEXT_SIZE);
@@ -68,13 +67,18 @@ public class FeatureBasedDisambiguationLearner {
 
     private final LocationSource locationSource;
 
-    public FeatureBasedDisambiguationLearner(LocationSource locationSource) {
+    public FeatureBasedDisambiguationLearner(LocationSource locationSource, int numTrees) {
         Validate.notNull(locationSource, "locationSource must not be null");
+        this.learner = QuickDtLearner.randomForest(numTrees);
         this.locationSource = locationSource;
     }
+    
+    public FeatureBasedDisambiguationLearner(LocationSource locationSource) {
+        this(locationSource, 10);
+    }
 
-    public void learn(File datasetDirectory) throws IOException {
-        learn(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
+    public QuickDtModel learn(File datasetDirectory) throws IOException {
+        return learn(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
     }
 
     /**
@@ -83,24 +87,26 @@ public class FeatureBasedDisambiguationLearner {
      * </p>
      * 
      * @param datasetDirectories The directories to the training data sets, not <code>null</code>.
+     * @return The model.
      * @throws IOException 
      */
-    public void learn(File... datasetDirectories) throws IOException {
+    public QuickDtModel learn(File... datasetDirectories) throws IOException {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
         List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
         for (File datasetDirectory : datasetDirectories) {
             datasetIterators.add(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
         }
-        learn(new CompositeIterator<LocationDocument>(datasetIterators));
+        return learn(new CompositeIterator<LocationDocument>(datasetIterators));
     }
 
-    public void learn(Iterator<LocationDocument> trainDocuments) throws IOException {
+    public QuickDtModel learn(Iterator<LocationDocument> trainDocuments) throws IOException {
         Set<Instance> trainingData = createTrainingData(trainDocuments);
         String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
         ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
         QuickDtModel model = learner.train(trainingData);
         String modelFileName = baseFileName + ".model";
         FileHelper.serialize(model, modelFileName);
+        return model;
     }
 
     private Set<Instance> createTrainingData(Iterator<LocationDocument> trainDocuments) {

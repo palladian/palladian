@@ -63,12 +63,12 @@ public final class LocationExtractionEvaluator {
     // TODO combine all evaluation data (includes class GeoEvaluationResult)
     public static final class LocationEvaluationResult {
         
-        final double mucPr;
-        final double mucRc;
-        final double mucF1;
-        final double geoPr;
-        final double geoRc;
-        final double geoF1;
+        public final double mucPr;
+        public final double mucRc;
+        public final double mucF1;
+        public final double geoPr;
+        public final double geoRc;
+        public final double geoF1;
 
         LocationEvaluationResult(double mucPr, double mucRc, double mucF1, double geoPr, double geoRc, double geoF1) {
             this.mucPr = mucPr;
