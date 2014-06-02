@@ -26,6 +26,7 @@ public enum UnitType {
     LENGTH, //
     AREA, //
     VOLUME, //
+    POWER_RATIO, //
     WEIGHT, //
     SPEED, //
     TEMPERATURE, //
@@ -497,6 +498,11 @@ public enum UnitType {
         unitList.add("kmh");
         unitList.add("kph");
         UnitType.SPEED.units.add(new Pair<List<String>, Double>(unitList, 1.));
+
+        // POWER_RATIO
+        unitList = CollectionHelper.newArrayList();
+        unitList.add("db");
+        UnitType.POWER_RATIO.units.add(new Pair<List<String>, Double>(unitList, 1.));
 
         // OTHER units are normalized to different values
         unitList = CollectionHelper.newArrayList();
