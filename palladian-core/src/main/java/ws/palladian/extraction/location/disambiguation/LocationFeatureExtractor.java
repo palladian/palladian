@@ -404,12 +404,12 @@ class LocationFeatureExtractor {
         return LocationExtractorUtils.largestDistanceBelow(50, coordinates);
     }
 
-    private static int getPopulationInRadius(Location location, Collection<Location> others, double distance) {
+    private static long getPopulationInRadius(Location location, Collection<Location> others, double distance) {
         GeoCoordinate locationCoordinate = location.getCoordinate();
         if (locationCoordinate == null) {
             return 0;
         }
-        int population = 0;
+        long population = 0;
 //        if (locationCoordinate != null) {
 //            for (Location other : others) {
 //                GeoCoordinate otherCoordinate = other.getCoordinate();
