@@ -387,11 +387,11 @@ public class HttpRetriever {
                 for (Entry<String, String> param : request.getParameters().entrySet()) {
                     postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                 }
-                try {
-                    httpPost.setEntity(new UrlEncodedFormEntity(postParams));
-                } catch (UnsupportedEncodingException e) {
-                    throw new IllegalStateException(e);
-                }
+//                try {
+                    httpPost.setEntity(new UrlEncodedFormEntity(postParams,request.getCharset()));
+//                } catch (UnsupportedEncodingException e) {
+//                    throw new IllegalStateException(e);
+//                }
                 httpRequest = httpPost;
                 break;
             case HEAD:

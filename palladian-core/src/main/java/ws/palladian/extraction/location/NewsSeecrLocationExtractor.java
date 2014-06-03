@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -60,6 +61,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
     public List<LocationAnnotation> getAnnotations(String inputText) {
         HttpRequest request = new HttpRequest(HttpMethod.POST, BASE_URL);
         request.addParameter("text", inputText);
+        request.setCharset(Charset.forName("UTF-8"));
         request.addHeader("X-Mashape-Authorization", mashapeKey);
         HttpResult result;
         try {
