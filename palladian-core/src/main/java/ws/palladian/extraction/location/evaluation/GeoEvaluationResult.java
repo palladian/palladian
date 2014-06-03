@@ -129,9 +129,12 @@ class GeoEvaluationResult {
     }
 
     public void addResultFromDocument(LocationDocument document, List<LocationAnnotation> result) {
+        addResultFromDocument(document.getFileName(), document.getAnnotations(), result);
+    }
+    
+    public void addResultFromDocument(String fileName, List<LocationAnnotation> gold, List<LocationAnnotation> result) {
         List<EvaluationItem> evaluationList = CollectionHelper.newArrayList();
         Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
-        String fileName = document.getFileName();
 
         // evaluate
         for (LocationAnnotation assignedAnnotation : result) {
@@ -139,7 +142,7 @@ class GeoEvaluationResult {
             boolean taggedOverlap = false;
             int counter = 0;
 
-            for (LocationAnnotation goldAnnotation : document.getAnnotations()) {
+            for (LocationAnnotation goldAnnotation : gold) {
                 counter++;
 
                 GeoCoordinate goldCoordinate = goldAnnotation.getLocation().getCoordinate();
@@ -157,7 +160,7 @@ class GeoEvaluationResult {
                     evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR4, goldCoordinate,
                             assignedAnnotation.getLocation().getCoordinate()));
                 } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition()
-                        || counter == document.getAnnotations().size()) {
+                        || counter == gold.size()) {
                     if (!taggedOverlap) {
                         // false alarm
                         evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, ERROR1, null,
@@ -171,7 +174,7 @@ class GeoEvaluationResult {
         }
 
         // check which gold standard annotations have not been found by the NER (error2)
-        for (LocationAnnotation goldAnnotation : document.getAnnotations()) {
+        for (LocationAnnotation goldAnnotation : gold) {
             if (!taggedAnnotations.contains(goldAnnotation)) {
                 GeoCoordinate goldCooardinate = goldAnnotation.getLocation().getCoordinate();
                 evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR2, goldCooardinate, null));
