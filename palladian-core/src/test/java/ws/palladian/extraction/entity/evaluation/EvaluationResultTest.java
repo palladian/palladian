@@ -119,7 +119,12 @@ public class EvaluationResultTest {
         assertEquals(4. / 6, result.getRecallFor("COUNTRY", EvaluationMode.MUC), 0);
         assertEquals(2. / 4, result.getRecallFor("CITY", EvaluationMode.MUC), 0);
 
-        // System.out.println(result.getEvaluationDetails());
+        // recognition mode
+        assertEquals(6. / 15, result.getPrecision(EvaluationMode.RECOGNITION), 0);
+        assertEquals(6. / 14, result.getRecall(EvaluationMode.RECOGNITION), 0);
+        
+        assertEquals(2. / 6, result.getPrecisionFor("COUNTRY", EvaluationMode.RECOGNITION), 0);
+        assertEquals(2. / 3, result.getRecallFor("COUNTRY", EvaluationMode.RECOGNITION), 0);
     }
 
 }
