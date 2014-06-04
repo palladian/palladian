@@ -270,18 +270,21 @@ public final class LocationExtractionEvaluator {
         // it correctly (i.e. tagging "New York" as COUNTRY is still correct) in this case.
         summary.append("============ recognition only ============\n\n");
 
-        int correctlyRecognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size();
-        int recognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
-                + micro.getAnnotations(ERROR1).size() + micro.getAnnotations(ERROR4).size()
-                + micro.getAnnotations(ERROR5).size();
-        int relevant = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
-                + micro.getAnnotations(ERROR2).size();
-        double recognitionPrecision = (double)correctlyRecognized / recognized;
-        double recognitionRecall = (double)correctlyRecognized / relevant;
+//        int correctlyRecognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size();
+//        int recognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
+//                + micro.getAnnotations(ERROR1).size() + micro.getAnnotations(ERROR4).size()
+//                + micro.getAnnotations(ERROR5).size();
+//        int relevant = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
+//                + micro.getAnnotations(ERROR2).size();
+        double recognitionPrecision = micro.getPrecision(EvaluationMode.RECOGNITION);
+        double recognitionRecall = micro.getRecall(EvaluationMode.RECOGNITION);
+//        double recognitionPrecision = (double)correctlyRecognized / recognized;
+//        double recognitionRecall = (double)correctlyRecognized / relevant;
         summary.append("Precision:").append(recognitionPrecision).append('\n');
         summary.append("Recall:").append(recognitionRecall).append('\n');
-        double recognitionF1 = 2 * recognitionPrecision * recognitionRecall
-                / (recognitionPrecision + recognitionRecall);
+        double recognitionF1 = micro.getF1(EvaluationMode.RECOGNITION);
+//        double recognitionF1 = 2 * recognitionPrecision * recognitionRecall
+//                / (recognitionPrecision + recognitionRecall);
         summary.append("F1:").append(recognitionF1).append("\n\n");
 
         summary.append("Elapsed time:").append(stopWatch.getTotalElapsedTimeString()).append('\n');

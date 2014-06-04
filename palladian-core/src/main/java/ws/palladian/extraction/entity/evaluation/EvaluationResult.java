@@ -9,9 +9,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.DefaultMultiMap;
-import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -49,6 +48,8 @@ import ws.palladian.processing.features.Annotation;
 public class EvaluationResult {
 
     public enum EvaluationMode {
+        /** Evaluate recognition, ignore annotation type. */
+        RECOGNITION,
         /** The exact match evaluation mode. */
         EXACT_MATCH,
         /** The MUC evaluation mode. */
@@ -97,10 +98,10 @@ public class EvaluationResult {
     private final MultiMap<ResultType, Annotation> resultAnnotations;
 
     /** Keep counts of actual tag assignments. */
-    private final CountMap<String> actualAssignments;
+    private final Bag<String> actualAssignments;
 
     /** Keep counts of tag assignments from gold standard. */
-    private final CountMap<String> possibleAssignments;
+    private final Bag<String> possibleAssignments;
 
     /**
      * <p>
@@ -154,7 +155,7 @@ public class EvaluationResult {
      * tag averaged recall = (17+50) / 2 = 33.5%
      * </p>
      */
-    private final Map<String, CountMap<ResultType>> assignments;
+    private final Map<String, Bag<ResultType>> assignments;
 
     private final ConfusionMatrix confusionMatrix;
 
@@ -167,16 +168,11 @@ public class EvaluationResult {
      */
     public EvaluationResult(List<? extends Annotation> goldStandard) {
         Validate.notNull(goldStandard, "goldStandard must not be null");
-        this.assignments = LazyMap.create(new Factory<CountMap<ResultType>>() {
-            @Override
-            public CountMap<ResultType> create() {
-                return CountMap.create();
-            }
-        });
+        this.assignments = LazyMap.create(new Bag.BagFactory<ResultType>());
         this.resultAnnotations = DefaultMultiMap.createWithList();
         this.confusionMatrix = new ConfusionMatrix();
-        this.actualAssignments = CountMap.create();
-        this.possibleAssignments = CountMap.create();
+        this.actualAssignments = Bag.create();
+        this.possibleAssignments = Bag.create();
         for (Annotation annotation : goldStandard) {
             possibleAssignments.add(annotation.getTag());
         }
@@ -193,6 +189,9 @@ public class EvaluationResult {
         } else if (type == EvaluationMode.MUC) {
             correctAssignments = getWeightedMuc(tagName);
             actualAssignments *= 2;
+        } else if (type == EvaluationMode.RECOGNITION) {
+            correctAssignments = getResultTypeCount(tagName, ResultType.CORRECT)
+                    + getResultTypeCount(tagName, ResultType.ERROR3);
         }
         return (double)correctAssignments / actualAssignments;
     }
@@ -208,6 +207,9 @@ public class EvaluationResult {
         } else if (type == EvaluationMode.MUC) {
             correctAssignments = getWeightedMuc(tagName);
             possibleAssignments *= 2;
+        } else if (type == EvaluationMode.RECOGNITION) {
+            correctAssignments = getResultTypeCount(tagName, ResultType.CORRECT)
+                    + getResultTypeCount(tagName, ResultType.ERROR3);
         }
         return (double)correctAssignments / possibleAssignments;
     }
@@ -285,6 +287,9 @@ public class EvaluationResult {
                 sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT);
             } else if (type == EvaluationMode.MUC) {
                 sumCorrect += getWeightedMuc(tagName);
+            } else if (type == EvaluationMode.RECOGNITION) {
+                sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT)
+                        + getResultTypeCount(tagName, ResultType.ERROR3);
             }
         }
         return (double)sumCorrect / sumTotal;
@@ -301,6 +306,9 @@ public class EvaluationResult {
                 sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT);
             } else if (type == EvaluationMode.MUC) {
                 sumCorrect += getWeightedMuc(tagName);
+            } else if (type == EvaluationMode.RECOGNITION) {
+                sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT)
+                        + getResultTypeCount(tagName, ResultType.ERROR3);
             }
         }
         return (double)sumCorrect / sumPossible;
@@ -453,9 +461,9 @@ public class EvaluationResult {
             results.append(resultType.getDescription());
             results.append(" (total: ").append(getResultTypeCount(resultType)).append("):\n\n");
 
-            CountMap<String> cm = getAnnotationCount(resultType);
+            Bag<String> cm = getAnnotationCount(resultType);
             for (String item : cm) {
-                results.append(item).append(":; ").append(cm.getCount(item)).append("\n");
+                results.append(item).append(":; ").append(cm.count(item)).append("\n");
             }
             results.append("\n");
             if (getResultTypeCount(resultType) > 0) {
@@ -468,8 +476,8 @@ public class EvaluationResult {
         return results.toString();
     }
 
-    private CountMap<String> getAnnotationCount(ResultType resultType) {
-        CountMap<String> counts = CountMap.create();
+    private Bag<String> getAnnotationCount(ResultType resultType) {
+        Bag<String> counts = Bag.create();
         for (Annotation annotation : getAnnotations(resultType)) {
             counts.add(annotation.getTag());
         }
@@ -482,23 +490,23 @@ public class EvaluationResult {
     }
 
     int getActualAssignments() {
-        return actualAssignments.totalSize();
+        return actualAssignments.size();
     }
 
     int getActualAssignments(String tagName) {
-        return actualAssignments.getCount(tagName);
+        return actualAssignments.count(tagName);
     }
 
     int getPossibleAssignments() {
-        return possibleAssignments.totalSize();
+        return possibleAssignments.size();
     }
 
     int getPossibleAssignments(String tagName) {
-        return possibleAssignments.getCount(tagName);
+        return possibleAssignments.count(tagName);
     }
 
     int getResultTypeCount(String tagName, ResultType resultType) {
-        return assignments.get(tagName).getCount(resultType);
+        return assignments.get(tagName).count(resultType);
     }
 
     public Collection<Annotation> getAnnotations(ResultType resultType) {
@@ -554,7 +562,7 @@ public class EvaluationResult {
 
         // merge assignments
         for (String assignment : result.assignments.keySet()) {
-            CountMap<ResultType> counts = result.assignments.get(assignment);
+            Bag<ResultType> counts = result.assignments.get(assignment);
             this.assignments.get(assignment).addAll(counts);
         }
         // merge confusion matrix
