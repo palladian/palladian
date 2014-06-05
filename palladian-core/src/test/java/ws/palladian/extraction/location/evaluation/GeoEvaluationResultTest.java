@@ -40,7 +40,8 @@ public class GeoEvaluationResultTest {
         result.add(new LocationAnnotation(63, "Lamar County", new LocationBuilder().setPrimaryName("Dallas").setType(LocationType.UNIT).setCoordinate(33.6668, -95.5836).create()));
         result.add(new LocationAnnotation(77, "Texas", new LocationBuilder().setPrimaryName("Texas").setType(LocationType.UNIT).setCoordinate(31.2504, -99.2506).create()));
         result.add(new LocationAnnotation(91, "United States", new LocationBuilder().setPrimaryName("United States").setType(LocationType.COUNTRY).setCoordinate(37.0902, -95.7129).create()));
-        result.add(new LocationAnnotation(110, "Sam Bell Maxey House", new LocationBuilder().setPrimaryName("Sam Bell Maxey House").setType(LocationType.POI).setCoordinate(null).create()));
+        // FIXME no coordinate == no annotation? re-think this
+//        result.add(new LocationAnnotation(110, "Sam Bell Maxey House", new LocationBuilder().setPrimaryName("Sam Bell Maxey House").setType(LocationType.POI).setCoordinate(null).create()));
         result.add(new LocationAnnotation(154, "Paris", new LocationBuilder().setPrimaryName("Paris").setType(LocationType.CITY).setCoordinate(8.8534, 2.3488).create()));
         
         GeoEvaluationResult evaluationResult = new GeoEvaluationResult("test", "/dev/null");
