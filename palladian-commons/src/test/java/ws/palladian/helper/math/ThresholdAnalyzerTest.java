@@ -40,22 +40,26 @@ public class ThresholdAnalyzerTest {
         assertEquals(11, stats.getRetrievedAt(0.5));
         assertEquals(1, stats.getRetrievedAt(1));
 
-        assertEquals(9, stats.getTruePositiveAt(0.0));
-        assertEquals(8, stats.getTruePositiveAt(0.5));
-        assertEquals(1, stats.getTruePositiveAt(1));
+        assertEquals(9, stats.getNumRelevantAt(0.0));
+        assertEquals(8, stats.getNumRelevantAt(0.5));
+        assertEquals(1, stats.getNumRelevantAt(1));
 
-        assertEquals(9. / 15, stats.getPrecision(0), DELTA);
-        assertEquals(8. / 11, stats.getPrecision(0.548), DELTA);
-        assertEquals(1., stats.getPrecision(1), DELTA);
+        assertEquals(9. / 15, stats.getEntry(0).getPrecision(), DELTA);
+        assertEquals(8. / 11, stats.getEntry(0.548).getPrecision(), DELTA);
+        assertEquals(1., stats.getEntry(1).getPrecision(), DELTA);
 
-        assertEquals(1, stats.getRecall(0), DELTA);
-        assertEquals(8. / 9, stats.getRecall(0.548), DELTA);
-        assertEquals(1. / 9, stats.getRecall(1), DELTA);
+        assertEquals(1, stats.getEntry(0).getRecall(), DELTA);
+        assertEquals(8. / 9, stats.getEntry(0.548).getRecall(), DELTA);
+        assertEquals(1. / 9, stats.getEntry(1).getRecall(), DELTA);
 
-        assertEquals((2 * 8. / 11 * 8. / 9) / (8. / 11 + 8. / 9), stats.getF1(0.548), DELTA);
+        assertEquals(9. / 15, stats.getEntry(0).getAccuracy(), DELTA);
+        assertEquals(11. / 15, stats.getEntry(0.548).getAccuracy(), DELTA);
+        assertEquals(7. / 15, stats.getEntry(1).getAccuracy(), DELTA);
 
-        assertEquals(.8, stats.getMaxF1(), DELTA);
-        
+        assertEquals((2 * 8. / 11 * 8. / 9) / (8. / 11 + 8. / 9), stats.getEntry(0.548).getF1(), DELTA);
+
+        assertEquals(.8, stats.getMaxF1Entry().getF1(), DELTA);
+
         // System.out.println(stats);
 
     }

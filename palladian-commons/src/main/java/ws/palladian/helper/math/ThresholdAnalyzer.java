@@ -37,11 +37,13 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         private final double t;
         private final double pr;
         private final double rc;
+        private final double accuracy;
 
-        ThresholdEntry(double t, double pr, double rc) {
+        ThresholdEntry(double t, double pr, double rc, double accuracy) {
             this.t = t;
             this.pr = pr;
             this.rc = rc;
+            this.accuracy = accuracy;
         }
         
         public double getThreshold() {
@@ -59,17 +61,21 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         public double getF1() {
             return 2 * pr * rc / (pr + rc);
         }
+        
+        public double getAccuracy() {
+            return accuracy;
+        }
 
         @Override
         public String toString() {
-            return internalToString("threshold=%s: pr=%s, rc=%s, f1=%s");
+            return internalToString("threshold=%s: pr=%s, rc=%s, f1=%s, acc=%s");
         }
 
         private String internalToString(String format) {
             NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
             numberFormat.setMaximumFractionDigits(5);
             return String.format(format, numberFormat.format(t), numberFormat.format(pr), numberFormat.format(rc),
-                    numberFormat.format(getF1()), makeBar(getF1()));
+                    numberFormat.format(getF1()), numberFormat.format(getAccuracy()), makeBar(getF1()));
         }
 
         private String makeBar(double f1) {
@@ -80,11 +86,11 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
 
     private final int numBins;
 
-    private final Bag<Integer> truePositiveItems;
+    private final Bag<Integer> relevantItems;
 
     private final Bag<Integer> retrievedItems;
 
-    private int relevantItems;
+//    private int relevantItems;
 
     /**
      * <p>
@@ -108,8 +114,8 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         }
         this.numBins = numBins;
         this.retrievedItems = Bag.create();
-        this.truePositiveItems = Bag.create();
-        this.relevantItems = 0;
+        this.relevantItems = Bag.create();
+//        this.relevantItems = 0;
     }
 
     /**
@@ -186,11 +192,15 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * @return The threshold entry for the specified threshold.
      */
     public ThresholdEntry getEntry(double threshold) {
-        int numRelevantRetrieved = getTruePositiveAt(threshold);
+        int numRelevantRetrieved = getNumRelevantAt(threshold);
+        int numIrrelevantNonRetrieved = getNumIrrelevantBelow(threshold);
         int numRetrieved = getRetrievedAt(threshold);
+        int numRelevant = relevantItems.size();
+        int numTotal = retrievedItems.size();
         double pr = (double)numRelevantRetrieved / numRetrieved;
-        double rc = (double)numRelevantRetrieved / relevantItems;
-        return new ThresholdEntry(threshold, pr, rc);
+        double rc = (double)numRelevantRetrieved / numRelevant;
+        double accuracy = (double)(numRelevantRetrieved + numIrrelevantNonRetrieved) / numTotal;
+        return new ThresholdEntry(threshold, pr, rc, accuracy);
     }
 
     /**
@@ -247,8 +257,8 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
     public void add(boolean relevant, double confidence) {
         int bin = getBin(confidence);
         if (relevant) {
-            relevantItems++;
-            truePositiveItems.add(bin);
+//            relevantItems++;
+            relevantItems.add(bin);
         }
         retrievedItems.add(bin);
     }
@@ -270,20 +280,28 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         return retrieved;
     }
 
-    int getTruePositiveAt(double threshold) {
+    int getNumRelevantAt(double threshold) {
         int truePositive = 0;
         for (int i = getBin(threshold); i <= numBins; i++) {
-            truePositive += truePositiveItems.count(i);
+            truePositive += relevantItems.count(i);
         }
         return truePositive;
+    }
+
+    int getNumIrrelevantBelow(double threshold) {
+        int trueNegative = 0;
+        for (int i = 0; i < getBin(threshold); i++) {
+            trueNegative += retrievedItems.count(i) - relevantItems.count(i);
+        }
+        return trueNegative;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("t\tPr\tRc\tF1\n");
+        sb.append("t\tPr\tRc\tF1\tAcc\tF1\n");
         for (ThresholdEntry entry : this) {
-            sb.append(entry.internalToString("%s\t%s\t%s\t%s\t%s\n"));
+            sb.append(entry.internalToString("%s\t%s\t%s\t%s\t%s\t%s\n"));
         }
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
         ThresholdEntry maxF1Entry = getMaxF1Entry();
