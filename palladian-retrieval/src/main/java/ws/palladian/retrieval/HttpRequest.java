@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
+import org.apache.http.HttpEntity;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public final class HttpRequest {
@@ -18,6 +19,7 @@ public final class HttpRequest {
     private final HttpMethod method;
     private final Map<String, String> headers;
     private final Map<String, String> parameters;
+    private HttpEntity httpEntity = null;
 
     public HttpRequest(HttpMethod method, String url) {
         Validate.notNull(method, "method must not be null");
@@ -27,6 +29,11 @@ public final class HttpRequest {
         this.url = url;
         this.headers = CollectionHelper.newHashMap();
         this.parameters = CollectionHelper.newHashMap();
+    }
+
+    public HttpRequest(HttpMethod method, String url, HttpEntity httpEntity) {
+        this(method, url);
+        this.httpEntity = httpEntity;
     }
 
     public HttpRequest(HttpMethod method, String url, Map<String, String> headers, Map<String, String> parameters) {
@@ -69,6 +76,14 @@ public final class HttpRequest {
         Validate.notNull(value, "value must not be null");
         
         parameters.put(key, value.toString());
+    }
+
+    public HttpEntity getHttpEntity() {
+        return httpEntity;
+    }
+
+    public void setHttpEntity(HttpEntity httpEntity) {
+        this.httpEntity = httpEntity;
     }
 
     @Override
