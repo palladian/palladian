@@ -82,7 +82,7 @@ class WikipediaPageContentHandler extends DefaultHandler {
     private void processPage() {
         if (++pageCounter % 1000 == 0) {
             float throughput = (float)pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
-            LOGGER.info("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
+            LOGGER.debug("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
         }
         callback.process(new WikipediaPage(pageId, namespaceId, title, text));
     }
