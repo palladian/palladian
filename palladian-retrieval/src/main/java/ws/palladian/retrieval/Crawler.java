@@ -247,6 +247,12 @@ public class Crawler {
         blackListUrlRegexps.add(Pattern.compile(regexp));
     }
 
+    public void addBlackListRegexps(Set<String> blackListRegexps) {
+        for (String string : blackListRegexps) {
+            addBlackListRegexp(string);
+        }
+    }
+
     public void addUrlRule(String rule) {
         urlRules.add(rule);
     }
