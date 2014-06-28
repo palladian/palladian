@@ -82,7 +82,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
     public static final String CONFIG_CONSUMER_KEY = "api.yelp.consumerKey";
 
     /** The identifier for the {@link Configuration} key with the OAuth consumer secret. */
-    public static final String CONFIG_CONSUMER_SECRET = "api.yelp.comsumerSecret";
+    public static final String CONFIG_CONSUMER_SECRET = "api.yelp.consumerSecret";
 
     /** The identifier for the {@link Configuration} key with the OAuth access token. */
     public static final String CONFIG_ACCESS_TOKEN = "api.yelp.accessToken";
