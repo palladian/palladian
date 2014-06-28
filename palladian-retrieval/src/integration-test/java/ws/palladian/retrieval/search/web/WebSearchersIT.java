@@ -31,6 +31,7 @@ import ws.palladian.retrieval.search.news.WebKnoxNewsSearcher;
 import ws.palladian.retrieval.search.socialmedia.InstagramSearcher;
 import ws.palladian.retrieval.search.socialmedia.RedditSearcher;
 import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
+import ws.palladian.retrieval.search.socialmedia.YelpSearcher;
 import ws.palladian.retrieval.search.videos.BingVideoSearcher;
 import ws.palladian.retrieval.search.videos.VimeoSearcher;
 import ws.palladian.retrieval.search.videos.YouTubeSearcher;
@@ -50,6 +51,7 @@ public class WebSearchersIT {
 
     private final Searcher<?> searcher;
 
+    @SuppressWarnings("deprecation")
     @Parameters(name = "{0}")
     public static Collection<Object[]> searchers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
@@ -78,6 +80,7 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new FacebookSearcher(configuration)});
         searchers.add(new Object[] {new TwitterSearcher(configuration)});
         searchers.add(new Object[] {new RedditSearcher()});
+        searchers.add(new Object[] {new YelpSearcher(configuration)});
 
         // news searchers
         // searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
