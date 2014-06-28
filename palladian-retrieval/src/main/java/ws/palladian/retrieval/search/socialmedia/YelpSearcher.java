@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.search.socialmedia;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.Facet;
 import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
@@ -39,6 +41,42 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YelpSearcher.class);
+
+    /**
+     * <p>
+     * Filtering facet which allows to specify a category when searching. The supported categories by Yelp can be found
+     * <a href="http://www.yelp.com/developers/documentation/category_list">here</a>. Usage as follows:
+     * 
+     * <pre>
+     * MultifacetQuery query = new MultifacetQuery.Builder().setCoordinate(51.05268, 13.739176).setRadius(10.)
+     *         .addFacet(new CategoryFilter(&quot;theater&quot;, &quot;ticketsales&quot;)).create();
+     * </pre>
+     * 
+     * @author pk
+     */
+    public static final class CategoryFilter implements Facet {
+        private static final String YELP_CATEGORY_FACET = "yelp.categories";
+        private final Set<String> categories;
+
+        public CategoryFilter(Set<String> categories) {
+            Validate.notNull(categories, "categories must not be null");
+            this.categories = categories;
+        }
+
+        public CategoryFilter(String... categories) {
+            Validate.notNull(categories, "categories must not be null");
+            this.categories = CollectionHelper.newHashSet(categories);
+        }
+
+        @Override
+        public String getIdentifier() {
+            return YELP_CATEGORY_FACET;
+        }
+
+        private String getCategories() {
+            return StringUtils.join(categories, ",");
+        }
+    }
 
     /** The identifier for the {@link Configuration} key with the OAuth consumer key. */
     public static final String CONFIG_CONSUMER_KEY = "api.yelp.consumerKey";
@@ -99,7 +137,6 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
             httpRequest.addParameter("offset", query.getResultPage() * query.getResultCount());
         }
         // TODO sort
-        // TODO category filter
         GeoCoordinate coordinate = query.getCoordinate();
         if (coordinate != null) {
             String latLng = coordinate.getLatitude() + "," + coordinate.getLongitude();
@@ -111,6 +148,10 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
         }
         if (query.getLanguage() != null) {
             httpRequest.addParameter("lang", query.getLanguage().getIso6391());
+        }
+        if (query.getFacet(CategoryFilter.YELP_CATEGORY_FACET) != null) {
+            CategoryFilter categoryFilter = (CategoryFilter)query.getFacet(CategoryFilter.YELP_CATEGORY_FACET);
+            httpRequest.addParameter("category_filter", categoryFilter.getCategories());
         }
 
         HttpRequest signedRequest = OAuthUtil.createSignedRequest(httpRequest, oAuthParams);
