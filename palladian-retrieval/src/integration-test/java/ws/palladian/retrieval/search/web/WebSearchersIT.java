@@ -80,7 +80,7 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new FacebookSearcher(configuration)});
         searchers.add(new Object[] {new TwitterSearcher(configuration)});
         searchers.add(new Object[] {new RedditSearcher()});
-        searchers.add(new Object[] {new YelpSearcher(configuration)});
+        // searchers.add(new Object[] {new YelpSearcher(configuration)});
 
         // news searchers
         // searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
