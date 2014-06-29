@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.discretization.DatasetStatistics;
 import ws.palladian.classification.discretization.Discretization;
@@ -52,6 +54,9 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author Philipp Katz
  */
 public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureRanker.class);
 
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
@@ -59,6 +64,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         Map<String, Double> informationGainValues = CollectionHelper.newHashMap();
 
         progress.startTask("Information Gain", -1);
+        LOGGER.debug("Calculating discretization");
         Discretization discretization = new Discretization(dataset, progress.createSubProgress(0.5));
         Iterable<Instance> preparedData = discretization.discretize(dataset);
 
@@ -67,6 +73,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         Set<String> featureNames = new DatasetStatistics(preparedData).getFeatureNames();
 
         ProgressReporter informationGainProgress = progress.createSubProgress(0.5);
+        LOGGER.debug("Calculating gain");
         informationGainProgress.startTask("Calculating gain", featureNames.size());
         for (String featureName : featureNames) {
             double gain = entropy - conditionalEntropy(featureName, preparedData);
