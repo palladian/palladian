@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.discretization.Binner.Interval;
 import ws.palladian.core.FeatureVector;
@@ -19,6 +21,9 @@ import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 public final class Discretization {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Discretization.class);
 
     private final Map<String, Binner> binners = CollectionHelper.newHashMap();
 
@@ -32,6 +37,7 @@ public final class Discretization {
         Set<String> numericFeatureNames = getNumericFeatureNames(datasetCopy);
         progress.startTask("Discretizing", numericFeatureNames.size());
         for (String featureName : numericFeatureNames) {
+            LOGGER.debug("Discretizing {}", featureName);
             binners.put(featureName, new Binner(datasetCopy, featureName));
             progress.increment();
         }

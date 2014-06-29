@@ -25,7 +25,7 @@ import ws.palladian.processing.features.Annotation;
  * 
  * @author Philipp Katz
  */
-class GeoEvaluationResult {
+public class GeoEvaluationResult {
 
     /** ignore other types than CITY and POI because they are too broad. */
     private static final List<String> CONSIDERED_TYPES = Arrays.asList("CITY", "POI");
