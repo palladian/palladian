@@ -1,8 +1,11 @@
 package ws.palladian.classification.text;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -16,6 +19,24 @@ import org.apache.commons.lang3.Validate;
 public class FeatureSetting implements Serializable {
 
     private static final long serialVersionUID = 8129286644101075891L;
+
+    /** Name of the key for maxTermLength when creating a map. */
+    public static final String PROPERTY_MAX_TERM_LENGTH = "maxTermLength";
+
+    /** Name of the key for minTermLength when creating a map. */
+    public static final String PROPERTY_MIN_TERM_LENGTH = "minTermLength";
+
+    /** Name of the key for maxNGramLength when creating a map. */
+    public static final String PROPERTY_MAX_N_GRAM_LENGTH = "maxNGramLength";
+
+    /** Name of the key for minNGramLength when creating a map. */
+    public static final String PROPERTY_MIN_N_GRAM_LENGTH = "minNGramLength";
+
+    /** Name of the key for maxTerms when creating a map. */
+    public static final String PROPERTY_MAX_TERMS = "maxTerms";
+
+    /** Name of the key for textFeatureType when creating a map. */
+    public static final String PROPERTY_TEXT_FEATURE_TYPE = "textFeatureType";
 
     /** The default maximum term length. */
     static final int DEFAULT_MIN_TERM_LENGTH = 3;
@@ -104,6 +125,22 @@ public class FeatureSetting implements Serializable {
         this.maximumTermLength = builder.maxTermLength;
     }
 
+    /**
+     * <p>
+     * Create a feature setting from a properties map.
+     * 
+     * @param properties The properties, not <code>null</code>.
+     */
+    public FeatureSetting(Map<String, String> properties) {
+        Validate.notNull(properties, "properties must not be null");
+        this.textFeatureType = TextFeatureType.valueOf(properties.get(PROPERTY_TEXT_FEATURE_TYPE));
+        this.maxTerms = Integer.valueOf(properties.get(PROPERTY_MAX_TERMS));
+        this.minNGramLength = Integer.valueOf(properties.get(PROPERTY_MIN_N_GRAM_LENGTH));
+        this.maxNGramLength = Integer.valueOf(properties.get(PROPERTY_MAX_N_GRAM_LENGTH));
+        this.minimumTermLength = Integer.valueOf(properties.get(PROPERTY_MIN_TERM_LENGTH));
+        this.maximumTermLength = Integer.valueOf(properties.get(PROPERTY_MAX_TERM_LENGTH));
+    }
+
     public TextFeatureType getTextFeatureType() {
         return textFeatureType;
     }
@@ -155,6 +192,20 @@ public class FeatureSetting implements Serializable {
         }
         builder.append("]");
         return builder.toString();
+    }
+
+    /**
+     * @return The settings as key-value properties (useful e.g. for persistence).
+     */
+    public Map<String, String> toMap() {
+        Map<String, String> map = CollectionHelper.newHashMap();
+        map.put(PROPERTY_TEXT_FEATURE_TYPE, textFeatureType.name());
+        map.put(PROPERTY_MAX_TERMS, String.valueOf(maxTerms));
+        map.put(PROPERTY_MIN_N_GRAM_LENGTH, String.valueOf(minNGramLength));
+        map.put(PROPERTY_MAX_N_GRAM_LENGTH, String.valueOf(maxNGramLength));
+        map.put(PROPERTY_MIN_TERM_LENGTH, String.valueOf(minimumTermLength));
+        map.put(PROPERTY_MAX_TERM_LENGTH, String.valueOf(maximumTermLength));
+        return map;
     }
 
 }

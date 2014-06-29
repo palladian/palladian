@@ -1,7 +1,6 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
-import java.util.Collection;
 
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
@@ -62,14 +61,14 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      */
     String getName();
 
-    /**
-     * Set a name for this model.
-     * 
-     * @param name The name, not <code>null</code>.
-     * @deprecated Use a {@link DictionaryBuilder} for creation.
-     */
-    @Deprecated
-    void setName(String name);
+//    /**
+//     * Set a name for this model.
+//     * 
+//     * @param name The name, not <code>null</code>.
+//     * @deprecated Use a {@link DictionaryBuilder} for creation.
+//     */
+//    @Deprecated
+//    void setName(String name);
 
     /**
      * @return The feature setting which was used for extracting the features in this model, or <code>null</code> in
@@ -77,17 +76,17 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      */
     FeatureSetting getFeatureSetting();
 
-    /**
-     * <p>
-     * Add a document (represented by a {@link Collection} of terms) to this model.
-     * </p>
-     * 
-     * @param terms The terms from the document, not <code>null</code>.
-     * @param category The category of the document, not <code>null</code>.
-     * @deprecated Use a {@link DictionaryBuilder} for creation.
-     */
-    @Deprecated
-    void addDocument(Collection<String> terms, String category);
+//    /**
+//     * <p>
+//     * Add a document (represented by a {@link Collection} of terms) to this model.
+//     * </p>
+//     * 
+//     * @param terms The terms from the document, not <code>null</code>.
+//     * @param category The category of the document, not <code>null</code>.
+//     * @deprecated Use a {@link DictionaryBuilder} for creation.
+//     */
+//    @Deprecated
+//    void addDocument(Collection<String> terms, String category);
 
     /**
      * <p>

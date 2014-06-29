@@ -1,7 +1,6 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -91,15 +90,15 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
 
     // deprecated functionality
 
-    @Override
-    public void addDocument(Collection<String> terms, String category) {
-        throw new UnsupportedOperationException("Use a builder to create the model");
-    }
-
-    @Override
-    public void setName(String name) {
-        throw new UnsupportedOperationException("Use a builder to set the name of the model");
-    }
+//    @Override
+//    public void addDocument(Collection<String> terms, String category) {
+//        throw new UnsupportedOperationException("Use a builder to create the model");
+//    }
+//
+//    @Override
+//    public void setName(String name) {
+//        throw new UnsupportedOperationException("Use a builder to set the name of the model");
+//    }
 
     // toString
 
