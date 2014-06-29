@@ -21,22 +21,22 @@ public class FeatureSetting implements Serializable {
     private static final long serialVersionUID = 8129286644101075891L;
 
     /** Name of the key for maxTermLength when creating a map. */
-    private static final String PROPERTY_MAX_TERM_LENGTH = "maxTermLength";
+    public static final String PROPERTY_MAX_TERM_LENGTH = "maxTermLength";
 
     /** Name of the key for minTermLength when creating a map. */
-    private static final String PROPERTY_MIN_TERM_LENGTH = "minTermLength";
+    public static final String PROPERTY_MIN_TERM_LENGTH = "minTermLength";
 
     /** Name of the key for maxNGramLength when creating a map. */
-    private static final String PROPERTY_MAX_N_GRAM_LENGTH = "maxNGramLength";
+    public static final String PROPERTY_MAX_N_GRAM_LENGTH = "maxNGramLength";
 
     /** Name of the key for minNGramLength when creating a map. */
-    private static final String PROPERTY_MIN_N_GRAM_LENGTH = "minNGramLength";
+    public static final String PROPERTY_MIN_N_GRAM_LENGTH = "minNGramLength";
 
     /** Name of the key for maxTerms when creating a map. */
-    private static final String PROPERTY_MAX_TERMS = "maxTerms";
+    public static final String PROPERTY_MAX_TERMS = "maxTerms";
 
     /** Name of the key for textFeatureType when creating a map. */
-    private static final String PROPERTY_TEXT_FEATURE_TYPE = "textFeatureType";
+    public static final String PROPERTY_TEXT_FEATURE_TYPE = "textFeatureType";
 
     /** The default maximum term length. */
     static final int DEFAULT_MIN_TERM_LENGTH = 3;
