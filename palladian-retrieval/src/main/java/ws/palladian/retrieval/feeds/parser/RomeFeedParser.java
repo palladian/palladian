@@ -230,8 +230,12 @@ public class RomeFeedParser extends AbstractFeedParser {
      */
     private String getEntryDescription(SyndEntry syndEntry) {
         String description = null;
-        if (syndEntry.getDescription() != null) {
-            description = syndEntry.getDescription().getValue();
+        SyndContent entryDescription = syndEntry.getDescription();
+        if (entryDescription != null) {
+            String entryDescriptionValue = entryDescription.getValue();
+            if (entryDescriptionValue != null) {
+                description = entryDescriptionValue.trim();
+            }
         }
         return description;
     }
@@ -257,7 +261,7 @@ public class RomeFeedParser extends AbstractFeedParser {
                 String contentValue = content.getValue();
                 if (contentValue != null && contentValue.length() != 0) {
                     if (entryText == null || contentValue.length() > entryText.length()) {
-                        entryText = contentValue;
+                        entryText = contentValue.trim();
                     }
                 }
             }
@@ -298,6 +302,8 @@ public class RomeFeedParser extends AbstractFeedParser {
         // we could ultimately get no ID
         if (rawId == null) {
             LOGGER.debug("could not get id for entry");
+        } else {
+            rawId = rawId.trim();
         }
 
         return rawId;
