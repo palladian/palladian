@@ -229,7 +229,10 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
                         + e.getMessage() + ", request URL was \"" + requestUrl + "\"", e);
             }
-            // TODO implement checking for error codes.
+            if (httpResult.errorStatus()) {
+                throw new SearcherException("Encountered HTTP error status: " + httpResult.getStatusCode() + " ("
+                        + httpResult.getStringContent() + ").");
+            }
             String jsonString = httpResult.getStringContent();
 
             try {
@@ -361,7 +364,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      */
     private String buildRequestUrl(MultifacetQuery query, int perPage, int page) {
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("http://api.flickr.com/services/rest/");
+        urlBuilder.append("https://api.flickr.com/services/rest/");
         urlBuilder.append("?api_key=").append(apiKey);
         if (StringUtils.isNotBlank(query.getId())) {
             urlBuilder.append("&method=flickr.photos.getInfo");

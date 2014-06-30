@@ -3,20 +3,20 @@ package ws.palladian.retrieval.search.videos;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -39,8 +39,9 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author David Urbansky
  * @author Philipp Katz
- * @see <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol">API documentation</a>
- * @see <a href="https://developers.google.com/youtube/2.0/developers_guide_protocol_api_query_parameters">API Query Parameters</a>
+ * @see <a href="https://developers.google.com/youtube/v3/docs/">API documentation</a>
+ * @see <a href="https://developers.google.com/youtube/v3/docs/search/list">API Query Parameters</a>
+ * @see <a href="https://developers.google.com/youtube/v3/docs/videos">Videos resource</a>
  */
 public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
@@ -48,19 +49,19 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
 
     /** Name of this searcher. */
-    private static final String SEARCHER_NAME = "YouTube";
+    public static final String SEARCHER_NAME = "YouTube";
 
     /** Key of the {@link Configuration} item which contains the API key. */
     public static final String CONFIG_API_KEY = "api.youtube.key";
-
-//    /** Counter for total number of requests sent to YouTube. */
-//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /** The pattern for parsing the date. */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     /** The maximum number of results we can get per request. */
     private static final int MAX_RESULTS_PER_PAGE = 50;
+
+    /** The pattern for parsing durations, such as "PT15M51S". */
+    private static final Pattern DURATION_PATTERN = Pattern.compile("PT(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?");
 
     /**
      * <p>
@@ -70,19 +71,29 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
      * @author pk
      */
     public static enum OrderBy implements Facet {
-        /** Entries are ordered by their relevance to a search query. */
+        /** Resources are sorted in reverse chronological order based on the date they were created. */
+        DATE("date"),
+        /** Resources are sorted from highest to lowest rating. */
+        RATING("rating"),
+        /**
+         * Resources are sorted based on their relevance to the search query. This is the default value for this
+         * parameter.
+         */
         RELEVANCE("relevance"),
-        /** Entries are returned in reverse chronological order. */
-        PUBLISHED("published"),
-        /** Entries are ordered from most views to least views. */
+        /** Resources are sorted alphabetically by title. */
+        TITLE("title"),
+        /** Channels are sorted in descending order of their number of uploaded videos. */
+        VIDEO_COUNT("videoCount"),
+        /** Resources are sorted from highest to lowest number of views. */
         VIEW_COUNT("viewCount"),
-        /** Entries are ordered from highest rating to lowest rating. */
-        RATING("rating");
+        /** @deprecated Use {@link #DATE} instead. */
+        @Deprecated
+        PUBLISHED("date");
 
         private static final String YOUTUBE_RESULT_ORDER = "youtube.resultOrder";
-        
+
         private final String parameterValue;
-        
+
         private OrderBy(String parameterValue) {
             this.parameterValue = parameterValue;
         }
@@ -107,19 +118,11 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
      * <p>
      * Create a new {@link YouTubeSearcher}.
      * </p>
-     */
-    public YouTubeSearcher() {
-        this((String)null);
-    }
-
-    /**
-     * <p>
-     * Create a new {@link YouTubeSearcher}.
-     * </p>
      * 
-     * @param apiKey (Optional) API key for accessing YouTube.
+     * @param apiKey API key for accessing YouTube.
      */
     public YouTubeSearcher(String apiKey) {
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
         this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
@@ -140,138 +143,178 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         return SEARCHER_NAME;
     }
 
-    private String getRequestUrl(MultifacetQuery query, int startIndex, int numResults) throws SearcherException {
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("https://gdata.youtube.com/feeds/api/videos?q=");
-        if (StringUtils.isNotBlank(query.getText())) {
-            urlBuilder.append(UrlHelper.encodeParameter(query.getText()));
-        }
-        Facet facet = query.getFacet(OrderBy.YOUTUBE_RESULT_ORDER);
-        if (facet != null) {
-            OrderBy orderByFacet = (OrderBy)facet;
-            urlBuilder.append("&orderby=").append(orderByFacet.getValue());
-        }
-        urlBuilder.append("&start-index=").append(startIndex);
-        urlBuilder.append("&max-results=").append(numResults);
-        urlBuilder.append("&v=2");
-        urlBuilder.append("&alt=json");
-        if (apiKey != null && !apiKey.isEmpty()) {
-            urlBuilder.append("&key=").append(apiKey);
-        }
-        Language language = query.getLanguage();
-        if (language != null) {
-            urlBuilder.append("&lr=").append(language.getIso6391());
-        }
-        GeoCoordinate coordinate = query.getCoordinate();
-        if (coordinate != null) {
-            urlBuilder.append("&location=");
-            urlBuilder.append(coordinate.getLatitude()).append(',');
-            urlBuilder.append(coordinate.getLongitude());
-            double radius = query.getRadius() != null ? query.getRadius() : 10;
-            urlBuilder.append("&locationRadius=");
-            urlBuilder.append(radius).append("km");
-        }
-        urlBuilder.append("&safeSearch=none");
-        return urlBuilder.toString();
-    }
-
     @Override
     public SearchResults<WebVideo> search(MultifacetQuery query) throws SearcherException {
-        List<WebVideo> webResults = new ArrayList<WebVideo>();
+        List<WebVideo> webResults = CollectionHelper.newArrayList();
         Long numResults = null;
-
-        for (int index = 1; index <= query.getResultCount(); index += MAX_RESULTS_PER_PAGE) {
-            String url = getRequestUrl(query, index, MAX_RESULTS_PER_PAGE);
-            LOGGER.debug("Requesting with URL {}", url);
-            HttpResult httpResult;
-            try {
-                httpResult = retriever.httpGet(url);
-            } catch (HttpException e) {
-                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
-                        + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
-            }
-            String jsonString = httpResult.getStringContent();
-            try {
+        String url = null;
+        String jsonString = null;
+        int numRequests = 0;
+        try {
+            List<String> videoIds = CollectionHelper.newArrayList();
+            String nextPageToken = null;
+            // retrieve the video IDs matching the search
+            while (videoIds.size() < query.getResultCount()) {
+                url = buildSearchUrl(query, nextPageToken, MAX_RESULTS_PER_PAGE);
+                LOGGER.debug("Requesting URL {}", url);
+                HttpResult httpResult = retriever.httpGet(url);
+                numRequests++;
+                checkForHttpError(httpResult);
+                jsonString = httpResult.getStringContent();
                 JsonObject root = new JsonObject(jsonString);
-//                TOTAL_REQUEST_COUNT.incrementAndGet();
-                JsonObject feed = root.getJsonObject("feed");
-                numResults = feed.getJsonObject("openSearch$totalResults").getLong("$t");
-                JsonArray entries = feed.getJsonArray("entry");
+                numResults = root.queryLong("pageInfo/totalResults");
+                nextPageToken = root.tryQueryString("nextPageToken");
+                JsonArray entries = root.getJsonArray("items");
                 if (entries != null) {
-                    for (int i = 0; i < entries.size(); i++) {
-                        WebVideo webVideoResult = parseEntry(entries.getJsonObject(i));
-                        webResults.add(webVideoResult);
-                        if (webResults.size() >= query.getResultCount()) {
-                            break;
-                        }
+                    for (int i = 0; i < entries.size() && videoIds.size() < query.getResultCount(); i++) {
+                        videoIds.add(entries.getJsonObject(i).queryString("id/videoId"));
                     }
                 }
-            } catch (JsonException e) {
-                throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                        + "\" with " + getName() + ", JSON was \"" + jsonString + "\": " + e, e);
+                if (nextPageToken == null) {
+                    break;
+                }
             }
+            // retrieve data about the found video IDs
+            for (int i = 0; i < videoIds.size(); i += MAX_RESULTS_PER_PAGE) {
+                List<String> currentChunk = videoIds.subList(i, Math.min(i + MAX_RESULTS_PER_PAGE, videoIds.size()));
+                url = buildListUrl(currentChunk);
+                LOGGER.debug("Requesting URL {}", url);
+                HttpResult httpResult = retriever.httpGet(url);
+                numRequests++;
+                checkForHttpError(httpResult);
+                jsonString = httpResult.getStringContent();
+                JsonObject root = new JsonObject(jsonString);
+                JsonArray itemsArray = root.getJsonArray("items");
+                for (int j = 0; j < itemsArray.size(); j++) {
+                    webResults.add(parseSnippet((JsonObject)itemsArray.get(j)));
+                }
+            }
+        } catch (HttpException e) {
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
+                    + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
+        } catch (JsonException e) {
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                    + "\" with " + getName() + ", JSON was \"" + jsonString + "\": " + e, e);
         }
+        LOGGER.debug("Query {} took {} requests", query, numRequests);
         return new SearchResults<WebVideo>(webResults, numResults);
     }
 
-    private WebVideo parseEntry(JsonObject entry) throws JsonException {
-        BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
-        String published = entry.queryString("published/$t");
-        builder.setPublished(parseDate(published));
-        builder.setTitle(entry.queryString("title/$t"));
-        builder.setVideoUrl(entry.tryQueryString("content/src"));
-        builder.setUrl(getPageLink(entry));
-        builder.setDuration(entry.queryInt("media$group/yt$duration/seconds"));
-        builder.setViews(entry.tryQueryInt("yt$statistics/viewCount"));
-        builder.setSummary(entry.queryString("media$group/media$description/$t"));
-        builder.setThumbnailUrl(entry.queryString("media$group/media$thumbnail[2]/url"));
+    /**
+     * Check, if {@link HttpResult} had an error status and throw a {@link SearcherException} if so.
+     * 
+     * @param httpResult The HttpResult.
+     * @throws SearcherException In case the result had a non-success status.
+     */
+    private static void checkForHttpError(HttpResult httpResult) throws SearcherException {
+        if (httpResult.errorStatus()) {
+            throw new SearcherException("Encountered HTTP status code " + httpResult.getStatusCode() + " for URL \""
+                    + httpResult.getUrl() + "\": " + httpResult.getStringContent());
+        }
+    }
 
-        JsonObject ratingObject = entry.getJsonObject("yt$rating");
-        if (ratingObject != null) {
-            int numDislikes = ratingObject.getInt("numDislikes");
-            int numLikes = ratingObject.getInt("numLikes");
-            int total = numLikes + numDislikes;
-            if (total > 0) {
-                builder.setRating(numLikes / (double)total);
-            }
+    private String buildSearchUrl(MultifacetQuery query, String pageToken, int numResults) throws SearcherException {
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append("https://www.googleapis.com/youtube/v3/search");
+        urlBuilder.append("?part=id");
+        if (StringUtils.isNotBlank(query.getText())) {
+            urlBuilder.append("&q=").append(UrlHelper.encodeParameter(query.getText()));
         }
-        if (entry.get("georss$where") != null) {
-            String positionString = entry.queryString("georss$where/gml$Point/gml$pos/$t");
-            if (positionString != null) {
-                String[] longLat = positionString.split(" ");
-                double lat = Double.valueOf(longLat[0]);
-                double lng = Double.valueOf(longLat[1]);
-                builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
-            }
+        Facet facet = query.getFacet(ws.palladian.retrieval.search.videos.YouTubeSearcher.OrderBy.YOUTUBE_RESULT_ORDER);
+        if (facet != null) {
+            ws.palladian.retrieval.search.videos.YouTubeSearcher.OrderBy orderByFacet = (ws.palladian.retrieval.search.videos.YouTubeSearcher.OrderBy)facet;
+            urlBuilder.append("&order=").append(orderByFacet.getValue());
         }
-        
+        if (StringUtils.isNotBlank(pageToken)) {
+            urlBuilder.append("&pageToken=").append(pageToken);
+        }
+        urlBuilder.append("&maxResults=").append(numResults);
+        urlBuilder.append("&key=").append(apiKey);
+//        Language language = query.getLanguage();
+//        if (language != null) {
+//            urlBuilder.append("&lr=").append(language.getIso6391());
+//        }
+        if (query.getCoordinate() != null) {
+            LOGGER.warn("Searching by coordinates is currently not supported by YouTube API V3; see: "
+                    + "https://code.google.com/p/gdata-issues/issues/detail?id=4234");
+        }
+        DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
+        if (query.getStartDate() != null) {
+            urlBuilder.append("&publishedAfter=").append(dateFormat.format(query.getStartDate()));
+        }
+        if (query.getEndDate() != null) {
+            urlBuilder.append("&publishedBefore=").append(dateFormat.format(query.getEndDate()));
+        }
+        urlBuilder.append("&safeSearch=none");
+        urlBuilder.append("&type=video");
+        return urlBuilder.toString();
+    }
+
+    private String buildListUrl(List<String> ids) {
+        StringBuilder urlBuilder = new StringBuilder();
+        // https://developers.google.com/youtube/v3/docs/videos/list
+        urlBuilder.append("https://www.googleapis.com/youtube/v3/videos");
+        urlBuilder.append("?part=snippet,contentDetails,statistics,recordingDetails");
+        urlBuilder.append("&key=").append(apiKey);
+        urlBuilder.append("&id=").append(StringUtils.join(ids, ','));
+        return urlBuilder.toString();
+    }
+
+    private WebVideo parseSnippet(JsonObject entry) throws JsonException {
+        BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
+        String published = entry.queryString("snippet/publishedAt");
+        builder.setPublished(parseDate(published));
+        // recorded time is not available in most cases
+        // String recorded = entry.tryQueryString("recordingDetails/recordingDate");
+        builder.setTitle(entry.queryString("snippet/title"));
+        String videoId = entry.queryString("id");
+        builder.setIdentifier(videoId);
+        builder.setSource(SEARCHER_NAME);
+        builder.setUrl("http://www.youtube.com/watch?v=" + videoId);
+        builder.setDuration(parseIso8601Duration(entry.queryString("contentDetails/duration")));
+        builder.setViews(entry.tryQueryInt("statistics/viewCount"));
+        builder.setSummary(entry.queryString("snippet/description"));
+        builder.setThumbnailUrl(entry.queryString("snippet/thumbnails/high/url"));
+        // like/dislike statistics
+        long numDislikes = entry.queryInt("statistics/dislikeCount");
+        long numLikes = entry.queryInt("statistics/likeCount");
+        long total = numLikes + numDislikes;
+        if (total > 0) {
+            builder.setRating(numLikes / (double)total);
+        }
+        // geographic location
+        Double latitude = entry.tryQueryDouble("recordingDetails/location/latitude");
+        Double longitude = entry.tryQueryDouble("recordingDetails/location/longitude");
+        if (latitude != null && longitude != null) {
+            builder.setCoordinate(latitude, longitude);
+        }
         // no tags available ):
         // see: http://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
-
-        builder.setSource(SEARCHER_NAME);
-        builder.setIdentifier(entry.queryString("id/$t"));
         return builder.create();
     }
 
     /**
-     * <p>
-     * Get the URL linking to the YouTube page where the video is shown.
-     * </p>
+     * Parse the duration which is given as ISO8601 (this method does not implement the complete standard, but only what
+     * is necessary for YouTube).
      * 
-     * @param entry
-     * @return The URL, or <code>null</code> if no URL provided.
-     * @throws JsonException
+     * @param iso8601string The duration string.
+     * @return The duration in seconds, or <code>null</code> in case the duration string could not be parsed.
      */
-    public String getPageLink(JsonObject entry) throws JsonException {
-        JsonArray linkArray = entry.getJsonArray("link");
-        for (int k = 0; k < linkArray.size(); k++) {
-            JsonObject linkObject = linkArray.getJsonObject(k);
-            String rel = linkObject.getString("rel");
-            if (rel.equals("alternate")) {
-                return linkObject.getString("href");
-            }
+    private static Integer parseIso8601Duration(String iso8601string) {
+        if (StringUtils.isBlank(iso8601string)) {
+            return null;
         }
-        return null;
+        Matcher matcher = DURATION_PATTERN.matcher(iso8601string);
+        if (matcher.matches()) {
+            int hours = matcher.group(1) != null ? Integer.parseInt(matcher.group(1)) : 0;
+            int minutes = matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 0;
+            int seconds = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
+            int duration = 60 * (60 * hours + minutes) + seconds;
+            return duration;
+        } else {
+            LOGGER.warn("Error while parsing duration string \"{}\".", iso8601string);
+            return null;
+        }
     }
 
     private Date parseDate(String dateString) {
@@ -279,20 +322,9 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         try {
             return dateFormat.parse(dateString);
         } catch (ParseException e) {
-            LOGGER.error("Error parsing date " + dateString, e);
+            LOGGER.error("Error parsing date {}", dateString, e);
         }
         return null;
     }
-
-//    /**
-//     * <p>
-//     * Get the number of HTTP requests sent to YouTube.
-//     * </p>
-//     * 
-//     * @return
-//     */
-//    public static int getRequestCount() {
-//        return TOTAL_REQUEST_COUNT.get();
-//    }
 
 }
