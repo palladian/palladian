@@ -26,11 +26,11 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
-import com.sun.syndication.feed.rss.Guid;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedInput;
+import com.rometools.rome.feed.rss.Guid;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
 
 /**
  * <p>Helper to process a {@link HttpResult} and extract some Headers. Code taken from {@link MetaInformationCreationTask}.</p>
@@ -227,7 +227,7 @@ public class MetaInformationExtractor {
             Iterator<?> it = syndFeed.getEntries().iterator();
             if (it.hasNext()) {
                 SyndEntry syndEntry = (SyndEntry) it.next();
-                com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) syndEntry
+                com.rometools.rome.feed.atom.Entry atomEntry = (com.rometools.rome.feed.atom.Entry) syndEntry
                         .getWireEntry();
                 String rawId = atomEntry.getId();
 
@@ -258,8 +258,8 @@ public class MetaInformationExtractor {
         if (it.hasNext()) {
             SyndEntry syndEntry = (SyndEntry) it.next();
 
-            com.sun.syndication.feed.rss.Item rssItem = (com.sun.syndication.feed.rss.Item) syndEntry.getWireEntry();
-            com.sun.syndication.feed.rss.Channel channel = (com.sun.syndication.feed.rss.Channel) syndFeed
+            com.rometools.rome.feed.rss.Item rssItem = (com.rometools.rome.feed.rss.Item) syndEntry.getWireEntry();
+            com.rometools.rome.feed.rss.Channel channel = (com.rometools.rome.feed.rss.Channel) syndFeed
                     .originalWireFeed();
             Guid guid = rssItem.getGuid();
 

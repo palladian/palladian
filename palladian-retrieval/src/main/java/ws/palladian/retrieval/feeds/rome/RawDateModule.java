@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.feeds.rome;
 
-import com.sun.syndication.feed.module.Module;
+import com.rometools.rome.feed.module.Module;
 
 /**
  * <p>This module keeps raw date information from feed items as string. This allows us to process the date strings with our
