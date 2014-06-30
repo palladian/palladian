@@ -49,6 +49,9 @@ public class WordTransformer {
             List<String> list = FileHelper.readFileToArray(inputStream);
             for (String string : list) {
                 String[] parts = string.split("\t");
+                if (parts[1].isEmpty()) {
+                    continue;
+                }
                 GERMAN_SINGULAR_PLURAL.put(parts[1].toLowerCase(), parts[3].toLowerCase());
             }
 
@@ -367,7 +370,7 @@ public class WordTransformer {
             }
         }
 
-        return plural;
+        return singular;
     }
 
     public static String stemGermanWords(String words) {
@@ -597,7 +600,8 @@ public class WordTransformer {
     public static void main(String[] args) {
 
         // System.out.println(WordTransformer.stemEnglishWord("bleed"));
-        System.out.println(WordTransformer.getThirdPersonSingular("cross"));
+        // System.out.println(WordTransformer.getThirdPersonSingular("cross"));
+        System.out.println(WordTransformer.wordToSingularGerman("arasdften"));
         System.exit(0);
 
         // 335ms

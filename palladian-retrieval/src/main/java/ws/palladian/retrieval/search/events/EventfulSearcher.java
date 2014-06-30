@@ -17,11 +17,14 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -86,18 +89,20 @@ public class EventfulSearcher extends EventSearcher {
 
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType) throws SearcherException {
+            EventType eventType, int maxResults) throws SearcherException {
 
         List<Event> events = CollectionHelper.newArrayList();
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
         requestUrl += "&page_number=PAGE_NUMBER";
 
-        DocumentRetriever ret = new DocumentRetriever();
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        httpRetriever.setMaxFileSize(SizeUnit.KILOBYTES.toBytes(250));
+        DocumentRetriever ret = new DocumentRetriever(httpRetriever);
 
         int currentPageNumber = 1;
         boolean nextPageAvailable = true;
-        while (nextPageAvailable) {
+        while (nextPageAvailable && events.size() < maxResults) {
 
             nextPageAvailable = false;
 
@@ -210,7 +215,7 @@ public class EventfulSearcher extends EventSearcher {
             }
         }
         url += "&sort_order=date";
-        url += "&page_size=100";
+        url += "&page_size=50";
         url += "&sort_direction=ascending";
 
         return url;

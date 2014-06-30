@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.feeds.rome;
 
-import com.sun.syndication.feed.module.ModuleImpl;
+import com.rometools.rome.feed.CopyFrom;
+import com.rometools.rome.feed.module.ModuleImpl;
 
 public class RawDateModuleImpl extends ModuleImpl implements RawDateModule {
 
@@ -13,12 +14,12 @@ public class RawDateModuleImpl extends ModuleImpl implements RawDateModule {
     private String rawDate;
 
     @Override
-    public Class<?> getInterface() {
+    public Class<? extends CopyFrom> getInterface() {
         return RawDateModule.class;
     }
 
     @Override
-    public void copyFrom(Object obj) {
+    public void copyFrom(CopyFrom obj) {
         RawDateModule module = (RawDateModule) obj;
         setRawDate(module.getRawDate());
     }

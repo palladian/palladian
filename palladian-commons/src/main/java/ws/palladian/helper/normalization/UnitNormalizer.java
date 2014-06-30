@@ -65,6 +65,10 @@ public class UnitNormalizer {
         return UnitType.VOLUME.contains(unit);
     }
 
+    private static boolean isSoundVolumeUnit(String unit) {
+        return UnitType.POWER_RATIO.contains(unit);
+    }
+
     private static boolean isTemperatureUnit(String unit) {
         return UnitType.TEMPERATURE.contains(unit);
     }
@@ -119,6 +123,9 @@ public class UnitNormalizer {
         }
         if (isVolumeUnit(unit)) {
             return UnitType.VOLUME.getUnitNames();
+        }
+        if (isSoundVolumeUnit(unit)) {
+            return UnitType.POWER_RATIO.getUnitNames();
         }
         if (isTemperatureUnit(unit)) {
             return UnitType.TEMPERATURE.getUnitNames();
@@ -190,6 +197,11 @@ public class UnitNormalizer {
             return true;
         }
 
+        // volume
+        if (isSoundVolumeUnit(unit1) && isSoundVolumeUnit(unit2)) {
+            return true;
+        }
+
         // temperature
         if (isTemperatureUnit(unit1) && isTemperatureUnit(unit2)) {
             return true;
@@ -234,7 +246,11 @@ public class UnitNormalizer {
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
                 for (String unitTypeUnit : pair.getValue0()) {
                     if (unit.equals(unitTypeUnit)) {
-                        multiplier = pair.getValue1();
+                        if (pair.getValue1() == null) {
+                            multiplier = -1.0;
+                        } else {
+                            multiplier = pair.getValue1();
+                        }
                         break ol;
                     }
                 }

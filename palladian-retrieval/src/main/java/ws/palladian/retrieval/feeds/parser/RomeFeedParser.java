@@ -24,13 +24,13 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.XmlParser;
 
-import com.sun.syndication.feed.rss.Guid;
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndPerson;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedInput;
+import com.rometools.rome.feed.rss.Guid;
+import com.rometools.rome.feed.synd.SyndContent;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndPerson;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
 
 /**
  * <p>
@@ -60,8 +60,8 @@ public class RomeFeedParser extends AbstractFeedParser {
     // RomeFeedParser API
     // ///////////////////////////////////////////////////
 
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.retrieval.feeds.parser.FeedParser#getFeed(org.w3c.dom.Document)
      */
     @Override
@@ -69,7 +69,7 @@ public class RomeFeedParser extends AbstractFeedParser {
         SyndFeed syndFeed = buildSyndFeed(document);
         return getFeed(syndFeed, document.getDocumentURI());
     }
-    
+
     @Override
     public Feed getFeed(InputStream inputStream) throws FeedParserException {
         SyndFeed syndFeed = getSyndFeed(inputStream);
@@ -146,7 +146,6 @@ public class RomeFeedParser extends AbstractFeedParser {
      */
     private void addFeedItems(Feed feed, SyndFeed syndFeed) {
 
-        @SuppressWarnings("unchecked")
         List<SyndEntry> syndEntries = syndFeed.getEntries();
 
         int dateRetries = 0;
@@ -186,7 +185,7 @@ public class RomeFeedParser extends AbstractFeedParser {
 
             Map<String, Object> additionalData = getAdditionalData(syndEntry);
             item.setAdditionalData(additionalData);
-            
+
             feed.addItem(item);
         }
     }
@@ -248,7 +247,6 @@ public class RomeFeedParser extends AbstractFeedParser {
      * @param syndEntry
      * @return text content or <code>null</code> if no content found.
      */
-    @SuppressWarnings("unchecked")
     private String getEntryText(SyndEntry syndEntry) {
 
         // I modified this method to return the *longest* text fragment which we can retrieve
@@ -282,11 +280,11 @@ public class RomeFeedParser extends AbstractFeedParser {
         String rawId = null;
         Object wireEntry = syndEntry.getWireEntry();
 
-        if (wireEntry instanceof com.sun.syndication.feed.atom.Entry) {
-            com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) wireEntry;
+        if (wireEntry instanceof com.rometools.rome.feed.atom.Entry) {
+            com.rometools.rome.feed.atom.Entry atomEntry = (com.rometools.rome.feed.atom.Entry)wireEntry;
             rawId = atomEntry.getId();
-        } else if (wireEntry instanceof com.sun.syndication.feed.rss.Item) {
-            com.sun.syndication.feed.rss.Item rssItem = (com.sun.syndication.feed.rss.Item) wireEntry;
+        } else if (wireEntry instanceof com.rometools.rome.feed.rss.Item) {
+            com.rometools.rome.feed.rss.Item rssItem = (com.rometools.rome.feed.rss.Item)wireEntry;
             Guid guid = rssItem.getGuid();
             if (guid != null) {
                 rawId = guid.getValue();
@@ -333,7 +331,7 @@ public class RomeFeedParser extends AbstractFeedParser {
         // see FeedDownloaderTest for a list of test cases.
         if (publishDate == null && useDateRecognition) {
 
-            RawDateModule rawDateModule = (RawDateModule) syndEntry.getModule(RawDateModule.URI);
+            RawDateModule rawDateModule = (RawDateModule)syndEntry.getModule(RawDateModule.URI);
             String rawDate = null;
             if (rawDateModule != null) {
                 rawDate = rawDateModule.getRawDate();
@@ -366,7 +364,6 @@ public class RomeFeedParser extends AbstractFeedParser {
      * @param syndEntry
      * @return authors, or <code>null</code> if no authors provided.
      */
-    @SuppressWarnings("unchecked")
     private String getEntryAuthors(SyndFeed syndFeed, SyndEntry syndEntry) {
 
         List<String> authors = new ArrayList<String>();
