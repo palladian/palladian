@@ -1,11 +1,12 @@
 package ws.palladian.retrieval.feeds.rome;
 
 import java.util.List;
+import java.util.Locale;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
-import com.sun.syndication.feed.module.Module;
-import com.sun.syndication.io.ModuleParser;
+import com.rometools.rome.feed.module.Module;
+import com.rometools.rome.io.ModuleParser;
 
 public abstract class RawDateParserModule implements ModuleParser {
 
@@ -17,34 +18,27 @@ public abstract class RawDateParserModule implements ModuleParser {
     private static final String RSS_10_NS = "http://purl.org/rss/1.0/";
 
     public static class RawDateParserModuleRss extends RawDateParserModule {
-
         @Override
         public String getNamespaceUri() {
             return null;
         }
-
     }
-    
-    public static class RawDateParserModuleRss20NS extends RawDateParserModule {
 
+    public static class RawDateParserModuleRss20NS extends RawDateParserModule {
         @Override
         public String getNamespaceUri() {
             return RSS_20_NS;
         }
-        
     }
-    
-    public static class RawDataParserModuleRss10 extends RawDateParserModule {
 
+    public static class RawDataParserModuleRss10 extends RawDateParserModule {
         @Override
         public String getNamespaceUri() {
             return RSS_10_NS;
         }
-        
     }
 
     public static class RawDateParserModuleAtom extends RawDateParserModule {
-
         @Override
         public String getNamespaceUri() {
             return ATOM_NS;
@@ -52,9 +46,8 @@ public abstract class RawDateParserModule implements ModuleParser {
     }
 
     @Override
-    public Module parse(Element element) {
+    public Module parse(Element element, Locale locale) {
         RawDateModule rawDateModule = new RawDateModuleImpl();
-        @SuppressWarnings("unchecked")
         List<Element> children = element.getChildren();
         for (Element childElement : children) {
             // search for a node containing "date" in its name

@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -40,7 +41,7 @@ import ws.palladian.helper.math.NumericMatrix;
  * @see NumericMatrix
  * @see CountMatrix
  */
-public interface Matrix<K, V> {
+public interface Matrix<K, V> extends Serializable {
 
     /**
      * An row or column within a {@link Matrix}.

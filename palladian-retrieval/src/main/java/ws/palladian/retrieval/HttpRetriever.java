@@ -383,15 +383,23 @@ public class HttpRetriever {
             case POST:
                 url = request.getUrl();
                 HttpPost httpPost = new HttpPost(url);
-                List<NameValuePair> postParams = CollectionHelper.newArrayList();
-                for (Entry<String, String> param : request.getParameters().entrySet()) {
-                    postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                HttpEntity entity;
+
+                if(request.getHttpEntity() != null){
+                    entity = request.getHttpEntity();
+                }else{
+                    List<NameValuePair> postParams = CollectionHelper.newArrayList();
+                    for (Entry<String, String> param : request.getParameters().entrySet()) {
+                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                    }
+//                    try {
+                        entity = new UrlEncodedFormEntity(postParams,request.getCharset());
+//                    } catch (UnsupportedEncodingException e) {
+//                        throw new IllegalStateException(e);
+//                    }
                 }
-//                try {
-                    httpPost.setEntity(new UrlEncodedFormEntity(postParams,request.getCharset()));
-//                } catch (UnsupportedEncodingException e) {
-//                    throw new IllegalStateException(e);
-//                }
+
+                httpPost.setEntity(entity);
                 httpRequest = httpPost;
                 break;
             case HEAD:

@@ -49,12 +49,11 @@ public final class OpenLinkProfiler extends AbstractRankingService implements Ra
 
             Node node1 = XPathHelper.getXhtmlNode(document,
                     "//div/div[contains(@class,'topinfobox') and contains(@class,'help')]/p");
-            long backlinksDomain = Long.valueOf(node1
-                    .getTextContent().replace(",", ""));
+            long backlinksDomain = Long.valueOf(node1.getTextContent().replaceAll("[,+]", ""));
             long backlinksDomainUnique = Long.valueOf(XPathHelper
                     .getXhtmlNode(document, "//div/div[contains(@class,'topinfobox') and contains(@class,'2')][1]/p")
                     .getTextContent()
-                    .replace(",", ""));
+.replaceAll("[,+]", ""));
 
             results.put(BACKLINKS_DOMAIN, (float)backlinksDomain);
             results.put(BACKLINKS_DOMAIN_UNIQUE, (float)backlinksDomainUnique);
@@ -96,7 +95,7 @@ public final class OpenLinkProfiler extends AbstractRankingService implements Ra
         System.out.println(ranking);
         System.out.println(ranking.getValues().get(OpenLinkProfiler.BACKLINKS_DOMAIN) + " backlinks to the domain");
         System.out
-                .println(ranking.getValues().get(OpenLinkProfiler.BACKLINKS_DOMAIN_UNIQUE) + " backlinks to the page");
+        .println(ranking.getValues().get(OpenLinkProfiler.BACKLINKS_DOMAIN_UNIQUE) + " backlinks to the page");
     }
 
 }
