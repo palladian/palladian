@@ -262,40 +262,40 @@ public final class MathHelper {
         return Math.max(start1, start2) < Math.min(end1, end2);
     }
 
-    //    public static double computeRootMeanSquareError(String inputFile, final String columnSeparator) {
-    //        // array with correct and predicted values
-    //        final List<double[]> values = new ArrayList<double[]>();
+    // public static double computeRootMeanSquareError(String inputFile, final String columnSeparator) {
+    // // array with correct and predicted values
+    // final List<double[]> values = new ArrayList<double[]>();
     //
-    //        LineAction la = new LineAction() {
-    //            @Override
-    //            public void performAction(String line, int lineNumber) {
-    //                String[] parts = line.split(columnSeparator);
+    // LineAction la = new LineAction() {
+    // @Override
+    // public void performAction(String line, int lineNumber) {
+    // String[] parts = line.split(columnSeparator);
     //
-    //                double[] pair = new double[2];
-    //                pair[0] = Double.valueOf(parts[0]);
-    //                pair[1] = Double.valueOf(parts[1]);
+    // double[] pair = new double[2];
+    // pair[0] = Double.valueOf(parts[0]);
+    // pair[1] = Double.valueOf(parts[1]);
     //
-    //                values.add(pair);
-    //            }
-    //        };
+    // values.add(pair);
+    // }
+    // };
     //
-    //        FileHelper.performActionOnEveryLine(inputFile, la);
+    // FileHelper.performActionOnEveryLine(inputFile, la);
     //
-    //        return computeRootMeanSquareError(values);
-    //    }
+    // return computeRootMeanSquareError(values);
+    // }
 
-    //    /**
-    //     * @deprecated Use the {@link Stats} instead.
-    //     */
-    //    @Deprecated
-    //    public static double computeRootMeanSquareError(List<double[]> values) {
-    //        double sum = 0.0;
-    //        for (double[] d : values) {
-    //            sum += Math.pow(d[0] - d[1], 2);
-    //        }
+    // /**
+    // * @deprecated Use the {@link Stats} instead.
+    // */
+    // @Deprecated
+    // public static double computeRootMeanSquareError(List<double[]> values) {
+    // double sum = 0.0;
+    // for (double[] d : values) {
+    // sum += Math.pow(d[0] - d[1], 2);
+    // }
     //
-    //        return Math.sqrt(sum / values.size());
-    //    }
+    // return Math.sqrt(sum / values.size());
+    // }
 
     /**
      * Calculate similarity of two lists of the same size.
@@ -333,7 +333,7 @@ public final class MathHelper {
                     double[] values = new double[2];
                     values[0] = position1;
                     values[1] = position2;
-                    stats.add(Math.abs(position1-position2));
+                    stats.add(Math.abs(position1 - position2));
                     break;
                 }
                 position2++;
@@ -891,7 +891,10 @@ public final class MathHelper {
         stringNumber = stringNumber.replaceAll("\\.(?!\\d)", "");
         stringNumber = stringNumber.trim();
         if (!stringNumber.isEmpty()) {
-            value += Double.parseDouble(stringNumber);
+            try {
+                value += Double.parseDouble(stringNumber);
+            } catch (Exception e) {
+            }
         }
 
         return value;
