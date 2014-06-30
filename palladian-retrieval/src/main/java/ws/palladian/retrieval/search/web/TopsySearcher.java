@@ -9,6 +9,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseTopsySearcher;
+import ws.palladian.retrieval.search.socialmedia.MultifacetTopsySearcher;
 
 /**
  * <p>
@@ -18,6 +19,7 @@ import ws.palladian.retrieval.search.BaseTopsySearcher;
  * @author Philipp Katz
  * @see <a href="http://code.google.com/p/otterapi/">Topsy REST API</a>
  * @see <a href="http://manage.topsy.com/">Topsy API registration</a>
+ * @deprecated Use {@link MultifacetTopsySearcher} instead.
  */
 @Deprecated
 public final class TopsySearcher extends BaseTopsySearcher {

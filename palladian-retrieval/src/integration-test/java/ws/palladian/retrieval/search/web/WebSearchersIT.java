@@ -88,7 +88,7 @@ public class WebSearchersIT {
 
         // video searchers
         searchers.add(new Object[] {new VimeoSearcher(configuration)});
-        searchers.add(new Object[] {new YouTubeSearcher()});
+        searchers.add(new Object[] {new YouTubeSearcher(configuration)});
         searchers.add(new Object[] {new BingVideoSearcher(configuration)});
 
         // image searchers
