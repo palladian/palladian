@@ -246,7 +246,11 @@ public class UnitNormalizer {
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
                 for (String unitTypeUnit : pair.getValue0()) {
                     if (unit.equals(unitTypeUnit)) {
-                        multiplier = pair.getValue1();
+                        if (pair.getValue1() == null) {
+                            multiplier = -1.0;
+                        } else {
+                            multiplier = pair.getValue1();
+                        }
                         break ol;
                     }
                 }
