@@ -24,14 +24,4 @@ public class PruningStrategiesTest {
         pruningStrategy = new PruningStrategies.EntropyPruningStrategy(3, 1);
         assertTrue(pruningStrategy.remove(entries));
     }
-
-    @Test
-    public void testCategoryProbabilityPruningStrategy() {
-        PruningStrategy pruningStrategy = new PruningStrategies.CategoryProbabilityPruningStrategy(0.1);
-        TermCategoryEntries entries = new ImmutableTermCategoryEntries("test", new CategoryEntriesBuilder()
-                .set("one", 100).set("two", 1).set("three", 50).create());
-        assertFalse(pruningStrategy.remove(entries.getCategory("one")));
-        assertTrue(pruningStrategy.remove(entries.getCategory("two")));
-        assertFalse(pruningStrategy.remove(entries.getCategory("three")));
-    }
 }

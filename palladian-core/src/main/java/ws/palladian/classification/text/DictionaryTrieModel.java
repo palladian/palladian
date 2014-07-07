@@ -228,14 +228,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             if (strategy.remove(categoryEntries)) {
                 removedTerms++;
                 iterator.remove();
-            } else {
-                Iterator<Category> categoryIterator = categoryEntries.iterator();
-                while (categoryIterator.hasNext()) {
-                    if (strategy.remove(categoryIterator.next())) {
-                        categoryIterator.remove();
-                        removedCategories++;
-                    }
-                }
             }
         }
         numTerms -= removedTerms;

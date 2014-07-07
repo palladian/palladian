@@ -33,11 +33,6 @@ public final class PruningStrategies {
             return entries.getTotalCount() < minCount;
         }
 
-        @Override
-        public boolean remove(Category category) {
-            return false;
-        }
-
     }
 
     /**
@@ -71,40 +66,6 @@ public final class PruningStrategies {
                 entropy += category.getProbability() * Math.log(category.getProbability());
             }
             return -entropy;
-        }
-
-        @Override
-        public boolean remove(Category category) {
-            return false;
-        }
-
-    }
-
-    /**
-     * Prune categories from terms, which have a low probability (e.g. for <code>termX</code>,
-     * <code>p(category1)=0.999</code>, <code>p(category2)=0.001</code>; in this case, the <code>category2</code> will
-     * be removed in case <code>0.001</code> is below the defined minimum
-     * probability).
-     * 
-     * @author pk
-     */
-    public static final class CategoryProbabilityPruningStrategy implements PruningStrategy {
-
-        private final double minProbability;
-
-        public CategoryProbabilityPruningStrategy(double minProbability) {
-            Validate.isTrue(0 <= minProbability && minProbability <= 1, "minProbability must be in range [0,1]");
-            this.minProbability = minProbability;
-        }
-
-        @Override
-        public boolean remove(TermCategoryEntries entries) {
-            return false;
-        }
-
-        @Override
-        public boolean remove(Category category) {
-            return category.getProbability() < minProbability;
         }
 
     }
