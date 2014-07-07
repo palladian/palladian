@@ -61,32 +61,11 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      */
     String getName();
 
-//    /**
-//     * Set a name for this model.
-//     * 
-//     * @param name The name, not <code>null</code>.
-//     * @deprecated Use a {@link DictionaryBuilder} for creation.
-//     */
-//    @Deprecated
-//    void setName(String name);
-
     /**
      * @return The feature setting which was used for extracting the features in this model, or <code>null</code> in
      *         case not specified.
      */
     FeatureSetting getFeatureSetting();
-
-//    /**
-//     * <p>
-//     * Add a document (represented by a {@link Collection} of terms) to this model.
-//     * </p>
-//     * 
-//     * @param terms The terms from the document, not <code>null</code>.
-//     * @param category The category of the document, not <code>null</code>.
-//     * @deprecated Use a {@link DictionaryBuilder} for creation.
-//     */
-//    @Deprecated
-//    void addDocument(Collection<String> terms, String category);
 
     /**
      * <p>
@@ -118,7 +97,7 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      * @return The number of (non-zero) term-category entries in this model.
      */
     int getNumEntries();
-    
+
     /**
      * @return The number of documents in this model.
      */
