@@ -2,7 +2,7 @@ package ws.palladian.classification.text;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.text.DictionaryModel.PruningStrategy;
+import ws.palladian.classification.text.DictionaryBuilder.PruningStrategy;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.core.Category;
 

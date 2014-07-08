@@ -14,23 +14,6 @@ import ws.palladian.core.Model;
 public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCategoryEntries> {
 
     /**
-     * A strategy for pruning the dictionary model
-     * 
-     * @author pk
-     */
-    interface PruningStrategy {
-
-        /**
-         * Decide, whether to remove the given entries.
-         * 
-         * @param entries The entries.
-         * @return <code>true</code> in case the entries should be removed from the model, else <code>false</code>.
-         */
-        boolean remove(TermCategoryEntries entries);
-
-    }
-
-    /**
      * Category entries associated with a specific term.
      * 
      * @author pk
@@ -122,17 +105,5 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      * @param printStream The print stream to which to write the model, not <code>null</code>.
      */
     void toCsv(PrintStream printStream);
-
-    /**
-     * <p>
-     * Apply a pruning to this dictionary model. To save memory, the pruning is carried out directly in place. If
-     * applied correctly, pruning allows to compact a model significantly (thus saving memory and time during
-     * classification), while not degrading classification accuracy.
-     * 
-     * @param strategy The pruning strategy to use.
-     * @return The number of removed entries.
-     */
-    // FIXME this contradicts the idea of the dictionary builder
-    int prune(PruningStrategy strategy);
 
 }

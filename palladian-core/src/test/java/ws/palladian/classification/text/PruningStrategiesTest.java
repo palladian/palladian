@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.text.DictionaryModel.PruningStrategy;
+import ws.palladian.classification.text.DictionaryBuilder.PruningStrategy;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 
 public class PruningStrategiesTest {

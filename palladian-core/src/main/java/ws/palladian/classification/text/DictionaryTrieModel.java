@@ -61,6 +61,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         private String name;
         /** The number of terms stored in this dictionary. */
         private int numTerms;
+        /** The pruning strategies to apply when creating the model. */
+        private final List<PruningStrategy> pruningStrategies = CollectionHelper.newArrayList();
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -92,7 +94,45 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
         @Override
         public DictionaryModel create() {
+            if (pruningStrategies.size() > 0) {
+                numTerms = 0;
+                termCountBuilder.clear(); // must be re-calculated
+                for (PruningStrategy pruningStrategy : pruningStrategies) {
+                    Iterator<TrieCategoryEntries> iterator = new TrieIterator(entryTrie);
+                    while (iterator.hasNext()) {
+                        TrieCategoryEntries categoryEntries = iterator.next();
+                        if (pruningStrategy.remove(categoryEntries)) {
+                            iterator.remove();
+                        } else {
+                            termCountBuilder.add(categoryEntries);
+                            numTerms++;
+                        }
+                    }
+                }
+                entryTrie.clean();
+            }
             return new DictionaryTrieModel(this);
+        }
+
+        @Override
+        public DictionaryBuilder addPruningStrategy(PruningStrategy strategy) {
+            Validate.notNull(strategy, "strategy must not be null");
+            pruningStrategies.add(strategy);
+            return this;
+        }
+
+        @Override
+        public DictionaryBuilder addDictionary(DictionaryModel model) {
+            for (TermCategoryEntries addEntry : model) {
+                TrieCategoryEntries existingEntry = entryTrie.getOrAdd(addEntry.getTerm(), true);
+                for (Category addCategory : addEntry) {
+                    existingEntry.append(addCategory.getName(), addCategory.getCount());
+                }
+                numTerms++;
+            }
+            documentCountBuilder.add(model.getDocumentCounts());
+            termCountBuilder.add(model.getTermCounts());
+            return this;
         }
 
     }
@@ -217,24 +257,24 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         return termCounts;
     }
 
-    @Override
-    public int prune(PruningStrategy strategy) {
-        Validate.notNull(strategy, "strategy must not be null");
-        int removedTerms = 0;
-        int removedCategories = 0;
-        Iterator<TermCategoryEntries> iterator = iterator();
-        while (iterator.hasNext()) {
-            TermCategoryEntries categoryEntries = iterator.next();
-            if (strategy.remove(categoryEntries)) {
-                removedTerms++;
-                iterator.remove();
-            }
-        }
-        numTerms -= removedTerms;
-        entryTrie.clean();
-        // FIXME termCounts need to be updated
-        return removedTerms + removedCategories;
-    }
+//    @Override
+//    public int prune(PruningStrategy strategy) {
+//        Validate.notNull(strategy, "strategy must not be null");
+//        int removedTerms = 0;
+//        int removedCategories = 0;
+//        Iterator<TermCategoryEntries> iterator = iterator();
+//        while (iterator.hasNext()) {
+//            TermCategoryEntries categoryEntries = iterator.next();
+//            if (strategy.remove(categoryEntries)) {
+//                removedTerms++;
+//                iterator.remove();
+//            }
+//        }
+//        numTerms -= removedTerms;
+//        entryTrie.clean();
+//        // FIXME termCounts need to be updated
+//        return removedTerms + removedCategories;
+//    }
 
     // serialization code
 
@@ -474,7 +514,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         public Iterator<Category> iterator() {
             return new AbstractIterator<Category>() {
                 LinkedCategoryCount next = firstCategory;
-                LinkedCategoryCount current = null;
+//                LinkedCategoryCount current = null;
 
                 @Override
                 protected Category getNext() throws Finished {
@@ -484,29 +524,29 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                     String categoryName = next.categoryName;
                     double probability = (double)next.count / totalCount;
                     int count = next.count;
-                    current = next;
+//                    current = next;
                     next = next.nextCategory;
                     return new ImmutableCategory(categoryName, probability, count);
                 }
 
-                @Override
-                public void remove() {
-                    if (current == null) {
-                        throw new NoSuchElementException();
-                    }
-                    if (firstCategory == current) { // removing first element, update pointer
-                        firstCategory = current.nextCategory;
-                    } else { // removing element within tail, iterate to the predecessor and update next pointer
-                        for (LinkedCategoryCount temp = firstCategory; temp != null; temp = temp.nextCategory) {
-                            if (temp.nextCategory == current) {
-                                temp.nextCategory = current.nextCategory;
-                                break;
-                            }
-                        }
-                    }
-                    // update the total count
-                    totalCount -= current.count;
-                }
+//                @Override
+//                public void remove() {
+//                    if (current == null) {
+//                        throw new NoSuchElementException();
+//                    }
+//                    if (firstCategory == current) { // removing first element, update pointer
+//                        firstCategory = current.nextCategory;
+//                    } else { // removing element within tail, iterate to the predecessor and update next pointer
+//                        for (LinkedCategoryCount temp = firstCategory; temp != null; temp = temp.nextCategory) {
+//                            if (temp.nextCategory == current) {
+//                                temp.nextCategory = current.nextCategory;
+//                                break;
+//                            }
+//                        }
+//                    }
+//                    // update the total count
+//                    totalCount -= current.count;
+//                }
             };
         }
 
