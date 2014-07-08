@@ -171,17 +171,34 @@ public class FatStats implements Stats {
      */
     @Override
     public double getMedian() {
+//        if (values.isEmpty()) {
+//            return Double.NaN;
+//        }
+//        List<Double> temp = getDoubleValues();
+//        Collections.sort(temp);
+//        int numValues = temp.size();
+//        if (numValues % 2 == 0) {
+//            // return 0.5 * (temp.get(numValues / 2) + temp.get(numValues / 2 - 1));
+//            return 0.5 * temp.get(numValues / 2) + 0.5 * temp.get(numValues / 2 - 1);
+//        } else {
+//            return temp.get(numValues / 2);
+//        }
+        return getPercentile(50);
+    }
+    
+    @Override
+    public double getPercentile(int p) {
+        Validate.isTrue(p >= 0 && p <= 100, "p must be in range [0,100]");
         if (values.isEmpty()) {
             return Double.NaN;
         }
         List<Double> temp = getDoubleValues();
         Collections.sort(temp);
-        int numValues = temp.size();
-        if (numValues % 2 == 0) {
-            // return 0.5 * (temp.get(numValues / 2) + temp.get(numValues / 2 - 1));
-            return 0.5 * temp.get(numValues / 2) + 0.5 * temp.get(numValues / 2 - 1);
+        double n = (double)(p / 100.) * temp.size();
+        if (n == (int)n) {
+            return 0.5 * temp.get((int)n - 1) + 0.5 * temp.get((int)n);
         } else {
-            return temp.get(numValues / 2);
+            return temp.get((int)Math.ceil(n) - 1);
         }
     }
 
@@ -295,12 +312,14 @@ public class FatStats implements Stats {
         stringBuilder.append("Max: ").append(getMax()).append("\n");
         stringBuilder.append("Standard Deviation: ").append(getStandardDeviation()).append("\n");
         stringBuilder.append("Mean: ").append(getMean()).append("\n");
-        stringBuilder.append("Median: ").append(getMedian()).append("\n");
+        for (int p = 10; p < 100; p += 10) {
+            stringBuilder.append(p + "-Percentile: ").append(getPercentile(p)).append('\n');
+        }
         stringBuilder.append("Count: ").append(getCount()).append("\n");
         stringBuilder.append("Range: ").append(getRange()).append("\n");
         stringBuilder.append("MSE: ").append(getMse()).append("\n");
         stringBuilder.append("RMSE: ").append(getRmse()).append("\n");
-        stringBuilder.append("Sum: ").append(getSum()).append("\n");
+        stringBuilder.append("Sum: ").append(getSum());
 
         return stringBuilder.toString();
     }

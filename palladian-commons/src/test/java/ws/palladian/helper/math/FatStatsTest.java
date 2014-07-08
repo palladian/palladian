@@ -48,6 +48,8 @@ public class FatStatsTest {
         assertEquals(7., new FatStats().add(9., 7., 2.).getMedian(), 0.00001);
         assertEquals(0., new FatStats().add(0., 0., 0., 1.).getMedian(), 0);
         assertEquals(3948348538l, new FatStats().add(1l, 2l, 3948348538l, 3948348539l, 3948348540l).getMedian(), 0);
+        assertEquals(1, new FatStats().add(1).getMedian(), 0);
+        assertEquals(1, new FatStats().add(1, 1).getMedian(), 0);
     }
 
     @Test
@@ -84,6 +86,13 @@ public class FatStatsTest {
         assertEquals(Double.MAX_VALUE, stats.getMean(), 0);
         assertEquals(0, stats.getStandardDeviation(), 0);
         assertEquals(10000, stats.getCount());
+    }
+
+    @Test
+    public void testPercentile() {
+        Stats stats = new FatStats().add(1, 1, 1, 3, 4, 7, 9, 11, 13, 13);
+        assertEquals(2, stats.getPercentile(30), 0);
+        assertEquals(11, stats.getPercentile(75), 0);
     }
 
 }
