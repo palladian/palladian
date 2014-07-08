@@ -111,6 +111,11 @@ public class SlimStats implements Stats {
     public double getMedian() {
         throw new UnsupportedOperationException("Calculating the median is not supported by this stats.");
     }
+    
+    @Override
+    public double getPercentile(int p) {
+        throw new UnsupportedOperationException("Calculating the percentile is not supported by this stats.");
+    }
 
     @Override
     public int getCount() {
