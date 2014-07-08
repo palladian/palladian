@@ -129,14 +129,14 @@ public class PalladianTextClassifierIT {
         assertAccuracy(trainFile, testFile, featureSetting, 0.87, new DefaultScorer());
     }
     
-    @Test
-    public void testSpamAssassinChar_categoryEqualization() {
-        String trainFile = config.getString("dataset.spamassassin.train");
-        String testFile = config.getString("dataset.spamassassin.test");
-        checkExistence("SpamAssassin", trainFile, testFile);
-        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.98, new PalladianTextClassifier.CategoryEqualizationScorer());
-    }
+//    @Test
+//    public void testSpamAssassinChar_categoryEqualization() {
+//        String trainFile = config.getString("dataset.spamassassin.train");
+//        String testFile = config.getString("dataset.spamassassin.test");
+//        checkExistence("SpamAssassin", trainFile, testFile);
+//        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
+//        assertAccuracy(trainFile, testFile, featureSetting, 0.98, new PalladianTextClassifier.CategoryEqualizationScorer());
+//    }
     
     @Test
     public void testSpamAssassinChar_BayesScorer() {

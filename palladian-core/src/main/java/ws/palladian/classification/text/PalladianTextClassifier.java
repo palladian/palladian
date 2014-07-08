@@ -127,19 +127,19 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         }
     }
 
-    /**
-     * Scorer, which normalizes the result scores by the prior category probability. This may improve classification
-     * results for data with skewed class counts.
-     * 
-     * @author pk
-     */
-    public static class CategoryEqualizationScorer extends DefaultScorer {
-        @Override
-        public double scoreCategory(String category, double categoryScore, double categoryProbability, boolean matched) {
-            double score = super.scoreCategory(category, categoryScore, categoryProbability, matched);
-            return matched ? score / categoryProbability : score;
-        }
-    }
+//    /**
+//     * Scorer, which normalizes the result scores by the prior category probability. This may improve classification
+//     * results for data with skewed class counts.
+//     * 
+//     * @author pk
+//     */
+//    public static class CategoryEqualizationScorer extends DefaultScorer {
+//        @Override
+//        public double scoreCategory(String category, double categoryScore, double categoryProbability, boolean matched) {
+//            double score = super.scoreCategory(category, categoryScore, categoryProbability, matched);
+//            return matched ? score / categoryProbability : score;
+//        }
+//    }
 
     public static final String VECTOR_TEXT_IDENTIFIER = "text";
 
