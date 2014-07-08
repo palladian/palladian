@@ -100,5 +100,9 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         }
         return totalCount;
     }
+    
+    public void clear() {
+        entryMap.clear();
+    }
 
 }

@@ -2,6 +2,7 @@ package ws.palladian.classification.text;
 
 import java.util.Collection;
 
+import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.helper.collection.Factory;
 
 /**
@@ -11,6 +12,21 @@ import ws.palladian.helper.collection.Factory;
  * 
  */
 public interface DictionaryBuilder extends Factory<DictionaryModel> {
+
+    /**
+     * A strategy for pruning the dictionary model
+     * 
+     * @author pk
+     */
+    interface PruningStrategy {
+        /**
+         * Decide, whether to remove the given entries.
+         * 
+         * @param entries The entries.
+         * @return <code>true</code> in case the entries should be removed from the model, else <code>false</code>.
+         */
+        boolean remove(TermCategoryEntries entries);
+    }
 
     /**
      * Set the name of the dictionary.
@@ -36,5 +52,21 @@ public interface DictionaryBuilder extends Factory<DictionaryModel> {
      * @return The builder instance.
      */
     DictionaryBuilder addDocument(Collection<String> terms, String category);
+
+    /**
+     * Adds a {@link PruningStrategy} to this builder.
+     * 
+     * @param strategy The pruning strategy, not <code>null</code>.
+     * @return The builder instance.
+     */
+    DictionaryBuilder addPruningStrategy(PruningStrategy strategy);
+
+    /**
+     * Adds the content of a given {@link DictionaryModel}.
+     * 
+     * @param model The dictionary model to add, not <code>null</code>.
+     * @return The builder instance.
+     */
+    DictionaryBuilder addDictionary(DictionaryModel model);
 
 }
