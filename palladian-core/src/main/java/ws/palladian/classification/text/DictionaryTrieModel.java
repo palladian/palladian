@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.ImmutableCategory;
@@ -48,6 +50,9 @@ import ws.palladian.helper.collection.CollectionHelper;
 public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     public static final class Builder implements DictionaryBuilder {
+        
+        /** The logger for this class. */
+        private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryTrieModel.Builder.class);
 
         /** Trie with term-category combinations with their counts. */
         private final TrieCategoryEntries entryTrie = new TrieCategoryEntries();
@@ -95,21 +100,26 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         @Override
         public DictionaryModel create() {
             if (pruningStrategies.size() > 0) {
-                numTerms = 0;
-                termCountBuilder.clear(); // must be re-calculated
                 for (PruningStrategy pruningStrategy : pruningStrategies) {
                     Iterator<TrieCategoryEntries> iterator = new TrieIterator(entryTrie, false);
+                    int numRemoved = 0;
                     while (iterator.hasNext()) {
                         TrieCategoryEntries categoryEntries = iterator.next();
                         if (pruningStrategy.remove(categoryEntries)) {
                             iterator.remove();
-                        } else {
-                            termCountBuilder.add(categoryEntries);
-                            numTerms++;
+                            numRemoved++;
                         }
                     }
+                    LOGGER.info("Removed {} terms with {}", numRemoved, pruningStrategy);
+                    numTerms -= numRemoved;
                 }
                 entryTrie.clean();
+                // re-calculate term counts
+                termCountBuilder.clear();
+                TrieIterator iterator = new TrieIterator(entryTrie, true);
+                while (iterator.hasNext()) {
+                    termCountBuilder.add(iterator.next());
+                }
             }
             return new DictionaryTrieModel(this);
         }
