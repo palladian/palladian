@@ -39,6 +39,11 @@ public final class PruningStrategies {
             return entries.getTotalCount() < minCount;
         }
 
+        @Override
+        public String toString() {
+            return "TermCountPruningStrategy [minCount=" + minCount + "]";
+        }
+
     }
 
     /**
@@ -89,6 +94,11 @@ public final class PruningStrategies {
             double informationGain = getInformationGain(entries);
             LOGGER.trace("IG({})={}", entries.getTerm(), informationGain);
             return informationGain < threshold;
+        }
+
+        @Override
+        public String toString() {
+            return "InformationGainPruningStrategy [threshold=" + threshold + "]";
         }
 
     }
