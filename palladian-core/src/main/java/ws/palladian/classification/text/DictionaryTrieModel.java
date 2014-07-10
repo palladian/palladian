@@ -98,7 +98,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 numTerms = 0;
                 termCountBuilder.clear(); // must be re-calculated
                 for (PruningStrategy pruningStrategy : pruningStrategies) {
-                    Iterator<TrieCategoryEntries> iterator = new TrieIterator(entryTrie);
+                    Iterator<TrieCategoryEntries> iterator = new TrieIterator(entryTrie, false);
                     while (iterator.hasNext()) {
                         TrieCategoryEntries categoryEntries = iterator.next();
                         if (pruningStrategy.remove(categoryEntries)) {
@@ -231,7 +231,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     @Override
     public Iterator<TermCategoryEntries> iterator() {
-        return CollectionHelper.convert(new TrieIterator(entryTrie),
+        return CollectionHelper.convert(new TrieIterator(entryTrie, true),
                 Adapter.create(TrieCategoryEntries.class, TermCategoryEntries.class));
     }
 
@@ -256,25 +256,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     public CategoryEntries getTermCounts() {
         return termCounts;
     }
-
-//    @Override
-//    public int prune(PruningStrategy strategy) {
-//        Validate.notNull(strategy, "strategy must not be null");
-//        int removedTerms = 0;
-//        int removedCategories = 0;
-//        Iterator<TermCategoryEntries> iterator = iterator();
-//        while (iterator.hasNext()) {
-//            TermCategoryEntries categoryEntries = iterator.next();
-//            if (strategy.remove(categoryEntries)) {
-//                removedTerms++;
-//                iterator.remove();
-//            }
-//        }
-//        numTerms -= removedTerms;
-//        entryTrie.clean();
-//        // FIXME termCounts need to be updated
-//        return removedTerms + removedCategories;
-//    }
 
     // serialization code
 
@@ -374,10 +355,12 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     private static final class TrieIterator extends AbstractIterator<TrieCategoryEntries> {
         private final Deque<Iterator<TrieCategoryEntries>> stack;
         private TrieCategoryEntries currentEntries;
+        private final boolean readOnly;
 
-        private TrieIterator(TrieCategoryEntries root) {
+        private TrieIterator(TrieCategoryEntries root, boolean readOnly) {
             stack = new ArrayDeque<Iterator<TrieCategoryEntries>>();
             stack.push(root.children());
+            this.readOnly = readOnly;
         }
 
         @Override
@@ -407,6 +390,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
         @Override
         public void remove() {
+            if (readOnly) {
+                throw new UnsupportedOperationException("Modifications are not allowed.");
+            }
             if (currentEntries == null) {
                 throw new NoSuchElementException();
             }
@@ -514,7 +500,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         public Iterator<Category> iterator() {
             return new AbstractIterator<Category>() {
                 LinkedCategoryCount next = firstCategory;
-//                LinkedCategoryCount current = null;
 
                 @Override
                 protected Category getNext() throws Finished {
@@ -524,29 +509,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                     String categoryName = next.categoryName;
                     double probability = (double)next.count / totalCount;
                     int count = next.count;
-//                    current = next;
                     next = next.nextCategory;
                     return new ImmutableCategory(categoryName, probability, count);
                 }
 
-//                @Override
-//                public void remove() {
-//                    if (current == null) {
-//                        throw new NoSuchElementException();
-//                    }
-//                    if (firstCategory == current) { // removing first element, update pointer
-//                        firstCategory = current.nextCategory;
-//                    } else { // removing element within tail, iterate to the predecessor and update next pointer
-//                        for (LinkedCategoryCount temp = firstCategory; temp != null; temp = temp.nextCategory) {
-//                            if (temp.nextCategory == current) {
-//                                temp.nextCategory = current.nextCategory;
-//                                break;
-//                            }
-//                        }
-//                    }
-//                    // update the total count
-//                    totalCount -= current.count;
-//                }
             };
         }
 

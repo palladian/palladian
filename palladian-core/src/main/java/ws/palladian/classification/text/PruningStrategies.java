@@ -41,41 +41,6 @@ public final class PruningStrategies {
 
     }
 
-//    /**
-//     * Prune terms, where entropy for the category probabilities is above a given threshold. This means effectively,
-//     * that terms where category probabilities are distributed equally can be pruned.
-//     * 
-//     * @author pk
-//     */
-//    public static final class EntropyPruningStrategy implements PruningStrategy {
-//
-//        private final double maxEntropy;
-//
-//        public EntropyPruningStrategy(int numCategories, double maxEntropyRatio) {
-//            Validate.isTrue(numCategories > 1, "numCategories must be greater one");
-//            Validate.isTrue(0 < maxEntropyRatio && maxEntropyRatio <= 1, "maxEntropyRatio must be in range ]0,1]");
-//            this.maxEntropy = maxEntropyRatio * Math.log(numCategories);
-//        }
-//
-//        public EntropyPruningStrategy(DictionaryModel model, double maxEntropyRatio) {
-//            this(model.getNumCategories(), maxEntropyRatio);
-//        }
-//
-//        @Override
-//        public boolean remove(TermCategoryEntries entries) {
-//            return entropy(entries) >= maxEntropy * 0.9999999; // rounding issue
-//        }
-//
-//        private static double entropy(TermCategoryEntries entries) {
-//            double entropy = 0;
-//            for (Category category : entries) {
-//                entropy += category.getProbability() * Math.log(category.getProbability());
-//            }
-//            return -entropy;
-//        }
-//
-//    }
-    
     /**
      * Prunes {@link CategoryEntries} by Information Gain.
      * 
@@ -127,7 +92,6 @@ public final class PruningStrategies {
         }
 
     }
-
 
     private PruningStrategies() {
         // no instances
