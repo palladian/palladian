@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.wikipedia;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -136,6 +137,18 @@ public class WikipediaUtilTest {
         assertEquals(1, locations.size());
         assertEquals(40., locations.get(0).getLatitude(), 0.00001);
         assertEquals(-86., locations.get(0).getLongitude(), 0.00001);
+
+    }
+
+    @Test
+    public void testExtractExtraterrestical() {
+        // example : http://en.wikipedia.org/wiki/Umbriel_(moon)
+        List<MarkupCoordinate> coordinates = WikipediaUtil
+                .extractCoordinateTag("{{coord|7.9|S|273.6|E|dim:131.0km_globe:umbriel_type:landmark}}");
+        assertTrue(coordinates.isEmpty());
+        coordinates = WikipediaUtil
+                .extractCoordinateTag("{{coord|37.4|S|44.3|E|dim:43.0km_globe:umbriel_type:landmark}}");
+        assertTrue(coordinates.isEmpty());
     }
 
     @Test
