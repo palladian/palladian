@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functions.Distance;
 
 /**
  * <p>
@@ -44,6 +45,14 @@ public final class GeoUtils {
 
     /** For parsing a single DMS expression. */
     private static final Pattern PATTERN_PARSE_DMS = Pattern.compile(DMS);
+
+    /** Distance function between two {@link GeoCoordinate}s. */
+    public static final Distance<GeoCoordinate> DISTANCE = new Distance<GeoCoordinate>() {
+        @Override
+        public double getDistance(GeoCoordinate c1, GeoCoordinate c2) {
+            return c1.distance(c2);
+        }
+    };
 
     /**
      * <p>

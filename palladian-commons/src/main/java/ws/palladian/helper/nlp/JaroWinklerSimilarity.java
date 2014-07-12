@@ -16,7 +16,7 @@ import org.apache.commons.lang3.Validate;
  *      Jaro-Winkler implementation in C</a>
  * @author Philipp Katz
  */
-public class JaroWinklerSimilarity implements StringSimilarity {
+public class JaroWinklerSimilarity extends AbstractStringMetric {
     
     private static final String NAME = "Jaro-Winkler";
 

@@ -16,7 +16,7 @@ import ws.palladian.helper.math.MathHelper;
  * @deprecated Use {@link TokenSimilarity} instead.
  */
 @Deprecated
-public class JaccardSimilarity implements StringSimilarity {
+public class JaccardSimilarity extends AbstractStringMetric {
 
     @Override
     public double getSimilarity(String s1, String s2) {
