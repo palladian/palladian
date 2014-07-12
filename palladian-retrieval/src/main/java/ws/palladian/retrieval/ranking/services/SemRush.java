@@ -1,11 +1,11 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -39,9 +39,9 @@ public final class SemRush extends AbstractRankingService implements RankingServ
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
+        Map<RankingType, Long> results = CollectionHelper.newHashMap();
 
-        String requestUrl = buildRequestUrl(url);
+        String requestUrl = "http://publicapi.bl.semrush.com/?url=" + UrlHelper.encodeParameter(url);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);
@@ -53,25 +53,13 @@ public final class SemRush extends AbstractRankingService implements RankingServ
             long backlinksDomain = Long.valueOf(StringHelper.getSubstringBetween(text, "<links_domain>",
                     "</links_domain>"));
             long backlinksPage = Long.valueOf(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
-            results.put(BACKLINKS_DOMAIN, (float)backlinksDomain);
-            results.put(BACKLINKS_PAGE, (float)backlinksPage);
+            results.put(BACKLINKS_DOMAIN, backlinksDomain);
+            results.put(BACKLINKS_PAGE, backlinksPage);
         } catch (Exception e) {
             throw new RankingServiceException("Error while parsing the response (\"" + text + "\")", e);
         }
 
         return new Ranking(this, url, results);
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://publicapi.bl.semrush.com/?url=" + UrlHelper.encodeParameter(url);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.ranking;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -8,7 +10,7 @@ import java.util.Map.Entry;
  * <p>
  * Represents a ranking value retrieved at a given moment for a given RankingService.
  * </p>
- * 
+ *
  * @author Julien Schmehl
  */
 public class Ranking {
@@ -17,7 +19,7 @@ public class Ranking {
     private final RankingService service;
 
     /** The ranking values */
-    private final Map<RankingType, Float> values;
+    private final Map<RankingType, Number> values;
 
     /** The URL these ranking values are for */
     private final String url;
@@ -29,12 +31,12 @@ public class Ranking {
      * <p>
      * Create a new instance with the retrieved value set to now.
      * </p>
-     * 
+     *
      * @param service
      * @param url
      * @param values a Map of all ranking values associated with this ranking and their corresponding ranking type
      */
-    public Ranking(RankingService service, String url, Map<RankingType, Float> values) {
+    public Ranking(RankingService service, String url, Map<RankingType, ? extends Number> values) {
         this(service, url, values, new Date());
     }
 
@@ -42,33 +44,18 @@ public class Ranking {
      * <p>
      * Create a new, fully initialized instance.
      * </p>
-     * 
+     *
      * @param service
      * @param url
      * @param values a Map of all ranking values associated with this ranking and their corresponding ranking type
      * @param retrieved
      */
-    public Ranking(RankingService service, String url, Map<RankingType, Float> values, Date retrieved) {
+    public Ranking(RankingService service, String url, Map<RankingType, ? extends Number> values, Date retrieved) {
         this.service = service;
-        this.values = values;
+        this.values = new HashMap<RankingType, Number>(values);
         this.url = url;
         this.retrieved = retrieved;
     }
-
-//    /**
-//     * <p>
-//     * Get the total of all ranking values associated with this ranking.
-//     * </p>
-//     * 
-//     * @return the total sum of all ranking values
-//     */
-//    public float getRankingValueSum() {
-//        float sum = 0;
-//        for (RankingType rt : values.keySet()) {
-//            sum += values.get(rt);
-//        }
-//        return sum;
-//    }
 
     public RankingService getService() {
         return service;
@@ -78,11 +65,11 @@ public class Ranking {
      * <p>
      * Get a Map of all ranking values associated with this ranking and their corresponding ranking type.
      * </p>
-     * 
+     *
      * @return pairs of ranking type and ranking value
      */
-    public Map<RankingType, Float> getValues() {
-        return values;
+    public Map<RankingType, Number> getValues() {
+        return Collections.unmodifiableMap(values);
     }
 
     public String getUrl() {
@@ -93,13 +80,14 @@ public class Ranking {
         return retrieved;
     }
 
+    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Ranking for ").append(getUrl());
         stringBuilder.append(" from ").append(getService().getServiceId()).append(":");
-        for (Entry<RankingType, Float> entry : getValues().entrySet()) {
+        for (Entry<RankingType, ? extends Number> entry : getValues().entrySet()) {
             RankingType rankingType = entry.getKey();
-            Float rankingValue = entry.getValue();
+            Number rankingValue = entry.getValue();
             stringBuilder.append(" ").append(rankingType.getId()).append("=").append(rankingValue);
         }
         return stringBuilder.toString();
