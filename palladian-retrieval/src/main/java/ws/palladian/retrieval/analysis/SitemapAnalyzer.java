@@ -132,7 +132,7 @@ public class SitemapAnalyzer {
                 // LOGGER.error(e.getMessage());
                 // indexed = -1;
                 // }
-                Float inExt = null;
+                Number inExt = null;
                 try {
                     SemRush semRush = new SemRush();
                     Ranking ranking2 = semRush.getRanking(document.getDocumentURI());

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -43,7 +44,7 @@ public final class CompositeRankingService extends AbstractRankingService implem
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> rankings = new HashMap<RankingType, Float>();
+        Map<RankingType, Number> rankings = CollectionHelper.newHashMap();
         for (RankingService rankingService : rankingServices) {
             try {
                 Ranking ranking = rankingService.getRanking(url);
