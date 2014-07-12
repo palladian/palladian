@@ -14,16 +14,16 @@ import java.util.Map.Entry;
 public class Ranking {
 
     /** The ranking service producing this ranking */
-    private RankingService service;
+    private final RankingService service;
 
     /** The ranking values */
-    private Map<RankingType, Float> values;
+    private final Map<RankingType, Float> values;
 
     /** The URL these ranking values are for */
-    private String url;
+    private final String url;
 
     /** The time when the ranking was retrieved */
-    private Date retrieved;
+    private final Date retrieved;
 
     /**
      * <p>
@@ -55,20 +55,20 @@ public class Ranking {
         this.retrieved = retrieved;
     }
 
-    /**
-     * <p>
-     * Get the total of all ranking values associated with this ranking.
-     * </p>
-     * 
-     * @return the total sum of all ranking values
-     */
-    public float getRankingValueSum() {
-        float sum = 0;
-        for (RankingType rt : values.keySet()) {
-            sum += values.get(rt);
-        }
-        return sum;
-    }
+//    /**
+//     * <p>
+//     * Get the total of all ranking values associated with this ranking.
+//     * </p>
+//     * 
+//     * @return the total sum of all ranking values
+//     */
+//    public float getRankingValueSum() {
+//        float sum = 0;
+//        for (RankingType rt : values.keySet()) {
+//            sum += values.get(rt);
+//        }
+//        return sum;
+//    }
 
     public RankingService getService() {
         return service;

@@ -2,12 +2,10 @@ package ws.palladian.extraction.token;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -604,8 +602,8 @@ public final class Tokenizer {
 //     * </p>
 //     * 
 //     * @param inputDocument The {@link TextDocument} to split into sentences.
-//     * @param featureName The name of the created {@link PositionAnnotation}s.
-//     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+//     * @param featureName The name of the created {@link Annotation}s.
+//     * @return A {@link List} of {@link Annotation}s marking the sentences the text was split into.
 //     */
 //    public static List<Annotation> getSentences(String text, String featureName) {
 //        return getSentences(text, featureName, Language.ENGLISH);
@@ -618,9 +616,9 @@ public final class Tokenizer {
      * </p>
      * 
      * @param inputDocument The {@link TextDocument} to split into sentences.
-     * @param featureName The name of the created {@link PositionAnnotation}s.
+     * @param featureName The name of the created {@link Annotation}s.
      * @param language The language of the text to split into sentences.
-     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+     * @return A {@link List} of {@link Annotation}s marking the sentences the text was split into.
      */
     public static List<Annotation> getAnnotatedSentences(String text, Language language) {
         Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
@@ -636,9 +634,9 @@ public final class Tokenizer {
 //     * </p>
 //     * 
 //     * @param inputDocument The {@link TextDocument} to split into sentences.
-//     * @param featureName The name of the created {@link PositionAnnotation}s.
+//     * @param featureName The name of the created {@link Annotation}s.
 //     * @param language The language of the text to split into sentences.
-//     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+//     * @return A {@link List} of {@link Annotation}s marking the sentences the text was split into.
 //     */
 //    public static List<Annotation> getSentences(String text, String featureName,
 //            Language language) {
@@ -658,7 +656,7 @@ public final class Tokenizer {
      * 
      * @param inputDocument The {@link TextDocument} to split into sentences.
      * @param pattern The {@link Pattern} to use to split sentences.
-     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
+     * @return A {@link List} of {@link Annotation}s marking the sentences the text was split into.
      */
     private static List<Annotation> getSentences(String text, Pattern pattern) {
         String inputText = text;
@@ -734,10 +732,10 @@ public final class Tokenizer {
      * 
      * @param inputDocument The {@link TextDocument} containing the original text.
      * @param maskedText The text where dates, urls and smileys are masked so they do not break sentence splitting.
-     * @param maskAnnotations A list of masked {@link PositionAnnotation}s that must be sorted by start position.
+     * @param maskAnnotations A list of masked {@link Annotation}s that must be sorted by start position.
      * @param sentences The extracted sentences on {@code maskedText}, which should be remapped to the text of the
      *            {@code inputDocument}.
-     * @param featureName The name of the created {@link PositionAnnotation}s.
+     * @param featureName The name of the created {@link Annotation}s.
      */
     private static List<Annotation> recalculatePositions(String text, String maskedText,
             List<Annotation> maskAnnotations, List<Annotation> sentences) {
@@ -791,12 +789,12 @@ public final class Tokenizer {
 
     /**
      * <p>
-     * Converts NER {@link Annotations} to a {@link List} of pipeline {@link PositionAnnotation}s, referencing the
+     * Converts NER {@link Annotations} to a {@link List} of pipeline {@link Annotation}s, referencing the
      * provided document.
      * </p>
      * 
      * @param annotations The {@link Annotations} to convert.
-     * @return A list of {@link PositionAnnotation}s representing the provided {@link Annotations} on the provided
+     * @return A list of {@link Annotation}s representing the provided {@link Annotations} on the provided
      *         {@link TextDocument}.
      */
     private static List<Annotation> convert(String text, List<Annotation> annotations) {
