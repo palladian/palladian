@@ -12,18 +12,18 @@ import ws.palladian.helper.math.SetSimilarities;
 final class StringSimilaritySampler {
 
     /**
-     * Try out different {@link StringSimilarity} measures on a given set of Strings. The method prints out the
+     * Try out different {@link StringMetric} measures on a given set of Strings. The method prints out the
      * similarity measures for each combination of the given strings.
      * 
      * @param strings The example strings.
      * @param similarities The similarity measures to test.
      */
-    public static void printSimilarities(List<String> strings, List<? extends StringSimilarity> similarities) {
+    public static void printSimilarities(List<String> strings, List<? extends StringMetric> similarities) {
         Validate.notNull(strings, "strings must not be null");
         Validate.notNull(similarities, "similarities must not be null");
         NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
         StringBuilder headerBuilder = new StringBuilder();
-        for (StringSimilarity similarity : similarities) {
+        for (StringMetric similarity : similarities) {
             headerBuilder.append('\t');
             headerBuilder.append(similarity.toString());
         }
@@ -34,7 +34,7 @@ final class StringSimilaritySampler {
                 String string2 = strings.get(j);
                 StringBuilder lineBuilder = new StringBuilder();
                 lineBuilder.append("sim(" + i + "," + j + ")");
-                for (StringSimilarity similarity : similarities) {
+                for (StringMetric similarity : similarities) {
                     double similarityValue = similarity.getSimilarity(string1, string2);
                     lineBuilder.append('\t');
                     lineBuilder.append(format.format(similarityValue));
@@ -45,7 +45,7 @@ final class StringSimilaritySampler {
     }
 
     public static void main(String[] args) {
-        List<StringSimilarity> similarities = CollectionHelper.newArrayList();
+        List<StringMetric> similarities = CollectionHelper.newArrayList();
         // similarities.add(new CharacterNGramSimilarity(3));
         // similarities.add(new CharacterNGramSimilarity(4));
         // similarities.add(new CharacterNGramSimilarity(5));

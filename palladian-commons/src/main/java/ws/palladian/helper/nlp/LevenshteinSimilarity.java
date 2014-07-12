@@ -17,7 +17,7 @@ import org.apache.commons.lang3.Validate;
  * @author Philipp Katz
  * @see <a href="http://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a>
  */
-public class LevenshteinSimilarity implements StringSimilarity {
+public class LevenshteinSimilarity extends AbstractStringMetric {
 
     private static final String NAME = "Levenshtein";
 

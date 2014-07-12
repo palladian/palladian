@@ -20,17 +20,17 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.CharacterNGramSimilarity;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 import ws.palladian.helper.nlp.LevenshteinSimilarity;
-import ws.palladian.helper.nlp.StringSimilarity;
+import ws.palladian.helper.nlp.StringMetric;
 
 public final class ContentExtractorEvaluation {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentExtractorEvaluation.class);
 
-    private static final List<StringSimilarity> SIMILARITIES = createSimilarities();
+    private static final List<StringMetric> SIMILARITIES = createSimilarities();
 
-    private static List<StringSimilarity> createSimilarities() {
-        List<StringSimilarity> similarities = CollectionHelper.newArrayList();
+    private static List<StringMetric> createSimilarities() {
+        List<StringMetric> similarities = CollectionHelper.newArrayList();
         similarities.add(new LevenshteinSimilarity());
         similarities.add(new CharacterNGramSimilarity(5));
         similarities.add(new JaroWinklerSimilarity());
@@ -63,7 +63,7 @@ public final class ContentExtractorEvaluation {
 
         String summaryFileName = "_contentExtractorEvaluation_" + System.currentTimeMillis() + ".csv";
         StringBuilder csvHeader = new StringBuilder().append("extractor;dataset;");
-        for (StringSimilarity similarity : SIMILARITIES) {
+        for (StringMetric similarity : SIMILARITIES) {
             csvHeader.append(similarity.toString()).append(';');
         }
         csvHeader.append("startCorrect;endCorrect;time\n");

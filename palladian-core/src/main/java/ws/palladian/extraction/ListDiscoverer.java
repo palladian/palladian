@@ -23,7 +23,7 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 import ws.palladian.helper.nlp.CharacterNGramSimilarity;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.helper.nlp.StringSimilarity;
+import ws.palladian.helper.nlp.StringMetric;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
@@ -127,7 +127,7 @@ public class ListDiscoverer {
             if (xPathMap.entrySet().size() > 0) {
                 Map<String, Double> xPathsBySimilarity = new LinkedHashMap<String, Double>();
                 // QGramsDistance stringDistanceMetric = new QGramsDistance();
-                StringSimilarity stringDistanceMetric = new JaroWinklerSimilarity();
+                StringMetric stringDistanceMetric = new JaroWinklerSimilarity();
                 Iterator<Map.Entry<String, Integer>> xPathMapIterator = xPathMap.entrySet().iterator();
                 while (xPathMapIterator.hasNext()) {
                     Map.Entry<String, Integer> entry = xPathMapIterator.next();
@@ -494,7 +494,7 @@ public class ListDiscoverer {
                 String text2 = PageAnalyzer.getTextByXPath(siblingDocument, entry.getKey());
                 text2 = text2.substring(0, Math.min(200, text2.length()));
                 // OverlapCoefficient oc = new OverlapCoefficient();
-                StringSimilarity qg = new CharacterNGramSimilarity(3);
+                StringMetric qg = new CharacterNGramSimilarity(3);
                 double sim = qg.getSimilarity(text1, text2);
                 // System.out.println("estimated time: "+oc.getSimilarityTimingEstimated(text1, text2));
                 // float sim = oc.getSimilarity(text1, text2);

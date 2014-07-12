@@ -10,12 +10,12 @@ import ws.palladian.helper.math.SetSimilarity;
 
 /**
  * <p>
- * {@link StringSimilarity} which measures the similarity between two strings by applying a {@link SetSimilarity}
+ * {@link StringMetric} which measures the similarity between two strings by applying a {@link SetSimilarity}
  * measure (such as Jaccard, Overlap, etc. See {@link SetSimilarities} for available implementations.)
  * 
  * @author pk
  */
-public class TokenSimilarity implements StringSimilarity {
+public class TokenSimilarity extends AbstractStringMetric {
 
     private final SetSimilarity similarity;
 

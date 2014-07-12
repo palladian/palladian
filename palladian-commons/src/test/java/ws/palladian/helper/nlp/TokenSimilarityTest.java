@@ -31,7 +31,7 @@ public class TokenSimilarityTest {
 
     @Test
     public void testJaccardSimilarity() {
-        StringSimilarity similarity = new TokenSimilarity(SetSimilarities.JACCARD);
+        StringMetric similarity = new TokenSimilarity(SetSimilarities.JACCARD);
         double sim12 = similarity.getSimilarity(S1, S2);
         assertEquals(0.4286, sim12, DELTA);
         double sim23 = similarity.getSimilarity(S2, S3);

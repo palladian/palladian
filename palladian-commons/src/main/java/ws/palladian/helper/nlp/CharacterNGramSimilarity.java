@@ -16,14 +16,14 @@ import ws.palladian.helper.math.SetSimilarity;
  * 
  * @author Philipp Katz
  */
-public class CharacterNGramSimilarity implements StringSimilarity {
+public class CharacterNGramSimilarity extends AbstractStringMetric {
 
     private final int n;
     private final SetSimilarity setSimilarity;
 
     /**
      * <p>
-     * Create a new n-gram based {@link StringSimilarity} with the specified length for the n-grams.
+     * Create a new n-gram based {@link StringMetric} with the specified length for the n-grams.
      * </p>
      * 
      * @param n The length of the n-grams, must be greater or equal 2.
@@ -38,7 +38,7 @@ public class CharacterNGramSimilarity implements StringSimilarity {
 
     /**
      * <p>
-     * Create a new n-gram based {@link StringSimilarity} with the specified length for the n-grams.
+     * Create a new n-gram based {@link StringMetric} with the specified length for the n-grams.
      * </p>
      * 
      * @param n The length of the n-grams, must be greater or equal 2.
