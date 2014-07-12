@@ -39,47 +39,21 @@ public final class TwitterTweets extends AbstractRankingService implements Ranki
     /** All available ranking types by {@link TwitterTweets}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(TWEETS);
 
-
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
-
-        Integer tweets = null;
-        String requestUrl = buildRequestUrl(url);
-
+        String requestUrl = "http://urls.api.twitter.com/1/urls/count.json?url=" + UrlHelper.encodeParameter(url);
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
             String response = httpResult.getStringContent();
-
-            if (response != null) {
-                JsonObject jsonObject = new JsonObject(response);
-
-                tweets = jsonObject.getInt("count");
-
-                LOGGER.trace("Twitter Tweets for " + url + " : " + tweets);
-            }
+            JsonObject jsonObject = new JsonObject(response);
+            int tweets = jsonObject.getInt("count");
+            LOGGER.trace("Twitter Tweets for {} : {}", url, tweets);
+            Map<RankingType, Float> results = new HashMap<RankingType, Float>();
+            results.put(TWEETS, (float)tweets);
+            return new Ranking(this, url, results);
         } catch (Exception e) {
             throw new RankingServiceException(e);
         }
-
-        results.put(TWEETS, (float)tweets);
-        return ranking;
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://urls.api.twitter.com/1/urls/count.json?url=" + UrlHelper.encodeParameter(url);
     }
 
     @Override
