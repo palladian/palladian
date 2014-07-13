@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedProcessingAction;
-import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
@@ -60,7 +60,7 @@ public class GzScheduler extends TimerTask {
      *            collection of feeds to check.
      */
     public GzScheduler(FeedStore feedStore, FeedProcessingAction feedProcessingAction) {
-        threadPool = Executors.newFixedThreadPool(FeedReader.DEFAULT_NUM_THREADS);
+        threadPool = Executors.newFixedThreadPool(FeedReaderSettings.DEFAULT_NUM_THREADS);
         this.feedStore = feedStore;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
         this.feedProcessingAction = feedProcessingAction;

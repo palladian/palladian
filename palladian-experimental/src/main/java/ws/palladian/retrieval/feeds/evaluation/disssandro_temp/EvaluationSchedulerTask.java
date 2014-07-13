@@ -20,6 +20,7 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
@@ -110,7 +111,7 @@ public class EvaluationSchedulerTask extends TimerTask {
      *            collection of feeds to check.
      */
     public EvaluationSchedulerTask(FeedReader feedReader, EvaluationFeedDatabase database, UpdateStrategy updateStrategy) {
-        threadPool = Executors.newFixedThreadPool(FeedReader.DEFAULT_NUM_THREADS);
+        threadPool = Executors.newFixedThreadPool(FeedReaderSettings.DEFAULT_NUM_THREADS);
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
         this.database = database;
@@ -129,7 +130,7 @@ public class EvaluationSchedulerTask extends TimerTask {
 
         // on average, one thread has 5 minutes to process a feed. This is very long but in some algorithms we simulate
         // more than 10k polls
-        HIGH_LOAD_THROUGHPUT = (int)(0.2 * FeedReader.DEFAULT_NUM_THREADS * (FeedReader.DEFAULT_WAKEUP_INTERVAL / TimeUnit.MINUTES
+        HIGH_LOAD_THROUGHPUT = (int)(0.2 * FeedReaderSettings.DEFAULT_NUM_THREADS * (FeedReaderSettings.DEFAULT_WAKEUP_INTERVAL / TimeUnit.MINUTES
                 .toMillis(1)));
     }
 

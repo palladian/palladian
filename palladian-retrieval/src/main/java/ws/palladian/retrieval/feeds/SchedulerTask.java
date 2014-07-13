@@ -15,9 +15,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
-
 /**
  * <p>
  * A scheduler task handles the distribution of feeds to worker threads that read these feeds.
@@ -56,14 +53,14 @@ class SchedulerTask extends TimerTask {
      */
     private static final long MAXIMUM_AVERAGE_PROCESSING_TIME_MS = TimeUnit.MINUTES.toMillis(10);
 
-    /** The store providing persistence for the feeds. */
-    private final FeedStore store;
+//    /** The store providing persistence for the feeds. */
+//    private final FeedStore store;
 
-    /** The actions to perform when processing a feed (and various other cases). */
-    private final FeedProcessingAction action;
+//    /** The actions to perform when processing a feed (and various other cases). */
+//    private final FeedProcessingAction action;
 
-    /** The strategy to determine a feed's update behaviour. */
-    private final UpdateStrategy updateStrategy;
+//    /** The strategy to determine a feed's update behaviour. */
+//    private final UpdateStrategy updateStrategy;
 
     /** The thread pool managing threads that read feeds from the feed sources provided by {@link #collectionOfFeeds}. */
     private final ExecutorService threadPool;
@@ -73,23 +70,38 @@ class SchedulerTask extends TimerTask {
 
     private final Long lastWakeUpTime = null;
 
+    private final FeedReaderSettings settings;
+
     /**
      * <p>
      * Creates a new {@code SchedulerTask} for a feed reader.
      * </p>
      * 
-     * @param threadPoolSize Maximum number of {@link FeedTask}s to schedule.
-     * @param store The store with the feeds.
-     * @param action The action to perform for each read feed.
-     * @param updateStrategy The strategy to use for determining update behavior.
+     * @param All necessary settings, not <code>null</code>.
      */
-    public SchedulerTask(int threadPoolSize, FeedStore store, FeedProcessingAction action, UpdateStrategy updateStrategy) {
-        this.threadPool = Executors.newFixedThreadPool(threadPoolSize);
+    SchedulerTask(FeedReaderSettings settings) {
+        this.threadPool = Executors.newFixedThreadPool(settings.getNumThreads());
         this.scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
-        this.store = store;
-        this.action = action;
-        this.updateStrategy = updateStrategy;
+        this.settings = settings;
     }
+    
+//    /**
+//     * <p>
+//     * Creates a new {@code SchedulerTask} for a feed reader.
+//     * </p>
+//     * 
+//     * @param threadPoolSize Maximum number of {@link FeedTask}s to schedule.
+//     * @param store The store with the feeds.
+//     * @param action The action to perform for each read feed.
+//     * @param updateStrategy The strategy to use for determining update behavior.
+//     */
+//    public SchedulerTask(int threadPoolSize, FeedStore store, FeedProcessingAction action, UpdateStrategy updateStrategy) {
+//        this.threadPool = Executors.newFixedThreadPool(threadPoolSize);
+//        this.scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
+//        this.store = store;
+//        this.action = action;
+//        this.updateStrategy = updateStrategy;
+//    }
 
     @Override
     public void run() {
@@ -103,7 +115,7 @@ class SchedulerTask extends TimerTask {
             if (needsLookup(feed)) {
                 if (!scheduledTasks.containsKey(feed.getId())) {
                     scheduledTasks.put(feed.getId(),
-                            threadPool.submit(new FeedTask(feed, store, action, updateStrategy)));
+                            threadPool.submit(new FeedTask(settings, feed)));
                 }
             }
         }
@@ -123,11 +135,11 @@ class SchedulerTask extends TimerTask {
     private Collection<Feed> getFeeds() {
         if (lastWakeUpTime == null) {
             List<Feed> feedList = new ArrayList<Feed>();
-            feedList.addAll(store.getFeeds());
+            feedList.addAll(settings.getStore().getFeeds());
             Collections.shuffle(feedList);
             return feedList;
         } else {
-            return store.getFeeds();
+            return settings.getStore().getFeeds();
         }
     }
 
@@ -167,19 +179,19 @@ class SchedulerTask extends TimerTask {
                         + ") takes on average too long to process and is therefore blocked (never scheduled again)!"
                         + " Average processing time was " + feed.getAverageProcessingTime() + " milliseconds.");
                 feed.setBlocked(true);
-                store.updateFeed(feed);
+                settings.getStore().updateFeed(feed);
             } else if (feed.getChecks() < feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO) {
                 LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unreachable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unreachableCount = " + feed.getUnreachableCount());
                 feed.setBlocked(true);
-                store.updateFeed(feed);
+                settings.getStore().updateFeed(feed);
             } else if (feed.getChecks() < feed.getUnparsableCount() / CHECKS_TO_UNPARSABLE_RATIO) {
                 LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unparsable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unparsableCount = " + feed.getUnparsableCount());
                 feed.setBlocked(true);
-                store.updateFeed(feed);
+                settings.getStore().updateFeed(feed);
             }
         }
 

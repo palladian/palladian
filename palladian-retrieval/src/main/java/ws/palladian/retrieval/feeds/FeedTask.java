@@ -31,8 +31,6 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
-import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
@@ -63,30 +61,29 @@ class FeedTask implements Callable<FeedTaskResult> {
     /** The feed retrieved by this task. */
     private final Feed feed;
 
-    /** The store providing persistence for the feeds. */
-    private final FeedStore store;
+//    /** The store providing persistence for the feeds. */
+//    private final FeedStore store;
 
-    /** Callback for the actions to perform when processing a feed (and various other cases). */
-    private final FeedProcessingAction action;
+//    /** Callback for the actions to perform when processing a feed (and various other cases). */
+//    private final FeedProcessingAction action;
 
-    /** The strategy to determine a feed's update behaviour. */
-    private final UpdateStrategy updateStrategy;
+//    /** The strategy to determine a feed's update behaviour. */
+//    private final UpdateStrategy updateStrategy;
 
     /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
     private final Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
 
+    private final FeedReaderSettings settings;
+
     /**
      * Creates a new retrieval task for a provided feed.
      * 
+     * @param settings The configuration.
      * @param feed The feed retrieved by this task.
-     * @param action
-     * @param updateStrategy
      */
-    public FeedTask(Feed feed, FeedStore store, FeedProcessingAction action, UpdateStrategy updateStrategy) {
+    public FeedTask(FeedReaderSettings settings, Feed feed) {
+        this.settings = settings;
         this.feed = feed;
-        this.store = store;
-        this.action = action;
-        this.updateStrategy = updateStrategy;
     }
 
     @Override
@@ -123,7 +120,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 resultSet.add(UNREACHABLE);
 
                 try {
-                    action.onError(feed, httpResult);
+                    settings.getAction().onError(feed, httpResult);
                 } catch (Exception e) {
                     resultSet.add(ERROR);
                 }
@@ -136,7 +133,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                     updateCheckIntervals(feed);
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     try {
-                        action.onUnmodified(feed, httpResult);
+                        settings.getAction().onUnmodified(feed, httpResult);
                     } catch (Exception e) {
                         resultSet.add(ERROR);
                     }
@@ -161,7 +158,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                         LOGGER.debug("Performing action on exception on feed: " + feed.getId() + "("
                                 + feed.getFeedUrl() + ")");
                         try {
-                            action.onException(feed, httpResult);
+                            settings.getAction().onException(feed, httpResult);
                         } catch (Exception e2) {
                             resultSet.add(ERROR);
                         }
@@ -169,7 +166,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                         doFinalStuff(timer);
                         return getResult();
                     }
-                    Date httpDate = HttpHelper.getDateFromHeader(httpResult, "Date", true);
+//                    Date httpDate = HttpHelper.getDateFromHeader(httpResult, "Date", true);
 //                    feed.setHttpDateLastPoll(httpDate);
                     feed.setItems(downloadedFeed.getItems());
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
@@ -189,7 +186,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                     // perform actions on this feeds entries.
                     LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
                     try {
-                        action.onModified(feed, httpResult);
+                        settings.getAction().onModified(feed, httpResult);
                     } catch (Exception e) {
                         resultSet.add(ERROR);
                     }
@@ -304,7 +301,7 @@ class FeedTask implements Callable<FeedTaskResult> {
      * @param storeMetadata
      */
     private void updateFeed() {
-        boolean dbSuccess = store.updateFeed(feed, feed.hasNewItem());
+        boolean dbSuccess = settings.getStore().updateFeed(feed, feed.hasNewItem());
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
         }
@@ -316,7 +313,7 @@ class FeedTask implements Callable<FeedTaskResult> {
      * @param feed The feed to update.
      */
     private void updateCheckIntervals(Feed feed) {
-        updateStrategy.update(feed, new FeedPostStatistics(feed), false);
+        settings.getUpdateStrategy().update(feed, new FeedPostStatistics(feed), false);
         feed.increaseChecks();
     }
 

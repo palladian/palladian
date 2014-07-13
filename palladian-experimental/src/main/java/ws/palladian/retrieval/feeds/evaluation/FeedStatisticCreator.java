@@ -28,7 +28,6 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.ResultSetCallback;
@@ -38,6 +37,7 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
@@ -637,7 +637,8 @@ public class FeedStatisticCreator {
     public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
             throws IOException {
 
-        FeedReader fc = new FeedReader(feedStore, new DefaultFeedProcessingAction());
+        FeedReaderSettings settings = new FeedReaderSettings.Builder().setStore(feedStore).setAction(new DefaultFeedProcessingAction()).create();
+        FeedReader fc = new FeedReader(settings);
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE);
 
         FileWriter csv = new FileWriter(statisticOutputPath);

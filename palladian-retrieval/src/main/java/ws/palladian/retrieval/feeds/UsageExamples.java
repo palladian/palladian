@@ -56,7 +56,10 @@ public class UsageExamples {
             }
         };
         // start reading feeds
-        FeedReader feedReader = new FeedReader(feedStore, feedProcessingAction);
+        FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+        settingsBuilder.setStore(feedStore);
+        settingsBuilder.setAction(feedProcessingAction);
+        FeedReader feedReader = new FeedReader(settingsBuilder.create());
         feedReader.start();
 
     }
