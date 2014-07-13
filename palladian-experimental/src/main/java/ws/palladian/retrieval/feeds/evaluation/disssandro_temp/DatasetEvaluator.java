@@ -10,6 +10,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
@@ -117,8 +118,12 @@ public class DatasetEvaluator {
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
-        feedReader = new FeedReader(feedStore, new DefaultFeedProcessingAction(), updateStrategy,
-                FeedReader.DEFAULT_NUM_THREADS, wakeUpInterval);
+        FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+        settingsBuilder.setStore(feedStore);
+        settingsBuilder.setAction(new DefaultFeedProcessingAction());
+        settingsBuilder.setUpdateStrategy(updateStrategy);
+        settingsBuilder.setWakeUpInterval(wakeUpInterval);
+        feedReader = new FeedReader(settingsBuilder.create());
 
         String timestamp = DateHelper.getCurrentDatetime();
 

@@ -23,6 +23,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.MavStrategyDatasetCreation;
@@ -302,7 +303,11 @@ public class DatasetCreator {
         // feedChecker.filterFeeds(updateClasses);
 
         FeedProcessingAction fpa = new DatasetProcessingAction(feedStore);
-        FeedReader feedReader = new FeedReader(feedStore, fpa, updateStrategy);
+        FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+        settingsBuilder.setStore(feedStore);
+        settingsBuilder.setAction(fpa);
+        settingsBuilder.setUpdateStrategy(updateStrategy);
+        FeedReader feedReader = new FeedReader(settingsBuilder.create());
 
         LOGGER.debug("start reading feeds");
         feedReader.start();
@@ -434,7 +439,7 @@ public class DatasetCreator {
             // get thread pool size
             int threadPoolSize = 0;
             if (config != null) {
-                threadPoolSize = config.getInteger("feedReader.threadPoolSize", FeedReader.DEFAULT_NUM_THREADS);
+                threadPoolSize = config.getInteger("feedReader.threadPoolSize", FeedReaderSettings.DEFAULT_NUM_THREADS);
             }
 
             /**

@@ -10,6 +10,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
@@ -203,7 +204,11 @@ public class FeedReaderEvaluator {
                     setBenchmarkMode(mode);
 
                     FeedStore store = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
-                    FeedReader fc = new FeedReader(store, new DefaultFeedProcessingAction(), strategy);
+                    FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+                    settingsBuilder.setStore(store);
+                    settingsBuilder.setAction(new DefaultFeedProcessingAction());
+                    settingsBuilder.setUpdateStrategy(strategy);
+                    FeedReader fc = new FeedReader(settingsBuilder.create());
 
                     LOGGER.info("start evaluation for strategy " + strategy.getName() + ", policy "
                             + policy + ", and mode " + mode);
@@ -235,7 +240,11 @@ public class FeedReaderEvaluator {
         FeedReaderEvaluator.benchmarkSamplePercentage = 100; // use just a percentage of
 
         FeedStore store = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
-        FeedReader feedReader = new FeedReader(store, new DefaultFeedProcessingAction(), updateStrategy);
+        FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+        settingsBuilder.setStore(store);
+        settingsBuilder.setAction(new DefaultFeedProcessingAction());
+        settingsBuilder.setUpdateStrategy(updateStrategy);
+        FeedReader feedReader = new FeedReader(settingsBuilder.create());
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
         setBenchmarkMode(BENCHMARK_POLL);
