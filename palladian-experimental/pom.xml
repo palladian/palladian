@@ -82,16 +82,6 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>jdbm</groupId>
-			<artifactId>jdbm</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>wb</groupId>
-			<artifactId>wb</artifactId>
-			<version>2b1</version>
-		</dependency>
-		<dependency>
 			<groupId>com.planetj.math</groupId>
 			<artifactId>rabinhash</artifactId>
 			<version>2.0</version>

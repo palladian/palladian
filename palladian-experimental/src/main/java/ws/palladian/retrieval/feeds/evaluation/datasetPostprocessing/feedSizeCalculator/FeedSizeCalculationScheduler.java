@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
  * Scheduler to process all feeds in db once in a {@link FeedSizeCalculationTask}. Use to restore feedSizes in database
@@ -47,7 +47,7 @@ public class FeedSizeCalculationScheduler extends TimerTask {
     /** Count the number of processed feeds per scheduler iteration. */
     private int processedCounter = 0;
     
-    private final FeedDatabase feedDatabase;
+    private final EvaluationFeedDatabase feedDatabase;
 
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
@@ -56,7 +56,7 @@ public class FeedSizeCalculationScheduler extends TimerTask {
      *            The feed reader containing settings and providing the
      *            collection of feeds to check.
      */
-    public FeedSizeCalculationScheduler(FeedDatabase feedDatabase, int numThreads) {
+    public FeedSizeCalculationScheduler(EvaluationFeedDatabase feedDatabase, int numThreads) {
         threadPool = Executors.newFixedThreadPool(numThreads);
         this.feedDatabase = feedDatabase;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();

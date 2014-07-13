@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * <p>
@@ -81,15 +82,15 @@ public class Feed {
     /** Number of times the feed has been retrieved and successfully read or polled and has not been modified. */
     private int checks = 0;
 
-    /**
-     * The default time in minutes until it is expected to find at least one new entry in the feed.
-     */
-    public static final int DEFAULT_UPDATE_INTERVAL = 60;
+//    /**
+//     * The default time in minutes until it is expected to find at least one new entry in the feed.
+//     */
+//    public static final int DEFAULT_UPDATE_INTERVAL = 60;
 
     /**
      * Time in minutes until it is expected to find at least one new entry in the feed.
      */
-    private int updateInterval = DEFAULT_UPDATE_INTERVAL;
+    private int updateInterval = UpdateStrategy.DEFAULT_CHECK_TIME;
 
     /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
     private FeedUpdateMode updateMode = FeedUpdateMode.MIN_DELAY;
@@ -123,8 +124,8 @@ public class Feed {
     /** The HTTP header's last-modified value of the last poll. */
     private Date httpLastModified = null;
 
-    /** The HTTP header's date value of the last poll (The current system time of the feed server) */
-    private Date httpDateLastPoll = null;
+//    /** The HTTP header's date value of the last poll (The current system time of the feed server) */
+//    private Date httpDateLastPoll = null;
 
     /**
      * Number of item that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
@@ -132,11 +133,11 @@ public class Feed {
      */
     private Map<Integer, int[]> meticulousPostDistribution = new HashMap<Integer, int[]>();
 
-    /**
-     * Indicator whether we have seen one full day in the feed already. This is necessary to calculate the feed post
-     * probability. Whenever we increase {@link checks} we set this value to null = unknown if it was not true yet.
-     */
-    private Boolean oneFullDayOfItemsSeen = null;
+//    /**
+//     * Indicator whether we have seen one full day in the feed already. This is necessary to calculate the feed post
+//     * probability. Whenever we increase {@link checks} we set this value to null = unknown if it was not true yet.
+//     */
+//    private Boolean oneFullDayOfItemsSeen = null;
 
     /** The activity pattern of the feed is one of {@link FeedClassifier}s classes. */
     private FeedActivityPattern activityPattern = FeedActivityPattern.CLASS_UNKNOWN;
@@ -155,7 +156,7 @@ public class Feed {
      */
     private Date lastButOnePollTime = null;
 
-    private double targetPercentageOfNewEntries = -1.0;
+//    private double targetPercentageOfNewEntries = -1.0;
 
     /** Total time in milliseconds that has been spent on processing this feed. */
     private long totalProcessingTimeMS = 0;
@@ -238,7 +239,7 @@ public class Feed {
                 // correct timestamp only in case this hasn't been done before.
                 // if (feedItem.getCorrectedPublishedDate() == null) {
                 Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
-                        getLastButOnePollTime(), feedItem.toString(), false);
+                        getLastButOnePollTime(), feedItem.toString());
                 feedItem.setCorrectedPublishedDate(correctedTimestamp);
                 // }
 
@@ -273,7 +274,7 @@ public class Feed {
             // correct timestamp only in case this hasn't been done before.
             // if (item.getCorrectedPublishedDate() == null) {
             Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(),
-                    getLastButOnePollTime(), item.toString(), false);
+                    getLastButOnePollTime(), item.toString());
             item.setCorrectedPublishedDate(correctedTimestamp);
             // }
             addCacheItem(hash, item.getCorrectedPublishedDate());
@@ -289,13 +290,13 @@ public class Feed {
     }
 
     /**
-     * TODO remove param logWarnings, put to config file and set to true by default?
-     * Correct publish dates of entries. It is assumed, that the entry to check has been fetched at lastPollTimeFeed
-     * and it has not been seen before (not identified as duplicate). Therefore, it's timestamp has to be older than
-     * the last poll, and if we already polled the feed twice or more, the item timestamp must be newer than the last
-     * but one poll (otherwise we would have seen the item before).<br />
-     * <br />
+     * <p>
+     * Correct publish dates of entries. It is assumed, that the entry to check has been fetched at lastPollTimeFeed and
+     * it has not been seen before (not identified as duplicate). Therefore, its timestamp has to be older than the last
+     * poll, and if we already polled the feed twice or more, the item timestamp must be newer than the last but one
+     * poll (otherwise we would have seen the item before).
      * 
+     * <p>
      * Get the publish date from the entry. In case an entry has no timestamp, its timestamp is in the future of
      * lastPollTimeFeed, older than the the last but one poll (lastButOnePollTimeFeed) or older than 01.01.1990 00:00
      * (Unix 631152000), the last poll timestamp (lastPollTimeFeed) is used instead.
@@ -306,12 +307,10 @@ public class Feed {
      *            May be <code>null</code> if there was no such poll.
      * @param logMessage Message to write to logfile in case the date has been corrected. Useful to know which item has
      *            been corrected when reading the logfile.
-     * @param logWarnings If <code>true</code>, warnings are logged in case the entry has no or an illegal timestamp.
-     *            Use with caution, this will generate massive log traffic...
      * @return the corrected publish date.
      */
     private static Date correctedTimestamp(Date entryPublishDate, Date lastPollTimeFeed, Date lastButOnePollTimeFeed,
-            String logMessage, boolean logWarnings) {
+            String logMessage) {
         StringBuilder warnings = new StringBuilder();
 
         // get poll timestamp, if not present, use current time as estimation.
@@ -354,8 +353,8 @@ public class Feed {
             warnings.append("Entry has no pub date, feed entry : ").append(logMessage).append(timestampUsed);
             pubDate = new Date(pollTime);
         }
-        if (logWarnings && warnings.length() > 0) {
-            LOGGER.warn(warnings.toString());
+        if (warnings.length() > 0) {
+            LOGGER.debug(warnings.toString());
         }
 
         return pubDate;
@@ -478,13 +477,13 @@ public class Feed {
      * modified.
      */
     public void increaseChecks() {
-        // set back the target percentage to -1, which means we need to recalculate it
-        targetPercentageOfNewEntries = -1;
+//        // set back the target percentage to -1, which means we need to recalculate it
+//        targetPercentageOfNewEntries = -1;
 
-        // if we haven't seen a full day yet, maybe in the next check
-        if (oneFullDayOfItemsSeen != null && oneFullDayOfItemsSeen == false) {
-            oneFullDayOfItemsSeen = null;
-        }
+//        // if we haven't seen a full day yet, maybe in the next check
+//        if (oneFullDayOfItemsSeen != null && oneFullDayOfItemsSeen == false) {
+//            oneFullDayOfItemsSeen = null;
+//        }
         this.checks++;
     }
 
@@ -752,16 +751,16 @@ public class Feed {
         builder.append(httpLastModified);
         builder.append(", meticulousPostDistribution=");
         builder.append(meticulousPostDistribution);
-        builder.append(", oneFullDayOfItemsSeen=");
-        builder.append(oneFullDayOfItemsSeen);
+//        builder.append(", oneFullDayOfItemsSeen=");
+//        builder.append(oneFullDayOfItemsSeen);
         builder.append(", activityPattern=");
         builder.append(activityPattern);
         builder.append(", lastETag=");
         builder.append(lastETag);
         builder.append(", lastPollTime=");
         builder.append(lastPollTime);
-        builder.append(", targetPercentageOfNewEntries=");
-        builder.append(targetPercentageOfNewEntries);
+//        builder.append(", targetPercentageOfNewEntries=");
+//        builder.append(targetPercentageOfNewEntries);
         builder.append(", totalProcessingTimeMS=");
         builder.append(totalProcessingTimeMS);
         builder.append(", misses=");
@@ -861,10 +860,10 @@ public class Feed {
         result = prime * result + misses;
         result = prime * result + ((newestItemHash == null) ? 0 : newestItemHash.hashCode());
         result = prime * result + numberOfItemsReceived;
-        result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
-        long temp;
-        temp = Double.doubleToLongBits(targetPercentageOfNewEntries);
-        result = prime * result + (int)(temp ^ (temp >>> 32));
+//        result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
+//        long temp;
+//        temp = Double.doubleToLongBits(targetPercentageOfNewEntries);
+//        result = prime * result + (int)(temp ^ (temp >>> 32));
         result = prime * result + (int)(totalProcessingTimeMS ^ (totalProcessingTimeMS >>> 32));
         result = prime * result + unparsableCount;
         result = prime * result + unreachableCount;
@@ -964,14 +963,14 @@ public class Feed {
             return false;
         if (numberOfItemsReceived != other.numberOfItemsReceived)
             return false;
-        if (oneFullDayOfItemsSeen == null) {
-            if (other.oneFullDayOfItemsSeen != null)
-                return false;
-        } else if (!oneFullDayOfItemsSeen.equals(other.oneFullDayOfItemsSeen))
-            return false;
-        if (Double.doubleToLongBits(targetPercentageOfNewEntries) != Double
-                .doubleToLongBits(other.targetPercentageOfNewEntries))
-            return false;
+//        if (oneFullDayOfItemsSeen == null) {
+//            if (other.oneFullDayOfItemsSeen != null)
+//                return false;
+//        } else if (!oneFullDayOfItemsSeen.equals(other.oneFullDayOfItemsSeen))
+//            return false;
+//        if (Double.doubleToLongBits(targetPercentageOfNewEntries) != Double
+//                .doubleToLongBits(other.targetPercentageOfNewEntries))
+//            return false;
         if (totalProcessingTimeMS != other.totalProcessingTimeMS)
             return false;
         if (unparsableCount != other.unparsableCount)
@@ -1293,23 +1292,23 @@ public class Feed {
         this.lastFeedTaskResult = lastFeedTaskResult;
     }
 
-    /**
-     * The HTTP header's date value of the last poll (The current system time of the feed server)
-     * 
-     * @return the httpDateLastPoll
-     */
-    public final Date getHttpDateLastPoll() {
-        return httpDateLastPoll;
-    }
+//    /**
+//     * The HTTP header's date value of the last poll (The current system time of the feed server)
+//     * 
+//     * @return the httpDateLastPoll
+//     */
+//    public final Date getHttpDateLastPoll() {
+//        return httpDateLastPoll;
+//    }
 
-    /**
-     * The HTTP header's date value of the last poll (The current system time of the feed server)
-     * If date's year is > 9999, we set it to null!
-     * 
-     * @param httpDateLastPoll the httpDateLastPoll to set
-     */
-    public final void setHttpDateLastPoll(Date httpDateLastPoll) {
-        this.httpDateLastPoll = DateHelper.validateYear(httpDateLastPoll, 9999);
-    }
+//    /**
+//     * The HTTP header's date value of the last poll (The current system time of the feed server)
+//     * If date's year is > 9999, we set it to null!
+//     * 
+//     * @param httpDateLastPoll the httpDateLastPoll to set
+//     */
+//    public final void setHttpDateLastPoll(Date httpDateLastPoll) {
+//        this.httpDateLastPoll = DateHelper.validateYear(httpDateLastPoll, 9999);
+//    }
 
 }
