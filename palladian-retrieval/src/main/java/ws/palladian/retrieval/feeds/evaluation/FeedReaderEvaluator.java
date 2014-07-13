@@ -13,11 +13,12 @@ import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
@@ -181,12 +182,14 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSample;
 
-        UpdateStrategy[] strategies = {new FixUpdateStrategy(-1, -1, 60), new FixUpdateStrategy(-1, -1, 1440),
-                new FixLearnedUpdateStrategy(-1, -1, 0), new MavUpdateStrategy(-1, -1),
-                new PostRateUpdateStrategy(-1, -1)};
+        UpdateStrategy[] strategies = {new FixUpdateStrategy(-1, -1, 60, FeedUpdateMode.MIN_DELAY),
+                new FixUpdateStrategy(-1, -1, 1440, FeedUpdateMode.MIN_DELAY),
+                new FixLearnedUpdateStrategy(-1, -1, 0, FeedUpdateMode.MIN_DELAY),
+                new MavUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY),
+                new PostRateUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY)};
 
-        Integer[] policies = { BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE };
-        Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
+        Integer[] policies = {BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE};
+        Integer[] modes = {BENCHMARK_POLL, BENCHMARK_TIME};
 
         for (UpdateStrategy strategy : strategies) {
 
@@ -231,7 +234,7 @@ public class FeedReaderEvaluator {
         // if -1 => fixed learned
         int checkInterval = 60;
 
-        AbstractUpdateStrategy updateStrategy = new FixUpdateStrategy(-1, -1, checkInterval);
+        AbstractUpdateStrategy updateStrategy = new FixUpdateStrategy(-1, -1, checkInterval, FeedUpdateMode.MIN_DELAY);
 
         // updateStrategy = new MavUpdateStrategy();
         // updateStrategy = new PostRateUpdateStrategy();

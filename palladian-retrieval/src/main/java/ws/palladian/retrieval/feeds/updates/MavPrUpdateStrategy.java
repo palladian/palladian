@@ -2,6 +2,8 @@ package ws.palladian.retrieval.feeds.updates;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 
@@ -24,9 +26,13 @@ public class MavPrUpdateStrategy extends AbstractUpdateStrategy {
 
     /** Whether or not to use the post rate. */
     private boolean usePostRate = false;
+    
+    private final FeedUpdateMode updateMode;
 
-    public MavPrUpdateStrategy(int lowestInterval, int highestInterval) {
+    public MavPrUpdateStrategy(int lowestInterval, int highestInterval, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval);
+        Validate.notNull(updateMode, "updateMode must not be null");
+        this.updateMode = updateMode;
     }
 
     @Override
@@ -47,13 +53,13 @@ public class MavPrUpdateStrategy extends AbstractUpdateStrategy {
         }
 
         int mavInterval = DEFAULT_CHECK_TIME;
-        UpdateStrategy mav = new MavUpdateStrategy(getLowestInterval(), getHighestInterval());
+        UpdateStrategy mav = new MavUpdateStrategy(getLowestInterval(), getHighestInterval(), updateMode);
         mav.update(feed, fps, trainingMode);
         mavInterval = feed.getUpdateInterval();
         mavCheckIntervalPrediction = feed.getUpdateInterval();
 
         int prInterval = DEFAULT_CHECK_TIME;
-        UpdateStrategy pr = new PostRateUpdateStrategy(getLowestInterval(), getHighestInterval());
+        UpdateStrategy pr = new PostRateUpdateStrategy(getLowestInterval(), getHighestInterval(), updateMode);
         pr.update(feed, fps, trainingMode);
         prInterval = feed.getUpdateInterval();
         prCheckIntervalPrediction = feed.getUpdateInterval();

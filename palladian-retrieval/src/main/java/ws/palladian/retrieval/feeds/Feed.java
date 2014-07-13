@@ -27,7 +27,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
  * 
  */
 public class Feed {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Feed.class);
 
@@ -82,18 +82,13 @@ public class Feed {
     /** Number of times the feed has been retrieved and successfully read or polled and has not been modified. */
     private int checks = 0;
 
-//    /**
-//     * The default time in minutes until it is expected to find at least one new entry in the feed.
-//     */
-//    public static final int DEFAULT_UPDATE_INTERVAL = 60;
-
     /**
      * Time in minutes until it is expected to find at least one new entry in the feed.
      */
     private int updateInterval = UpdateStrategy.DEFAULT_CHECK_TIME;
 
-    /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
-    private FeedUpdateMode updateMode = FeedUpdateMode.MIN_DELAY;
+//    /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
+//    private FeedUpdateMode updateMode = FeedUpdateMode.MIN_DELAY;
 
     /** Our internal hash of the most recent item. <code>null</code> if we've never seen any item so far. */
     private String newestItemHash = null;
@@ -124,20 +119,11 @@ public class Feed {
     /** The HTTP header's last-modified value of the last poll. */
     private Date httpLastModified = null;
 
-//    /** The HTTP header's date value of the last poll (The current system time of the feed server) */
-//    private Date httpDateLastPoll = null;
-
     /**
      * Number of item that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
      * post could have appeared.
      */
     private Map<Integer, int[]> meticulousPostDistribution = new HashMap<Integer, int[]>();
-
-//    /**
-//     * Indicator whether we have seen one full day in the feed already. This is necessary to calculate the feed post
-//     * probability. Whenever we increase {@link checks} we set this value to null = unknown if it was not true yet.
-//     */
-//    private Boolean oneFullDayOfItemsSeen = null;
 
     /** The activity pattern of the feed is one of {@link FeedClassifier}s classes. */
     private FeedActivityPattern activityPattern = FeedActivityPattern.CLASS_UNKNOWN;
@@ -155,8 +141,6 @@ public class Feed {
      * It should be in the past of {@link #lastPollTime}.
      */
     private Date lastButOnePollTime = null;
-
-//    private double targetPercentageOfNewEntries = -1.0;
 
     /** Total time in milliseconds that has been spent on processing this feed. */
     private long totalProcessingTimeMS = 0;
@@ -466,10 +450,8 @@ public class Feed {
         this.newItems = new ArrayList<FeedItem>();
     }
 
-    public void setChecks(Integer checks) {
-        if (checks != null) {
-            this.checks = checks;
-        }
+    public void setChecks(int checks) {
+        this.checks = checks;
     }
 
     /**
@@ -477,13 +459,6 @@ public class Feed {
      * modified.
      */
     public void increaseChecks() {
-//        // set back the target percentage to -1, which means we need to recalculate it
-//        targetPercentageOfNewEntries = -1;
-
-//        // if we haven't seen a full day yet, maybe in the next check
-//        if (oneFullDayOfItemsSeen != null && oneFullDayOfItemsSeen == false) {
-//            oneFullDayOfItemsSeen = null;
-//        }
         this.checks++;
     }
 
@@ -501,10 +476,8 @@ public class Feed {
      * 
      * @param minCheckInterval The min check interval in minutes.
      */
-    public void setUpdateInterval(Integer updateInterval) {
-        if (updateInterval != null) {
-            this.updateInterval = updateInterval;
-        }
+    public void setUpdateInterval(int updateInterval) {
+        this.updateInterval = updateInterval;
     }
 
     /**
@@ -572,10 +545,8 @@ public class Feed {
         recalculateDates = false;
     }
 
-    public void setUnreachableCount(Integer unreachableCount) {
-        if (unreachableCount != null) {
-            this.unreachableCount = unreachableCount;
-        }
+    public void setUnreachableCount(int unreachableCount) {
+        this.unreachableCount = unreachableCount;
     }
 
     public void incrementUnreachableCount() {
@@ -586,10 +557,8 @@ public class Feed {
         return unreachableCount;
     }
 
-    public void setUnparsableCount(Integer unparsableCount) {
-        if (unparsableCount != null) {
-            this.unparsableCount = unparsableCount;
-        }
+    public void setUnparsableCount(int unparsableCount) {
+        this.unparsableCount = unparsableCount;
     }
 
     public void incrementUnparsableCount() {
@@ -737,8 +706,6 @@ public class Feed {
         builder.append(checks);
         builder.append(", updateInterval=");
         builder.append(updateInterval);
-        builder.append(", updateMode=");
-        builder.append(updateMode);
         builder.append(", newestItemHash=");
         builder.append(newestItemHash);
         builder.append(", unreachableCount=");
@@ -751,16 +718,12 @@ public class Feed {
         builder.append(httpLastModified);
         builder.append(", meticulousPostDistribution=");
         builder.append(meticulousPostDistribution);
-//        builder.append(", oneFullDayOfItemsSeen=");
-//        builder.append(oneFullDayOfItemsSeen);
         builder.append(", activityPattern=");
         builder.append(activityPattern);
         builder.append(", lastETag=");
         builder.append(lastETag);
         builder.append(", lastPollTime=");
         builder.append(lastPollTime);
-//        builder.append(", targetPercentageOfNewEntries=");
-//        builder.append(targetPercentageOfNewEntries);
         builder.append(", totalProcessingTimeMS=");
         builder.append(totalProcessingTimeMS);
         builder.append(", misses=");
@@ -832,166 +795,21 @@ public class Feed {
         return getNewItems().size() > 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((activityPattern == null) ? 0 : activityPattern.hashCode());
-        result = prime * result + ((additionalData == null) ? 0 : additionalData.hashCode());
-        result = prime * result + (int)(benchmarkLastLookupTime ^ (benchmarkLastLookupTime >>> 32));
-        result = prime * result + (int)(benchmarkLookupTime ^ (benchmarkLookupTime >>> 32));
-        result = prime * result + (blocked ? 1231 : 1237);
-        result = prime * result + checks;
-        result = prime * result + ((feedMetaInfo == null) ? 0 : feedMetaInfo.hashCode());
-        result = prime * result + ((feedUrl == null) ? 0 : feedUrl.hashCode());
-        result = prime * result + ((httpLastModified == null) ? 0 : httpLastModified.hashCode());
-        result = prime * result + id;
-        result = prime * result + ((items == null) ? 0 : items.hashCode());
-        result = prime * result + ((lastETag == null) ? 0 : lastETag.hashCode());
-        result = prime * result + ((lastFeedEntry == null) ? 0 : lastFeedEntry.hashCode());
-        result = prime * result + ((lastMissTime == null) ? 0 : lastMissTime.hashCode());
-        result = prime * result + ((lastPollTime == null) ? 0 : lastPollTime.hashCode());
-        result = prime * result + ((lastSuccessfulCheckTime == null) ? 0 : lastSuccessfulCheckTime.hashCode());
-        result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
-        result = prime * result + misses;
-        result = prime * result + ((newestItemHash == null) ? 0 : newestItemHash.hashCode());
-        result = prime * result + numberOfItemsReceived;
-//        result = prime * result + ((oneFullDayOfItemsSeen == null) ? 0 : oneFullDayOfItemsSeen.hashCode());
-//        long temp;
-//        temp = Double.doubleToLongBits(targetPercentageOfNewEntries);
-//        result = prime * result + (int)(temp ^ (temp >>> 32));
-        result = prime * result + (int)(totalProcessingTimeMS ^ (totalProcessingTimeMS >>> 32));
-        result = prime * result + unparsableCount;
-        result = prime * result + unreachableCount;
-        result = prime * result + updateInterval;
-        result = prime * result + ((updateMode == null) ? 0 : updateMode.hashCode());
-        result = prime * result + ((variableWindowSize == null) ? 0 : variableWindowSize.hashCode());
-        result = prime * result + ((windowSize == null) ? 0 : windowSize.hashCode());
-        return result;
+        return feedUrl.hashCode();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         Feed other = (Feed)obj;
-        if (activityPattern != other.activityPattern)
-            return false;
-        if (additionalData == null) {
-            if (other.additionalData != null)
-                return false;
-        } else if (!additionalData.equals(other.additionalData))
-            return false;
-        if (benchmarkLastLookupTime != other.benchmarkLastLookupTime)
-            return false;
-        if (benchmarkLookupTime != other.benchmarkLookupTime)
-            return false;
-        if (blocked != other.blocked)
-            return false;
-        if (checks != other.checks)
-            return false;
-        if (feedMetaInfo == null) {
-            if (other.feedMetaInfo != null)
-                return false;
-        } else if (!feedMetaInfo.equals(other.feedMetaInfo))
-            return false;
-        if (feedUrl == null) {
-            if (other.feedUrl != null)
-                return false;
-        } else if (!feedUrl.equals(other.feedUrl))
-            return false;
-        if (httpLastModified == null) {
-            if (other.httpLastModified != null)
-                return false;
-        } else if (!httpLastModified.equals(other.httpLastModified))
-            return false;
-        if (id != other.id)
-            return false;
-        if (items == null) {
-            if (other.items != null)
-                return false;
-        } else if (!items.equals(other.items))
-            return false;
-        if (lastETag == null) {
-            if (other.lastETag != null)
-                return false;
-        } else if (!lastETag.equals(other.lastETag))
-            return false;
-        if (lastFeedEntry == null) {
-            if (other.lastFeedEntry != null)
-                return false;
-        } else if (!lastFeedEntry.equals(other.lastFeedEntry))
-            return false;
-        if (lastMissTime == null) {
-            if (other.lastMissTime != null)
-                return false;
-        } else if (!lastMissTime.equals(other.lastMissTime))
-            return false;
-        if (lastPollTime == null) {
-            if (other.lastPollTime != null)
-                return false;
-        } else if (!lastPollTime.equals(other.lastPollTime))
-            return false;
-        if (lastSuccessfulCheckTime == null) {
-            if (other.lastSuccessfulCheckTime != null)
-                return false;
-        } else if (!lastSuccessfulCheckTime.equals(other.lastSuccessfulCheckTime))
-            return false;
-        if (meticulousPostDistribution == null) {
-            if (other.meticulousPostDistribution != null)
-                return false;
-        } else if (!meticulousPostDistribution.equals(other.meticulousPostDistribution))
-            return false;
-        if (misses != other.misses)
-            return false;
-        if (newestItemHash == null) {
-            if (other.newestItemHash != null)
-                return false;
-        } else if (!newestItemHash.equals(other.newestItemHash))
-            return false;
-        if (numberOfItemsReceived != other.numberOfItemsReceived)
-            return false;
-//        if (oneFullDayOfItemsSeen == null) {
-//            if (other.oneFullDayOfItemsSeen != null)
-//                return false;
-//        } else if (!oneFullDayOfItemsSeen.equals(other.oneFullDayOfItemsSeen))
-//            return false;
-//        if (Double.doubleToLongBits(targetPercentageOfNewEntries) != Double
-//                .doubleToLongBits(other.targetPercentageOfNewEntries))
-//            return false;
-        if (totalProcessingTimeMS != other.totalProcessingTimeMS)
-            return false;
-        if (unparsableCount != other.unparsableCount)
-            return false;
-        if (unreachableCount != other.unreachableCount)
-            return false;
-        if (updateInterval != other.updateInterval)
-            return false;
-        if (updateMode != other.updateMode)
-            return false;
-        if (variableWindowSize == null) {
-            if (other.variableWindowSize != null)
-                return false;
-        } else if (!variableWindowSize.equals(other.variableWindowSize))
-            return false;
-        if (windowSize == null) {
-            if (other.windowSize != null)
-                return false;
-        } else if (!windowSize.equals(other.windowSize))
-            return false;
-        return true;
+        return other.feedUrl.equals(this.feedUrl);
     }
 
     /**
@@ -1046,21 +864,21 @@ public class Feed {
         return benchmarkLastLookupTime;
     }
 
-    public void setUpdateMode(FeedUpdateMode updateMode) {
-        this.updateMode = updateMode;
-    }
-
-    public FeedUpdateMode getUpdateMode() {
-        return updateMode;
-    }
+//    public void setUpdateMode(FeedUpdateMode updateMode) {
+//        this.updateMode = updateMode;
+//    }
+//
+//    public FeedUpdateMode getUpdateMode() {
+//        return updateMode;
+//    }
 
     /**
      * Set the time in millisecond that has been spent on processing this feed.
      * 
      * @param totalProcessingTimeMS time in milliseconds. Ignored if smaller than zero.
      */
-    public void setTotalProcessingTime(Long totalProcessingTimeMS) {
-        if (totalProcessingTimeMS != null && totalProcessingTimeMS > 0) {
+    public void setTotalProcessingTime(long totalProcessingTimeMS) {
+        if (totalProcessingTimeMS > 0) {
             this.totalProcessingTimeMS = totalProcessingTimeMS;
         }
     }
@@ -1208,10 +1026,8 @@ public class Feed {
      * 
      * @param numberOfItemsReceived The number of unique items downloaded so far.
      */
-    public void setNumberOfItemsReceived(Integer numberOfItemsReceived) {
-        if (numberOfItemsReceived != null) {
-            this.numberOfItemsReceived = numberOfItemsReceived;
-        }
+    public void setNumberOfItemsReceived(int numberOfItemsReceived) {
+        this.numberOfItemsReceived = numberOfItemsReceived;
     }
 
     /**
@@ -1291,24 +1107,5 @@ public class Feed {
     public final void setLastFeedTaskResult(FeedTaskResult lastFeedTaskResult) {
         this.lastFeedTaskResult = lastFeedTaskResult;
     }
-
-//    /**
-//     * The HTTP header's date value of the last poll (The current system time of the feed server)
-//     * 
-//     * @return the httpDateLastPoll
-//     */
-//    public final Date getHttpDateLastPoll() {
-//        return httpDateLastPoll;
-//    }
-
-//    /**
-//     * The HTTP header's date value of the last poll (The current system time of the feed server)
-//     * If date's year is > 9999, we set it to null!
-//     * 
-//     * @param httpDateLastPoll the httpDateLastPoll to set
-//     */
-//    public final void setHttpDateLastPoll(Date httpDateLastPoll) {
-//        this.httpDateLastPoll = DateHelper.validateYear(httpDateLastPoll, 9999);
-//    }
 
 }

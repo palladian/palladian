@@ -12,7 +12,6 @@ import ws.palladian.retrieval.HttpRetriever;
 /**
  * <p>
  * The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
- * </p>
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -33,6 +32,12 @@ public final class FeedReader {
      */
     private final Timer checkScheduler;
 
+    /**
+     * <p>
+     * Create a new FeedReader with the specified settings.
+     * 
+     * @param settings The configuration, not <code>null</code>.
+     */
     public FeedReader(FeedReaderSettings settings) {
         Validate.notNull(settings, "settings must not be null");
         this.settings = settings;
@@ -42,12 +47,10 @@ public final class FeedReader {
     /**
      * <p>
      * Start reading.
-     * </p>
      */
     public void start() {
         SchedulerTask schedulerTask = new SchedulerTask(settings);
         checkScheduler.schedule(schedulerTask, 0, settings.getWakeUpInterval());
-
         LOGGER.debug(
                 "Scheduled task, wake up every {} milliseconds to check all feeds whether they need to be read or not",
                 settings.getWakeUpInterval());
@@ -56,7 +59,6 @@ public final class FeedReader {
     /**
      * <p>
      * Stop reading.
-     * </p>
      */
     public void stop() {
         checkScheduler.cancel();

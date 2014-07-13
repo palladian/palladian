@@ -15,7 +15,6 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
@@ -31,9 +30,12 @@ public class PostRateUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MavUpdateStrategy.class);
+    
+    private final FeedUpdateMode updateMode;
 
-    public PostRateUpdateStrategy(int lowestInterval, int highestInterval) {
+    public PostRateUpdateStrategy(int lowestInterval, int highestInterval, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval);
+        this.updateMode = updateMode;
     }
 
     /**
@@ -163,7 +165,7 @@ public class PostRateUpdateStrategy extends AbstractUpdateStrategy {
             currentMinute = (currentMinute + 1) % 1440;
         }
 
-        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
+        if (updateMode == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedInterval(minCheckInterval));
         } else {
             feed.setUpdateInterval(getAllowedInterval(maxCheckInterval));

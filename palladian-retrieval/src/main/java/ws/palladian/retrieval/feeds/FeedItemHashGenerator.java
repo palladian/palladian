@@ -16,6 +16,8 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 public abstract class FeedItemHashGenerator {
+    
+    // TODO move this as configuration to FeedReaderSettings
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedItemHashGenerator.class);

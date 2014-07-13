@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.datasetPostprocessing.csvToDbLoader.CsvToDbTask;
 
@@ -44,7 +44,7 @@ public class FeedSizeCalculator {
     public void restoreFeedSizes() {
         Configuration config = ConfigHolder.getInstance().getConfig();
         EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, config);
-        TimerTask csvToDbScheduler = new FeedSizeCalculationScheduler(feedStore, FeedReader.DEFAULT_NUM_THREADS);
+        TimerTask csvToDbScheduler = new FeedSizeCalculationScheduler(feedStore, FeedReaderSettings.DEFAULT_NUM_THREADS);
         checkScheduler.schedule(csvToDbScheduler, 0, wakeUpInterval);
     }
 
