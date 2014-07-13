@@ -3,13 +3,13 @@ package ws.palladian.retrieval.feeds.updates;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
  * <p>
@@ -30,18 +30,19 @@ public class AdaptiveTTLUpdateStrategy extends AbstractUpdateStrategy {
      * usually set to 0.1 or 0.2.
      */
     private final double weightM;
+    
+    private final FeedUpdateMode updateMode;
 
     /**
      * @param weightM A positive, nonzero weight that is multiplied with the interval pollTime-newestItem. In Web
      *            caching, this is usually set to 0.1 or 0.2.
      */
-    public AdaptiveTTLUpdateStrategy(int lowestInterval, int highestInterval, double weightM) {
+    public AdaptiveTTLUpdateStrategy(int lowestInterval, int highestInterval, double weightM, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval);
-        if (weightM <= 0) {
-            throw new IllegalArgumentException("Unsupported weight \"" + weightM
-                    + "\". Value has to be larger than zero.");
-        }
+        Validate.isTrue(weightM <= 0, "Unsupported weight \"" + weightM + "\". Value has to be larger than zero.");
+        Validate.notNull(updateMode, "updateMode must not be null");
         this.weightM = weightM;
+        this.updateMode = updateMode;
     }
 
     /**
@@ -78,7 +79,7 @@ public class AdaptiveTTLUpdateStrategy extends AbstractUpdateStrategy {
         }
 
         // set the (new) check interval to feed
-        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
+        if (updateMode == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedInterval(checkInterval));
         }
     }

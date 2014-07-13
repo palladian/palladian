@@ -41,6 +41,7 @@ import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 
 /**
@@ -651,7 +652,7 @@ public class FeedStatisticCreator {
             // continue;
             // }
 
-            FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, new MavUpdateStrategy(-1, -1));
+            FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, new MavUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY));
             fbfr.updateEntriesFromDisk();
             if (feed.getItems() == null || feed.getItems().size() < 1) {
                 continue;

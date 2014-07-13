@@ -3,13 +3,13 @@ package ws.palladian.retrieval.feeds.updates;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
  * <p>
@@ -23,9 +23,13 @@ public class MavUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MavUpdateStrategy.class);
+    
+    private final FeedUpdateMode updateMode;
 
-    public MavUpdateStrategy(int lowestInterval, int highestInterval) {
+    public MavUpdateStrategy(int lowestInterval, int highestInterval, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval);
+        Validate.notNull(updateMode, "updateMode must not be null");
+        this.updateMode = updateMode;
     }
 
     /**
@@ -240,7 +244,7 @@ public class MavUpdateStrategy extends AbstractUpdateStrategy {
         // }
         // /////////////////////
 
-        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
+        if (updateMode == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedInterval(minCheckInterval));
         } else {
             feed.setUpdateInterval(getAllowedInterval(maxCheckInterval));
@@ -248,7 +252,7 @@ public class MavUpdateStrategy extends AbstractUpdateStrategy {
 
         // in case only one entry has been found use default check time
         if (entries.size() <= 1) {
-            if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
+            if (updateMode == FeedUpdateMode.MIN_DELAY) {
                 feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME / 2));
             } else {
                 feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME));

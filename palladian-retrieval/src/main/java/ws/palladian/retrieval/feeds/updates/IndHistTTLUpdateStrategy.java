@@ -53,6 +53,8 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      */
     private final String IndHistTTL_WINDOW_IDENTIFIER = "IndHistTTLWindow";
 
+    private final FeedUpdateMode updateMode;
+
     /**
      * @param thresholdTheta The threshold theta to be used. Usually, 0 <= theta < 1.
      *            If the algorithms estimates that this many new entries are pending, the next poll is scheduled.<br />
@@ -67,11 +69,12 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      * @param adaptiveTTLWeightM Weight to be forwarded to {@link AdaptiveTTLUpdateStrategy}.
      */
     public IndHistTTLUpdateStrategy(int lowestInterval, int highestInterval, double thresholdTheta,
-            FeedDatabase feedDb, double tBurst, int timeWindowHours, double adaptiveTTLWeightM) {
+            FeedDatabase feedDb, double tBurst, int timeWindowHours, double adaptiveTTLWeightM, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval, thresholdTheta, feedDb);
         this.tBurst = tBurst;
         this.timeWindowHours = timeWindowHours;
         this.adaptiveTTLWeightM = adaptiveTTLWeightM;
+        this.updateMode = updateMode;
     }
 
     /**
@@ -130,7 +133,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
                     // use Adaptive TTL
                     AdaptiveTTLUpdateStrategy ttl = new AdaptiveTTLUpdateStrategy(getLowestInterval(),
-                            getHighestInterval(), adaptiveTTLWeightM);
+                            getHighestInterval(), adaptiveTTLWeightM, updateMode);
                     ttl.update(feed, fps, trainingMode);
 
                 } else {
