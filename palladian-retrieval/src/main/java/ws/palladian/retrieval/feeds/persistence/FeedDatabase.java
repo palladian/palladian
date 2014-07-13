@@ -2,7 +2,6 @@ package ws.palladian.retrieval.feeds.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -59,14 +58,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_ITEMS_FOR_FEED = "SELECT * FROM feed_items WHERE feedId = ? ORDER BY published DESC";
     private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
-    private static final String GET_FEED_POLL_BY_ID_TIMESTAMP = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp = ?";
-    private static final String GET_FEED_POLLS_BY_ID = "SELECT * FROM feed_polls WHERE id = ?";
 
-    private static final String GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp <= ? ORDER BY pollTimestamp DESC LIMIT 0,1";
-    private static final String GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp <= ? AND pollTimestamp >= ? ORDER BY pollTimestamp DESC LIMIT 0,1";
-    private static final String GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp < ? ORDER BY pollTimestamp DESC LIMIT 0,1";
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ?";
-    private static final String UPDATE_FEED_POLL = "UPDATE feed_polls SET httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ? WHERE id = ? AND pollTimestamp = ?";
     private static final String ADD_CACHE_ITEMS = "INSERT IGNORE INTO feed_item_cache SET id = ?, itemHash = ?, correctedPollTime = ?";
     private static final String GET_CACHE_ITEMS_BY_ID = "SELECT * FROM feed_item_cache WHERE id = ?";
     private static final String DELETE_CACHE_ITEMS_BY_ID = "DELETE FROM feed_item_cache WHERE id = ?";
@@ -89,7 +82,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @param feed Something to identify the feed. Use id or feedUrl. Required to write meaningful log message.
      * @return The input string, truncated to 255 chars if longer. <code>null</code> if input was <code>null</code>.
      */
-    private String truncateToVarchar255(String input, String name, String feed) {
+    protected static String truncateToVarchar255(String input, String name, String feed) {
         String output = input;
         if (input != null) {
             output = StringHelper.removeControlCharacters(output);
@@ -124,11 +117,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(SqlHelper.getTimestamp(feed.getLastPollTime()));
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getFeedUrl()));
         parameters.add(SqlHelper.getTimestamp(feed.getHttpLastModified()));
-        if (feed.getLastFeedTaskResult() != null) {
+//        if (feed.getLastFeedTaskResult() != null) {
             parameters.add(feed.getLastFeedTaskResult());
-        } else {
-            parameters.add(null);
-        }
+//        } else {
+//            parameters.add(null);
+//        }
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
         parameters.add(feed.getLastMissTime());
@@ -436,75 +429,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     /**
-     * Get all polls that have been made to one feed.
-     * 
-     * @param feedID The feed to get information about.
-     * @return A list with information about a all polls.
-     */
-    public List<PollMetaInformation> getFeedPollsByID(int feedID) {
-        return runQuery(FeedPollRowConverter.INSTANCE, GET_FEED_POLLS_BY_ID, feedID);
-    }
-
-    /**
-     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
-     * 
-     * @param feedID The feed to get information about.
-     * @param timestamp The timestamp of the poll to get information about.
-     * @return Information about a single poll.
-     */
-    public PollMetaInformation getFeedPoll(int feedID, Timestamp timestamp) {
-        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_FEED_POLL_BY_ID_TIMESTAMP, feedID, timestamp);
-    }
-
-    /**
-     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
-     * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose
-     * poll timestamp is older or equal to {@code simulatedPoll}.
-     * 
-     * @param feedID The feed to get information about.
-     * @param simulatedPoll The timestamp to get the poll that was done at the same time or chronologically previous to
-     *            the simulated poll.
-     * @return Information about a single poll that was earlier or at the same time than the provided timestamp.
-     * @see #getPreviousFeedPoll(int, Timestamp)
-     */
-    public PollMetaInformation getEqualOrPreviousFeedPoll(int feedID, Timestamp simulatedPoll) {
-        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME, feedID,
-                simulatedPoll);
-    }
-
-    /**
-     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
-     * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose
-     * poll timestamp is older or equal to {@code simulatedPoll}. To speedup query, use the timestamp of the last poll
-     * since the requested poll is newer or equal to the last poll.
-     * 
-     * @param feedID The feed to get information about.
-     * @param simulatedPoll The timestamp to get the poll that was done at the same time or chronologically previous to
-     *            the simulated poll.
-     * @return Information about a single poll that was earlier or at the same time than the provided timestamp.
-     * @see #getPreviousFeedPoll(int, Timestamp)
-     */
-    public PollMetaInformation getEqualOrPreviousFeedPollByTimeRange(int feedID, Timestamp simulatedPoll,
-            Timestamp lastPoll) {
-        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE, feedID,
-                simulatedPoll, lastPoll);
-    }
-
-    /**
-     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
-     * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose
-     * poll timestamp is older--not equal--to {@code simulatedPoll}.
-     * 
-     * @param feedID The feed to get information about.
-     * @param simulatedPoll The timestamp to get the poll that was done chronologically previous to the simulated poll.
-     * @return Information about a single poll that was earlier than the provided timestamp.
-     * @see #getEqualOrPreviousFeedPoll(int, Timestamp)
-     */
-    public PollMetaInformation getPreviousFeedPoll(int feedID, Timestamp simulatedPoll) {
-        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME, feedID, simulatedPoll);
-    }
-
-    /**
      * @return <code>true</code> if feed poll information have been added, <code>false</code> otherwise.
      */
     @Override
@@ -527,29 +451,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     /**
-     * Update a feed poll identified by id and pollTimestamp
-     * 
-     * @return <code>true</code> if feed poll information have been added, <code>false</code> otherwise.
-     */
-    public boolean updateFeedPoll(PollMetaInformation pollMetaInfo) {
-
-        List<Object> parameters = new ArrayList<Object>();
-        parameters.add(truncateToVarchar255(pollMetaInfo.getHttpETag(), "lastETag", pollMetaInfo.getFeedID() + ""));
-        parameters.add(pollMetaInfo.getHttpDateSQLTimestamp());
-        parameters.add(pollMetaInfo.getHttpLastModifiedSQLTimestamp());
-        parameters.add(pollMetaInfo.getHttpExpiresSQLTimestamp());
-        parameters.add(pollMetaInfo.getNewestItemSQLTimestamp());
-        parameters.add(pollMetaInfo.getNumberNewItems());
-        parameters.add(pollMetaInfo.getWindowSize());
-        parameters.add(pollMetaInfo.getHttpStatusCode());
-        parameters.add(pollMetaInfo.getResponseSize());
-        parameters.add(pollMetaInfo.getFeedID());
-        parameters.add(pollMetaInfo.getPollSQLTimestamp());
-
-        return runUpdate(UPDATE_FEED_POLL, parameters) != -1;
-    }
-
-    /**
      * Add the feed's cached items (item hash and corrected publish date) to database.
      * 
      * @param feed
@@ -569,7 +470,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
         int[] result = runBatchInsertReturnIds(ADD_CACHE_ITEMS, batchArgs);
 
-        return (result.length == cachedItems.size());
+        return result.length == cachedItems.size();
     }
 
     /**
@@ -633,4 +534,5 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         }
         return changeRate;
     }
+
 }

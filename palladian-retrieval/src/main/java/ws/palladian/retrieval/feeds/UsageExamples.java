@@ -44,8 +44,8 @@ public class UsageExamples {
         final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, config);
 
         // add some feed URLs to the database
-        FeedImporter feedImporter = new FeedImporter(feedStore, true, true);
-        feedImporter.addFeedsFromFile(discoveredFeedsFile.getPath(), 10);
+//        FeedImporter feedImporter = new FeedImporter(feedStore, true, true);
+//        feedImporter.addFeedsFromFile(discoveredFeedsFile.getPath(), 10);
 
         // specify what to do, when feed contains new items; here we simply add them to the database
         FeedProcessingAction feedProcessingAction = new DefaultFeedProcessingAction() {

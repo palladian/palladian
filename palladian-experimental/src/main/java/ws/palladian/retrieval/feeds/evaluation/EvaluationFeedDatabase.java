@@ -24,8 +24,10 @@ import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.EvaluationFeedItem;
 import ws.palladian.retrieval.feeds.evaluation.disssandro_temp.IntervalBoundsEvaluator;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.PollData;
+import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedEvaluationItemRowConverter;
+import ws.palladian.retrieval.feeds.persistence.FeedPollRowConverter;
 import ws.palladian.retrieval.feeds.persistence.FeedRowConverter;
 
 /**
@@ -73,6 +75,18 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     private static final String GET_TRANSFER_VOLUME_BY_STRATEGY = "SELECT CEIL(TIMESTAMPDIFF(HOUR,'2011-07-16 07:00:00',pollTimestamp)) AS 'hourOfExperiment', CEIL(SUM(sizeOfPoll)/1048576) AS 'hourlyVolumeMB' FROM `###TABLE_NAME###` GROUP BY CEIL(TIMESTAMPDIFF(HOUR,'2011-07-16 07:00:00',pollTimestamp));";
 
     private static final String CREATE_INTERVAL_BOUNDS_TABLE = "CREATE TABLE `###TABLE_NAME###` (`feedId` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'The feeds internal identifier.', PRIMARY KEY (`feedId`)) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+    
+    private static final String UPDATE_FEED_POLL = "UPDATE feed_polls SET httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ? WHERE id = ? AND pollTimestamp = ?";
+    
+    private static final String GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp < ? ORDER BY pollTimestamp DESC LIMIT 0,1";
+    
+    private static final String GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp <= ? AND pollTimestamp >= ? ORDER BY pollTimestamp DESC LIMIT 0,1";
+    
+    private static final String GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp <= ? ORDER BY pollTimestamp DESC LIMIT 0,1";
+    
+    private static final String GET_FEED_POLL_BY_ID_TIMESTAMP = "SELECT * FROM feed_polls WHERE id = ? AND pollTimestamp = ?";
+    
+    private static final String GET_FEED_POLLS_BY_ID = "SELECT * FROM feed_polls WHERE id = ?";
 
     /**
      * It is assumed that table feeds_TUDCS6 contains all feeds and their meta data.
@@ -1661,6 +1675,99 @@ public class EvaluationFeedDatabase extends FeedDatabase {
             LOGGER.debug(sql);
         }
         return runUpdate(sql);
+    }
+    
+    /**
+     * Update a feed poll identified by id and pollTimestamp
+     * 
+     * @return <code>true</code> if feed poll information have been added, <code>false</code> otherwise.
+     */
+    public boolean updateFeedPoll(PollMetaInformation pollMetaInfo) {
+
+        List<Object> parameters = new ArrayList<Object>();
+        parameters.add(truncateToVarchar255(pollMetaInfo.getHttpETag(), "lastETag", pollMetaInfo.getFeedID() + ""));
+        parameters.add(pollMetaInfo.getHttpDateSQLTimestamp());
+        parameters.add(pollMetaInfo.getHttpLastModifiedSQLTimestamp());
+        parameters.add(pollMetaInfo.getHttpExpiresSQLTimestamp());
+        parameters.add(pollMetaInfo.getNewestItemSQLTimestamp());
+        parameters.add(pollMetaInfo.getNumberNewItems());
+        parameters.add(pollMetaInfo.getWindowSize());
+        parameters.add(pollMetaInfo.getHttpStatusCode());
+        parameters.add(pollMetaInfo.getResponseSize());
+        parameters.add(pollMetaInfo.getFeedID());
+        parameters.add(pollMetaInfo.getPollSQLTimestamp());
+
+        return runUpdate(UPDATE_FEED_POLL, parameters) != -1;
+    }
+    
+
+    /**
+     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
+     * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose
+     * poll timestamp is older--not equal--to {@code simulatedPoll}.
+     * 
+     * @param feedID The feed to get information about.
+     * @param simulatedPoll The timestamp to get the poll that was done chronologically previous to the simulated poll.
+     * @return Information about a single poll that was earlier than the provided timestamp.
+     * @see #getEqualOrPreviousFeedPoll(int, Timestamp)
+     */
+    public PollMetaInformation getPreviousFeedPoll(int feedID, Timestamp simulatedPoll) {
+        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_FEED_POLL_BY_ID_AND_TIME, feedID, simulatedPoll);
+    }
+    
+    /**
+     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
+     * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose
+     * poll timestamp is older or equal to {@code simulatedPoll}. To speedup query, use the timestamp of the last poll
+     * since the requested poll is newer or equal to the last poll.
+     * 
+     * @param feedID The feed to get information about.
+     * @param simulatedPoll The timestamp to get the poll that was done at the same time or chronologically previous to
+     *            the simulated poll.
+     * @return Information about a single poll that was earlier or at the same time than the provided timestamp.
+     * @see #getPreviousFeedPoll(int, Timestamp)
+     */
+    public PollMetaInformation getEqualOrPreviousFeedPollByTimeRange(int feedID, Timestamp simulatedPoll,
+            Timestamp lastPoll) {
+        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIMERANGE, feedID,
+                simulatedPoll, lastPoll);
+    }
+    
+    /**
+     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
+     * Instead of requesting the poll at the specified timestamp, the previous poll is returned whose
+     * poll timestamp is older or equal to {@code simulatedPoll}.
+     * 
+     * @param feedID The feed to get information about.
+     * @param simulatedPoll The timestamp to get the poll that was done at the same time or chronologically previous to
+     *            the simulated poll.
+     * @return Information about a single poll that was earlier or at the same time than the provided timestamp.
+     * @see #getPreviousFeedPoll(int, Timestamp)
+     */
+    public PollMetaInformation getEqualOrPreviousFeedPoll(int feedID, Timestamp simulatedPoll) {
+        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_PREVIOUS_OR_EQUAL_FEED_POLL_BY_ID_AND_TIME, feedID,
+                simulatedPoll);
+    }
+    
+    /**
+     * Get information about a single poll, identified by feedID and pollTimestamp, from table feed_polls.
+     * 
+     * @param feedID The feed to get information about.
+     * @param timestamp The timestamp of the poll to get information about.
+     * @return Information about a single poll.
+     */
+    public PollMetaInformation getFeedPoll(int feedID, Timestamp timestamp) {
+        return runSingleQuery(FeedPollRowConverter.INSTANCE, GET_FEED_POLL_BY_ID_TIMESTAMP, feedID, timestamp);
+    }
+    
+    /**
+     * Get all polls that have been made to one feed.
+     * 
+     * @param feedID The feed to get information about.
+     * @return A list with information about a all polls.
+     */
+    public List<PollMetaInformation> getFeedPollsByID(int feedID) {
+        return runQuery(FeedPollRowConverter.INSTANCE, GET_FEED_POLLS_BY_ID, feedID);
     }
 
     public static void main(String[] args) {

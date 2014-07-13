@@ -15,8 +15,8 @@ import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
@@ -32,9 +32,9 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionIdFixProcessingAction.class);
 
-    private final FeedDatabase feedStore;
+    private final EvaluationFeedDatabase feedStore;
 
-    SessionIdFixProcessingAction(FeedDatabase feedStore) {
+    SessionIdFixProcessingAction(EvaluationFeedDatabase feedStore) {
         this.feedStore = feedStore;
     }
 

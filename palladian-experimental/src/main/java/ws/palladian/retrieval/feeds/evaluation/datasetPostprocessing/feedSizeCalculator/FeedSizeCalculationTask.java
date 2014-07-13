@@ -24,8 +24,8 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
 /**
  * TUDCS6 specific.<br />
@@ -56,7 +56,7 @@ public class FeedSizeCalculationTask implements Callable<FeedTaskResult> {
     /**
      * The feed DB.
      */
-    private final FeedDatabase feedDatabase;
+    private final EvaluationFeedDatabase feedDatabase;
 
     /**
      * Warn if processing of a feed takes longer than this.
@@ -79,7 +79,7 @@ public class FeedSizeCalculationTask implements Callable<FeedTaskResult> {
      * 
      * @param feed The feed retrieved by this task.
      */
-    public FeedSizeCalculationTask(Feed dbFeed, FeedDatabase feedDatabase) {
+    public FeedSizeCalculationTask(Feed dbFeed, EvaluationFeedDatabase feedDatabase) {
         this.feed = dbFeed;
         this.feedDatabase = feedDatabase;
     }
