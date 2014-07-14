@@ -90,8 +90,8 @@ public class Feed {
 //    /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
 //    private FeedUpdateMode updateMode = FeedUpdateMode.MIN_DELAY;
 
-    /** Our internal hash of the most recent item. <code>null</code> if we've never seen any item so far. */
-    private String newestItemHash = null;
+//    /** Our internal hash of the most recent item. <code>null</code> if we've never seen any item so far. */
+//    private String newestItemHash = null;
 
     /** number of times the feed was checked but could not be found. */
     private int unreachableCount = 0;
@@ -487,23 +487,23 @@ public class Feed {
         return updateInterval;
     }
 
-    public void setNewestItemHash(String newestItemHash) {
-        this.newestItemHash = newestItemHash;
-    }
+//    public void setNewestItemHash(String newestItemHash) {
+//        this.newestItemHash = newestItemHash;
+//    }
 
-    /**
-     * Return the newest item hash when the feed was checked the last time, but is not updated when its items are
-     * updated. Don't never ever ever ever use this. This is meant to be used only by the persistence layer and
-     * administrative authorities. And Chuck Norris.
-     * 
-     * @return
-     */
-    public String getNewestItemHash() {
-        if (recalculateDates) {
-            calculateNewestAndOldestItemHashAndDate();
-        }
-        return newestItemHash;
-    }
+//    /**
+//     * Return the newest item hash when the feed was checked the last time, but is not updated when its items are
+//     * updated. Don't never ever ever ever use this. This is meant to be used only by the persistence layer and
+//     * administrative authorities. And Chuck Norris.
+//     * 
+//     * @return
+//     */
+//    public String getNewestItemHash() {
+//        if (recalculateDates) {
+//            calculateNewestAndOldestItemHashAndDate();
+//        }
+//        return newestItemHash;
+//    }
 
     /**
      * Calculates and sets the hash of the newest, second newest and oldest item and its corrected publish date. In case
@@ -511,7 +511,7 @@ public class Feed {
      */
     private void calculateNewestAndOldestItemHashAndDate() {
         Map<String, Date> cache = getCachedItems();
-        String tempNewestHash = null;
+//        String tempNewestHash = null;
         Date tempNewestDate = lastFeedEntry;
         Date tempSecondNewestDate = lastButOneFeedEntry;
         Date tempOldestDate = null;
@@ -521,12 +521,12 @@ public class Feed {
 
             if (tempNewestDate == null) {
                 tempNewestDate = cache.get(hash);
-                tempNewestHash = hash;
+//                tempNewestHash = hash;
             }
             if (tempNewestDate.getTime() < currentElement) {
                 tempSecondNewestDate = tempNewestDate;
                 tempNewestDate = cache.get(hash);
-                tempNewestHash = hash;
+//                tempNewestHash = hash;
             }
             if (tempNewestDate != null && currentElement < tempNewestDate.getTime()
                     && (tempSecondNewestDate == null || currentElement > tempSecondNewestDate.getTime())) {
@@ -540,7 +540,7 @@ public class Feed {
         }
         setLastFeedEntry(tempNewestDate);
         setLastButOneFeedEntry(tempSecondNewestDate);
-        setNewestItemHash(tempNewestHash);
+//        setNewestItemHash(tempNewestHash);
         setOldestFeedEntryCurrentWindow(tempOldestDate);
         recalculateDates = false;
     }
@@ -706,8 +706,8 @@ public class Feed {
         builder.append(checks);
         builder.append(", updateInterval=");
         builder.append(updateInterval);
-        builder.append(", newestItemHash=");
-        builder.append(newestItemHash);
+//        builder.append(", newestItemHash=");
+//        builder.append(newestItemHash);
         builder.append(", unreachableCount=");
         builder.append(unreachableCount);
         builder.append(", unparsableCount=");

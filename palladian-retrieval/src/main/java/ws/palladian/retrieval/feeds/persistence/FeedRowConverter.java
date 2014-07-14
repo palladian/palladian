@@ -44,7 +44,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.getMetaInformation().setAccessible(SqlHelper.getBoolean(resultSet, "isAccessibleFeed"));
         feed.setBlocked(resultSet.getBoolean("blocked"));
         feed.setTotalProcessingTime(resultSet.getLong("totalProcessingTime"));
-        feed.setNewestItemHash(resultSet.getString("newestItemHash"));
+//        feed.setNewestItemHash(resultSet.getString("newestItemHash"));
         feed.setLastETag(resultSet.getString("lastEtag"));
         feed.setHttpLastModified(resultSet.getTimestamp("lastModified"));
         try {

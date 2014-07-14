@@ -41,8 +41,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     // ////////////////// feed prepared statements ////////////////////
     private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?, itemHash = ?";
-    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, lastResult = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
-    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, newestItemHash = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastResult = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
+    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, lastResult = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
+    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastResult = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
     private static final String DELETE_FEED_BY_URL = "DELETE FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
@@ -51,7 +51,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
     // private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
     private static final String GET_ITEMS_BY_RAW_ID_2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
-    private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, newestItemHash = '', checks = 0, lastFeedEntry = NULL";
+//    private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, newestItemHash = '', checks = 0, lastFeedEntry = NULL";
     private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
     private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
@@ -109,7 +109,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(truncateToVarchar255(feed.getFeedUrl(), "feedUrl", feed.getFeedUrl()));
         parameters.add(feed.getChecks());
         parameters.add(feed.getUpdateInterval());
-        parameters.add(feed.getNewestItemHash());
+//        parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getUnparsableCount());
         parameters.add(SqlHelper.getTimestamp(feed.getLastFeedEntry()));
@@ -183,13 +183,13 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return added;
     }
 
-    /**
-     * When the check approach is switched we need to reset learned and calculated values such as check intervals,
-     * checks, lastHeadlines etc.
-     */
-    public void changeCheckApproach() {
-        runUpdate(CHANGE_CHECK_APPROACH);
-    }
+//    /**
+//     * When the check approach is switched we need to reset learned and calculated values such as check intervals,
+//     * checks, lastHeadlines etc.
+//     */
+//    public void changeCheckApproach() {
+//        runUpdate(CHANGE_CHECK_APPROACH);
+//    }
 
     public void clearFeedTables() {
         runUpdate("TRUNCATE TABLE feeds");
@@ -328,7 +328,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(truncateToVarchar255(feed.getFeedUrl(), "feedUrl", feed.getId() + ""));
         parameters.add(feed.getChecks());
         parameters.add(feed.getUpdateInterval());
-        parameters.add(feed.getNewestItemHash());
+//        parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getUnparsableCount());
         parameters.add(feed.getLastFeedEntry());
