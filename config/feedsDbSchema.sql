@@ -43,7 +43,6 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `isAccessibleFeed` TINYINT(1) DEFAULT NULL COMMENT 'Is the feed accessible? Updated when metadata is updated. Do not change to unsigned!',
   `blocked` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'If true, do not use feed to create a data set. Never set back to false. Updated at every poll.',
   `totalProcessingTime` DOUBLE DEFAULT NULL COMMENT 'Total time in milliseconds that was spend on processing this feed. Updated at every poll.',
-  `newestItemHash` CHAR(40) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The sha1-hash of the first item (in xml) of the last poll. Updated at every poll. Do not change to unsigned!',
   `lastETag` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The last ETag we received in the http header. Updated at every poll. Do not change to unsigned!',
   `lastModified` DATETIME DEFAULT NULL COMMENT 'The most recent value of the last-modidied element in the http header. Updated at every poll. Do not change to unsigned!',
   `lastResult` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The result of the most recent FeedTask. Updated at every poll.',
