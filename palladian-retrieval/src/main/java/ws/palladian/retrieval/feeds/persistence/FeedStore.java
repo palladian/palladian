@@ -49,15 +49,15 @@ public interface FeedStore {
      */
     boolean updateFeed(Feed feed, boolean replaceCachedItems);
 
-    /**
-     * <p>
-     * Remove a feed by its feedUrl
-     * </p>
-     * 
-     * @param feedUrl
-     * @return <code>true</code> if the feed was removed successfully, <code>false</code> otherwise.
-     */
-    boolean deleteFeedByUrl(String feedUrl);
+//    /**
+//     * <p>
+//     * Remove a feed by its feedUrl
+//     * </p>
+//     * 
+//     * @param feedUrl
+//     * @return <code>true</code> if the feed was removed successfully, <code>false</code> otherwise.
+//     */
+//    boolean deleteFeedByUrl(String feedUrl);
 
     /**
      * <p>
@@ -88,14 +88,14 @@ public interface FeedStore {
      */
     Feed getFeedByUrl(String feedUrl);
 
-    /**
-     * <p>
-     * If it does not yet exist, add a {@link FeedItem}.
-     * </p>
-     * 
-     * @param item The {@link FeedItem} to add.
-     */
-    boolean addFeedItem(FeedItem item);
+//    /**
+//     * <p>
+//     * If it does not yet exist, add a {@link FeedItem}.
+//     * </p>
+//     * 
+//     * @param item The {@link FeedItem} to add.
+//     */
+//    boolean addFeedItem(FeedItem item);
 
     /**
      * <p>
@@ -107,29 +107,29 @@ public interface FeedStore {
      */
     int addFeedItems(List<FeedItem> items);
 
-    /**
-     * <p>
-     * Get {@link FeedItem} for a specific feed by its rawId.
-     * </p>
-     * 
-     * @param feedId
-     * @param rawId
-     * @return the {@link FeedItem} with specified rawId, <code>null</code> if {@link FeedItem} does not exist.
-     */
-    FeedItem getFeedItemByRawId(int feedId, String rawId);
+//    /**
+//     * <p>
+//     * Get {@link FeedItem} for a specific feed by its rawId.
+//     * </p>
+//     * 
+//     * @param feedId
+//     * @param rawId
+//     * @return the {@link FeedItem} with specified rawId, <code>null</code> if {@link FeedItem} does not exist.
+//     */
+//    FeedItem getFeedItemByRawId(int feedId, String rawId);
 
     Feed getFeedById(int feedID);
 
-    /**
-     * <p>
-     * Get FeedEntries by using a custom SQL query. The SELECT part must contain all appropriate columns with their
-     * names from the feed_entries table.
-     * </p>
-     * 
-     * @param sqlQuery
-     * @return
-     */
-    List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery);
+//    /**
+//     * <p>
+//     * Get FeedEntries by using a custom SQL query. The SELECT part must contain all appropriate columns with their
+//     * names from the feed_entries table.
+//     * </p>
+//     * 
+//     * @param sqlQuery
+//     * @return
+//     */
+//    List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery);
 
     /**
      * Add information related to a poll.

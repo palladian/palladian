@@ -44,19 +44,19 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, lastResult = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
     private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastResult = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
-    private static final String DELETE_FEED_BY_URL = "DELETE FROM feeds WHERE feedUrl = ?";
+//    private static final String DELETE_FEED_BY_URL = "DELETE FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
     private static final String GET_FEEDS = "SELECT * FROM feeds"; // ORDER BY id ASC";
     private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
     // private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
-    private static final String GET_ITEMS_BY_RAW_ID_2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
+//    private static final String GET_ITEMS_BY_RAW_ID_2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
 //    private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, newestItemHash = '', checks = 0, lastFeedEntry = NULL";
     private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
     private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
     private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
     private static final String GET_ITEMS_FOR_FEED = "SELECT * FROM feed_items WHERE feedId = ? ORDER BY published DESC";
-    private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
+//    private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
 
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ?";
@@ -147,18 +147,18 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return added;
     }
 
-    @Override
-    public boolean addFeedItem(FeedItem item) {
-        boolean added = false;
-
-        int result = runInsertReturnId(ADD_FEED_ITEM, getItemParameters(item));
-        if (result > 0) {
-            item.setId(result);
-            added = true;
-        }
-
-        return added;
-    }
+//    @Override
+//    public boolean addFeedItem(FeedItem item) {
+//        boolean added = false;
+//
+//        int result = runInsertReturnId(ADD_FEED_ITEM, getItemParameters(item));
+//        if (result > 0) {
+//            item.setId(result);
+//            added = true;
+//        }
+//
+//        return added;
+//    }
 
     @Override
     public int addFeedItems(List<FeedItem> feedItems) {
@@ -198,9 +198,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         runUpdate("TRUNCATE TABLE feed_evaluation_polls");
     }
 
-    public void deleteFeedItemById(int id) {
-        runUpdate(DELETE_ITEM_BY_ID, id);
-    }
+//    public void deleteFeedItemById(int id) {
+//        runUpdate(DELETE_ITEM_BY_ID, id);
+//    }
 
     @Override
     public Feed getFeedById(int feedId) {
@@ -216,10 +216,10 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEM_BY_ID, id);
     }
 
-    @Override
-    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
-        return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEMS_BY_RAW_ID_2, feedId, rawId);
-    }
+//    @Override
+//    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
+//        return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEMS_BY_RAW_ID_2, feedId, rawId);
+//    }
 
 //    @Deprecated
 //    public FeedItem getFeedItemByRawId(String rawId) {
@@ -259,7 +259,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @param sqlQuery
      * @return
      */
-    @Override
+    // @Override
     public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
         return runQuery(FeedItemRowConverter.INSTANCE, sqlQuery);
     }
@@ -384,10 +384,10 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return updateFeed(feed, true);
     }
 
-    @Override
-    public boolean deleteFeedByUrl(String feedUrl) {
-        return runUpdate(DELETE_FEED_BY_URL, feedUrl) == 1;
-    }
+//    @Override
+//    public boolean deleteFeedByUrl(String feedUrl) {
+//        return runUpdate(DELETE_FEED_BY_URL, feedUrl) == 1;
+//    }
 
     public void updateFeedPostDistribution(Feed feed, Map<Integer, int[]> postDistribution) {
         for (java.util.Map.Entry<Integer, int[]> distributionEntry : postDistribution.entrySet()) {
