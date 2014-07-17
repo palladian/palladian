@@ -1,5 +1,6 @@
 package ws.palladian.processing.features;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -37,6 +38,19 @@ public class ImmutableAnnotation extends AbstractAnnotation {
         this.startPosition = startPosition;
         this.value = value;
         this.tag = tag;
+    }
+
+    /**
+     * <p>
+     * Create a new {@link Annotation} at the given position, with the specified value and tag.
+     * </p>
+     * 
+     * @param startPosition The start offset in the text, greater or equal zero.
+     * @param value The value of the annotation, not <code>null</code> or empty.
+     */
+    public ImmutableAnnotation(int startPosition, String value) {
+        this(startPosition, value, StringUtils.EMPTY);
+
     }
 
     @Override
