@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,6 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Sandro Reichert
- * 
  */
 public class Feed {
 
@@ -86,12 +86,6 @@ public class Feed {
      * Time in minutes until it is expected to find at least one new entry in the feed.
      */
     private int updateInterval = UpdateStrategy.DEFAULT_CHECK_TIME;
-
-//    /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
-//    private FeedUpdateMode updateMode = FeedUpdateMode.MIN_DELAY;
-
-//    /** Our internal hash of the most recent item. <code>null</code> if we've never seen any item so far. */
-//    private String newestItemHash = null;
 
     /** number of times the feed was checked but could not be found. */
     private int unreachableCount = 0;
@@ -487,31 +481,12 @@ public class Feed {
         return updateInterval;
     }
 
-//    public void setNewestItemHash(String newestItemHash) {
-//        this.newestItemHash = newestItemHash;
-//    }
-
-//    /**
-//     * Return the newest item hash when the feed was checked the last time, but is not updated when its items are
-//     * updated. Don't never ever ever ever use this. This is meant to be used only by the persistence layer and
-//     * administrative authorities. And Chuck Norris.
-//     * 
-//     * @return
-//     */
-//    public String getNewestItemHash() {
-//        if (recalculateDates) {
-//            calculateNewestAndOldestItemHashAndDate();
-//        }
-//        return newestItemHash;
-//    }
-
     /**
      * Calculates and sets the hash of the newest, second newest and oldest item and its corrected publish date. In case
      * we haven't seen any items so far, there is no hash or date so we set them to <code>null</code>.
      */
     private void calculateNewestAndOldestItemHashAndDate() {
         Map<String, Date> cache = getCachedItems();
-//        String tempNewestHash = null;
         Date tempNewestDate = lastFeedEntry;
         Date tempSecondNewestDate = lastButOneFeedEntry;
         Date tempOldestDate = null;
@@ -521,12 +496,10 @@ public class Feed {
 
             if (tempNewestDate == null) {
                 tempNewestDate = cache.get(hash);
-//                tempNewestHash = hash;
             }
             if (tempNewestDate.getTime() < currentElement) {
                 tempSecondNewestDate = tempNewestDate;
                 tempNewestDate = cache.get(hash);
-//                tempNewestHash = hash;
             }
             if (tempNewestDate != null && currentElement < tempNewestDate.getTime()
                     && (tempSecondNewestDate == null || currentElement > tempSecondNewestDate.getTime())) {
@@ -540,7 +513,6 @@ public class Feed {
         }
         setLastFeedEntry(tempNewestDate);
         setLastButOneFeedEntry(tempSecondNewestDate);
-//        setNewestItemHash(tempNewestHash);
         setOldestFeedEntryCurrentWindow(tempOldestDate);
         recalculateDates = false;
     }
@@ -663,9 +635,7 @@ public class Feed {
     }
 
     public void setActivityPattern(FeedActivityPattern activityPattern) {
-        if (activityPattern != null) {
-            this.activityPattern = activityPattern;
-        }
+        this.activityPattern = activityPattern;
     }
 
     /**
@@ -864,23 +834,14 @@ public class Feed {
         return benchmarkLastLookupTime;
     }
 
-//    public void setUpdateMode(FeedUpdateMode updateMode) {
-//        this.updateMode = updateMode;
-//    }
-//
-//    public FeedUpdateMode getUpdateMode() {
-//        return updateMode;
-//    }
-
     /**
      * Set the time in millisecond that has been spent on processing this feed.
      * 
-     * @param totalProcessingTimeMS time in milliseconds. Ignored if smaller than zero.
+     * @param totalProcessingTimeMS time in milliseconds.
      */
     public void setTotalProcessingTime(long totalProcessingTimeMS) {
-        if (totalProcessingTimeMS > 0) {
-            this.totalProcessingTimeMS = totalProcessingTimeMS;
-        }
+        Validate.isTrue(totalProcessingTimeMS >= 0, "totalProcessingTime must be greater zero");
+        this.totalProcessingTimeMS = totalProcessingTimeMS;
     }
 
     /**
@@ -898,9 +859,8 @@ public class Feed {
      * @param processingTimeToAddMS time to add in millisecond.
      */
     public void increaseTotalProcessingTimeMS(long processingTimeToAddMS) {
-        if (processingTimeToAddMS > 0) {
-            setTotalProcessingTime(getTotalProcessingTime() + processingTimeToAddMS);
-        }
+        Validate.isTrue(processingTimeToAddMS >= 0, "processingTimeToAdd must be greater zero");
+        setTotalProcessingTime(getTotalProcessingTime() + processingTimeToAddMS);
     }
 
     /**
@@ -928,10 +888,8 @@ public class Feed {
      * 
      * @param misses The number of misses
      */
-    public final void setMisses(Integer misses) {
-        if (misses != null) {
-            this.misses = misses;
-        }
+    public final void setMisses(int misses) {
+        this.misses = misses;
     }
 
     /**
@@ -974,10 +932,8 @@ public class Feed {
      * 
      * @param blocked set to true to block the feed.
      */
-    public final void setBlocked(Boolean blocked) {
-        if (blocked != null) {
-            this.blocked = blocked;
-        }
+    public final void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 
     /**
