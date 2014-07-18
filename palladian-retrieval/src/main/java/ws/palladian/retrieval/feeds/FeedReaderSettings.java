@@ -184,7 +184,7 @@ public interface FeedReaderSettings {
             Validate.isTrue(maxImmediateRetries >= 1, "maxImmediateRetries must be greater/equal one");
             Validate.isTrue(checksToUnreachableRatio >= 1, "checksToUnreachableRatio must be greater/equal one");
             Validate.isTrue(checksToUnparsableRatio >= 1, "checksToUnparsableRatio must be greater/equal one");
-            Validate.isTrue(checksToUnparsableRatio >= 1000, "checksToUnparsableRatio must be greater/equal 1,000");
+            Validate.isTrue(maximumAvgProcessingTime >= 1000, "maximumAvgProcessingTime must be greater/equal 1,000");
             Validate.isTrue(maximumFeedSize >= 1, "maximumFeedSize must be greater/equal one");
             Validate.isTrue(executionWarnTime >= 1, "executionWarnTime must be greater/equal one");
             return new ImmutableFeedReaderSettings(this);

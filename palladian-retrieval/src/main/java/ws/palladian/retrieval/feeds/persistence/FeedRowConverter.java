@@ -3,19 +3,13 @@ package ws.palladian.retrieval.feeds.persistence;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 
-public class FeedRowConverter implements RowConverter<Feed> {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeedRowConverter.class);
+public final class FeedRowConverter implements RowConverter<Feed> {
 
     public static final FeedRowConverter INSTANCE = new FeedRowConverter();
 
@@ -36,7 +30,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.setNumberOfItemsReceived(resultSet.getInt("totalItems"));
         feed.setWindowSize(SqlHelper.getInteger(resultSet, "windowSize"));
         feed.setVariableWindowSize(SqlHelper.getBoolean(resultSet, "hasVariableWindowSize"));
-        feed.setUpdateInterval(SqlHelper.getInteger(resultSet, "checkInterval"));
+        feed.setUpdateInterval(resultSet.getInt("checkInterval"));
         feed.setLastPollTime(resultSet.getTimestamp("lastPollTime"));
         feed.setLastSuccessfulCheckTime(resultSet.getTimestamp("lastSuccessfulCheck"));
         feed.setLastMissTime(resultSet.getTimestamp("lastMissTimestamp"));
@@ -44,13 +38,11 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.getMetaInformation().setAccessible(SqlHelper.getBoolean(resultSet, "isAccessibleFeed"));
         feed.setBlocked(resultSet.getBoolean("blocked"));
         feed.setTotalProcessingTime(resultSet.getLong("totalProcessingTime"));
-//        feed.setNewestItemHash(resultSet.getString("newestItemHash"));
         feed.setLastETag(resultSet.getString("lastEtag"));
         feed.setHttpLastModified(resultSet.getTimestamp("lastModified"));
-        try {
-            feed.setLastFeedTaskResult(FeedTaskResult.valueOf(resultSet.getString("lastResult")));
-        } catch (NullPointerException e) {
-            LOGGER.warn("the lastResult of the feed was set to null");
+        String lastResultString = resultSet.getString("lastResult");
+        if (lastResultString != null) {
+            feed.setLastFeedTaskResult(FeedTaskResult.valueOf(lastResultString));
         }
         feed.setActivityPattern(FeedActivityPattern.fromIdentifier(resultSet.getInt("activityPattern")));
         feed.getMetaInformation().setFeedFormat(resultSet.getString("feedFormat"));
@@ -69,9 +61,7 @@ public class FeedRowConverter implements RowConverter<Feed> {
         feed.getMetaInformation().setHasPublished(SqlHelper.getBoolean(resultSet, "hasPublished"));
         feed.getMetaInformation().setSupportsPubSubHubBub(SqlHelper.getBoolean(resultSet, "supportsPubSubHubBub"));
         feed.getMetaInformation().setCgHeaderSize(SqlHelper.getInteger(resultSet, "httpHeaderSize"));
-
         return feed;
-
     }
 
 }
