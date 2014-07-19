@@ -112,11 +112,12 @@ public final class FacebookLinkStats extends AbstractRankingService {
         try {
             json = new JsonArray(content);
             for (int i = 0; i < urls.size(); i++) {
-                Map<RankingType, Integer> result = CollectionHelper.newHashMap();
-                result.put(LIKES, json.getJsonObject(i).getInt("like_count"));
-                result.put(SHARES, json.getJsonObject(i).getInt("share_count"));
-                result.put(COMMENTS, json.getJsonObject(i).getInt("comment_count"));
-                results.put(urls.get(i), new Ranking(this, urls.get(i), result));
+                Ranking.Builder builder = new Ranking.Builder(this, urls.get(i));
+                builder.add(LIKES, json.getJsonObject(i).getInt("like_count"));
+                builder.add(SHARES, json.getJsonObject(i).getInt("share_count"));
+                builder.add(COMMENTS, json.getJsonObject(i).getInt("comment_count"));
+                Ranking result = builder.create();
+                results.put(urls.get(i), result);
                 LOGGER.trace("Facebook link stats for {}: {}", urls.get(i), result);
             }
         } catch (JsonException e) {

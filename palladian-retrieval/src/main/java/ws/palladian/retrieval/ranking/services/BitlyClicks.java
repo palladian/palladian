@@ -1,15 +1,12 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -24,27 +21,22 @@ import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
-import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
  * <p>
- * RankingService implementation for clicks on a given url from Bit.ly.
+ * RankingService implementation for clicks on a given URL from <a href="http://bit.ly/">Bit.ly</a>. Request limits
+ * (details unknown) are reset every hour. Only 5 concurrent connections at the same time.
  * </p>
- * <p>
- * Request limits (details unknown) are resetted every hour. Only 5 concurrent connections at the same time.
- * </p>
- * TODO: check all possible url variations and summarize?
- * TODO: limit threads to 5
  * 
  * @author Julien Schmehl
  * @author Philipp Katz
- * @see http://bit.ly/
- * @see http://code.google.com/p/bitly-api/wiki/ApiDocumentation
- * @see http://www.konkurrenzanalyse.net/reichenweite-auf-twitter-messen/
+ * @see <a href="http://dev.bitly.com">Bitly API Documentation</a>
  */
-public final class BitlyClicks extends AbstractRankingService implements RankingService {
+public final class BitlyClicks extends AbstractRankingService {
+
+    private static final int BATCH_SIZE = 15;
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BitlyClicks.class);
@@ -103,168 +95,35 @@ public final class BitlyClicks extends AbstractRankingService implements Ranking
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
-
-        try {
-
-            // Step 1: get the bit.ly hash for the specified URL
-            String hash = null;
-            String encUrl = UrlHelper.encodeParameter(url);
-            HttpResult httpResult = retriever.httpGet("http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey="
-                    + getApiKey() + "&url=" + encUrl);
-            JsonObject json = new JsonObject(httpResult.getStringContent());
-            if (checkJsonResponse(json)) {
-                JsonObject lookup = json.getJsonObject("data").getJsonArray("lookup").getJsonObject(0);
-                if (lookup.get("global_hash") != null) {
-                    hash = lookup.getString("global_hash");
-                    LOGGER.trace("Bit.ly hash for url " + url + " : " + hash);
-                }
-
-                // Step 2: get the # of clicks using the hash
-                if (hash != null) {
-                    HttpResult httpResult2 = retriever.httpGet("http://api.bit.ly/v3/clicks?login=" + getLogin()
-                            + "&apiKey=" + getApiKey() + "&hash=" + hash);
-                    json = new JsonObject(httpResult2.getStringContent());
-                    if (checkJsonResponse(json)) {
-                        float result = json.getJsonObject("data").getJsonArray("clicks").getJsonObject(0)
-                                .getInt("global_clicks");
-                        results.put(CLICKS, result);
-                        LOGGER.trace("Bit.ly clicks for " + url + " : " + result);
-                    } else {
-                        results.put(CLICKS, null);
-                        LOGGER.trace("Bit.ly clicks for " + url + "could not be fetched");
-                    }
-                } else {
-                    results.put(CLICKS, 0f);
-                }
-            } else {
-                results.put(CLICKS, null);
-                LOGGER.trace("Bit.ly clicks for " + url + "could not be fetched");
-                checkBlocked();
-            }
-
-        } catch (JsonException e) {
-            checkBlocked();
-            throw new RankingServiceException(e);
-        } catch (HttpException e) {
-            checkBlocked();
-            throw new RankingServiceException(e);
-        }
-        return ranking;
+        return getRanking(Collections.singleton(url)).values().iterator().next();
     }
 
     @Override
     public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
-
         Map<String, Ranking> results = new HashMap<String, Ranking>();
         if (isBlocked()) {
             return results;
         }
-
-        List<String> urlList= CollectionHelper.newArrayList(urls);
-        
-        // iterate through urls in batches of 15, since this is the maximum number we
-        // can send to bit.ly at once
-        for (int index = 0; index < urlList.size() / 15 + (urlList.size() % 15 > 0 ? 1 : 0); index++) {
-
-            List<String> subUrls = urlList.subList(index * 15, Math.min(index * 15 + 15, urlList.size()));
-            String encUrls = "";
-            String urlString = "";
+        // deduplicate provided URLs and create list
+        List<String> urlList = CollectionHelper.newArrayList(CollectionHelper.newHashSet(urls));
+        // iterate through urls in batches of 15, since this is the maximum number we can send to bit.ly at once
+        int numRequests = (int)Math.ceil(urlList.size() / (float)BATCH_SIZE);
+        for (int r = 0; r < numRequests; r++) {
+            List<String> subUrls = urlList.subList(r * BATCH_SIZE,
+                    Math.min(r * BATCH_SIZE + BATCH_SIZE, urlList.size()));
             try {
-
                 // Step 1: get the bit.ly hash for the specified URLs
-                Map<String, String> hashes = new HashMap<String, String>();
-
-                for (int i = 0; i < subUrls.size(); i++) {
-                    encUrls += "&url=" + UrlHelper.encodeParameter(subUrls.get(i));
+                Map<String, String> urlHashes = getBitlyHashes(subUrls);
+                // Step 2: get the # of clicks using the hash
+                Map<String, Integer> hashesClicks = getBitlyClicks(urlHashes.values());
+                for (String url : subUrls) {
+                    String hash = urlHashes.get(url);
+                    Integer clicks = hashesClicks.get(hash);
+                    if (clicks == null) { // "not found" on bitly
+                        clicks = 0;
+                    }
+                    results.put(url, new Ranking.Builder(this, url).add(CLICKS, clicks).create());
                 }
-
-                urlString = "http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey=" + getApiKey()
-                        + "&mode=batch" + encUrls;
-
-                HttpResult httpResult = retriever.httpGet(urlString);
-                JsonObject json = new JsonObject(httpResult.getStringContent());
-                if (checkJsonResponse(json)) {
-                    JsonArray lookups = json.getJsonObject("data").getJsonArray("lookup");
-                    for (int i = 0; i < lookups.size(); i++) {
-                        JsonObject lookup = lookups.getJsonObject(i);
-                        if (lookup.get("global_hash") != null) {
-                            hashes.put(lookup.getString("url"), lookup.getString("global_hash"));
-                            LOGGER.trace("Bit.ly hash for url " + lookup.getString("url") + " : "
-                                    + lookup.getString("global_hash"));
-                        } else {
-                            hashes.put(lookup.getString("url"), null);
-                        }
-                    }
-
-                    // Step 2: get the # of clicks using the hash
-                    String hashList = "";
-                    for (String h : hashes.values()) {
-                        if (h != null) {
-                            hashList += "&hash=" + h;
-                        }
-                    }
-
-                    Timestamp retrieved = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime());
-                    if (hashList.length() > 0) {
-                        urlString = "http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey=" + getApiKey()
-                                + "&mode=batch" + hashList;
-                        HttpResult httpResult2 = retriever.httpGet(urlString);
-                        json = new JsonObject(httpResult2.getStringContent());
-
-                        if (checkJsonResponse(json)) {
-                            JsonArray clicks = json.getJsonObject("data").getJsonArray("clicks");
-                            float count = -1;
-                            // iterate through all click results
-                            for (int i = 0; i < clicks.size(); i++) {
-                                JsonObject click = clicks.getJsonObject(i);
-                                Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-                                if (click.get("global_clicks") != null) {
-                                    count = click.getInt("global_clicks");
-                                    result.put(CLICKS, count);
-                                    // find url for the current hash and add ranking
-                                    boolean found = false;
-                                    String hash = click.getString("global_hash");
-                                    Iterator<Entry<String, String>> it = hashes.entrySet().iterator();
-                                    while (!found && it.hasNext()) {
-                                        Entry<String, String> entry = it.next();
-                                        if (hash.equals(entry.getValue())) {
-                                            results.put(entry.getKey(), new Ranking(this, entry.getKey(), result,
-                                                    retrieved));
-                                            found = true;
-                                            LOGGER.trace("Bit.ly clicks for hash " + click.getString("global_hash")
-                                                    + " : " + click.getInt("global_clicks"));
-                                        }
-                                    }
-
-                                }
-                            }
-
-                        }
-                    }
-                    for (String h : hashes.keySet()) {
-                        if (hashes.get(h) == null) {
-                            Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-                            result.put(CLICKS, 0f);
-                            results.put(h, new Ranking(this, h, result, retrieved));
-                        }
-                    }
-                } else {
-                    for (String u : subUrls) {
-                        Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-                        result.put(CLICKS, null);
-                        results.put(u, new Ranking(this, u, result, new java.sql.Timestamp(Calendar.getInstance()
-                                .getTime().getTime())));
-                    }
-                    LOGGER.trace("Bit.ly clicks for " + subUrls + " could not be fetched");
-                    checkBlocked();
-                }
-
             } catch (JsonException e) {
                 checkBlocked();
                 throw new RankingServiceException(e);
@@ -272,20 +131,75 @@ public final class BitlyClicks extends AbstractRankingService implements Ranking
                 checkBlocked();
                 throw new RankingServiceException(e);
             }
-
         }
-
         return results;
-
     }
 
-    private boolean checkJsonResponse(JsonObject json) {
-        if (json != null) {
-            if (json.get("data") != null) {
-                return true;
+    /**
+     * Retrieve the number of clicks for the given URL hashes.
+     * 
+     * @param bitlyHashes The URL hashes.
+     * @return A map from URL hash to number of clicks.
+     * @throws HttpException In case of HTTP errors.
+     * @throws JsonException In case of parsing errors.
+     */
+    private Map<String, Integer> getBitlyClicks(Collection<String> bitlyHashes) throws HttpException, JsonException {
+        StringBuilder hashes = new StringBuilder();
+        for (String hash : bitlyHashes) {
+            hashes.append("&hash=" + hash);
+        }
+        Map<String, Integer> clicks = CollectionHelper.newHashMap();
+        if (hashes.length() > 0) {
+            String url = "http://api.bit.ly/v3/clicks?login=" + login + "&apiKey=" + apiKey + "&mode=batch"
+                    + hashes.toString();
+            LOGGER.debug("clicks URL = {}", url);
+            HttpResult httpResult = retriever.httpGet(url);
+            LOGGER.debug("clicks JSON = {}", httpResult.getStringContent());
+            JsonObject json = new JsonObject(httpResult.getStringContent());
+            JsonArray clicksJson = json.getJsonObject("data").getJsonArray("clicks");
+            // iterate through all click results
+            for (int i = 0; i < clicksJson.size(); i++) {
+                JsonObject click = clicksJson.getJsonObject(i);
+                if (click.get("global_clicks") != null) {
+                    int count = click.getInt("global_clicks");
+                    // find url for the current hash and add ranking
+                    String hash = click.getString("global_hash");
+                    clicks.put(hash, count);
+                }
             }
         }
-        return false;
+        return clicks;
+    }
+
+    /**
+     * Retrieve Bitly's URL hashes for the given URLs.
+     * 
+     * @param urls The URLs.
+     * @return A map from full URL to short hash URL.
+     * @throws HttpException In case of HTTP errors.
+     * @throws JsonException In case of parsing errors.
+     */
+    private Map<String, String> getBitlyHashes(List<String> urls) throws HttpException, JsonException {
+        Map<String, String> hashes = new HashMap<String, String>();
+        StringBuilder encUrlsBuilder = new StringBuilder();
+        for (int i = 0; i < urls.size(); i++) {
+            encUrlsBuilder.append("&url=" + UrlHelper.encodeParameter(urls.get(i)));
+        }
+        String urlString = "http://api.bit.ly/v3/lookup?login=" + login + "&apiKey=" + apiKey + "&mode=batch"
+                + encUrlsBuilder.toString();
+        LOGGER.debug("lookup URL = {}", urlString);
+        HttpResult httpResult = retriever.httpGet(urlString);
+        LOGGER.debug("lookup JSON = {}", httpResult.getStringContent());
+        JsonObject json = new JsonObject(httpResult.getStringContent());
+        JsonArray lookups = json.getJsonObject("data").getJsonArray("lookup");
+        for (int i = 0; i < lookups.size(); i++) {
+            JsonObject lookup = lookups.getJsonObject(i);
+            if (lookup.get("global_hash") != null) {
+                hashes.put(lookup.getString("url"), lookup.getString("global_hash"));
+                LOGGER.trace("Bit.ly hash for url " + lookup.getString("url") + " : " + lookup.getString("global_hash"));
+            }
+        }
+        return hashes;
     }
 
     @Override
@@ -293,8 +207,8 @@ public final class BitlyClicks extends AbstractRankingService implements Ranking
         int status = -1;
         try {
             status = retriever.httpGet(
-                    "http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey=" + getApiKey()
-                            + "&url=http://www.google.com/").getStatusCode();
+                    "http://api.bit.ly/v3/lookup?login=" + login + "&apiKey=" + apiKey + "&url=http://www.google.com/")
+                    .getStatusCode();
         } catch (HttpException e) {
             LOGGER.error("HttpException " + e.getMessage());
         }
@@ -332,14 +246,6 @@ public final class BitlyClicks extends AbstractRankingService implements Ranking
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public String getApiKey() {
-        return apiKey;
-    }
-
-    public String getLogin() {
-        return login;
     }
 
 }
