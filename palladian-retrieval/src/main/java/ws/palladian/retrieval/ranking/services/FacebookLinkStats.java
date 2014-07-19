@@ -1,12 +1,14 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,36 +63,54 @@ public final class FacebookLinkStats extends AbstractRankingService {
      */
     private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(600, TimeUnit.SECONDS, 550);
 
+    /** Maximum number of URLs to fetch during each request. */
+    private static final int BATCH_SIZE = 50;
+
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         return getRanking(Collections.singletonList(url)).values().iterator().next();
     }
 
     @Override
-    public Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException {
+    public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
+        Map<String, Ranking> results = CollectionHelper.newHashMap();
+        List<String> urlBatch = CollectionHelper.newArrayList();
+        for (String url : CollectionHelper.newHashSet(urls)) {
+            urlBatch.add(url);
+            if (urlBatch.size() >= BATCH_SIZE) {
+                Map<String, Ranking> batchRanking = getRanking2(urlBatch);
+                results.putAll(batchRanking);
+                urlBatch.clear();
+            }
+        }
+        if (urlBatch.size() > 0) {
+            Map<String, Ranking> batchRanking = getRanking2(urlBatch);
+            results.putAll(batchRanking);
+        }
+        return results;
+    }
 
+    private Map<String, Ranking> getRanking2(List<String> urls) throws RankingServiceException {
+        Validate.isTrue(urls.size() <= BATCH_SIZE);
         THROTTLE.hold();
-
         Map<String, Ranking> results = new HashMap<String, Ranking>();
-
+        String fqlQuery = createQuery(urls);
+        LOGGER.debug("FQL = {}", fqlQuery);
+        HttpResult response;
         try {
-            String fqlQuery = createQuery(urls);
-            LOGGER.trace("FQL = {}", fqlQuery);
             HttpRequest postRequest = new HttpRequest(HttpMethod.POST, "https://api.facebook.com/method/fql.query");
             postRequest.addParameter("format", "json");
             postRequest.addParameter("query", fqlQuery);
-
-            HttpResult response = retriever.execute(postRequest);
-            String content = response.getStringContent();
-            LOGGER.trace("JSON response = {}", content);
-            checkError(content);
-            JsonArray json = null;
-            try {
-                json = new JsonArray(content);
-            } catch (JsonException e) {
-                throw new RankingServiceException("Error while parsing JSON response (" + content + ")", e);
-            }
-
+            response = retriever.execute(postRequest);
+        } catch (HttpException e) {
+            throw new RankingServiceException("HttpException " + e.getMessage(), e);
+        }
+        String content = response.getStringContent();
+        LOGGER.debug("JSON response = {}", content);
+        checkError(content);
+        JsonArray json;
+        try {
+            json = new JsonArray(content);
             for (int i = 0; i < urls.size(); i++) {
                 Map<RankingType, Integer> result = CollectionHelper.newHashMap();
                 result.put(LIKES, json.getJsonObject(i).getInt("like_count"));
@@ -100,11 +120,8 @@ public final class FacebookLinkStats extends AbstractRankingService {
                 LOGGER.trace("Facebook link stats for {}: {}", urls.get(i), result);
             }
         } catch (JsonException e) {
-            throw new RankingServiceException("JSONException " + e.getMessage(), e);
-        } catch (HttpException e) {
-            throw new RankingServiceException("HttpException " + e.getMessage(), e);
+            throw new RankingServiceException("Error while parsing JSON response (" + content + ")", e);
         }
-
         return results;
     }
 

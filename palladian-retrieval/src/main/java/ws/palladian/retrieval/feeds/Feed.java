@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
@@ -639,20 +638,14 @@ public class Feed {
     }
 
     /**
-     * Returns the activity pattern of the feed which is one of the following: {@link FeedClassifier#CLASS_CONSTANT},
-     * {@link FeedClassifier#CLASS_CHUNKED}, {@link FeedClassifier#CLASS_SLICED} , {@link FeedClassifier#CLASS_ZOMBIE},
-     * {@link FeedClassifier#CLASS_UNKNOWN} or {@link FeedClassifier#CLASS_ON_THE_FLY}
+     * Returns the activity pattern of the feed.
      * 
-     * @return The {@link FeedActivityPattern}. You can get the name using {@link FeedClassifier#getClassName()}
+     * @return The {@link FeedActivityPattern}.
      */
     public FeedActivityPattern getActivityPattern() {
         return activityPattern;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -676,8 +669,6 @@ public class Feed {
         builder.append(checks);
         builder.append(", updateInterval=");
         builder.append(updateInterval);
-//        builder.append(", newestItemHash=");
-//        builder.append(newestItemHash);
         builder.append(", unreachableCount=");
         builder.append(unreachableCount);
         builder.append(", unparsableCount=");

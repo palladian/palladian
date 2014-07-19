@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public abstract class AbstractRankingService implements RankingService {
     }
 
     @Override
-    public Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException {
+    public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
         Map<String, Ranking> results = new HashMap<String, Ranking>();
         if (!isBlocked()) {
             // iterate through urls and get ranking for each
