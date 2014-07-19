@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -49,10 +47,9 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         Integer googlePlusLikes = null;
@@ -79,8 +76,7 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
             checkBlocked();
             throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
-        results.put(LIKES, (float)googlePlusLikes);
-        return ranking;
+        return builder.add(LIKES, googlePlusLikes).create();
     }
 
     /**

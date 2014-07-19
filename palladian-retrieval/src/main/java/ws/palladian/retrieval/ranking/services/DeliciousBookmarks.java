@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -55,13 +53,12 @@ public final class DeliciousBookmarks extends AbstractRankingService implements 
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
-        Float result = null;
+        Integer result = null;
 
         try {
 
@@ -71,9 +68,9 @@ public final class DeliciousBookmarks extends AbstractRankingService implements 
             LOGGER.trace("JSON=" + jsonString);
             JsonArray json = new JsonArray(jsonString);
 
-            result = 0f;
+            result = 0;
             if (json.size() > 0) {
-                result = (float) json.getJsonObject(0).getInt("total_posts");
+                result = json.getJsonObject(0).getInt("total_posts");
             }
             LOGGER.trace("Delicious bookmarks for " + url + " : " + result);
 
@@ -84,8 +81,8 @@ public final class DeliciousBookmarks extends AbstractRankingService implements 
         }
 
         checkBlocked();
-        results.put(BOOKMARKS, result);
-        return ranking;
+        builder.add(BOOKMARKS, result);
+        return builder.create();
     }
 
     @Override

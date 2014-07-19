@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -40,9 +38,9 @@ public final class OpenLinkProfiler extends AbstractRankingService implements Ra
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
-        String requestUrl = buildRequestUrl(url);
+        String requestUrl = "http://www.openlinkprofiler.org/r/" + UrlHelper.getDomain(url, false);
         try {
             DocumentRetriever documentRetriever = new DocumentRetriever(retriever);
             Document document = documentRetriever.getWebDocument(requestUrl);
@@ -52,30 +50,17 @@ public final class OpenLinkProfiler extends AbstractRankingService implements Ra
             long backlinksDomain = Long.valueOf(node1.getTextContent().replaceAll("[,+]", ""));
             long backlinksDomainUnique = Long.valueOf(XPathHelper
                     .getXhtmlNode(document, "//div/div[contains(@class,'topinfobox') and contains(@class,'2')][1]/p")
-                    .getTextContent()
-.replaceAll("[,+]", ""));
+                    .getTextContent().replaceAll("[,+]", ""));
 
-            results.put(BACKLINKS_DOMAIN, (float)backlinksDomain);
-            results.put(BACKLINKS_DOMAIN_UNIQUE, (float)backlinksDomainUnique);
+            builder.add(BACKLINKS_DOMAIN, backlinksDomain);
+            builder.add(BACKLINKS_DOMAIN_UNIQUE, backlinksDomainUnique);
 
         } catch (Exception e) {
             throw new RankingServiceException("Error while parsing the response (\"" + url + "\")", e);
         }
-
-        return new Ranking(this, url, results);
+        return builder.create();
     }
 
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://www.openlinkprofiler.org/r/" + UrlHelper.getDomain(url, false);
-    }
 
     @Override
     public String getServiceId() {

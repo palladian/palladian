@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +62,9 @@ public final class FriendfeedStats extends AbstractRankingService implements Ran
     @Override
     public Ranking getRanking(String url) {
 
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         try {
@@ -75,9 +72,9 @@ public final class FriendfeedStats extends AbstractRankingService implements Ran
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + encUrl);
             JsonObject json = new JsonObject(httpResult.getStringContent());
             JsonArray entries = json.getJsonArray("entries");
-            float posts = 0;
-            float likes = 0;
-            float comments = 0;
+            int posts = 0;
+            int likes = 0;
+            int comments = 0;
             for (int i = 0; i < entries.size(); i++) {
                 JsonObject post = entries.getJsonObject(i);
                 if (post.getJsonObject("service").getString("id").equals("internal")) {
@@ -86,10 +83,10 @@ public final class FriendfeedStats extends AbstractRankingService implements Ran
                     comments += post.getJsonArray("comments").size();
                 }
             }
-            results.put(POSTS, posts);
-            results.put(LIKES, likes);
-            results.put(COMMENTS, comments);
-            LOGGER.trace("FriendFeed stats for " + url + " : " + results);
+            builder.add(POSTS, posts);
+            builder.add(LIKES, likes);
+            builder.add(COMMENTS, comments);
+            LOGGER.trace("FriendFeed stats for " + url + " : " + builder);
         } catch (JsonException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
@@ -97,7 +94,7 @@ public final class FriendfeedStats extends AbstractRankingService implements Ran
             LOGGER.error("HttpException " + e.getMessage());
             checkBlocked();
         }
-        return ranking;
+        return builder.create();
     }
 
     @Override

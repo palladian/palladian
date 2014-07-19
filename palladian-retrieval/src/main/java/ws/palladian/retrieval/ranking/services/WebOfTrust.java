@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +47,7 @@ public final class WebOfTrust extends AbstractRankingService implements RankingS
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         String domain = UrlHelper.getDomain(url, false);
         try {
@@ -63,7 +59,7 @@ public final class WebOfTrust extends AbstractRankingService implements RankingS
             if (trustworthiness != null) {
                 Float trustValue = Float.valueOf(trustworthiness.getTextContent());
                 LOGGER.trace("WOT Trustworthiness for " + url + " -> " + trustValue);
-                results.put(TRUSTWORTHINESS, trustValue);
+                builder.add(TRUSTWORTHINESS, trustValue);
             }
         } catch (HttpException e) {
             throw new RankingServiceException("HttpException " + e.getMessage());
@@ -71,7 +67,7 @@ public final class WebOfTrust extends AbstractRankingService implements RankingS
             throw new RankingServiceException("ParserException " + e.getMessage());
         }
 
-        return ranking;
+        return builder.create();
     }
 
     @Override

@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +45,9 @@ public final class GooglePageRank extends AbstractRankingService implements Rank
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         Integer pageRank = null;
@@ -71,8 +68,7 @@ public final class GooglePageRank extends AbstractRankingService implements Rank
             checkBlocked();
             throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
-        results.put(PAGERANK, (float)pageRank);
-        return ranking;
+        return builder.add(PAGERANK, pageRank).create();
     }
 
     /**

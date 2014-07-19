@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -12,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
+import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -41,22 +41,17 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
 
     /** Fields to check the service availability. */
     private long sleepTime = TimeUnit.SECONDS.toMillis(10);
-
+    
     /** The time in milliseconds we wait between two requests. */
-    private static final int THROTTLING_INTERVAL_MS = 1000;
-
-    /** The timestamp of the last request. */
-    private Long lastRequestTimestamp;
+    private static final RequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1000, TimeUnit.MILLISECONDS); 
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
-        throttleQuery();
-
-        double indexed = 0.;
-        String requestUrl = buildRequestUrl(url);
+        THROTTLE.hold();
+        int indexed = 0;
+        String requestUrl = "http://webcache.googleusercontent.com/search?q=cache:" + url;
 
         try {
 
@@ -87,35 +82,8 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
             throw new RankingServiceException(e);
         }
 
-        results.put(GOOGLE_CACHED, (float)indexed);
-        return ranking;
-    }
-
-    private synchronized void throttleQuery() {
-        if (lastRequestTimestamp != null) {
-            long millisSinceLastRequest = System.currentTimeMillis() - lastRequestTimestamp;
-            if (millisSinceLastRequest < THROTTLING_INTERVAL_MS) {
-                try {
-                    long millisToSleep = THROTTLING_INTERVAL_MS - millisSinceLastRequest;
-                    Thread.sleep(millisToSleep);
-                } catch (InterruptedException e) {
-                    LOGGER.warn("InterruptedException");
-                }
-            }
-        }
-        lastRequestTimestamp = System.currentTimeMillis();
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://webcache.googleusercontent.com/search?q=cache:" + url;
+        builder.add(GOOGLE_CACHED, indexed);
+        return builder.create();
     }
 
     @Override

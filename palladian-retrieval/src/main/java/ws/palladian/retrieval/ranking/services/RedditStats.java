@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +56,9 @@ public final class RedditStats extends AbstractRankingService implements Ranking
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         try {
@@ -71,8 +68,8 @@ public final class RedditStats extends AbstractRankingService implements Ranking
             JsonObject json = new JsonObject(httpResult.getStringContent());
 
             JsonArray children = json.getJsonObject("data").getJsonArray("children");
-            float votes = 0;
-            float comments = 0;
+            int votes = 0;
+            int comments = 0;
             for (int i = 0; i < children.size(); i++) {
                 JsonObject child = children.getJsonObject(i);
                 // all post have "kind" : "t3" -- there is no documentation, what this means,
@@ -82,9 +79,9 @@ public final class RedditStats extends AbstractRankingService implements Ranking
                     comments += child.getJsonObject("data").getInt("num_comments");
                 }
             }
-            results.put(VOTES, votes);
-            results.put(COMMENTS, comments);
-            LOGGER.trace("Reddit stats for " + url + " : " + results);
+            builder.add(VOTES, votes);
+            builder.add(COMMENTS, comments);
+            LOGGER.trace("Reddit stats for " + url + " : " + builder);
 
         } catch (JsonException e) {
             checkBlocked();
@@ -93,7 +90,7 @@ public final class RedditStats extends AbstractRankingService implements Ranking
             checkBlocked();
             throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }
-        return ranking;
+        return builder.create();
     }
 
     @Override

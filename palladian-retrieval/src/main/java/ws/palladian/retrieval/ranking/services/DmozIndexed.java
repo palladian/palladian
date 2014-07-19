@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -33,37 +31,19 @@ public final class DmozIndexed extends AbstractRankingService implements Ranking
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        double indexed = 0.;
-        String requestUrl = buildRequestUrl(url);
-
+        Ranking.Builder builder = new Ranking.Builder(this, url);
+        int indexed = 0;
         try {
-
-            HttpResult httpGet = retriever.httpGet(requestUrl);
+            HttpResult httpGet = retriever.httpGet("http://www.dmoz.org/search?q=" + url);
             String content = new String(httpGet.getContent());
-
             if (content.contains("small>(1-")) {
                 indexed = 1;
             }
-
         } catch (HttpException e) {
             throw new RankingServiceException(e);
         }
-
-        results.put(DMOZ_INDEXED, (float)indexed);
-        return new Ranking(this, url, results);
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://www.dmoz.org/search?q=" + url;
+        builder.add(DMOZ_INDEXED, indexed);
+        return builder.create();
     }
 
     @Override

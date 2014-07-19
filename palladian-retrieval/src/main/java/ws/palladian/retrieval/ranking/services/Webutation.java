@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +39,9 @@ public final class Webutation extends AbstractRankingService implements RankingS
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         double webutation = 0.;
@@ -66,8 +63,7 @@ public final class Webutation extends AbstractRankingService implements RankingS
             throw new RankingServiceException(e.getMessage());
         }
 
-        results.put(WEBUTATION, (float)webutation);
-        return ranking;
+        return builder.add(WEBUTATION, (float)webutation).create();
     }
 
     /**

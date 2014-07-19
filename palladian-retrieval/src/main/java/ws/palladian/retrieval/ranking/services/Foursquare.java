@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.Validate;
@@ -80,10 +78,10 @@ public final class Foursquare extends AbstractRankingService implements RankingS
 
     @Override
     public Ranking getRanking(String venueId) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
+        Ranking.Builder builder = new Ranking.Builder(this, venueId);
 
-        double checkins = 0.;
-        double likes = 0.;
+        int checkins = 0;
+        int likes = 0;
         String requestUrl = buildRequestUrl(venueId);
 
         try {
@@ -92,16 +90,16 @@ public final class Foursquare extends AbstractRankingService implements RankingS
             JsonObject json = new JsonObject(httpGet.getStringContent());
 
             JsonObject venue = json.queryJsonObject("response/venue");
-            checkins = venue.queryDouble("stats/checkinsCount");
-            likes = venue.queryDouble("likes/count");
+            checkins = venue.queryInt("stats/checkinsCount");
+            likes = venue.queryInt("likes/count");
 
         } catch (Exception e) {
             throw new RankingServiceException(e);
         }
 
-        results.put(FOURSQUARE_CHECKINS, (float)checkins);
-        results.put(FOURSQUARE_LIKES, (float)likes);
-        return new Ranking(this, venueId, results);
+        builder.add(FOURSQUARE_CHECKINS, checkins);
+        builder.add(FOURSQUARE_LIKES, likes);
+        return builder.create();
     }
 
     /**

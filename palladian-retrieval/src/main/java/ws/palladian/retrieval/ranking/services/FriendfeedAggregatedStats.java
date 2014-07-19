@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +42,9 @@ public final class FriendfeedAggregatedStats extends AbstractRankingService impl
     /**
      * The external services users can have in their feed that we don't want to
      * count since we have seperate RankingService classes for them.
-     * */
+     */
     private static final String[] EXCLUDE_SERVICES = { "internal", "feed", "blog", "delicious", "digg", "facebook",
             "plurk", "reddit", "twitter" };
-
-    /** No config values. */
 
     /** The id of this service. */
     private static final String SERVICE_ID = "friendfeed_external";
@@ -77,10 +73,9 @@ public final class FriendfeedAggregatedStats extends AbstractRankingService impl
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         try {
@@ -89,9 +84,9 @@ public final class FriendfeedAggregatedStats extends AbstractRankingService impl
             JsonObject json = new JsonObject(httpResult.getStringContent());
 
             JsonArray entriesArray = json.getJsonArray("entries");
-            float entries = 0;
-            float likes = 0;
-            float comments = 0;
+            int entries = 0;
+            int likes = 0;
+            int comments = 0;
             for (int i = 0; i < entriesArray.size(); i++) {
                 JsonObject post = entriesArray.getJsonObject(i);
                 if (!Arrays.asList(EXCLUDE_SERVICES).contains(post.getJsonObject("service").getString("id"))) {
@@ -100,10 +95,10 @@ public final class FriendfeedAggregatedStats extends AbstractRankingService impl
                     comments += post.getJsonArray("comments").size();
                 }
             }
-            results.put(ENTRIES, entries);
-            results.put(LIKES, likes);
-            results.put(COMMENTS, comments);
-            LOGGER.trace("FriendFeed stats for " + url + " : " + results);
+            builder.add(ENTRIES, entries);
+            builder.add(LIKES, likes);
+            builder.add(COMMENTS, comments);
+            LOGGER.trace("FriendFeed stats for " + url + " : " + builder);
 
         } catch (JsonException e) {
             checkBlocked();
@@ -112,7 +107,7 @@ public final class FriendfeedAggregatedStats extends AbstractRankingService impl
             checkBlocked();
             throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }
-        return ranking;
+        return builder.create();
     }
 
     @Override
