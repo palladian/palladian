@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,45 +39,27 @@ public final class StumbleUponViews extends AbstractRankingService implements Ra
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
-
-        Integer views = 0;
-        String requestUrl = buildRequestUrl(url);
-
+        String requestUrl = "http://www.stumbleupon.com/services/1.01/badge.getinfo?url="
+                + UrlHelper.encodeParameter(url);
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
             String response = httpResult.getStringContent();
-
             if (response != null) {
                 JsonObject jsonObject = new JsonObject(response);
-
                 JsonObject result = jsonObject.getJsonObject("result");
-                views = result.getInt("views");
-
+                Integer views = result.tryGetInt("views");
+                builder.add(VIEWS, views != null ? views : 0);
                 LOGGER.trace("Stumble Upon Views for " + url + " : " + views);
             }
         } catch (Exception e) {
             throw new RankingServiceException("url:" + url, e);
         }
 
-        results.put(VIEWS, (float)views);
-        return ranking;
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://www.stumbleupon.com/services/1.01/badge.getinfo?url=" + UrlHelper.encodeParameter(url);
+        return builder.create();
     }
 
     @Override

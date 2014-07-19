@@ -3,9 +3,7 @@ package ws.palladian.retrieval.ranking.services;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -21,6 +19,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
+import ws.palladian.retrieval.ranking.Ranking.Builder;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -98,10 +97,9 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         try {
@@ -119,17 +117,13 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
             String response = getResult.getStringContent();
 
             // create JSON-Object from response
-            JsonObject json = null;
             if (response.length() > 0) {
-                json = new JsonObject(response);
-            }
-
-            if (json != null) {
-                float result = json.getJsonObject("posts").getInt("end");
-                results.put(BOOKMARKS, result);
+                JsonObject json = new JsonObject(response);
+                int result = json.getJsonObject("posts").getInt("end");
+                builder.add(BOOKMARKS, result);
                 LOGGER.trace("Bibsonomy bookmarks for " + url + " : " + result);
             } else {
-                results.put(BOOKMARKS, null);
+                builder.add(BOOKMARKS, null);
                 LOGGER.trace("Bibsonomy bookmarks for " + url + " could not be fetched");
             }
 
@@ -141,7 +135,7 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
             throw new RankingServiceException(e);
         }
 
-        return ranking;
+        return builder.create();
     }
 
     @Override

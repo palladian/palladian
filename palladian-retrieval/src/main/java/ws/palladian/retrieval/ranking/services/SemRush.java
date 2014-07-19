@@ -2,10 +2,8 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -39,8 +37,7 @@ public final class SemRush extends AbstractRankingService implements RankingServ
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Long> results = CollectionHelper.newHashMap();
-
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         String requestUrl = "http://publicapi.bl.semrush.com/?url=" + UrlHelper.encodeParameter(url);
         HttpResult httpResult;
         try {
@@ -53,13 +50,12 @@ public final class SemRush extends AbstractRankingService implements RankingServ
             long backlinksDomain = Long.valueOf(StringHelper.getSubstringBetween(text, "<links_domain>",
                     "</links_domain>"));
             long backlinksPage = Long.valueOf(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
-            results.put(BACKLINKS_DOMAIN, backlinksDomain);
-            results.put(BACKLINKS_PAGE, backlinksPage);
+            builder.add(BACKLINKS_DOMAIN, backlinksDomain);
+            builder.add(BACKLINKS_PAGE, backlinksPage);
         } catch (Exception e) {
             throw new RankingServiceException("Error while parsing the response (\"" + text + "\")", e);
         }
-
-        return new Ranking(this, url, results);
+        return builder.create();
     }
 
     @Override

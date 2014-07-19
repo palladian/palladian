@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Factory;
@@ -15,6 +16,7 @@ import ws.palladian.helper.collection.Factory;
  * </p>
  *
  * @author Julien Schmehl
+ * @author pk
  */
 public class Ranking {
 
@@ -35,9 +37,22 @@ public class Ranking {
             return this;
         }
 
+        public Builder addAll(Ranking ranking) {
+            Set<Entry<RankingType, Number>> entries = ranking.getValues().entrySet();
+            for (Entry<RankingType, Number> entry : entries) {
+                add(entry.getKey(), entry.getValue());
+            }
+            return this;
+        }
+
         @Override
         public Ranking create() {
             return new Ranking(service, url, values);
+        }
+
+        @Override
+        public String toString() {
+            return "Builder [service=" + service + ", url=" + url + ", values=" + values + "]";
         }
 
     }

@@ -2,7 +2,6 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -15,6 +14,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
+import ws.palladian.retrieval.ranking.Ranking.Builder;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
@@ -119,7 +119,9 @@ public final class SharedCount extends AbstractRankingService {
         } catch (HttpException e) {
             throw new RankingServiceException(e);
         }
-        return new Ranking(this, url, parseResult(httpResult));
+        Ranking.Builder builder = new Ranking.Builder(this, url);
+        parseResult(httpResult, builder);
+        return builder.create();
     }
 
     private static void checkForError(HttpResult httpResult) throws RankingServiceException {
@@ -140,27 +142,26 @@ public final class SharedCount extends AbstractRankingService {
         }
     }
 
-    private static Map<RankingType, Float> parseResult(HttpResult httpResult) throws RankingServiceException {
+    private static Ranking parseResult(HttpResult httpResult, Builder builder) throws RankingServiceException {
         String stringContent = httpResult.getStringContent();
         try {
             JsonObject jsonResult = new JsonObject(stringContent);
-            Map<RankingType, Float> results = CollectionHelper.newHashMap();
-            results.put(STUMBLEUPON, (float)jsonResult.getInt("StumbleUpon"));
-            results.put(REDDIT, (float)jsonResult.getInt("Reddit"));
-            results.put(FACEBOOK_COMMENTSBOX, (float)jsonResult.queryInt("Facebook/commentsbox_count"));
-            results.put(FACEBOOK_CLICK, (float)jsonResult.queryInt("Facebook/click_count"));
-            results.put(FACEBOOK_TOTAL, (float)jsonResult.queryInt("Facebook/total_count"));
-            results.put(FACEBOOK_COMMENT, (float)jsonResult.queryInt("Facebook/comment_count"));
-            results.put(FACEBOOK_LIKE, (float)jsonResult.queryInt("Facebook/like_count"));
-            results.put(FACEBOOK_SHARE, (float)jsonResult.queryInt("Facebook/share_count"));
-            results.put(DELICIOUS, (float)jsonResult.getInt("Delicious"));
-            results.put(GOOGLE_PLUS_ONE, (float)jsonResult.getInt("GooglePlusOne"));
-            results.put(BUZZ, (float)jsonResult.getInt("Buzz"));
-            results.put(TWITTER, (float)jsonResult.getInt("Twitter"));
-            results.put(DIGG, (float)jsonResult.getInt("Diggs"));
-            results.put(PINTEREST, (float)jsonResult.getInt("Pinterest"));
-            results.put(LINKEDIN, (float)jsonResult.getInt("LinkedIn"));
-            return results;
+            builder.add(STUMBLEUPON, jsonResult.getInt("StumbleUpon"));
+            builder.add(REDDIT, jsonResult.getInt("Reddit"));
+            builder.add(FACEBOOK_COMMENTSBOX, jsonResult.queryInt("Facebook/commentsbox_count"));
+            builder.add(FACEBOOK_CLICK, jsonResult.queryInt("Facebook/click_count"));
+            builder.add(FACEBOOK_TOTAL, jsonResult.queryInt("Facebook/total_count"));
+            builder.add(FACEBOOK_COMMENT, jsonResult.queryInt("Facebook/comment_count"));
+            builder.add(FACEBOOK_LIKE, jsonResult.queryInt("Facebook/like_count"));
+            builder.add(FACEBOOK_SHARE, jsonResult.queryInt("Facebook/share_count"));
+            builder.add(DELICIOUS, jsonResult.getInt("Delicious"));
+            builder.add(GOOGLE_PLUS_ONE, jsonResult.getInt("GooglePlusOne"));
+            builder.add(BUZZ, jsonResult.getInt("Buzz"));
+            builder.add(TWITTER, jsonResult.getInt("Twitter"));
+            builder.add(DIGG, jsonResult.getInt("Diggs"));
+            builder.add(PINTEREST, jsonResult.getInt("Pinterest"));
+            builder.add(LINKEDIN, jsonResult.getInt("LinkedIn"));
+            return builder.create();
         } catch (JsonException e) {
             throw new RankingServiceException("JSON exception while trying to parse " + stringContent, e);
         }

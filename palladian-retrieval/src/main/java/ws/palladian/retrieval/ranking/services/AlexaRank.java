@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -51,27 +49,27 @@ public final class AlexaRank extends AbstractRankingService implements RankingSe
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
+        
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         try {
-            String encUrl = UrlHelper.encodeParameter(url);
-            HttpResult httpResult = retriever.httpGet("http://data.alexa.com/data?cli=10&dat=s&url=" + encUrl);
+            String encodedUrl = UrlHelper.encodeParameter(url);
+            HttpResult httpResult = retriever.httpGet("http://data.alexa.com/data?cli=10&dat=s&url=" + encodedUrl);
             DocumentParser xmlParser = ParserFactory.createXmlParser();
             Document doc = xmlParser.parse(httpResult);
 
             Node popularityNode = XPathHelper.getNode(doc, "/ALEXA/SD/POPULARITY/@TEXT");
             if (popularityNode != null) {
-                String popularity = popularityNode.getNodeValue();
-                Float rank = Float.valueOf(popularity);
-                results.put(POPULARITY_RANK, rank);
-                float visitors = (float)Math.floor(RANK_TRAFFIC_CONSTANT / rank);
-                results.put(DAILY_VISITORS, visitors);
-                results.put(DAILY_PAGE_VIEWS, (float)(Math.floor(PAGE_VIEWS_PER_VISITOR * visitors)));
+                String popularityString = popularityNode.getNodeValue();
+                long popularity = Long.parseLong(popularityString);
+                builder.add(POPULARITY_RANK, popularity);
+                long visitors = (long)Math.floor((double)RANK_TRAFFIC_CONSTANT / popularity);
+                builder.add(DAILY_VISITORS, visitors);
+                builder.add(DAILY_PAGE_VIEWS, (long)Math.floor(PAGE_VIEWS_PER_VISITOR * visitors));
             } else {
-                results.put(POPULARITY_RANK, 0f);
-                results.put(DAILY_VISITORS, 0f);
-                results.put(DAILY_PAGE_VIEWS, 0f);
+                builder.add(POPULARITY_RANK, 0);
+                builder.add(DAILY_VISITORS, 0);
+                builder.add(DAILY_PAGE_VIEWS, 0);
             }
         } catch (HttpException e) {
             throw new RankingServiceException(e);
@@ -79,7 +77,7 @@ public final class AlexaRank extends AbstractRankingService implements RankingSe
             throw new RankingServiceException(e);
         }
 
-        return new Ranking(this, url, results);
+        return builder.create();
     }
 
     @Override

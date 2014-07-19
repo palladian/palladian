@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +46,7 @@ public final class TwitterTweets extends AbstractRankingService implements Ranki
             JsonObject jsonObject = new JsonObject(response);
             int tweets = jsonObject.getInt("count");
             LOGGER.trace("Twitter Tweets for {} : {}", url, tweets);
-            Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-            results.put(TWEETS, (float)tweets);
-            return new Ranking(this, url, results);
+            return new Ranking.Builder(this, url).add(TWEETS, tweets).create();
         } catch (Exception e) {
             throw new RankingServiceException(e);
         }
