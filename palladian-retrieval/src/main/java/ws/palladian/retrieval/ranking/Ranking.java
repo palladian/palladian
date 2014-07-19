@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Factory;
+
 /**
  * <p>
  * Represents a ranking value retrieved at a given moment for a given RankingService.
@@ -14,6 +17,30 @@ import java.util.Map.Entry;
  * @author Julien Schmehl
  */
 public class Ranking {
+
+    public static class Builder implements Factory<Ranking> {
+
+        private final RankingService service;
+        private final String url;
+        private final Map<RankingType, Number> values;
+
+        public Builder(RankingService service, String url) {
+            this.service = service;
+            this.url = url;
+            this.values = CollectionHelper.newHashMap();
+        }
+
+        public Builder add(RankingType type, Number value) {
+            this.values.put(type, value);
+            return this;
+        }
+
+        @Override
+        public Ranking create() {
+            return new Ranking(service, url, values);
+        }
+
+    }
 
     /** The ranking service producing this ranking */
     private final RankingService service;
@@ -35,7 +62,9 @@ public class Ranking {
      * @param service
      * @param url
      * @param values a Map of all ranking values associated with this ranking and their corresponding ranking type
+     * @deprecated Use the {@link Builder}.
      */
+    @Deprecated
     public Ranking(RankingService service, String url, Map<RankingType, ? extends Number> values) {
         this(service, url, values, new Date());
     }
@@ -49,7 +78,9 @@ public class Ranking {
      * @param url
      * @param values a Map of all ranking values associated with this ranking and their corresponding ranking type
      * @param retrieved
+     * @deprecated Use the {@link Builder}.
      */
+    @Deprecated
     public Ranking(RankingService service, String url, Map<RankingType, ? extends Number> values, Date retrieved) {
         this.service = service;
         this.values = new HashMap<RankingType, Number>(values);
