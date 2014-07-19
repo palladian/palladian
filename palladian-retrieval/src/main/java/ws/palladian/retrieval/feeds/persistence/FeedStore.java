@@ -43,7 +43,6 @@ public interface FeedStore {
      * </p>
      * 
      * @param feed The feed to update.
-     * @param updateMetaInformation Specify whether the feed's meta information has to be updated or not.
      * @param replaceCachedItems If <code>true</code>, the cached items are replaced by the ones contained in the feed.
      * @return True if feed was updated successfully.
      */

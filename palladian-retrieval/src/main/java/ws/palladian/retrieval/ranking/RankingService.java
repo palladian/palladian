@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.ranking;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public interface RankingService {
      * @return A map of ranking values per URL
      * @throws RankingServiceException In case of an error while retrieving the ranking.
      */
-    Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException;
+    Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException;
 
     /**
      * <p>

@@ -3,6 +3,7 @@ package ws.palladian.retrieval.ranking.services;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonArray;
@@ -157,18 +159,20 @@ public final class BitlyClicks extends AbstractRankingService implements Ranking
     }
 
     @Override
-    public Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException {
+    public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
 
         Map<String, Ranking> results = new HashMap<String, Ranking>();
         if (isBlocked()) {
             return results;
         }
 
+        List<String> urlList= CollectionHelper.newArrayList(urls);
+        
         // iterate through urls in batches of 15, since this is the maximum number we
         // can send to bit.ly at once
-        for (int index = 0; index < urls.size() / 15 + (urls.size() % 15 > 0 ? 1 : 0); index++) {
+        for (int index = 0; index < urlList.size() / 15 + (urlList.size() % 15 > 0 ? 1 : 0); index++) {
 
-            List<String> subUrls = urls.subList(index * 15, Math.min(index * 15 + 15, urls.size()));
+            List<String> subUrls = urlList.subList(index * 15, Math.min(index * 15 + 15, urlList.size()));
             String encUrls = "";
             String urlString = "";
             try {
