@@ -54,8 +54,11 @@ public final class FacebookLinkStats extends AbstractRankingService {
     public static final RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
             "The number of comments users have made on the shared story.");
 
+    public static final RankingType ALL = new RankingType("facebook_all", "Facebook Likes+Shares+Comments",
+            "The sum of likes, shares and comments on Facebook.");
+
     /** All available ranking types by {@link FacebookLinkStats}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES, SHARES, COMMENTS);
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES, SHARES, COMMENTS, ALL);
 
     /**
      * Facebook allows 600 calls per 600 seconds; see:
@@ -112,10 +115,12 @@ public final class FacebookLinkStats extends AbstractRankingService {
         try {
             json = new JsonArray(content);
             for (int i = 0; i < urls.size(); i++) {
+                JsonObject currentObject = json.getJsonObject(i);
                 Ranking.Builder builder = new Ranking.Builder(this, urls.get(i));
-                builder.add(LIKES, json.getJsonObject(i).getInt("like_count"));
-                builder.add(SHARES, json.getJsonObject(i).getInt("share_count"));
-                builder.add(COMMENTS, json.getJsonObject(i).getInt("comment_count"));
+                builder.add(LIKES, currentObject.getInt("like_count"));
+                builder.add(SHARES, currentObject.getInt("share_count"));
+                builder.add(COMMENTS, currentObject.getInt("comment_count"));
+                builder.add(ALL, currentObject.getInt("total_count"));
                 Ranking result = builder.create();
                 results.put(urls.get(i), result);
                 LOGGER.trace("Facebook link stats for {}: {}", urls.get(i), result);

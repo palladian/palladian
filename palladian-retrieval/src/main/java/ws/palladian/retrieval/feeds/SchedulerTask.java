@@ -55,19 +55,19 @@ class SchedulerTask extends TimerTask {
 
     @Override
     public void run() {
-        LOGGER.debug("wake up to check feeds");
-
+        int numScheduled = 0;
         // schedule all feeds
         for (Feed feed : getFeeds()) {
-
             // remove completed FeedTasks
             removeFeedTaskIfDone(feed.getId());
             if (needsLookup(feed)) {
                 if (!scheduledTasks.containsKey(feed.getId())) {
                     scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(settings, feed)));
+                    numScheduled++;
                 }
             }
         }
+        LOGGER.debug("scheduled {} feeds", numScheduled);
     }
 
     /**
