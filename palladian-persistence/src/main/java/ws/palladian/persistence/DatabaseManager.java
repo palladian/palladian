@@ -771,7 +771,15 @@ public class DatabaseManager {
         return runUpdate(new BasicQuery(sql, args));
     }
 
-
+    /**
+     * <p>
+     * Run an update operation and return the number of affected rows.
+     * </p>
+     * 
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args (Optional) arguments for parameter markers in updateStatement.
+     * @return The number of affected rows, or -1 if an error occurred.
+     */
     public final int runUpdate(String sql, Object... args) {
         return runUpdate(null, sql, args);
     }
@@ -1052,7 +1060,6 @@ public class DatabaseManager {
      * @throws SQLException In case setting the parameters failed.
      */
     protected static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
-
         // do we need a special treatment for NULL values here?
         // if you should stumble across this comment while debugging,
         // the answer is likely: yes, we do!
