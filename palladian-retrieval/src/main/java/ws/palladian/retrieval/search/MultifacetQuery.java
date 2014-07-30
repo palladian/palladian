@@ -160,6 +160,8 @@ public interface MultifacetQuery {
     /**
      * @return The URL of the sought content, or <code>null</code> in case not specified.
      */
+    // XXX in StackExchangeSearcher, this searches for *contained* URL, make more clear, what's going on here, or
+    // provide this as dedicated property?
     String getUrl();
 
     /**
