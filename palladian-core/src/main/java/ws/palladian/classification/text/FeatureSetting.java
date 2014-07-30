@@ -134,11 +134,11 @@ public class FeatureSetting implements Serializable {
     public FeatureSetting(Map<String, String> properties) {
         Validate.notNull(properties, "properties must not be null");
         this.textFeatureType = TextFeatureType.valueOf(properties.get(PROPERTY_TEXT_FEATURE_TYPE));
-        this.maxTerms = Integer.valueOf(properties.get(PROPERTY_MAX_TERMS));
-        this.minNGramLength = Integer.valueOf(properties.get(PROPERTY_MIN_N_GRAM_LENGTH));
-        this.maxNGramLength = Integer.valueOf(properties.get(PROPERTY_MAX_N_GRAM_LENGTH));
-        this.minimumTermLength = Integer.valueOf(properties.get(PROPERTY_MIN_TERM_LENGTH));
-        this.maximumTermLength = Integer.valueOf(properties.get(PROPERTY_MAX_TERM_LENGTH));
+        this.maxTerms = Integer.parseInt(properties.get(PROPERTY_MAX_TERMS));
+        this.minNGramLength = Integer.parseInt(properties.get(PROPERTY_MIN_N_GRAM_LENGTH));
+        this.maxNGramLength = Integer.parseInt(properties.get(PROPERTY_MAX_N_GRAM_LENGTH));
+        this.minimumTermLength = Integer.parseInt(properties.get(PROPERTY_MIN_TERM_LENGTH));
+        this.maximumTermLength = Integer.parseInt(properties.get(PROPERTY_MAX_TERM_LENGTH));
     }
 
     public TextFeatureType getTextFeatureType() {

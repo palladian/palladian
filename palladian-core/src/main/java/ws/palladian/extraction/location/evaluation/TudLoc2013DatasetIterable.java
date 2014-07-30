@@ -138,11 +138,11 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
                 }
                 String[] split = StringUtils.splitPreserveAllTokens(line, ";");
                 String documentName = split[0];
-                int offset = Integer.valueOf(split[2]);
+                int offset = Integer.parseInt(split[2]);
                 GeoCoordinate coordinate = null;
                 if (!split[3].isEmpty() && !split[4].isEmpty()) {
-                    double lat = Double.valueOf(split[3]);
-                    double lng = Double.valueOf(split[4]);
+                    double lat = Double.parseDouble(split[3]);
+                    double lng = Double.parseDouble(split[4]);
                     coordinate = new ImmutableGeoCoordinate(lat, lng);
                 }
                 coordinateMap.get(documentName).put(offset, coordinate);

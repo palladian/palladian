@@ -67,13 +67,13 @@ class WikipediaPageContentHandler extends DefaultHandler {
         if (qName.equals("revision")) {
             inRevision = false;
         } else if (qName.equals("id") && !inRevision) {
-            pageId = Integer.valueOf(getBuffer());
+            pageId = Integer.parseInt(getBuffer());
         } else if (qName.equals("text")) {
             text = getBuffer();
         } else if (qName.equals("title")) {
             title = getBuffer();
         } else if (qName.equals("ns")) {
-            namespaceId = Integer.valueOf(getBuffer());
+            namespaceId = Integer.parseInt(getBuffer());
         } else if (qName.equals("page")) {
             processPage();
         }

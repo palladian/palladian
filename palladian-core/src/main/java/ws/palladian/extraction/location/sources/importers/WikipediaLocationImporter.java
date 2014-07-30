@@ -222,11 +222,11 @@ public class WikipediaLocationImporter {
                 // save:
                 if (coordinate != null) {
                     String cleanArticleName = page.getCleanTitle();
-                    int locationId = Integer.valueOf(page.getIdentifier()) + idOffset;
+                    int locationId = Integer.parseInt(page.getIdentifier()) + idOffset;
                     locationStore.save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate, coordinate
                             .getPopulation()));
                     LOGGER.trace("Saved location with ID {}, name {}", page.getIdentifier(), cleanArticleName);
-                    locationNamesIds.put(page.getTitle(), Integer.valueOf(page.getIdentifier()));
+                    locationNamesIds.put(page.getTitle(), Integer.parseInt(page.getIdentifier()));
                     counter[0]++;
 
                     // extract and save alternative names if requested

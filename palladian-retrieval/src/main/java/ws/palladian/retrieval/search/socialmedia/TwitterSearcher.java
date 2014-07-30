@@ -187,7 +187,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
             if (resetHeader != null) {
                 try {
                     int now = (int)(System.currentTimeMillis() / 1000);
-                    timeUntilReset = Integer.valueOf(resetHeader) - now;
+                    timeUntilReset = Integer.parseInt(resetHeader) - now;
                 } catch (NumberFormatException e) {
                     // ignore
                 }

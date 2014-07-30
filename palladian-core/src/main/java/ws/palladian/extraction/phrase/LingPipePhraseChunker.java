@@ -217,7 +217,7 @@ public final class LingPipePhraseChunker implements PhraseChunker {
         String[] whites = whiteList.<String> toArray(new String[whiteList.size()]);
 
         // part-of-speech tag
-        int cacheSize = Integer.valueOf(100);
+        int cacheSize = 100;
         FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
 
         HmmDecoder posTagger = new HmmDecoder(model, null, cache);

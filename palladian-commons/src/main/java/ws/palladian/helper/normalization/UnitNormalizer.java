@@ -292,7 +292,7 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * 60; // minutes to seconds
-                combinedValue += Double.valueOf(matcher.group().substring(1, matcher.end() - 1));
+                combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 1));
                 return MathHelper.round(combinedValue, decimals);
             }
 
@@ -302,10 +302,10 @@ public class UnitNormalizer {
             if (matcher.find()) {
                 combinedValue = number * 3600; // hours to seconds
                 int minutesIndex = unitText.indexOf("m");
-                combinedValue += Double.valueOf(matcher.group().substring(1, minutesIndex)) * 60; // minutes to seconds
+                combinedValue += Double.parseDouble(matcher.group().substring(1, minutesIndex)) * 60; // minutes to seconds
                 int secondsIndex = unitText.indexOf("s");
                 if (secondsIndex > -1) {
-                    combinedValue += Double.valueOf(matcher.group().substring(minutesIndex + 1, secondsIndex));
+                    combinedValue += Double.parseDouble(matcher.group().substring(minutesIndex + 1, secondsIndex));
                 }
                 return MathHelper.round(combinedValue, decimals);
             }
@@ -316,9 +316,9 @@ public class UnitNormalizer {
             if (matcher.find()) {
                 combinedValue = number * 3600; // hours to seconds
                 int lastColonIndex = matcher.group().lastIndexOf(":");
-                combinedValue += Double.valueOf(matcher.group().substring(1, lastColonIndex)) * 60; // minutes to
+                combinedValue += Double.parseDouble(matcher.group().substring(1, lastColonIndex)) * 60; // minutes to
                 // seconds
-                combinedValue += Double.valueOf(matcher.group().substring(lastColonIndex + 1, matcher.end()));
+                combinedValue += Double.parseDouble(matcher.group().substring(lastColonIndex + 1, matcher.end()));
                 return MathHelper.round(combinedValue, decimals);
             }
 
@@ -327,7 +327,7 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * 60; // minutes to seconds
-                combinedValue += Double.valueOf(matcher.group().substring(1, matcher.end()));
+                combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end()));
                 return MathHelper.round(combinedValue, decimals);
             }
 
@@ -336,7 +336,7 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
-                combinedValue += Double.valueOf(matcher.group().substring(1, matcher.end() - 1).trim())
+                combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 1).trim())
                         * unitLookup("in"); // inches to centimeters
                 return MathHelper.round(combinedValue, decimals);
             }
@@ -346,7 +346,7 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
-                combinedValue += Double.valueOf(matcher.group().substring(1, matcher.end() - 2).trim())
+                combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 2).trim())
                         * unitLookup("in"); // inches to centimeters
                 return MathHelper.round(combinedValue, decimals);
             }
@@ -384,7 +384,7 @@ public class UnitNormalizer {
     }
 
     public static double transorm(String unitTo, String value) {
-        return transorm(unitTo, Double.valueOf(value));
+        return transorm(unitTo, Double.parseDouble(value));
     }
 
     public static UnitType getUnitType(String string) {
@@ -537,7 +537,7 @@ public class UnitNormalizer {
 
         try {
             if (m.find()) {
-                number += getNormalizedNumber(Double.valueOf(StringNormalizer.normalizeNumber(m.group())),
+                number += getNormalizedNumber(Double.parseDouble(StringNormalizer.normalizeNumber(m.group())),
                         restWordSequence.substring(m.end()), wordSequence);
             }
         } catch (NumberFormatException e) {
@@ -623,7 +623,7 @@ public class UnitNormalizer {
         System.out.println(isBigger("minute", "second"));
 
         // test special format
-        System.out.println(String.valueOf(getNormalizedNumber(Double.valueOf("6"), "' 2'',")));
+        System.out.println(String.valueOf(getNormalizedNumber(Double.parseDouble("6"), "' 2'',")));
         System.out.println(handleSpecialFormat(6.0, "' 2'',", 3));
         System.out.println(handleSpecialFormat(5, "' 9''", 3));
         System.out.println(handleSpecialFormat(5, "'9''", 3));
@@ -663,13 +663,13 @@ public class UnitNormalizer {
         System.out.println(getNormalizedNumber(20, "inch"));
         System.out.println(transorm("inch", getNormalizedNumber(20, "inch")));
 
-        // System.out.println(Double.valueOf("8.589934592E9")/100000);
+        // System.out.println(Double.parseDouble("8.589934592E9")/100000);
 
         // Locale.setDefault(Locale.ENGLISH);
         // DecimalFormat formatter = new DecimalFormat("#.###");
-        // System.out.println(formatter.format(Double.valueOf("8.589934592E3")));
-        // System.out.println(formatter.format(Double.valueOf("8.589934592E12")));
-        // System.out.println(formatter.format(Double.valueOf("8.589934592")));
+        // System.out.println(formatter.format(Double.parseDouble("8.589934592E3")));
+        // System.out.println(formatter.format(Double.parseDouble("8.589934592E12")));
+        // System.out.println(formatter.format(Double.parseDouble("8.589934592")));
         //
         //
         // String factString = "16";
@@ -677,7 +677,7 @@ public class UnitNormalizer {
         // // normalize units when given
         // if (factString.length() > 0) {
         // try {
-        // factString = String.valueOf(MathHelper.getNormalizedNumber(Double.valueOf(factString),unitText));
+        // factString = String.valueOf(MathHelper.getNormalizedNumber(Double.parseDouble(factString),unitText));
         // System.out.println(factString);
         // // make it a normalized string again (no .0)
         // factString = StringHelper.normalizeNumber(factString);

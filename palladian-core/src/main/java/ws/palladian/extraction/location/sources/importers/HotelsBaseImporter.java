@@ -62,8 +62,8 @@ public final class HotelsBaseImporter {
                     return;
                 }
                 String hotelName = parts[1].replace("&amp;", "&");
-                Double latitude = Double.valueOf(parts[12]);
-                Double longitude = Double.valueOf(parts[13]);
+                double latitude = Double.parseDouble(parts[12]);
+                double longitude = Double.parseDouble(parts[13]);
                 GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
                 int id = maxId + lineNumber;
                 locationStore.save(new ImmutableLocation(id, hotelName, LocationType.POI, coordinate, null));

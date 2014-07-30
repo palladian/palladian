@@ -156,7 +156,7 @@ public class DatasetCreator {
 
                     // check whether timestamp is valid, that is, not newer than current timestamp or smaller than
                     // 946684800 (01/01/2000)
-                    long timestamp = Long.valueOf(entry.substring(0, entry.indexOf(";")));
+                    long timestamp = Long.parseLong(entry.substring(0, entry.indexOf(";")));
                     if (timestamp > System.currentTimeMillis() || timestamp < 946684800000l) {
                         LOGGER.info("timestamp " + timestamp + " is invalid, skip cleaning this entry");
                         continue;
@@ -263,7 +263,7 @@ public class DatasetCreator {
                 continue;
             }
 
-            int feedID = Integer.valueOf(file.getName().substring(0, file.getName().indexOf("_"))) + 97650;
+            int feedID = Integer.parseInt(file.getName().substring(0, file.getName().indexOf("_"))) + 97650;
 
             String fileNameRealID = feedID + file.getName().substring(file.getName().indexOf("_"));
             LOGGER.info(fileNameRealID);

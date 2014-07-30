@@ -55,7 +55,7 @@ final class UnlockTextMockExtractor extends LocationExtractor {
                 JsonObject locationObj = locationJson.getJsonObject(i);
                 if (locationObj.get("id") != null) {
                     // use internal ID here, this means, IDs are not unique for multiple requests
-                    id = Integer.valueOf(locationObj.getString("id").replace("rb", ""));
+                    id = Integer.parseInt(locationObj.getString("id").replace("rb", ""));
                     String abbrevName = locationObj.tryGetString("abbrev-for");
                     if (abbrevName != null) {
                         altNames.add(new AlternativeName(abbrevName, null));

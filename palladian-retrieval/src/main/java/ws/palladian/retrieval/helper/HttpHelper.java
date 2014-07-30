@@ -236,7 +236,7 @@ public final class HttpHelper {
                         statusCodeString = statusCodeString.replace("HTTP/1.1", "");
                         statusCodeString = statusCodeString.replace("OK", "");
                         statusCodeString = statusCodeString.trim();
-                        statusCode = Integer.valueOf(statusCodeString);
+                        statusCode = Integer.parseInt(statusCodeString);
                     } catch (Exception e) {
                         LOGGER.error("Exception while parsing header", e);
                     }

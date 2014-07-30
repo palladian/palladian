@@ -30,24 +30,24 @@ public class TimeIntervalParser {
         boolean parsed = false;
 
         try {
-            days = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([dD]ays?))", string));
+            days = Integer.parseInt(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([dD]ays?))", string));
             parsed = true;
         } catch (Exception e) {
         }
 
         try {
-            hours = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([hH]ours?|hrs?))", string));
+            hours = Integer.parseInt(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([hH]ours?|hrs?))", string));
             parsed = true;
         } catch (Exception e) {
         }
 
         try {
-            minutes = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([mM]inutes?|[Mm]ins?))", string));
+            minutes = Integer.parseInt(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([mM]inutes?|[Mm]ins?))", string));
             parsed = true;
         } catch (Exception e) {
         }
         try {
-            seconds = Long.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([sS]econds?|secs?))", string));
+            seconds = Long.parseLong(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([sS]econds?|secs?))", string));
             parsed = true;
         } catch (Exception e) {
         }

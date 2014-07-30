@@ -830,7 +830,7 @@ public final class StringHelper {
         try {
 
             if (m.find()) {
-                double number = Double.valueOf(StringNormalizer.normalizeNumber(m.group()));
+                double number = Double.parseDouble(StringNormalizer.normalizeNumber(m.group()));
                 double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
                         string.substring(m.end(), string.length()));
                 if (number != convertedNumber) {

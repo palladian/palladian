@@ -257,7 +257,7 @@ public final class DateParser {
             Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
                 String relativeTime = matcher.group();
-                long number = Long.valueOf(relativeTime.split(" ")[0]);
+                long number = Long.parseLong(relativeTime.split(" ")[0]);
 
                 String format = dateFormat.getFormat();
                 long diffTime = 0;

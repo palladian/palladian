@@ -103,7 +103,7 @@ public final class LocationBuilder implements Factory<Location> {
             for (int i = splitPath.length - 1; i >= 0; i--) {
                 String ancestorId = splitPath[i];
                 if (StringUtils.isNotBlank(ancestorId)) {
-                    ancestorIds.add(Integer.valueOf(ancestorId));
+                    ancestorIds.add(Integer.parseInt(ancestorId));
                 }
             }
         }

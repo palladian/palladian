@@ -134,8 +134,8 @@ public class EventfulSearcher extends EventSearcher {
                     event.setVenueCity(getField(eventNode, "city_name"));
                     event.setVenueRegion(getField(eventNode, "region_name"));
                     event.setVenueCountry(getField(eventNode, "country_name"));
-                    event.setVenueLatitude(Double.valueOf(getField(eventNode, "latitude")));
-                    event.setVenueLongitude(Double.valueOf(getField(eventNode, "longitude")));
+                    event.setVenueLatitude(Double.parseDouble(getField(eventNode, "latitude")));
+                    event.setVenueLongitude(Double.parseDouble(getField(eventNode, "longitude")));
 
                     boolean addEvent = isWithinTimeFrame(startDate, endDate, event);
 

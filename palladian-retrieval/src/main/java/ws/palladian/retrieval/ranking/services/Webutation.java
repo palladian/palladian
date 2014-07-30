@@ -54,7 +54,7 @@ public final class Webutation extends AbstractRankingService implements RankingS
 
             if (!value.isEmpty()) {
                 try {
-                    webutation = Double.valueOf(value) / 100;
+                    webutation = Double.parseDouble(value) / 100;
                     LOGGER.trace("Webutation for " + url + " : " + webutation);
                 } catch (Exception e) {
                 }
