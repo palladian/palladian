@@ -400,8 +400,8 @@ public final class GeonamesImporter {
                 if (split.length < 2) {
                     return;
                 }
-                int parentId = Integer.valueOf(split[0]);
-                int childId = Integer.valueOf(split[1]);
+                int parentId = Integer.parseInt(split[0]);
+                int childId = Integer.parseInt(split[1]);
                 String type = null;
                 if (split.length > 2) {
                     type = split[2];
@@ -441,7 +441,7 @@ public final class GeonamesImporter {
                 if (split.length < 4) {
                     return;
                 }
-                int geonameid = Integer.valueOf(split[1]);
+                int geonameid = Integer.parseInt(split[1]);
                 String isoLanguage = split[2];
                 String alternateName = split[3];
                 Language language = null;
@@ -542,12 +542,12 @@ public final class GeonamesImporter {
                 throw new IllegalStateException("Exception while parsing, expected 19 elements, but was " + parts.length
                         + "('" + line + "')");
             }
-            this.geonamesId = Integer.valueOf(parts[0]);
-            double longitude = Double.valueOf(parts[5]);
-            double latitude = Double.valueOf(parts[4]);
+            this.geonamesId = Integer.parseInt(parts[0]);
+            double longitude = Double.parseDouble(parts[5]);
+            double latitude = Double.parseDouble(parts[4]);
             this.coordinate = new ImmutableGeoCoordinate(latitude, longitude);
             this.primaryName = stringOrNull(parts[1]);
-            this.population = Long.valueOf(parts[14]);
+            this.population = Long.parseLong(parts[14]);
             this.featureClass = stringOrNull(parts[6]);
             this.featureCode = stringOrNull(parts[7]);
             this.countryCode = stringOrNull(parts[8]);

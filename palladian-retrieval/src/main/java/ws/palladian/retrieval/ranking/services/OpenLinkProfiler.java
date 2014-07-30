@@ -47,8 +47,8 @@ public final class OpenLinkProfiler extends AbstractRankingService implements Ra
 
             Node node1 = XPathHelper.getXhtmlNode(document,
                     "//div/div[contains(@class,'topinfobox') and contains(@class,'help')]/p");
-            long backlinksDomain = Long.valueOf(node1.getTextContent().replaceAll("[,+]", ""));
-            long backlinksDomainUnique = Long.valueOf(XPathHelper
+            long backlinksDomain = Long.parseLong(node1.getTextContent().replaceAll("[,+]", ""));
+            long backlinksDomainUnique = Long.parseLong(XPathHelper
                     .getXhtmlNode(document, "//div/div[contains(@class,'topinfobox') and contains(@class,'2')][1]/p")
                     .getTextContent().replaceAll("[,+]", ""));
 

@@ -58,8 +58,8 @@ public final class CoordinateTagger implements Tagger {
         Matcher matcher = PATTERN_DEG.matcher(text);
         while (matcher.find()) {
             try {
-                double lat = Double.valueOf(matcher.group(2));
-                double lng = Double.valueOf(matcher.group(5));
+                double lat = Double.parseDouble(matcher.group(2));
+                double lng = Double.parseDouble(matcher.group(5));
                 lat = "S".equals(matcher.group(3)) ? -lat : lat;
                 lng = "W".equals(matcher.group(6)) ? -lng : lng;
                 if (GeoUtils.isValidCoordinateRange(lat, lng)) {

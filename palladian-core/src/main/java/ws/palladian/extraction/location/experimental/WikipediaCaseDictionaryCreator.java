@@ -120,7 +120,7 @@ class WikipediaCaseDictionaryCreator {
                     try {
                         String[] split = line.split("\t");
                         String value = split[0];
-                        int count = Integer.valueOf(split[1]);
+                        int count = Integer.parseInt(split[1]);
                         if (count >= 10 && value.matches("[A-Za-z\\-]+")) {
                             writer[0].write(line);
                             writer[0].write('\n');

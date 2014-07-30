@@ -106,7 +106,7 @@ public class WikipediaTemplate {
         if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lng)) {
             try {
                 // try decimal format
-                coordinates.add(new MarkupCoordinate(Double.valueOf(lat), Double.valueOf(lng), display, type));
+                coordinates.add(new MarkupCoordinate(Double.parseDouble(lat), Double.parseDouble(lng), display, type));
             } catch (Exception e) {
                 try {
                     // try DMS format

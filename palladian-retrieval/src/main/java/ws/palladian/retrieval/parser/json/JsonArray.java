@@ -440,7 +440,7 @@ public class JsonArray extends AbstractList<Object> implements Json {
         if (!head.matches("\\[\\d+\\]")) {
             return null;
         }
-        int index = Integer.valueOf(head.substring(1, head.length() - 1));
+        int index = Integer.parseInt(head.substring(1, head.length() - 1));
         Object value;
         try {
             value = get(index);

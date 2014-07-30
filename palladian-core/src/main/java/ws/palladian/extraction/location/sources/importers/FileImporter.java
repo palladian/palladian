@@ -69,8 +69,8 @@ public final class FileImporter {
             }
             GeoCoordinate coordinate = null;
             if (parts.length > 3) {
-                double latitude = Double.valueOf(parts[2]);
-                double longitude = Double.valueOf(parts[3]);
+                double latitude = Double.parseDouble(parts[2]);
+                double longitude = Double.parseDouble(parts[3]);
                 coordinate = new ImmutableGeoCoordinate(latitude, longitude);
             }
             int id = maxId + idOffset;

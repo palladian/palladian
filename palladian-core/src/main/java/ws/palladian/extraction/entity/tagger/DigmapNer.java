@@ -102,8 +102,8 @@ public class DigmapNer extends NamedEntityRecognizer {
                     String tag = XPathHelper.getNode(entry, "./gp:Label/text()", NAMESPACE_MAPPING).getTextContent();
                     Node startNode = XPathHelper.getNode(entry, "./gp:Ocurrence/gp:Range/@start", NAMESPACE_MAPPING);
                     Node endNode = XPathHelper.getNode(entry, "./gp:Ocurrence/gp:Range/@end", NAMESPACE_MAPPING);
-                    int start = Integer.valueOf(startNode.getTextContent());
-                    int end = Integer.valueOf(endNode.getTextContent());
+                    int start = Integer.parseInt(startNode.getTextContent());
+                    int end = Integer.parseInt(endNode.getTextContent());
                     String entityName = textChunk.substring(start, end);
                     annotations.add(new ImmutableAnnotation(start, entityName, tag));
                 }

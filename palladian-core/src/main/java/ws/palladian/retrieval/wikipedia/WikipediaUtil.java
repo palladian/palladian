@@ -528,9 +528,9 @@ public final class WikipediaUtil {
      */
     static double parseComponents(String deg, String min, String sec, String nsew) {
         Validate.notEmpty(deg, "deg must not be null or empty");
-        double parsedDeg = Double.valueOf(deg);
-        double parsedMin = StringUtils.isNotBlank(min) ? Double.valueOf(min) : 0;
-        double parsedSec = StringUtils.isNotBlank(sec) ? Double.valueOf(sec) : 0;
+        double parsedDeg = Double.parseDouble(deg);
+        double parsedMin = StringUtils.isNotBlank(min) ? Double.parseDouble(min) : 0;
+        double parsedSec = StringUtils.isNotBlank(sec) ? Double.parseDouble(sec) : 0;
         int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
         return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
     }
@@ -594,9 +594,9 @@ public final class WikipediaUtil {
         String secStr = templateData.getEntry("sec", "2");
         String hem = templateData.getEntry("hem", "3");
         try {
-            double deg = StringUtils.isNotBlank(degStr) ? Double.valueOf(degStr) : 0;
-            double min = StringUtils.isNotBlank(minStr) ? Double.valueOf(minStr) : 0;
-            double sec = StringUtils.isNotBlank(secStr) ? Double.valueOf(secStr) : 0;
+            double deg = StringUtils.isNotBlank(degStr) ? Double.parseDouble(degStr) : 0;
+            double min = StringUtils.isNotBlank(minStr) ? Double.parseDouble(minStr) : 0;
+            double sec = StringUtils.isNotBlank(secStr) ? Double.parseDouble(secStr) : 0;
             int sgn;
             if (StringUtils.isNotBlank(hem)) {
                 sgn = "W".equals(hem) || "S".equals(hem) ? -1 : 1;
@@ -606,7 +606,7 @@ public final class WikipediaUtil {
             double result = sgn * (Math.abs(deg) + min / 60. + sec / 3600.);
             String rndStr = templateData.getEntry("rnd", "4");
             if (StringUtils.isNotBlank(rndStr)) {
-                int rnd = Integer.valueOf(rndStr);
+                int rnd = Integer.parseInt(rndStr);
                 result = MathHelper.round(result, rnd);
             }
             return result;

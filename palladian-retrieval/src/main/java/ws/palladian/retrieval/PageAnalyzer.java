@@ -295,8 +295,8 @@ public final class PageAnalyzer {
                     continue;
                 }
 
-                int index1 = Integer.valueOf(pathArray[i].substring(indexPosition1 + 1, pathArray[i].length() - 1));
-                int index2 = Integer.valueOf(xPath2Array[i].substring(indexPosition2 + 1, xPath2Array[i].length() - 1));
+                int index1 = Integer.parseInt(pathArray[i].substring(indexPosition1 + 1, pathArray[i].length() - 1));
+                int index2 = Integer.parseInt(xPath2Array[i].substring(indexPosition2 + 1, xPath2Array[i].length() - 1));
 
                 if (!pathArray[i].substring(0, indexPosition1).equals(xPath2Array[i].substring(0, indexPosition2))) {
                     continue;
@@ -727,7 +727,7 @@ public final class PageAnalyzer {
         }
 
         // update counter and return the updated xpath (no th was found after the last brackets)
-        int currentIndex = Integer.valueOf(xPath.substring(lastOpeningBrackets + 1, lastClosingBrackets));
+        int currentIndex = Integer.parseInt(xPath.substring(lastOpeningBrackets + 1, lastClosingBrackets));
         return xPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(++currentIndex)
                 + xPath.substring(lastClosingBrackets);
     }
@@ -860,7 +860,7 @@ public final class PageAnalyzer {
 
         // check whether tr has index already
         if (xPath.substring(trIndex + 2, trIndex + 3).equals("[")) {
-            int currentIndex = Integer.valueOf(xPath.substring(trIndex + 3, xPath.indexOf("]", trIndex + 3)));
+            int currentIndex = Integer.parseInt(xPath.substring(trIndex + 3, xPath.indexOf("]", trIndex + 3)));
             xPath = xPath.substring(0, trIndex + 3) + String.valueOf(currentIndex + 1)
                     + xPath.substring(xPath.indexOf("]", trIndex + 3));
             return xPath;
@@ -909,7 +909,7 @@ public final class PageAnalyzer {
                 NamedNodeMap attributes = item.getAttributes();
                 for (int k = 0; k < attributes.getLength(); k++) {
                     if (attributes.item(k).getNodeName().equalsIgnoreCase("colspan")) {
-                        numberOfColumns += Integer.valueOf(attributes.item(k).getNodeValue()) - 1;
+                        numberOfColumns += Integer.parseInt(attributes.item(k).getNodeValue()) - 1;
                         break;
                     }
                 }

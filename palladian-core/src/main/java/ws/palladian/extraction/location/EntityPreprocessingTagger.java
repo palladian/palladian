@@ -87,7 +87,7 @@ public class EntityPreprocessingTagger implements Tagger {
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split("\t");
-                Double ratio = Double.valueOf(parts[1]) / Double.valueOf(parts[2]);
+                Double ratio = Double.parseDouble(parts[1]) / Double.parseDouble(parts[2]);
                 result.put(parts[0], ratio);
             }
         });

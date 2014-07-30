@@ -98,7 +98,7 @@ public class WebKnoxNewsSearcher extends BaseWebKnoxSearcher<WebContent> {
         String publishTimestamp = currentResult.getString("timestamp");
         if (!publishTimestamp.isEmpty()) {
             try {
-                builder.setPublished(new Date(Long.valueOf(publishTimestamp) * 1000));
+                builder.setPublished(new Date(Long.parseLong(publishTimestamp) * 1000));
             } catch (Exception e) {
             }
         }

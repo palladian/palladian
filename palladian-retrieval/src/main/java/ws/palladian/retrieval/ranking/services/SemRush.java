@@ -47,9 +47,9 @@ public final class SemRush extends AbstractRankingService implements RankingServ
         }
         String text = httpResult.getStringContent();
         try {
-            long backlinksDomain = Long.valueOf(StringHelper.getSubstringBetween(text, "<links_domain>",
+            long backlinksDomain = Long.parseLong(StringHelper.getSubstringBetween(text, "<links_domain>",
                     "</links_domain>"));
-            long backlinksPage = Long.valueOf(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
+            long backlinksPage = Long.parseLong(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
             builder.add(BACKLINKS_DOMAIN, backlinksDomain);
             builder.add(BACKLINKS_PAGE, backlinksPage);
         } catch (Exception e) {

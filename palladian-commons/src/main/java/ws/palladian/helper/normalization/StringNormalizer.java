@@ -27,7 +27,7 @@ public class StringNormalizer {
         DecimalFormat formatter = new DecimalFormat("#.###");
 
         try {
-            numberString = formatter.format(Double.valueOf(numberString));
+            numberString = formatter.format(Double.parseDouble(numberString));
         } catch (NumberFormatException e) {
             // e.printStackTrace();
         }

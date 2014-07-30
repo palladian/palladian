@@ -74,8 +74,8 @@ public final class ProtectedPlanetImporter {
                     }
                     String longitudeString = StringHelper.getSubstringBetween(parts[coordinatesIndex], "<coordinates>",
                             null);
-                    double latitude = Double.valueOf(StringHelper.getSubstringBetween(parts[coordinatesIndex + 1], null, " "));
-                    double longitude = Double.valueOf(longitudeString);
+                    double latitude = Double.parseDouble(StringHelper.getSubstringBetween(parts[coordinatesIndex + 1], null, " "));
+                    double longitude = Double.parseDouble(longitudeString);
                     coordinate = new ImmutableGeoCoordinate(latitude, longitude);
                 } catch (Exception e) {
                     LOGGER.error("No coordinates in {}", line);

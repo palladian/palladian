@@ -98,7 +98,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 //                System.out.println("stop");
 //            }
 
-            double sentimentValue = Double.valueOf(parts[1]);
+            double sentimentValue = Double.parseDouble(parts[1]);
 
             // remove POS tag
             mainWord = mainWord.replaceAll("\\|.*", "");
