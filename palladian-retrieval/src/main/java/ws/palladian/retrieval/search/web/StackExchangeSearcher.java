@@ -77,6 +77,7 @@ public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebC
                 builder.setPublished(new Date(jsonItem.getInt("creation_date") * 1000l));
                 builder.setUrl(jsonItem.getString("link"));
                 builder.setTitle(jsonItem.getString("title"));
+                builder.setSource(NAME);
                 resultList.add(builder.create());
             }
             return new SearchResults<WebContent>(resultList);
