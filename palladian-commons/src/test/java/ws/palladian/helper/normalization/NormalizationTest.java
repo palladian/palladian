@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 import java.util.List;
 
-import org.javatuples.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -24,10 +24,10 @@ public class NormalizationTest {
         Pair<Double, List<String>> transformed = null;
 
         transformed = UnitNormalizer.smartTransform(0.5, UnitType.LENGTH);
-        assertEquals("5.0mm", transformed.getValue0() + getShortest(transformed.getValue1()));
+        assertEquals("5.0mm", transformed.getLeft() + getShortest(transformed.getRight()));
 
         transformed = UnitNormalizer.smartTransform(5000000., UnitType.WEIGHT);
-        assertEquals("5.0ton", transformed.getValue0() + getShortest(transformed.getValue1()));
+        assertEquals("5.0ton", transformed.getLeft() + getShortest(transformed.getRight()));
 
     }
 

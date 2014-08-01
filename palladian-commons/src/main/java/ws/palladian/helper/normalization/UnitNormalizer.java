@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.javatuples.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -244,12 +244,12 @@ public class UnitNormalizer {
 
         ol: for (UnitType unitType : UnitType.values()) {
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
-                for (String unitTypeUnit : pair.getValue0()) {
+                for (String unitTypeUnit : pair.getLeft()) {
                     if (unit.equals(unitTypeUnit)) {
-                        if (pair.getValue1() == null) {
+                        if (pair.getRight() == null) {
                             multiplier = -1.0;
                         } else {
-                            multiplier = pair.getValue1();
+                            multiplier = pair.getRight();
                         }
                         break ol;
                     }
@@ -563,7 +563,7 @@ public class UnitNormalizer {
         Pair<List<String>, Double> bestMatchingTransformation = null;
         for (Pair<List<String>, Double> entry : unitType.getUnits()) {
 
-            double transformed = normalizedValue / entry.getValue1();
+            double transformed = normalizedValue / entry.getRight();
             if ((transformed < smallestReadableValue && transformed > 1)
                     || (transformed > smallestReadableValue && smallestReadableValue < 1)
                     || bestMatchingTransformation == null) {
@@ -573,8 +573,8 @@ public class UnitNormalizer {
 
         }
 
-        Pair<Double, List<String>> smartTransformationResult = new Pair<Double, List<String>>(smallestReadableValue,
-                bestMatchingTransformation.getValue0());
+        Pair<Double, List<String>> smartTransformationResult = Pair.of(smallestReadableValue,
+                bestMatchingTransformation.getLeft());
 
         return smartTransformationResult;
     }
