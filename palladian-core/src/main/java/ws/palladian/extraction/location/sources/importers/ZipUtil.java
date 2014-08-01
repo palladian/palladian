@@ -8,9 +8,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.io.FileHelper;
 
 /**

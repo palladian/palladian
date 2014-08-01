@@ -7,11 +7,11 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MapMatrix;
 import ws.palladian.helper.collection.Matrix;
 import ws.palladian.helper.collection.MatrixDecorator;
 import ws.palladian.helper.collection.Vector.VectorEntry;
+import ws.palladian.helper.functional.Function;
 
 public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Serializable {
 

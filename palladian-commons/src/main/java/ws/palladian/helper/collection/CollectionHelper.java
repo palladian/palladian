@@ -26,6 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Function;
 
 /**
  * <p>

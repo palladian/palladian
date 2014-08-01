@@ -1,4 +1,4 @@
-package ws.palladian.helper.collection;
+package ws.palladian.helper.functional;
 
 import org.apache.commons.lang3.Validate;
 

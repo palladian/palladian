@@ -3,6 +3,7 @@ package ws.palladian.helper.collection;
 import java.util.Map.Entry;
 
 import ws.palladian.helper.collection.Vector.VectorEntry;
+import ws.palladian.helper.functional.Function;
 
 public final class EntryConverter<K, V> implements Function<Entry<K, V>, VectorEntry<K, V>> {
 

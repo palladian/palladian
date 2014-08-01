@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Function;
 
 /**
  * @author Philipp Katz

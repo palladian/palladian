@@ -1,4 +1,4 @@
-package ws.palladian.helper.collection;
+package ws.palladian.helper.functional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.functional.Function;
+
 /**
  * <p>
  * A CountMatrix allows counting of items which are indexed by (x, y) coordinates. It is the two-dimensional variant of

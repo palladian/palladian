@@ -17,8 +17,8 @@ import ws.palladian.core.Value;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.Vector.VectorEntry;
+import ws.palladian.helper.functional.Function;
 
 public final class Discretization {
     
