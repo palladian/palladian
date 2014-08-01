@@ -7,7 +7,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.functional.Filter;
 
 /**
  * <p>

@@ -24,6 +24,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
+
 /**
  * <p>
  * This class provides some helper methods for working with collections. <b>Important:</b> If you are looking for a
@@ -447,7 +450,7 @@ public final class CollectionHelper {
      */
     public static <T> boolean removeNulls(Iterable<T> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
-        return remove(iterable, Filter.NULL_FILTER);
+        return remove(iterable, Filters.NULL_FILTER);
     }
 
     /**

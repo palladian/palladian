@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import ws.palladian.helper.functional.Filter;
+
 public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
 
     private final Map<Pair<K, K>, V> matrixMap = CollectionHelper.newHashMap();

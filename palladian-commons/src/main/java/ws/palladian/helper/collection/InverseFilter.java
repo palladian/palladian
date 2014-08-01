@@ -2,6 +2,8 @@ package ws.palladian.helper.collection;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.functional.Filter;
+
 /**
  * <p>
  * A {@link Filter} decorator with inverse logic. Items which would be accepted by the wrapped Filter are discarded, and

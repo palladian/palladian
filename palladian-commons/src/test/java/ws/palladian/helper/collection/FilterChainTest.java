@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import ws.palladian.helper.functional.Filter;
+
 public class FilterChainTest {
 
     @Test

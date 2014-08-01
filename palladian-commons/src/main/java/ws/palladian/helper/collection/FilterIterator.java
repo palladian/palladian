@@ -4,6 +4,8 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.functional.Filter;
+
 /**
  * A {@link FilterIterator} wraps another iterator and applies a given {@link Filter}, which eliminates items from the
  * iteration, which do not pass the filter (i.e. they are simply skipped during iteration).

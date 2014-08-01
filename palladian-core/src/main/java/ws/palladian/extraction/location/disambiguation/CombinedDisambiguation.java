@@ -15,8 +15,8 @@ import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.processing.features.Annotation;
 
 /**

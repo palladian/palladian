@@ -6,12 +6,12 @@ import java.util.List;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateImpl;
+import ws.palladian.helper.functional.Filter;
 
 /**
  * Helper functions for arrays consisting extracted dates or subclasses.

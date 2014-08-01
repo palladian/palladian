@@ -7,8 +7,8 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.nlp.StringHelper;
 
 public class Preprocessor implements Function<String, Iterator<String>> {
