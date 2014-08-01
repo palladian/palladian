@@ -33,7 +33,7 @@ import ws.palladian.core.Model;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.ConstantFactory;
+import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
@@ -164,7 +164,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * @param scorer The function for determining the score, not <code>null</code>.
      */
     public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier, Function<ConfusionMatrix, Double> scorer) {
-        this(ConstantFactory.create(learner), ConstantFactory.create(classifier), scorer, 1);
+        this(Factories.constant(learner), Factories.constant(classifier), scorer, 1);
     }
 
     /**
@@ -347,7 +347,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
             }
         };
         // we can share this, because it has no state
-        Factory<QuickDtClassifier> predictorFactory = ConstantFactory.create(new QuickDtClassifier());
+        Factory<QuickDtClassifier> predictorFactory = Factories.constant(new QuickDtClassifier());
 
         // scoring function used for deciding which feature to eliminate; we use the F1 measure here, but in general all
         // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).

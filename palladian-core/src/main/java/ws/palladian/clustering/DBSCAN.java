@@ -8,7 +8,7 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functions.Distance;
+import ws.palladian.helper.functional.Distance;
 
 /**
  * <p>

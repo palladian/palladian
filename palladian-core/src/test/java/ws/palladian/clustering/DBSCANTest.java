@@ -8,7 +8,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functions.Distance;
+import ws.palladian.helper.functional.Distance;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 
 public class DBSCANTest {

@@ -2,8 +2,8 @@ package ws.palladian.classification.featureselection;
 
 import java.util.Map;
 
-import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.math.NumericMatrix;
 import ws.palladian.helper.math.NumericMatrix.NumericMatrixVector;
 
@@ -19,7 +19,7 @@ public final class AverageMergingStrategy implements SelectedFeatureMergingStrat
 
     @Override
     public FeatureRanking merge(NumericMatrix<String> chiSquareMatrix) {
-        Map<String, Double> scores = LazyMap.create(ConstantFactory.create(0.));
+        Map<String, Double> scores = LazyMap.create(Factories.constant(0.));
         for (NumericMatrixVector<String> scoredValue : chiSquareMatrix.rows()) {
             String featureIdentifier = scoredValue.key().split("###")[0];
             double averageScore = scoredValue.sum() / scoredValue.size();

@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
+import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -38,7 +38,7 @@ public final class DateParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateParser.class);
 
     // XXX for performance optimizations to check speed of each regex, remove later. See issue #162
-    private static final Map<DateFormat, Long> HALL_OF_SHAME = LazyMap.create(ConstantFactory.create(0l));
+    private static final Map<DateFormat, Long> HALL_OF_SHAME = LazyMap.create(Factories.constant(0l));
 
     private DateParser() {
         // utility class, no instances.
