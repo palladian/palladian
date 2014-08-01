@@ -8,9 +8,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -83,7 +83,7 @@ final class ZipUtil {
 
     public static void main(String[] args) throws ZipException, IOException {
         File file = new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip");
-        Integer result = doWithZipEntry(file, EqualsFilter.create("allCountries.txt"), LINE_COUNTER);
+        Integer result = doWithZipEntry(file, Filters.equal("allCountries.txt"), LINE_COUNTER);
         System.out.println("File in ZIP file has " + result + " lines.");
     }
 

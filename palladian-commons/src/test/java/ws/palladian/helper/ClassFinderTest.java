@@ -7,8 +7,7 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-import ws.palladian.helper.ClassFinder;
-import ws.palladian.helper.collection.RegexFilter;
+import ws.palladian.helper.functional.Filters;
 
 public class ClassFinderTest {
 
@@ -23,15 +22,15 @@ public class ClassFinderTest {
     public static final class ExampleClass2 extends AbstractClass {
 
     }
-    
+
     public static abstract class AbstractClass implements ExampleInterface {
-        
+
     }
 
     @Test
     public void testClassFinder() {
         Collection<Class<? extends ExampleInterface>> classes = ClassFinder.findClasses(ExampleInterface.class,
-                new RegexFilter("ws.palladian.helper.*"));
+                Filters.regex("ws.palladian.helper.*"));
         assertEquals(2, classes.size());
         assertTrue(classes.contains(ExampleClass1.class));
         assertTrue(classes.contains(ExampleClass2.class));

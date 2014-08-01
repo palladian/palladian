@@ -26,9 +26,9 @@ import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**
@@ -89,7 +89,7 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
         progressMonitor.startTask("Single feature classification", allFeatures.size());
 
         for (String feature : allFeatures) {
-            Filter<String> filter = EqualsFilter.create(feature);
+            Filter<String> filter = Filters.equal(feature);
             List<Instance> eliminatedTrainData = ClassificationUtils.filterFeatures(trainSet, filter);
             List<Instance> eliminatedTestData = ClassificationUtils.filterFeatures(validationSet, filter);
 

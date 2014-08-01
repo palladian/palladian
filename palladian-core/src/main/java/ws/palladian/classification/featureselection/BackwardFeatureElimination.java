@@ -34,11 +34,10 @@ import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
-import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Function;
-import ws.palladian.helper.collection.InverseFilter;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**
@@ -123,7 +122,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
             String eliminatedFeature = CollectionHelper.getLast(featuresToEliminate);
             LOGGER.debug("Starting elimination for {}", eliminatedFeature);
 
-            Filter<String> filter = InverseFilter.create(EqualsFilter.create(featuresToEliminate));
+            Filter<String> filter = Filters.invert(Filters.equal(featuresToEliminate));
             List<Instance> eliminatedTrainData = ClassificationUtils.filterFeatures(trainData, filter);
             List<Instance> eliminatedTestData = ClassificationUtils.filterFeatures(testData, filter);
 
@@ -322,8 +321,8 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
         System.exit(0);
         
         // skip those features: indexScore (expensive); containsMarker(...) except the consolidated containsMarker(*)
-        trainSet = ClassificationUtils.filterFeatures(trainSet, InverseFilter.create(EqualsFilter.create("indexScore")));
-        validationSet = ClassificationUtils.filterFeatures(validationSet, InverseFilter.create(EqualsFilter.create("indexScore")));
+        trainSet = ClassificationUtils.filterFeatures(trainSet, Filters.invert(Filters.equal("indexScore")));
+        validationSet = ClassificationUtils.filterFeatures(validationSet, Filters.invert(Filters.equal("indexScore")));
         Filter<String> markerFilter = new Filter<String>() {
             @Override
             public boolean accept(String item) {

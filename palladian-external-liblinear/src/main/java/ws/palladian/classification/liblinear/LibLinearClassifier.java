@@ -11,8 +11,8 @@ import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
 import de.bwaldvogel.liblinear.Linear;
@@ -63,7 +63,7 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
      */
     private FeatureVector removeUntrainedFeatures(FeatureVector classifiable, LibLinearModel model) {
         int oldSize = classifiable.size();
-        Filter<String> nameFilter = EqualsFilter.create(model.getFeatureLabels());
+        Filter<String> nameFilter = Filters.equal(model.getFeatureLabels());
         classifiable = ClassificationUtils.filterFeatures(classifiable, nameFilter);
         int numIgnored = oldSize - classifiable.size();
         if (numIgnored > 0 && LOGGER.isDebugEnabled()) {
