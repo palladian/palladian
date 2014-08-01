@@ -1,8 +1,11 @@
-package ws.palladian.helper.collection;
+package ws.palladian.helper.functional;
 
 import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Function;
 
 /**
  * Function which serves as adapter, to return a more common type than the given input type. E.g. return

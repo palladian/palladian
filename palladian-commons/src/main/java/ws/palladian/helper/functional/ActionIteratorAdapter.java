@@ -1,11 +1,11 @@
-package ws.palladian.helper.collection;
+package ws.palladian.helper.functional;
 
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.collection.AbstractIterator;
 
 /**
  * Adapter between a producer which uses an {@link Consumer} callback and an {@link Iterator}.

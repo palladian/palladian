@@ -23,10 +23,11 @@ import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
-import ws.palladian.helper.collection.EqualsFilter;
 import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
@@ -118,7 +119,7 @@ public final class GeonamesImporter {
         checkIsFileOfType(alternateNamesFile, "zip");
 
         // read the hierarchy first
-        EqualsFilter<String> hierarchyFilter = EqualsFilter.create(HIERARCHY_FILE_NAME);
+        Filter<String> hierarchyFilter = Filters.equal(HIERARCHY_FILE_NAME);
         final int numLinesHierarchy = ZipUtil.doWithZipEntry(hierarchyFile, hierarchyFilter, ZipUtil.LINE_COUNTER);
         ZipUtil.doWithZipEntry(hierarchyFile, hierarchyFilter, new Function<InputStream, Void>() {
             @Override
@@ -129,7 +130,7 @@ public final class GeonamesImporter {
         });
 
         // read the alternate names file
-        EqualsFilter<String> alternateFilter = EqualsFilter.create(ALTERNATE_FILE_NAME);
+        Filter<String> alternateFilter = Filters.equal(ALTERNATE_FILE_NAME);
         final int numLinesAltNames = ZipUtil.doWithZipEntry(alternateNamesFile, alternateFilter, ZipUtil.LINE_COUNTER);
         ZipUtil.doWithZipEntry(alternateNamesFile, alternateFilter, new Function<InputStream, Void>() {
             @Override
@@ -141,7 +142,7 @@ public final class GeonamesImporter {
 
         // read the actual location data
         LOGGER.info("Checking size of countries file");
-        EqualsFilter<String> countryFilter = EqualsFilter.create(COUNTRIES_FILE_NAME);
+        Filter<String> countryFilter = Filters.equal(COUNTRIES_FILE_NAME);
         final int numLinesCountries = ZipUtil.doWithZipEntry(locationFile, countryFilter, ZipUtil.LINE_COUNTER);
 
         LOGGER.info("Starting import, {} items in total", numLinesCountries);

@@ -41,8 +41,8 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.RegexFilter;
 import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -326,7 +326,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         // feature set was determined using backward feature elimination, using train + validation set on Wikipedia set
 
         // QuickDt model
-        Filter<String> featureFilter = new RegexFilter(
+        Filter<String> featureFilter = Filters.regex(
                 "normalizedMidpointDistance|normalizedMedianDistanceToOthers|normalizedMinDistanceToOthers|normalizedCenterpointDistance|"
                         + "disambiguationTrust|ancestorCount|normalizedMeanDistanceToOthers|occurenceFrequency|minDistanceToOthers|"
                         + "populationMagnitude|offsetFirst|locationType|hierarchyDepth");
