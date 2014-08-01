@@ -8,6 +8,7 @@ package ws.palladian.helper.functional;
  * @author Philipp Katz
  * 
  * @param <T> The type of the object to create.
+ * @see Factories for default implementations.
  */
 public interface Factory<T> {
 

@@ -1,7 +1,7 @@
 package ws.palladian.helper.nlp;
 
-import ws.palladian.helper.functions.Distance;
-import ws.palladian.helper.functions.Similarity;
+import ws.palladian.helper.functional.Distance;
+import ws.palladian.helper.functional.Similarity;
 
 public interface StringMetric extends Distance<String>, Similarity<String> {
 

@@ -61,7 +61,7 @@ public final class Filters {
         };
     }
 
-    public static <T> Filter<T> equals(T value) {
+    public static <T> Filter<T> equal(T value) {
         return new EqualsFilter<T>(Collections.singleton(value));
     }
 

@@ -1,4 +1,4 @@
-package ws.palladian.helper.functions;
+package ws.palladian.helper.functional;
 
 public interface Similarity<T> {
     

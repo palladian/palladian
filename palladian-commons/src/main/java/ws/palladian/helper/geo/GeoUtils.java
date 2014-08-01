@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functions.Distance;
+import ws.palladian.helper.functional.Distance;
 
 /**
  * <p>
