@@ -3,6 +3,7 @@ package ws.palladian.extraction.entity.tagger;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import lbj.NETaggerLevel1;
 import lbj.NETaggerLevel2;
@@ -22,8 +23,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.processing.features.Annotation;
 import LBJ2.classify.Classifier;
-
-import com.ibm.icu.util.StringTokenizer;
 
 /**
  * <p>

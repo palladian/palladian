@@ -98,71 +98,11 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<!-- the following dependencies are necessary for Maui -->
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>icu4j</groupId>
-			<artifactId>icu4j</artifactId>
-			<version>3.4</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.jena</groupId>
-			<artifactId>iri</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.jena</groupId>
-			<artifactId>jena</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<!-- dependency>
-			<groupId>wwmm-expediency</groupId>
-			<artifactId>maxent</artifactId>
-			<version>2.4.0</version>
-		</dependency -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		<!-- dependency>
-			<groupId>opennlp</groupId>
-			<artifactId>tools</artifactId>
-			<version>1.3.0</version>
-		</dependency -->
-		<dependency>
-			<groupId>org.tartarus.snowball</groupId>
-			<artifactId>snowball</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>gnu</groupId>
-			<artifactId>trove</artifactId>
-			<version>2.0.3</version>
-		</dependency>
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
 			<artifactId>weka-stable</artifactId>
 			<version>3.6.10</version>
 		</dependency>
-		<dependency>
-			<groupId>org.wikipedia</groupId>
-			<artifactId>miner</artifactId>
-			<version>1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>apache-xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.7.1</version>
-		</dependency>
-		<!-- / end Maui dependencies -->
 		<!-- following dependencies are necessary for ark-tweet-nlp -->
 		<dependency>
 			<groupId>edu.cmu.cs.lti.ark.tweetnlp</groupId>
