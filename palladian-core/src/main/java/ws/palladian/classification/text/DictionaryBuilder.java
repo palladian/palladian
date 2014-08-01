@@ -3,7 +3,7 @@ package ws.palladian.classification.text;
 import java.util.Collection;
 
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
-import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.functional.Factory;
 
 /**
  * Builder for a {@link DictionaryModel}.

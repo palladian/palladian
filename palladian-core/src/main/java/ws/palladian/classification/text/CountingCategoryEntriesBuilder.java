@@ -11,7 +11,7 @@ import ws.palladian.classification.ImmutableCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.functional.Factory;
 
 public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> {
 

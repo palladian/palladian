@@ -11,7 +11,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 

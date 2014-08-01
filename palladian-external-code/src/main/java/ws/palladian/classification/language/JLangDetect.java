@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 

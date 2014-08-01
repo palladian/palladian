@@ -9,7 +9,7 @@ import org.apache.commons.lang3.mutable.MutableDouble;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>

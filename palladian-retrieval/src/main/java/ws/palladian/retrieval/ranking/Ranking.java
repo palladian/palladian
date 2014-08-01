@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>

@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>
