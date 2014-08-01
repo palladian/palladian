@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper.Order;
+import ws.palladian.helper.functional.Filter;
 
 /**
  * @author Philipp Katz

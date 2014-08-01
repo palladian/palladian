@@ -10,8 +10,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;

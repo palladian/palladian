@@ -3,7 +3,7 @@ package ws.palladian.retrieval.wikipedia;
 import java.util.Set;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.functional.Filter;
 
 public final class NamespaceFilter implements Filter<WikipediaPageReference> {
 

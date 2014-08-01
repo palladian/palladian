@@ -7,6 +7,8 @@ import java.util.Collection;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.functional.Filter;
+
 /**
  * <p>
  * Bloom filter implementation. A <a href="http://en.wikipedia.org/wiki/Bloom_filter">Bloom filter</a> is a

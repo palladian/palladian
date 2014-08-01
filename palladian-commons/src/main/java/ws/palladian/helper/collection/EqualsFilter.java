@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import ws.palladian.helper.functional.Filter;
+
 /**
  * <p>
  * A {@link Filter} which simply filters by Object's equality ({@link Object#equals(Object)}).

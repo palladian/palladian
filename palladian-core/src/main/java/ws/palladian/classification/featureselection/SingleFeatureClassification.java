@@ -27,8 +27,8 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EqualsFilter;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**

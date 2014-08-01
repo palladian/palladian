@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import ws.palladian.helper.functional.Filter;
+
 /**
  * <p>
  * A chain of {@link Filter}s effectively acting as an AND filter, i.e. the processed items need to pass all contained

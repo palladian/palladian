@@ -10,8 +10,8 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.geo.GeoCoordinate;
 
 /**

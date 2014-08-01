@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.FileHelper;
 
 /**

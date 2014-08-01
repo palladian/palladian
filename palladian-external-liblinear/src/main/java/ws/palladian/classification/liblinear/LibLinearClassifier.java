@@ -12,7 +12,7 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.helper.collection.EqualsFilter;
-import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
 import de.bwaldvogel.liblinear.Linear;

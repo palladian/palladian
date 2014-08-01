@@ -13,6 +13,8 @@ import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.helper.functional.Filter;
+
 public class FilterIteratorTest {
 
     private Iterator<Integer> iterator;
