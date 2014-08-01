@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -125,7 +125,7 @@ public final class ClassFinder {
                         return pathname.getName().endsWith(CLASS_FILE_EXTENSION)
                                 && namespaceFilter.accept(namespaceName);
                     }
-                }, new Action<File>() {
+                }, new Consumer<File>() {
                     @Override
                     public void process(File file) {
                         String className = pathToClassName(file.getPath().substring(classPathItem.length() + 1));

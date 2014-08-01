@@ -22,7 +22,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
@@ -69,7 +69,7 @@ class WikipediaEntityContextMiner {
         typeCounts.clear();
         try {
             final int[] counter = new int[] {0};
-            WikipediaUtil.parseDump(wikipediaDump, new Action<WikipediaPage>() {
+            WikipediaUtil.parseDump(wikipediaDump, new Consumer<WikipediaPage>() {
                 @Override
                 public void process(WikipediaPage page) {
                     if (counter[0]++ == limit) {

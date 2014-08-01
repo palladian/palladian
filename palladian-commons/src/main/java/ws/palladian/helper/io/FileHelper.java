@@ -44,6 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Collector;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.math.MathHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -1940,15 +1942,15 @@ public final class FileHelper {
 
     /**
      * <p>
-     * Traverse a directory, including its subdirectories and perform an {@link Action} to each file.
+     * Traverse a directory, including its subdirectories and perform an {@link Consumer} to each file.
      * </p>
      * 
      * @param path The starting path, not <code>null</code>.
      * @param filter A {@link FileFilter} which determines which files to process, not <code>null</code>.
-     * @param action An {@link Action} to perform for the matching files, not <code>null</code>.
+     * @param action An {@link Consumer} to perform for the matching files, not <code>null</code>.
      * @return The number of processed files.
      */
-    public static int traverseFiles(File path, FileFilter filter, Action<? super File> action) {
+    public static int traverseFiles(File path, FileFilter filter, Consumer<? super File> action) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(filter, "filter must not be null");
         Validate.notNull(action, "action must not be null");
@@ -1974,7 +1976,7 @@ public final class FileHelper {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(filter, "filter must not be null");
         List<File> files = CollectionHelper.newArrayList();
-        traverseFiles(path, filter, new CollectorAction<File>(files));
+        traverseFiles(path, filter, new Collector<File>(files));
         return files;
     }
 
