@@ -21,7 +21,7 @@ public final class Filters {
     }
 
     /** A filter which removes <code>null</code> elements. */
-    public static final Filter<Object> NULL_FILTER = new Filter<Object>() {
+    public static final Filter<Object> NOT_NULL = new Filter<Object>() {
         @Override
         public boolean accept(Object item) {
             return item != null;
@@ -29,7 +29,7 @@ public final class Filters {
     };
 
     /** A filter which accepts all elements. */
-    public static final Filter<Object> ACCEPT = new Filter<Object>() {
+    public static final Filter<Object> ALL = new Filter<Object>() {
         @Override
         public boolean accept(Object item) {
             return true;
@@ -37,7 +37,7 @@ public final class Filters {
     };
 
     /** A filter which rejects all elements. */
-    public static final Filter<Object> REJECT = new Filter<Object>() {
+    public static final Filter<Object> NONE = new Filter<Object>() {
         @Override
         public boolean accept(Object item) {
             return false;

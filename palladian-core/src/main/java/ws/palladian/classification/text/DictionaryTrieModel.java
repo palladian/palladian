@@ -26,7 +26,7 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Adapter;
+import ws.palladian.helper.functional.Functions;
 
 /**
  * <p>
@@ -242,7 +242,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     @Override
     public Iterator<TermCategoryEntries> iterator() {
         return CollectionHelper.convert(new TrieIterator(entryTrie, true),
-                Adapter.create(TrieCategoryEntries.class, TermCategoryEntries.class));
+                Functions.adapt(TrieCategoryEntries.class, TermCategoryEntries.class));
     }
 
     @Override
