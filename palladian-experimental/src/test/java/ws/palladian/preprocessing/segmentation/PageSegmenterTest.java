@@ -49,21 +49,21 @@ public class PageSegmenterTest {
         // 2012-04-24, Philipp
         //
         assertEquals(418, seg.getAllSegments().size());
-        assertEquals(278, seg.getSpecificSegments(Segment.Color.RED).size());
-        assertEquals(12, seg.getSpecificSegments(Segment.Color.LIGHTRED).size());
-        assertEquals(21, seg.getSpecificSegments(Segment.Color.REDYELLOW).size());
-        assertEquals(22, seg.getSpecificSegments(Segment.Color.YELLOW).size());
-        assertEquals(17, seg.getSpecificSegments(Segment.Color.GREENYELLOW).size());
+        assertEquals(259, seg.getSpecificSegments(Segment.Color.RED).size());
+        assertEquals(18, seg.getSpecificSegments(Segment.Color.LIGHTRED).size());
+        assertEquals(16, seg.getSpecificSegments(Segment.Color.REDYELLOW).size());
+        assertEquals(30, seg.getSpecificSegments(Segment.Color.YELLOW).size());
+        assertEquals(18, seg.getSpecificSegments(Segment.Color.GREENYELLOW).size());
         assertEquals(2, seg.getSpecificSegments(Segment.Color.LIGHTGREEN).size());
-        assertEquals(66, seg.getSpecificSegments(Segment.Color.GREEN).size());
+        assertEquals(75, seg.getSpecificSegments(Segment.Color.GREEN).size());
 
-        assertEquals(68, seg.getSpecificSegments(0.0, 0.3).size());
-        assertEquals(39, seg.getSpecificSegments(0.3, 0.6).size());
-        assertEquals(107, seg.getSpecificSegments(0.0, 0.6).size());
-        assertEquals(221, seg.getSpecificSegments(0.95, 1.0).size());
+        assertEquals(77, seg.getSpecificSegments(0.0, 0.3).size());
+        assertEquals(48, seg.getSpecificSegments(0.3, 0.6).size());
+        assertEquals(125, seg.getSpecificSegments(0.0, 0.6).size());
+        assertEquals(211, seg.getSpecificSegments(0.95, 1.0).size());
 
-        assertEquals(80, seg.makeMutual(seg.getSpecificSegments(Segment.Color.RED), 1).size());
-        assertEquals(6, seg.makeMutual(seg.getSpecificSegments(Segment.Color.YELLOW), 1).size());
+        assertEquals(75, seg.makeMutual(seg.getSpecificSegments(Segment.Color.RED), 1).size());
+        assertEquals(32, seg.makeMutual(seg.getSpecificSegments(Segment.Color.YELLOW), 1).size());
         assertEquals(150, seg.makeMutual(seg.getSpecificSegments(0.7, 0.8), 1).size());
 
     }
