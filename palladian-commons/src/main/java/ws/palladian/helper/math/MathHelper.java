@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ public final class MathHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
+    
+    public static final Random RANDOM = new Random();
 
     private static final Map<Double, String> FRACTION_MAP;
     
@@ -437,7 +440,8 @@ public final class MathHelper {
      * @return A random entry from the collection.
      */
     public static <T> T randomEntry(Collection<T> collection) {
-        Collection<T> randomSample = randomSample(collection, 1);
+//        Collection<T> randomSample = randomSample(collection, 1);
+        Collection<T> randomSample = sample(collection, 1);
         if (!randomSample.isEmpty()) {
             return randomSample.iterator().next();
         }
@@ -445,49 +449,98 @@ public final class MathHelper {
         return null;
     }
 
+//    /**
+//     * <p>
+//     * Create a random sample from a given collection.
+//     * </p>
+//     * 
+//     * @param collection The collection from we want to sample from.
+//     * @param sampleSize The size of the sample.
+//     * @return A collection with samples from the collection.
+//     */
+//    public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
+//
+//        if (collection.size() < sampleSize) {
+//            LOGGER.debug(
+//                    "tried to sample from a collection that was smaller than the sample size (Collection: {}, sample size: {}",
+//                    collection.size(), sampleSize);
+//            return collection;
+//        } else if (collection.size() == sampleSize) {
+//            return collection;
+//        }
+//
+//        Set<Integer> randomNumbers = MathHelper.createRandomNumbers(sampleSize, 0, collection.size());
+//
+//        Set<Integer> indicesUsed = new HashSet<Integer>();
+//        Set<T> sampledCollection = new HashSet<T>();
+//
+//        for (int randomIndex : randomNumbers) {
+//
+//            int currentIndex = 0;
+//            for (T o : collection) {
+//
+//                if (currentIndex < randomIndex) {
+//                    currentIndex++;
+//                    continue;
+//                }
+//
+//                sampledCollection.add(o);
+//                indicesUsed.add(randomIndex);
+//                break;
+//            }
+//
+//        }
+//
+//        return sampledCollection;
+//    }
+    
     /**
      * <p>
-     * Create a random sample from a given collection.
-     * </p>
+     * Create a random sampling of the given size using a <a
+     * href="http://en.wikipedia.org/wiki/Reservoir_sampling">Reservoir Sampling</a> algorithm. The input data can be
+     * supplied as iterable, thus does not have to fit in memory. Only the created random sample is kept in memory.
      * 
-     * @param collection The collection from we want to sample from.
-     * @param sampleSize The size of the sample.
-     * @return A collection with samples from the collection.
+     * @param input The iterable providing the input data, not <code>null</code>.
+     * @param k The size of the sampling.
+     * @return A {@link Collection} with the random sample of size k (or smaller, in case the input data did not provide
+     *         enough samples).
      */
-    public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
+    public static <T> Collection<T> sample(Iterable<T> input, int k) {
+        return sample(input.iterator(), k);
+    }
 
-        if (collection.size() < sampleSize) {
-            LOGGER.debug(
-                    "tried to sample from a collection that was smaller than the sample size (Collection: {}, sample size: {}",
-                    collection.size(), sampleSize);
-            return collection;
-        } else if (collection.size() == sampleSize) {
-            return collection;
-        }
-
-        Set<Integer> randomNumbers = MathHelper.createRandomNumbers(sampleSize, 0, collection.size());
-
-        Set<Integer> indicesUsed = new HashSet<Integer>();
-        Set<T> sampledCollection = new HashSet<T>();
-
-        for (int randomIndex : randomNumbers) {
-
-            int currentIndex = 0;
-            for (T o : collection) {
-
-                if (currentIndex < randomIndex) {
-                    currentIndex++;
-                    continue;
-                }
-
-                sampledCollection.add(o);
-                indicesUsed.add(randomIndex);
+    /**
+     * <p>
+     * Create a random sampling of the given size using a <a
+     * href="http://en.wikipedia.org/wiki/Reservoir_sampling">Reservoir Sampling</a> algorithm. The input data can be
+     * supplied as iterator, thus does not have to fit in memory. Only the created random sample is kept in memory.
+     * 
+     * @param input The iterator providing the input data, not <code>null</code>.
+     * @param k The size of the sampling.
+     * @return A {@link Collection} with the random sample of size k (or smaller, in case the input data did not provide
+     *         enough samples).
+     */
+    public static <T> Collection<T> sample(Iterator<T> input, int k) {
+        Validate.notNull(input, "input must not be null");
+        Validate.isTrue(k >= 0, "k must be greater/equal zero");
+        List<T> sample = new ArrayList<T>(k);
+        for (int i = 0; i < k; i++) {
+            if (input.hasNext()) {
+                sample.add(input.next());
+            } else {
                 break;
             }
-
         }
 
-        return sampledCollection;
+        int i = k + 1;
+        while (input.hasNext()) {
+            T item = input.next();
+            int j = RANDOM.nextInt(i++) + 1;
+            if (j < k) {
+                sample.set(j, item);
+            }
+        }
+        return sample;
     }
 
     /**
@@ -498,25 +551,9 @@ public final class MathHelper {
      * @param numbers Number of numbers to generate.
      * @param min The minimum number.
      * @param max The maximum number.
-     * @param seed The seed to create the random numbers. The same seed leads to the same number sequence.
      * @return A set of random numbers between min and max.
      */
     public static Set<Integer> createRandomNumbers(int numbers, int min, int max) {
-        return createRandomNumbers(numbers, min, max, null);
-    }
-
-    /**
-     * <p>
-     * Create numbers random numbers between [min,max).
-     * </p>
-     * 
-     * @param numbers Number of numbers to generate.
-     * @param min The minimum number.
-     * @param max The maximum number.
-     * @param seed The seed to create the random numbers. The same seed leads to the same number sequence.
-     * @return A set of random numbers between min and max.
-     */
-    public static Set<Integer> createRandomNumbers(int numbers, int min, int max, Long seed) {
         Set<Integer> randomNumbers = new HashSet<Integer>();
 
         if (max - min < numbers) {
@@ -524,12 +561,8 @@ public final class MathHelper {
                     max);
             return randomNumbers;
         }
-        Random random = new Random();
-        if (seed != null) {
-            random.setSeed(seed);
-        }
         while (randomNumbers.size() < numbers) {
-            double nd = random.nextDouble();
+            double nd = RANDOM.nextDouble();
             int randomNumber = (int)(nd * max + min);
             randomNumbers.add(randomNumber);
         }
@@ -548,7 +581,7 @@ public final class MathHelper {
      */
     public static int getRandomIntBetween(int low, int high) {
         int hl = high - low;
-        return (int)Math.round(Math.random() * hl + low);
+        return (int)Math.round(RANDOM.nextDouble() * hl + low);
     }
 
     /**

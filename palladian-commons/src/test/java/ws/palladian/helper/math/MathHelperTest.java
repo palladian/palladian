@@ -10,15 +10,27 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class MathHelperTest {
 
     @Test
     public void testRandomSample() {
-        Collection<Integer> collection = Arrays.asList(321, 98, 123, 965, 143, 328, 497, 73, 65);
-        assertEquals(5, MathHelper.randomSample(collection, 5).size());
-        assertEquals(1, MathHelper.randomSample(collection, 1).size());
+        Collection<Integer> numbers = CollectionHelper.newArrayList(new AbstractIterator<Integer>() {
+            int counter = 0;
+
+            @Override
+            protected Integer getNext() throws Finished {
+                if (counter >= 1000) {
+                    throw FINISHED;
+                }
+                return counter++;
+            }
+        });
+        assertEquals(5, MathHelper.sample(numbers, 5).size());
+        assertEquals(1, MathHelper.sample(numbers, 1).size());
     }
 
     @Test

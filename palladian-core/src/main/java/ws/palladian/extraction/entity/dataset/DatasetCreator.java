@@ -288,7 +288,7 @@ public class DatasetCreator {
         seedEntities.remove(0);
 
         // get a random sample of seeds from the list
-        Collection<String> randomSet = MathHelper.randomSample(seedEntities, seedsPerConcept);
+        Collection<String> randomSet = MathHelper.sample(seedEntities, seedsPerConcept);
 
         seedEntities = new ArrayList<String>(randomSet);
 
