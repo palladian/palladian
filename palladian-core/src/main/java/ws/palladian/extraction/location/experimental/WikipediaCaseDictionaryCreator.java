@@ -18,7 +18,7 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -46,7 +46,7 @@ class WikipediaCaseDictionaryCreator {
         Validate.isTrue(limit > 0, "limit must be greater zero");
         try {
             final int[] counter = new int[] {0};
-            WikipediaUtil.parseDump(wikipediaDump, new Action<WikipediaPage>() {
+            WikipediaUtil.parseDump(wikipediaDump, new Consumer<WikipediaPage>() {
                 @Override
                 public void process(WikipediaPage page) {
                     if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {

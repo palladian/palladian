@@ -18,7 +18,7 @@ import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil;
@@ -50,7 +50,7 @@ class WikipediaTermCorpusCreator {
         bigramCorpus.clear();
         try {
             final int[] counter = new int[] {0};
-            WikipediaUtil.parseDump(wikipediaDump, new Action<WikipediaPage>() {
+            WikipediaUtil.parseDump(wikipediaDump, new Consumer<WikipediaPage>() {
                 @Override
                 public void process(WikipediaPage page) {
                     if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {

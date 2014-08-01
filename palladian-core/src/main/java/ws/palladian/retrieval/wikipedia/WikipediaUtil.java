@@ -25,10 +25,10 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.io.Action;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ProgressReporterInputStream;
 import ws.palladian.helper.math.MathHelper;
@@ -623,7 +623,7 @@ public final class WikipediaUtil {
      * @throws IOException In case the file cannot be read.
      * @throws SAXException In case parsing fails.
      */
-    public static void parseDump(File wikipediaDump, Action<WikipediaPage> action) throws IOException, SAXException {
+    public static void parseDump(File wikipediaDump, Consumer<WikipediaPage> action) throws IOException, SAXException {
         Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
         Validate.isTrue(wikipediaDump.isFile(), "wikipediaDump does not exist or is not a file");
         Validate.notNull(action, "action must not be null");
@@ -646,7 +646,7 @@ public final class WikipediaUtil {
      * @throws IOException In case reading the input stream fails.
      * @throws SAXException In case parsing fails.
      */
-    public static void parseDump(InputStream inputStream, Action<WikipediaPage> action) throws IOException, SAXException {
+    public static void parseDump(InputStream inputStream, Consumer<WikipediaPage> action) throws IOException, SAXException {
         Validate.notNull(inputStream, "inputStream must not be null");
         Validate.notNull(action, "action must not be null");
         try {
@@ -664,7 +664,7 @@ public final class WikipediaUtil {
 
     public static void main(String[] args) throws IOException, SAXException {
         final int[] counter = {0};
-        parseDump(new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2"), new Action<WikipediaPage>() {
+        parseDump(new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2"), new Consumer<WikipediaPage>() {
             @Override
             public void process(WikipediaPage item) {
                 counter[0]++;

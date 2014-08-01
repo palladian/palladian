@@ -10,7 +10,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 
 /**
  * <p>
@@ -27,7 +27,7 @@ class WikipediaPageContentHandler extends DefaultHandler {
     private int pageCounter;
     private final StopWatch stopWatch;
 
-    private final Action<WikipediaPage> callback;
+    private final Consumer<WikipediaPage> callback;
 
     private StringBuilder buffer = new StringBuilder();
     private boolean bufferText = false;
@@ -46,7 +46,7 @@ class WikipediaPageContentHandler extends DefaultHandler {
      * 
      * @param callback The callback to trigger for parsed pages, not <code>null</code>.
      */
-    WikipediaPageContentHandler(Action<WikipediaPage> callback) {
+    WikipediaPageContentHandler(Consumer<WikipediaPage> callback) {
         Validate.notNull(callback, "callback must not be null");
         this.callback = callback;
         this.stopWatch = new StopWatch();

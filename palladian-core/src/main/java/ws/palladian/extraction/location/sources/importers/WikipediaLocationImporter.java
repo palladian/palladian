@@ -32,7 +32,7 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -175,7 +175,7 @@ public class WikipediaLocationImporter {
 
     void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
-        WikipediaUtil.parseDump(inputStream, new Action<WikipediaPage>() {
+        WikipediaUtil.parseDump(inputStream, new Consumer<WikipediaPage>() {
 
             @Override
             public void process(WikipediaPage page) {
@@ -260,7 +260,7 @@ public class WikipediaLocationImporter {
      */
     void importAlternativeNames(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
-        WikipediaUtil.parseDump(inputStream, new Action<WikipediaPage>() {
+        WikipediaUtil.parseDump(inputStream, new Consumer<WikipediaPage>() {
 
             @Override
             public void process(WikipediaPage page) {

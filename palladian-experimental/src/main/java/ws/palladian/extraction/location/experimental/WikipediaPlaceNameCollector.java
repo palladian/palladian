@@ -18,7 +18,7 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMap;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
@@ -55,7 +55,7 @@ public class WikipediaPlaceNameCollector {
 
     static void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException,
             IOException {
-        WikipediaUtil.parseDump(inputStream, new Action<WikipediaPage>() {
+        WikipediaUtil.parseDump(inputStream, new Consumer<WikipediaPage>() {
 
             @Override
             public void process(WikipediaPage page) {

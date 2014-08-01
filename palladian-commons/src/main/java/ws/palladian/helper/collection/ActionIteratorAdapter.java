@@ -5,10 +5,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 
 /**
- * Adapter between a producer which uses an {@link Action} callback and an {@link Iterator}.
+ * Adapter between a producer which uses an {@link Consumer} callback and an {@link Iterator}.
  * 
  * @author pk
  * 
@@ -49,7 +49,7 @@ public abstract class ActionIteratorAdapter<T> {
      * @param action The action.
      * @throws Exception In case, something goes wrong.
      */
-    protected abstract void produce(Action<T> action) throws Exception;
+    protected abstract void produce(Consumer<T> action) throws Exception;
 
     /**
      * <p>
@@ -108,7 +108,7 @@ public abstract class ActionIteratorAdapter<T> {
         }
     }
 
-    private final class QueueAction implements Action<T> {
+    private final class QueueAction implements Consumer<T> {
         private final BlockingQueue<T> queue;
 
         public QueueAction(BlockingQueue<T> queue) {

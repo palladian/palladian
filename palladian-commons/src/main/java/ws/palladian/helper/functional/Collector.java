@@ -1,12 +1,12 @@
-package ws.palladian.helper.io;
+package ws.palladian.helper.functional;
 
 import java.util.Collection;
 
-public class CollectorAction<T> implements Action<T> {
+public class Collector<T> implements Consumer<T> {
 
     private final Collection<T> collection;
 
-    public CollectorAction(Collection<T> collection) {
+    public Collector(Collection<T> collection) {
         this.collection = collection;
     }
 
