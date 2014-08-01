@@ -123,7 +123,7 @@ public final class MathHelper {
 //
 //        return (double)intersection.size() / union.size();
         
-        return SetSimilarities.JACCARD.calculate(setA, setB);
+        return SetSimilarities.JACCARD.getSimilarity(setA, setB);
     }
 
     /**
@@ -149,7 +149,7 @@ public final class MathHelper {
 //
 //        return (double)intersection.size() / Math.min(setA.size(), setB.size());
         
-        return SetSimilarities.OVERLAP.calculate(setA, setB);
+        return SetSimilarities.OVERLAP.getSimilarity(setA, setB);
     }
 
     /** @deprecated Use {@link NumericVector} instead. */

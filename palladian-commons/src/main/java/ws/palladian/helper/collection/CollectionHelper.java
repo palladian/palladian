@@ -451,7 +451,7 @@ public final class CollectionHelper {
      */
     public static <T> boolean removeNulls(Iterable<T> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
-        return remove(iterable, Filters.NULL_FILTER);
+        return remove(iterable, Filters.NOT_NULL);
     }
 
     /**
@@ -940,7 +940,7 @@ public final class CollectionHelper {
      * @param setB The second set, not <code>null</code>.
      * @return A new set which contains only elements occurring in both given sets.
      */
-    public static <T> Set<T> intersect(Set<T> setA, Set<T> setB) {
+    public static <T> Set<T> intersect(Set<? extends T> setA, Set<? extends T> setB) {
         Validate.notNull(setA, "setA must not be null");
         Validate.notNull(setB, "setB must not be null");
         // the most common variant to calculate an intersection is something like this:
@@ -948,8 +948,8 @@ public final class CollectionHelper {
         // however, if both sets have considerably different sizes, this can be optimized,
         // by iterating over the smaller set and checking whether the current element
         // occurs in the larger set:
-        Set<T> smallerSet = setA;
-        Set<T> largerSet = setB;
+        Set<? extends T> smallerSet = setA;
+        Set<? extends T> largerSet = setB;
         if (smallerSet.size() > largerSet.size()) { // swap smaller/larger set if necessary
             smallerSet = setB;
             largerSet = setA;

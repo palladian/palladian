@@ -21,34 +21,34 @@ public class SetSimilaritiesTest {
 
     @Test
     public void testDice() {
-        assertEquals(0.75, SetSimilarities.DICE.calculate(set1, set2), DELTA);
-        assertEquals(1.0, SetSimilarities.DICE.calculate(set1, set3), DELTA);
-        assertEquals(0.0, SetSimilarities.DICE.calculate(set1, set4), DELTA);
-        assertEquals(0.5714, SetSimilarities.DICE.calculate(set1, set5), DELTA);
-        assertEquals(0.0, SetSimilarities.DICE.calculate(emptySet, emptySet), DELTA);
-        assertEquals(0.0, SetSimilarities.DICE.calculate(emptySet, set1), DELTA);
-        assertEquals(0.0, SetSimilarities.DICE.calculate(set1, emptySet), DELTA);
+        assertEquals(0.75, SetSimilarities.DICE.getSimilarity(set1, set2), DELTA);
+        assertEquals(1.0, SetSimilarities.DICE.getSimilarity(set1, set3), DELTA);
+        assertEquals(0.0, SetSimilarities.DICE.getSimilarity(set1, set4), DELTA);
+        assertEquals(0.5714, SetSimilarities.DICE.getSimilarity(set1, set5), DELTA);
+        assertEquals(1.0, SetSimilarities.DICE.getSimilarity(emptySet, emptySet), DELTA);
+        assertEquals(0.0, SetSimilarities.DICE.getSimilarity(emptySet, set1), DELTA);
+        assertEquals(0.0, SetSimilarities.DICE.getSimilarity(set1, emptySet), DELTA);
     }
 
     @Test
     public void testJaccard() {
-        assertEquals(0.6, SetSimilarities.JACCARD.calculate(set1, set2), DELTA);
-        assertEquals(1.0, SetSimilarities.JACCARD.calculate(set1, set3), DELTA);
-        assertEquals(0.0, SetSimilarities.JACCARD.calculate(set1, set4), DELTA);
-        assertEquals(0.4, SetSimilarities.JACCARD.calculate(set1, set5), DELTA);
-        assertEquals(0.0, SetSimilarities.JACCARD.calculate(emptySet, emptySet), DELTA);
-        assertEquals(0.0, SetSimilarities.JACCARD.calculate(emptySet, set1), DELTA);
-        assertEquals(0.0, SetSimilarities.JACCARD.calculate(set1, emptySet), DELTA);
+        assertEquals(0.6, SetSimilarities.JACCARD.getSimilarity(set1, set2), DELTA);
+        assertEquals(1.0, SetSimilarities.JACCARD.getSimilarity(set1, set3), DELTA);
+        assertEquals(0.0, SetSimilarities.JACCARD.getSimilarity(set1, set4), DELTA);
+        assertEquals(0.4, SetSimilarities.JACCARD.getSimilarity(set1, set5), DELTA);
+        assertEquals(1.0, SetSimilarities.JACCARD.getSimilarity(emptySet, emptySet), DELTA);
+        assertEquals(0.0, SetSimilarities.JACCARD.getSimilarity(emptySet, set1), DELTA);
+        assertEquals(0.0, SetSimilarities.JACCARD.getSimilarity(set1, emptySet), DELTA);
     }
 
     @Test
     public void testOverlap() {
-        assertEquals(0.75, SetSimilarities.OVERLAP.calculate(set1, set2), DELTA);
-        assertEquals(1.0, SetSimilarities.OVERLAP.calculate(set1, set3), DELTA);
-        assertEquals(0.0, SetSimilarities.OVERLAP.calculate(set1, set4), DELTA);
-        assertEquals(1.0, SetSimilarities.OVERLAP.calculate(set1, set5), DELTA);
-        assertEquals(0.0, SetSimilarities.OVERLAP.calculate(emptySet, emptySet), DELTA);
-        assertEquals(0.0, SetSimilarities.OVERLAP.calculate(emptySet, set1), DELTA);
-        assertEquals(0.0, SetSimilarities.OVERLAP.calculate(set1, emptySet), DELTA);
+        assertEquals(0.75, SetSimilarities.OVERLAP.getSimilarity(set1, set2), DELTA);
+        assertEquals(1.0, SetSimilarities.OVERLAP.getSimilarity(set1, set3), DELTA);
+        assertEquals(0.0, SetSimilarities.OVERLAP.getSimilarity(set1, set4), DELTA);
+        assertEquals(1.0, SetSimilarities.OVERLAP.getSimilarity(set1, set5), DELTA);
+        assertEquals(1.0, SetSimilarities.OVERLAP.getSimilarity(emptySet, emptySet), DELTA);
+        assertEquals(0.0, SetSimilarities.OVERLAP.getSimilarity(emptySet, set1), DELTA);
+        assertEquals(0.0, SetSimilarities.OVERLAP.getSimilarity(set1, emptySet), DELTA);
     }
 }

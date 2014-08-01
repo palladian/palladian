@@ -58,7 +58,7 @@ public class CharacterNGramSimilarity extends AbstractStringMetric {
         }
         Set<String> nGrams1 = createNGrams(s1lower, n);
         Set<String> nGrams2 = createNGrams(s2lower, n);
-        return setSimilarity.calculate(nGrams1, nGrams2);
+        return setSimilarity.getSimilarity(nGrams1, nGrams2);
     }
 
     /**

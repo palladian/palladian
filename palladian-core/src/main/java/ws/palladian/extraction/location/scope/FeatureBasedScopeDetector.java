@@ -205,7 +205,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
      * @param modelFile The file path where the created model is to be stored, <code>null</code> to train no model.
      * @param csvFile The file path where to write the CSV with the instances, <code>null</code> to write no CSV file.
      * @param learner The {@link Learner}, in case a model is to be trained, <code>null</code> otherwise.
-     * @param featureFilter A filter to exclude specific features, not <code>null</code>. Set to {@link Filter#ACCEPT}
+     * @param featureFilter A filter to exclude specific features, not <code>null</code>. Set to {@link Filter#ALL}
      *            to remove no features.
      * @throws IOException In case of an I/O exception when writing the model.
      */

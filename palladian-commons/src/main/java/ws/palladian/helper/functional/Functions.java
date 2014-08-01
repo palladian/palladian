@@ -71,4 +71,25 @@ public final class Functions {
 
     }
 
+    /**
+     * <p>
+     * Creates a {@link Function} which serves as adapter, to return a more common type than the given input type. E.g.
+     * return <code>Number</code> for given <code>Double</code>. This is useful, when you need to convert an
+     * {@link Iterator} to a more common type using the {@link CollectionHelper}.
+     * 
+     * @param input Type of the input, not <code>null</code>.
+     * @param output Type of the output, must be superclass of input, not <code>null</code>.
+     * @return The function.
+     */
+    public static <O, I extends O> Function<I, O> adapt(Class<I> input, Class<O> output) {
+        Validate.notNull(input, "input must not be null");
+        Validate.notNull(output, "output must not be null");
+        return new Function<I, O>() {
+            @Override
+            public I compute(I input) {
+                return input;
+            }
+        };
+    }
+
 }

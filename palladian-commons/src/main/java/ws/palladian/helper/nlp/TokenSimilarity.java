@@ -41,7 +41,7 @@ public class TokenSimilarity extends AbstractStringMetric {
 
         Set<String> split1 = CollectionHelper.newHashSet(s1lower.split("\\s"));
         Set<String> split2 = CollectionHelper.newHashSet(s2lower.split("\\s"));
-        return similarity.calculate(split1, split2);
+        return similarity.getSimilarity(split1, split2);
     }
 
     @Override
