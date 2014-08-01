@@ -1,4 +1,4 @@
-package ws.palladian.helper.collection;
+package ws.palladian.helper.functional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Function;
+import ws.palladian.helper.functional.LinkedFunctionBuilder;
 
 public class LinkedFunctionBuilderTest {
 

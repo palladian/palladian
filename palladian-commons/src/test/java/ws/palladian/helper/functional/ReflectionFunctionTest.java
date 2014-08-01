@@ -1,4 +1,4 @@
-package ws.palladian.helper.collection;
+package ws.palladian.helper.functional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.functional.ReflectionFunction;
 
 public class ReflectionFunctionTest {
 

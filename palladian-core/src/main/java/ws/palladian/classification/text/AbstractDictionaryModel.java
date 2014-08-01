@@ -10,7 +10,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.functional.Function;
 
 public abstract class AbstractDictionaryModel implements DictionaryModel {
 

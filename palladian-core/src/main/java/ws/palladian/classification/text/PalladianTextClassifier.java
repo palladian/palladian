@@ -19,7 +19,7 @@ import ws.palladian.core.Learner;
 import ws.palladian.core.TextValue;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Function;
+import ws.palladian.helper.functional.Function;
 
 /**
  * <p>

@@ -34,10 +34,10 @@ import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
-import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**

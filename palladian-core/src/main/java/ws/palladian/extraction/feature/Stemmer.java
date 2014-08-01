@@ -19,8 +19,8 @@ import org.tartarus.snowball.ext.spanishStemmer;
 import org.tartarus.snowball.ext.swedishStemmer;
 import org.tartarus.snowball.ext.turkishStemmer;
 
-import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.functional.Function;
 
 /**
  * @author Philipp Katz
