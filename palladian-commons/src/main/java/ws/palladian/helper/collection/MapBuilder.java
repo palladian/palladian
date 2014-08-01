@@ -3,6 +3,8 @@ package ws.palladian.helper.collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import ws.palladian.helper.functional.Factory;
+
 /**
  * <p>
  * This class simplifies the initialization of {@link Map}s. The {@link #add(Object, Object)} method allows chaining of

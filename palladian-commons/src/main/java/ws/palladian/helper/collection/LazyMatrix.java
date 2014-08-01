@@ -2,6 +2,8 @@ package ws.palladian.helper.collection;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.functional.Factory;
+
 /**
  * A {@link LazyMatrix} is a matrix which never returns <code>null</code>, when invoking {@link #get(Object, Object)}.
  * Instead, when the requested cell is absent, a {@link Factory} is used to create it and put it in the matrix.

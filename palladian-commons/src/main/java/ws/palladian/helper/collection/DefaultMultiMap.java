@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.functional.Factory;
+
 /**
  * <p>
  * {@link MultiMap} implementation. It provides two default implementations, one using a {@link List} to store values,

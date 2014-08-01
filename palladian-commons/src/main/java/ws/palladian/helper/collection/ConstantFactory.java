@@ -1,5 +1,7 @@
 package ws.palladian.helper.collection;
 
+import ws.palladian.helper.functional.Factory;
+
 /**
  * <p>
  * A specific {@link Factory} for creating constant values.

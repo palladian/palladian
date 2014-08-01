@@ -4,8 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;

@@ -2,7 +2,7 @@ package ws.palladian.retrieval;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.functional.Factory;
 
 
 /**

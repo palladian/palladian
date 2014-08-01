@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ws.palladian.helper.functional.Factory;
+
 /**
  * <p>
  * A {@link LazyMap} decorates an ordinary {@link Map}, but creates objects which are not present in the map when they
