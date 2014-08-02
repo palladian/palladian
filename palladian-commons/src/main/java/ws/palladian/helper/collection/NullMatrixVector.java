@@ -16,11 +16,11 @@ import ws.palladian.helper.collection.Matrix.MatrixVector;
  * @param <K>
  * @param <V>
  */
-final class NullMatrixEntry<K, V> implements MatrixVector<K, V> {
+final class NullMatrixVector<K, V> implements MatrixVector<K, V> {
 
     private final K key;
 
-    NullMatrixEntry(K key) {
+    NullMatrixVector(K key) {
         this.key = key;
     }
 
