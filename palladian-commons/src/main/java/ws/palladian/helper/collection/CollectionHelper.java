@@ -1019,5 +1019,33 @@ public final class CollectionHelper {
         }
         return count;
     }
+    
+    /**
+     * <p>
+     * Make a given {@link Iterator} read-only. Invoking {@link Iterator#remove()} will trigger an
+     * {@link UnsupportedOperationException}.
+     * 
+     * @param iterator The iterator, not <code>null</code>.
+     * @return An iterator wrapping the given one, whithout the possibility for modifications.
+     */
+    public static <T> Iterator<T> unmodifiableIterator(final Iterator<T> iterator) {
+        Validate.notNull(iterator, "iterator must not be null");
+        return new Iterator<T>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public T next() {
+                return iterator.next();
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Modifications are not allowed.");
+            }
+        };
+    }
 
 }

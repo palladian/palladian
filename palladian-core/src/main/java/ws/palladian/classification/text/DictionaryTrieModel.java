@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.ImmutableCategory;
 import ws.palladian.classification.ImmutableCategoryEntries;
+import ws.palladian.classification.text.Trie.TrieNode;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
@@ -55,7 +56,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryTrieModel.Builder.class);
 
         /** Trie with term-category combinations with their counts. */
-        private final TrieCategoryEntries entryTrie = new TrieCategoryEntries();
+        private final TrieNode entryTrie = new TrieNode();
         /** Counter for categories based on documents. */
         private final CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
         /** Counter for categories based on terms. */
@@ -86,11 +87,11 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             Validate.notNull(terms, "terms must not be null");
             Validate.notNull(category, "category must not be null");
             for (String term : terms) {
-                TrieCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
-                if (categoryEntries.totalCount == 0) { // term was not present before
+                TrieNode trieNode = entryTrie.getOrAdd(term, true);
+                if (trieNode.getCategoryEntries().getTotalCount() == 0) { // term was not present before
                     numTerms++;
                 }
-                categoryEntries.increment(category, 1);
+                trieNode.getCategoryEntries().increment(category, 1);
                 termCountBuilder.add(category, 1);
             }
             documentCountBuilder.add(category, 1);
@@ -101,11 +102,13 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         public DictionaryModel create() {
             if (pruningStrategies.size() > 0) {
                 for (PruningStrategy pruningStrategy : pruningStrategies) {
-                    Iterator<TrieCategoryEntries> iterator = new TrieIterator(entryTrie, false);
+                    Iterator<TrieNode> iterator = entryTrie.iterator();
                     int numRemoved = 0;
                     while (iterator.hasNext()) {
-                        TrieCategoryEntries categoryEntries = iterator.next();
-                        if (pruningStrategy.remove(categoryEntries)) {
+                        TrieNode categoryEntries = iterator.next();
+                        LinkedCategoryEntries term = categoryEntries.getCategoryEntries(); // FIXME
+                        TermCategoryEntries fixme = new ImmutableTermCategoryEntries(categoryEntries.getTerm(), term);
+                        if (pruningStrategy.remove(fixme)) {
                             iterator.remove();
                             numRemoved++;
                         }
@@ -116,9 +119,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 entryTrie.clean();
                 // re-calculate term counts
                 termCountBuilder.clear();
-                TrieIterator iterator = new TrieIterator(entryTrie, true);
+                Iterator<TrieNode> iterator = entryTrie.iterator();
                 while (iterator.hasNext()) {
-                    termCountBuilder.add(iterator.next());
+                    termCountBuilder.add(iterator.next().getCategoryEntries());
                 }
             }
             return new DictionaryTrieModel(this);
@@ -134,9 +137,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         @Override
         public DictionaryBuilder addDictionary(DictionaryModel model) {
             for (TermCategoryEntries addEntry : model) {
-                TrieCategoryEntries existingEntry = entryTrie.getOrAdd(addEntry.getTerm(), true);
+                TrieNode existingEntry = entryTrie.getOrAdd(addEntry.getTerm(), true);
                 for (Category addCategory : addEntry) {
-                    existingEntry.append(addCategory.getName(), addCategory.getCount());
+                    existingEntry.getCategoryEntries().append(addCategory.getName(), addCategory.getCount());
                 }
                 numTerms++;
             }
@@ -160,7 +163,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     private static final int VERSION = 1;
 
     /** Trie with term-category combinations with their counts. */
-    private transient TrieCategoryEntries entryTrie;
+    private transient TrieNode entryTrie;
 
     /** The priors, determined from the documents. */
     private transient CategoryEntries documentCounts;
@@ -185,7 +188,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
      */
     @Deprecated
     public DictionaryTrieModel(FeatureSetting featureSetting) {
-        this.entryTrie = new TrieCategoryEntries();
+        this.entryTrie = new TrieNode();
         this.numTerms = 0;
         this.featureSetting = featureSetting;
         this.name = NO_NAME;
@@ -220,18 +223,19 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     public void updateTerm(String term, String category) {
         Validate.notNull(term, "term must not be null");
         Validate.notNull(category, "category must not be null");
-        TrieCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
-        if (categoryEntries.totalCount == 0) { // term was not present before
+        TrieNode categoryEntries = entryTrie.getOrAdd(term, true);
+        if (categoryEntries.getCategoryEntries().getTotalCount() == 0) { // term was not present before
             numTerms++;
         }
-        categoryEntries.increment(category, 1);
+        categoryEntries.getCategoryEntries().increment(category, 1);
     }
 
     @Override
     public TermCategoryEntries getCategoryEntries(String term) {
         Validate.notNull(term, "term must not be null");
-        TermCategoryEntries node = entryTrie.get(term);
-        return node != null ? node : TrieCategoryEntries.EMPTY;
+        TrieNode node = entryTrie.get(term);
+        // XXX
+        return node != null ? new ImmutableTermCategoryEntries(term,node.getCategoryEntries()) : new ImmutableTermCategoryEntries(term);
     }
 
     @Override
@@ -241,8 +245,28 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     @Override
     public Iterator<TermCategoryEntries> iterator() {
-        return CollectionHelper.convert(new TrieIterator(entryTrie, true),
-                Functions.adapt(TrieCategoryEntries.class, TermCategoryEntries.class));
+//        return CollectionHelper.convert(new TrieIterator(entryTrie, true),
+//                Functions.adapt(TrieCategoryEntries.class, TermCategoryEntries.class));
+        return new Iterator<TermCategoryEntries>() {
+            final Iterator<TrieNode> nodeIterator = entryTrie.iterator();
+
+            @Override
+            public boolean hasNext() {
+                return nodeIterator.hasNext();
+            }
+
+            @Override
+            public TermCategoryEntries next() {
+                TrieNode nextNode = nodeIterator.next();
+                LinkedCategoryEntries nextEntries = nextNode.getCategoryEntries();
+                return new ImmutableTermCategoryEntries(nextNode.getTerm(), nextEntries);
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     @Override
@@ -323,7 +347,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             throw new IOException("Unsupported version: " + version);
         }
         Map<Integer, String> categoryIndices = CollectionHelper.newHashMap();
-        entryTrie = new TrieCategoryEntries();
+        entryTrie = new TrieNode();
         // header
         int numCategories = in.readInt();
         CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
@@ -342,13 +366,13 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
-            TrieCategoryEntries categoryEntries = entryTrie.getOrAdd(term, true);
+            TrieNode categoryEntries = entryTrie.getOrAdd(term, true);
             int numProbabilityEntries = in.readInt();
             for (int j = 0; j < numProbabilityEntries; j++) {
                 int categoryIdx = in.readInt();
                 String categoryName = categoryIndices.get(categoryIdx);
                 int categoryCount = in.readInt();
-                categoryEntries.append(categoryName, categoryCount);
+                categoryEntries.getCategoryEntries().append(categoryName, categoryCount);
                 termCountBuilder.add(categoryName, categoryCount);
             }
             monitor.increment();
@@ -359,282 +383,5 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         // name
         name = (String)in.readObject();
     }
-
-//    // iterator over all entries
-//
-//    private static final class TrieIterator extends AbstractIterator<TrieCategoryEntries> {
-//        private final Deque<Iterator<TrieCategoryEntries>> stack;
-//        private TrieCategoryEntries currentEntries;
-//        private final boolean readOnly;
-//
-//        private TrieIterator(TrieCategoryEntries root, boolean readOnly) {
-//            stack = new ArrayDeque<Iterator<TrieCategoryEntries>>();
-//            stack.push(root.children());
-//            this.readOnly = readOnly;
-//        }
-//
-//        @Override
-//        protected TrieCategoryEntries getNext() throws Finished {
-//            for (;;) {
-//                if (stack.isEmpty()) {
-//                    throw FINISHED;
-//                }
-//                Iterator<TrieCategoryEntries> current = stack.peek();
-//                if (!current.hasNext()) {
-//                    throw FINISHED;
-//                }
-//                TrieCategoryEntries node = current.next();
-//                if (!current.hasNext()) {
-//                    stack.pop();
-//                }
-//                Iterator<TrieCategoryEntries> children = node.children();
-//                if (children.hasNext()) {
-//                    stack.push(children);
-//                }
-//                if (node.hasData()) {
-//                    currentEntries = node;
-//                    return node;
-//                }
-//            }
-//        }
-//
-//        @Override
-//        public void remove() {
-//            if (readOnly) {
-//                throw new UnsupportedOperationException("Modifications are not allowed.");
-//            }
-//            if (currentEntries == null) {
-//                throw new NoSuchElementException();
-//            }
-//            currentEntries.firstCategory = null;
-//        }
-//
-//    }
-
-    // inner classes
-
-//    private static class TrieCategoryEntries extends AbstractCategoryEntries implements TermCategoryEntries {
-//
-//        private static final char EMPTY_CHARACTER = '\u0000';
-//
-//        private static final TrieCategoryEntries EMPTY = new TrieCategoryEntries();
-//
-//        private static final TrieCategoryEntries[] EMPTY_ARRAY = new TrieCategoryEntries[0];
-//
-//        private final char character;
-//
-//        private final TrieCategoryEntries parent;
-//
-//        private TrieCategoryEntries[] children = EMPTY_ARRAY;
-//
-//        private LinkedCategoryCount firstCategory;
-//
-//        private int totalCount;
-//
-//        private TrieCategoryEntries() {
-//            this(EMPTY_CHARACTER, null);
-//        }
-//
-//        private TrieCategoryEntries(char character, TrieCategoryEntries parent) {
-//            this.character = character;
-//            this.parent = parent;
-//        }
-//
-//        private TrieCategoryEntries get(CharSequence key) {
-//            return getOrAdd(key, false);
-//        }
-//
-//        private TrieCategoryEntries getOrAdd(CharSequence key, boolean create) {
-//            if (key == null || key.length() == 0) {
-//                return this;
-//            }
-//            char head = key.charAt(0);
-//            CharSequence tail = tail(key);
-//            for (TrieCategoryEntries node : children) {
-//                if (head == node.character) {
-//                    return node.getOrAdd(tail, create);
-//                }
-//            }
-//            if (create) {
-//                TrieCategoryEntries newNode = new TrieCategoryEntries(head, this);
-//                if (children == EMPTY_ARRAY) {
-//                    children = new TrieCategoryEntries[] {newNode};
-//                } else {
-//                    TrieCategoryEntries[] newArray = new TrieCategoryEntries[children.length + 1];
-//                    System.arraycopy(children, 0, newArray, 0, children.length);
-//                    newArray[children.length] = newNode;
-//                    children = newArray;
-//                }
-//                return newNode.getOrAdd(tail, create);
-//            } else {
-//                return null;
-//            }
-//        }
-//
-//        private CharSequence tail(CharSequence seq) {
-//            return seq.length() > 1 ? seq.subSequence(1, seq.length()) : null;
-//        }
-//
-//        /**
-//         * Increments a category count by the given value.
-//         * 
-//         * @param category the category to increment, not <code>null</code>.
-//         * @param count the number by which to increment, greater/equal zero.
-//         */
-//        private void increment(String category, int count) {
-//            for (LinkedCategoryCount current = firstCategory; current != null; current = current.nextCategory) {
-//                if (category.equals(current.categoryName)) {
-//                    current.count += count;
-//                    totalCount += count;
-//                    return;
-//                }
-//            }
-//            append(category, count);
-//        }
-//
-//        /**
-//         * Add a category with a given count (no duplicate checking takes place: only to be used, when one can make sure
-//         * that it does not already exist).
-//         * 
-//         * @param category the category to add, not <code>null</code>.
-//         * @param count the count to set for the category.
-//         */
-//        private void append(String category, int count) {
-//            LinkedCategoryCount tmp = firstCategory;
-//            firstCategory = new LinkedCategoryCount(category, count);
-//            firstCategory.nextCategory = tmp;
-//            totalCount += count;
-//        }
-//
-//        @Override
-//        public Iterator<Category> iterator() {
-//            return new AbstractIterator<Category>() {
-//                LinkedCategoryCount next = firstCategory;
-//
-//                @Override
-//                protected Category getNext() throws Finished {
-//                    if (next == null) {
-//                        throw FINISHED;
-//                    }
-//                    String categoryName = next.categoryName;
-//                    double probability = (double)next.count / totalCount;
-//                    int count = next.count;
-//                    next = next.nextCategory;
-//                    return new ImmutableCategory(categoryName, probability, count);
-//                }
-//
-//            };
-//        }
-//
-//        private Iterator<TrieCategoryEntries> children() {
-//            return new ArrayIterator<TrieCategoryEntries>(children);
-//        }
-//
-//        private boolean hasData() {
-//            return firstCategory != null;
-//        }
-//
-//        @Override
-//        public String getTerm() {
-//            StringBuilder builder = new StringBuilder().append(character);
-//            for (TrieCategoryEntries current = parent; current != null; current = current.parent) {
-//                if (current.character != EMPTY_CHARACTER) {
-//                    builder.append(current.character);
-//                }
-//            }
-//            return builder.reverse().toString();
-//        }
-//
-//        @Override
-//        public int getTotalCount() {
-//            return totalCount;
-//        }
-//
-//        /**
-//         * Remove all empty nodes which have no children (saves memory, in case terms have been removed from the trie).
-//         * 
-//         * @return <code>true</code> in case this node is empty and has no children.
-//         */
-//        private boolean clean() {
-//            boolean clean = true;
-//            List<TrieCategoryEntries> temp = CollectionHelper.newArrayList();
-//            for (TrieCategoryEntries entries : children) {
-//                boolean childClean = entries.clean();
-//                if (!childClean) {
-//                    temp.add(entries);
-//                }
-//                clean &= childClean;
-//            }
-//            int childCount = temp.size();
-//            children = childCount > 0 ? temp.toArray(new TrieCategoryEntries[childCount]) : EMPTY_ARRAY;
-//            clean &= !hasData();
-//            return clean;
-//        }
-//
-//        @Override
-//        public int hashCode() {
-//            final int prime = 31;
-//            int result = 1;
-//            for (Category category : this) {
-//                result += category.hashCode();
-//            }
-//            result = prime * result + getTerm().hashCode();
-//            return result;
-//        }
-//
-//        @Override
-//        public boolean equals(Object obj) {
-//            if (this == obj) {
-//                return true;
-//            }
-//            if (obj == null || getClass() != obj.getClass()) {
-//                return false;
-//            }
-//            TermCategoryEntries other = (TermCategoryEntries)obj;
-//            if (!getTerm().equals(other.getTerm())) {
-//                return false;
-//            }
-//            if (size() != other.size()) {
-//                return false;
-//            }
-//            for (Category thisCategory : this) {
-//                int thisCount = thisCategory.getCount();
-//                int otherCount = other.getCount(thisCategory.getName());
-//                if (thisCount != otherCount) {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            StringBuilder builder = new StringBuilder();
-//            builder.append(getTerm()).append(':');
-//            boolean first = true;
-//            for (Category category : this) {
-//                if (first) {
-//                    first = false;
-//                } else {
-//                    builder.append(',');
-//                }
-//                builder.append(category);
-//            }
-//            return builder.toString();
-//        }
-//
-//    }
-
-//    private static final class LinkedCategoryCount {
-//        private final String categoryName;
-//        private int count;
-//        private LinkedCategoryCount nextCategory;
-//
-//        private LinkedCategoryCount(String name, int count) {
-//            this.categoryName = name;
-//            this.count = count;
-//        }
-//
-//    }
 
 }
