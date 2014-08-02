@@ -241,21 +241,21 @@ public final class CollectionHelper {
         print(iterable.iterator());
     }
 
-    /**
-     * <p>
-     * Concatenate two String arrays.
-     * </p>
-     * 
-     * @param array1
-     * @param array2
-     * @return The concatenated String array consisting of the first, then the second array's items.
-     */
-    public static String[] concat(String[] array1, String[] array2) {
-        String[] helpArray = new String[array1.length + array2.length];
-        System.arraycopy(array1, 0, helpArray, 0, array1.length);
-        System.arraycopy(array2, 0, helpArray, array1.length, array2.length);
-        return helpArray;
-    }
+//    /**
+//     * <p>
+//     * Concatenate two String arrays.
+//     * </p>
+//     * 
+//     * @param array1
+//     * @param array2
+//     * @return The concatenated String array consisting of the first, then the second array's items.
+//     */
+//    public static String[] concat(String[] array1, String[] array2) {
+//        String[] helpArray = new String[array1.length + array2.length];
+//        System.arraycopy(array1, 0, helpArray, 0, array1.length);
+//        System.arraycopy(array2, 0, helpArray, array1.length, array2.length);
+//        return helpArray;
+//    }
 
     /**
      * <p>
@@ -617,16 +617,19 @@ public final class CollectionHelper {
      * @param list The Iterable from which to get the element, not <code>null</code>.
      * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
      * @return The first X elements, or an empty list if the iterable was empty.
+     * @deprecated Use {@link #limit(Iterable, int)} instead.
      */
+    @Deprecated
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
-        List<T> result = CollectionHelper.newArrayList();
-        for (T t : iterable) {
-            result.add(t);
-            if (result.size() == num) {
-                break;
-            }
-        }
-        return result;
+//        List<T> result = CollectionHelper.newArrayList();
+//        for (T t : iterable) {
+//            result.add(t);
+//            if (result.size() == num) {
+//                break;
+//            }
+//        }
+//        return result;
+        return newArrayList(limit(iterable, num));
     }
 
     /**
@@ -640,7 +643,9 @@ public final class CollectionHelper {
      * @return The sublist.
      */
     public static <T> List<T> getSublist(List<T> list, int offset, int num) {
-        Validate.notNull(list);
+        Validate.notNull(list, "list must not be null");
+        Validate.isTrue(offset >= 0, "offset must be greater/equal zero");
+        Validate.isTrue(num >= 0, "num must be greater/equal zero");
         int o = Math.min(list.size(), offset);
         int n = Math.min(num, list.size() - o);
         return list.subList(o, o + n);
@@ -656,10 +661,7 @@ public final class CollectionHelper {
      */
     public static <T> T getLast(List<T> list) {
         Validate.notNull(list, "list must not be null");
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.get(list.size() - 1);
+        return list.isEmpty() ? null : list.get(list.size() - 1);
     }
 
     /**
