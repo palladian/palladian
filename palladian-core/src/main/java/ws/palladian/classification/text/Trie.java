@@ -10,10 +10,11 @@ import java.util.NoSuchElementException;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Trie<V> implements Map.Entry<String, V>, Iterable<Trie<V>> {
+public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String, V>> {
 
     private static final char EMPTY_CHARACTER = '\u0000';
 
@@ -28,20 +29,19 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Trie<V>> {
     private V value;
 
     public Trie() {
-        this(EMPTY_CHARACTER, null, null);
+        this(EMPTY_CHARACTER, null);
     }
 
-    private Trie(char character, Trie<V> parent, V value) {
+    private Trie(char character, Trie<V> parent) {
         this.character = character;
         this.parent = parent;
-        this.value = value;
     }
 
     public Trie<V> getNode(CharSequence key) {
-        return getOrAddNode(key, null);
+        return getNode(key, false);
     }
 
-    public Trie<V> getOrAddNode(CharSequence key, Factory<V> valueFactory) {
+    private Trie<V> getNode(CharSequence key, boolean create) {
         if (key == null || key.length() == 0) {
             return this;
         }
@@ -49,15 +49,11 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Trie<V>> {
         CharSequence tail = tail(key);
         for (Trie<V> node : children) {
             if (head == node.character) {
-                return node.getOrAddNode(tail, valueFactory);
+                return node.getNode(tail, create);
             }
         }
-        if (valueFactory != null) {
-            V value = null;
-            if (tail == null || tail.length() == 0) { // XXX integrate better
-                value = valueFactory.create();
-            }
-            Trie<V> newNode = new Trie<V>(head, this, value);
+        if (create) {
+            Trie<V> newNode = new Trie<V>(head, this);
             if (children == EMPTY_ARRAY) {
                 children = new Trie[] {newNode};
             } else {
@@ -66,10 +62,34 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Trie<V>> {
                 newArray[children.length] = newNode;
                 children = newArray;
             }
-            return newNode.getOrAddNode(tail, valueFactory);
+            return newNode.getNode(tail, create);
         } else {
             return null;
         }
+    }
+
+    public V put(String key, V value) {
+        Trie<V> node = getNode(key, true);
+        V oldValue = node.value;
+        node.value = value;
+        return oldValue;
+    }
+
+    public V get(String key) {
+        Trie<V> node = getNode(key);
+        return node != null ? node.getValue() : null;
+    }
+
+    public V getOrPut(String key, V value) {
+        return getOrPut(key, Factories.constant(value));
+    }
+
+    public V getOrPut(String key, Factory<V> valueFactory) {
+        Trie<V> node = getNode(key, true);
+        if (node.value == null) {
+            node.value = valueFactory.create();
+        }
+        return node.value;
     }
 
     @Override
@@ -129,8 +149,12 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Trie<V>> {
     }
 
     @Override
-    public Iterator<Trie<V>> iterator() {
-        return new TrieIterator<V>(this);
+    public Iterator<Map.Entry<String, V>> iterator() {
+        return new TrieEntryIterator<V>(this);
+    }
+    
+    public int size() {
+        return CollectionHelper.count(this.iterator());
     }
 
     @Override
@@ -140,17 +164,17 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Trie<V>> {
 
     // iterator over all entries
 
-    private static final class TrieIterator<V> extends AbstractIterator<Trie<V>> {
+    private static final class TrieEntryIterator<V> extends AbstractIterator<Map.Entry<String, V>> {
         private final Deque<Iterator<Trie<V>>> stack;
         private Trie<V> currentNode;
 
-        private TrieIterator(Trie<V> root) {
+        private TrieEntryIterator(Trie<V> root) {
             stack = new ArrayDeque<Iterator<Trie<V>>>();
             stack.push(root.children());
         }
 
         @Override
-        protected Trie<V> getNext() throws Finished {
+        protected Map.Entry<String, V> getNext() throws Finished {
             for (;;) {
                 if (stack.isEmpty()) {
                     throw FINISHED;

@@ -5,21 +5,18 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Factories;
-
 public class TrieTest {
-    
+
     @Test
     public void testTrie() {
         Trie<Integer> trie = new Trie<Integer>();
-        trie.getOrAddNode("to", Factories.constant(1));
-        trie.getOrAddNode("tea", Factories.constant(2));
-        trie.getOrAddNode("ted", Factories.constant(3));
-        trie.getOrAddNode("ten", Factories.constant(4));
-        assertEquals(4, CollectionHelper.count(trie.iterator()));
+        trie.put("to", 1);
+        trie.put("tea", 2);
+        trie.put("ted", 3);
+        trie.put("ten", 4);
+        assertEquals(4, trie.size());
         assertNull(trie.getNode("a"));
-        assertEquals(3, CollectionHelper.count(trie.getNode("te").iterator()));
+        assertEquals(3, trie.getNode("te").size());
         // CollectionHelper.print(trie);
     }
 
