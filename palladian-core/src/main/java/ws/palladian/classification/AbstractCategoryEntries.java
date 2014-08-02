@@ -57,7 +57,7 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
         }
         return null;
     }
-    
+
     @Override
     public int size() {
         int count = 0;
@@ -96,6 +96,37 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
         }
         toStringBuilder.append(']');
         return toStringBuilder.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        for (Category category : this) {
+            result += category.hashCode();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        CategoryEntries other = (CategoryEntries)obj;
+        if (size() != other.size()) {
+            return false;
+        }
+        for (Category thisCategory : this) {
+            int thisCount = thisCategory.getCount();
+            int otherCount = other.getCount(thisCategory.getName());
+            if (thisCount != otherCount) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
