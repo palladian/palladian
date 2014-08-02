@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.helper.NoThrottle;
@@ -26,19 +28,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  */
 public class HttpCrawler {
 
-    public static interface CrawlAction {
-
-        void pageCrawled(HttpResult result);
-
-    }
-
     private final class RetrievalTask implements Runnable {
-
-        private final Queue<String> urlQueue;
-
-        public RetrievalTask(Queue<String> urlQueue) {
-            this.urlQueue = urlQueue;
-        }
 
         @Override
         public void run() {
@@ -56,7 +46,7 @@ public class HttpCrawler {
                 LOGGER.debug("Fetching {}", url);
                 try {
                     HttpResult result = httpRetriever.httpGet(url);
-                    action.pageCrawled(result);
+                    action.process(result);
                     // extract new links
                     Document document = htmlParser.parse(result);
                     Set<String> links = HtmlHelper.getLinks(document, true, true);
@@ -102,15 +92,15 @@ public class HttpCrawler {
 
     private final Filter<String> urlFilter;
 
-    private final CrawlAction action;
+    private final Consumer<HttpResult> action;
 
     private final RequestThrottle throttle;
 
-    public HttpCrawler(Filter<String> urlFilter, CrawlAction action) {
-        this(urlFilter, action, NoThrottle.INSTANCE, TimeUnit.SECONDS);
+    public HttpCrawler(Filter<String> urlFilter, Consumer<HttpResult> action) {
+        this(urlFilter, action, NoThrottle.INSTANCE);
     }
 
-    public HttpCrawler(Filter<String> urlFilter, CrawlAction action, RequestThrottle throttle, TimeUnit unit) {
+    public HttpCrawler(Filter<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle) {
         urlQueue = new ConcurrentLinkedQueue<String>();
         checkedUrls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
@@ -142,24 +132,19 @@ public class HttpCrawler {
 
     public void start() {
         for (int i = 0; i < NUM_THREADS; i++) {
-            new Thread(new RetrievalTask(urlQueue)).start();
+            new Thread(new RetrievalTask()).start();
         }
         new Thread(new MonitoringTask()).start();
     }
 
     public static void main(String[] args) {
-        Filter<String> urlFilter = new Filter<String>() {
+        Filter<String> urlFilter = Filters.regex("http://www.breakingnews.com/topic/.*");
+        HttpCrawler crawler = new HttpCrawler(urlFilter, new Consumer<HttpResult>() {
             @Override
-            public boolean accept(String item) {
-                return item.startsWith("http://www.breakingnews.com/topic/");
-            }
-        };
-        HttpCrawler crawler = new HttpCrawler(urlFilter, new CrawlAction() {
-            @Override
-            public void pageCrawled(HttpResult result) {
+            public void process(HttpResult result) {
                 System.out.println("Fetched " + result.getUrl());
             }
-        }, new FixedIntervalRequestThrottle(10), TimeUnit.SECONDS);
+        }, new FixedIntervalRequestThrottle(100, TimeUnit.MILLISECONDS));
         crawler.add("http://www.breakingnews.com");
         crawler.start();
     }

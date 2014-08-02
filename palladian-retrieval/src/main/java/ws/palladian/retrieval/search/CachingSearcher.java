@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.MruMap;
+import ws.palladian.helper.collection.LruMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.resources.WebContent;
 
@@ -20,9 +20,9 @@ public class CachingSearcher<R extends WebContent> extends AbstractSearcher<R> {
 
     private final Searcher<R> searcher;
 
-    private final MruMap<String, List<R>> searchCache;
+    private final LruMap<String, List<R>> searchCache;
 
-    private final MruMap<String, Long> countCache;
+    private final LruMap<String, Long> countCache;
 
     /**
      * <p>
@@ -36,8 +36,8 @@ public class CachingSearcher<R extends WebContent> extends AbstractSearcher<R> {
         Validate.isTrue(cacheSize > 0, "cacheSize must be greater zero");
         Validate.notNull(searcher, "searcher must not be null");
         this.searcher = searcher;
-        searchCache = new MruMap<String, List<R>>(cacheSize);
-        countCache = new MruMap<String, Long>(cacheSize);
+        searchCache = LruMap.insertionOrder(cacheSize);
+        countCache = LruMap.insertionOrder(cacheSize);
     }
     
 	@Override
