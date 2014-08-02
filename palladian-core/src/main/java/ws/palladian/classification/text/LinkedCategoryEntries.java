@@ -6,8 +6,16 @@ import ws.palladian.classification.AbstractCategoryEntries;
 import ws.palladian.classification.ImmutableCategory;
 import ws.palladian.core.Category;
 import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.functional.Factory;
 
-public class LinkedCategoryEntries extends AbstractCategoryEntries {
+final class LinkedCategoryEntries extends AbstractCategoryEntries {
+    
+    public static final Factory<LinkedCategoryEntries> FACTORY = new Factory<LinkedCategoryEntries>() {
+        @Override
+        public LinkedCategoryEntries create() {
+            return new LinkedCategoryEntries();
+        }
+    };
 
     private LinkedCategoryCount firstCategory;
 
@@ -68,6 +76,10 @@ public class LinkedCategoryEntries extends AbstractCategoryEntries {
         firstCategory.nextCategory = tmp;
         totalCount += count;
     }
+    
+    public void append(Category category) {
+        append(category.getName(), category.getCount());
+    }
 
     private static final class LinkedCategoryCount {
         private final String categoryName;
@@ -79,5 +91,6 @@ public class LinkedCategoryEntries extends AbstractCategoryEntries {
             this.count = count;
         }
     }
+
 
 }

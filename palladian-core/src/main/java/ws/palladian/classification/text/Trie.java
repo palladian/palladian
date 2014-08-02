@@ -10,8 +10,10 @@ import java.util.NoSuchElementException;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Factory;
 
-public class Trie implements Map.Entry<String, LinkedCategoryEntries>, Iterable<Trie> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class Trie<V> implements Map.Entry<String, V>, Iterable<Trie<V>> {
 
     private static final char EMPTY_CHARACTER = '\u0000';
 
@@ -19,81 +21,85 @@ public class Trie implements Map.Entry<String, LinkedCategoryEntries>, Iterable<
 
     private final char character;
 
-    private final Trie parent;
+    private final Trie<V> parent;
 
     private Trie[] children = EMPTY_ARRAY;
 
-    // private LinkedCategoryEntries categoryEntries = new LinkedCategoryEntries(); // XXX
-    private LinkedCategoryEntries categoryEntries;
+    private V value;
 
     public Trie() {
-        this(EMPTY_CHARACTER, null);
+        this(EMPTY_CHARACTER, null, null);
     }
 
-    private Trie(char character, Trie parent) {
+    private Trie(char character, Trie<V> parent, V value) {
         this.character = character;
         this.parent = parent;
+        this.value = value;
     }
 
-    public Trie getNode(CharSequence key) {
-        return getOrAddNode(key, false);
+    public Trie<V> getNode(CharSequence key) {
+        return getOrAddNode(key, null);
     }
 
-    @Override
-    public LinkedCategoryEntries getValue() {
-        return categoryEntries;
-    }
-
-    @Override
-    public LinkedCategoryEntries setValue(LinkedCategoryEntries value) {
-        LinkedCategoryEntries oldValue = this.categoryEntries;
-        this.categoryEntries = value;
-        return oldValue;
-    }
-
-    public Trie getOrAddNode(CharSequence key, boolean create) {
+    public Trie<V> getOrAddNode(CharSequence key, Factory<V> valueFactory) {
         if (key == null || key.length() == 0) {
             return this;
         }
         char head = key.charAt(0);
         CharSequence tail = tail(key);
-        for (Trie node : children) {
+        for (Trie<V> node : children) {
             if (head == node.character) {
-                return node.getOrAddNode(tail, create);
+                return node.getOrAddNode(tail, valueFactory);
             }
         }
-        if (create) {
-            Trie newNode = new Trie(head, this);
+        if (valueFactory != null) {
+            V value = null;
+            if (tail == null || tail.length() == 0) { // XXX integrate better
+                value = valueFactory.create();
+            }
+            Trie<V> newNode = new Trie<V>(head, this, value);
             if (children == EMPTY_ARRAY) {
                 children = new Trie[] {newNode};
             } else {
-                Trie[] newArray = new Trie[children.length + 1];
+                Trie<V>[] newArray = new Trie[children.length + 1];
                 System.arraycopy(children, 0, newArray, 0, children.length);
                 newArray[children.length] = newNode;
                 children = newArray;
             }
-            return newNode.getOrAddNode(tail, create);
+            return newNode.getOrAddNode(tail, valueFactory);
         } else {
             return null;
         }
+    }
+
+    @Override
+    public V getValue() {
+        return value;
+    }
+
+    @Override
+    public V setValue(V value) {
+        V oldValue = this.value;
+        this.value = value;
+        return oldValue;
     }
 
     private CharSequence tail(CharSequence seq) {
         return seq.length() > 1 ? seq.subSequence(1, seq.length()) : null;
     }
 
-    private Iterator<Trie> children() {
-        return new ArrayIterator<Trie>(children);
+    private Iterator<Trie<V>> children() {
+        return new ArrayIterator<Trie<V>>(children);
     }
 
     private boolean hasData() {
-        return categoryEntries != null;
+        return value != null;
     }
 
     @Override
     public String getKey() {
         StringBuilder builder = new StringBuilder().append(character);
-        for (Trie current = parent; current != null; current = current.parent) {
+        for (Trie<V> current = parent; current != null; current = current.parent) {
             if (current.character != EMPTY_CHARACTER) {
                 builder.append(current.character);
             }
@@ -108,11 +114,11 @@ public class Trie implements Map.Entry<String, LinkedCategoryEntries>, Iterable<
      */
     public boolean clean() {
         boolean clean = true;
-        List<Trie> temp = CollectionHelper.newArrayList();
-        for (Trie entries : children) {
-            boolean childClean = entries.clean();
+        List<Trie<V>> temp = CollectionHelper.newArrayList();
+        for (Trie<V> child : children) {
+            boolean childClean = child.clean();
             if (!childClean) {
-                temp.add(entries);
+                temp.add(child);
             }
             clean &= childClean;
         }
@@ -123,46 +129,46 @@ public class Trie implements Map.Entry<String, LinkedCategoryEntries>, Iterable<
     }
 
     @Override
-    public Iterator<Trie> iterator() {
-        return new TrieIterator(this);
+    public Iterator<Trie<V>> iterator() {
+        return new TrieIterator<V>(this);
     }
 
     @Override
     public String toString() {
-        return getKey() + "=" + getValue();
+        return getKey() + '=' + getValue();
     }
 
     // iterator over all entries
 
-    private static final class TrieIterator extends AbstractIterator<Trie> {
-        private final Deque<Iterator<Trie>> stack;
-        private Trie currentEntries;
+    private static final class TrieIterator<V> extends AbstractIterator<Trie<V>> {
+        private final Deque<Iterator<Trie<V>>> stack;
+        private Trie<V> currentNode;
 
-        private TrieIterator(Trie root) {
-            stack = new ArrayDeque<Iterator<Trie>>();
+        private TrieIterator(Trie<V> root) {
+            stack = new ArrayDeque<Iterator<Trie<V>>>();
             stack.push(root.children());
         }
 
         @Override
-        protected Trie getNext() throws Finished {
+        protected Trie<V> getNext() throws Finished {
             for (;;) {
                 if (stack.isEmpty()) {
                     throw FINISHED;
                 }
-                Iterator<Trie> current = stack.peek();
+                Iterator<Trie<V>> current = stack.peek();
                 if (!current.hasNext()) {
                     throw FINISHED;
                 }
-                Trie node = current.next();
+                Trie<V> node = current.next();
                 if (!current.hasNext()) {
                     stack.pop();
                 }
-                Iterator<Trie> children = node.children();
+                Iterator<Trie<V>> children = node.children();
                 if (children.hasNext()) {
                     stack.push(children);
                 }
                 if (node.hasData()) {
-                    currentEntries = node;
+                    currentNode = node;
                     return node;
                 }
             }
@@ -170,10 +176,10 @@ public class Trie implements Map.Entry<String, LinkedCategoryEntries>, Iterable<
 
         @Override
         public void remove() {
-            if (currentEntries == null) {
+            if (currentNode == null) {
                 throw new NoSuchElementException();
             }
-            currentEntries.categoryEntries = null;
+            currentNode.value = null;
         }
 
     }
