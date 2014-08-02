@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ThreadHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.retrieval.wikipedia.MediaWikiDescriptor;
 import ws.palladian.retrieval.wikipedia.WikipediaPage;
 import ws.palladian.retrieval.wikipedia.WikipediaPageReference;
 import ws.palladian.retrieval.wikipedia.WikipediaUtil;
@@ -29,9 +31,10 @@ public class WikipediaScopeDatasetCreator {
     /** Number of threads for simultaneous fetching. */
     private static final int NUM_TREADS = 10;
 
-    private static final String WIKIPEDIA_EN = "http://en.wikipedia.org/w";
-
     private static final String OUTPUT_DIR = "/Users/pk/Desktop/wikipediaScopeDataset";
+
+    private static final MediaWikiDescriptor WIKIPEDIA_EN = MediaWikiDescriptor.Builder.wikimedia()
+            .language(Language.ENGLISH).create();
 
     private static final int MAX_SUBSEQUENT_ERROR_COUNT = 10;
 

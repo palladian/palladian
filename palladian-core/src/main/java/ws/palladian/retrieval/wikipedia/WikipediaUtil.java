@@ -194,23 +194,6 @@ public final class WikipediaUtil {
         result = result.trim();
         return result;
     }
-
-    /**
-     * <p>
-     * Retrieve a {@link WikipediaPage} directly from the web.
-     * </p>
-     * 
-     * @param title The title of the article to retrieve, not <code>null</code> or empty. Escaping with underscores is
-     *            done automatically.
-     * @param language The langugae of the Wikipedia to check, not <code>null</code>.
-     * @return The {@link WikipediaPage} for the given title, or <code>null</code> in case no article with that title
-     *         was given.
-     */
-    public static final WikipediaPage retrieveArticle(String title, Language language) {
-        // http://de.wikipedia.org/w/api.php?action=query&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=Dresden
-        String baseUrl = String.format("http://%s.wikipedia.org/w", language.getIso6391());
-        return retrieveArticle(baseUrl, title);
-    }
     
     /**
      * <p>
@@ -223,8 +206,9 @@ public final class WikipediaUtil {
      * @return The {@link WikipediaPage} for the given title, or <code>null</code> in case no article with that title
      *         was given.
      */
-    public static final WikipediaPage retrieveArticle(String baseUrl, String title) {
-        Validate.notEmpty(baseUrl, "baseUrl must not be empty");
+    public static final WikipediaPage retrieveArticle(MediaWikiDescriptor descriptor, String title) {
+        // Validate.notEmpty(baseUrl, "baseUrl must not be empty");
+        Validate.notNull(descriptor, "descriptor must not be null");
         Validate.notEmpty(title, "title must not be empty");
         
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
@@ -232,8 +216,8 @@ public final class WikipediaUtil {
         try {
             String escapedTitle = title.replace(" ", "_");
             escapedTitle = UrlHelper.encodeParameter(escapedTitle);
-            String url = String.format("%s/api.php?action=query"
-                    + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", baseUrl, escapedTitle);
+            String url = String.format("%s?action=query"
+                    + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", descriptor.getEndpoint(), escapedTitle);
             httpResult = retriever.httpGet(url);
         } catch (HttpException e) {
             throw new IllegalStateException(e);
@@ -275,40 +259,57 @@ public final class WikipediaUtil {
      * </p>
      * 
      * @param baseUrl The base URL of the Mediawiki API, not <code>null</code>.
-     * @param categoryName The name of the category, must start with the <texttt> Category:</texttt> prefix, not
+     * @param categoryName The name of the category, must start with the <texttt>Category:</texttt> prefix, not
      *            <code>null</code>.
      * @return A list of {@link WikipediaPageReference}s in the specified category, or an empty list, never
      *         <code>null</code>.
      */
-    public static final List<WikipediaPageReference> retrieveArticlesForCategory(String baseUrl, String categoryName) {
-        String url = String.format(
-                "%s/api.php?action=query&list=categorymembers&cmtitle=%s&cmsort=timestamp&cmdir=desc&format=json",
-                baseUrl, categoryName);
+    public static final List<WikipediaPageReference> retrieveArticlesForCategory(MediaWikiDescriptor descriptor,
+            String categoryName) {
+        Validate.notNull(descriptor, "descriptor must not be null");
+        Validate.notEmpty(categoryName, "categoryName must not be empty");
         List<WikipediaPageReference> pages = CollectionHelper.newArrayList();
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
-        HttpResult httpResult;
-        try {
-            httpResult = retriever.httpGet(url);
-        } catch (HttpException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            JsonObject jsonResult = new JsonObject(httpResult.getStringContent());
-            JsonArray resultArray = jsonResult.queryJsonArray("/query/categorymembers");
-            for (int i = 0; i < resultArray.size(); i++) {
-                JsonObject jsonEntry = resultArray.getJsonObject(i);
-                int pageId = jsonEntry.getInt("pageid");
-                int namespaceId = jsonEntry.getInt("ns");
-                String title = jsonEntry.getString("title");
-                pages.add(new WikipediaPageReference(pageId, namespaceId, title));
+        for (String cmContinue = null;;) {
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append(descriptor.getEndpoint());
+            urlBuilder.append("?action=query&list=categorymembers&cmtitle=");
+            urlBuilder.append(UrlHelper.encodeParameter(categoryName));
+            urlBuilder.append("&cmsort=timestamp&cmdir=desc&format=json&cmlimit=5");
+            if (cmContinue != null) {
+                urlBuilder.append("&cmcontinue=").append(UrlHelper.encodeParameter(cmContinue));
             }
-        } catch (JsonException e) {
-            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
-                    + httpResult.getStringContent() + "'", e);
+            String url = urlBuilder.toString();
+            LOGGER.debug("get {}", url);
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.httpGet(url);
+            } catch (HttpException e) {
+                throw new IllegalStateException("HTTP exception when accessing \"" + url + "\".", e);
+            }
+            try {
+                JsonObject jsonResult = new JsonObject(httpResult.getStringContent());
+                JsonArray resultArray = jsonResult.queryJsonArray("/query/categorymembers");
+                for (int i = 0; i < resultArray.size(); i++) {
+                    JsonObject jsonEntry = resultArray.getJsonObject(i);
+                    int pageId = jsonEntry.getInt("pageid");
+                    int namespaceId = jsonEntry.getInt("ns");
+                    String title = jsonEntry.getString("title");
+                    pages.add(new WikipediaPageReference(pageId, namespaceId, title));
+                }
+                // more data?
+                cmContinue = jsonResult.tryQueryString("/query-continue/categorymembers/cmcontinue");
+                if (cmContinue == null) {
+                    break;
+                }
+            } catch (JsonException e) {
+                throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
+                        + httpResult.getStringContent() + "'", e);
+            }
         }
         return pages;
     }
-    
+
     /**
      * <p>
      * Retrieve a random article from the main namespace (ID 0).
@@ -317,10 +318,11 @@ public final class WikipediaUtil {
      * @param baseUrl The base UR of the Mediawiki API, not <code>null</code>.
      * @return A {@link WikipediaPageReference} for a random article.
      */
-    public static final WikipediaPageReference retrieveRandomArticle(String baseUrl) {
-        Validate.notNull(baseUrl, "baseUrl must not be null");
+    public static final WikipediaPageReference retrieveRandomArticle(MediaWikiDescriptor descriptor) {
+        Validate.notNull(descriptor, "descriptor must not be null");
         
-        String url = String.format("%s/api.php?action=query&list=random&rnnamespace=0&format=json", baseUrl);
+        String url = String.format("%s?action=query&list=random&rnnamespace=0&format=json", descriptor.getEndpoint());
+        System.out.println(url);
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         HttpResult httpResult;
         try {
@@ -663,6 +665,11 @@ public final class WikipediaUtil {
     }
 
     public static void main(String[] args) throws IOException, SAXException {
+        MediaWikiDescriptor deWikipedia = MediaWikiDescriptor.Builder.wikipedia().language(Language.GERMAN).create();
+        List<WikipediaPageReference> articles = retrieveArticlesForCategory(deWikipedia, "Category:Filmtitel 1932");
+        CollectionHelper.print(articles);
+        System.exit(0);
+
         final int[] counter = {0};
         parseDump(new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2"), new Consumer<WikipediaPage>() {
             @Override
@@ -684,7 +691,8 @@ public final class WikipediaUtil {
         // System.out.println(text);
 
         // WikipediaPage page = getArticle("Mit Schirm, Charme und Melone (Film)", Language.GERMAN);
-        WikipediaPage page = retrieveArticle("Charles River", Language.ENGLISH);
+        MediaWikiDescriptor enWikipedia = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
+        WikipediaPage page = retrieveArticle(enWikipedia, "Charles River");
         WikipediaTemplate infoboxData = extractTemplate(getNamedMarkup(page.getMarkup(), "geobox").get(0));
         // CollectionHelper.print(infoboxData);
         System.out.println(infoboxData);
