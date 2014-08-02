@@ -1,4 +1,4 @@
-package ws.palladian.processing;
+package ws.palladian.extraction;
 
 import java.util.List;
 import java.util.Set;
@@ -7,9 +7,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.Tagger;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * Annotates a text based on a given dictionary.

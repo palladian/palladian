@@ -2,9 +2,9 @@ package ws.palladian.classification.nb;
 
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
-import ws.palladian.core.NominalValue;
-import ws.palladian.core.NumericValue;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NumericValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.LazyMatrix;
 import ws.palladian.helper.collection.MapMatrix;

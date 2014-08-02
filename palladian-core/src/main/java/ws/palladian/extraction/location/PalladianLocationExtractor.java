@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
@@ -20,7 +21,6 @@ import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

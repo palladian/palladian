@@ -1,6 +1,6 @@
-package ws.palladian.core;
+package ws.palladian.core.value;
 
-final class ImmutableBooleanValue extends AbstractValue implements BooleanValue {
+public final class ImmutableBooleanValue extends AbstractValue implements BooleanValue {
 
     private final boolean booleanValue;
 

@@ -2,14 +2,14 @@ package ws.palladian.classification.nominal;
 
 import java.util.Set;
 
-import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
-import ws.palladian.core.NominalValue;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 

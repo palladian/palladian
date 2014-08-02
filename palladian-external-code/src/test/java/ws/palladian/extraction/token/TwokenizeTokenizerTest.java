@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.core.Annotation;
 
 /**
  * <p>

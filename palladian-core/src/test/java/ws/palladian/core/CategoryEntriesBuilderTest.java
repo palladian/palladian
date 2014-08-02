@@ -1,10 +1,11 @@
-package ws.palladian.classification;
+package ws.palladian.core;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 
 public class CategoryEntriesBuilderTest {
 

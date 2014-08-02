@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.Tagger;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
-import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotation;
 
 public class ContextClassifierTest {
 

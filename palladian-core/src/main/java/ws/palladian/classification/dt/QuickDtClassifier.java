@@ -3,8 +3,8 @@ package ws.palladian.classification.dt;
 import quickdt.Attributes;
 import quickdt.HashMapAttributes;
 import quickdt.PredictiveModel;
-import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 

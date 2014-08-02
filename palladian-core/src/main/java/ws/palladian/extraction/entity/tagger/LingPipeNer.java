@@ -9,6 +9,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -16,8 +18,6 @@ import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.helper.Conll2002ChunkTagParser;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 import com.aliasi.chunk.CharLmRescoringChunker;
 import com.aliasi.chunk.Chunk;

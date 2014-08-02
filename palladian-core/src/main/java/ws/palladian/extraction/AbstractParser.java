@@ -7,8 +7,8 @@ import opennlp.tools.parser.Parse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 
 /**
  * This is the AbstractParser.

@@ -2,9 +2,9 @@ package ws.palladian.extraction.pos;
 
 import java.util.List;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.token.AbstractTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
-import ws.palladian.processing.features.Annotation;
 import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
 
 /**

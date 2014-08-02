@@ -7,16 +7,16 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
-import ws.palladian.core.TextValue;
+import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Function;

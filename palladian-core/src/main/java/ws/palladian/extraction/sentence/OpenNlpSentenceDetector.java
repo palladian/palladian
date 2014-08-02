@@ -13,10 +13,10 @@ import opennlp.tools.util.Span;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>

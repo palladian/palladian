@@ -9,8 +9,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesBuilder;
+import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
+import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.Tagger;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factory;
@@ -18,9 +21,6 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>

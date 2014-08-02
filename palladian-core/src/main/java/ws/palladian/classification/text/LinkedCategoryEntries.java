@@ -2,9 +2,9 @@ package ws.palladian.classification.text;
 
 import java.util.Iterator;
 
-import ws.palladian.classification.AbstractCategoryEntries;
-import ws.palladian.classification.ImmutableCategory;
+import ws.palladian.core.AbstractCategoryEntries;
 import ws.palladian.core.Category;
+import ws.palladian.core.ImmutableCategory;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.functional.Factory;
 

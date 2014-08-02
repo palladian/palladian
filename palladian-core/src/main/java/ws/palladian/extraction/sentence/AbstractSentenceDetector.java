@@ -2,8 +2,8 @@ package ws.palladian.extraction.sentence;
 
 import java.util.List;
 
-import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.Tagger;
 
 /**
  * <p>

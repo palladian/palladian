@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.helper.ProgressMonitor;
@@ -33,7 +34,6 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.DownloadFilter;
 import ws.palladian.retrieval.HttpRetriever;

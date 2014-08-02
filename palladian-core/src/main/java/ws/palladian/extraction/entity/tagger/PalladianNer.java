@@ -17,14 +17,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.core.Annotation;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
 import ws.palladian.extraction.entity.Annotations;
@@ -49,7 +50,6 @@ import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

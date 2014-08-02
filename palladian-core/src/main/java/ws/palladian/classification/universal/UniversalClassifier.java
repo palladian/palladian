@@ -6,7 +6,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
@@ -19,6 +18,7 @@ import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;

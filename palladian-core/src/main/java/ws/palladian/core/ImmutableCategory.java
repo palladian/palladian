@@ -1,8 +1,6 @@
-package ws.palladian.classification;
+package ws.palladian.core;
 
 import org.apache.commons.lang3.Validate;
-
-import ws.palladian.core.Category;
 
 public final class ImmutableCategory implements Category {
 

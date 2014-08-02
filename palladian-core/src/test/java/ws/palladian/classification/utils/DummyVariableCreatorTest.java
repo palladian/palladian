@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.NumericValue;
+import ws.palladian.core.value.NumericValue;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 

@@ -2,9 +2,9 @@ package ws.palladian.extraction.sentence;
 
 import java.util.List;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.processing.features.Annotation;
 
 public final class PalladianSentenceDetector extends AbstractSentenceDetector {
 

@@ -6,11 +6,12 @@ import java.util.SortedMap;
 import weka.core.Attribute;
 import weka.core.SparseInstance;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.NominalValue;
-import ws.palladian.core.NumericValue;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NumericValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 

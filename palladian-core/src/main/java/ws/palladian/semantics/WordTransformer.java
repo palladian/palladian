@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.pos.AbstractPosTagger;
 import ws.palladian.helper.StopWatch;
@@ -18,7 +19,6 @@ import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

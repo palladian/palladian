@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryConverter;
 

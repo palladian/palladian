@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.Tagger;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.Tagger;
 
 public abstract class ContextTagger implements Tagger {
 

@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.core.Annotation;
 
 /**
  * <p>

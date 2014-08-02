@@ -1,8 +1,8 @@
-package ws.palladian.core;
+package ws.palladian.core.value;
 
 import org.apache.commons.lang3.Validate;
 
-final class ImmutableStringValue extends AbstractValue implements NominalValue {
+public final class ImmutableStringValue extends AbstractValue implements NominalValue {
 
     private final String stringValue;
 

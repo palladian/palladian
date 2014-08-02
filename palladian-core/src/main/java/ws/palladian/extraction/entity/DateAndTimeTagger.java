@@ -4,15 +4,15 @@ import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.Tagger;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>

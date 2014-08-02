@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.NominalValue;
-import ws.palladian.core.NullValue;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;

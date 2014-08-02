@@ -14,7 +14,7 @@ import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 

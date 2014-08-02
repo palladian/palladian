@@ -1,4 +1,4 @@
-package ws.palladian.processing.features;
+package ws.palladian.core;
 
 /**
  * <p>

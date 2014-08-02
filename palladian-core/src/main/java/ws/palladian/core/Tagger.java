@@ -1,8 +1,6 @@
-package ws.palladian.processing;
+package ws.palladian.core;
 
 import java.util.List;
-
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

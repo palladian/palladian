@@ -1,4 +1,4 @@
-package ws.palladian.processing;
+package ws.palladian.extraction;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,9 +7,11 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.Tagger;
+import ws.palladian.extraction.DictionaryTagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 public class DictionaryTaggerTest {
     
