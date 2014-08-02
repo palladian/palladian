@@ -21,6 +21,7 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Trie;
 
 /**
  * <p>
@@ -98,9 +99,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                     Iterator<Entry<String, LinkedCategoryEntries>> iterator = entryTrie.iterator();
                     int numRemoved = 0;
                     while (iterator.hasNext()) {
-                        Entry<String, LinkedCategoryEntries> categoryEntries = iterator.next();
-                        String term = categoryEntries.getKey();
-                        LinkedCategoryEntries entries = categoryEntries.getValue();
+                        Entry<String, LinkedCategoryEntries> next = iterator.next();
+                        String term = next.getKey();
+                        LinkedCategoryEntries entries = next.getValue();
                         if (pruningStrategy.remove(new ImmutableTermCategoryEntries(term, entries))) {
                             iterator.remove();
                             numRemoved++;
@@ -307,7 +308,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         ProgressMonitor monitor = new ProgressMonitor();
         monitor.startTask("Writing " + dictName, numTerms);
         for (TermCategoryEntries termEntry : this) {
-            System.out.println("writing " + termEntry);
             out.writeObject(termEntry.getTerm());
             out.writeInt(termEntry.size());
             for (Category category : termEntry) {
