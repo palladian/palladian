@@ -8,13 +8,11 @@ import ws.palladian.core.Category;
 import ws.palladian.helper.collection.AbstractIterator;
 
 public class LinkedCategoryEntries extends AbstractCategoryEntries {
-    
-//    public static final LinkedCategoryEntries EMPTY = new LinkedCategoryEntries();
-    
+
     private LinkedCategoryCount firstCategory;
-    
+
     private int totalCount;
-    
+
     @Override
     public Iterator<Category> iterator() {
         return new AbstractIterator<Category>() {
@@ -34,12 +32,12 @@ public class LinkedCategoryEntries extends AbstractCategoryEntries {
 
         };
     }
-    
+
     @Override
     public int getTotalCount() {
         return totalCount;
     }
-    
+
     /**
      * Increments a category count by the given value.
      * 
@@ -56,7 +54,7 @@ public class LinkedCategoryEntries extends AbstractCategoryEntries {
         }
         append(category, count);
     }
-    
+
     /**
      * Add a category with a given count (no duplicate checking takes place: only to be used, when one can make sure
      * that it does not already exist).
@@ -70,7 +68,7 @@ public class LinkedCategoryEntries extends AbstractCategoryEntries {
         firstCategory.nextCategory = tmp;
         totalCount += count;
     }
-    
+
     private static final class LinkedCategoryCount {
         private final String categoryName;
         private int count;
@@ -80,7 +78,6 @@ public class LinkedCategoryEntries extends AbstractCategoryEntries {
             this.categoryName = name;
             this.count = count;
         }
-
     }
 
 }
