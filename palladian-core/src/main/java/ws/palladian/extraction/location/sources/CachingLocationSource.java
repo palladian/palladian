@@ -14,7 +14,7 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
-import ws.palladian.helper.collection.MruMap;
+import ws.palladian.helper.collection.LruMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 
@@ -30,9 +30,9 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     /** The default cache size to use in case not specified. */
     public static final int DEFAULT_CACHE_SIZE = 5000;
 
-    private final MruMap<String, Collection<Location>> nameCache;
+    private final LruMap<String, Collection<Location>> nameCache;
 
-    private final MruMap<Integer, Location> idCache;
+    private final LruMap<Integer, Location> idCache;
 
     private final LocationSource wrapped;
 
@@ -62,8 +62,8 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
         Validate.notNull(wrapped, "wrapped must not be null");
         Validate.isTrue(size > 0, "size must be greater zero");
         this.wrapped = wrapped;
-        this.nameCache = new MruMap<String, Collection<Location>>(size);
-        this.idCache = new MruMap<Integer, Location>(size);
+        this.nameCache = LruMap.insertionOrder(size);
+        this.idCache = LruMap.insertionOrder(size);
         this.size = size;
     }
 
