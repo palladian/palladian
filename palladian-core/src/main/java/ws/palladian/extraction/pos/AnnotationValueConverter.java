@@ -1,7 +1,7 @@
 package ws.palladian.extraction.pos;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.helper.functional.Function;
-import ws.palladian.processing.features.Annotation;
 
 final class AnnotationValueConverter implements Function<Annotation, String> {
 

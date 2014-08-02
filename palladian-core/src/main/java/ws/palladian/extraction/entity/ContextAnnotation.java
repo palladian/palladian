@@ -1,12 +1,12 @@
 package ws.palladian.extraction.entity;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import ws.palladian.classification.CategoryEntriesBuilder;
-import ws.palladian.classification.ImmutableCategoryEntries;
+import ws.palladian.core.AbstractAnnotation;
+import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
+import ws.palladian.core.ImmutableCategoryEntries;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.AbstractAnnotation;
-import ws.palladian.processing.features.Annotation;
 
 public class ContextAnnotation extends AbstractAnnotation {
 

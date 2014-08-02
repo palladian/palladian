@@ -5,8 +5,8 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.NumericValue;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.NumericValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.SlimStats;

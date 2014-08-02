@@ -1,6 +1,6 @@
-package ws.palladian.core;
+package ws.palladian.core.value;
 
-final class ImmutableDoubleValue extends AbstractValue implements NumericValue {
+public final class ImmutableDoubleValue extends AbstractValue implements NumericValue {
 
     private final double doubleValue;
 

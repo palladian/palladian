@@ -1,4 +1,4 @@
-package ws.palladian.core;
+package ws.palladian.core.value;
 
 public interface NominalValue extends Value {
     

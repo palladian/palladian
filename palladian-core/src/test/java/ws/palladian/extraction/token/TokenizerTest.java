@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

@@ -6,7 +6,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
@@ -15,6 +14,7 @@ import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;

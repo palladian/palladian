@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

@@ -15,13 +15,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 import ws.palladian.helper.nlp.CharacterNGramSimilarity;
+import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.nlp.StringMetric;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -295,16 +295,16 @@ public class ListDiscoverer {
      * </p>
      */
     private void filterPaginationUrls() {
-        CountMap<Integer> countMap = CountMap.create();
+        Bag<Integer> countMap = Bag.create();
         for (String url : paginationURLs) {
             countMap.add(url.length());
         }
 
-        if (countMap.uniqueSize() == 0) {
+        if (countMap.unique().size() == 0) {
             return;
         }
 
-        int mostLikelyLength = (Integer)countMap.getSortedMapDescending().entrySet().iterator().next().getKey();
+        int mostLikelyLength = countMap.getMax().getKey();
 
         Set<String> filteredUrls = new HashSet<String>();
 
@@ -605,7 +605,7 @@ public class ListDiscoverer {
         int numericEntries = 0;
         int completelyCapitalized = 0;
         int totalWordLength = 0;
-        int missingEntries = 0;
+        // int missingEntries = 0;
 
         Set<String> duplicateCountSet = new HashSet<String>();
         Set<String> duplicateWordCountSet = new HashSet<String>();
@@ -637,7 +637,7 @@ public class ListDiscoverer {
             }
 
             if (entry.length() == 0) {
-                missingEntries++;
+                // missingEntries++;
             } else if (!duplicateCountSet.add(entry)) {
                 duplicateCount++;
                 if (duplicateWordCountSet.add(entry)) {

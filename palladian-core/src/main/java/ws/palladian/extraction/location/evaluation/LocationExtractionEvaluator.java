@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -48,7 +49,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

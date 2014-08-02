@@ -7,6 +7,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class InstanceBuilderTest {

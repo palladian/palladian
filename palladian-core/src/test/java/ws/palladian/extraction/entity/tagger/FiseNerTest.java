@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.parser.json.JsonException;
 
 public class FiseNerTest {

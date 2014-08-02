@@ -1,4 +1,4 @@
-package ws.palladian.processing.features;
+package ws.palladian.core;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;

@@ -15,13 +15,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.core.AbstractValue;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
-import ws.palladian.core.NominalValue;
-import ws.palladian.core.NullValue;
-import ws.palladian.core.NumericValue;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.AbstractValue;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.NumericValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 

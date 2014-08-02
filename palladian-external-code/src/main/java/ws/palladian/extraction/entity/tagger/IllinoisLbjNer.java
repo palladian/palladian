@@ -7,6 +7,7 @@ import java.util.StringTokenizer;
 
 import lbj.NETaggerLevel1;
 import lbj.NETaggerLevel2;
+import ws.palladian.core.Annotation;
 import ws.palladian.external.lbj.IO.Keyboard;
 import ws.palladian.external.lbj.Tagger.BracketFileManager;
 import ws.palladian.external.lbj.Tagger.DemoEngine;
@@ -21,7 +22,6 @@ import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.processing.features.Annotation;
 import LBJ2.classify.Classifier;
 
 /**

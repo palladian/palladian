@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.discretization.Discretization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.Bag;

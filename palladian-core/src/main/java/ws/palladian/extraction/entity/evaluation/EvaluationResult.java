@@ -9,13 +9,13 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>

@@ -18,6 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 import ws.palladian.classification.text.CharacterNGramIterator;
 import ws.palladian.classification.text.NGramWrapperIterator;
 import ws.palladian.classification.text.TokenIterator;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
@@ -29,8 +31,6 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>

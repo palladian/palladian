@@ -25,8 +25,8 @@ import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
-import ws.palladian.core.NumericValue;
-import ws.palladian.core.Value;
+import ws.palladian.core.value.NumericValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 

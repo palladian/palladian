@@ -1,4 +1,4 @@
-package ws.palladian.core;
+package ws.palladian.core.value;
 
 public final class NullValue extends AbstractValue {
 
