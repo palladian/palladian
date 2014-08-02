@@ -43,12 +43,12 @@ import ws.palladian.helper.collection.CollectionHelper;
 public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     public static final class Builder implements DictionaryBuilder {
-        
+
         /** The logger for this class. */
         private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryTrieModel.Builder.class);
 
         /** Trie with term-category combinations with their counts. */
-        private final Trie entryTrie = new Trie();
+        private final Trie<LinkedCategoryEntries> entryTrie = new Trie<LinkedCategoryEntries>();
         /** Counter for categories based on documents. */
         private final CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
         /** Counter for categories based on terms. */
@@ -79,7 +79,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             Validate.notNull(terms, "terms must not be null");
             Validate.notNull(category, "category must not be null");
             for (String term : terms) {
-                Trie trieNode = entryTrie.getOrAddNode(term, true);
+                Trie<LinkedCategoryEntries> trieNode = entryTrie.getOrAddNode(term, LinkedCategoryEntries.FACTORY);
                 if (trieNode.getValue().getTotalCount() == 0) { // term was not present before
                     numTerms++;
                 }
@@ -94,13 +94,13 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         public DictionaryModel create() {
             if (pruningStrategies.size() > 0) {
                 for (PruningStrategy pruningStrategy : pruningStrategies) {
-                    Iterator<Trie> iterator = entryTrie.iterator();
+                    Iterator<Trie<LinkedCategoryEntries>> iterator = entryTrie.iterator();
                     int numRemoved = 0;
                     while (iterator.hasNext()) {
-                        Trie categoryEntries = iterator.next();
-                        LinkedCategoryEntries entries = categoryEntries.getValue(); // FIXME
-                        TermCategoryEntries fixme = new ImmutableTermCategoryEntries(categoryEntries.getKey(), entries);
-                        if (pruningStrategy.remove(fixme)) {
+                        Trie<LinkedCategoryEntries> categoryEntries = iterator.next();
+                        String term = categoryEntries.getKey();
+                        LinkedCategoryEntries entries = categoryEntries.getValue();
+                        if (pruningStrategy.remove(new ImmutableTermCategoryEntries(term, entries))) {
                             iterator.remove();
                             numRemoved++;
                         }
@@ -111,7 +111,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 entryTrie.clean();
                 // re-calculate term counts
                 termCountBuilder.clear();
-                Iterator<Trie> iterator = entryTrie.iterator();
+                Iterator<Trie<LinkedCategoryEntries>> iterator = entryTrie.iterator();
                 while (iterator.hasNext()) {
                     termCountBuilder.add(iterator.next().getValue());
                 }
@@ -129,9 +129,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         @Override
         public DictionaryBuilder addDictionary(DictionaryModel model) {
             for (TermCategoryEntries addEntry : model) {
-                Trie existingEntry = entryTrie.getOrAddNode(addEntry.getTerm(), true);
+                String term = addEntry.getTerm();
+                Trie<LinkedCategoryEntries> existingEntry = entryTrie.getOrAddNode(term, LinkedCategoryEntries.FACTORY);
                 for (Category addCategory : addEntry) {
-                    existingEntry.getValue().append(addCategory.getName(), addCategory.getCount());
+                    existingEntry.getValue().append(addCategory);
                 }
                 numTerms++;
             }
@@ -155,7 +156,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     private static final int VERSION = 1;
 
     /** Trie with term-category combinations with their counts. */
-    private transient Trie entryTrie;
+    private transient Trie<LinkedCategoryEntries> entryTrie;
 
     /** The priors, determined from the documents. */
     private transient CategoryEntries documentCounts;
@@ -180,7 +181,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
      */
     @Deprecated
     public DictionaryTrieModel(FeatureSetting featureSetting) {
-        this.entryTrie = new Trie();
+        this.entryTrie = new Trie<LinkedCategoryEntries>();
         this.numTerms = 0;
         this.featureSetting = featureSetting;
         this.name = NO_NAME;
@@ -215,7 +216,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     public void updateTerm(String term, String category) {
         Validate.notNull(term, "term must not be null");
         Validate.notNull(category, "category must not be null");
-        Trie categoryEntries = entryTrie.getOrAddNode(term, true);
+        Trie<LinkedCategoryEntries> categoryEntries = entryTrie.getOrAddNode(term, LinkedCategoryEntries.FACTORY);
         if (categoryEntries.getValue().getTotalCount() == 0) { // term was not present before
             numTerms++;
         }
@@ -225,7 +226,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     @Override
     public TermCategoryEntries getCategoryEntries(String term) {
         Validate.notNull(term, "term must not be null");
-        Trie node = entryTrie.getNode(term);
+        Trie<LinkedCategoryEntries> node = entryTrie.getNode(term);
         CategoryEntries entries = node != null ? node.getValue() : ImmutableCategoryEntries.EMPTY;
         return new ImmutableTermCategoryEntries(term, entries);
     }
@@ -238,11 +239,12 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     @Override
     public Iterator<TermCategoryEntries> iterator() {
         return new AbstractIterator<TermCategoryEntries>() {
-            final Iterator<Trie> nodeIterator = entryTrie.iterator();
+            final Iterator<Trie<LinkedCategoryEntries>> trieIterator = entryTrie.iterator();
+
             @Override
             protected TermCategoryEntries getNext() throws Finished {
-                if (nodeIterator.hasNext()) {
-                    Trie nextNode = nodeIterator.next();
+                if (trieIterator.hasNext()) {
+                    Trie<LinkedCategoryEntries> nextNode = trieIterator.next();
                     LinkedCategoryEntries nextEntries = nextNode.getValue();
                     return new ImmutableTermCategoryEntries(nextNode.getKey(), nextEntries);
                 }
@@ -307,7 +309,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         ProgressMonitor monitor = new ProgressMonitor();
         monitor.startTask("Writing " + dictName, numTerms);
         for (TermCategoryEntries termEntry : this) {
-    System.out.println("writing " + termEntry);
+            System.out.println("writing " + termEntry);
             out.writeObject(termEntry.getTerm());
             out.writeInt(termEntry.size());
             for (Category category : termEntry) {
@@ -330,7 +332,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             throw new IOException("Unsupported version: " + version);
         }
         Map<Integer, String> categoryIndices = CollectionHelper.newHashMap();
-        entryTrie = new Trie();
+        entryTrie = new Trie<LinkedCategoryEntries>();
         // header
         int numCategories = in.readInt();
         CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
@@ -349,7 +351,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
-            Trie categoryEntries = entryTrie.getOrAddNode(term, true);
+            Trie<LinkedCategoryEntries> categoryEntries = entryTrie.getOrAddNode(term, LinkedCategoryEntries.FACTORY);
             int numProbabilityEntries = in.readInt();
             for (int j = 0; j < numProbabilityEntries; j++) {
                 int categoryIdx = in.readInt();
