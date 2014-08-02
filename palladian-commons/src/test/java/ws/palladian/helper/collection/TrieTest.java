@@ -1,4 +1,4 @@
-package ws.palladian.classification.text;
+package ws.palladian.helper.collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
