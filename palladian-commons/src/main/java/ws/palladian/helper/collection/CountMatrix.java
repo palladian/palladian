@@ -183,7 +183,7 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
     public IntegerMatrixVector<K> getRow(K y) {
         Validate.notNull(y, "y must not be null");
         MatrixVector<K, Integer> row = matrix.getRow(y);
-        return new IntegerMatrixVector<K>(row != null ? row : new NullMatrixEntry<K, Integer>(y));
+        return new IntegerMatrixVector<K>(row != null ? row : new NullMatrixVector<K, Integer>(y));
     }
 
     /**
@@ -196,7 +196,7 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
     public IntegerMatrixVector<K> getColumn(K x) {
         Validate.notNull(x, "x must not be null");
         MatrixVector<K, Integer> column = matrix.getColumn(x);
-        return new IntegerMatrixVector<K>(column != null ? column : new NullMatrixEntry<K, Integer>(x));
+        return new IntegerMatrixVector<K>(column != null ? column : new NullMatrixVector<K, Integer>(x));
     }
 
     /**
