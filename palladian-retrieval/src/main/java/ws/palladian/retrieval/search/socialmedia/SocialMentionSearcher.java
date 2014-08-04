@@ -4,7 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +38,13 @@ public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebC
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SocialMentionSearcher.class);
 
+    /** The identifier for the config. key with the (optional) access key. */
+    public static final String CONFIG_KEY = "api.socialmention.key";
+
+    /** Name of the searcher. */
     private static final String NAME = "Social Mention";
 
+    /** API key (optional). */
     private final String key;
 
     /**
@@ -52,10 +59,22 @@ public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebC
 
     /**
      * <p>
+     * Create a new SocialMentionSearcher.
+     * 
+     * @param configuration The configuration, which can provide an (optional) key for accessing SocialMention via
+     *            {@link #CONFIG_KEY}.
+     */
+    public SocialMentionSearcher(Configuration configuration) {
+        Validate.notNull(configuration, "configuration must not be null");
+        key = configuration.getString(CONFIG_KEY, null);
+    }
+
+    /**
+     * <p>
      * Create a new SocialMentionSearcher with free API access (max. 100 queries/day).
      */
     public SocialMentionSearcher() {
-        this(null);
+        this.key = null;
     }
 
     @Override
@@ -91,7 +110,7 @@ public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebC
             long count = jsonResult.getLong("count");
             List<WebContent> results = CollectionHelper.newArrayList();
             JsonArray jsonItems = jsonResult.getJsonArray("items");
-            for (int i = 0; i < jsonItems.size(); i++) {
+            for (int i = 0; i < Math.min(jsonItems.size(), query.getResultCount()); i++) {
                 BasicWebContent.Builder builder = new BasicWebContent.Builder();
                 JsonObject jsonItem = jsonItems.getJsonObject(i);
                 builder.setTitle(jsonItem.getString("title"));
@@ -99,6 +118,7 @@ public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebC
                 builder.setUrl(jsonItem.getString("link"));
                 builder.setPublished(new Date(jsonItem.getInt("timestamp") * 1000l));
                 builder.setIdentifier(jsonItem.getString("id"));
+                builder.setSource(NAME);
                 results.add(builder.create());
             }
             return new SearchResults<WebContent>(results, count);
@@ -118,7 +138,7 @@ public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebC
         builder.setLanguage(Language.ENGLISH);
         builder.setStartDate(new Date(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(10)));
         MultifacetQuery query = builder.create();
-        SearchResults<WebContent> results = new SocialMentionSearcher(null).search(query);
+        SearchResults<WebContent> results = new SocialMentionSearcher().search(query);
         CollectionHelper.print(results);
     }
 
