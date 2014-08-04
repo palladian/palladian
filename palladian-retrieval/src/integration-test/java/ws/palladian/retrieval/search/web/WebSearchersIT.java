@@ -30,8 +30,8 @@ import ws.palladian.retrieval.search.news.BingNewsSearcher;
 import ws.palladian.retrieval.search.news.WebKnoxNewsSearcher;
 import ws.palladian.retrieval.search.socialmedia.InstagramSearcher;
 import ws.palladian.retrieval.search.socialmedia.RedditSearcher;
+import ws.palladian.retrieval.search.socialmedia.SocialMentionSearcher;
 import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
-import ws.palladian.retrieval.search.socialmedia.YelpSearcher;
 import ws.palladian.retrieval.search.videos.BingVideoSearcher;
 import ws.palladian.retrieval.search.videos.VimeoSearcher;
 import ws.palladian.retrieval.search.videos.YouTubeSearcher;
@@ -80,6 +80,7 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new FacebookSearcher(configuration)});
         searchers.add(new Object[] {new TwitterSearcher(configuration)});
         searchers.add(new Object[] {new RedditSearcher()});
+        searchers.add(new Object[] {new SocialMentionSearcher()});
         // searchers.add(new Object[] {new YelpSearcher(configuration)});
 
         // news searchers
