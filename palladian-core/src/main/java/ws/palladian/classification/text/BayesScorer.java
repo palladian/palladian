@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -25,9 +23,6 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author pk
  */
 public final class BayesScorer implements Scorer {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BayesScorer.class);
 
     public static enum Options {
         /** Enable Laplace smoothing. */
@@ -93,19 +88,14 @@ public final class BayesScorer implements Scorer {
         } else {
             weight = docCount;
         }
-        double score = weight * log((double)numerator / denominator);
-        LOGGER.trace("({},{}) ({}/{})^{} = {}", term, category, numerator, denominator, docCount, score);
-        return score;
+        return weight * log((double)numerator / denominator);
     }
 
     @Override
     public double scoreCategory(String category, double summedTermScore, double categoryProbability, boolean matched) {
         if (matched) {
-            double score = (complement ? -1 : 1) * summedTermScore + (prior ? log(categoryProbability) : 0);
-            LOGGER.trace("{}: {}·{}={}", category, categoryProbability, summedTermScore, score);
-            return score;
+            return (complement ? -1 : 1) * summedTermScore + (prior ? log(categoryProbability) : 0);
         } else {
-            LOGGER.trace("No match, returning categoryProbability {}={}", category, categoryProbability);
             return categoryProbability;
         }
     }
