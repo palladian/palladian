@@ -1,5 +1,9 @@
 package ws.palladian.helper.constants;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -130,6 +134,13 @@ public enum Language {
     XHOSA("xh", "xho", "Xhosa"), //
     ZARMA(null, "dje", "Zarma"); //
 
+    /**
+     * Ten of the most spoken languages (determined by number of countries, see <a
+     * href="http://en.wikipedia.org/wiki/List_of_most_widely_spoken_languages_(by_number_of_countries)">List of most
+     * widely spoken languages (by number of countries)</a>).
+     */
+    public static final List<Language> TEN_MOST_SPOKEN = Collections.unmodifiableList(Arrays.asList( //
+            ENGLISH, FRENCH, ARABIC, SPANISH, PORTUGUESE, RUSSIAN, PERSIAN, ITALIAN, GERMAN, CHINESE));
 
     private final String iso6391;
     private final String iso6392;
