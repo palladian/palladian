@@ -57,9 +57,9 @@ public final class Tokenizer {
             | Pattern.CASE_INSENSITIVE);
 
     private static final DateFormat[] ALL_DATES_WITH_DOTS = new DateFormat[] {RegExp.DATE_EU_D_MM,
-        RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
-        RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
-        RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
+            RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
+            RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
+            RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
 
     private static final UrlTagger URL_TAGGER = new UrlTagger();
     private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger(ALL_DATES_WITH_DOTS);
@@ -394,7 +394,6 @@ public final class Tokenizer {
             return string;
         }
 
-        // /////// XXX
         List<String> sentences = getSentences(string, language);
         String pickedSentence = "";
         for (String sentence : sentences) {
@@ -405,18 +404,7 @@ public final class Tokenizer {
                 break;
             }
         }
-        if (true) {
-            return pickedSentence;
-        }
-        // ////////
-
-        String beginning = getPhraseFromBeginningOfSentence(string.substring(0, position));
-        String end = getPhraseToEndOfSentence(string.substring(position));
-        if (beginning.endsWith(" ")) {
-            end = end.trim();
-        }
-
-        return beginning + end;
+        return pickedSentence;
     }
 
     public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
@@ -661,7 +649,7 @@ public final class Tokenizer {
             String value = StringHelper.rtrim(leftTrimmedValue);
 
             int leftIndex = lastIndex + leftOffset;
-            //            int rightIndex = leftIndex + value.length();
+            // int rightIndex = leftIndex + value.length();
             PositionAnnotation sentence = new PositionAnnotation(value, leftIndex);
             sentences.add(sentence);
             lastIndex = endPosition;
@@ -679,7 +667,7 @@ public final class Tokenizer {
             // Since there often is a line break at the end of a file this should not be added here.
             if (!value.isEmpty()) {
                 int leftIndex = lastIndex + leftOffset;
-                //                int rightIndex = leftIndex + value.length();
+                // int rightIndex = leftIndex + value.length();
                 PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(value, leftIndex);
                 sentences.add(lastSentenceAnnotation);
             }
@@ -775,9 +763,9 @@ public final class Tokenizer {
         for (Annotation annotation : annotations) {
             String value = annotation.getValue();
             int startPosition = annotation.getStartPosition();
-            //            int endPosition = annotation.getStartPosition() + annotation.getValue().length();
-            //            PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
-            //                    value);
+            // int endPosition = annotation.getStartPosition() + annotation.getValue().length();
+            // PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
+            // value);
             PositionAnnotation positionAnnotation = new PositionAnnotation(value, startPosition);
 
             ret.add(positionAnnotation);
@@ -970,7 +958,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 

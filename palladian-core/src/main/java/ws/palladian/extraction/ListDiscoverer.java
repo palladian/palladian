@@ -304,7 +304,7 @@ public class ListDiscoverer {
             return;
         }
 
-        int mostLikelyLength = (Integer)countMap.getSortedMapDescending().entrySet().iterator().next().getKey();
+        int mostLikelyLength = countMap.getSortedMapDescending().entrySet().iterator().next().getKey();
 
         Set<String> filteredUrls = new HashSet<String>();
 
@@ -605,7 +605,7 @@ public class ListDiscoverer {
         int numericEntries = 0;
         int completelyCapitalized = 0;
         int totalWordLength = 0;
-        int missingEntries = 0;
+        // int missingEntries = 0;
 
         Set<String> duplicateCountSet = new HashSet<String>();
         Set<String> duplicateWordCountSet = new HashSet<String>();
@@ -637,7 +637,7 @@ public class ListDiscoverer {
             }
 
             if (entry.length() == 0) {
-                missingEntries++;
+                // missingEntries++;
             } else if (!duplicateCountSet.add(entry)) {
                 duplicateCount++;
                 if (duplicateWordCountSet.add(entry)) {
