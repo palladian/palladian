@@ -84,7 +84,7 @@ public final class WikipediaUtil {
             // -(9)----------------------------------
             "\\}\\}", Pattern.CASE_INSENSITIVE);//
 
-    static String stripMediaWikiMarkup(String markup) {
+    public static String stripMediaWikiMarkup(String markup) {
         Validate.notNull(markup, "markup must not be null");
 
         // strip everything in <ref> tags

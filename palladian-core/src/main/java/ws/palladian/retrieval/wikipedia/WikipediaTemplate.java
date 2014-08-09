@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.wikipedia;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,6 +63,18 @@ public class WikipediaTemplate {
      */
     public String getEntry(String... keys) {
         return CollectionHelper.getTrying(content, keys);
+    }
+
+    /**
+     * @param keys The names of the keys to retrieve.
+     * @return All matching values for the keys, or an empty {@link List} in case no entries exist.
+     */
+    public List<String> getEntries(String... keys) {
+        List<String> entries = CollectionHelper.newArrayList();
+        for (String key : keys) {
+            entries.add(getEntry(key));
+        }
+        return entries;
     }
 
     public int size() {

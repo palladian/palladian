@@ -63,7 +63,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         /** The number of terms stored in this dictionary. */
         private int numTerms;
         /** The pruning strategies to apply when creating the model. */
-        private final List<Filter<TermCategoryEntries>> pruningStrategies = CollectionHelper.newArrayList();
+        private Filter<TermCategoryEntries> pruningStrategy;
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -95,36 +95,34 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
         @Override
         public DictionaryModel create() {
-            if (pruningStrategies.size() > 0) {
-                for (Filter<TermCategoryEntries> pruningStrategy : pruningStrategies) {
-                    Iterator<Entry<String, LinkedCategoryEntries>> iterator = entryTrie.iterator();
-                    int numRemoved = 0;
-                    while (iterator.hasNext()) {
-                        Entry<String, LinkedCategoryEntries> next = iterator.next();
-                        String term = next.getKey();
-                        LinkedCategoryEntries entries = next.getValue();
-                        if (!pruningStrategy.accept(new ImmutableTermCategoryEntries(term, entries))) {
-                            iterator.remove();
-                            numRemoved++;
-                        }
+            if (pruningStrategy != null) {
+                Iterator<Entry<String, LinkedCategoryEntries>> iterator = entryTrie.iterator();
+                int numRemoved = 0;
+                while (iterator.hasNext()) {
+                    Entry<String, LinkedCategoryEntries> next = iterator.next();
+                    String term = next.getKey();
+                    LinkedCategoryEntries entries = next.getValue();
+                    if (!pruningStrategy.accept(new ImmutableTermCategoryEntries(term, entries))) {
+                        iterator.remove();
+                        numRemoved++;
                     }
-                    LOGGER.info("Removed {} terms with {}", numRemoved, pruningStrategy);
-                    numTerms -= numRemoved;
                 }
-                entryTrie.clean();
-                // re-calculate term counts
-                termCountBuilder.clear();
-                for (Entry<String, LinkedCategoryEntries> entry : entryTrie) {
-                    termCountBuilder.add(entry.getValue());
-                }
+                LOGGER.info("Removed {} terms with {}", numRemoved, pruningStrategy);
+                numTerms -= numRemoved;
+            }
+            entryTrie.clean();
+            // re-calculate term counts
+            termCountBuilder.clear();
+            for (Entry<String, LinkedCategoryEntries> entry : entryTrie) {
+                termCountBuilder.add(entry.getValue());
             }
             return new DictionaryTrieModel(this);
         }
 
         @Override
-        public DictionaryBuilder addPruningStrategy(Filter<TermCategoryEntries> strategy) {
+        public DictionaryBuilder setPruningStrategy(Filter<TermCategoryEntries> strategy) {
             Validate.notNull(strategy, "strategy must not be null");
-            pruningStrategies.add(strategy);
+            this.pruningStrategy = strategy;
             return this;
         }
 
