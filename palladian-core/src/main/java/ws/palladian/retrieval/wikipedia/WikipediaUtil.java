@@ -259,8 +259,7 @@ public final class WikipediaUtil {
      * </p>
      * 
      * @param baseUrl The base URL of the Mediawiki API, not <code>null</code>.
-     * @param categoryName The name of the category, must start with the <texttt>Category:</texttt> prefix, not
-     *            <code>null</code>.
+     * @param categoryName The name of the category, not <code>null</code>.
      * @return A list of {@link WikipediaPageReference}s in the specified category, or an empty list, never
      *         <code>null</code>.
      */
@@ -270,11 +269,15 @@ public final class WikipediaUtil {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         List<WikipediaPageReference> pages = CollectionHelper.newArrayList();
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
+        String cmTitle = UrlHelper.encodeParameter(categoryName);
+        if (!cmTitle.toLowerCase().startsWith("category:")) {
+            cmTitle = "Category:" + cmTitle;
+        }
         for (String cmContinue = null;;) {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(descriptor.getEndpoint());
             urlBuilder.append("?action=query&list=categorymembers&cmtitle=");
-            urlBuilder.append(UrlHelper.encodeParameter(categoryName));
+            urlBuilder.append(cmTitle);
             urlBuilder.append("&cmsort=timestamp&cmdir=desc&format=json&cmlimit=5");
             if (cmContinue != null) {
                 urlBuilder.append("&cmcontinue=").append(UrlHelper.encodeParameter(cmContinue));
