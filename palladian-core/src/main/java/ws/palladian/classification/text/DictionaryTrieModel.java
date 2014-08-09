@@ -22,6 +22,7 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Trie;
+import ws.palladian.helper.functional.Filter;
 
 /**
  * <p>
@@ -62,7 +63,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         /** The number of terms stored in this dictionary. */
         private int numTerms;
         /** The pruning strategies to apply when creating the model. */
-        private final List<PruningStrategy> pruningStrategies = CollectionHelper.newArrayList();
+        private final List<Filter<TermCategoryEntries>> pruningStrategies = CollectionHelper.newArrayList();
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -95,14 +96,14 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         @Override
         public DictionaryModel create() {
             if (pruningStrategies.size() > 0) {
-                for (PruningStrategy pruningStrategy : pruningStrategies) {
+                for (Filter<TermCategoryEntries> pruningStrategy : pruningStrategies) {
                     Iterator<Entry<String, LinkedCategoryEntries>> iterator = entryTrie.iterator();
                     int numRemoved = 0;
                     while (iterator.hasNext()) {
                         Entry<String, LinkedCategoryEntries> next = iterator.next();
                         String term = next.getKey();
                         LinkedCategoryEntries entries = next.getValue();
-                        if (pruningStrategy.remove(new ImmutableTermCategoryEntries(term, entries))) {
+                        if (!pruningStrategy.accept(new ImmutableTermCategoryEntries(term, entries))) {
                             iterator.remove();
                             numRemoved++;
                         }
@@ -121,7 +122,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         }
 
         @Override
-        public DictionaryBuilder addPruningStrategy(PruningStrategy strategy) {
+        public DictionaryBuilder addPruningStrategy(Filter<TermCategoryEntries> strategy) {
             Validate.notNull(strategy, "strategy must not be null");
             pruningStrategies.add(strategy);
             return this;
@@ -129,6 +130,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
         @Override
         public DictionaryBuilder addDictionary(DictionaryModel model) {
+            Validate.notNull(model, "model must not be null");
             for (TermCategoryEntries addEntry : model) {
                 String term = addEntry.getTerm();
                 LinkedCategoryEntries entries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
