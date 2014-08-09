@@ -72,7 +72,10 @@ public class WikiTemplate {
     public List<String> getEntries(String... keys) {
         List<String> entries = CollectionHelper.newArrayList();
         for (String key : keys) {
-            entries.add(getEntry(key));
+            String entry = getEntry(key);
+            if (entry != null) {
+                entries.add(entry);
+            }
         }
         return entries;
     }
