@@ -36,11 +36,11 @@ import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.wikipedia.MarkupCoordinate;
-import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
-import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaTemplate;
-import ws.palladian.retrieval.wikipedia.WikipediaUtil;
+import ws.palladian.retrieval.wiki.MarkupCoordinate;
+import ws.palladian.retrieval.wiki.MultiStreamBZip2InputStream;
+import ws.palladian.retrieval.wiki.WikiPage;
+import ws.palladian.retrieval.wiki.WikiTemplate;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
 
 /**
  * <p>
@@ -175,11 +175,11 @@ public class WikipediaLocationImporter {
 
     void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
-        WikipediaUtil.parseDump(inputStream, new Consumer<WikipediaPage>() {
+        MediaWikiUtil.parseDump(inputStream, new Consumer<WikiPage>() {
 
             @Override
-            public void process(WikipediaPage page) {
-                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
+            public void process(WikiPage page) {
+                if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (page.isRedirect()) {
@@ -190,13 +190,13 @@ public class WikipediaLocationImporter {
                     return;
                 }
 
-                List<WikipediaTemplate> infoboxes = page.getInfoboxes();
+                List<WikiTemplate> infoboxes = page.getInfoboxes();
                 if (infoboxes.isEmpty()) {
                     LOGGER.debug("Page '{}' has no infobox; skip", page.getTitle());
                     return;
                 }
                 LocationType type = null;
-                for (WikipediaTemplate infobox : infoboxes) {
+                for (WikiTemplate infobox : infoboxes) {
                     type = INFOBOX_MAPPING.get(infobox.getName());
                     if (type != null) {
                         break;
@@ -210,7 +210,7 @@ public class WikipediaLocationImporter {
                 MarkupCoordinate coordinate = page.getCoordinate();
                 // fallback, use infobox/geobox:
                 if (coordinate == null) {
-                    for (WikipediaTemplate infobox : infoboxes) {
+                    for (WikiTemplate infobox : infoboxes) {
                         Set<MarkupCoordinate> coordinates = infobox.getCoordinates();
                         // XXX we might also want to extract population information here in the future
                         if (coordinates.size() > 0) {
@@ -260,11 +260,11 @@ public class WikipediaLocationImporter {
      */
     void importAlternativeNames(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
-        WikipediaUtil.parseDump(inputStream, new Consumer<WikipediaPage>() {
+        MediaWikiUtil.parseDump(inputStream, new Consumer<WikiPage>() {
 
             @Override
-            public void process(WikipediaPage page) {
-                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
+            public void process(WikiPage page) {
+                if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (!page.isRedirect()) {

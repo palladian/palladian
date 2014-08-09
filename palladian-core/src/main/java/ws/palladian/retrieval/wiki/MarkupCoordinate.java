@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 import ws.palladian.helper.geo.AbstractGeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;

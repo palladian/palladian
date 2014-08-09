@@ -10,10 +10,10 @@ import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.wikipedia.MediaWikiDescriptor;
-import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageReference;
-import ws.palladian.retrieval.wikipedia.WikipediaUtil;
+import ws.palladian.retrieval.wiki.MediaWikiDescriptor;
+import ws.palladian.retrieval.wiki.WikiPage;
+import ws.palladian.retrieval.wiki.WikiPageReference;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
 
 /**
  * <p>
@@ -52,14 +52,14 @@ public class WikipediaScopeDatasetCreator {
 
                 try {
 
-                    WikipediaPageReference reference = WikipediaUtil.retrieveRandomArticle(WIKIPEDIA_EN);
+                    WikiPageReference reference = MediaWikiUtil.retrieveRandomArticle(WIKIPEDIA_EN);
                     counter.incrementAndGet();
 
                     if (reference.getTitle().toLowerCase().startsWith("list of")) {
                         continue;
                     }
 
-                    WikipediaPage article = WikipediaUtil.retrieveArticle(WIKIPEDIA_EN, reference.getTitle());
+                    WikiPage article = MediaWikiUtil.retrieveArticle(WIKIPEDIA_EN, reference.getTitle());
                     GeoCoordinate coordinate = article.getCoordinate();
                     if (coordinate != null) {
                         // System.out.println(article.getTitle() + " -> " + coordinate);

@@ -16,7 +16,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.wikipedia.WikipediaPage;
+import ws.palladian.retrieval.wiki.WikiPage;
 
 /**
  * <p>
@@ -88,7 +88,7 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
                 } catch (IOException e) {
                     throw new IllegalStateException("Could not read '" + currentFile + "': " + e.getMessage(), e);
                 }
-                WikipediaPage page = new WikipediaPage(0, 0, StringUtils.EMPTY, markupContent);
+                WikiPage page = new WikiPage(0, 0, StringUtils.EMPTY, markupContent);
                 GeoCoordinate scope = page.getCoordinate();
                 if (scope != null) {
                     // save some memory, we don't need all that additional information in MarkupGeoCoordinate

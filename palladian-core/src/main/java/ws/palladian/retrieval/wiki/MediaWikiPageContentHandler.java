@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,20 +14,20 @@ import ws.palladian.helper.functional.Consumer;
 
 /**
  * <p>
- * SAX handler for processing Wikipedia XML dumps. Mapping each page to a {@link WikipediaPage}.
+ * SAX handler for processing Wikipedia XML dumps. Mapping each page to a {@link WikiPage}.
  * </p>
  * 
  * @author Philipp Katz
  */
-class WikipediaPageContentHandler extends DefaultHandler {
+class MediaWikiPageContentHandler extends DefaultHandler {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPageContentHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MediaWikiPageContentHandler.class);
 
     private int pageCounter;
     private final StopWatch stopWatch;
 
-    private final Consumer<WikipediaPage> callback;
+    private final Consumer<WikiPage> callback;
 
     private StringBuilder buffer = new StringBuilder();
     private boolean bufferText = false;
@@ -41,12 +41,12 @@ class WikipediaPageContentHandler extends DefaultHandler {
 
     /**
      * <p>
-     * Create a new {@link WikipediaPageContentHandler}.
+     * Create a new {@link MediaWikiPageContentHandler}.
      * </p>
      * 
      * @param callback The callback to trigger for parsed pages, not <code>null</code>.
      */
-    WikipediaPageContentHandler(Consumer<WikipediaPage> callback) {
+    MediaWikiPageContentHandler(Consumer<WikiPage> callback) {
         Validate.notNull(callback, "callback must not be null");
         this.callback = callback;
         this.stopWatch = new StopWatch();
@@ -84,7 +84,7 @@ class WikipediaPageContentHandler extends DefaultHandler {
             float throughput = (float)pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
             LOGGER.debug("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
         }
-        callback.process(new WikipediaPage(pageId, namespaceId, title, text));
+        callback.process(new WikiPage(pageId, namespaceId, title, text));
     }
 
     @Override

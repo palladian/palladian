@@ -25,8 +25,8 @@ import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaUtil;
+import ws.palladian.retrieval.wiki.WikiPage;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
 
 /**
  * <p>
@@ -69,9 +69,9 @@ class WikipediaEntityContextMiner {
         typeCounts.clear();
         try {
             final int[] counter = new int[] {0};
-            WikipediaUtil.parseDump(wikipediaDump, new Consumer<WikipediaPage>() {
+            MediaWikiUtil.parseDump(wikipediaDump, new Consumer<WikiPage>() {
                 @Override
-                public void process(WikipediaPage page) {
+                public void process(WikiPage page) {
                     if (counter[0]++ == limit) {
                         throw new StopException();
                     }
@@ -215,10 +215,10 @@ class WikipediaEntityContextMiner {
         }
     }
 
-    private static void extractContexts(WikipediaPage page, String type, int contextSize) {
+    private static void extractContexts(WikiPage page, String type, int contextSize) {
         String pageText = page.getCleanText();
         pageText = StringHelper.normalizeQuotes(pageText);
-        pageText = WikipediaUtil.extractSentences(pageText);
+        pageText = MediaWikiUtil.extractSentences(pageText);
 
         String entityName = page.getCleanTitle();
         String lastName = entityName.substring(entityName.lastIndexOf(" ") + 1); // only use for "PER"?

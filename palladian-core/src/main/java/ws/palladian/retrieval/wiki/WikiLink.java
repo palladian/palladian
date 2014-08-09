@@ -1,16 +1,16 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 /**
  * <p>
  * Internal link on a Wikipedia page.
  * </p>
  */
-public class WikipediaLink {
+public class WikiLink {
 
     private final String destination;
     private final String title;
 
-    public WikipediaLink(String destination, String title) {
+    public WikiLink(String destination, String title) {
         this.destination = destination;
         this.title = title;
     }
