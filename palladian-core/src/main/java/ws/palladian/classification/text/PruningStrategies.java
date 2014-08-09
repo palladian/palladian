@@ -7,15 +7,15 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.text.DictionaryBuilder.PruningStrategy;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.helper.functional.Filter;
 
 /**
  * Different strategies for pruning a {@link DictionaryModel}.
  * 
- * @see DictionaryModel#prune(PruningStrategy)
+ * @see DictionaryBuilder#addPruningStrategy(Filter)
  * @author pk
  */
 public final class PruningStrategies {
@@ -25,7 +25,7 @@ public final class PruningStrategies {
      * 
      * @author pk
      */
-    public static final class TermCountPruningStrategy implements PruningStrategy {
+    public static final class TermCountPruningStrategy implements Filter<TermCategoryEntries> {
 
         private final int minCount;
 
@@ -35,8 +35,8 @@ public final class PruningStrategies {
         }
 
         @Override
-        public boolean remove(TermCategoryEntries entries) {
-            return entries.getTotalCount() < minCount;
+        public boolean accept(TermCategoryEntries entries) {
+            return entries.getTotalCount() >= minCount;
         }
 
         @Override
@@ -51,7 +51,7 @@ public final class PruningStrategies {
      * 
      * @author pk
      */
-    public static final class InformationGainPruningStrategy implements PruningStrategy {
+    public static final class InformationGainPruningStrategy implements Filter<TermCategoryEntries> {
 
         /** The logger for this class. */
         private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainPruningStrategy.class);
@@ -90,10 +90,10 @@ public final class PruningStrategies {
         }
 
         @Override
-        public boolean remove(TermCategoryEntries entries) {
+        public boolean accept(TermCategoryEntries entries) {
             double informationGain = getInformationGain(entries);
             LOGGER.trace("IG({})={}", entries.getTerm(), informationGain);
-            return informationGain < threshold;
+            return informationGain >= threshold;
         }
 
         @Override

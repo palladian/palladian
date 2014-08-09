@@ -10,7 +10,7 @@ import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategoryEntries;
 
-public class ImmutableTermCategoryEntries extends AbstractCategoryEntries implements TermCategoryEntries {
+public final class ImmutableTermCategoryEntries extends AbstractCategoryEntries implements TermCategoryEntries {
 
     private final String term;
     private final CategoryEntries categoryEntries;
@@ -18,7 +18,7 @@ public class ImmutableTermCategoryEntries extends AbstractCategoryEntries implem
     public ImmutableTermCategoryEntries(String term) {
         this(term, ImmutableCategoryEntries.EMPTY);
     }
-    
+
     public ImmutableTermCategoryEntries(String term, CategoryEntries categoryEntries) {
         Validate.notNull(term, "term must not be null");
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
