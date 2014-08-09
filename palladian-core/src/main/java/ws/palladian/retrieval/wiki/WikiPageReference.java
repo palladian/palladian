@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 import java.util.Collections;
 import java.util.Date;
@@ -10,13 +10,13 @@ import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
- * A reference to a MediaWiki page. Not the fully retrieved page, this is represented by {@link WikipediaPage} and
+ * A reference to a MediaWiki page. Not the fully retrieved page, this is represented by {@link WikiPage} and
  * additionally contains the text.
  * </p>
  * 
  * @author katz
  */
-public class WikipediaPageReference implements WebContent {
+public class WikiPageReference implements WebContent {
 
     /** The id of the main namespace with articles. Other namespaces contain meta pages, like discussions etc. */
     public static final int MAIN_NAMESPACE = 0;
@@ -27,7 +27,7 @@ public class WikipediaPageReference implements WebContent {
     private final int namespaceId;
     private final String title;
 
-    public WikipediaPageReference(int pageId, int namespaceId, String title) {
+    public WikiPageReference(int pageId, int namespaceId, String title) {
         this.pageId = pageId;
         this.namespaceId = namespaceId;
         this.title = title;

@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,12 +11,12 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
-public class WikipediaPageTest {
+public class WikiPageTest {
 
     @Test
     public void testWikipediaPage() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
-        WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
+        WikiPage page = new WikiPage(0, 0, "Dresden", markup);
         assertEquals("german location", page.getInfoboxes().get(0).getName());
         assertEquals(4, page.getCategories().size());
         assertEquals(484, page.getLinks().size());
@@ -26,8 +26,8 @@ public class WikipediaPageTest {
     public void testGetInfoboxes() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
-        WikipediaPage page = new WikipediaPage(0, 0, "Dry Fork (Cheat River)", markup);
-        List<WikipediaTemplate> infoboxes = page.getInfoboxes();
+        WikiPage page = new WikiPage(0, 0, "Dry Fork (Cheat River)", markup);
+        List<WikiTemplate> infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
         assertEquals("river", infoboxes.get(0).getName());
     }
@@ -35,10 +35,10 @@ public class WikipediaPageTest {
     @Test
     public void testInfoboxExtraction() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
-        WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
-        List<WikipediaTemplate> infoboxes = page.getInfoboxes();
+        WikiPage page = new WikiPage(0, 0, "Dresden", markup);
+        List<WikiTemplate> infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
-        WikipediaTemplate infobox = CollectionHelper.getFirst(infoboxes);
+        WikiTemplate infobox = CollectionHelper.getFirst(infoboxes);
         assertEquals(34, infobox.size());
         assertEquals("Dresden", infobox.getEntry("Name"));
         assertEquals("City", infobox.getEntry("Art"));
@@ -49,7 +49,7 @@ public class WikipediaPageTest {
         assertEquals("1206", infobox.getEntry("year"));
 
         markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Stack_Overflow.wikipedia"));
-        page = new WikipediaPage(0, 0, "Stack Overflow", markup);
+        page = new WikiPage(0, 0, "Stack Overflow", markup);
         infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
         infobox = CollectionHelper.getFirst(infoboxes);
@@ -60,7 +60,7 @@ public class WikipediaPageTest {
 
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
-        page = new WikipediaPage(0, 0, "Dry Fork (Cheat River)", markup);
+        page = new WikiPage(0, 0, "Dry Fork (Cheat River)", markup);
         infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
         infobox = CollectionHelper.getFirst(infoboxes);
@@ -69,7 +69,7 @@ public class WikipediaPageTest {
 
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/Muskingum_University.wikipedia"));
-        page = new WikipediaPage(0, 0, "Muskingum University", markup);
+        page = new WikiPage(0, 0, "Muskingum University", markup);
         infoboxes = page.getInfoboxes();
         assertEquals(2, infoboxes.size());
     }
@@ -77,26 +77,26 @@ public class WikipediaPageTest {
     @Test
     public void testGetSections() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
-        WikipediaPage page = new WikipediaPage(0, 0, "Dresden", markup);
+        WikiPage page = new WikiPage(0, 0, "Dresden", markup);
         List<String> sections = page.getSections();
         assertEquals(46, sections.size());
     }
 
     @Test
     public void testGetRedirect() {
-        WikipediaPage page = new WikipediaPage(0, 0, "L.A.", "#REDIRECT [[Los Angeles]]");
+        WikiPage page = new WikiPage(0, 0, "L.A.", "#REDIRECT [[Los Angeles]]");
         assertEquals("Los Angeles", page.getRedirectTitle());
     }
 
     @Test
     public void testCleanName() {
-        WikipediaPage page = new WikipediaPage(0, 0, "Theater District (San Francisco, California)", null);
+        WikiPage page = new WikiPage(0, 0, "Theater District (San Francisco, California)", null);
         assertEquals("Theater District", page.getCleanTitle());
-        page = new WikipediaPage(0, 0, "Oregon, Illinois", null);
+        page = new WikiPage(0, 0, "Oregon, Illinois", null);
         assertEquals("Oregon", page.getCleanTitle());
-        page = new WikipediaPage(0, 0, "West Seneca (town), New York", null);
+        page = new WikiPage(0, 0, "West Seneca (town), New York", null);
         assertEquals("West Seneca", page.getCleanTitle());
-        page = new WikipediaPage(0, 0, "Capital of the Cocos (Keeling) Islands", null);
+        page = new WikiPage(0, 0, "Capital of the Cocos (Keeling) Islands", null);
         assertEquals("Capital of the Cocos Islands", page.getCleanTitle());
     }
 

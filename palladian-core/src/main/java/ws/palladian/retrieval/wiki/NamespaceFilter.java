@@ -1,11 +1,11 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 import java.util.Set;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 
-public final class NamespaceFilter implements Filter<WikipediaPageReference> {
+public final class NamespaceFilter implements Filter<WikiPageReference> {
 
     private final Set<Integer> acceptedNamespaces;
 
@@ -17,7 +17,7 @@ public final class NamespaceFilter implements Filter<WikipediaPageReference> {
     }
 
     @Override
-    public boolean accept(WikipediaPageReference item) {
+    public boolean accept(WikiPageReference item) {
         return acceptedNamespaces.contains(item.getNamespaceId());
     }
 

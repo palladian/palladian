@@ -22,8 +22,8 @@ import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaUtil;
+import ws.palladian.retrieval.wiki.WikiPage;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
 
 class WikipediaCaseDictionaryCreator {
 
@@ -46,10 +46,10 @@ class WikipediaCaseDictionaryCreator {
         Validate.isTrue(limit > 0, "limit must be greater zero");
         try {
             final int[] counter = new int[] {0};
-            WikipediaUtil.parseDump(wikipediaDump, new Consumer<WikipediaPage>() {
+            MediaWikiUtil.parseDump(wikipediaDump, new Consumer<WikiPage>() {
                 @Override
-                public void process(WikipediaPage page) {
-                    if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
+                public void process(WikiPage page) {
+                    if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                         return;
                     }
                     if (counter[0]++ == limit) {
@@ -62,7 +62,7 @@ class WikipediaCaseDictionaryCreator {
                     System.out.println(counter[0]);
                     String pageText = page.getCleanText();
                     pageText = StringHelper.normalizeQuotes(pageText);
-                    pageText = WikipediaUtil.extractSentences(pageText);
+                    pageText = MediaWikiUtil.extractSentences(pageText);
                     addCounts(pageText);
                 }
             });

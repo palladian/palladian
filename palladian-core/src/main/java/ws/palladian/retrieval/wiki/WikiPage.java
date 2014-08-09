@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,16 +20,16 @@ import ws.palladian.helper.geo.GeoCoordinate;
  * 
  * @author Philipp Katz
  */
-public class WikipediaPage extends WikipediaPageReference {
+public class WikiPage extends WikiPageReference {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaPage.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikiPage.class);
 
     private final String text;
 
     /**
      * <p>
-     * Create a new {@link WikipediaPage}.
+     * Create a new {@link WikiPage}.
      * </p>
      * 
      * @param pageId The unique identifier of this page.
@@ -37,7 +37,7 @@ public class WikipediaPage extends WikipediaPageReference {
      * @param title The title of this page.
      * @param text The raw markup of this page.
      */
-    public WikipediaPage(int pageId, int namespaceId, String title, String text) {
+    public WikiPage(int pageId, int namespaceId, String title, String text) {
         super(pageId, namespaceId, title);
         this.text = text;
     }
@@ -53,7 +53,7 @@ public class WikipediaPage extends WikipediaPageReference {
      * @return The clean text on this Wiki page.
      */
     public String getCleanText() {
-        return WikipediaUtil.stripMediaWikiMarkup(text);
+        return MediaWikiUtil.stripMediaWikiMarkup(text);
     }
 
     /**
@@ -67,7 +67,7 @@ public class WikipediaPage extends WikipediaPageReference {
      */
     public List<String> getSections() {
         List<String> result = CollectionHelper.newArrayList();
-        Matcher matcher = WikipediaUtil.HEADING_PATTERN.matcher(text);
+        Matcher matcher = MediaWikiUtil.HEADING_PATTERN.matcher(text);
         int start = 0;
         while (matcher.find()) {
             int end = matcher.start();
@@ -89,7 +89,7 @@ public class WikipediaPage extends WikipediaPageReference {
      * @return The title of the page to which this redirects, or <code>null</code> in case this page is no redirect.
      */
     public String getRedirectTitle() {
-        Matcher matcher = WikipediaUtil.REDIRECT_PATTERN.matcher(text);
+        Matcher matcher = MediaWikiUtil.REDIRECT_PATTERN.matcher(text);
         if (matcher.find()) {
             return matcher.group(1);
         }
@@ -107,7 +107,7 @@ public class WikipediaPage extends WikipediaPageReference {
     @Deprecated
     public String getInfoboxMarkup() {
         try {
-            return CollectionHelper.getFirst(WikipediaUtil.getNamedMarkup(text, "infobox"));
+            return CollectionHelper.getFirst(MediaWikiUtil.getNamedMarkup(text, "infobox"));
         } catch (StringIndexOutOfBoundsException e) {
             LOGGER.warn("{} when getting infobox markup; this is usually caused by invalid markup.", e.getMessage());
             return null;
@@ -143,27 +143,27 @@ public class WikipediaPage extends WikipediaPageReference {
     }
 
     /**
-     * @return A list of {@link WikipediaTemplate}es on the page, or an empty list in case no such exist, never
+     * @return A list of {@link WikiTemplate}es on the page, or an empty list in case no such exist, never
      *         <code>null</code>.
      * @deprecated Prefer using the more flexible {@link #getTemplates(String...)} and specify what to extract.
      */
     @Deprecated
-    public List<WikipediaTemplate> getInfoboxes() {
+    public List<WikiTemplate> getInfoboxes() {
         return getTemplates("infobox", "geobox");
     }
 
     /**
      * @param templateNames The name(s) of the templates to retrieve, not <code>null</code>.
-     * @return A list of {@link WikipediaTemplate}s with the given name(s) on the page, or an empty list in case no such
+     * @return A list of {@link WikiTemplate}s with the given name(s) on the page, or an empty list in case no such
      *         exist, never <code>null</code>.
      */
-    public List<WikipediaTemplate> getTemplates(String... templateNames) {
+    public List<WikiTemplate> getTemplates(String... templateNames) {
         Validate.notNull(templateNames, "templateNames must not be null");
-        List<WikipediaTemplate> infoboxes = CollectionHelper.newArrayList();
+        List<WikiTemplate> infoboxes = CollectionHelper.newArrayList();
         try {
-            List<String> infoboxesMarkup = WikipediaUtil.getNamedMarkup(text, templateNames);
+            List<String> infoboxesMarkup = MediaWikiUtil.getNamedMarkup(text, templateNames);
             for (String infoboxMarkup : infoboxesMarkup) {
-                WikipediaTemplate template = WikipediaUtil.extractTemplate(infoboxMarkup);
+                WikiTemplate template = MediaWikiUtil.extractTemplate(infoboxMarkup);
                 infoboxes.add(template);
             }
         } catch (StringIndexOutOfBoundsException e) {
@@ -200,9 +200,9 @@ public class WikipediaPage extends WikipediaPageReference {
      * @return A {@link List} with all internal links on the page (sans "category:" links; they can be retrieved using
      *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
      */
-    public List<WikipediaLink> getLinks() {
-        List<WikipediaLink> result = CollectionHelper.newArrayList();
-        Matcher matcher = WikipediaUtil.INTERNAL_LINK_PATTERN.matcher(text);
+    public List<WikiLink> getLinks() {
+        List<WikiLink> result = CollectionHelper.newArrayList();
+        Matcher matcher = MediaWikiUtil.INTERNAL_LINK_PATTERN.matcher(text);
         while (matcher.find()) {
             String target = matcher.group(1);
             // strip fragments
@@ -215,7 +215,7 @@ public class WikipediaPage extends WikipediaPageReference {
             if (target.toLowerCase().startsWith("category:")) {
                 continue;
             }
-            result.add(new WikipediaLink(target, text));
+            result.add(new WikiLink(target, text));
         }
         return result;
     }
@@ -228,8 +228,8 @@ public class WikipediaPage extends WikipediaPageReference {
     public MarkupCoordinate getCoordinate() {
         // return CollectionHelper.getFirst(WikipediaUtil.extractCoordinateTag(text));
         List<MarkupCoordinate> coordinates = CollectionHelper.newArrayList();
-        coordinates.addAll(WikipediaUtil.extractCoordinateTag(text));
-        for (WikipediaTemplate infobox : getInfoboxes()) {
+        coordinates.addAll(MediaWikiUtil.extractCoordinateTag(text));
+        for (WikiTemplate infobox : getInfoboxes()) {
             coordinates.addAll(infobox.getCoordinates());
         }
         for (MarkupCoordinate coordinate : coordinates) {

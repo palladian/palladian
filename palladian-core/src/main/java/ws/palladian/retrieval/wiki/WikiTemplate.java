@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 import java.util.List;
 import java.util.Map;
@@ -19,15 +19,15 @@ import ws.palladian.helper.geo.GeoUtils;
  * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
  * @author katz
  */
-public class WikipediaTemplate {
+public class WikiTemplate {
     
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaTemplate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikiTemplate.class);
 
     private final String name;
     private final Map<String, String> content;
 
-    public WikipediaTemplate(String name, Map<String, String> content) {
+    public WikiTemplate(String name, Map<String, String> content) {
         this.name = name;
         this.content = content;
     }
@@ -105,8 +105,8 @@ public class WikipediaTemplate {
                 String lngSec = getEntry("lon_sec", "longs", "long_s", "long_seconds", "source_long_s", "mouth_long_s");
                 String latNS = getEntry("latNS", "lat_direction", "lat_NS", "source_lat_NS", "mouth_lat_NS");
                 String lngEW = getEntry("longEW", "long_direction", "long_EW", "source_long_EW", "mouth_long_EW");
-                double lat = WikipediaUtil.parseComponents(latDeg, latMin, latSec, latNS);
-                double lng = WikipediaUtil.parseComponents(lngDeg, lngMin, lngSec, lngEW);
+                double lat = MediaWikiUtil.parseComponents(latDeg, latMin, latSec, latNS);
+                double lng = MediaWikiUtil.parseComponents(lngDeg, lngMin, lngSec, lngEW);
                 coordinates.add(new MarkupCoordinate(lat, lng, display, type));
             }
         } catch (Exception e) {
@@ -128,7 +128,7 @@ public class WikipediaTemplate {
                 } catch (Exception e1) {
                     // try decdeg markup
                     try {
-                        coordinates.add(new MarkupCoordinate(WikipediaUtil.parseDecDeg(lat), WikipediaUtil
+                        coordinates.add(new MarkupCoordinate(MediaWikiUtil.parseDecDeg(lat), MediaWikiUtil
                                 .parseDecDeg(lng), display, type));
                     } catch (Exception e2) {
                         LOGGER.warn("Error while parsing: {} and/or {}: {}", lat, lng, e2.getMessage());

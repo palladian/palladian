@@ -21,9 +21,9 @@ import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
-import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaUtil;
+import ws.palladian.retrieval.wiki.MultiStreamBZip2InputStream;
+import ws.palladian.retrieval.wiki.WikiPage;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
 
 public class WikipediaPlaceNameCollector {
 
@@ -55,11 +55,11 @@ public class WikipediaPlaceNameCollector {
 
     static void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException,
             IOException {
-        WikipediaUtil.parseDump(inputStream, new Consumer<WikipediaPage>() {
+        MediaWikiUtil.parseDump(inputStream, new Consumer<WikiPage>() {
 
             @Override
-            public void process(WikipediaPage page) {
-                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
+            public void process(WikiPage page) {
+                if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (page.isRedirect()) {

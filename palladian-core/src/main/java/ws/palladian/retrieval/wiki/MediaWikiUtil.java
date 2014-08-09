@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.wikipedia;
+package ws.palladian.retrieval.wiki;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,10 +50,10 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @see <a href="http://en.wikipedia.org/wiki/Help:Wiki_markup">Wiki markup</a>
  * @author Philipp Katz
  */
-public final class WikipediaUtil {
+public final class MediaWikiUtil {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MediaWikiUtil.class);
 
     private static final Pattern REF_PATTERN = Pattern.compile("<ref(?:\\s[^>]*)?>[^<]*</ref>|<ref[^/>]*/>",
             Pattern.MULTILINE);
@@ -197,16 +197,16 @@ public final class WikipediaUtil {
     
     /**
      * <p>
-     * Retrieve a {@link WikipediaPage} directly from the web.
+     * Retrieve a {@link WikiPage} directly from the web.
      * </p>
      * 
      * @param baseUrl The base URL of the API, e.g. <code>http://en.wikipedia.org/w</code>, not <code>null</code> or
      *            empty.
      * @param title The title to retrieve; will be escaped automatically.
-     * @return The {@link WikipediaPage} for the given title, or <code>null</code> in case no article with that title
+     * @return The {@link WikiPage} for the given title, or <code>null</code> in case no article with that title
      *         was given.
      */
-    public static final WikipediaPage retrieveArticle(MediaWikiDescriptor descriptor, String title) {
+    public static final WikiPage retrieveArticle(MediaWikiDescriptor descriptor, String title) {
         // Validate.notEmpty(baseUrl, "baseUrl must not be empty");
         Validate.notNull(descriptor, "descriptor must not be null");
         Validate.notEmpty(title, "title must not be empty");
@@ -244,7 +244,7 @@ public final class WikipediaUtil {
                 JsonArray revisionsJson = pageJson.getJsonArray("revisions");
                 JsonObject firstRevision = revisionsJson.getJsonObject(0);
                 String pageText = firstRevision.getString("*");
-                return new WikipediaPage(pageId, namespaceId, pageTitle, pageText);
+                return new WikiPage(pageId, namespaceId, pageTitle, pageText);
             }
             return null;
         } catch (JsonException e) {
@@ -255,19 +255,19 @@ public final class WikipediaUtil {
 
     /**
      * <p>
-     * Retrieve {@link WikipediaPageReference}s in the specified category.
+     * Retrieve {@link WikiPageReference}s in the specified category.
      * </p>
      * 
      * @param baseUrl The base URL of the Mediawiki API, not <code>null</code>.
      * @param categoryName The name of the category, not <code>null</code>.
-     * @return A list of {@link WikipediaPageReference}s in the specified category, or an empty list, never
+     * @return A list of {@link WikiPageReference}s in the specified category, or an empty list, never
      *         <code>null</code>.
      */
-    public static final List<WikipediaPageReference> retrieveArticlesForCategory(MediaWikiDescriptor descriptor,
+    public static final List<WikiPageReference> retrieveArticlesForCategory(MediaWikiDescriptor descriptor,
             String categoryName) {
         Validate.notNull(descriptor, "descriptor must not be null");
         Validate.notEmpty(categoryName, "categoryName must not be empty");
-        List<WikipediaPageReference> pages = CollectionHelper.newArrayList();
+        List<WikiPageReference> pages = CollectionHelper.newArrayList();
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         String cmTitle = UrlHelper.encodeParameter(categoryName);
         if (!cmTitle.toLowerCase().startsWith("category:")) {
@@ -298,7 +298,7 @@ public final class WikipediaUtil {
                     int pageId = jsonEntry.getInt("pageid");
                     int namespaceId = jsonEntry.getInt("ns");
                     String title = jsonEntry.getString("title");
-                    pages.add(new WikipediaPageReference(pageId, namespaceId, title));
+                    pages.add(new WikiPageReference(pageId, namespaceId, title));
                 }
                 // more data?
                 cmContinue = jsonResult.tryQueryString("/query-continue/categorymembers/cmcontinue");
@@ -319,9 +319,9 @@ public final class WikipediaUtil {
      * </p>
      * 
      * @param baseUrl The base UR of the Mediawiki API, not <code>null</code>.
-     * @return A {@link WikipediaPageReference} for a random article.
+     * @return A {@link WikiPageReference} for a random article.
      */
-    public static final WikipediaPageReference retrieveRandomArticle(MediaWikiDescriptor descriptor) {
+    public static final WikiPageReference retrieveRandomArticle(MediaWikiDescriptor descriptor) {
         Validate.notNull(descriptor, "descriptor must not be null");
         
         String url = String.format("%s?action=query&list=random&rnnamespace=0&format=json", descriptor.getEndpoint());
@@ -338,7 +338,7 @@ public final class WikipediaUtil {
             int pageId = jsonResult.queryInt("/query/random[0]/id");
             int namespaceId = jsonResult.queryInt("/query/random[0]/ns");
             String title = jsonResult.queryString("/query/random[0]/title");
-            return new WikipediaPageReference(pageId, namespaceId, title);
+            return new WikiPageReference(pageId, namespaceId, title);
         } catch (JsonException e) {
             throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
                     + httpResult.getStringContent() + "'", e);
@@ -355,7 +355,7 @@ public final class WikipediaUtil {
      *         order as in the markup. Entries without a key are are indexed by running numbers as strings (0,1,2…).
      * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
      */
-    static WikipediaTemplate extractTemplate(String markup) {
+    static WikiTemplate extractTemplate(String markup) {
         Validate.notNull(markup, "markup must not be null");
         
         Map<String, String> properties = new LinkedHashMap<String, String>();
@@ -384,7 +384,7 @@ public final class WikipediaUtil {
             properties.put(key, value);
         }
 
-        return new WikipediaTemplate(templateName, properties);
+        return new WikiTemplate(templateName, properties);
     }
     
     
@@ -593,7 +593,7 @@ public final class WikipediaUtil {
      */
     static double parseDecDeg(String docDegMarkup) {
         Validate.notNull(docDegMarkup, "string must not be null");
-        WikipediaTemplate templateData = extractTemplate(docDegMarkup);
+        WikiTemplate templateData = extractTemplate(docDegMarkup);
         String degStr = templateData.getEntry("deg", "0");
         String minStr = templateData.getEntry("min", "1");
         String secStr = templateData.getEntry("sec", "2");
@@ -628,7 +628,7 @@ public final class WikipediaUtil {
      * @throws IOException In case the file cannot be read.
      * @throws SAXException In case parsing fails.
      */
-    public static void parseDump(File wikipediaDump, Consumer<WikipediaPage> action) throws IOException, SAXException {
+    public static void parseDump(File wikipediaDump, Consumer<WikiPage> action) throws IOException, SAXException {
         Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
         Validate.isTrue(wikipediaDump.isFile(), "wikipediaDump does not exist or is not a file");
         Validate.notNull(action, "action must not be null");
@@ -651,32 +651,32 @@ public final class WikipediaUtil {
      * @throws IOException In case reading the input stream fails.
      * @throws SAXException In case parsing fails.
      */
-    public static void parseDump(InputStream inputStream, Consumer<WikipediaPage> action) throws IOException, SAXException {
+    public static void parseDump(InputStream inputStream, Consumer<WikiPage> action) throws IOException, SAXException {
         Validate.notNull(inputStream, "inputStream must not be null");
         Validate.notNull(action, "action must not be null");
         try {
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
             SAXParser parser = saxParserFactory.newSAXParser();
-            parser.parse(inputStream, new WikipediaPageContentHandler(action));
+            parser.parse(inputStream, new MediaWikiPageContentHandler(action));
         } catch (ParserConfigurationException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private WikipediaUtil() {
+    private MediaWikiUtil() {
         // leave me alone!
     }
 
     public static void main(String[] args) throws IOException, SAXException {
         MediaWikiDescriptor deWikipedia = MediaWikiDescriptor.Builder.wikipedia().language(Language.GERMAN).create();
-        List<WikipediaPageReference> articles = retrieveArticlesForCategory(deWikipedia, "Category:Filmtitel 1932");
+        List<WikiPageReference> articles = retrieveArticlesForCategory(deWikipedia, "Category:Filmtitel 1932");
         CollectionHelper.print(articles);
         System.exit(0);
 
         final int[] counter = {0};
-        parseDump(new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2"), new Consumer<WikipediaPage>() {
+        parseDump(new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2"), new Consumer<WikiPage>() {
             @Override
-            public void process(WikipediaPage item) {
+            public void process(WikiPage item) {
                 counter[0]++;
             }
         });
@@ -695,8 +695,8 @@ public final class WikipediaUtil {
 
         // WikipediaPage page = getArticle("Mit Schirm, Charme und Melone (Film)", Language.GERMAN);
         MediaWikiDescriptor enWikipedia = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
-        WikipediaPage page = retrieveArticle(enWikipedia, "Charles River");
-        WikipediaTemplate infoboxData = extractTemplate(getNamedMarkup(page.getMarkup(), "geobox").get(0));
+        WikiPage page = retrieveArticle(enWikipedia, "Charles River");
+        WikiTemplate infoboxData = extractTemplate(getNamedMarkup(page.getMarkup(), "geobox").get(0));
         // CollectionHelper.print(infoboxData);
         System.out.println(infoboxData);
         System.out.println(page);
