@@ -40,13 +40,13 @@ public interface DictionaryBuilder extends Factory<DictionaryModel> {
     DictionaryBuilder addDocument(Collection<String> terms, String category);
 
     /**
-     * Adds a {@link Filter} for pruning to this builder. The filter should be applied before invoking the
+     * Set a {@link Filter} for pruning to this builder. The filter should be applied before invoking the
      * {@link #create()} method.
      * 
      * @param strategy The pruning strategy, not <code>null</code>.
      * @return The builder instance.
      */
-    DictionaryBuilder addPruningStrategy(Filter<TermCategoryEntries> strategy);
+    DictionaryBuilder setPruningStrategy(Filter<TermCategoryEntries> strategy);
 
     /**
      * Adds the content of a given {@link DictionaryModel}.

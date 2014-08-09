@@ -117,7 +117,7 @@ public class DictionaryTrieModelTest {
     public void testPruning() {
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
         builder.addDictionary(model);
-        builder.addPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
+        builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
         model = builder.create();
         assertEquals(4, model.getNumEntries());
         assertEquals(3, model.getNumUniqTerms());

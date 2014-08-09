@@ -60,7 +60,7 @@ public class PruningStrategiesTest {
     @Test
     public void testTermCountPruningStrategy() {
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
-        builder.addPruningStrategy(new PruningStrategies.TermCountPruningStrategy(5));
+        builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(5));
         addTestData(builder);
         DictionaryModel dictionary = builder.create();
         assertEquals(5, dictionary.getNumUniqTerms());
