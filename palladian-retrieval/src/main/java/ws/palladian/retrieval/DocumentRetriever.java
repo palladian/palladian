@@ -22,6 +22,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
@@ -70,7 +73,7 @@ public class DocumentRetriever {
     private int numThreads = DEFAULT_NUM_THREADS;
 
     /** The filter for the retriever. */
-    private DownloadFilter downloadFilter;
+    private Filter<? super String> downloadFilter;
 
     /**
      * Some APIs require to send headers such as the accept header, so we can specify that globally for all calls with
@@ -79,7 +82,7 @@ public class DocumentRetriever {
     private Map<String, String> globalHeaders = null;
 
     /** The callbacks that are called after each parsed page. */
-    private final List<RetrieverCallback> retrieverCallbacks;
+    private final List<Consumer<Document>> retrieverCallbacks;
 
     private List<String> userAgents;
 
@@ -104,9 +107,9 @@ public class DocumentRetriever {
      */
     public DocumentRetriever(HttpRetriever httpRetriever) {
         this.httpRetriever = httpRetriever;
-        downloadFilter = new DownloadFilter();
+        downloadFilter = Filters.ALL;
         this.initializeAgents();
-        retrieverCallbacks = new ArrayList<RetrieverCallback>();
+        retrieverCallbacks = new ArrayList<Consumer<Document>>();
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -134,7 +137,7 @@ public class DocumentRetriever {
      * @param urls the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
-    public void getWebDocuments(Collection<String> urls, final RetrieverCallback<Document> callback) {
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
 
         final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
 
@@ -156,7 +159,7 @@ public class DocumentRetriever {
                         }
                         Document document = getWebDocument(url);
                         if (document != null) {
-                            callback.onFinishRetrieval(document);
+                            callback.process(document);
                         }
                     }
                 }
@@ -185,9 +188,9 @@ public class DocumentRetriever {
      */
     public Set<Document> getWebDocuments(Collection<String> urls) {
         final Set<Document> result = new HashSet<Document>();
-        getWebDocuments(urls, new RetrieverCallback<Document>() {
+        getWebDocuments(urls, new Consumer<Document>() {
             @Override
-            public void onFinishRetrieval(Document document) {
+            public void process(Document document) {
                 synchronized (result) {
                     result.add(document);
                 }
@@ -254,76 +257,6 @@ public class DocumentRetriever {
         return json;
     }
 
-//    /**
-//     * @deprecated Use getJsonObject
-//     */
-//    @Deprecated
-//    public JSONObject getJSONObject(String url) {
-//        String json = getText(url);
-//
-//        if (json != null) {
-//            json = json.trim();
-//
-//            // delicous feeds return the whole JSON object wrapped in [square brackets],
-//            // altough this seems to be valid, our parser doesn't like this, so we remove
-//            // those brackets before parsing -- Philipp, 2010-07-04
-//
-//            // this was stupid, therefore removed it again. Clients should use getJsonArray instead --
-//            // Philipp, 2011-12-29
-//
-//            /*if (json.startsWith("[") && json.endsWith("]")) {
-//                json = json.substring(1, json.length() - 1);
-//            }*/
-//
-//            JSONObject jsonOBJ = null;
-//
-//            if (!json.isEmpty()) {
-//                try {
-//                    jsonOBJ = new JSONObject(json);
-//                } catch (JSONException e) {
-//                    LOGGER.error(url + ", " + e.getMessage(), e);
-//                }
-//            }
-//
-//            return jsonOBJ;
-//        }
-//        return null;
-//    }
-//
-//    /**
-//     * <p>
-//     * Get a JSON array from a URL. The retrieved contents must return a valid JSON array.
-//     * </p>
-//     * 
-//     * @param url the URL pointing to the JSON string.
-//     * @return the JSON array, or <code>null</code> in case of any error.
-//     *         FIXME this should return a Palladian JsonArray
-//     */
-//    public JSONArray getJsonArray(String url) {
-//        String json = getText(url);
-//
-//        // since we know this string should be an JSON array,
-//        // we will directly parse it
-//        if (json != null) {
-//            json = json.trim();
-//
-//            JSONArray jsonAR = null;
-//
-//            if (json.length() > 0) {
-//                try {
-//                    jsonAR = new JSONArray(json);
-//                } catch (JSONException e) {
-//                    LOGGER.error(url + ", " + e.getMessage(), e);
-//                }
-//            }
-//
-//            return jsonAR;
-//
-//        }
-//        return null;
-//
-//    }
-
     // ////////////////////////////////////////////////////////////////
     // method for retrieving plain text
     // ////////////////////////////////////////////////////////////////
@@ -341,7 +274,7 @@ public class DocumentRetriever {
 
         String contentString = null;
 
-        if (downloadFilter.isAcceptedFileType(url)) {
+        if (downloadFilter.accept(url)) {
             try {
                 if (isFile(url)) {
                     contentString = FileHelper.readFileToString(url);
@@ -368,7 +301,7 @@ public class DocumentRetriever {
      * @param urls The URLs to download.
      * @param callback The callback to be called for each finished download.
      */
-    public void getTexts(Collection<String> urls, final RetrieverCallback<String> callback) {
+    public void getTexts(Collection<String> urls, final Consumer<String> callback) {
 
         final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
 
@@ -389,7 +322,7 @@ public class DocumentRetriever {
                         }
                         String text = getText(url);
                         if (text != null) {
-                            callback.onFinishRetrieval(text);
+                            callback.process(text);
                         }
                     }
                 }
@@ -418,9 +351,9 @@ public class DocumentRetriever {
      */
     public Set<String> getTexts(Collection<String> urls) {
         final Set<String> result = new HashSet<String>();
-        getTexts(urls, new RetrieverCallback<String>() {
+        getTexts(urls, new Consumer<String>() {
             @Override
-            public void onFinishRetrieval(String text) {
+            public void process(String text) {
                 synchronized (result) {
                     result.add(text);
                 }
@@ -450,7 +383,7 @@ public class DocumentRetriever {
         String cleanUrl = url.trim();
         InputStream inputStream = null;
 
-        if (downloadFilter.isAcceptedFileType(cleanUrl)) {
+        if (downloadFilter.accept(cleanUrl)) {
 
             try {
 
@@ -527,11 +460,11 @@ public class DocumentRetriever {
         this.numThreads = numThreads;
     }
 
-    public void setDownloadFilter(DownloadFilter downloadFilter) {
+    public void setDownloadFilter(Filter<String> downloadFilter) {
         this.downloadFilter = downloadFilter;
     }
 
-    public DownloadFilter getDownloadFilter() {
+    public Filter<? super String> getDownloadFilter() {
         return downloadFilter;
     }
 
@@ -540,20 +473,20 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     private void callRetrieverCallback(Document document) {
-        for (RetrieverCallback<Document> retrieverCallback : retrieverCallbacks) {
-            retrieverCallback.onFinishRetrieval(document);
+        for (Consumer<Document> retrieverCallback : retrieverCallbacks) {
+            retrieverCallback.process(document);
         }
     }
 
-    public List<RetrieverCallback> getRetrieverCallbacks() {
+    public List<Consumer<Document>> getRetrieverCallbacks() {
         return retrieverCallbacks;
     }
 
-    public void addRetrieverCallback(RetrieverCallback<Document> retrieverCallback) {
+    public void addRetrieverCallback(Consumer<Document> retrieverCallback) {
         retrieverCallbacks.add(retrieverCallback);
     }
 
-    public void removeRetrieverCallback(RetrieverCallback<Document> retrieverCallback) {
+    public void removeRetrieverCallback(Consumer<Document> retrieverCallback) {
         retrieverCallbacks.remove(retrieverCallback);
     }
 
@@ -644,9 +577,9 @@ public class DocumentRetriever {
         // true);
 
         // create a retriever that is triggered for every retrieved page
-        RetrieverCallback<Document> crawlerCallback = new RetrieverCallback<Document>() {
+        Consumer<Document> crawlerCallback = new Consumer<Document>() {
             @Override
-            public void onFinishRetrieval(Document document) {
+            public void process(Document document) {
                 // do something with the page
                 LOGGER.info(document.getDocumentURI());
             }

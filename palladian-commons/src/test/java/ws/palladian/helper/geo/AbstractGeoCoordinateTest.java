@@ -32,13 +32,16 @@ public class AbstractGeoCoordinateTest {
         assertEquals("0°,0°", new ImmutableGeoCoordinate(0., 0.).toDmsString());
         assertEquals("40°N,4°W", new ImmutableGeoCoordinate(40, -4).toDmsString());
     }
-    
 
     @Test
     public void testGetCoordinateDistanceBearing() {
         GeoCoordinate coordinate = new ImmutableGeoCoordinate(53.320556, 1.729722).getCoordinate(124.8, 96.021667);
         assertEquals(53.188333, coordinate.getLatitude(), 0.001);
         assertEquals(3.592778, coordinate.getLongitude(), 0.001);
+
+        coordinate = new ImmutableGeoCoordinate(28.216667, -177.366667).getCoordinate(300, 270);
+        assertEquals(28.182595, coordinate.getLatitude(), 0.001);
+        assertEquals(179.572172, coordinate.getLongitude(), 0.001);
     }
 
 }
