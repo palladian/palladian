@@ -13,7 +13,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.token.AbstractTokenizer;
+import ws.palladian.core.TextTokenizer;
 import ws.palladian.extraction.token.LingPipeTokenizer;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
@@ -47,7 +47,7 @@ public final class LingPipePosTagger extends AbstractPosTagger {
     private final HiddenMarkovModel model;
 
     /** The tokenizer used by the LingPipe POS tagger. */
-    private static final LingPipeTokenizer TOKENIZER = new LingPipeTokenizer();
+    private static final TextTokenizer TOKENIZER = new LingPipeTokenizer();
 
     /**
      * <p>
@@ -171,7 +171,7 @@ public final class LingPipePosTagger extends AbstractPosTagger {
     }
 
     @Override
-    protected AbstractTokenizer getTokenizer() {
+    protected TextTokenizer getTokenizer() {
         return TOKENIZER;
     }
 

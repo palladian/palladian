@@ -2,12 +2,12 @@ package ws.palladian.extraction.token;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Iterator;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.core.Annotation;
+import ws.palladian.core.Token;
 
 /**
  * <p>
@@ -34,17 +34,18 @@ public class TwokenizeTokenizerTest {
 
     @Test
     public void testTwokenizeTokenizer() {
-        List<Annotation> annotations = tokenizer.getAnnotations(TWEET);
-        assertEquals(TOKENS.length, annotations.size());
-        for (int i = 0; i < TOKENS.length; i++) {
-            assertEquals(TOKENS[i], annotations.get(i).getValue());
+        Iterator<Token> spans = tokenizer.iterateSpans(TWEET);
+        int i = 0;
+        while (spans.hasNext()) {
+            Token span = spans.next();
+            assertEquals(TOKENS[i++], span.getValue());
         }
     }
 
     @Test
     public void testTwokenizeProblem() {
         // see comment in TwokenizeTokenizer class, line 35
-        tokenizer.getAnnotations(TWEET2);
+        tokenizer.iterateSpans(TWEET2);
     }
 
 }

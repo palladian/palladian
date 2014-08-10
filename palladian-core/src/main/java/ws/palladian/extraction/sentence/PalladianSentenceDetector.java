@@ -1,5 +1,6 @@
 package ws.palladian.extraction.sentence;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,6 +10,8 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.Token;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
@@ -65,7 +68,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
+    public Iterator<Token> iterateSpans(String text) {
         // recognize URLs, dates and smileys, so we don't break them
         List<Annotation> maskAnnotations = CollectionHelper.newArrayList();
         maskAnnotations.addAll(UrlTagger.INSTANCE.getAnnotations(text));
@@ -102,13 +105,13 @@ public final class PalladianSentenceDetector implements SentenceDetector {
         }
 
         // recreate annotations without masks
-        List<Annotation> sentences = CollectionHelper.newArrayList();
+        List<Token> sentences = CollectionHelper.newArrayList();
         for (Annotation tempSentence : maskedSentences) {
             int start = tempSentence.getStartPosition();
             String value = text.substring(start, tempSentence.getStartPosition() + tempSentence.getValue().length());
-            sentences.add(new ImmutableAnnotation(tempSentence.getStartPosition(), value));
+            sentences.add(new ImmutableSpan(tempSentence.getStartPosition(), value));
         }
-        return sentences;
+        return CollectionHelper.unmodifiableIterator(sentences.iterator());
     }
 
     private static Annotation createAnnotation(String text, int start, int end) {

@@ -6,6 +6,10 @@ import java.util.Iterator;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.core.Token;
+import ws.palladian.extraction.token.CharacterNGramTokenizer;
+import ws.palladian.extraction.token.NGramWrapperIterator;
+import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
@@ -25,34 +29,35 @@ public class Preprocessor implements Function<String, Iterator<String>> {
         String lowercaseContent = input.toLowerCase();
         int minNGramLength = featureSetting.getMinNGramLength();
         int maxNGramLength = featureSetting.getMaxNGramLength();
-        Iterator<String> tokenIterator;
+        Iterator<Token> tokenIterator;
         if (featureSetting.getTextFeatureType() == TextFeatureType.CHAR_NGRAMS) {
-            tokenIterator = new CharacterNGramIterator(lowercaseContent, minNGramLength, maxNGramLength);
+            tokenIterator = new CharacterNGramTokenizer(minNGramLength, maxNGramLength).iterateSpans(lowercaseContent);
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            tokenIterator = new TokenIterator(lowercaseContent);
+            tokenIterator = new WordTokenizer().iterateSpans(lowercaseContent);
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
         } else {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
         if (featureSetting.isWordUnigrams()) {
-            tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<String>() {
+            tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
                 int minTermLength = featureSetting.getMinimumTermLength();
                 int maxTermLength = featureSetting.getMaximumTermLength();
 
                 @Override
-                public boolean accept(String item) {
-                    return item.length() >= minTermLength && item.length() <= maxTermLength;
+                public boolean accept(Token item) {
+                    return item.getValue().length() >= minTermLength && item.getValue().length() <= maxTermLength;
                 }
             });
         }
         // XXX looks a bit "magic" to me, does that really improve results in general?
-        tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<String>() {
+        tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
             @Override
-            public boolean accept(String item) {
-                return !StringHelper.containsAny(item, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(item);
+            public boolean accept(Token item) {
+                String value = item.getValue();
+                return !StringHelper.containsAny(value, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(value);
             }
         });
-        return tokenIterator;
+        return CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER);
     }
 
 }

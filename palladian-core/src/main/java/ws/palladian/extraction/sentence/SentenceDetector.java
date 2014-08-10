@@ -1,9 +1,6 @@
 package ws.palladian.extraction.sentence;
 
-import java.util.List;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.core.Tagger;
+import ws.palladian.core.TextTokenizer;
 
 /**
  * <p>
@@ -14,9 +11,9 @@ import ws.palladian.core.Tagger;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public interface SentenceDetector extends Tagger {
+public interface SentenceDetector extends TextTokenizer {
 
-    @Override
-    List<Annotation> getAnnotations(String text);
+//    @Override
+//    List<Annotation> getAnnotations(String text);
 
 }

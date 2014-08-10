@@ -5,12 +5,14 @@ import java.util.List;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.Token;
 import ws.palladian.core.Tagger;
+import ws.palladian.core.TextTokenizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
-import ws.palladian.extraction.token.AbstractTokenizer;
-import ws.palladian.extraction.token.RegExTokenizer;
+import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
+import edu.stanford.nlp.process.AbstractTokenizer;
 
 /**
  * <p>
@@ -25,16 +27,17 @@ import ws.palladian.helper.collection.CollectionHelper;
 public abstract class AbstractPosTagger implements Tagger {
 
     /** The default {@link AbstractTokenizer} used if not overridden. */
-    private static final AbstractTokenizer DEFAULT_TOKENIZER = new RegExTokenizer();
+    private static final TextTokenizer DEFAULT_TOKENIZER = new WordTokenizer();
 
     @Override
     public List<Annotation> getAnnotations(String text) {
-        List<Annotation> tokenAnnotations = getTokenizer().getAnnotations(text);
-        List<String> tokens = CollectionHelper.convertList(tokenAnnotations, AnnotationValueConverter.INSTANCE);
+        Iterator<Token> tokenAnnotations = getTokenizer().iterateSpans(text);
+        List<Token> tokenList = CollectionHelper.newArrayList(tokenAnnotations);
+        List<String> tokens = CollectionHelper.convertList(tokenList, Token.STRING_CONVERTER);
         List<String> posTags = getTags(tokens);
         List<Annotation> result = CollectionHelper.newArrayList();
         Iterator<String> tagsIterator = posTags.iterator();
-        for (Annotation annotation : tokenAnnotations) {
+        for (Token annotation : tokenList) {
             String tag = tagsIterator.next().toUpperCase();
             result.add(new ImmutableAnnotation(annotation.getStartPosition(), annotation.getValue(), tag));
         }
@@ -54,7 +57,7 @@ public abstract class AbstractPosTagger implements Tagger {
      * 
      * @return The {@link AbstractTokenizer} to use.
      */
-    protected AbstractTokenizer getTokenizer() {
+    protected TextTokenizer getTokenizer() {
         return DEFAULT_TOKENIZER;
     }
 

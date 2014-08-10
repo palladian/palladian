@@ -1,12 +1,11 @@
 package ws.palladian.extraction.token;
 
-import java.util.List;
+import java.util.Iterator;
 
-import org.apache.commons.lang3.StringUtils;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.Token;
+import ws.palladian.core.TextTokenizer;
+import ws.palladian.helper.collection.AbstractIterator;
 
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.Tokenizer;
@@ -21,7 +20,7 @@ import com.aliasi.tokenizer.TokenizerFactory;
  * 
  * @author Philipp Katz
  */
-public final class LingPipeTokenizer extends AbstractTokenizer {
+public final class LingPipeTokenizer implements TextTokenizer {
 
     /** Factory for creating a LingPipe tokenizer. */
     private final TokenizerFactory tokenizerFactory;
@@ -31,16 +30,19 @@ public final class LingPipeTokenizer extends AbstractTokenizer {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
-        Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
-        List<Annotation> annotations = CollectionHelper.newArrayList();
-        String nextToken = tokenizer.nextToken();
-        while (nextToken != null) {
-            int startPosition = tokenizer.lastTokenStartPosition();
-            annotations.add(new ImmutableAnnotation(startPosition, nextToken, StringUtils.EMPTY));
-            nextToken = tokenizer.nextToken();
-        }
-        return annotations;
+    public Iterator<Token> iterateSpans(String text) {
+        final Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
+        return new AbstractIterator<Token>() {
+            @Override
+            protected Token getNext() throws Finished {
+                String nextToken = tokenizer.nextToken();
+                if (nextToken == null) {
+                    throw FINISHED;
+                }
+                int startPosition = tokenizer.lastTokenStartPosition();
+                return new ImmutableSpan(startPosition, nextToken);
+            }
+        };
     }
 
 }

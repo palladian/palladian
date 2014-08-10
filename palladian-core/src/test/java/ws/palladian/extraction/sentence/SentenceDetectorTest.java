@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -15,7 +16,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ws.palladian.core.Annotation;
+import ws.palladian.core.Token;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -57,9 +59,9 @@ public class SentenceDetectorTest {
     @Test
     public void testLingPipeSentenceChunker() throws Exception {
         SentenceDetector sentenceDetector = new LingPipeSentenceDetector();
-        List<Annotation> sentences = sentenceDetector.getAnnotations(fixture);
-        for (Annotation sentence : sentences) {
-            assertTrue(expectedResult.contains(sentence.getValue()));
+        Iterator<Token> sentences = sentenceDetector.iterateSpans(fixture);
+        while (sentences.hasNext()){
+            assertTrue(expectedResult.contains(sentences.next().getValue()));
         }
     }
 
@@ -67,16 +69,16 @@ public class SentenceDetectorTest {
     public void testOpenNLPSentenceChunker() throws Exception {
         SentenceDetector sentenceDetector = new OpenNlpSentenceDetector(
                 ResourceHelper.getResourceFile("/model/en-sent.bin"));
-        List<Annotation> sentences = sentenceDetector.getAnnotations(fixture);
-        for (Annotation sentence : sentences) {
-            assertTrue(expectedResult.contains(sentence.getValue()));
+        Iterator<Token> sentences = sentenceDetector.iterateSpans(fixture);
+        while (sentences.hasNext()){
+            assertTrue(expectedResult.contains(sentences.next().getValue()));
         }
     }
 
     @Test
     public void testPalladianSentenceChunker() throws FileNotFoundException {
         SentenceDetector sentenceDetector = new PalladianSentenceDetector(Language.ENGLISH);
-        List<Annotation> sentences = sentenceDetector.getAnnotations(fixture2);
+        List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector.iterateSpans(fixture2));
         assertThat(sentences.size(), Matchers.is(269));
         assertThat(sentences.get(sentences.size() - 1).getValue(), is("DBConnection disconnect\nINFO: disconnected"));
     }
@@ -84,8 +86,8 @@ public class SentenceDetectorTest {
     @Test
     public void testPalladianSentenceChunkerWithMaskAtEndOfText() {
         SentenceDetector sentenceDetector = new PalladianSentenceDetector(Language.ENGLISH);
-        List<Annotation> sentences = sentenceDetector
-                .getAnnotations("Web Dynpro is just in ramp up now. You can't use Web Dynpro in production environments.\n\nYou can develop BSP and J2EE Applications with 6.20. You connect to your R/3 System through RFC. This applications can also be used in 4.7.");
+        List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector
+                .iterateSpans("Web Dynpro is just in ramp up now. You can't use Web Dynpro in production environments.\n\nYou can develop BSP and J2EE Applications with 6.20. You connect to your R/3 System through RFC. This applications can also be used in 4.7."));
         assertThat(sentences.size(), is(5));
         assertThat(sentences.get(sentences.size() - 1).getValue(), is("This applications can also be used in 4.7."));
     }
@@ -94,7 +96,7 @@ public class SentenceDetectorTest {
     public void testPalladianSentenceChunkerWithLineBreakAtEndOfText() throws IOException {
         SentenceDetector sentenceDetector = new PalladianSentenceDetector(Language.ENGLISH);
         String text = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/contribution03.txt"));
-        List<Annotation> sentences = sentenceDetector.getAnnotations(text);
+        List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector.iterateSpans(text));
         assertThat(sentences.size(), is(81));
         assertThat(sentences.get(sentences.size() - 1).getValue(), is("Return code: 4"));
     }

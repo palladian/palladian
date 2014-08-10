@@ -1,12 +1,11 @@
 package ws.palladian.extraction.token;
 
-import java.util.List;
+import java.util.Iterator;
 
-import org.apache.commons.lang3.StringUtils;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.Token;
+import ws.palladian.core.TextTokenizer;
+import ws.palladian.helper.collection.AbstractIterator;
 import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
 
 /**
@@ -18,30 +17,36 @@ import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
  * 
  * @author Philipp Katz
  */
-public final class TwokenizeTokenizer extends AbstractTokenizer {
+public final class TwokenizeTokenizer implements TextTokenizer {
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
+    public Iterator<Token> iterateSpans(final String text) {
 
-        List<String> tokens = Twokenize.tokenizeForTagger_J(text);
-        List<Annotation> annotations = CollectionHelper.newArrayList();
+        final Iterator<String> tokens = Twokenize.tokenizeForTagger_J(text).iterator();
+        return new AbstractIterator<Token>() {
 
-        int endPosition = 0;
-        for (String token : tokens) {
-            int startPosition = text.indexOf(token, endPosition);
+            int endPosition = 0;
 
-            // XXX bugfix, as the tokenizer seems to transform &gt; to > automatically,
-            // so we cannot determine the index for the annotation correctly. In this
-            // case, set it by former endPosition which should be okay. I guess.
-            if (startPosition == -1) {
-                startPosition = endPosition + 1;
+            @Override
+            protected Token getNext() throws Finished {
+                if (tokens.hasNext()) {
+                    String token = tokens.next();
+                    int startPosition = text.indexOf(token, endPosition);
+
+                    // XXX bugfix, as the tokenizer seems to transform &gt; to > automatically,
+                    // so we cannot determine the index for the annotation correctly. In this
+                    // case, set it by former endPosition which should be okay. I guess.
+                    if (startPosition == -1) {
+                        startPosition = endPosition + 1;
+                    }
+
+                    endPosition = startPosition + token.length();
+                    return new ImmutableSpan(startPosition, token);
+
+                }
+                throw FINISHED;
             }
-
-            endPosition = startPosition + token.length();
-            annotations.add(new ImmutableAnnotation(startPosition, token, StringUtils.EMPTY));
-        }
-
-        return annotations;
+        };
     }
 
 }

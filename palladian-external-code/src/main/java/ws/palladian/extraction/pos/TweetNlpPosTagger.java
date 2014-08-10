@@ -3,7 +3,7 @@ package ws.palladian.extraction.pos;
 import java.util.List;
 
 import ws.palladian.core.Annotation;
-import ws.palladian.extraction.token.AbstractTokenizer;
+import ws.palladian.core.TextTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
 import edu.cmu.cs.lti.ark.tweetnlp.TweetTaggerInstance;
 
@@ -40,7 +40,7 @@ public class TweetNlpPosTagger extends AbstractPosTagger {
     }
 
     @Override
-    protected AbstractTokenizer getTokenizer() {
+    protected TextTokenizer getTokenizer() {
         return TOKENIZER;
     }
 
