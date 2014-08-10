@@ -1,13 +1,12 @@
 package ws.palladian.extraction.sentence;
 
-import java.util.List;
+import java.util.Iterator;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.Token;
+import ws.palladian.helper.collection.AbstractIterator;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;
@@ -44,16 +43,22 @@ public final class LingPipeSentenceDetector implements SentenceDetector {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
+    public Iterator<Token> iterateSpans(final String text) {
         Validate.notNull(text, "text must not be null");
         Chunking chunking = sentenceChunker.chunk(text);
-        List<Annotation> sentences = CollectionHelper.newArrayList();
-        for (Chunk chunk : chunking.chunkSet()) {
-            int start = chunk.start();
-            int end = chunk.end();
-            String value = text.substring(start, end);
-            sentences.add(new ImmutableAnnotation(start, value, StringUtils.EMPTY));
-        }
-        return sentences;
+        final Iterator<Chunk> chunkIterator = chunking.chunkSet().iterator();
+        return new AbstractIterator<Token>() {
+            @Override
+            protected Token getNext() throws Finished {
+                if (chunkIterator.hasNext()){
+                    Chunk chunk = chunkIterator.next();
+                    int start = chunk.start();
+                    int end = chunk.end();
+                    String value = text.substring(start, end);
+                    return new ImmutableSpan(start, value);
+                }
+                throw FINISHED;
+            }
+        };
     }
 }

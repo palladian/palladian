@@ -2,11 +2,12 @@ package ws.palladian.extraction.token;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Iterator;
 
 import org.junit.Test;
 
-import ws.palladian.core.Annotation;
+import ws.palladian.core.Token;
+import ws.palladian.helper.collection.CollectionHelper;
 
 public class OpenNlpTokenizerTest {
 
@@ -15,8 +16,8 @@ public class OpenNlpTokenizerTest {
     @Test
     public void testOpenNlpTokenizer() {
         OpenNlpTokenizer tokenizer = new OpenNlpTokenizer();
-        List<Annotation> tokens = tokenizer.getAnnotations(TEXT);
-        assertEquals(10, tokens.size());
+        Iterator<Token> tokens = tokenizer.iterateSpans(TEXT);
+        assertEquals(10, CollectionHelper.count(tokens));
     }
 
 }

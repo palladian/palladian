@@ -4,18 +4,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Iterator;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
-import opennlp.tools.util.Span;
 
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang3.StringUtils;
 
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.Token;
+import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -60,15 +58,21 @@ public final class OpenNlpSentenceDetector implements SentenceDetector {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
-        List<Annotation> sentences = CollectionHelper.newArrayList();
-        Span[] sentenceBoundaries = model.sentPosDetect(text);
-        for (int i = 0; i < sentenceBoundaries.length; i++) {
-            int start = sentenceBoundaries[i].getStart();
-            int end = sentenceBoundaries[i].getEnd();
-            String value = text.substring(start, end);
-            sentences.add(new ImmutableAnnotation(start, value, StringUtils.EMPTY));
-        }
-        return sentences;
+    public Iterator<Token> iterateSpans(final String text) {
+        final opennlp.tools.util.Span[] spans = model.sentPosDetect(text);
+        return new AbstractIterator<Token>() {
+            int idx = 0;
+
+            @Override
+            protected Token getNext() throws Finished {
+                if (idx >= spans.length) {
+                    throw FINISHED;
+                }
+                opennlp.tools.util.Span span = spans[idx++];
+                String value = text.substring(span.getStart(), span.getEnd());
+                return new ImmutableSpan(span.getStart(), value);
+            }
+        };
     }
+
 }

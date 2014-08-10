@@ -4,20 +4,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Iterator;
 
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.Span;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.Token;
+import ws.palladian.core.TextTokenizer;
+import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.io.FileHelper;
+import edu.stanford.nlp.process.AbstractTokenizer;
 
 /**
  * <p>
@@ -30,7 +30,7 @@ import ws.palladian.helper.io.FileHelper;
  * 
  * @author Philipp Katz
  */
-public final class OpenNlpTokenizer extends AbstractTokenizer {
+public final class OpenNlpTokenizer implements TextTokenizer {
 
     /** The OpenNLP Tokenizer to use. */
     private final opennlp.tools.tokenize.Tokenizer tokenizer;
@@ -83,14 +83,21 @@ public final class OpenNlpTokenizer extends AbstractTokenizer {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
-        Span[] spans = tokenizer.tokenizePos(text);
-        List<Annotation> annotations = CollectionHelper.newArrayList();
-        for (Span span : spans) {
-            String value = text.substring(span.getStart(), span.getEnd());
-            annotations.add(new ImmutableAnnotation(span.getStart(), value, StringUtils.EMPTY));
-        }
-        return annotations;
+    public Iterator<Token> iterateSpans(final String text) {
+        final opennlp.tools.util.Span[] spans = tokenizer.tokenizePos(text);
+        return new AbstractIterator<Token>() {
+            int idx = 0;
+
+            @Override
+            protected Token getNext() throws Finished {
+                if (idx >= spans.length) {
+                    throw FINISHED;
+                }
+                opennlp.tools.util.Span span = spans[idx++];
+                String value = text.substring(span.getStart(), span.getEnd());
+                return new ImmutableSpan(span.getStart(), value);
+            }
+        };
     }
 
 }

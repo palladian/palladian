@@ -5,15 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import ws.palladian.classification.text.CharacterNGramIterator;
-import ws.palladian.classification.text.NGramWrapperIterator;
-import ws.palladian.classification.text.TokenIterator;
-import ws.palladian.core.Annotation;
+import ws.palladian.core.Token;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -48,8 +44,8 @@ public final class Tokenizer {
      * @return A list of tokens.
      */
     public static List<String> tokenize(String inputString) {
-        TokenIterator tokenIterator = new TokenIterator(inputString);
-        return CollectionHelper.newArrayList(tokenIterator);
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateSpans(inputString);
+        return CollectionHelper.newArrayList(CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER));
     }
 
     /**
@@ -63,8 +59,8 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateCharNGrams(String string, int n) {
-        Iterator<String> nGramIterator = new CharacterNGramIterator(string, n, n);
-        return CollectionHelper.newHashSet(nGramIterator);
+        Iterator<Token> nGramIterator = new CharacterNGramTokenizer(n, n).iterateSpans(string);
+        return CollectionHelper.newHashSet(CollectionHelper.convert(nGramIterator, Token.STRING_CONVERTER));
     }
 
     /**
@@ -96,9 +92,9 @@ public final class Tokenizer {
      * @return A list of n-grams.
      */
     public static List<String> calculateWordNGramsAsList(String string, int n) {
-        Iterator<String> tokenIterator = new TokenIterator(string);
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateSpans(string);
         tokenIterator = new NGramWrapperIterator(tokenIterator, n, n);
-        return CollectionHelper.newArrayList(tokenIterator);
+        return CollectionHelper.newArrayList(CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER));
     }
 
     /**
@@ -113,8 +109,8 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllCharNGrams(String string, int n1, int n2) {
-        Iterator<String> tokenIterator = new CharacterNGramIterator(string, n1, n2);
-        return CollectionHelper.newHashSet(tokenIterator);
+        Iterator<Token> tokenIterator = new CharacterNGramTokenizer(n1, n2).iterateSpans(string);
+        return CollectionHelper.newHashSet(CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER));
     }
 
     /**
@@ -129,9 +125,9 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllWordNGrams(String string, int n1, int n2) {
-        Iterator<String> tokenIterator = new TokenIterator(string);
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateSpans(string);
         tokenIterator = new NGramWrapperIterator(tokenIterator, n1, n2);
-        return CollectionHelper.newHashSet(tokenIterator);
+        return CollectionHelper.newHashSet(CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER));
     }
 
     public static String getSentence(String string, int position) {
@@ -195,13 +191,8 @@ public final class Tokenizer {
      * @return A list with sentences.
      */
     public static List<String> getSentences(String inputText, boolean onlyRealSentences, Language language) {
-        List<Annotation> annotations = new PalladianSentenceDetector(language).getAnnotations(inputText);
-        List<String> sentences = CollectionHelper.convertList(annotations, new Function<Annotation, String>() {
-            @Override
-            public String compute(Annotation input) {
-                return input.getValue();
-            }
-        });
+        List<Token> annotations = CollectionHelper.newArrayList(new PalladianSentenceDetector(language).iterateSpans(inputText));
+        List<String> sentences = CollectionHelper.convertList(annotations, Token.STRING_CONVERTER);
         // TODO Since requirements might differ slightly from application to application, this filtering should be
         // carried out by each calling application itself.
         if (onlyRealSentences) {
