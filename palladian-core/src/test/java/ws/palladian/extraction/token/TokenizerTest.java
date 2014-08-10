@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.core.Annotation;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -297,15 +296,4 @@ public class TokenizerTest {
         // assertEquals(1, sentences.size());
     }
 
-    @Test
-    public void testSentenceOnTextWithMaskBetweenSentences() throws Exception {
-        String inputText = "Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.";
-        List<Annotation> sentences = Tokenizer.getAnnotatedSentences(inputText, Language.ENGLISH);
-        // XXX uncomment as soon as regex is fixed
-        // assertEquals(2, sentences.size());
-
-        // String inputText = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/contribution04.txt"));
-        // List<PositionAnnotation> sentences = Tokenizer.getSentences(new TextDocument(inputText), "testFeature");
-        // System.out.println(sentences);
-    }
 }
