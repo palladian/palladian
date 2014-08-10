@@ -15,11 +15,11 @@ import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.RetrieverCallback;
 
 public class InformativenessAssigner {
 
@@ -72,7 +72,7 @@ public class InformativenessAssigner {
 
     public void initTokenFrequencyMap() throws IOException {
 
-        CountMap<String> tokenFrequencyMap = CountMap.create();
+        Bag<String> tokenFrequencyMap = Bag.create();
 
         for (int i = 0; i < 2; i++) {
             // get texts from web pages
@@ -91,7 +91,7 @@ public class InformativenessAssigner {
             }
 
             for (String token : tokenFrequencyMap.uniqueItems()) {
-                int count = tokenFrequencyMap.getCount(token);
+                int count = tokenFrequencyMap.count(token);
                 tokenFrequencies.put(token, (double) count / totalTokens);
             }
 
@@ -125,10 +125,10 @@ public class InformativenessAssigner {
             urls.add("http://www.randomwebsite.com/cgi-bin/random.pl?a=" + Math.random());
         }
 
-        RetrieverCallback<Document> callback = new RetrieverCallback<Document>() {
+        Consumer<Document> callback = new Consumer<Document>() {
 
             @Override
-            public void onFinishRetrieval(Document document) {
+            public void process(Document document) {
                 PalladianContentExtractor pse = new PalladianContentExtractor();
                 try {
                     pse.setDocument(document);
@@ -159,7 +159,7 @@ public class InformativenessAssigner {
         List<String> tokens = Tokenizer.tokenize(text);
 
         // count the occurrences of the tokens
-        CountMap<String> cm = CountMap.create();
+        Bag<String> cm = Bag.create();
         for (String token : tokens) {
             cm.add(token);
         }
@@ -167,7 +167,7 @@ public class InformativenessAssigner {
         // normalize frequency using the token with the highest frequency as upper cap = 1
         int highestFrequency = 1;
         for (String item : cm.uniqueItems()) {
-            int frequency = cm.getCount(item);
+            int frequency = cm.count(item);
             if (frequency > highestFrequency) {
                 highestFrequency = frequency;
             }
@@ -175,7 +175,7 @@ public class InformativenessAssigner {
 
         Map<String, Double> informativenessMap = new HashMap<String, Double>();
         for (String item : cm.uniqueItems()) {
-            int count = cm.getCount(item);
+            int count = cm.count(item);
             informativenessMap.put(item, (double) count / highestFrequency);
         }
 

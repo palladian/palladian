@@ -131,15 +131,8 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         double resultLngRad = lngRad
                 + atan2(sin(bearingRad) * sin(d) * cos(latRad), cos(d) - sin(latRad) * sin(resultLatRad));
         double resultLat = toDegrees(resultLatRad);
-        double resultLng = toDegrees(normalizeLongitude(resultLngRad));
+        double resultLng = GeoUtils.normalizeLongitude(toDegrees(resultLngRad));
         return new ImmutableGeoCoordinate(resultLat, resultLng);
-    }
-
-    /**
-     * Normalize a longitude value to an interval -180 ... 180°.
-     */
-    private static double normalizeLongitude(double lng) {
-        return (lng + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
     }
 
     @Override

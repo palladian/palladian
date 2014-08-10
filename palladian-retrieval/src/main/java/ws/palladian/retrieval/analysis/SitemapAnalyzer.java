@@ -19,9 +19,10 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -29,7 +30,6 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.services.SemRush;
@@ -56,14 +56,14 @@ public class SitemapAnalyzer {
     private final ConcurrentHashMap<String, Map<String, Object>> resultTable;
 
     /** We need to keep track of the internal links while crawling all pages from the sitemap. */
-    private final CountMap<String> internalInboundLinkMap;
+    private final Bag<String> internalInboundLinkMap;
 
     /** The number of threads that will be used to crawl the documents from the sitemap. */
     private int numThreads = 10;
 
     public SitemapAnalyzer() {
         resultTable = new ConcurrentHashMap<String, Map<String, Object>>();
-        internalInboundLinkMap = CountMap.create();
+        internalInboundLinkMap = Bag.create();
     }
 
     public int getNumThreads() {
@@ -89,10 +89,10 @@ public class SitemapAnalyzer {
 
         final AtomicInteger count = new AtomicInteger(1);
 
-        RetrieverCallback<Document> retrieverCallback = new RetrieverCallback<Document>() {
+        Consumer<Document> retrieverCallback = new Consumer<Document>() {
 
             @Override
-            public void onFinishRetrieval(Document document) {
+            public void process(Document document) {
                 Map<String, Object> map = CollectionHelper.newHashMap();
 
                 Set<String> outInt = HtmlHelper.getLinks(document, true, false);
@@ -170,7 +170,7 @@ public class SitemapAnalyzer {
         for (String url : urls) {
             Map<String, Object> map = resultTable.get(url);
             if (map != null) {
-                Integer value = internalInboundLinkMap.getCount(url);
+                Integer value = internalInboundLinkMap.count(url);
                 map.put("in-int", value);
             }
         }
