@@ -9,8 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
@@ -84,13 +83,13 @@ public final class PalladianSentenceDetector implements SentenceDetector {
         String maskedText = maskedTextBuilder.toString();
 
         // tokenize the masked text
-        List<Annotation> maskedSentences = CollectionHelper.newArrayList();
+        List<Token> maskedSentences = CollectionHelper.newArrayList();
         Pattern pattern = language == Language.GERMAN ? PATTERN_DE : PATTERN_EN;
         Matcher matcher = pattern.matcher(maskedText);
         int lastIndex = 0;
         while (matcher.find()) {
             int endPosition = matcher.end();
-            Annotation annotation = createAnnotation(maskedText, lastIndex, endPosition);
+            Token annotation = createToken(maskedText, lastIndex, endPosition);
             if (annotation != null) {
                 maskedSentences.add(annotation);
             }
@@ -98,7 +97,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
         }
         // add last fragment, in case we could not tokenize the whole string
         if (lastIndex < maskedText.length()) {
-            Annotation annotation = createAnnotation(maskedText, lastIndex, maskedText.length());
+            Token annotation = createToken(maskedText, lastIndex, maskedText.length());
             if (annotation != null) {
                 maskedSentences.add(annotation);
             }
@@ -106,15 +105,15 @@ public final class PalladianSentenceDetector implements SentenceDetector {
 
         // recreate annotations without masks
         List<Token> sentences = CollectionHelper.newArrayList();
-        for (Annotation tempSentence : maskedSentences) {
+        for (Token tempSentence : maskedSentences) {
             int start = tempSentence.getStartPosition();
             String value = text.substring(start, tempSentence.getStartPosition() + tempSentence.getValue().length());
-            sentences.add(new ImmutableSpan(tempSentence.getStartPosition(), value));
+            sentences.add(new ImmutableToken(tempSentence.getStartPosition(), value));
         }
         return CollectionHelper.unmodifiableIterator(sentences.iterator());
     }
 
-    private static Annotation createAnnotation(String text, int start, int end) {
+    private static Token createToken(String text, int start, int end) {
         String value = text.substring(start, end);
         String leftTrimmedValue = StringHelper.ltrim(value);
         int leftWhitespaceOffset = value.length() - leftTrimmedValue.length();
@@ -123,7 +122,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
             return null;
         }
         int leftIndex = start + leftWhitespaceOffset;
-        return new ImmutableAnnotation(leftIndex, trimmedValue, StringUtils.EMPTY);
+        return new ImmutableToken(leftIndex, trimmedValue);
     }
 
 }

@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
 
@@ -55,7 +55,7 @@ public final class LingPipeSentenceDetector implements SentenceDetector {
                     int start = chunk.start();
                     int end = chunk.end();
                     String value = text.substring(start, end);
-                    return new ImmutableSpan(start, value);
+                    return new ImmutableToken(start, value);
                 }
                 throw FINISHED;
             }

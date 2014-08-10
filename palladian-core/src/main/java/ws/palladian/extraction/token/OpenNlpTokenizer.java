@@ -12,7 +12,7 @@ import opennlp.tools.tokenize.TokenizerModel;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -95,7 +95,7 @@ public final class OpenNlpTokenizer implements TextTokenizer {
                 }
                 opennlp.tools.util.Span span = spans[idx++];
                 String value = text.substring(span.getStart(), span.getEnd());
-                return new ImmutableSpan(span.getStart(), value);
+                return new ImmutableToken(span.getStart(), value);
             }
         };
     }

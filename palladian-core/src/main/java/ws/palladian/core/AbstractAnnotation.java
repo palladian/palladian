@@ -7,7 +7,7 @@ package ws.palladian.core;
  * 
  * @author Philipp Katz
  */
-public abstract class AbstractAnnotation extends AbstractSpan implements Annotation {
+public abstract class AbstractAnnotation extends AbstractToken implements Annotation {
 
 //    @Override
 //    public final int compareTo(Annotation other) {

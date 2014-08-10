@@ -11,7 +11,7 @@ import opennlp.tools.sentdetect.SentenceModel;
 
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.io.FileHelper;
@@ -70,7 +70,7 @@ public final class OpenNlpSentenceDetector implements SentenceDetector {
                 }
                 opennlp.tools.util.Span span = spans[idx++];
                 String value = text.substring(span.getStart(), span.getEnd());
-                return new ImmutableSpan(span.getStart(), value);
+                return new ImmutableToken(span.getStart(), value);
             }
         };
     }

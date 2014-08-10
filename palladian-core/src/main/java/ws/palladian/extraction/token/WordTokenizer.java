@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -26,7 +26,7 @@ public final class WordTokenizer implements TextTokenizer {
             @Override
             protected Token getNext() throws Finished {
                 if (matcher.find()) {
-                    return new ImmutableSpan(matcher.start(), matcher.group());
+                    return new ImmutableToken(matcher.start(), matcher.group());
                 }
                 throw FINISHED;
             }

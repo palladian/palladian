@@ -2,7 +2,7 @@ package ws.palladian.extraction.token;
 
 import java.util.Iterator;
 
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -41,7 +41,7 @@ public final class TwokenizeTokenizer implements TextTokenizer {
                     }
 
                     endPosition = startPosition + token.length();
-                    return new ImmutableSpan(startPosition, token);
+                    return new ImmutableToken(startPosition, token);
 
                 }
                 throw FINISHED;
