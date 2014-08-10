@@ -5,7 +5,7 @@ import java.util.Queue;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -67,7 +67,7 @@ public final class NGramWrapperIterator extends AbstractIterator<Token> {
             builder.append(current.getValue());
         }
         currentLength++;
-        return new ImmutableSpan(start, builder.toString());
+        return new ImmutableToken(start, builder.toString());
     }
 
 }

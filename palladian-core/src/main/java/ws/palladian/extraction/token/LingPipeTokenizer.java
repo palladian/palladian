@@ -2,7 +2,7 @@ package ws.palladian.extraction.token;
 
 import java.util.Iterator;
 
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -40,7 +40,7 @@ public final class LingPipeTokenizer implements TextTokenizer {
                     throw FINISHED;
                 }
                 int startPosition = tokenizer.lastTokenStartPosition();
-                return new ImmutableSpan(startPosition, nextToken);
+                return new ImmutableToken(startPosition, nextToken);
             }
         };
     }

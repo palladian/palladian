@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.core.ImmutableSpan;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -41,7 +41,7 @@ public final class CharacterNGramTokenizer implements TextTokenizer {
                     length++;
                 }
                 // System.out.println("offset=" + offset + ",ngram=" + nGram);
-                return new ImmutableSpan(offset, nGram);
+                return new ImmutableToken(offset, nGram);
             }
         };
     }

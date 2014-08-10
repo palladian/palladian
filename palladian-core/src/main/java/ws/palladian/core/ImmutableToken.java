@@ -1,11 +1,15 @@
 package ws.palladian.core;
 
-public class ImmutableSpan extends AbstractSpan {
+import org.apache.commons.lang3.Validate;
+
+public class ImmutableToken extends AbstractToken {
 
     private final int startPosition;
     private final String value;
 
-    public ImmutableSpan(int startPosition, String value) {
+    public ImmutableToken(int startPosition, String value) {
+        Validate.isTrue(startPosition >= 0, "startPosition cannot be negative.");
+        Validate.notEmpty(value, "value must not be empty");
         this.startPosition = startPosition;
         this.value = value;
     }

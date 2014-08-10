@@ -1,6 +1,6 @@
 package ws.palladian.core;
 
-public abstract class AbstractSpan implements Token {
+public abstract class AbstractToken implements Token {
 
     @Override
     public final int compareTo(Token other) {
