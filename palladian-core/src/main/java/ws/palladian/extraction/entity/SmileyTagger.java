@@ -39,8 +39,10 @@ public class SmileyTagger extends RegExTagger {
         smileyPatternRegEx.append(Pattern.quote(S_CRY2));
         return Pattern.compile(smileyPatternRegEx.toString());
     }
+    
+    public static SmileyTagger INSTANCE = new SmileyTagger();
 
-    public SmileyTagger() {
+    private SmileyTagger() {
         super(SMILEY_PATTERN, SMILEY_TAG_NAME);
     }
 

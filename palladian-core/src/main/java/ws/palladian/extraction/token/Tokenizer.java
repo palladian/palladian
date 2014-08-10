@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import ws.palladian.classification.text.CharacterNGramIterator;
 import ws.palladian.classification.text.NGramWrapperIterator;
@@ -35,13 +34,6 @@ public final class Tokenizer {
     /** The RegExp used for sentence splitting. */
     public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs| eg|e\\.g|ca|etc| sq| ft)((\\.|\\?|\\!)(’|”|\")+(?=\\s+[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
     public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|engl|evtl|etc| sog| ident|bzw|i\\.d\\.R|o\\.k|zzgl|bspw|bsp|m\\.E|bezügl|bzgl|inkl|exkl|ggf|z\\.\\s?[bB]| max| min|u\\.s\\.w|u\\.a|d\\.h)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)| B\\.|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
-
-    public static final Pattern SENTENCE_SPLIT_PATTERN_EN = Pattern.compile(SENTENCE_SPLIT_REGEX_EN);
-    public static final Pattern SENTENCE_SPLIT_PATTERN_DE = Pattern.compile(SENTENCE_SPLIT_REGEX_DE);
-
-    /** The compiled pattern used for tokenization, using {@link Tokenizer#TOKEN_SPLIT_REGEX}. */
-    public static final Pattern SPLIT_PATTERN = Pattern.compile(TOKEN_SPLIT_REGEX, Pattern.DOTALL
-            | Pattern.CASE_INSENSITIVE);
 
     private Tokenizer() {
         // prevent instantiation.
@@ -189,14 +181,6 @@ public final class Tokenizer {
         return getSentences(inputText, onlyRealSentences, Language.ENGLISH);
     }
 
-    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Language language) {
-        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
-        if (language == Language.GERMAN) {
-            pattern = SENTENCE_SPLIT_PATTERN_DE;
-        }
-        return getSentences(inputText, onlyRealSentences, pattern);
-    }
-
     /**
      * <p>
      * Get a list of sentences of an input text. Also see <a
@@ -207,127 +191,40 @@ public final class Tokenizer {
      * @param inputText An input text.
      * @param onlyRealSentences If true, only sentences that end with a sentence delimiter are considered (headlines in
      *            texts will likely be discarded)
-     * @param The pattern to use for sentence splitting.
+     * @param language The language to use for sentence splitting.
      * @return A list with sentences.
      */
-    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Pattern pattern) {
-        
-        Language lang = pattern == SENTENCE_SPLIT_PATTERN_DE ? Language.GERMAN : Language.ENGLISH;
-        List<Annotation> annotations = new PalladianSentenceDetector(lang).getAnnotations(inputText);
-        return CollectionHelper.convertList(annotations, new Function<Annotation,String>() {
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Language language) {
+        List<Annotation> annotations = new PalladianSentenceDetector(language).getAnnotations(inputText);
+        List<String> sentences = CollectionHelper.convertList(annotations, new Function<Annotation, String>() {
             @Override
             public String compute(Annotation input) {
                 return input.getValue();
             }
         });
+        // TODO Since requirements might differ slightly from application to application, this filtering should be
+        // carried out by each calling application itself.
+        if (onlyRealSentences) {
+            List<String> realSentences = CollectionHelper.newArrayList();
+            for (String sentence : sentences) {
+                String[] parts = sentence.split("\n");
+                sentence = parts[parts.length - 1];
+                if (sentence.endsWith(".") || sentence.endsWith("?") || sentence.endsWith("!")
+                        || sentence.endsWith(".”") || sentence.endsWith(".\"")) {
 
-//        // recognize URLs so we don't break them
-//        List<Annotation> taggedUrls = URL_TAGGER.getAnnotations(inputText);
-//        int uCount = 1;
-//        Map<String, String> urlMapping = new HashMap<String, String>();
-//        for (Annotation annotation : taggedUrls) {
-//            String replacement = "URL" + uCount;
-//            inputText = inputText.replace(annotation.getValue(), replacement);
-//            urlMapping.put(replacement, annotation.getValue());
-//            uCount++;
-//        }
-//
-//        // recognize dates so we don't break them
-//        List<Annotation> taggedDates = DATE_TIME_TAGGER.getAnnotations(inputText);
-//        int dCount = 1;
-//        Map<String, String> dateMapping = new HashMap<String, String>();
-//        for (Annotation annotation : taggedDates) {
-//            String replacement = "DATE" + dCount;
-//            inputText = inputText.replace(annotation.getValue(), replacement);
-//            dateMapping.put(replacement, annotation.getValue());
-//            dCount++;
-//        }
-//
-//        // recognize smileys so we don't break them
-//        List<Annotation> taggedSmileys = SMILEY_TAGGER.getAnnotations(inputText);
-//        int sCount = 1;
-//        Map<String, String> smileyMapping = new HashMap<String, String>();
-//        for (Annotation annotation : taggedSmileys) {
-//            String replacement = "SMILEY" + sCount;
-//            inputText = inputText.replace(annotation.getValue(), replacement);
-//            smileyMapping.put(replacement, annotation.getValue());
-//            sCount++;
-//        }
-//
-//        List<String> sentences = new ArrayList<String>();
-//
-//        // pattern to find the end of a sentence
-//        Matcher matcher = pattern.matcher(inputText);
-//        int lastIndex = 0;
-//
-//        while (matcher.find()) {
-//            sentences.add(inputText.substring(lastIndex, matcher.end()).trim());
-//            lastIndex = matcher.end();
-//        }
-//
-//        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
-//        // character, just add the last fragment
-//        if (lastIndex < inputText.length()) {
-//            sentences.add(inputText.substring(lastIndex).trim());
-//        }
-//
-//        // TODO Since requirements might differ slightly from application to application, this filtering should be
-//        // carried out by each calling application itself.
-//        if (onlyRealSentences) {
-//
-//            List<String> realSentences = new ArrayList<String>();
-//            for (String sentence : sentences) {
-//                String[] parts = sentence.split("\n");
-//                sentence = parts[parts.length - 1];
-//                if (sentence.endsWith(".") || sentence.endsWith("?") || sentence.endsWith("!")
-//                        || sentence.endsWith(".”") || sentence.endsWith(".\"")) {
-//
-//                    String cleanSentence = StringHelper.trim(sentence, "“”\"");
-//                    int wordCount = StringHelper.countWhitespaces(cleanSentence) + 1;
-//
-//                    // TODO Why is this 8?
-//                    // TODO There are valid english sentences with only one word like "Go!" or "Stop!"
-//                    if (cleanSentence.length() > 8 && wordCount > 2) {
-//                        realSentences.add(sentence.trim());
-//                    }
-//                }
-//            }
-//
-//            sentences = realSentences;
-//        }
-//
-//        // replace URLs back
-//        List<String> sentencesReplacedUrls = new ArrayList<String>();
-//        for (String sentence : sentences) {
-//            for (Entry<String, String> entry : urlMapping.entrySet()) {
-//                sentence = sentence.replace(entry.getKey(), entry.getValue());
-//            }
-//            sentencesReplacedUrls.add(sentence);
-//        }
-//
-//        // replace dates back
-//        List<String> sentencesReplacedDates = new ArrayList<String>();
-//        for (String sentence : sentencesReplacedUrls) {
-//            for (Entry<String, String> entry : dateMapping.entrySet()) {
-//                sentence = sentence.replace(entry.getKey(), entry.getValue());
-//            }
-//            if (!sentence.isEmpty()) {
-//                sentencesReplacedDates.add(sentence);
-//            }
-//        }
-//
-//        // replace smileys back
-//        List<String> sentencesReplacedSmileys = new ArrayList<String>();
-//        for (String sentence : sentencesReplacedDates) {
-//            for (Entry<String, String> entry : smileyMapping.entrySet()) {
-//                sentence = sentence.replace(entry.getKey(), entry.getValue());
-//            }
-//            if (!sentence.isEmpty()) {
-//                sentencesReplacedSmileys.add(sentence);
-//            }
-//        }
-//
-//        return sentencesReplacedSmileys;
+                    String cleanSentence = StringHelper.trim(sentence, "“”\"");
+                    int wordCount = StringHelper.countWhitespaces(cleanSentence) + 1;
+
+                    // TODO Why is this 8?
+                    // TODO There are valid english sentences with only one word like "Go!" or "Stop!"
+                    if (cleanSentence.length() > 8 && wordCount > 2) {
+                        realSentences.add(sentence.trim());
+                    }
+                }
+            }
+            sentences = realSentences;
+        }
+        return sentences;
     }
 
     /**

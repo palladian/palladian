@@ -26,8 +26,8 @@ import ws.palladian.core.Annotation;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
@@ -688,8 +688,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         // recognize and add URLs, remove annotations that were part of a URL
         if (model.tagUrls) {
-            UrlTagger urlTagger = new UrlTagger();
-            annotations.addAll(urlTagger.getAnnotations(inputText));
+            annotations.addAll(UrlTagger.INSTANCE.getAnnotations(inputText));
             annotations.removeNested();
         }
 
