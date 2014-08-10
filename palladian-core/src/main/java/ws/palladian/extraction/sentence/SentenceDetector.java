@@ -7,15 +7,16 @@ import ws.palladian.core.Tagger;
 
 /**
  * <p>
- * Abstract base class for all sentence detectors.
+ * Marker interface for all sentence detectors.
  * </p>
- * 
+ *
  * @author Martin Wunderwald
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public abstract class AbstractSentenceDetector implements Tagger {
+public interface SentenceDetector extends Tagger {
 
-    public abstract List<Annotation> getAnnotations(String text);
+    @Override
+    List<Annotation> getAnnotations(String text);
 
 }

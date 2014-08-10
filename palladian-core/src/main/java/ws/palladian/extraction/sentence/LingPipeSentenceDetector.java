@@ -28,7 +28,7 @@ import com.aliasi.tokenizer.TokenizerFactory;
  * @version 1.0
  * @since 0.0.1
  */
-public final class LingPipeSentenceDetector extends AbstractSentenceDetector {
+public final class LingPipeSentenceDetector implements SentenceDetector {
 
     /**
      * The {@code SentenceChunker} instance used and containing the core implementation for splitting a processed text
