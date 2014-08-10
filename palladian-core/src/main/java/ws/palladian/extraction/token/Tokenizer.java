@@ -66,11 +66,6 @@ public final class Tokenizer {
     private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger(ALL_DATES_WITH_DOTS);
     private static final SmileyTagger SMILEY_TAGGER = new SmileyTagger();
 
-    /**
-     * <p>
-     * Constructor is private since this a static utility class.
-     * </p>
-     */
     private Tokenizer() {
         // prevent instantiation.
     }
@@ -84,92 +79,9 @@ public final class Tokenizer {
      * @return A list of tokens.
      */
     public static List<String> tokenize(String inputString) {
-
-//        List<String> tokens = new ArrayList<String>();
-//
-//        Matcher matcher = SPLIT_PATTERN.matcher(inputString);
-//        while (matcher.find()) {
-//            tokens.add(matcher.group(0));
-//        }
-//
-//        return tokens;
         TokenIterator tokenIterator = new TokenIterator(inputString);
         return CollectionHelper.newArrayList(tokenIterator);
     }
-
-//    /**
-//     * <p>
-//     * Calculate all spans for a given string.
-//     * </p>
-//     * <p>
-//     * For example, the string "a b c" will return 7 spans (2^3=8 but all empty is not allowed, hence 7):
-//     * 
-//     * <pre>
-//     * a b c
-//     * a b
-//     * a c
-//     * b c
-//     * c
-//     * b
-//     * a
-//     * </pre>
-//     * 
-//     * </p>
-//     * 
-//     * @param string A tokenized string to get the spans for.
-//     * @param lengthThreshold The maximum length for extracted spans. For the above example set this to 3 to get all
-//     *            spans or to a smaller value to get only spans of that length or smaller. If the value is larger than
-//     *            the amount of tokens in {@code string} all spans are returned, if it is smaller than 1 all patterns of
-//     *            length 1 will be returned nevertheless.
-//     * @return A collection of spans.
-//     */
-//    public static Collection<List<String>> getAllSpans(String[] tokens, Integer lengthThreshold) {
-//
-//        // create bitvector (all bit combinations other than all zeros)
-//        int bits = tokens.length;
-//        List<List<String>> spans = new ArrayList<List<String>>();
-//
-//        int max = (int)Math.pow(2, bits);
-//        for (long i = 1; i < max; i++) {
-//            List<String> span = new LinkedList<String>();
-//            if (extractSpanRecursive(i, tokens, span, 0, Math.max(lengthThreshold - 1, 0))) {
-//                spans.add(span);
-//            }
-//        }
-//
-//        return spans;
-//    }
-
-//    /**
-//     * <p>
-//     * Recursive extraction function for text spans.
-//     * </p>
-//     * 
-//     * @param bitPattern The pattern describing the indices in the list of {@code tokens} to include in the resulting
-//     *            span.
-//     * @param tokens The list of tokens to construct spans from.
-//     * @param span The result span will be constructed into this list.
-//     * @param currentIndex The current index in the list of tokens. For this call the algorithm needs to decide whether
-//     *            to include the token at that position in the span or not based on whether the value in
-//     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
-//     * @param maxSpanLength The maximum length for extracted spans. All spans beyond that length will cause the function
-//     *            to abort processing and return {@code false}.
-//     * @return {@code true} if the extracted span is smaller or equal to {@code maxSpanLength}; {@code false} otherwise.
-//     */
-//    private static Boolean extractSpanRecursive(Long bitPattern, String[] tokens, List<String> span,
-//            Integer currentIndex, Integer maxSpanLength) {
-//        if (bitPattern % 2 != 0) {
-//            span.add(tokens[currentIndex]);
-//        }
-//        Long nextBitPattern = bitPattern / 2;
-//        if (nextBitPattern < 1) {
-//            return true;
-//        } else if (span.size() > maxSpanLength) {
-//            return false;
-//        } else {
-//            return extractSpanRecursive(nextBitPattern, tokens, span, ++currentIndex, maxSpanLength);
-//        }
-//    }
 
     /**
      * <p>
@@ -182,24 +94,6 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateCharNGrams(String string, int n) {
-//        Set<String> nGrams = new HashSet<String>();
-//
-//        int sl = string.length();
-//        if (sl < n) {
-//            return nGrams;
-//        }
-//
-//        for (int i = 0; i <= sl - n; i++) {
-//
-//            StringBuilder nGram = new StringBuilder();
-//            for (int j = i; j < i + n; j++) {
-//                nGram.append(string.charAt(j));
-//            }
-//            nGrams.add(nGram.toString());
-//
-//        }
-//
-//        return nGrams;
         Iterator<String> nGramIterator = new CharacterNGramIterator(string, n, n);
         return CollectionHelper.newHashSet(nGramIterator);
     }
@@ -215,24 +109,6 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateWordNGrams(String string, int n) {
-//        Set<String> nGrams = new HashSet<String>();
-//
-//        String[] words = string.split("\\s+");
-//
-//        if (words.length < n) {
-//            return nGrams;
-//        }
-//
-//        for (int i = 0; i <= words.length - n; i++) {
-//
-//            StringBuilder nGram = new StringBuilder();
-//            for (int j = i; j < i + n; j++) {
-//                nGram.append(words[j]).append(" ");
-//            }
-//            nGrams.add(nGram.toString().trim());
-//
-//        }
-//        return nGrams;
         return calculateAllWordNGrams(string, n, n);
     }
 
@@ -251,48 +127,10 @@ public final class Tokenizer {
      * @return A list of n-grams.
      */
     public static List<String> calculateWordNGramsAsList(String string, int n) {
-//        List<String> nGrams = new ArrayList<String>();
-//
-//        String[] words = string.split("\\s+");
-//        words = filterEmptyWords(words);
-//
-//        if (words.length < n) {
-//            return nGrams;
-//        }
-//
-//        for (int i = 0; i <= words.length - n; i++) {
-//
-//            StringBuilder nGram = new StringBuilder();
-//            for (int j = i; j < i + n; j++) {
-//                nGram.append(words[j]).append(" ");
-//            }
-//            nGrams.add(nGram.toString().trim());
-//
-//        }
-//
-//        return nGrams;
         Iterator<String> tokenIterator = new TokenIterator(string);
         tokenIterator = new NGramWrapperIterator(tokenIterator, n, n);
         return CollectionHelper.newArrayList(tokenIterator);
     }
-
-//    /**
-//     * <p>
-//     * Filters empty {@link String}s for N-Gram creation. Empty string may occur if the input {@link String} contains
-//     * control characters.
-//     * </p>
-//     * 
-//     * @param words The words to check.
-//     */
-//    private static String[] filterEmptyWords(String[] words) {
-//        List<String> ret = new ArrayList<String>();
-//        for (String word : words) {
-//            if (!word.trim().isEmpty()) {
-//                ret.add(word);
-//            }
-//        }
-//        return ret.toArray(new String[ret.size()]);
-//    }
 
     /**
      * <p>
@@ -306,12 +144,6 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllCharNGrams(String string, int n1, int n2) {
-//        Set<String> nGrams = new HashSet<String>();
-//        for (int n = n1; n <= n2; n++) {
-//            nGrams.addAll(calculateCharNGrams(string, n));
-//        }
-//
-//        return nGrams;
         Iterator<String> tokenIterator = new CharacterNGramIterator(string, n1, n2);
         return CollectionHelper.newHashSet(tokenIterator);
     }
@@ -328,65 +160,9 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllWordNGrams(String string, int n1, int n2) {
-//        Set<String> nGrams = new HashSet<String>();
-//        for (int n = n1; n <= n2; n++) {
-//            nGrams.addAll(calculateWordNGrams(string, n));
-//        }
-//
-//        return nGrams;
         Iterator<String> tokenIterator = new TokenIterator(string);
         tokenIterator = new NGramWrapperIterator(tokenIterator, n1, n2);
         return CollectionHelper.newHashSet(tokenIterator);
-    }
-
-    /**
-     * <p>
-     * Calculates all n-grams for n ranging from {@code minSize} included up to {@code maxSize} included over a list of
-     * tokens.
-     * </p>
-     * 
-     * @param token The tokens to n-grammize.
-     * @param minSize The lower bound for the size of the extracted n-grams.
-     * @param maxSize The upper bound for the size of the extracted n-grams.
-     * @return A {@code List} of n-grams wich are represented as a {@code List} of tokens each.
-     */
-    public static List<List<String>> calculateAllNGrams(String[] token, Integer minSize, Integer maxSize) {
-        List<List<String>> ret = new ArrayList<List<String>>();
-
-        for (int n = minSize; n <= maxSize; n++) {
-            ret.addAll(calculateNGrams(token, n));
-        }
-
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Calculates n-grams of a certain size for an array of token.
-     * </p>
-     * 
-     * @param token The token to n-grammize.
-     * @param size The size of the desired n-grams.
-     * @return A {@code List} of n-grams which are represented as a {@code List} of tokens each.
-     */
-    public static List<List<String>> calculateNGrams(String[] token, Integer size) {
-        List<List<String>> nGrams = new ArrayList<List<String>>();
-
-        if (token.length < size) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= token.length - size; i++) {
-
-            List<String> nGram = new ArrayList<String>(size);
-            for (int j = i; j < i + size; j++) {
-                nGram.add(token[j]);
-            }
-            nGrams.add(nGram);
-
-        }
-
-        return nGrams;
     }
 
     public static String getSentence(String string, int position) {
@@ -583,8 +359,7 @@ public final class Tokenizer {
      */
     private static String maskAnnotations(String text, List<Annotation> annotations, String mask,
             List<Annotation> annotationsForMaskedText, String maskedText) {
-        List<Annotation> tags = convert(text, annotations);
-        for (Annotation annotation : tags) {
+        for (Annotation annotation : annotations) {
             // This check is necessary to handle nested masks. Such masks are not replaced in the text and should not be
             // added to the list of masks.
             if (maskedText.contains(annotation.getValue())) {
@@ -595,19 +370,6 @@ public final class Tokenizer {
 
         return maskedText;
     }
-
-//    /**
-//     * <p>
-//     * Splits the text of {@code inputDocument} into sentences.
-//     * </p>
-//     * 
-//     * @param inputDocument The {@link TextDocument} to split into sentences.
-//     * @param featureName The name of the created {@link Annotation}s.
-//     * @return A {@link List} of {@link Annotation}s marking the sentences the text was split into.
-//     */
-//    public static List<Annotation> getSentences(String text, String featureName) {
-//        return getSentences(text, featureName, Language.ENGLISH);
-//    }
 
     /**
      * <p>
@@ -627,25 +389,6 @@ public final class Tokenizer {
         }
         return getSentences(text, pattern);
     }
-//    /**
-//     * <p>
-//     * Splits the text of {@code inputDocument} into sentences. The text should be in the language provided as parameter
-//     * {@code language}.
-//     * </p>
-//     * 
-//     * @param inputDocument The {@link TextDocument} to split into sentences.
-//     * @param featureName The name of the created {@link Annotation}s.
-//     * @param language The language of the text to split into sentences.
-//     * @return A {@link List} of {@link Annotation}s marking the sentences the text was split into.
-//     */
-//    public static List<Annotation> getSentences(String text, String featureName,
-//            Language language) {
-//        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
-//        if (language == Language.GERMAN) {
-//            pattern = SENTENCE_SPLIT_PATTERN_DE;
-//        }
-//        return getSentences(text, pattern, featureName);
-//    }
 
     // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
     // mixture of URLs and several sentence at the moment.
@@ -782,28 +525,6 @@ public final class Tokenizer {
             ret.add(transformedSentence);
             lastOriginalEndPosition = originalEndPosition;
             lastEndPosition = sentence.getEndPosition();
-        }
-
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Converts NER {@link Annotations} to a {@link List} of pipeline {@link Annotation}s, referencing the
-     * provided document.
-     * </p>
-     * 
-     * @param annotations The {@link Annotations} to convert.
-     * @return A list of {@link Annotation}s representing the provided {@link Annotations} on the provided
-     *         {@link TextDocument}.
-     */
-    private static List<Annotation> convert(String text, List<Annotation> annotations) {
-        List<Annotation> ret = new ArrayList<Annotation>();
-        for (Annotation annotation : annotations) {
-            String value = annotation.getValue();
-            int startPosition = annotation.getStartPosition();
-            Annotation positionAnnotation = new ImmutableAnnotation(startPosition, value, StringUtils.EMPTY);
-            ret.add(positionAnnotation);
         }
 
         return ret;

@@ -37,8 +37,6 @@ public final class CoordinateTagger implements Tagger {
     private static final String SEP = "(?:,\\s?|\\s)";
 
     /** Only degrees, as real number. */
-    // XXX this also picks up combinations such as "121.4, 21.4"; consider making this more strict, when we should get
-    // too many false positives
     private static final Pattern PATTERN_DEG = Pattern.compile(LEFT + "(" + DEG + ")" + SEP + "(" + DEG + ")" + RIGHT);
 
     /** DMS scheme, and/or combination with degrees. */
