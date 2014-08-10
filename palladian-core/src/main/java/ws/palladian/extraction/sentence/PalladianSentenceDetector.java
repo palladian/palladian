@@ -87,14 +87,17 @@ public final class PalladianSentenceDetector extends AbstractSentenceDetector {
         int lastIndex = 0;
         while (matcher.find()) {
             int endPosition = matcher.end();
-            maskedSentences.add(createAnnotation(maskedText, lastIndex, endPosition));
+            Annotation annotation = createAnnotation(maskedText, lastIndex, endPosition);
+            if (annotation != null) {
+                maskedSentences.add(annotation);
+            }
             lastIndex = endPosition;
         }
         // add last fragment, in case we could not tokenize the whole string
         if (lastIndex < maskedText.length()) {
-            Annotation trimmedAnnotation = createAnnotation(maskedText, lastIndex, maskedText.length());
-            if (trimmedAnnotation.getValue().length() > 0) {
-                maskedSentences.add(trimmedAnnotation);
+            Annotation annotation = createAnnotation(maskedText, lastIndex, maskedText.length());
+            if (annotation != null) {
+                maskedSentences.add(annotation);
             }
         }
 
@@ -113,6 +116,9 @@ public final class PalladianSentenceDetector extends AbstractSentenceDetector {
         String leftTrimmedValue = StringHelper.ltrim(value);
         int leftWhitespaceOffset = value.length() - leftTrimmedValue.length();
         String trimmedValue = StringHelper.rtrim(leftTrimmedValue);
+        if (trimmedValue.isEmpty()) {
+            return null;
+        }
         int leftIndex = start + leftWhitespaceOffset;
         return new ImmutableAnnotation(leftIndex, trimmedValue, StringUtils.EMPTY);
     }
