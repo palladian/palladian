@@ -27,7 +27,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class PalladianSentenceDetector extends AbstractSentenceDetector {
+public final class PalladianSentenceDetector implements SentenceDetector {
 
     /** Sentence split pattern for English text. */
     private static final Pattern PATTERN_EN = Pattern.compile(Tokenizer.SENTENCE_SPLIT_REGEX_EN);

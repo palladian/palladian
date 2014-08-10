@@ -28,7 +28,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class OpenNlpSentenceDetector extends AbstractSentenceDetector {
+public final class OpenNlpSentenceDetector implements SentenceDetector {
 
     /** The sentence detector object. */
     private final SentenceDetectorME model;
