@@ -355,7 +355,7 @@ public final class MediaWikiUtil {
      *         order as in the markup. Entries without a key are are indexed by running numbers as strings (0,1,2…).
      * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
      */
-    static WikiTemplate extractTemplate(String markup) {
+    public static WikiTemplate extractTemplate(String markup) {
         Validate.notNull(markup, "markup must not be null");
         
         Map<String, String> properties = new LinkedHashMap<String, String>();
@@ -546,10 +546,10 @@ public final class MediaWikiUtil {
      * </p>
      * 
      * @param markup The media wiki markup, not <code>null</code>.
-     * @param name The name, like infobox, quote, etc.
+     * @param names The names, like <code>infobox</code>, <code>quote</code>, etc.
      * @return The content in the markup, or an empty list of not found, never <code>null</code>.
      */
-    static List<String> getNamedMarkup(String markup, String... names) {
+    public static List<String> getNamedMarkup(String markup, String... names) {
         List<String> result = CollectionHelper.newArrayList();
         int startIdx = 0;
         String cleanMarkup = HtmlHelper.stripHtmlTags(markup, HtmlElement.COMMENTS);
