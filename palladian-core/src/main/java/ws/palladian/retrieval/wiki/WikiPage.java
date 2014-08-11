@@ -177,7 +177,7 @@ public class WikiPage extends WikiPageReference {
      */
     public List<String> getCategories() {
         List<String> categories = CollectionHelper.newArrayList();
-        Pattern pattern = Pattern.compile("\\[\\[Category:([^|\\]]*)(?:\\|[^|\\]]*)?\\]\\]");
+        Pattern pattern = Pattern.compile("\\[\\[(?:Category|Kategorie):([^|\\]]*)(?:\\|[^|\\]]*)?\\]\\]");
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
             categories.add(matcher.group(1));
