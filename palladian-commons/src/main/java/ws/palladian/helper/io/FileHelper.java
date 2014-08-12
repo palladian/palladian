@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Collector;
 import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.math.MathHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -1950,7 +1951,7 @@ public final class FileHelper {
      * @param action An {@link Consumer} to perform for the matching files, not <code>null</code>.
      * @return The number of processed files.
      */
-    public static int traverseFiles(File path, FileFilter filter, Consumer<? super File> action) {
+    public static int traverseFiles(File path, Filter<File> filter, Consumer<? super File> action) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(filter, "filter must not be null");
         Validate.notNull(action, "action must not be null");
@@ -1972,7 +1973,7 @@ public final class FileHelper {
         return counter;
     }
     
-    public static List<File> getFiles(File path, FileFilter filter) {
+    public static List<File> getFiles(File path, Filter<File> filter) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(filter, "filter must not be null");
         List<File> files = CollectionHelper.newArrayList();

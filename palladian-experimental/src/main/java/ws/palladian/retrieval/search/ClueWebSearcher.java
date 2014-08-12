@@ -125,6 +125,10 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
 
     /** The Lucene directory instance. */
     private final Directory directory;
+    
+    /** The reader; keep it open for the lifetime of this instance for performance reasons. */
+    private final IndexReader indexReader;
+
 
     /**
      * <p>
@@ -138,6 +142,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         Validate.notNull(indexPath, "indexPath must not be null");
         try {
             directory = new SimpleFSDirectory(indexPath);
+            indexReader = DirectoryReader.open(directory);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -147,9 +152,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
     public List<ClueWebResult> search(String query, int resultCount, Language language) throws SearcherException {
         StopWatch stopWatch = new StopWatch();
         List<ClueWebResult> rankedDocuments = CollectionHelper.newArrayList();
-        IndexReader indexReader = null;
         try {
-            indexReader = DirectoryReader.open(directory);
             IndexSearcher indexSearcher = new IndexSearcher(indexReader);
             Query luceneQuery = createQuery(query);
             TopScoreDocCollector collector = TopScoreDocCollector.create(resultCount, false);
@@ -188,9 +191,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
     @Override
     public long getTotalResultCount(String query, Language language) throws SearcherException {
         StopWatch stopWatch = new StopWatch();
-        IndexReader indexReader = null;
         try {
-            indexReader = DirectoryReader.open(directory);
             IndexSearcher indexSearcher = new IndexSearcher(indexReader);
             Query luceneQuery = createQuery(query);
             TotalHitCountCollector collector = new TotalHitCountCollector();
@@ -208,6 +209,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
 
     @Override
     public void close() throws IOException {
+        indexReader.close();
         directory.close();
     }
 
