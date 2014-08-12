@@ -21,6 +21,9 @@ import ws.palladian.helper.constants.RegExp;
  */
 public class DateHelper {
 
+    /** Maximum allowed year for {@link #validateYear(Date)}. */
+    private static final int MAX_YEAR = 9999;
+
     public static boolean containsDate(String searchString) {
         try {
             Pattern pattern = Pattern.compile(RegExp.DATE_ALL);
@@ -358,16 +361,15 @@ public class DateHelper {
      * </p>
      * 
      * @param date date to check.
-     * @param maxYear maximum year allowed.
      * @return The given date if it's year <= maxYear or <code>null</code> if date == null or its year > maxYear.
      */
-    public static Date validateYear(Date date, int maxYear) {
+    public static Date validateYear(Date date) {
         Date validatedDate = date;
         if (date != null) {
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTime(date);
             int year = cal.get(Calendar.YEAR);
-            if (year >= maxYear) {
+            if (year >= MAX_YEAR) {
                 validatedDate = null;
             }
         }
