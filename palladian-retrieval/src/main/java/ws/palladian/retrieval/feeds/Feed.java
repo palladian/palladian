@@ -547,7 +547,7 @@ public class Feed {
      * @param lastFeedEntry
      */
     public void setLastFeedEntry(Date lastFeedEntry) {
-        this.lastFeedEntry = DateHelper.validateYear(lastFeedEntry, 9999);
+        this.lastFeedEntry = DateHelper.validateYear(lastFeedEntry);
     }
 
     /**
@@ -567,7 +567,7 @@ public class Feed {
      * @param lastButOneFeedEntry
      */
     public void setLastButOneFeedEntry(Date lastButOneFeedEntry) {
-        this.lastButOneFeedEntry = DateHelper.validateYear(lastButOneFeedEntry, 9999);
+        this.lastButOneFeedEntry = DateHelper.validateYear(lastButOneFeedEntry);
     }
 
     /**
@@ -609,7 +609,7 @@ public class Feed {
      * @param oldestFeedEntryCurrentWindow The publish timestamp of the oldest entry in the most recent window.
      */
     private final void setOldestFeedEntryCurrentWindow(Date oldestFeedEntryCurrentWindow) {
-        this.oldestFeedEntryCurrentWindow = DateHelper.validateYear(oldestFeedEntryCurrentWindow, 9999);
+        this.oldestFeedEntryCurrentWindow = DateHelper.validateYear(oldestFeedEntryCurrentWindow);
     }
 
     /**
@@ -618,7 +618,7 @@ public class Feed {
      * @param lastFeedEntry
      */
     public void setHttpLastModified(Date httpLastModified) {
-        this.httpLastModified = DateHelper.validateYear(httpLastModified, 9999);
+        this.httpLastModified = DateHelper.validateYear(httpLastModified);
     }
 
     public Date getHttpLastModified() {
