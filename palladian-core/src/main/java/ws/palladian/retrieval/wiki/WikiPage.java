@@ -145,9 +145,7 @@ public class WikiPage extends WikiPageReference {
     /**
      * @return A list of {@link WikiTemplate}es on the page, or an empty list in case no such exist, never
      *         <code>null</code>.
-     * @deprecated Prefer using the more flexible {@link #getTemplates(String...)} and specify what to extract.
      */
-    @Deprecated
     public List<WikiTemplate> getInfoboxes() {
         return getTemplates("infobox", "geobox");
     }
