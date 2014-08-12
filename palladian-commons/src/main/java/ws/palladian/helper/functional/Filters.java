@@ -1,5 +1,6 @@
 package ws.palladian.helper.functional;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +9,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * Default {@link Filter} implementations.
@@ -176,6 +179,51 @@ public final class Filters {
             builder.append(filters);
             builder.append("]");
             return builder.toString();
+        }
+
+    }
+
+    /**
+     * Get a filter which filters files by their extensions.
+     * 
+     * @param extensions The extensions to accept (multiple extensions can be given, leading dots are not necessary, but
+     *            don't do harm either), not <code>null</code>.
+     * @return A filter accepting the given file name extensions.
+     */
+    public static Filter<File> fileExtension(String... extensions) {
+        Validate.notNull(extensions, "extensions must not be null");
+        return new FileExtensionFilter(extensions);
+    }
+
+    private static final class FileExtensionFilter implements Filter<File> {
+        private final Set<String> extensionsSet;
+
+        private FileExtensionFilter(String... extensions) {
+            extensionsSet = CollectionHelper.newHashSet();
+            for (String extension : extensions) {
+                if (extension != null && extension.length() > 0) {
+                    if (extension.startsWith(".")) {
+                        extension = extension.substring(1);
+                    }
+                    extensionsSet.add(extension);
+                }
+            }
+        }
+
+        @Override
+        public boolean accept(File item) {
+            String fileName = item.getName();
+            int dotIdx = fileName.lastIndexOf('.');
+            if (dotIdx > 0) {
+                String extension = fileName.substring(dotIdx + 1);
+                return extensionsSet.contains(extension);
+            }
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return "FileExtensionFilter " + extensionsSet;
         }
 
     }

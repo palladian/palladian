@@ -1,7 +1,6 @@
 package ws.palladian.helper;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -117,7 +116,7 @@ public final class ClassFinder {
                     LOGGER.error("IOException when trying to read {}", classPathItem, e);
                 }
             } else { // we're checking .class files
-                FileHelper.traverseFiles(new File(classPathItem), new FileFilter() {
+                FileHelper.traverseFiles(new File(classPathItem), new Filter<File>() {
                     @Override
                     public boolean accept(File pathname) {
                         String namespaceName = pathname.getPath().substring(classPathItem.length() + 1);
