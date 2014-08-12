@@ -163,11 +163,7 @@ public class ExtractedDateImpl implements ExtractedDate {
      * @return a minimum two digit number
      */
     static String get2Digits(int number) {
-        String numberString = String.valueOf(number);
-        if (number < 10) {
-            numberString = "0" + number;
-        }
-        return numberString;
+        return String.format("%02d", number);
     }
 
     @Override
