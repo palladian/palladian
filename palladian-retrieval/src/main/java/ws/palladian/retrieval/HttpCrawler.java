@@ -53,15 +53,7 @@ public class HttpCrawler {
         @Override
         public void run() {
             for (;;) {
-                String url = urlQueue.poll();
-                if (url == null) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        // ignore.
-                    }
-                    continue;
-                }
+                String url = takeNextUrl();
                 LOGGER.debug("Fetching {}", url);
                 for (int attempt = 1;; attempt++) {
                     try {
@@ -90,9 +82,9 @@ public class HttpCrawler {
                         LOGGER.error("Encountered {} for {}", t.getMessage(), url);
                     }
                 }
-                checkedUrls.add(url);
             }
         }
+
     }
 
     private final class MonitoringTask implements Runnable {
@@ -167,6 +159,21 @@ public class HttpCrawler {
             }
         }
         return added;
+    }
+
+    private String takeNextUrl() {
+        for (;;) {
+            String url = urlQueue.poll();
+            if (url != null) {
+                checkedUrls.add(url);
+                return url;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // ignore.
+            }
+        }
     }
 
     public void start() {
