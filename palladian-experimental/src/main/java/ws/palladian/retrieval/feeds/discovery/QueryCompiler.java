@@ -3,19 +3,11 @@ package ws.palladian.retrieval.feeds.discovery;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
 public class QueryCompiler {
-
-    public static void main(String[] args) {
-        String dmozCatergoriesFile = "/home/pk/Desktop/categories.txt";
-        List<String> queries = readQueriesFromDmoz(dmozCatergoriesFile, -1, 2);
-        System.out.println(queries);
-        FileHelper.writeToFile("/home/pk/Desktop/newsseecrQueries_2011-08-04.txt", queries);
-    }
-
     /**
      * Load query terms from DMOZ dataset.
      * http://rdf.dmoz.org/rdf/categories.txt
@@ -38,7 +30,7 @@ public class QueryCompiler {
      */
     public static List<String> readQueriesFromDmoz(String dmozCatergoriesFile, int minOccurence, final int maxDepth) {
 
-        final CountMap<String> items = CountMap.create();
+        final Bag<String> items = Bag.create();
 
         LineAction la = new LineAction() {
 
@@ -77,7 +69,7 @@ public class QueryCompiler {
 
         for (String item : items.uniqueItems()) {
             // remove those, which only occur once
-            int numOccur = items.getCount(item);
+            int numOccur = items.count(item);
             if (numOccur > minOccurence) {
                 result.add(item);
             }
@@ -88,4 +80,10 @@ public class QueryCompiler {
 
     }
 
+    public static void main(String[] args) {
+        String dmozCatergoriesFile = "/home/pk/Desktop/categories.txt";
+        List<String> queries = readQueriesFromDmoz(dmozCatergoriesFile, -1, 2);
+        System.out.println(queries);
+        FileHelper.writeToFile("/home/pk/Desktop/newsseecrQueries_2011-08-04.txt", queries);
+    }
 }

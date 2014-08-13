@@ -6,9 +6,10 @@ package ws.palladian.retrieval.wiki.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.map.LRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ws.palladian.helper.collection.LruMap;
 
 /**
  * Cache to store mappings page title -> pageID to get pageIDs from page titles without asking the database (since
@@ -29,7 +30,7 @@ public class PageTitleCache {
     private static final boolean DEBUG = LOGGER.isDebugEnabled();
 
     /** The internal cache */
-    private final Map<Integer, LRUMap<PageTitle, Integer>> cache;
+    private final Map<Integer, LruMap<PageTitle, Integer>> cache;
 
     /** Maximum capacity of the {@link LRUMap}, use to prevent map from relocating */
 	// TODO: configure me in mwCrawlerConfiguration.yml
@@ -39,7 +40,7 @@ public class PageTitleCache {
      * Default constructor.
      */
     public PageTitleCache() {
-        cache = new HashMap<Integer, LRUMap<PageTitle, Integer>>();
+        cache = new HashMap<Integer, LruMap<PageTitle, Integer>>();
     }
 
     /**
@@ -51,7 +52,7 @@ public class PageTitleCache {
         if (cache.containsKey(wikiID)) {
             LOGGER.error("PAGE_TITLE_CACHE already contains wikiID \"" + wikiID + "\"");
         } else {
-            cache.put(wikiID, new LRUMap<PageTitle, Integer>(MAX_CAPACITY));
+            cache.put(wikiID, LruMap.<PageTitle, Integer> accessOrder(MAX_CAPACITY));
             if (DEBUG) {
                 LOGGER.debug("Added a new LRUMap for wikiID=" + wikiID + " to the cache.");
             }
@@ -81,7 +82,7 @@ public class PageTitleCache {
         if (!cache.containsKey(wikiID)) {
             addWiki(wikiID);
         }
-        final LRUMap<PageTitle, Integer> lruMap = cache.get(wikiID);
+        final LruMap<PageTitle, Integer> lruMap = cache.get(wikiID);
         lruMap.put(new PageTitle(pageTitle), pageID);
         if (DEBUG) {
             LOGGER.debug("Added mapping wikiID=" + wikiID + " page=\"" + pageTitle + "\" -> pageID=" + pageID
@@ -96,7 +97,7 @@ public class PageTitleCache {
      */
     public void removeAllPages(final int wikiID) {
         if (cache.containsKey(wikiID)) {
-            cache.put(wikiID, new LRUMap<PageTitle, Integer>(MAX_CAPACITY));
+            cache.put(wikiID, LruMap.<PageTitle, Integer> accessOrder(MAX_CAPACITY));
             if (DEBUG) {
                 LOGGER.debug("Removed all pages for wikiID=" + wikiID + " from cache.");
             }
