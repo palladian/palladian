@@ -71,27 +71,6 @@
 	</reporting>
 	<dependencies>
 		<dependency>
-			<groupId>de.tudarmstadt.ukp.wikipedia</groupId>
-			<artifactId>de.tudarmstadt.ukp.wikipedia.api</artifactId>
-			<version>0.9.1</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.planetj.math</groupId>
-			<artifactId>rabinhash</artifactId>
-			<version>2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.prefuse</groupId>
-			<artifactId>prefuse</artifactId>
-			<version>beta-20071021</version>
-		</dependency>
-		<dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-core</artifactId>
 			<version>${project.version}</version>
@@ -111,11 +90,6 @@
 			<artifactId>commons-cli</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sourceforge.collections</groupId>
-			<artifactId>collections-generic</artifactId>
-			<version>4.01</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
 			<version>1.6.0</version>
@@ -133,11 +107,6 @@
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analyzers-common</artifactId>
-			<version>${lucene-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-queries</artifactId>
 			<version>${lucene-version}</version>
 		</dependency>
 	</dependencies>

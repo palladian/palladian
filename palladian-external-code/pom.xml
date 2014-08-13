@@ -170,11 +170,6 @@
 			<version>1.9.17</version>
 		</dependency>
 		<dependency>
-			<groupId>ws.palladian</groupId>
-			<artifactId>palladian-commons</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
   			<groupId>me.champeau.jlangdetect</groupId>
   			<artifactId>jlangdetect-extra</artifactId>
   			<version>0.3</version>
