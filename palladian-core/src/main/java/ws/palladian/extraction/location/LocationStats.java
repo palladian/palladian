@@ -13,6 +13,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.math.FatStats;
@@ -53,35 +54,6 @@ public class LocationStats {
         return maxDistance;
     }
 
-//    public int countInDistance(Location location, double distance) {
-//        GeoCoordinate locationCoordinate = location.getCoordinate();
-//        if (locationCoordinate == null) {
-//            return 0;
-//        }
-//        return CollectionHelper.filterSet(locations, LocationFilters.radius(locationCoordinate, distance)).size();
-//    }
-    
-//    @Deprecated
-//    public boolean hasParent(Location location) {
-//        for (Location other : locations) {
-//            if (location.childOf(other)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-    
-//    @Deprecated
-//    public int countChildren(Location location) {
-//        int count = 0;
-//        for (Location other : locations) {
-//            if (other.childOf(location)) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
-
     @Deprecated
     public int countDescendants(Location location) {
         int count = 0;
@@ -103,17 +75,6 @@ public class LocationStats {
         }
         return count;
     }
-
-//    @Deprecated
-//    public int countSiblings(Location location) {
-//        int count = 0;
-//        for (Location other : locations) {
-//            if (location.getAncestorIds().equals(other.getAncestorIds())) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
 
     public GeoCoordinate getMidpoint() {
         return GeoUtils.getMidpoint(coordinates);
@@ -156,12 +117,23 @@ public class LocationStats {
     }
 
     public double largestDistance() {
-        return LocationExtractorUtils.getLargestDistance(coordinates);
+//        return LocationExtractorUtils.getLargestDistance(coordinates);
+        
+        LocationStats withoutCoordinate = where(Filters.invert(LocationFilters.coordinate()));
+        
+//        CollectionHelper.print(withoutCoordinate.getLocations());
+        
+        if (withoutCoordinate.count()> 0 && count() > 1) {
+            return GeoUtils.EARTH_MAX_DISTANCE_KM;
+        }
+        
+        LocationStats withCoordinate = where(LocationFilters.coordinate());
+        
+//        CollectionHelper.print(withCoordinate.getLocations());
+        
+        Collection<GeoCoordinate> theCoordinates = CollectionHelper.convertSet(withCoordinate.getLocations(), LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION);
+        return LocationExtractorUtils.getLargestDistance(theCoordinates);
     }
-
-//    public int count(Location location) {
-//        return Collections.frequency(locations, location);
-//    }
 
     public double getMaxMidpointDistance() {
         return getMaxDistance(getMidpoint());
@@ -180,46 +152,6 @@ public class LocationStats {
         }
         return distances;
     }
-
-//    @Deprecated
-//    public long totalPopulationInRadius(Location location, double radius) {
-//        GeoCoordinate locationCoordinate = location.getCoordinate();
-//        if (locationCoordinate == null) {
-//            return 0;
-//        }
-//        long population = 0;
-//        for (Location other : CollectionHelper.filterSet(locations,
-//                LocationFilters.radius(locationCoordinate, radius))) {
-//            Long otherPopulation = other.getPopulation();
-//            if (otherPopulation != null) {
-//                population += otherPopulation;
-//            }
-//        }
-//        return population;
-//    }
-
-//    @Deprecated
-//    public double distanceToPopulation(Location location, long population, boolean self) {
-//        if (self && location.getPopulation() != null && location.getPopulation() >= population) {
-//            return 0;
-//        }
-//        double distance = GeoUtils.EARTH_MAX_DISTANCE_KM;
-//        GeoCoordinate locationCoordinate = location.getCoordinate();
-//        if (locationCoordinate != null) {
-//            for (Location other : locations) {
-//                GeoCoordinate otherCoordinate = other.getCoordinate();
-//                if (otherCoordinate != null && other.getPopulation() >= population) {
-//                    distance = Math.min(distance, otherCoordinate.distance(locationCoordinate));
-//                }
-//            }
-//        }
-//        return distance;
-//    }
-
-//    @Deprecated
-//    public LocationStats ofType(LocationType... types) {
-//        return new LocationStats(CollectionHelper.filterList(locations, LocationFilters.type(types)));
-//    }
     
     public LocationStats where(Filter<Location> filter) {
         return new LocationStats(CollectionHelper.filterSet(locations, filter));
@@ -248,6 +180,10 @@ public class LocationStats {
             }
         }
         return minDistance;
+    }
+
+    public boolean contains(Location location) {
+        return locations.contains(location);
     }
 
 }
