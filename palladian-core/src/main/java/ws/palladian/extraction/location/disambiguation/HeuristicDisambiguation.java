@@ -23,8 +23,8 @@ import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationTypeFilter;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.scope.LocationFilters;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -187,7 +187,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     private static Location selectLocation(Collection<Location> selection) {
 
         // if we have a continent, take the continent
-        Set<Location> result = LocationExtractorUtils.filterConditionally(selection, new LocationTypeFilter(CONTINENT));
+        Set<Location> result = LocationExtractorUtils.filterConditionally(selection, LocationFilters.type(CONTINENT));
         if (result.size() == 1) {
             return CollectionHelper.getFirst(result);
         }

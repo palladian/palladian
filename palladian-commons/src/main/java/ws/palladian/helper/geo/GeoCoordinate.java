@@ -8,6 +8,27 @@ package ws.palladian.helper.geo;
  * @author pk
  */
 public interface GeoCoordinate {
+    
+    /**
+     * Null object which makes it easier working with non-present coordinates.
+     */
+    GeoCoordinate NULL = new AbstractGeoCoordinate() {
+
+        @Override
+        public double getLatitude() {
+            return 0;
+        }
+
+        @Override
+        public double getLongitude() {
+            return 0;
+        }
+
+        public double distance(GeoCoordinate other) {
+            return GeoUtils.EARTH_MAX_DISTANCE_KM;
+        };
+
+    };
 
     /**
      * @return The geographical latitude of this location.

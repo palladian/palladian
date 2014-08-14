@@ -16,8 +16,8 @@ import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.scope.LocationFilters;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
@@ -424,7 +424,7 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 //                }
 //            }
 //        }
-        for (Location other : CollectionHelper.filterSet(others, new LocationRadiusFilter(locationCoordinate, distance))) {
+        for (Location other : CollectionHelper.filterSet(others, LocationFilters.inRadius(locationCoordinate, distance))) {
             Long otherPopulation = other.getPopulation();
             if (otherPopulation != null) {
                 population += otherPopulation;
@@ -470,7 +470,7 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 //            }
 //        }
 //        return count;
-        return CollectionHelper.filterSet(others, new LocationRadiusFilter(locationCoordinate, distance)).size();
+        return CollectionHelper.filterSet(others, LocationFilters.inRadius(locationCoordinate, distance)).size();
     }
     
 //    private static boolean hasLocationsInDistance(Location location, Set<Location> others, double distance) {
