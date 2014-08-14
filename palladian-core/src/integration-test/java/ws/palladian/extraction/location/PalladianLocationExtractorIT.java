@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.extraction.location.disambiguation.DefaultLocationFeatureExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguationLearner;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
@@ -99,7 +100,7 @@ public class PalladianLocationExtractorIT {
 
     @Test
     public void testPalladianLocationExtractor_MachineLearning() throws IOException {
-        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource, 100);
+        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource, 100, new DefaultLocationFeatureExtractor());
         QuickDtModel model = learner.learn(trainDataSet);
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
         LocationExtractor extractor = new PalladianLocationExtractor(locationSource, disambiguation);

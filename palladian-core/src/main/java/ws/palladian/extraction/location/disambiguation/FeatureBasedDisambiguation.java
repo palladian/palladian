@@ -58,13 +58,13 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         this.model = model;
         this.probabilityThreshold = probabilityThreshold;
         this.contextSize = contextSize;
-        this.featureExtractor = new LocationFeatureExtractor(contextSize);
+        this.featureExtractor = new DefaultLocationFeatureExtractor(contextSize);
     }
 
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
-        Set<ClassifiableLocation> classifiableLocations = featureExtractor.extractFeatures(text, locations);
+        Set<ClassifiableLocation> classifiableLocations = featureExtractor.extract(text, locations);
         Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
         for (ClassifiableLocation classifiableLocation : classifiableLocations) {

@@ -56,8 +56,7 @@ public class FeatureBasedDisambiguationLearner {
     
     private final QuickDtLearner learner;
 
-    private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor(
-            FeatureBasedDisambiguation.CONTEXT_SIZE);
+    private final LocationFeatureExtractor featureExtraction;
 
     private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 
@@ -67,14 +66,16 @@ public class FeatureBasedDisambiguationLearner {
 
     private final LocationSource locationSource;
 
-    public FeatureBasedDisambiguationLearner(LocationSource locationSource, int numTrees) {
+    public FeatureBasedDisambiguationLearner(LocationSource locationSource, int numTrees, LocationFeatureExtractor featureExtractor) {
         Validate.notNull(locationSource, "locationSource must not be null");
         this.learner = QuickDtLearner.randomForest(numTrees);
         this.locationSource = locationSource;
+        this.featureExtraction = featureExtractor;
     }
     
     public FeatureBasedDisambiguationLearner(LocationSource locationSource) {
-        this(locationSource, 10);
+        this(locationSource, 10, new DefaultLocationFeatureExtractor(
+                FeatureBasedDisambiguation.CONTEXT_SIZE));
     }
 
     public QuickDtModel learn(File datasetDirectory) throws IOException {
@@ -109,7 +110,7 @@ public class FeatureBasedDisambiguationLearner {
         return model;
     }
 
-    private Set<Instance> createTrainingData(Iterator<LocationDocument> trainDocuments) {
+    public Set<Instance> createTrainingData(Iterator<LocationDocument> trainDocuments) {
         Set<Instance> trainingData = CollectionHelper.newHashSet();
         while (trainDocuments.hasNext()) {
             LocationDocument trainDocument = trainDocuments.next();
@@ -122,7 +123,7 @@ public class FeatureBasedDisambiguationLearner {
             MultiMap<ClassifiedAnnotation, Location> locations = PalladianLocationExtractor.fetchLocations(
                     locationSource, classifiedEntities);
 
-            Set<ClassifiableLocation> classifiableLocations = featureExtraction.extractFeatures(text, locations);
+            Set<ClassifiableLocation> classifiableLocations = featureExtraction.extract(text, locations);
             Set<Instance> trainInstances = createTrainData(classifiableLocations, trainAnnotations);
             trainingData.addAll(trainInstances);
         }
