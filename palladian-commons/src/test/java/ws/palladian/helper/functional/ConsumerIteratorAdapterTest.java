@@ -7,14 +7,14 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
-import ws.palladian.helper.functional.ActionIteratorAdapter;
+import ws.palladian.helper.functional.ConsumerIteratorAdapter;
 import ws.palladian.helper.functional.Consumer;
 
-public class ActionIteratorAdapterTest {
+public class ConsumerIteratorAdapterTest {
 
     @Test
     public void testActionIteratorAdapter() {
-        new ActionIteratorAdapter<String>() {
+        new ConsumerIteratorAdapter<String>() {
             @Override
             protected void produce(Consumer<String> action) {
                 action.process("one");

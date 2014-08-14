@@ -8,13 +8,13 @@ import java.util.concurrent.TimeUnit;
 import ws.palladian.helper.collection.AbstractIterator;
 
 /**
- * Adapter between a producer which uses an {@link Consumer} callback and an {@link Iterator}.
+ * Adapter between a producer which uses a {@link Consumer} callback and an {@link Iterator}.
  * 
  * @author pk
  * 
  * @param <T>
  */
-public abstract class ActionIteratorAdapter<T> {
+public abstract class ConsumerIteratorAdapter<T> {
 
     /** The poison pill to signal the consumer to stop. */
     private static final Object POISON = new Object();
@@ -34,7 +34,7 @@ public abstract class ActionIteratorAdapter<T> {
     /** Count the number of threads, only for debugging purposes. */
     private int threadCount = 0;
 
-    public ActionIteratorAdapter() {
+    public ConsumerIteratorAdapter() {
         try {
             consume(new QueueIterable());
         } finally {
@@ -63,7 +63,7 @@ public abstract class ActionIteratorAdapter<T> {
         private final BlockingQueue<T> queue;
 
         private ProducerThread(BlockingQueue<T> queue) {
-            super(ActionIteratorAdapter.class.getSimpleName() + "-ProducerThread-" + threadCount++);
+            super(ConsumerIteratorAdapter.class.getSimpleName() + "-ProducerThread-" + threadCount++);
             this.queue = queue;
         }
 
