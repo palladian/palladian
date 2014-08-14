@@ -2,15 +2,17 @@ package ws.palladian.extraction.location.scope;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
@@ -59,57 +61,62 @@ public class LocationStats {
         if (locationCoordinate == null) {
             return 0;
         }
-        return CollectionHelper.filterSet(locations, new LocationRadiusFilter(locationCoordinate, distance)).size();
+        return CollectionHelper.filterSet(locations, LocationFilters.inRadius(locationCoordinate, distance)).size();
+    }
+    
+    @Deprecated
+    public boolean hasParent(Location location) {
+        for (Location other : locations) {
+            if (location.childOf(other)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Deprecated
+    public int countChildren(Location location) {
+        int count = 0;
+        for (Location other : locations) {
+            if (other.childOf(location)) {
+                count++;
+            }
+        }
+        return count;
     }
 
-//    public boolean hasParent(Location location) {
-//        for (Location other : locations) {
-//            if (location.childOf(other)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    @Deprecated
+    public int countDescendants(Location location) {
+        int count = 0;
+        for (Location other : locations) {
+            if (other.descendantOf(location)) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-//    public int countChildren(Location location) {
-//        int count = 0;
-//        for (Location other : locations) {
-//            if (other.childOf(location)) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
+    @Deprecated
+    public int countAncestors(Location location) {
+        int count = 0;
+        for (Location other : locations) {
+            if (location.descendantOf(other)) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-//    public int countDescendants(Location location) {
-//        int count = 0;
-//        for (Location other : locations) {
-//            if (other.descendantOf(location)) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
-
-//    public int countAncestors(Location location) {
-//        int count = 0;
-//        for (Location other : locations) {
-//            if (location.descendantOf(other)) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
-    
-//    public int countSiblings(Location location) {
-//        int count = 0;
-//        for (Location other : locations) {
-//            if (location.getAncestorIds().equals(other.getAncestorIds())) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
+    @Deprecated
+    public int countSiblings(Location location) {
+        int count = 0;
+        for (Location other : locations) {
+            if (location.getAncestorIds().equals(other.getAncestorIds())) {
+                count++;
+            }
+        }
+        return count;
+    }
 
     public GeoCoordinate getMidpoint() {
         return GeoUtils.getMidpoint(coordinates);
@@ -125,6 +132,16 @@ public class LocationStats {
 
     public long getBiggestPopulation() {
         return LocationExtractorUtils.getHighestPopulation(locations);
+    }
+    
+    public long getTotalPopulation() {
+        long pop = 0;
+        for (Location location : locations) {
+            if (location.getPopulation()!=null){
+                pop+=location.getPopulation();
+            }
+        }
+        return pop;
     }
 
     public List<GeoCoordinate> getCoordinates() {
@@ -167,6 +184,7 @@ public class LocationStats {
         return distances;
     }
 
+    @Deprecated
     public long totalPopulationInRadius(Location location, double radius) {
         GeoCoordinate locationCoordinate = location.getCoordinate();
         if (locationCoordinate == null) {
@@ -174,7 +192,7 @@ public class LocationStats {
         }
         long population = 0;
         for (Location other : CollectionHelper.filterSet(locations,
-                new LocationRadiusFilter(locationCoordinate, radius))) {
+                LocationFilters.inRadius(locationCoordinate, radius))) {
             Long otherPopulation = other.getPopulation();
             if (otherPopulation != null) {
                 population += otherPopulation;
@@ -183,6 +201,7 @@ public class LocationStats {
         return population;
     }
 
+    @Deprecated
     public double distanceToPopulation(Location location, long population, boolean self) {
         if (self && location.getPopulation() != null && location.getPopulation() >= population) {
             return 0;
@@ -200,8 +219,9 @@ public class LocationStats {
         return distance;
     }
 
+    @Deprecated
     public LocationStats ofType(LocationType... types) {
-        return new LocationStats(CollectionHelper.filterList(locations, new LocationExtractorUtils.LocationTypeFilter(types)));
+        return new LocationStats(CollectionHelper.filterList(locations, LocationFilters.type(types)));
     }
     
     public LocationStats where(Filter<Location> filter) {
@@ -214,7 +234,23 @@ public class LocationStats {
       return new LocationStats(otherLocations);
     }
     
+    public LocationStats except(Location... locations) {
+        Validate.notNull(locations, "locations must not be null");
+        return except(Arrays.asList(locations));
+    }
+    
     public int count(){
         return CollectionHelper.newHashSet(locations).size();
     }
+
+    public double distance(GeoCoordinate coordinate) {
+        double minDistance = GeoUtils.EARTH_MAX_DISTANCE_KM;
+        for (Location loc : locations){
+            if(loc.getCoordinate()!=null){
+                minDistance=Math.min(minDistance, loc.getCoordinate().distance(coordinate));
+            }
+        }
+        return minDistance;
+    }
+
 }
