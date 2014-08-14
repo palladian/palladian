@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.scope;
+package ws.palladian.extraction.location;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 
@@ -11,9 +11,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -56,34 +53,34 @@ public class LocationStats {
         return maxDistance;
     }
 
-    public int countInDistance(Location location, double distance) {
-        GeoCoordinate locationCoordinate = location.getCoordinate();
-        if (locationCoordinate == null) {
-            return 0;
-        }
-        return CollectionHelper.filterSet(locations, LocationFilters.radius(locationCoordinate, distance)).size();
-    }
+//    public int countInDistance(Location location, double distance) {
+//        GeoCoordinate locationCoordinate = location.getCoordinate();
+//        if (locationCoordinate == null) {
+//            return 0;
+//        }
+//        return CollectionHelper.filterSet(locations, LocationFilters.radius(locationCoordinate, distance)).size();
+//    }
     
-    @Deprecated
-    public boolean hasParent(Location location) {
-        for (Location other : locations) {
-            if (location.childOf(other)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    @Deprecated
+//    public boolean hasParent(Location location) {
+//        for (Location other : locations) {
+//            if (location.childOf(other)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
     
-    @Deprecated
-    public int countChildren(Location location) {
-        int count = 0;
-        for (Location other : locations) {
-            if (other.childOf(location)) {
-                count++;
-            }
-        }
-        return count;
-    }
+//    @Deprecated
+//    public int countChildren(Location location) {
+//        int count = 0;
+//        for (Location other : locations) {
+//            if (other.childOf(location)) {
+//                count++;
+//            }
+//        }
+//        return count;
+//    }
 
     @Deprecated
     public int countDescendants(Location location) {
@@ -107,16 +104,16 @@ public class LocationStats {
         return count;
     }
 
-    @Deprecated
-    public int countSiblings(Location location) {
-        int count = 0;
-        for (Location other : locations) {
-            if (location.getAncestorIds().equals(other.getAncestorIds())) {
-                count++;
-            }
-        }
-        return count;
-    }
+//    @Deprecated
+//    public int countSiblings(Location location) {
+//        int count = 0;
+//        for (Location other : locations) {
+//            if (location.getAncestorIds().equals(other.getAncestorIds())) {
+//                count++;
+//            }
+//        }
+//        return count;
+//    }
 
     public GeoCoordinate getMidpoint() {
         return GeoUtils.getMidpoint(coordinates);
@@ -162,9 +159,9 @@ public class LocationStats {
         return LocationExtractorUtils.getLargestDistance(coordinates);
     }
 
-    public int count(Location location) {
-        return Collections.frequency(locations, location);
-    }
+//    public int count(Location location) {
+//        return Collections.frequency(locations, location);
+//    }
 
     public double getMaxMidpointDistance() {
         return getMaxDistance(getMidpoint());
@@ -184,45 +181,45 @@ public class LocationStats {
         return distances;
     }
 
-    @Deprecated
-    public long totalPopulationInRadius(Location location, double radius) {
-        GeoCoordinate locationCoordinate = location.getCoordinate();
-        if (locationCoordinate == null) {
-            return 0;
-        }
-        long population = 0;
-        for (Location other : CollectionHelper.filterSet(locations,
-                LocationFilters.radius(locationCoordinate, radius))) {
-            Long otherPopulation = other.getPopulation();
-            if (otherPopulation != null) {
-                population += otherPopulation;
-            }
-        }
-        return population;
-    }
+//    @Deprecated
+//    public long totalPopulationInRadius(Location location, double radius) {
+//        GeoCoordinate locationCoordinate = location.getCoordinate();
+//        if (locationCoordinate == null) {
+//            return 0;
+//        }
+//        long population = 0;
+//        for (Location other : CollectionHelper.filterSet(locations,
+//                LocationFilters.radius(locationCoordinate, radius))) {
+//            Long otherPopulation = other.getPopulation();
+//            if (otherPopulation != null) {
+//                population += otherPopulation;
+//            }
+//        }
+//        return population;
+//    }
 
-    @Deprecated
-    public double distanceToPopulation(Location location, long population, boolean self) {
-        if (self && location.getPopulation() != null && location.getPopulation() >= population) {
-            return 0;
-        }
-        double distance = GeoUtils.EARTH_MAX_DISTANCE_KM;
-        GeoCoordinate locationCoordinate = location.getCoordinate();
-        if (locationCoordinate != null) {
-            for (Location other : locations) {
-                GeoCoordinate otherCoordinate = other.getCoordinate();
-                if (otherCoordinate != null && other.getPopulation() >= population) {
-                    distance = Math.min(distance, otherCoordinate.distance(locationCoordinate));
-                }
-            }
-        }
-        return distance;
-    }
+//    @Deprecated
+//    public double distanceToPopulation(Location location, long population, boolean self) {
+//        if (self && location.getPopulation() != null && location.getPopulation() >= population) {
+//            return 0;
+//        }
+//        double distance = GeoUtils.EARTH_MAX_DISTANCE_KM;
+//        GeoCoordinate locationCoordinate = location.getCoordinate();
+//        if (locationCoordinate != null) {
+//            for (Location other : locations) {
+//                GeoCoordinate otherCoordinate = other.getCoordinate();
+//                if (otherCoordinate != null && other.getPopulation() >= population) {
+//                    distance = Math.min(distance, otherCoordinate.distance(locationCoordinate));
+//                }
+//            }
+//        }
+//        return distance;
+//    }
 
-    @Deprecated
-    public LocationStats ofType(LocationType... types) {
-        return new LocationStats(CollectionHelper.filterList(locations, LocationFilters.type(types)));
-    }
+//    @Deprecated
+//    public LocationStats ofType(LocationType... types) {
+//        return new LocationStats(CollectionHelper.filterList(locations, LocationFilters.type(types)));
+//    }
     
     public LocationStats where(Filter<Location> filter) {
         return new LocationStats(CollectionHelper.filterSet(locations, filter));
