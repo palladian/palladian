@@ -8,9 +8,11 @@ package ws.palladian.helper.geo;
  * @author pk
  */
 public interface GeoCoordinate {
-    
+
     /**
-     * Null object which makes it easier working with non-present coordinates.
+     * <p>
+     * Null object, which makes it easier to work with non-present coordinates (latitude and longitude are zero, and all
+     * {@link #distance(GeoCoordinate)} invocations return a value of {@link GeoUtils#EARTH_MAX_DISTANCE_KM}).
      */
     GeoCoordinate NULL = new AbstractGeoCoordinate() {
 
@@ -24,6 +26,7 @@ public interface GeoCoordinate {
             return 0;
         }
 
+        @Override
         public double distance(GeoCoordinate other) {
             return GeoUtils.EARTH_MAX_DISTANCE_KM;
         };

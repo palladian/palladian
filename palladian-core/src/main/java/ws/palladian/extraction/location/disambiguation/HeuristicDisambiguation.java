@@ -247,7 +247,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
             // in case we have locations with same name, but once with and without coordinates in the DB, we drop those
             // without coordinates
-            group = LocationExtractorUtils.filterConditionally(group, LocationExtractorUtils.COORDINATE_FILTER);
+            group = LocationExtractorUtils.filterConditionally(group, LocationFilters.coordinate());
             Set<GeoCoordinate> coordinates = CollectionHelper.convertSet(group, LOCATION_COORDINATE_FUNCTION);
 
             if (LocationExtractorUtils.largestDistanceBelow(sameDistanceThreshold, coordinates)) {

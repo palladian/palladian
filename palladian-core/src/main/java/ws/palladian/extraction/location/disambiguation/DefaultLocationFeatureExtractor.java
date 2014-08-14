@@ -1,6 +1,5 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.COORDINATE_FILTER;
 import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 
 import java.util.ArrayList;
@@ -403,7 +402,7 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 //    }
 
     private static boolean isUnique(Collection<Location> locations) {
-        Set<Location> group = LocationExtractorUtils.filterConditionally(locations, COORDINATE_FILTER);
+        Set<Location> group = LocationExtractorUtils.filterConditionally(locations, LocationFilters.coordinate());
         Set<GeoCoordinate> coordinates = CollectionHelper.convertSet(group, LOCATION_COORDINATE_FUNCTION);
         return LocationExtractorUtils.largestDistanceBelow(50, coordinates);
     }
@@ -424,7 +423,7 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 //                }
 //            }
 //        }
-        for (Location other : CollectionHelper.filterSet(others, LocationFilters.inRadius(locationCoordinate, distance))) {
+        for (Location other : CollectionHelper.filterSet(others, LocationFilters.radius(locationCoordinate, distance))) {
             Long otherPopulation = other.getPopulation();
             if (otherPopulation != null) {
                 population += otherPopulation;
@@ -470,7 +469,7 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 //            }
 //        }
 //        return count;
-        return CollectionHelper.filterSet(others, LocationFilters.inRadius(locationCoordinate, distance)).size();
+        return CollectionHelper.filterSet(others, LocationFilters.radius(locationCoordinate, distance)).size();
     }
     
 //    private static boolean hasLocationsInDistance(Location location, Set<Location> others, double distance) {

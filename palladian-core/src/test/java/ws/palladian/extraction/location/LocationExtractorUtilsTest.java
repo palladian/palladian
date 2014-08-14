@@ -85,7 +85,7 @@ public class LocationExtractorUtilsTest {
 
     @Test
     public void testLocationRangeFilter() {
-        Filter<Location> filter = LocationFilters.inRadius(l1.getCoordinate(), 50);
+        Filter<Location> filter = LocationFilters.radius(l1.getCoordinate(), 50);
         assertTrue(filter.accept(l2));
         assertFalse(filter.accept(l3));
         assertFalse(filter.accept(l7));
