@@ -29,7 +29,6 @@
 		<module>palladian-retrieval</module>
 		<module>palladian-experimental</module>
 		<module>palladian-external-code</module>
-		<module>palladian-external-liblinear</module>
 	</modules>
 	<build>
 		<plugins>
