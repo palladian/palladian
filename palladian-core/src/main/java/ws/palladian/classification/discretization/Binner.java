@@ -170,6 +170,9 @@ public final class Binner implements Iterable<Binner.Interval> {
 
             if (previous < current) {
 
+                // FIXME we must not re-calculate those values in each iteration; instead, update the split iteratively
+                // (we know the counts at the beginning, and can re-calculate them with each step, without having to
+                // count through both sublists again!)
                 List<Instance> s1 = dataset.subList(0, i);
                 List<Instance> s2 = dataset.subList(i, n);
                 CategoryEntries c1 = ClassificationUtils.getCategoryCounts(s1);
