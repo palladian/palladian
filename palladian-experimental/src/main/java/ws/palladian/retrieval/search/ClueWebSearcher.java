@@ -31,7 +31,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.ClueWebSearcher.ClueWebResult;
 
@@ -66,7 +65,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
             this.content = content;
             this.score = score;
         }
-        
+
         @Override
         public int getId() {
             return -1;
@@ -110,7 +109,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         public Set<String> getTags() {
             return Collections.emptySet();
         }
-        
+
         @Override
         public String getSource() {
             return SEARCHER_NAME;
@@ -125,10 +124,12 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
 
     /** The Lucene directory instance. */
     private final Directory directory;
-    
+
     /** The reader; keep it open for the lifetime of this instance for performance reasons. */
     private final IndexReader indexReader;
 
+    /** The searcher; keep it open for the lifetime of this instance for performance reasons. */
+    private final IndexSearcher indexSearcher;
 
     /**
      * <p>
@@ -143,6 +144,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         try {
             directory = new SimpleFSDirectory(indexPath);
             indexReader = DirectoryReader.open(directory);
+            indexSearcher = new IndexSearcher(indexReader);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -153,7 +155,6 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         StopWatch stopWatch = new StopWatch();
         List<ClueWebResult> rankedDocuments = CollectionHelper.newArrayList();
         try {
-            IndexSearcher indexSearcher = new IndexSearcher(indexReader);
             Query luceneQuery = createQuery(query);
             TopScoreDocCollector collector = TopScoreDocCollector.create(resultCount, false);
             indexSearcher.search(luceneQuery, collector);
@@ -172,7 +173,6 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         } catch (IOException e) {
             throw new SearcherException(e);
         } finally {
-            FileHelper.close(indexReader);
             LOGGER.debug("search took {}", stopWatch);
         }
         return rankedDocuments;
@@ -192,7 +192,6 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
     public long getTotalResultCount(String query, Language language) throws SearcherException {
         StopWatch stopWatch = new StopWatch();
         try {
-            IndexSearcher indexSearcher = new IndexSearcher(indexReader);
             Query luceneQuery = createQuery(query);
             TotalHitCountCollector collector = new TotalHitCountCollector();
             indexSearcher.search(luceneQuery, collector);
@@ -202,7 +201,6 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         } catch (IOException e) {
             throw new SearcherException(e);
         } finally {
-            FileHelper.close(indexReader);
             LOGGER.debug("getTotalResultCount took {}", stopWatch);
         }
     }
