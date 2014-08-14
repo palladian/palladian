@@ -11,7 +11,9 @@ import java.util.Set;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
+import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.math.FatStats;
@@ -60,54 +62,54 @@ public class LocationStats {
         return CollectionHelper.filterSet(locations, new LocationRadiusFilter(locationCoordinate, distance)).size();
     }
 
-    public boolean hasParent(Location location) {
-        for (Location other : locations) {
-            if (location.childOf(other)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public boolean hasParent(Location location) {
+//        for (Location other : locations) {
+//            if (location.childOf(other)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
-    public int countChildren(Location location) {
-        int count = 0;
-        for (Location other : locations) {
-            if (other.childOf(location)) {
-                count++;
-            }
-        }
-        return count;
-    }
+//    public int countChildren(Location location) {
+//        int count = 0;
+//        for (Location other : locations) {
+//            if (other.childOf(location)) {
+//                count++;
+//            }
+//        }
+//        return count;
+//    }
 
-    public int countDescendants(Location location) {
-        int count = 0;
-        for (Location other : locations) {
-            if (other.descendantOf(location)) {
-                count++;
-            }
-        }
-        return count;
-    }
+//    public int countDescendants(Location location) {
+//        int count = 0;
+//        for (Location other : locations) {
+//            if (other.descendantOf(location)) {
+//                count++;
+//            }
+//        }
+//        return count;
+//    }
 
-    public int countAncestors(Location location) {
-        int count = 0;
-        for (Location other : locations) {
-            if (location.descendantOf(other)) {
-                count++;
-            }
-        }
-        return count;
-    }
+//    public int countAncestors(Location location) {
+//        int count = 0;
+//        for (Location other : locations) {
+//            if (location.descendantOf(other)) {
+//                count++;
+//            }
+//        }
+//        return count;
+//    }
     
-    public int countSiblings(Location location) {
-        int count = 0;
-        for (Location other : locations) {
-            if (location.getAncestorIds().equals(other.getAncestorIds())) {
-                count++;
-            }
-        }
-        return count;
-    }
+//    public int countSiblings(Location location) {
+//        int count = 0;
+//        for (Location other : locations) {
+//            if (location.getAncestorIds().equals(other.getAncestorIds())) {
+//                count++;
+//            }
+//        }
+//        return count;
+//    }
 
     public GeoCoordinate getMidpoint() {
         return GeoUtils.getMidpoint(coordinates);
@@ -196,5 +198,23 @@ public class LocationStats {
             }
         }
         return distance;
+    }
+
+    public LocationStats ofType(LocationType... types) {
+        return new LocationStats(CollectionHelper.filterList(locations, new LocationExtractorUtils.LocationTypeFilter(types)));
+    }
+    
+    public LocationStats where(Filter<Location> filter) {
+        return new LocationStats(CollectionHelper.filterSet(locations, filter));
+    }
+
+    public LocationStats except(Collection<? extends Location> candidates) {
+      Set<Location> otherLocations = new HashSet<Location>(locations);
+      otherLocations.removeAll(candidates);
+      return new LocationStats(otherLocations);
+    }
+    
+    public int count(){
+        return CollectionHelper.newHashSet(locations).size();
     }
 }
