@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.extraction.location.scope.LocationFilters;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.geo.GeoCoordinate;

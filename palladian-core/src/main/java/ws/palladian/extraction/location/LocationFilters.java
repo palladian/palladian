@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.scope;
+package ws.palladian.extraction.location;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -6,8 +6,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.geo.GeoCoordinate;
 

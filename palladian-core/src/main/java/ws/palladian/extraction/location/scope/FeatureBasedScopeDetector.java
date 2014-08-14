@@ -32,6 +32,7 @@ import ws.palladian.core.Model;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
+import ws.palladian.extraction.location.LocationStats;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.ClassifiableLocation;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
