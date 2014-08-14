@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-import static ws.palladian.extraction.location.LocationExtractorUtils.COORDINATE_FILTER;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +29,7 @@ public final class FrequencyScopeDetector extends AbstractRankingScopeDetector {
             return null;
         }
         List<Location> locations = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
-        CollectionHelper.remove(locations, COORDINATE_FILTER);
+        CollectionHelper.remove(locations, LocationFilters.coordinate());
         double maxCount = 0;
         Location selectedLocation = null;
 

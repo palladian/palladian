@@ -122,7 +122,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         for (LocationAnnotation annotation : annotations) {
             maxOffset = Math.max(maxOffset, annotation.getStartPosition());
         }
-        double overallMaxDist = Math.max(1, stats.getLargestDistance());
+        double overallMaxDist = Math.max(1, stats.largestDistance());
 
         Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
         for (Location location : locationSet) {

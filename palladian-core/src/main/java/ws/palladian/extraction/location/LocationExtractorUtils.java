@@ -26,14 +26,6 @@ public final class LocationExtractorUtils {
         }
     };
 
-    /** {@link Filter} for removing {@link Location}s without coordinates. */
-    public static final Filter<Location> COORDINATE_FILTER = new Filter<Location>() {
-        @Override
-        public boolean accept(Location location) {
-            return location.getCoordinate() != null;
-        }
-    };
-
     /** {@link Function} for unwrapping a {@link GeoCoordinate} from a {@link Location}. */
     public static final Function<Location, GeoCoordinate> LOCATION_COORDINATE_FUNCTION = new Function<Location, GeoCoordinate>() {
         @Override

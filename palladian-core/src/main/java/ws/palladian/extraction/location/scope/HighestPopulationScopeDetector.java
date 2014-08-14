@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-import static ws.palladian.extraction.location.LocationExtractorUtils.COORDINATE_FILTER;
 import static ws.palladian.extraction.location.LocationType.CONTINENT;
 import static ws.palladian.extraction.location.LocationType.COUNTRY;
 
@@ -28,7 +27,7 @@ public final class HighestPopulationScopeDetector extends AbstractRankingScopeDe
         Validate.notNull(locations, "locations must not be null");
         Set<Location> locationSet = CollectionHelper.convertSet(locations, ANNOTATION_LOCATION_FUNCTION);
         CollectionHelper.removeNulls(locationSet);
-        CollectionHelper.remove(locationSet, COORDINATE_FILTER);
+        CollectionHelper.remove(locationSet, LocationFilters.coordinate());
 
         long maximumPopulation = 0;
         Location selectedLocation = null;

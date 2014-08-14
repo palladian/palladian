@@ -61,7 +61,7 @@ public class LocationStats {
         if (locationCoordinate == null) {
             return 0;
         }
-        return CollectionHelper.filterSet(locations, LocationFilters.inRadius(locationCoordinate, distance)).size();
+        return CollectionHelper.filterSet(locations, LocationFilters.radius(locationCoordinate, distance)).size();
     }
     
     @Deprecated
@@ -134,7 +134,7 @@ public class LocationStats {
         return LocationExtractorUtils.getHighestPopulation(locations);
     }
     
-    public long getTotalPopulation() {
+    public long totalPopulation() {
         long pop = 0;
         for (Location location : locations) {
             if (location.getPopulation()!=null){
@@ -154,11 +154,11 @@ public class LocationStats {
 
     public List<Location> getLocationsWithCoordinates() {
         List<Location> result = CollectionHelper.newArrayList(locations);
-        CollectionHelper.remove(result, LocationExtractorUtils.COORDINATE_FILTER);
+        CollectionHelper.remove(result, LocationFilters.coordinate());
         return Collections.unmodifiableList(result);
     }
 
-    public double getLargestDistance() {
+    public double largestDistance() {
         return LocationExtractorUtils.getLargestDistance(coordinates);
     }
 
@@ -192,7 +192,7 @@ public class LocationStats {
         }
         long population = 0;
         for (Location other : CollectionHelper.filterSet(locations,
-                LocationFilters.inRadius(locationCoordinate, radius))) {
+                LocationFilters.radius(locationCoordinate, radius))) {
             Long otherPopulation = other.getPopulation();
             if (otherPopulation != null) {
                 population += otherPopulation;
