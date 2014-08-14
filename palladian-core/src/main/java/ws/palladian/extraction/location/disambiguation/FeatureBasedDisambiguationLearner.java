@@ -159,7 +159,7 @@ public class FeatureBasedDisambiguationLearner {
             result.add(new InstanceBuilder().add(classifiableLocation.getFeatureVector()).create(positiveClass));
         }
         double positivePercentage = MathHelper.round((float)numPositive / classifiableLocations.size() * 100, 2);
-        LOGGER.info("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);
+        LOGGER.debug("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);
         return result;
     }
 
