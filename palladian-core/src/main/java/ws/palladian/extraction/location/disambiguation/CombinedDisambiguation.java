@@ -35,7 +35,7 @@ public class CombinedDisambiguation implements LocationDisambiguation {
 
     private final QuickDtClassifier classifier = new QuickDtClassifier();
 
-    private final LocationFeatureExtractor featureExtractor = new LocationFeatureExtractor();
+    private final LocationFeatureExtractor featureExtractor = new DefaultLocationFeatureExtractor();
 
     private final QuickDtModel model;
 
@@ -49,7 +49,7 @@ public class CombinedDisambiguation implements LocationDisambiguation {
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
-        Set<ClassifiableLocation> classifiableLocations = featureExtractor.extractFeatures(text, locations);
+        Set<ClassifiableLocation> classifiableLocations = featureExtractor.extract(text, locations);
         final Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
 
         for (ClassifiableLocation classifiableLocation : classifiableLocations) {

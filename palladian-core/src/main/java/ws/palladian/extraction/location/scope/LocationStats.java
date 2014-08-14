@@ -10,6 +10,7 @@ import java.util.Set;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
+import ws.palladian.extraction.location.LocationExtractorUtils.LocationRadiusFilter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
@@ -51,6 +52,33 @@ public class LocationStats {
         return maxDistance;
     }
 
+    public int countInDistance(Location location, double distance) {
+        GeoCoordinate locationCoordinate = location.getCoordinate();
+        if (locationCoordinate == null) {
+            return 0;
+        }
+        return CollectionHelper.filterSet(locations, new LocationRadiusFilter(locationCoordinate, distance)).size();
+    }
+
+    public boolean hasParent(Location location) {
+        for (Location other : locations) {
+            if (location.childOf(other)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int countChildren(Location location) {
+        int count = 0;
+        for (Location other : locations) {
+            if (other.childOf(location)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public int countDescendants(Location location) {
         int count = 0;
         for (Location other : locations) {
@@ -65,6 +93,16 @@ public class LocationStats {
         int count = 0;
         for (Location other : locations) {
             if (location.descendantOf(other)) {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    public int countSiblings(Location location) {
+        int count = 0;
+        for (Location other : locations) {
+            if (location.getAncestorIds().equals(other.getAncestorIds())) {
                 count++;
             }
         }
@@ -127,4 +165,36 @@ public class LocationStats {
         return distances;
     }
 
+    public long totalPopulationInRadius(Location location, double radius) {
+        GeoCoordinate locationCoordinate = location.getCoordinate();
+        if (locationCoordinate == null) {
+            return 0;
+        }
+        long population = 0;
+        for (Location other : CollectionHelper.filterSet(locations,
+                new LocationRadiusFilter(locationCoordinate, radius))) {
+            Long otherPopulation = other.getPopulation();
+            if (otherPopulation != null) {
+                population += otherPopulation;
+            }
+        }
+        return population;
+    }
+
+    public double distanceToPopulation(Location location, long population, boolean self) {
+        if (self && location.getPopulation() != null && location.getPopulation() >= population) {
+            return 0;
+        }
+        double distance = GeoUtils.EARTH_MAX_DISTANCE_KM;
+        GeoCoordinate locationCoordinate = location.getCoordinate();
+        if (locationCoordinate != null) {
+            for (Location other : locations) {
+                GeoCoordinate otherCoordinate = other.getCoordinate();
+                if (otherCoordinate != null && other.getPopulation() >= population) {
+                    distance = Math.min(distance, otherCoordinate.distance(locationCoordinate));
+                }
+            }
+        }
+        return distance;
+    }
 }
