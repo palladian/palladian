@@ -9,6 +9,8 @@ import static ws.palladian.extraction.location.LocationType.CITY;
 import static ws.palladian.extraction.location.LocationType.POI;
 import static ws.palladian.extraction.location.LocationType.REGION;
 import static ws.palladian.extraction.location.LocationType.UNIT;
+import static ws.palladian.helper.functional.Filters.equal;
+import static ws.palladian.helper.functional.Filters.invert;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,11 +73,11 @@ public class LocationStatsTest {
     public void testExcept() {
         LocationStats stats = new LocationStats(Arrays.asList(l1, l2, l3, l4));
         assertEquals(4, stats.count());
-        LocationStats statsExcept = stats.except(l2, l3, l5, l7);
+        LocationStats statsExcept = stats.where(invert(equal(l2, l3, l5, l7)));
         assertEquals(2, statsExcept.count());
         assertTrue(statsExcept.contains(l1));
         assertTrue(statsExcept.contains(l4));
-        assertEquals(3, stats.except(l1).count());
+        assertEquals(3, stats.where(invert(equal(l1))).count());
     }
 
 }

@@ -48,11 +48,6 @@ public final class ImmutableCategoryEntries extends AbstractCategoryEntries {
     }
 
     @Override
-    public int size() {
-        return entryMap.size();
-    }
-
-    @Override
     public int hashCode() {
         return entryMap.hashCode();
     }

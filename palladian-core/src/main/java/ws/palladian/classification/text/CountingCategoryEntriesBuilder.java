@@ -65,23 +65,37 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         return this;
     }
 
+//    public CountingCategoryEntriesBuilder subtract(CategoryEntries entries) {
+//        Validate.notNull(entries, "entries must not be null");
+//        for (Category entry : entries) {
+//            subtract(entry.getName(), entry.getCount());
+//        }
+//        return this;
+//    }
+
+    public CountingCategoryEntriesBuilder subtract(String categoryName, int count) {
+        Validate.notEmpty(categoryName, "categoryName must not be empty");
+        Validate.isTrue(count >= 0, "count must be greater/equal zero");
+        MutableInt value = entryMap.get(categoryName);
+        if (value != null) {
+            value.setValue(value.intValue() - count);
+        }
+        return this;
+    }
+
     @Override
     public CategoryEntries create() {
         int totalCount = getTotalCount();
         if (totalCount == 0) {
             return ImmutableCategoryEntries.EMPTY;
         }
-//        List<ImmutableCategory> entries = CollectionHelper.newArrayList();
-//        for (Entry<String, MutableInt> entry : entryMap.entrySet()) {
-//            int count = entry.getValue().intValue();
-//            double probability = (double)count / totalCount;
-//            entries.add(new ImmutableCategory(entry.getKey(), probability, count));
-//        }
-//        return new ImmutableCategoryEntries(entries);
         Map<String, Category> entries = CollectionHelper.newHashMap();
         Category mostLikely = null;
         for (Entry<String, MutableInt> entry : entryMap.entrySet()) {
             int count = entry.getValue().intValue();
+            if (count == 0) { // skip zero entries
+                continue;
+            }
             double probability = (double)count / totalCount;
             String name = entry.getKey();
             ImmutableCategory category = new ImmutableCategory(name, probability, count);
