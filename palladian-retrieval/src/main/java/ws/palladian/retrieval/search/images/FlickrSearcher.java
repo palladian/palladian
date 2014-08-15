@@ -308,7 +308,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             }
         }
         // remove "vision:" tags; http://stackoverflow.com/questions/21287302/flickr-api-what-are-the-vision-tags
-        CollectionHelper.remove(tags, Filters.invert(Filters.regex("vision:.*")));
+        CollectionHelper.remove(tags, Filters.not(Filters.regex("vision:.*")));
         return tags;
     }
 
