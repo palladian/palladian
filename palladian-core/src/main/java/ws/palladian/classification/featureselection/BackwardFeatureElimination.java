@@ -122,7 +122,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
             String eliminatedFeature = CollectionHelper.getLast(featuresToEliminate);
             LOGGER.debug("Starting elimination for {}", eliminatedFeature);
 
-            Filter<String> filter = Filters.invert(Filters.equal(featuresToEliminate));
+            Filter<String> filter = Filters.not(Filters.equal(featuresToEliminate));
             List<Instance> eliminatedTrainData = ClassificationUtils.filterFeatures(trainData, filter);
             List<Instance> eliminatedTestData = ClassificationUtils.filterFeatures(testData, filter);
 
@@ -321,8 +321,8 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
         System.exit(0);
         
         // skip those features: indexScore (expensive); containsMarker(...) except the consolidated containsMarker(*)
-        trainSet = ClassificationUtils.filterFeatures(trainSet, Filters.invert(Filters.equal("indexScore")));
-        validationSet = ClassificationUtils.filterFeatures(validationSet, Filters.invert(Filters.equal("indexScore")));
+        trainSet = ClassificationUtils.filterFeatures(trainSet, Filters.not(Filters.equal("indexScore")));
+        validationSet = ClassificationUtils.filterFeatures(validationSet, Filters.not(Filters.equal("indexScore")));
         Filter<String> markerFilter = new Filter<String>() {
             @Override
             public boolean accept(String item) {

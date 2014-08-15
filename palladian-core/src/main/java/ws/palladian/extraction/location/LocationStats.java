@@ -116,7 +116,7 @@ public class LocationStats {
     public double largestDistance() {
 //        return LocationExtractorUtils.getLargestDistance(coordinates);
         
-        LocationStats withoutCoordinate = where(Filters.invert(LocationFilters.coordinate()));
+        LocationStats withoutCoordinate = where(Filters.not(LocationFilters.coordinate()));
         
 //        CollectionHelper.print(withoutCoordinate.getLocations());
         

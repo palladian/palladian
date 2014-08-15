@@ -54,7 +54,7 @@ public final class Filters {
      * @param filter The Filter to wrap, not <code>null</code>.
      * @return A filter with inverted logic of the specified filter.
      */
-    public static <T> Filter<T> invert(final Filter<T> filter) {
+    public static <T> Filter<T> not(final Filter<T> filter) {
         Validate.notNull(filter, "filter must not be null");
         return new Filter<T>() {
             @Override
