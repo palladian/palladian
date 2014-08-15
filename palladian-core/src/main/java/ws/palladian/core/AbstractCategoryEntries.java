@@ -59,8 +59,11 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
     @Override
     public int size() {
         int count = 0;
-        for (Iterator<Category> iterator = this.iterator(); iterator.hasNext(); iterator.next()) {
-            count++;
+        for (Iterator<Category> iterator = this.iterator(); iterator.hasNext();) {
+            Category category = iterator.next();
+            if (category.getProbability() > 0) {
+                count++;
+            }
         }
         return count;
     }

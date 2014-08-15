@@ -31,6 +31,10 @@ public interface GeoCoordinate {
             return GeoUtils.EARTH_MAX_DISTANCE_KM;
         };
 
+        public GeoCoordinate getCoordinate(double distance, double bearing) {
+            return NULL;
+        };
+
     };
 
     /**

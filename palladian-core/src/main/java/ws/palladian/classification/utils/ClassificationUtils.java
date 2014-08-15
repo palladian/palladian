@@ -429,7 +429,10 @@ public final class ClassificationUtils {
     public static double entropy(CategoryEntries categoryEntries) {
         double entropy = 0;
         for (Category category : categoryEntries) {
-            entropy -= category.getProbability() * log2(category.getProbability());
+            double probability = category.getProbability();
+            if (probability > 0) {
+                entropy -= probability * log2(probability);
+            }
         }
         return entropy;
     }

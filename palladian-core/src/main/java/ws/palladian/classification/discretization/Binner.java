@@ -14,6 +14,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
@@ -163,31 +164,30 @@ public final class Binner implements Iterable<Binner.Interval> {
         double currentBoundary = 0;
         int boundaryIdx = -1;
 
+        // the counts which are constantly updated during the split iterations
+        CountingCategoryEntriesBuilder b1 = new CountingCategoryEntriesBuilder();
+        CountingCategoryEntriesBuilder b2 = new CountingCategoryEntriesBuilder().add(categoryPriors);
+
         for (int i = 1; i < n; i++) {
+            Instance previousInstance = dataset.get(i - 1);
+            String previousCategory = previousInstance.getCategory();
+            double previousValue = ((NumericValue)previousInstance.getVector().get(featureName)).getDouble();
+            double currentValue = ((NumericValue)dataset.get(i).getVector().get(featureName)).getDouble();
 
-            double previous = ((NumericValue)dataset.get(i - 1).getVector().get(featureName)).getDouble();
-            double current = ((NumericValue)dataset.get(i).getVector().get(featureName)).getDouble();
+            CategoryEntries c1 = b1.add(previousCategory, 1).create();
+            CategoryEntries c2 = b2.subtract(previousCategory, 1).create();
 
-            if (previous < current) {
-
-                // FIXME we must not re-calculate those values in each iteration; instead, update the split iteratively
-                // (we know the counts at the beginning, and can re-calculate them with each step, without having to
-                // count through both sublists again!)
-                List<Instance> s1 = dataset.subList(0, i);
-                List<Instance> s2 = dataset.subList(i, n);
-                CategoryEntries c1 = ClassificationUtils.getCategoryCounts(s1);
-                CategoryEntries c2 = ClassificationUtils.getCategoryCounts(s2);
+            if (previousValue < currentValue) {
                 double entS1 = ClassificationUtils.entropy(c1);
                 double entS2 = ClassificationUtils.entropy(c2);
-
-                double ent = (double)s1.size() / n * entS1 + (double)s2.size() / n * entS2;
+                double ent = (double)i / n * entS1 + (double)(n - i) / n * entS2;
                 double gain = entS - ent;
                 double delta = log2(pow(3, k) - 2) - (k * entS - c1.size() * entS1 - c2.size() * entS2);
                 boolean mdlpcCriterion = gain > (log2(n - 1) + delta) / n;
 
                 if (mdlpcCriterion && gain > maxGain) {
                     maxGain = gain;
-                    currentBoundary = (previous + current) / 2;
+                    currentBoundary = (previousValue + currentValue) / 2;
                     boundaryIdx = i;
                 }
             }

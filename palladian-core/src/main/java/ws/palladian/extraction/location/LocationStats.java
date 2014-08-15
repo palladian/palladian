@@ -2,14 +2,11 @@ package ws.palladian.extraction.location;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
@@ -157,16 +154,16 @@ public class LocationStats {
         return new LocationStats(CollectionHelper.filterSet(locations, filter));
     }
 
-    public LocationStats except(Collection<? extends Location> candidates) {
-      Set<Location> otherLocations = new HashSet<Location>(locations);
-      otherLocations.removeAll(candidates);
-      return new LocationStats(otherLocations);
-    }
-    
-    public LocationStats except(Location... locations) {
-        Validate.notNull(locations, "locations must not be null");
-        return except(Arrays.asList(locations));
-    }
+//    public LocationStats except(Collection<? extends Location> candidates) {
+//      Set<Location> otherLocations = new HashSet<Location>(locations);
+//      otherLocations.removeAll(candidates);
+//      return new LocationStats(otherLocations);
+//    }
+//    
+//    public LocationStats except(Location... locations) {
+//        Validate.notNull(locations, "locations must not be null");
+//        return except(Arrays.asList(locations));
+//    }
     
     public int count(){
         return CollectionHelper.newHashSet(locations).size();
