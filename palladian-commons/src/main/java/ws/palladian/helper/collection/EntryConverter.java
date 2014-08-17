@@ -20,6 +20,11 @@ public final class EntryConverter<K, V> implements Function<Entry<K, V>, VectorE
             public V value() {
                 return input.getValue();
             }
+            
+            @Override
+            public String toString() {
+                return key() + "=" + value();
+            }
 
         };
     }

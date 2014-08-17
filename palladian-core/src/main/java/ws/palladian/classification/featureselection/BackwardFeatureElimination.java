@@ -19,18 +19,18 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
-import ws.palladian.helper.NoProgress;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factories;
@@ -271,7 +271,6 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
                     }
                 }
 
-                // LOGGER.debug("Eliminating {} gives {}", currentFeature, score);
                 LOGGER.info("Selected {} for elimination, score {}", selectedFeature, highestScore);
                 eliminatedFeatures.add(selectedFeature);
                 ranks.put(selectedFeature, featureIndex++);
@@ -289,61 +288,16 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
         return new FeatureRanking(ranks);
     }
 
-    @SuppressWarnings("deprecation")
     public static void main(String[] args) {
-        // List<Trainable> trainSet = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376006525521_all_train.csv", true);
-        // List<Trainable> validationSet = ClassificationUtils.readCsv("data/temp/location_disambiguation_1376012524940_all_valid.csv", true);
-        
-        // take a sub sampling of TUD, LGL and Clust; make # of samples roughly equal for each data set
-        
-        List<Instance> tudTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_tud_train_1376394038036.csv", true);
-        List<Instance> lglTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_lgl_train_1376399225449.csv", true);
-        List<Instance> clustTrain = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_clust_train_1376413884470.csv", true);
-        lglTrain = ClassificationUtils.drawRandomSubset(lglTrain, 30);
-        clustTrain = ClassificationUtils.drawRandomSubset(clustTrain, 15);
-        List<Instance> trainSet = CollectionHelper.newArrayList();
-        trainSet.addAll(tudTrain);
-        trainSet.addAll(lglTrain);
-        trainSet.addAll(clustTrain);
-        
-        List<Instance> tudValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_tud_validation_1376419927925.csv", true);
-        List<Instance> lglValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_lgl_validation_1376420924580.csv", true);
-        List<Instance> clustValidate = ClassificationUtils.readCsv("/Users/pk/Dropbox/temp_bfe_location/fd_clust_validation_1376422975187.csv", true);
-        lglValidate = ClassificationUtils.drawRandomSubset(lglValidate, 30);
-        clustValidate = ClassificationUtils.drawRandomSubset(clustValidate, 15);
-        List<Instance> validationSet = CollectionHelper.newArrayList();
-        validationSet.addAll(tudValidate);
-        validationSet.addAll(lglValidate);
-        validationSet.addAll(clustValidate);
-        
-        ClassificationUtils.writeCsv(trainSet, new File("/Users/pk/Desktop/fd_merged_train.csv"));
-        ClassificationUtils.writeCsv(validationSet, new File("/Users/pk/Desktop/fd_merged_validation.csv"));
-        System.exit(0);
-        
-        // skip those features: indexScore (expensive); containsMarker(...) except the consolidated containsMarker(*)
-        trainSet = ClassificationUtils.filterFeatures(trainSet, Filters.not(Filters.equal("indexScore")));
-        validationSet = ClassificationUtils.filterFeatures(validationSet, Filters.not(Filters.equal("indexScore")));
-        Filter<String> markerFilter = new Filter<String>() {
-            @Override
-            public boolean accept(String item) {
-                if (item.startsWith("containsMarker")) {
-                    return item.equals("containsMarker(*)");
-                }
-                return true;
-            }
-        };
-        trainSet = ClassificationUtils.filterFeatures(trainSet, markerFilter);
-        validationSet = ClassificationUtils.filterFeatures(validationSet, markerFilter);
-        
-        // should be 106 features without indexScore
-        // should be 82 features without individual markers
+        List<Instance> trainSet = new CsvDatasetReader(new File("/path/to/training.csv")).readAll();
+        List<Instance> validationSet = new CsvDatasetReader(new File("/path/to/validation.csv")).readAll();
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread
         Factory<QuickDtLearner> learnerFactory = new Factory<QuickDtLearner>() {
             @Override
             public QuickDtLearner create() {
-                return new QuickDtLearner(new RandomForestBuilder().numTrees(10));
+                return QuickDtLearner.randomForest(10);
             }
         };
         // we can share this, because it has no state
@@ -351,16 +305,11 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
         // scoring function used for deciding which feature to eliminate; we use the F1 measure here, but in general all
         // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).
-        Function<ConfusionMatrix, Double> scorer = new Function<ConfusionMatrix, Double>() {
-            @Override
-            public Double compute(ConfusionMatrix input) {
-                return input.getF(1.0, "true");
-            }
-        };
+        Function<ConfusionMatrix, Double> scorer = new FMeasureScorer("true");
 
         BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<QuickDtModel>(
-                learnerFactory, predictorFactory, scorer, 4);
-        FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet, NoProgress.INSTANCE);
+                learnerFactory, predictorFactory, scorer, 1);
+        FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet, new ProgressMonitor());
         CollectionHelper.print(featureRanking.getAll());
     }
 
