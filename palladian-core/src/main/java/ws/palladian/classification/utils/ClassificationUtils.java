@@ -315,7 +315,9 @@ public final class ClassificationUtils {
             }
         }
         FeatureVector newFeatureVector = builder.create();
-        LOGGER.trace("Reduced from {} to {}", featureVector.size(), newFeatureVector.size());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Reduced from {} to {}", featureVector.size(), newFeatureVector.size());
+        }
         return newFeatureVector;
     }
 
