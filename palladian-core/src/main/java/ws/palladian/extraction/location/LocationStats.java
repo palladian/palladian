@@ -5,6 +5,7 @@ import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_C
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -21,16 +22,12 @@ import ws.palladian.helper.math.Stats;
  * 
  * @author pk
  */
-public class LocationStats {
+public class LocationStats implements Iterable<Location> {
 
     private final List<Location> locations;
 
-    private final List<GeoCoordinate> coordinates;
-
     public LocationStats(Collection<? extends Location> locations) {
-        this.locations = CollectionHelper.newArrayList(locations);
-        this.coordinates = CollectionHelper.convertList(locations, LOCATION_COORDINATE_FUNCTION);
-        CollectionHelper.removeNulls(coordinates);
+        this.locations = Collections.unmodifiableList(CollectionHelper.newArrayList(locations));
     }
 
     public int getMaxHierarchyDepth() {
@@ -74,11 +71,11 @@ public class LocationStats {
     }
 
     public GeoCoordinate getMidpoint() {
-        return GeoUtils.getMidpoint(coordinates);
+        return GeoUtils.getMidpoint(getCoordinates());
     }
 
     public GeoCoordinate getCenterOfMinimumDistance() {
-        return GeoUtils.getCenterOfMinimumDistance(coordinates);
+        return GeoUtils.getCenterOfMinimumDistance(getCoordinates());
     }
 
     public Location getBiggest() {
@@ -100,7 +97,7 @@ public class LocationStats {
     }
 
     public List<GeoCoordinate> getCoordinates() {
-        return Collections.unmodifiableList(coordinates);
+        return CollectionHelper.convertList(where(LocationFilters.coordinate()), LOCATION_COORDINATE_FUNCTION);
     }
 
     public List<Location> getLocations() {
@@ -153,17 +150,6 @@ public class LocationStats {
     public LocationStats where(Filter<Location> filter) {
         return new LocationStats(CollectionHelper.filterSet(locations, filter));
     }
-
-//    public LocationStats except(Collection<? extends Location> candidates) {
-//      Set<Location> otherLocations = new HashSet<Location>(locations);
-//      otherLocations.removeAll(candidates);
-//      return new LocationStats(otherLocations);
-//    }
-//    
-//    public LocationStats except(Location... locations) {
-//        Validate.notNull(locations, "locations must not be null");
-//        return except(Arrays.asList(locations));
-//    }
     
     public int count(){
         return CollectionHelper.newHashSet(locations).size();
@@ -181,6 +167,11 @@ public class LocationStats {
 
     public boolean contains(Location location) {
         return locations.contains(location);
+    }
+
+    @Override
+    public Iterator<Location> iterator() {
+        return locations.iterator();
     }
 
 }

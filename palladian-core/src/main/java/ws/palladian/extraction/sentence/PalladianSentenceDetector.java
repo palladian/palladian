@@ -107,8 +107,8 @@ public final class PalladianSentenceDetector implements SentenceDetector {
         List<Token> sentences = CollectionHelper.newArrayList();
         for (Token tempSentence : maskedSentences) {
             int start = tempSentence.getStartPosition();
-            String value = text.substring(start, tempSentence.getStartPosition() + tempSentence.getValue().length());
-            sentences.add(new ImmutableToken(tempSentence.getStartPosition(), value));
+            String value = text.substring(start, start + tempSentence.getValue().length());
+            sentences.add(new ImmutableToken(start, value));
         }
         return CollectionHelper.unmodifiableIterator(sentences.iterator());
     }
