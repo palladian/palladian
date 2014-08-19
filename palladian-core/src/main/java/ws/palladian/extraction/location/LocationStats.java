@@ -71,10 +71,16 @@ public class LocationStats implements Iterable<Location> {
     }
 
     public GeoCoordinate getMidpoint() {
+        if (getCoordinates().isEmpty()) {
+            return GeoCoordinate.NULL;
+        }
         return GeoUtils.getMidpoint(getCoordinates());
     }
 
     public GeoCoordinate getCenterOfMinimumDistance() {
+        if (getCoordinates().isEmpty()) {
+            return GeoCoordinate.NULL;
+        }
         return GeoUtils.getCenterOfMinimumDistance(getCoordinates());
     }
 
