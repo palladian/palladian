@@ -269,16 +269,14 @@ public final class MediaWikiUtil {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         List<WikiPageReference> pages = CollectionHelper.newArrayList();
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
-        String cmTitle = UrlHelper.encodeParameter(categoryName);
-        if (!cmTitle.toLowerCase().startsWith("category:")) {
-            cmTitle = "Category:" + cmTitle;
-        }
+        String trimmedCategoryName = categoryName.replaceAll("[Cc]ategory:", "");
+        String cmTitle = "Category:" + UrlHelper.encodeParameter(trimmedCategoryName);
         for (String cmContinue = null;;) {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(descriptor.getEndpoint());
             urlBuilder.append("?action=query&list=categorymembers&cmtitle=");
             urlBuilder.append(cmTitle);
-            urlBuilder.append("&cmsort=timestamp&cmdir=desc&format=json&cmlimit=5");
+            urlBuilder.append("&cmsort=timestamp&cmdir=desc&format=json&cmlimit=500");
             if (cmContinue != null) {
                 urlBuilder.append("&cmcontinue=").append(UrlHelper.encodeParameter(cmContinue));
             }
@@ -668,8 +666,8 @@ public final class MediaWikiUtil {
     }
 
     public static void main(String[] args) throws IOException, SAXException {
-        MediaWikiDescriptor deWikipedia = MediaWikiDescriptor.Builder.wikipedia().language(Language.GERMAN).create();
-        List<WikiPageReference> articles = retrieveArticlesForCategory(deWikipedia, "Category:Filmtitel 1932");
+        MediaWikiDescriptor deWikipedia = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
+        List<WikiPageReference> articles = retrieveArticlesForCategory(deWikipedia, "category:1982 births");
         CollectionHelper.print(articles);
         System.exit(0);
 
