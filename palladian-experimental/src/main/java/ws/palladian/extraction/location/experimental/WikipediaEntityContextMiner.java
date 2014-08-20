@@ -47,16 +47,24 @@ public class WikipediaEntityContextMiner {
     private static DictionaryTrieModel.Builder rightBuilder = new DictionaryTrieModel.Builder();
 
     /**
-     * @param wikipediaDump Path to the Wikipedia dump file (in .bz2 format).
+     * @param wikipediaDump Path to the Wikipedia dump file (in .bz2 format), not <code>null</code>.
+     * @param outputPath The path to the directory where the dictionaries will be saved, not <code>null</code>.
      * @param contextSize Size of the context in words.
      * @param limit Number of pages to read.
      * @throws IOException In case of any I/O related error.
      */
-    public static void mineContexts(File wikipediaDump, final int contextSize, final int limit) throws IOException {
+    public static void mineContexts(File wikipediaDump, File outputPath, final int contextSize, final int limit)
+            throws IOException {
         Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
+        Validate.notNull(outputPath, "outputPath must not be null");
         Validate.isTrue(wikipediaDump.isFile(), wikipediaDump + " is not a file or could not be accessed.");
         Validate.isTrue(contextSize > 0, "contextSize must be greater zero");
         Validate.isTrue(limit > 0, "limit must be greater zero");
+        if (!outputPath.isDirectory()) {
+            if (!outputPath.mkdirs()) {
+                throw new IllegalArgumentException(outputPath + " does not exist/could not be created.");
+            }
+        }
         try {
             final int[] counter = new int[] {0};
             MediaWikiUtil.parseDump(wikipediaDump, new Consumer<WikiPage>() {
@@ -87,10 +95,12 @@ public class WikipediaEntityContextMiner {
 
         DictionaryModel leftModel = leftBuilder.create();
         DictionaryModel rightModel = rightBuilder.create();
-        LOGGER.info("Left model: " + leftModel);
-        LOGGER.info("Right model: " + rightModel);
-        FileHelper.serialize(leftModel, "leftContexts_" + wikipediaDump.getName() + "_" + contextSize + ".ser");
-        FileHelper.serialize(rightModel, "rightContexts_" + wikipediaDump.getName() + "_" + contextSize + ".ser");
+        File leftFile = new File(outputPath, "leftContexts_" + wikipediaDump.getName() + "_" + contextSize + ".ser");
+        File rightFile = new File(outputPath, "rightContexts_" + wikipediaDump.getName() + "_" + contextSize + ".ser");
+        LOGGER.info("Left model ({}): {}", leftFile, leftModel);
+        LOGGER.info("Right model ({}): {}", rightFile, rightModel);
+        FileHelper.serialize(leftModel, leftFile.getPath());
+        FileHelper.serialize(rightModel, rightFile.getPath());
     }
 
     private static Map<String, String> createTypeMap() {
@@ -192,7 +202,8 @@ public class WikipediaEntityContextMiner {
         //System.out.println("'"+title.replaceAll(",? Inc.", "")+"'");
         //System.exit(0);
         File wikipediaDump = new File("/Volumes/LaCie500/LocationLab/enwiki-20140707-pages-articles.xml.bz2");
-        mineContexts(wikipediaDump, 1, 10000);
+        File ouputPath = new File("/Users/pk/temp");
+        mineContexts(wikipediaDump, ouputPath, 1, 10000);
         // mineContexts(wikipediaDump, 1, Integer.MAX_VALUE);
         // mineContexts(wikipediaDump, 2, Integer.MAX_VALUE);
         // mineContexts(wikipediaDump, 3, Integer.MAX_VALUE);
