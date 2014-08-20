@@ -8,13 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>
  * A trie data structure. This can make string-based retrieval faster and more space efficient than using e.g. a
- * HashMap.
+ * HashMap. This implementations does <i>not</i> allow <code>null</code> or empty values as keys.
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -47,6 +49,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
     }
 
     public Trie<V> getNode(CharSequence key) {
+        Validate.notEmpty(key, "key must not be empty");
         return getNode(key, false);
     }
 
@@ -78,6 +81,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
     }
 
     public V put(String key, V value) {
+        Validate.notEmpty(key, "key must not be empty");
         Trie<V> node = getNode(key, true);
         V oldValue = node.value;
         node.value = value;
@@ -85,15 +89,19 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
     }
 
     public V get(String key) {
+        Validate.notEmpty(key, "key must not be empty");
         Trie<V> node = getNode(key);
         return node != null ? node.value : null;
     }
 
     public V getOrPut(String key, V value) {
+        Validate.notEmpty(key, "key must not be empty");
         return getOrPut(key, Factories.constant(value));
     }
 
     public V getOrPut(String key, Factory<V> valueFactory) {
+        Validate.notEmpty(key, "key must not be empty");
+        Validate.notNull(valueFactory, "valueFactory must not be null");
         Trie<V> node = getNode(key, true);
         if (node.value == null) {
             node.value = valueFactory.create();

@@ -1,32 +1,29 @@
 package ws.palladian.extraction.location.experimental;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.DictionaryTrieModel;
+import ws.palladian.core.Annotation;
+import ws.palladian.extraction.DictionaryTagger;
+import ws.palladian.extraction.location.ContextClassifier;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
-import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.wiki.WikiPage;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
+import ws.palladian.retrieval.wiki.WikiPage;
 
 /**
  * <p>
@@ -38,35 +35,28 @@ import ws.palladian.retrieval.wiki.MediaWikiUtil;
  * 
  * @author Philipp Katz
  */
-class WikipediaEntityContextMiner {
+public class WikipediaEntityContextMiner {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaEntityContextMiner.class);
 
-    private static final String CSV_SEPARATOR = "###";
-
     private static final Map<String, String> TYPE_MAP = createTypeMap();
 
-    private static final CountMatrix<String> leftContexts = CountMatrix.create();
+    private static DictionaryTrieModel.Builder leftBuilder = new DictionaryTrieModel.Builder();
 
-    private static final CountMatrix<String> rightContexts = CountMatrix.create();
-
-    private static final CountMap<String> typeCounts = CountMap.create();
+    private static DictionaryTrieModel.Builder rightBuilder = new DictionaryTrieModel.Builder();
 
     /**
      * @param wikipediaDump Path to the Wikipedia dump file (in .bz2 format).
      * @param contextSize Size of the context in words.
      * @param limit Number of pages to read.
+     * @throws IOException In case of any I/O related error.
      */
-    public static void mineContexts(File wikipediaDump, final int contextSize, final int limit) {
-        if (!wikipediaDump.isFile()) {
-            throw new IllegalArgumentException(wikipediaDump + " is not a file or could not be accessed.");
-        }
+    public static void mineContexts(File wikipediaDump, final int contextSize, final int limit) throws IOException {
+        Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
+        Validate.isTrue(wikipediaDump.isFile(), wikipediaDump + " is not a file or could not be accessed.");
         Validate.isTrue(contextSize > 0, "contextSize must be greater zero");
         Validate.isTrue(limit > 0, "limit must be greater zero");
-        leftContexts.clear();
-        rightContexts.clear();
-        typeCounts.clear();
         try {
             final int[] counter = new int[] {0};
             MediaWikiUtil.parseDump(wikipediaDump, new Consumer<WikiPage>() {
@@ -85,23 +75,22 @@ class WikipediaEntityContextMiner {
                     }
                     String mappedType = TYPE_MAP.get(pageType);
                     if (mappedType != null) {
-                        typeCounts.add(mappedType);
                         extractContexts(page, mappedType, contextSize);
                     }
                 }
             });
         } catch (StopException e) {
             // finished.
-        } catch (FileNotFoundException e) {
-            throw new IllegalStateException(e);
         } catch (SAXException e) {
             throw new IllegalStateException(e);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
         }
-        LOGGER.info("Document type statistics: {}, total documents: {}", typeCounts, typeCounts.totalSize());
-        writeContexts(leftContexts, "leftContexts_" + contextSize + ".csv");
-        writeContexts(rightContexts, "rightContexts_" + contextSize + ".csv");
+
+        DictionaryModel leftModel = leftBuilder.create();
+        DictionaryModel rightModel = rightBuilder.create();
+        LOGGER.info("Left model: " + leftModel);
+        LOGGER.info("Right model: " + rightModel);
+        FileHelper.serialize(leftModel, "leftContexts_" + wikipediaDump.getName() + "_" + contextSize + ".ser");
+        FileHelper.serialize(rightModel, "rightContexts_" + wikipediaDump.getName() + "_" + contextSize + ".ser");
     }
 
     private static Map<String, String> createTypeMap() {
@@ -166,86 +155,31 @@ class WikipediaEntityContextMiner {
         return Collections.unmodifiableMap(result);
     }
 
-    private static void writeContexts(CountMatrix<String> contextMatrix, String fileName) {
-        Set<String> types = contextMatrix.getColumnKeys();
-        Set<String> contexts = contextMatrix.getRowKeys();
-        LOGGER.info("Writing context list to '{}', # contexts: {}", fileName, contexts.size());
-
-        Writer writer = null;
-        try {
-            int maximumTypeCount = 0;
-            writer = new BufferedWriter(new FileWriter(fileName));
-            // write header
-            StringBuilder header = new StringBuilder();
-            header.append("context");
-            for (String type : types) {
-                header.append(CSV_SEPARATOR).append(type);
-                maximumTypeCount = Math.max(maximumTypeCount, typeCounts.getCount(type));
-            }
-            header.append('\n');
-            writer.append(header);
-
-            // write counts
-            for (String context : contexts) {
-                StringBuilder line = new StringBuilder();
-                line.append(context);
-                int maximumCategoryCount = 0;
-                for (String type : types) {
-                    int count = contextMatrix.getCount(type, context);
-
-                    // normalize the count in regards to the # of documents
-                    // XXX maybe it would make more sense to normalize by text length?
-                    double normalization = (double)maximumTypeCount / typeCounts.getCount(type);
-                    int normalizedCount = (int)Math.round(count * normalization);
-
-                    maximumCategoryCount = Math.max(maximumCategoryCount, normalizedCount);
-                    line.append(CSV_SEPARATOR).append(normalizedCount);
-                }
-                line.append('\n');
-
-                // only write, if at least one column is larger than zero
-                if (maximumCategoryCount > 0) {
-                    writer.append(line);
-                }
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        } finally {
-            FileHelper.close(writer);
-        }
-    }
-
     private static void extractContexts(WikiPage page, String type, int contextSize) {
         String pageText = page.getCleanText();
         pageText = StringHelper.normalizeQuotes(pageText);
         pageText = MediaWikiUtil.extractSentences(pageText);
 
-        String entityName = page.getCleanTitle();
-        String lastName = entityName.substring(entityName.lastIndexOf(" ") + 1); // only use for "PER"?
-        Pattern pattern = Pattern.compile(String.format("((?:\\w+[^\\w]{1,5}){%s})(?:%s|%s)((?:[^\\w]{1,5}\\w+){%s})",
-                contextSize, Pattern.quote(entityName), Pattern.quote(lastName), contextSize));
-        Matcher matcher = pattern.matcher(pageText);
-        Set<String> documentRightContexts = CollectionHelper.newHashSet();
-        Set<String> documentLeftContexts = CollectionHelper.newHashSet();
-        while (matcher.find()) {
-            String leftContext = matcher.group(1).trim().toLowerCase();
-            String rightContext = matcher.group(2).trim().toLowerCase();
-            // skip contexts with line break
-            if (!leftContext.contains("\n")) {
-                documentLeftContexts.add(leftContext);
-            }
-            if (!rightContext.contains("\n")) {
-                documentRightContexts.add(rightContext);
-            }
+        String title = page.getCleanTitle();
+        Set<String> entityNames = CollectionHelper.newHashSet(title);
+        if ("PER".equals(type)) { // last name for type "PER"
+            entityNames.add(title.substring(title.lastIndexOf(" ") + 1));
         }
-        addToMatrix(leftContexts, documentLeftContexts, type);
-        addToMatrix(rightContexts, documentRightContexts, type);
-    }
-
-    private static void addToMatrix(CountMatrix<String> contexts, Set<String> documentContexts, String type) {
-        for (String context : documentContexts) {
-            contexts.add(type, context);
+        if ("ORG".equals(type)) { // for "ORG", remove Inc. suffix
+            entityNames.add(title.replaceAll(",? Inc.", ""));
         }
+        DictionaryTagger tagger = new DictionaryTagger(entityNames);
+        Set<String> leftContexts = CollectionHelper.newHashSet();
+        Set<String> rightContexts = CollectionHelper.newHashSet();
+        for (Annotation annotation : tagger.getAnnotations(pageText)) {
+            // XXX should we replace numbers by placeholder? e.g. 1982 -> §§§§ ?
+            String left = ContextClassifier.getLeftContext(annotation, pageText, contextSize).toLowerCase().trim();
+            String right = ContextClassifier.getRightContext(annotation, pageText, contextSize).toLowerCase().trim();
+            leftContexts.add(left);
+            rightContexts.add(right);
+        }
+        leftBuilder.addDocument(leftContexts, type);
+        rightBuilder.addDocument(rightContexts, type);
     }
 
     /** Used to break the callback. */
@@ -253,12 +187,16 @@ class WikipediaEntityContextMiner {
         private static final long serialVersionUID = 1L;
     }
 
-    public static void main(String[] args) {
-        File wikipediaDump = new File("/Volumes/iMac HD/temp/enwiki-20130503-pages-articles.xml.bz2");
-        mineContexts(wikipediaDump, 1, Integer.MAX_VALUE);
-        mineContexts(wikipediaDump, 2, Integer.MAX_VALUE);
-        mineContexts(wikipediaDump, 3, Integer.MAX_VALUE);
-        mineContexts(wikipediaDump, 4, Integer.MAX_VALUE);
+    public static void main(String[] args) throws IOException {
+        //String title = "Apple, Inc.";
+        //System.out.println("'"+title.replaceAll(",? Inc.", "")+"'");
+        //System.exit(0);
+        File wikipediaDump = new File("/Volumes/LaCie500/LocationLab/enwiki-20140707-pages-articles.xml.bz2");
+        mineContexts(wikipediaDump, 1, 10000);
+        // mineContexts(wikipediaDump, 1, Integer.MAX_VALUE);
+        // mineContexts(wikipediaDump, 2, Integer.MAX_VALUE);
+        // mineContexts(wikipediaDump, 3, Integer.MAX_VALUE);
+        // mineContexts(wikipediaDump, 4, Integer.MAX_VALUE);
     }
 
 }

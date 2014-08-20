@@ -89,6 +89,10 @@ public final class MediaWikiUtil {
 
         // strip everything in <ref> tags
         String result = REF_PATTERN.matcher(markup).replaceAll("");
+        
+        // strip everything in <gallery> tags
+        // XXX I guess there is some utility method for that in HtmlHelper
+        result = result.replaceAll("<gallery(?:\\s[^>]*)?>[^<]*</gallery>", "");
 
         // resolve HTML entities
         result = StringEscapeUtils.unescapeHtml4(result);

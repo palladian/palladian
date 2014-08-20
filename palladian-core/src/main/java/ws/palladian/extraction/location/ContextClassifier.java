@@ -216,10 +216,12 @@ public class ContextClassifier {
             int start = annotation.getEndPosition();
             for (int i = start; i < text.length(); i++) {
                 char current = text.charAt(i);
-                if (current == ' ' && i > start) {
+                // commented, to include following word(s) after 's apostrophe;
+                // before, 's was treated as one word in the context
+                if (current == ' '/* && i > start */) {
                     wordCounter++;
                 }
-                if (wordCounter >= numWords || current == '\n' || StringHelper.isPunctuation(current)) {
+                if (wordCounter > /* = */numWords || current == '\n' || StringHelper.isPunctuation(current)) {
                     break;
                 }
                 builder.append(current);
