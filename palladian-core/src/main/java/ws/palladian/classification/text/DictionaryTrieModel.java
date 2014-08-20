@@ -82,6 +82,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             Validate.notNull(terms, "terms must not be null");
             Validate.notNull(category, "category must not be null");
             for (String term : terms) {
+                if (term == null || term.isEmpty()) {
+                    continue; // skip, because trie does not allow empty/null values
+                }
                 LinkedCategoryEntries entries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
                 if (entries.getTotalCount() == 0) { // term was not present before
                     numTerms++;
@@ -326,6 +329,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         // version
         int version = in.readInt();
+//    System.out.println("version="+version);
         if (version != VERSION) {
             throw new IOException("Unsupported version: " + version);
         }
@@ -333,6 +337,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         entryTrie = new Trie<LinkedCategoryEntries>();
         // header
         int numCategories = in.readInt();
+//    System.out.println("numCategories="+numCategories);
         CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
@@ -343,12 +348,14 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         documentCounts = documentCountBuilder.create();
         // terms
         numTerms = in.readInt();
+//    System.out.println("numTerms="+numTerms);
         String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
         ProgressMonitor monitor = new ProgressMonitor();
         monitor.startTask("Reading " + dictName, numTerms);
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
+//    System.out.println("term="+term);
             LinkedCategoryEntries entries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
             int numProbabilityEntries = in.readInt();
             for (int j = 0; j < numProbabilityEntries; j++) {

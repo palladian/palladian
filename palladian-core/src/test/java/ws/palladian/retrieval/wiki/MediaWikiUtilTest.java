@@ -253,8 +253,8 @@ public class MediaWikiUtilTest {
     public void testStripMarkup() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
         String cleanText = MediaWikiUtil.stripMediaWikiMarkup(markup);
-        assertEquals(46225, cleanText.length());
-        assertEquals(-43112148, cleanText.hashCode());
+        assertEquals(44963, cleanText.length());
+        assertEquals(1578285072, cleanText.hashCode());
 
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/LutonAirportParkwayRailwayStation.wikipedia"));

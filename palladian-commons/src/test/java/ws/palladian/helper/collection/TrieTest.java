@@ -20,4 +20,16 @@ public class TrieTest {
         // CollectionHelper.print(trie);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testInsertEmptyKey() {
+        Trie<Integer> trie = new Trie<Integer>();
+        trie.put("", 1);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testInsertNullKey() {
+        Trie<Integer> trie = new Trie<Integer>();
+        trie.put(null, 1);
+    }
+
 }

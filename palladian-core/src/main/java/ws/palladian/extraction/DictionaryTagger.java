@@ -14,8 +14,8 @@ import ws.palladian.extraction.entity.Annotations;
 
 /**
  * Annotates a text based on a given dictionary.
+ * 
  * @author pk
- *
  */
 public class DictionaryTagger implements Tagger {
 
@@ -27,7 +27,7 @@ public class DictionaryTagger implements Tagger {
     }
 
     @Override
-    public List<? extends Annotation> getAnnotations(String text) {
+    public List<Annotation> getAnnotations(String text) {
         Annotations<Annotation> annotations = new Annotations<Annotation>();
         for (String dictionaryString : dictionary) {
             String patternString = "(?<!\\w)" + Pattern.quote(dictionaryString) + "(?!\\w)";
@@ -39,6 +39,11 @@ public class DictionaryTagger implements Tagger {
         }
         annotations.removeNested();
         return annotations;
+    }
+
+    @Override
+    public String toString() {
+        return "DictionaryTagger [dictionary=" + dictionary + "]";
     }
 
 }
