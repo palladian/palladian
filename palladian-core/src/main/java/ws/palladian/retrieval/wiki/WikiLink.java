@@ -27,7 +27,7 @@ public class WikiLink {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("WikipediaLink [");
+        builder.append("WikiLink [");
         builder.append("destination=");
         builder.append(destination);
         if (title != null) {

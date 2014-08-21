@@ -201,11 +201,13 @@ public final class MediaWikiUtil {
     
     /**
      * <p>
-     * Retrieve a {@link WikiPage} directly from the web.
+     * Retrieve a {@link WikiPage} directly from the web. (note: This method does not follow redirects, you can use
+     * {@link WikiPage#isRedirect()} to check, whether the retrieved page is a redirect and follow the redirect by
+     * making another request using {@link WikiPage#getRedirectTitle()}).
      * </p>
      * 
-     * @param baseUrl The base URL of the API, e.g. <code>http://en.wikipedia.org/w</code>, not <code>null</code> or
-     *            empty.
+     * @param descriptor The descriptor for the MediaWiki which should be retrieved, see
+     *            {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
      * @param title The title to retrieve; will be escaped automatically.
      * @return The {@link WikiPage} for the given title, or <code>null</code> in case no article with that title
      *         was given.
@@ -262,7 +264,8 @@ public final class MediaWikiUtil {
      * Retrieve {@link WikiPageReference}s in the specified category.
      * </p>
      * 
-     * @param baseUrl The base URL of the Mediawiki API, not <code>null</code>.
+     * @param descriptor The descriptor for the MediaWiki which should be retrieved, see
+     *            {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
      * @param categoryName The name of the category, not <code>null</code>.
      * @return A list of {@link WikiPageReference}s in the specified category, or an empty list, never
      *         <code>null</code>.
@@ -320,7 +323,8 @@ public final class MediaWikiUtil {
      * Retrieve a random article from the main namespace (ID 0).
      * </p>
      * 
-     * @param baseUrl The base UR of the Mediawiki API, not <code>null</code>.
+     * @param descriptor The descriptor for the MediaWiki which should be retrieved, see
+     *            {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
      * @return A {@link WikiPageReference} for a random article.
      */
     public static final WikiPageReference retrieveRandomArticle(MediaWikiDescriptor descriptor) {

@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.experimental;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +21,7 @@ import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Functions;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
@@ -41,6 +43,8 @@ public class WikipediaEntityContextMiner {
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaEntityContextMiner.class);
 
     private static final Map<String, String> TYPE_MAP = createTypeMap();
+    
+    private static DictionaryTrieModel.Builder entityBuilder = new DictionaryTrieModel.Builder();
 
     private static DictionaryTrieModel.Builder leftBuilder = new DictionaryTrieModel.Builder();
 
@@ -93,12 +97,16 @@ public class WikipediaEntityContextMiner {
             throw new IllegalStateException(e);
         }
 
+        DictionaryModel entityModel = entityBuilder.create();
         DictionaryModel leftModel = leftBuilder.create();
         DictionaryModel rightModel = rightBuilder.create();
+        File entityFile = new File(outputPath, "entities_" + wikipediaDump.getName() + ".ser");
         File leftFile = new File(outputPath, "leftContexts_" + wikipediaDump.getName() + "_" + contextSize + ".ser");
         File rightFile = new File(outputPath, "rightContexts_" + wikipediaDump.getName() + "_" + contextSize + ".ser");
+        LOGGER.info("Entity model ({}): {}", entityFile, entityModel);
         LOGGER.info("Left model ({}): {}", leftFile, leftModel);
         LOGGER.info("Right model ({}): {}", rightFile, rightModel);
+        FileHelper.serialize(entityModel, entityFile.getPath());
         FileHelper.serialize(leftModel, leftFile.getPath());
         FileHelper.serialize(rightModel, rightFile.getPath());
     }
@@ -178,6 +186,9 @@ public class WikipediaEntityContextMiner {
         if ("ORG".equals(type)) { // for "ORG", remove Inc. suffix
             entityNames.add(title.replaceAll(",? Inc.", ""));
         }
+        // alternative titles given on the page; e.g. "United States of America", "USA", "U.S.A." ...
+        List<String> alternativeTitles = page.getAlternativeTitles();
+        entityNames.addAll(alternativeTitles);
         DictionaryTagger tagger = new DictionaryTagger(entityNames);
         Set<String> leftContexts = CollectionHelper.newHashSet();
         Set<String> rightContexts = CollectionHelper.newHashSet();
@@ -188,6 +199,7 @@ public class WikipediaEntityContextMiner {
             leftContexts.add(left);
             rightContexts.add(right);
         }
+        entityBuilder.addDocument(CollectionHelper.convertSet(entityNames, Functions.LOWERCASE), type);
         leftBuilder.addDocument(leftContexts, type);
         rightBuilder.addDocument(rightContexts, type);
     }

@@ -145,7 +145,7 @@ public class WikiTemplate {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("WikipediaInfobox [name=");
+        builder.append("WikiTemplate [name=");
         builder.append(name);
         builder.append(", content=");
         builder.append(content);

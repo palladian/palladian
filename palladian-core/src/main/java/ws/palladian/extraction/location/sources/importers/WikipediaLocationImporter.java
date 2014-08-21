@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,10 +36,10 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.wiki.MarkupCoordinate;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
 import ws.palladian.retrieval.wiki.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wiki.WikiPage;
 import ws.palladian.retrieval.wiki.WikiTemplate;
-import ws.palladian.retrieval.wiki.MediaWikiUtil;
 
 /**
  * <p>
@@ -231,11 +230,10 @@ public class WikipediaLocationImporter {
 
                     // extract and save alternative names if requested
                     if (nameExtraction.contains(PAGE)) {
-                        List<String> sections = page.getSections();
-                        if (sections.size() > 0) {
-                            List<String> extractedAlternativeNames = getStringsInBold(sections.get(0));
+                        List<String> alternativeTitles = page.getAlternativeTitles();
+                        if (alternativeTitles.size() > 0) {
                             Set<AlternativeName> alternativeNames = CollectionHelper.newHashSet();
-                            for (String name : extractedAlternativeNames) {
+                            for (String name : alternativeTitles) {
                                 if (!name.equals(cleanArticleName)) {
                                     alternativeNames.add(new AlternativeName(name));
                                 }
@@ -293,16 +291,6 @@ public class WikipediaLocationImporter {
             }
         });
         LOGGER.info("Finished importing {} alternative names", counter[0]);
-    }
-
-    private static final List<String> getStringsInBold(String text) {
-        Pattern pattern = Pattern.compile("'''([^']+)'''");
-        Matcher matcher = pattern.matcher(text);
-        List<String> result = CollectionHelper.newArrayList();
-        while (matcher.find()) {
-            result.add(matcher.group(1));
-        }
-        return result;
     }
 
     public static void main(String[] args) throws Exception {

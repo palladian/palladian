@@ -74,7 +74,7 @@ public class WikiPageReference implements WebContent {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("WikipediaPageReference [pageId=");
+        builder.append("WikiPageReference [pageId=");
         builder.append(pageId);
         builder.append(", namespaceId=");
         builder.append(namespaceId);
