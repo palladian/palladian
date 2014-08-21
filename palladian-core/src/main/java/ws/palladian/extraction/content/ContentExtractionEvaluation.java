@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.CountMap;
@@ -83,12 +83,12 @@ public final class ContentExtractionEvaluation {
         CountMap<WebPageContentExtractor> errors = CountMap.create();
         LazyMap<WebPageContentExtractor, Double> stats = LazyMap.create(ConstantFactory.create(0.));
         int totalSize = dataset.size();
-        int index = 0;
 
         // loop through the dataset
+        ProgressMonitor progressMonitor = new ProgressMonitor(totalSize);
         for (Entry<String, String> entry : dataset.entrySet()) {
 
-            ProgressHelper.printProgress(index++, totalSize, 0);
+            progressMonitor.incrementAndPrintProgress();
 
             // evaluate all provided implementations
             LinkedHashMap<WebPageContentExtractor, Float> result = evaluate(entry.getKey());
