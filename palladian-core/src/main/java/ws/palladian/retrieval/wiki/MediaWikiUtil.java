@@ -213,7 +213,6 @@ public final class MediaWikiUtil {
      *         was given.
      */
     public static final WikiPage retrieveArticle(MediaWikiDescriptor descriptor, String title) {
-        // Validate.notEmpty(baseUrl, "baseUrl must not be empty");
         Validate.notNull(descriptor, "descriptor must not be null");
         Validate.notEmpty(title, "title must not be empty");
         
@@ -331,7 +330,6 @@ public final class MediaWikiUtil {
         Validate.notNull(descriptor, "descriptor must not be null");
         
         String url = String.format("%s?action=query&list=random&rnnamespace=0&format=json", descriptor.getEndpoint());
-        System.out.println(url);
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         HttpResult httpResult;
         try {
@@ -349,6 +347,58 @@ public final class MediaWikiUtil {
             throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
                     + httpResult.getStringContent() + "'", e);
         }
+    }
+
+    /**
+     * <p>
+     * Retrieve backlinks on a given MediaWiki page.
+     * 
+     * @param descriptor The descriptor for the MediaWiki which should be retrieved, see
+     *            {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
+     * @param pageName The name of the page for which to get backlinks, not <code>null</code>.
+     * @return A list with Wiki page references linking on the given page, or an empty list, never <code>null</code>.
+     */
+    public static final List<WikiPageReference> retrieveBacklinks(MediaWikiDescriptor descriptor, String pageName) {
+        Validate.notNull(descriptor, "descriptor must not be null");
+        Validate.notEmpty(pageName, "pageName must not be empty");
+
+        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
+        List<WikiPageReference> result = CollectionHelper.newArrayList();
+        for (String blContinue = null;;) {
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append(descriptor.getEndpoint());
+            urlBuilder.append("?action=query&list=backlinks&blnamespace=0&bllimit=500&format=json");
+            urlBuilder.append("&bltitle=").append(UrlHelper.encodeParameter(pageName));
+            if (blContinue != null) {
+                urlBuilder.append("&blcontinue=").append(UrlHelper.encodeParameter(blContinue));
+            }
+            HttpResult httpResult;
+            try {
+                httpResult = retriever.httpGet(urlBuilder.toString());
+            } catch (HttpException e) {
+                throw new IllegalStateException(e);
+            }
+            try {
+                JsonObject jsonResultObject = new JsonObject(httpResult.getStringContent());
+                JsonArray backlinksJsonArray = jsonResultObject.queryJsonArray("/query/backlinks");
+                for (int i = 0; i < backlinksJsonArray.size(); i++) {
+                    JsonObject backlinkJson = backlinksJsonArray.getJsonObject(i);
+                    int pageId = backlinkJson.getInt("pageid");
+                    int namespaceId = backlinkJson.getInt("ns");
+                    String title = backlinkJson.getString("title");
+                    result.add(new WikiPageReference(pageId, namespaceId, title));
+                }
+                // more data?
+                blContinue = jsonResultObject.tryQueryString("/query-continue/backlinks/blcontinue");
+                if (blContinue == null) {
+                    break;
+                }
+            } catch (JsonException e) {
+                throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
+                        + httpResult.getStringContent() + "'", e);
+            }
+        }
+        return result;
     }
 
     /**
@@ -675,6 +725,10 @@ public final class MediaWikiUtil {
 
     public static void main(String[] args) throws IOException, SAXException {
         MediaWikiDescriptor deWikipedia = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
+        System.out.println(retrieveBacklinks(deWikipedia, "Mario Balotelli").size());
+        System.out.println(retrieveBacklinks(deWikipedia, "Mario Balotelli (song)").size());
+        System.exit(0);
+        
         List<WikiPageReference> articles = retrieveArticlesForCategory(deWikipedia, "category:1982 births");
         CollectionHelper.print(articles);
         System.exit(0);

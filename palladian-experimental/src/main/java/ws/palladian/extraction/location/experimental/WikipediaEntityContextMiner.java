@@ -170,6 +170,7 @@ public class WikipediaEntityContextMiner {
         result.put("election", "MISC");
         result.put("college coach", "PER");
         result.put("journal", "MISC");
+        result.put("country", "LOC");
         return Collections.unmodifiableMap(result);
     }
 
