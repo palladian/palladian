@@ -100,4 +100,15 @@ public class WikiPageTest {
         assertEquals("Capital of the Cocos Islands", page.getCleanTitle());
     }
 
+    @Test
+    public void testGetAlternativeNames() throws IOException {
+        String markup = FileHelper.readFileToString(ResourceHelper
+                .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
+        WikiPage page = new WikiPage(0, 0, "Dry Fork (Cheat River)", markup);
+        List<String> alternativeTitles = page.getAlternativeTitles();
+        assertEquals(2, alternativeTitles.size());
+        assertEquals("Dry Fork", alternativeTitles.get(0));
+        assertEquals("Dry Run", alternativeTitles.get(1));
+    }
+
 }

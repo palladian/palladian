@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.wiki;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -94,6 +95,31 @@ public class WikiPage extends WikiPageReference {
             return matcher.group(1);
         }
         return null;
+    }
+
+    /**
+     * <p>
+     * Get alternative titles for the current page. On the Wikipedia, they are given in the first paragraph of the page
+     * in bold formatting. (example: <a href="http://en.wikipedia.org/wiki/United_States">United States</a>).
+     * 
+     * @return Alternative titles for the current page, or an empty list if no alternative titles were given.
+     */
+    public List<String> getAlternativeTitles() {
+        List<String> sections = getSections();
+        if (sections.size() > 0) {
+            return getStringsInBold(sections.get(0));
+        }
+        return Collections.emptyList();
+    }
+
+    private static final List<String> getStringsInBold(String text) {
+        Pattern pattern = Pattern.compile("'''([^']+)'''");
+        Matcher matcher = pattern.matcher(text);
+        List<String> result = CollectionHelper.newArrayList();
+        while (matcher.find()) {
+            result.add(matcher.group(1));
+        }
+        return result;
     }
 
     /**
@@ -247,7 +273,7 @@ public class WikiPage extends WikiPageReference {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("WikipediaPage [pageId=");
+        builder.append("WikiPage [pageId=");
         builder.append(getIdentifier());
         builder.append(", namespaceId=");
         builder.append(getNamespaceId());
