@@ -14,7 +14,6 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.web.GoogleSearcher;
 
 /**
  * <p>
@@ -164,7 +163,7 @@ public class CoOccurrenceRetriever {
                 10, Language.GERMAN);
         
         Collection<Searcher<WebContent>> searchers = new HashSet<Searcher<WebContent>>();
-        searchers.add(new GoogleSearcher());
+        // searchers.add(new GoogleSearcher());
         // searchers.add(new TwitterSearcher());
         
         // CoOccurrenceStatistics stats = coOccurrenceRetriever.getCoOccurrenceStatistics("Hugo Cabret", "oscar",
