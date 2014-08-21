@@ -31,6 +31,7 @@ public enum UnitType {
     SPEED, //
     TEMPERATURE, //
     PIXEL, //
+    CURRENCY,
     OTHER;
 
     private List<Pair<List<String>, Double>> units = CollectionHelper.newArrayList();
@@ -503,6 +504,17 @@ public enum UnitType {
         unitList = CollectionHelper.newArrayList();
         unitList.add("db");
         UnitType.POWER_RATIO.units.add(new Pair<List<String>, Double>(unitList, 1.));
+
+        // CURRENCY units are not normalized
+        unitList = CollectionHelper.newArrayList();
+        unitList.add("euros");
+        unitList.add("euro");
+        unitList.add("eur");
+        unitList.add("€");
+        unitList.add("dollars");
+        unitList.add("dollar");
+        unitList.add("$");
+        UnitType.CURRENCY.units.add(new Pair<List<String>, Double>(unitList, 1.));
 
         // OTHER units are normalized to different values
         unitList = CollectionHelper.newArrayList();
