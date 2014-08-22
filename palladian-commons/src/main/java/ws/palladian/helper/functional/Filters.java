@@ -184,7 +184,7 @@ public final class Filters {
     }
 
     /**
-     * Get a filter which filters files by their extensions.
+     * Get a filter which filters files (i.e. no directories) by their extensions.
      * 
      * @param extensions The extensions to accept (multiple extensions can be given, leading dots are not necessary, but
      *            don't do harm either), not <code>null</code>.
@@ -212,11 +212,13 @@ public final class Filters {
 
         @Override
         public boolean accept(File item) {
-            String fileName = item.getName();
-            int dotIdx = fileName.lastIndexOf('.');
-            if (dotIdx > 0) {
-                String extension = fileName.substring(dotIdx + 1);
-                return extensionsSet.contains(extension);
+            if (item.isFile()) {
+                String fileName = item.getName();
+                int dotIdx = fileName.lastIndexOf('.');
+                if (dotIdx > 0) {
+                    String extension = fileName.substring(dotIdx + 1);
+                    return extensionsSet.contains(extension);
+                }
             }
             return false;
         }

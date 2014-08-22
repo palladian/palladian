@@ -18,10 +18,10 @@ import ws.palladian.core.Annotation;
 import ws.palladian.extraction.DictionaryTagger;
 import ws.palladian.extraction.location.ContextClassifier;
 import ws.palladian.helper.ProcessHelper;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Consumer;
-import ws.palladian.helper.functional.Functions;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
@@ -200,7 +200,16 @@ public class WikipediaEntityContextMiner {
             leftContexts.add(left);
             rightContexts.add(right);
         }
-        entityBuilder.addDocument(CollectionHelper.convertSet(entityNames, Functions.LOWERCASE), type);
+        
+        { // experimental; count entity by size of article (assumption: more important articles contain more content)
+            int count = page.getCleanText().split("\\s").length;
+            Bag<String> countedEntities = Bag.create();
+            for (String entityName : entityNames) {
+                countedEntities.add(entityName.toLowerCase().trim(), count);
+            }
+            entityBuilder.addDocument(countedEntities, type);
+        }
+        // entityBuilder.addDocument(CollectionHelper.convertSet(entityNames, Functions.LOWERCASE), type);
         leftBuilder.addDocument(leftContexts, type);
         rightBuilder.addDocument(rightContexts, type);
     }
@@ -211,16 +220,9 @@ public class WikipediaEntityContextMiner {
     }
 
     public static void main(String[] args) throws IOException {
-        //String title = "Apple, Inc.";
-        //System.out.println("'"+title.replaceAll(",? Inc.", "")+"'");
-        //System.exit(0);
-        File wikipediaDump = new File("/Volumes/LaCie500/LocationLab/enwiki-20140707-pages-articles.xml.bz2");
+        File wikipediaDump = new File("/Volumes/iMac HD/temp/enwiki-20140707-pages-articles.xml.bz2");
         File ouputPath = new File("/Users/pk/temp");
-        mineContexts(wikipediaDump, ouputPath, 1, 10000);
-        // mineContexts(wikipediaDump, 1, Integer.MAX_VALUE);
-        // mineContexts(wikipediaDump, 2, Integer.MAX_VALUE);
-        // mineContexts(wikipediaDump, 3, Integer.MAX_VALUE);
-        // mineContexts(wikipediaDump, 4, Integer.MAX_VALUE);
+        mineContexts(wikipediaDump, ouputPath, 1, Integer.MAX_VALUE);
     }
 
 }
