@@ -1248,8 +1248,32 @@ public final class FileHelper {
         return getNumberOfLines(file.getPath());
     }
 
+    private static void addDirectorToZip(ZipOutputStream zout, File dir, String relativePath) {
+        File[] files = dir.listFiles();
+
+        LOGGER.debug("adding directory: " + dir.getName());
+
+        for (int i = 0; i < files.length; i++) {
+
+            // if the file is directory, use recursion
+            if (files[i].isDirectory()) {
+                addDirectorToZip(zout, files[i], files[i].getName() + "/");
+                continue;
+            }
+
+            try {
+                addFileToZip(zout, files[i], relativePath);
+            } catch (IOException ioe) {
+                LOGGER.error("error creating the zip, " + ioe);
+            }
+
+        }
+    }
+
     /**
-     * Zip a number of file to one file.
+     * <p>
+     * Zip a number of files to one file. The list of files may contain directories as well.
+     * </p>
      * 
      * @param files The files to zip.
      * @param targetFilename The name of the target zip file.
@@ -1260,39 +1284,54 @@ public final class FileHelper {
         ZipOutputStream zout = null;
 
         try {
-            byte[] buffer = new byte[1024];
 
             fout = new FileOutputStream(targetFilename);
             zout = new ZipOutputStream(fout);
 
             for (File sourceFile : files) {
 
-                LOGGER.debug("adding " + sourceFile + " to zip");
-
-                FileInputStream fin = new FileInputStream(sourceFile);
-
-                // add the zip entry
-                zout.putNextEntry(new ZipEntry(sourceFile.getPath()));
-
-                // now we write the file
-                int length;
-                while ((length = fin.read(buffer)) > 0) {
-                    zout.write(buffer, 0, length);
+                // if the file is directory, use recursion
+                if (sourceFile.isDirectory()) {
+                    addDirectorToZip(zout, sourceFile, sourceFile.getName() + "/");
+                    continue;
                 }
 
-                zout.closeEntry();
-                fin.close();
+                addFileToZip(zout, sourceFile, "");
+
             }
 
         } catch (IOException ioe) {
             LOGGER.error("error creating the zip, " + ioe);
         } finally {
-            close(fout, zout);
+            close(zout, fout);
         }
     }
 
+    private static void addFileToZip(ZipOutputStream zout, File sourceFile, String relativePath) throws IOException {
+        LOGGER.debug("adding " + sourceFile + " to zip");
+
+        byte[] buffer = new byte[1024];
+
+        FileInputStream fin = new FileInputStream(sourceFile);
+
+        // add the zip entry
+        zout.putNextEntry(new ZipEntry(relativePath + sourceFile.getName()));
+
+        // now we write the file
+        int length;
+        while ((length = fin.read(buffer)) > 0) {
+            zout.write(buffer, 0, length);
+        }
+
+        zout.closeEntry();
+        fin.close();
+    }
+
+
     /**
+     * <p>
      * Zip some text and save to a file. http://www.java2s.com/Tutorial/Java/0180__File/ZipafilewithGZIPOutputStream.htm
+     * </p>
      * 
      * @param text The text to be zipped.
      * @param filenameOutput The name of the zipped file.
