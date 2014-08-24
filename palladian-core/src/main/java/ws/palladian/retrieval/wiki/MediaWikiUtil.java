@@ -61,7 +61,7 @@ public final class MediaWikiUtil {
     private static final Pattern CONVERT_PATTERN = Pattern
             .compile("\\{\\{convert\\|([\\d.]+)\\|([\\w°]+)(\\|[^}]*)?\\}\\}");
     public static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
-    private static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("\\[http([^\\s]+)(?:\\s([^\\]]+))\\]");
+    static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("\\[http([^\\s]+)(?:\\s([^\\]]+))\\]");
 
     public static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
             Pattern.CASE_INSENSITIVE);
@@ -133,7 +133,7 @@ public final class MediaWikiUtil {
         return result;
     }
 
-    private static String processLinks(String string, Pattern linkPattern) {
+    static String processLinks(String string, Pattern linkPattern) {
         Matcher linkMatcher = linkPattern.matcher(string);
         StringBuffer buffer = new StringBuffer();
         while (linkMatcher.find()) {
@@ -183,6 +183,9 @@ public final class MediaWikiUtil {
                         break;
                     }
                 }
+                // use a space as placeholder for removed content;
+                // this way, we do not run into confusion with tags e.g. '' '' instead of ''''
+                charStack.push(' ');
             } else {
                 charStack.push(current);
             }

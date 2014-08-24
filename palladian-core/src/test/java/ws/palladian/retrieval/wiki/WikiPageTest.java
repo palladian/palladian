@@ -109,6 +109,15 @@ public class WikiPageTest {
         assertEquals(2, alternativeTitles.size());
         assertEquals("Dry Fork", alternativeTitles.get(0));
         assertEquals("Dry Run", alternativeTitles.get(1));
+        
+        markup = FileHelper.readFileToString(ResourceHelper
+                .getResourceFile("/wikipedia/University_of_Pennsylvania.wikipedia"));
+        page = new WikiPage(0, 0, "University of Pennsylvania", markup);
+        alternativeTitles = page.getAlternativeTitles();
+        assertEquals(3, alternativeTitles.size());
+        assertEquals("University of Pennsylvania", alternativeTitles.get(0));
+        assertEquals("Penn", alternativeTitles.get(1));
+        assertEquals("UPenn", alternativeTitles.get(2));
     }
 
 }

@@ -81,6 +81,9 @@ public class WikipediaEntityContextMiner {
                         LOGGER.info("Memory nearly exhausted, stopping. Make sure to assign lots of heap memory before running!");
                         throw new StopException();
                     }
+                    if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
+                        return;
+                    }
                     String pageType = page.getInfoboxType();
                     if (pageType == null) {
                         return;
@@ -159,18 +162,35 @@ public class WikipediaEntityContextMiner {
         result.put("australian place", "LOC");
         result.put("language", "MISC");
         // result.put("building", "");
-        result.put("television episode", "MISC");
+        // result.put("television episode", "MISC");
         result.put("organization", "ORG");
         // result.put("indian jurisdiction", "");
         // result.put("stadium", "");
         // result.put("royalty", "");
         result.put("gridiron football person", "PER");
         result.put("protected area", "LOC");
-        result.put("football club season", "MISC");
-        result.put("election", "MISC");
+        // removed:
+        // result.put("football club season", "MISC");
+        // result.put("election", "MISC");
         result.put("college coach", "PER");
         result.put("journal", "MISC");
+
+        result.put("building", "LOC");
         result.put("country", "LOC");
+        result.put("rail service", "MISC");
+        result.put("geopolitical organization", "MISC");
+        result.put("u.s. state", "LOC");
+        result.put("german state", "LOC");
+        result.put("islands", "LOC");
+        result.put("information appliance", "MISC");
+        result.put("mobile phone", "MISC");
+        result.put("computer", "MISC");
+        result.put("disease", "MISC");
+        result.put("automobile", "MISC");
+        result.put("electric vehicle", "MISC");
+        result.put("zoo", "LOC");
+        result.put("newspaper", "MISC");
+
         return Collections.unmodifiableMap(result);
     }
 
