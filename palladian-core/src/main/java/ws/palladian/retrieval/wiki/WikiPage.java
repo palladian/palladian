@@ -7,12 +7,15 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.html.HtmlHelper;
 
 /**
  * <p>
@@ -91,10 +94,7 @@ public class WikiPage extends WikiPageReference {
      */
     public String getRedirectTitle() {
         Matcher matcher = MediaWikiUtil.REDIRECT_PATTERN.matcher(text);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
+        return matcher.find() ? matcher.group(1) : null;
     }
 
     /**
@@ -107,17 +107,29 @@ public class WikiPage extends WikiPageReference {
     public List<String> getAlternativeTitles() {
         List<String> sections = getSections();
         if (sections.size() > 0) {
-            return getStringsInBold(sections.get(0));
+            String firstSection = sections.get(0);
+            firstSection = StringEscapeUtils.unescapeHtml4(firstSection);
+            firstSection = HtmlHelper.stripHtmlTags(firstSection);
+            firstSection = MediaWikiUtil.processLinks(firstSection, MediaWikiUtil.EXTERNAL_LINK_PATTERN);
+            firstSection = MediaWikiUtil.processLinks(firstSection, MediaWikiUtil.INTERNAL_LINK_PATTERN);
+            firstSection = MediaWikiUtil.removeBetween(firstSection, '{', '{', '}', '}');
+            firstSection = MediaWikiUtil.removeBetween(firstSection, '{', '|', '|', '}');
+            return getStringsInBold(firstSection);
         }
         return Collections.emptyList();
     }
 
     private static final List<String> getStringsInBold(String text) {
-        Pattern pattern = Pattern.compile("'''([^']+)'''");
+        // Pattern pattern = Pattern.compile("'''([^']+)'''");
+        // like this, it also works for bold text with a ' character:
+        Pattern pattern = Pattern.compile("'''([^'\n]+('[^'\n]+)?)'''");
         Matcher matcher = pattern.matcher(text);
         List<String> result = CollectionHelper.newArrayList();
         while (matcher.find()) {
-            result.add(matcher.group(1));
+            String group = matcher.group(1);
+            if (StringUtils.isNotBlank(group) && group.length() > 1) {
+                result.add(group.trim());
+            }
         }
         return result;
     }
