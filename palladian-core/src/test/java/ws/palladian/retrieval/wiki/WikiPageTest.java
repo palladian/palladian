@@ -109,7 +109,7 @@ public class WikiPageTest {
         assertEquals(2, alternativeTitles.size());
         assertEquals("Dry Fork", alternativeTitles.get(0));
         assertEquals("Dry Run", alternativeTitles.get(1));
-        
+
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/University_of_Pennsylvania.wikipedia"));
         page = new WikiPage(0, 0, "University of Pennsylvania", markup);
@@ -118,6 +118,15 @@ public class WikiPageTest {
         assertEquals("University of Pennsylvania", alternativeTitles.get(0));
         assertEquals("Penn", alternativeTitles.get(1));
         assertEquals("UPenn", alternativeTitles.get(2));
+
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/MS_Thomson_Majesty.wikipedia"));
+        page = new WikiPage(0, 0, "MS Thomson Majesty", markup);
+        alternativeTitles = page.getAlternativeTitles();
+        assertEquals(4, alternativeTitles.size());
+        assertEquals("MS Thomson Majesty", alternativeTitles.get(0));
+        assertEquals("MS Norwegian Majesty", alternativeTitles.get(1));
+        assertEquals("MS Birka Queen", alternativeTitles.get(2));
+        assertEquals("MS Royal Majesty", alternativeTitles.get(3));
     }
 
 }

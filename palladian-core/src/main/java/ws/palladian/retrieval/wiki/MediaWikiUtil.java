@@ -55,11 +55,11 @@ public final class MediaWikiUtil {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MediaWikiUtil.class);
 
-    private static final Pattern REF_PATTERN = Pattern.compile("<ref(?:\\s[^>]*)?>[^<]*</ref>|<ref[^/>]*/>",
-            Pattern.MULTILINE);
-    public static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}\\s*([^=]*)\\s*={1,6}$", Pattern.MULTILINE);
+    static final Pattern REF_PATTERN = Pattern.compile("<ref(?:\\s[^>]*)?>[^<]*</ref>|<ref[^/>]*/>", Pattern.MULTILINE);
+    public static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}\\s*([^=]*)\\s*={1,6}", Pattern.MULTILINE);
     private static final Pattern CONVERT_PATTERN = Pattern
             .compile("\\{\\{convert\\|([\\d.]+)\\|([\\w°]+)(\\|[^}]*)?\\}\\}");
+    static final Pattern LANG_PATTERN = Pattern.compile("\\{\\{(?:lang\\|[^|]*|lang-\\w{2})\\|([^|]*)\\}\\}");
     public static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
     static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("\\[http([^\\s]+)(?:\\s([^\\]]+))\\]");
 
@@ -108,6 +108,9 @@ public final class MediaWikiUtil {
 
         // replace {{convert|...}} tags
         result = CONVERT_PATTERN.matcher(result).replaceAll("$1 $2");
+        
+        // replace {{lang|...}} tags
+        result = replaceLangPattern(result);
 
         // replace internal links
         result = processLinks(result, INTERNAL_LINK_PATTERN);
@@ -131,6 +134,16 @@ public final class MediaWikiUtil {
         result = result.trim();
 
         return result;
+    }
+
+    /**
+     * Replace <a href="http://en.wikipedia.org/wiki/Template:Lang">lang</a> template.
+     * 
+     * @param text The text, not <code>null</code>.
+     * @return The text with removed lang template and the lang elements' text integrated.
+     */
+    static String replaceLangPattern(String text) {
+        return LANG_PATTERN.matcher(text).replaceAll("$1");
     }
 
     static String processLinks(String string, Pattern linkPattern) {
@@ -727,12 +740,14 @@ public final class MediaWikiUtil {
     }
 
     public static void main(String[] args) throws IOException, SAXException {
-        MediaWikiDescriptor deWikipedia = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
-        System.out.println(retrieveBacklinks(deWikipedia, "Mario Balotelli").size());
-        System.out.println(retrieveBacklinks(deWikipedia, "Mario Balotelli (song)").size());
+        MediaWikiDescriptor descriptor = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
+        System.out.println(retrieveArticle(descriptor, "Neuschwanstein_Castle").getAlternativeTitles());
         System.exit(0);
-        
-        List<WikiPageReference> articles = retrieveArticlesForCategory(deWikipedia, "category:1982 births");
+        System.out.println(retrieveBacklinks(descriptor, "Mario Balotelli").size());
+        System.out.println(retrieveBacklinks(descriptor, "Mario Balotelli (song)").size());
+        System.exit(0);
+
+        List<WikiPageReference> articles = retrieveArticlesForCategory(descriptor, "category:1982 births");
         CollectionHelper.print(articles);
         System.exit(0);
 

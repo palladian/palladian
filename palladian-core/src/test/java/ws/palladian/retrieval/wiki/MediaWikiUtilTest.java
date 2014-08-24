@@ -238,8 +238,9 @@ public class MediaWikiUtilTest {
         // data = WikipediaUtil.extractTemplate(page.getInfoboxMarkup());
         // coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
         // assertEquals(1, coordinates.size());
-        
-        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/CraigsvilleWestVirginia.wikipedia"));
+
+        markup = FileHelper.readFileToString(ResourceHelper
+                .getResourceFile("/wikipedia/CraigsvilleWestVirginia.wikipedia"));
         page = new WikiPage(0, 0, "Craigsville, West Virginia", markup);
         coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
@@ -253,20 +254,20 @@ public class MediaWikiUtilTest {
     public void testStripMarkup() throws IOException {
         String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dresden.wikipedia"));
         String cleanText = MediaWikiUtil.stripMediaWikiMarkup(markup);
-        assertEquals(44963, cleanText.length());
-        assertEquals(1578285072, cleanText.hashCode());
+        assertEquals(44999, cleanText.length());
+        assertEquals(82215810, cleanText.hashCode());
 
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/LutonAirportParkwayRailwayStation.wikipedia"));
         cleanText = MediaWikiUtil.stripMediaWikiMarkup(markup);
-        assertEquals(2737, cleanText.length());
-        assertEquals(-1288843650, cleanText.hashCode());
+        assertEquals(2743, cleanText.length());
+        assertEquals(-1897009842, cleanText.hashCode());
 
         markup = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/wikipedia/MiddlesbroughTransporterBridge.wikipedia"));
         cleanText = MediaWikiUtil.stripMediaWikiMarkup(markup);
-        assertEquals(6372, cleanText.length());
-        assertEquals(-505189318, cleanText.hashCode());
+        assertEquals(6376, cleanText.length());
+        assertEquals(-2062978054, cleanText.hashCode());
     }
 
     @Test
@@ -290,10 +291,18 @@ public class MediaWikiUtilTest {
 
     @Test
     public void testRemoveBetween() {
-        assertEquals("cf", MediaWikiUtil.removeBetween("{{{{a}}b}}c{{d{{e}}}}f", '{', '{', '}', '}'));
-        assertEquals("c", MediaWikiUtil.removeBetween("{{{{a}}b}}c", '{', '{', '}', '}'));
-        assertEquals("a\n\nb", MediaWikiUtil.removeBetween("a{{c}}\n\nb", '{', '{', '}', '}'));
-        assertEquals("abc  gh  l", MediaWikiUtil.removeBetween("abc {{d:{{e{{f}}}}}} gh {{ijk}} l", '{', '{', '}', '}'));
+        assertEquals(" c f", MediaWikiUtil.removeBetween("{{{{a}}b}}c{{d{{e}}}}f", '{', '{', '}', '}'));
+        assertEquals(" c", MediaWikiUtil.removeBetween("{{{{a}}b}}c", '{', '{', '}', '}'));
+        assertEquals("a \n\nb", MediaWikiUtil.removeBetween("a{{c}}\n\nb", '{', '{', '}', '}'));
+        assertEquals("abc   gh   l",
+                MediaWikiUtil.removeBetween("abc {{d:{{e{{f}}}}}} gh {{ijk}} l", '{', '{', '}', '}'));
+    }
+
+    @Test
+    public void testRemoveLang() {
+        assertEquals("She said: \"''Je suis française.''\"",
+                MediaWikiUtil.replaceLangPattern("She said: \"''{{lang|fr|Je suis française.}}''\""));
+        assertEquals("español", MediaWikiUtil.replaceLangPattern("{{lang-es|español}}"));
     }
 
 }
