@@ -2047,7 +2047,7 @@ public final class StringHelper {
 
     /**
      * <p>
-     * Print all groups in a {@link Matcher}; useful for debugging.
+     * Print all groups in a {@link Matcher}; useful for debugging. Note: Invoke {@link Matcher#find()} in advance.
      * </p>
      * 
      * @param matcher The matcher, not <code>null</code>.

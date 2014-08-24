@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +107,8 @@ public class WikiPage extends WikiPageReference {
         List<String> sections = getSections();
         if (sections.size() > 0) {
             String firstSection = sections.get(0);
+            firstSection = MediaWikiUtil.REF_PATTERN.matcher(firstSection).replaceAll("");
+            firstSection = MediaWikiUtil.replaceLangPattern(firstSection);
             firstSection = StringEscapeUtils.unescapeHtml4(firstSection);
             firstSection = HtmlHelper.stripHtmlTags(firstSection);
             firstSection = MediaWikiUtil.processLinks(firstSection, MediaWikiUtil.EXTERNAL_LINK_PATTERN);
@@ -122,15 +123,43 @@ public class WikiPage extends WikiPageReference {
     private static final List<String> getStringsInBold(String text) {
         // Pattern pattern = Pattern.compile("'''([^']+)'''");
         // like this, it also works for bold text with a ' character:
-        Pattern pattern = Pattern.compile("'''([^'\n]+('[^'\n]+)?)'''");
-        Matcher matcher = pattern.matcher(text);
-        List<String> result = CollectionHelper.newArrayList();
-        while (matcher.find()) {
-            String group = matcher.group(1);
-            if (StringUtils.isNotBlank(group) && group.length() > 1) {
-                result.add(group.trim());
+//        Pattern pattern = Pattern.compile("'''([^'\n]+('[^'\n]+)?)'''");
+//        Matcher matcher = pattern.matcher(text);
+//        List<String> result = CollectionHelper.newArrayList();
+//        while (matcher.find()) {
+//            String group = matcher.group(1);
+//            if (StringUtils.isNotBlank(group) && group.length() > 1) {
+//                result.add(group.trim());
+//            }
+//        }
+//        return result;
+        
+        final List<String> result = CollectionHelper.newArrayList();
+        MediaWikiFormattingParser.parse(text, new MediaWikiFormattingParser.ParserAdapter() {
+            StringBuilder buffer = new StringBuilder();
+            boolean bold = false;
+
+            @Override
+            public void character(char ch) {
+                if (bold) {
+                    buffer.append(ch);
+                }
             }
-        }
+
+            @Override
+            public void boldItalic() {
+                bold();
+            }
+
+            @Override
+            public void bold() {
+                if (bold) {
+                    result.add(buffer.toString());
+                    buffer = new StringBuilder();
+                }
+                bold ^= true;
+            }
+        });
         return result;
     }
 
