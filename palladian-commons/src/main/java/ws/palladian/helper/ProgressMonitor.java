@@ -1,5 +1,6 @@
 package ws.palladian.helper;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
@@ -69,6 +70,7 @@ public final class ProgressMonitor {
         this.totalCount = totalCount;
         this.showEveryPercent = showEveryPercent;
         this.processName = processName;
+        stopWatch.setOutputDetail(TimeUnit.SECONDS);
     }
 
     private String createProgressBar(double percent) {
@@ -146,7 +148,7 @@ public final class ProgressMonitor {
                 double percent = MathHelper.round(100 * counter / (double)totalCount, 2);
                 progressString.append(createProgressBar(percent));
                 progressString.append(" ").append(percent).append("% (");
-                progressString.append(totalCount - counter).append(" remaining");
+                progressString.append(totalCount - counter).append(" left");
                 if (stopWatch != null && percent > 0) {
                     long msRemaining = (long)((100 - percent) * stopWatch.getTotalElapsedTime() / percent);
                     // if elapsed not possible (timer started long before progress helper used) =>
@@ -154,7 +156,8 @@ public final class ProgressMonitor {
                     progressString.append(", elapsed: ").append(stopWatch.getTotalElapsedTimeString());
                     progressString.append(", iteration: ").append(stopWatch.getElapsedTimeString());
                     if (counter < totalCount) {
-                        progressString.append(", ~remaining: ").append(DateHelper.formatDuration(0, msRemaining, true));
+                        progressString.append(", ~remaining: ").append(
+                                DateHelper.formatDuration(0, msRemaining, true).replaceAll("\\:\\d+ms", ""));
                     }
                     stopWatch.start();
                 }
