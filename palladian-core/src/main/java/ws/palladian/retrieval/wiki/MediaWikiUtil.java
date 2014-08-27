@@ -741,7 +741,7 @@ public final class MediaWikiUtil {
 
     public static void main(String[] args) throws IOException, SAXException {
         MediaWikiDescriptor descriptor = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
-        System.out.println(retrieveArticle(descriptor, "Neuschwanstein_Castle").getAlternativeTitles());
+        System.out.println(retrieveArticle(descriptor, "United Kingdom").getAlternativeTitles());
         System.exit(0);
         System.out.println(retrieveBacklinks(descriptor, "Mario Balotelli").size());
         System.out.println(retrieveBacklinks(descriptor, "Mario Balotelli (song)").size());

@@ -115,7 +115,13 @@ public class WikiPage extends WikiPageReference {
             firstSection = MediaWikiUtil.processLinks(firstSection, MediaWikiUtil.INTERNAL_LINK_PATTERN);
             firstSection = MediaWikiUtil.removeBetween(firstSection, '{', '{', '}', '}');
             firstSection = MediaWikiUtil.removeBetween(firstSection, '{', '|', '|', '}');
-            return getStringsInBold(firstSection);
+            firstSection = firstSection.trim();
+            for (String split : firstSection.split("\n")) {
+                List<String> titles = getStringsInBold(split);
+                if (titles.size() > 0) {
+                    return titles;
+                }
+            }
         }
         return Collections.emptyList();
     }
