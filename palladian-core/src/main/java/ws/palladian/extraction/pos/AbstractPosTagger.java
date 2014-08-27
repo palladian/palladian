@@ -31,7 +31,7 @@ public abstract class AbstractPosTagger implements Tagger {
 
     @Override
     public List<Annotation> getAnnotations(String text) {
-        Iterator<Token> tokenAnnotations = getTokenizer().iterateSpans(text);
+        Iterator<Token> tokenAnnotations = getTokenizer().iterateTokens(text);
         List<Token> tokenList = CollectionHelper.newArrayList(tokenAnnotations);
         List<String> tokens = CollectionHelper.convertList(tokenList, Token.STRING_CONVERTER);
         List<String> posTags = getTags(tokens);

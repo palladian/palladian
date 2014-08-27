@@ -44,7 +44,7 @@ public final class Tokenizer {
      * @return A list of tokens.
      */
     public static List<String> tokenize(String inputString) {
-        Iterator<Token> tokenIterator = new WordTokenizer().iterateSpans(inputString);
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(inputString);
         return CollectionHelper.newArrayList(CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER));
     }
 
@@ -59,7 +59,7 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateCharNGrams(String string, int n) {
-        Iterator<Token> nGramIterator = new CharacterNGramTokenizer(n, n).iterateSpans(string);
+        Iterator<Token> nGramIterator = new CharacterNGramTokenizer(n, n).iterateTokens(string);
         return CollectionHelper.newHashSet(CollectionHelper.convert(nGramIterator, Token.STRING_CONVERTER));
     }
 
@@ -92,7 +92,7 @@ public final class Tokenizer {
      * @return A list of n-grams.
      */
     public static List<String> calculateWordNGramsAsList(String string, int n) {
-        Iterator<Token> tokenIterator = new WordTokenizer().iterateSpans(string);
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(string);
         tokenIterator = new NGramWrapperIterator(tokenIterator, n, n);
         return CollectionHelper.newArrayList(CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER));
     }
@@ -109,7 +109,7 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllCharNGrams(String string, int n1, int n2) {
-        Iterator<Token> tokenIterator = new CharacterNGramTokenizer(n1, n2).iterateSpans(string);
+        Iterator<Token> tokenIterator = new CharacterNGramTokenizer(n1, n2).iterateTokens(string);
         return CollectionHelper.newHashSet(CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER));
     }
 
@@ -125,7 +125,7 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllWordNGrams(String string, int n1, int n2) {
-        Iterator<Token> tokenIterator = new WordTokenizer().iterateSpans(string);
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(string);
         tokenIterator = new NGramWrapperIterator(tokenIterator, n1, n2);
         return CollectionHelper.newHashSet(CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER));
     }
@@ -191,7 +191,7 @@ public final class Tokenizer {
      * @return A list with sentences.
      */
     public static List<String> getSentences(String inputText, boolean onlyRealSentences, Language language) {
-        List<Token> annotations = CollectionHelper.newArrayList(new PalladianSentenceDetector(language).iterateSpans(inputText));
+        List<Token> annotations = CollectionHelper.newArrayList(new PalladianSentenceDetector(language).iterateTokens(inputText));
         List<String> sentences = CollectionHelper.convertList(annotations, Token.STRING_CONVERTER);
         // TODO Since requirements might differ slightly from application to application, this filtering should be
         // carried out by each calling application itself.

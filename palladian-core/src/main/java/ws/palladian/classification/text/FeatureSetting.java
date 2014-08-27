@@ -41,6 +41,9 @@ public class FeatureSetting implements Serializable {
     /** Name of the key for caseSensitive switch when creating a map. */
     public static final String PROPERTY_CASE_SENSITIVE = "caseSensitive";
 
+    /** Name of the key for characterPadding switch when creating a map. */
+    public static final String PROPERTY_CHARACTER_PADDING = "characterPadding";
+
     /** The default maximum term length. */
     static final int DEFAULT_MIN_TERM_LENGTH = 3;
 
@@ -58,6 +61,9 @@ public class FeatureSetting implements Serializable {
 
     /** The default value for case sensitive switch. */
     static final boolean DEFAULT_CASE_SENSITIVE = false;
+
+    /** The default value for character padding. */
+    static final boolean DEFAULT_CHARACTER_PADDING = false;
 
     public static enum TextFeatureType {
         /** Use n-Grams on a character level. */
@@ -92,6 +98,9 @@ public class FeatureSetting implements Serializable {
 
     /** Indicate, whether the text should be treated case insensitively or not. */
     private boolean caseSensitive = DEFAULT_CASE_SENSITIVE;
+    
+    /** Indicate, whether to add character padding when using character n-gram features. */
+    private boolean characterPadding = DEFAULT_CHARACTER_PADDING;
 
     /**
      * @deprecated Consider using the {@link FeatureSettingBuilder} for better readability.
@@ -133,6 +142,7 @@ public class FeatureSetting implements Serializable {
         this.minimumTermLength = builder.minTermLength;
         this.maximumTermLength = builder.maxTermLength;
         this.caseSensitive = builder.caseSensitive;
+        this.characterPadding = builder.characterPadding;
     }
 
     /**
@@ -151,6 +161,8 @@ public class FeatureSetting implements Serializable {
         this.maximumTermLength = Integer.parseInt(properties.get(PROPERTY_MAX_TERM_LENGTH));
         String csValue = properties.get(PROPERTY_CASE_SENSITIVE);
         this.caseSensitive = csValue != null ? Boolean.parseBoolean(csValue) : DEFAULT_CASE_SENSITIVE;
+        String cpValue = properties.get(PROPERTY_CHARACTER_PADDING);
+        this.characterPadding = cpValue != null ? Boolean.parseBoolean(cpValue) : DEFAULT_CHARACTER_PADDING;
     }
 
     public TextFeatureType getTextFeatureType() {
@@ -187,6 +199,10 @@ public class FeatureSetting implements Serializable {
     public boolean isCaseSensitive() {
         return caseSensitive;
     }
+    
+    public boolean isCharacterPadding() {
+        return characterPadding;
+    }
 
     @Override
     public String toString() {
@@ -209,6 +225,9 @@ public class FeatureSetting implements Serializable {
         if (isCaseSensitive()) {
             builder.append(", caseSensitive");
         }
+        if (isCharacterPadding()) {
+            builder.append(", characterPadding");
+        }
         builder.append("]");
         return builder.toString();
     }
@@ -225,6 +244,7 @@ public class FeatureSetting implements Serializable {
         map.put(PROPERTY_MIN_TERM_LENGTH, String.valueOf(minimumTermLength));
         map.put(PROPERTY_MAX_TERM_LENGTH, String.valueOf(maximumTermLength));
         map.put(PROPERTY_CASE_SENSITIVE, String.valueOf(caseSensitive));
+        map.put(PROPERTY_CHARACTER_PADDING, String.valueOf(characterPadding));
         return map;
     }
 

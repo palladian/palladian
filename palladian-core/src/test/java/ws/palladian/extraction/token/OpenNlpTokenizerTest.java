@@ -16,7 +16,7 @@ public class OpenNlpTokenizerTest {
     @Test
     public void testOpenNlpTokenizer() {
         OpenNlpTokenizer tokenizer = new OpenNlpTokenizer();
-        Iterator<Token> tokens = tokenizer.iterateSpans(TEXT);
+        Iterator<Token> tokens = tokenizer.iterateTokens(TEXT);
         assertEquals(10, CollectionHelper.count(tokens));
     }
 

@@ -67,7 +67,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
     }
 
     @Override
-    public Iterator<Token> iterateSpans(String text) {
+    public Iterator<Token> iterateTokens(String text) {
         // recognize URLs, dates and smileys, so we don't break them
         List<Annotation> maskAnnotations = CollectionHelper.newArrayList();
         maskAnnotations.addAll(UrlTagger.INSTANCE.getAnnotations(text));

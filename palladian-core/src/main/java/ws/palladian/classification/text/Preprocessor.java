@@ -34,9 +34,10 @@ public class Preprocessor implements Function<String, Iterator<String>> {
         int maxNGramLength = featureSetting.getMaxNGramLength();
         Iterator<Token> tokenIterator;
         if (featureSetting.getTextFeatureType() == TextFeatureType.CHAR_NGRAMS) {
-            tokenIterator = new CharacterNGramTokenizer(minNGramLength, maxNGramLength).iterateSpans(content);
+            tokenIterator = new CharacterNGramTokenizer(minNGramLength, maxNGramLength,
+                    featureSetting.isCharacterPadding()).iterateTokens(content);
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            tokenIterator = new WordTokenizer().iterateSpans(content);
+            tokenIterator = new WordTokenizer().iterateTokens(content);
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
         } else {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());

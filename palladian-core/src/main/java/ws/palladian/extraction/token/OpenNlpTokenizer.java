@@ -7,8 +7,10 @@ import java.io.InputStream;
 import java.util.Iterator;
 
 import opennlp.tools.tokenize.SimpleTokenizer;
+import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.util.Span;
 
 import org.apache.commons.lang3.Validate;
 
@@ -33,7 +35,7 @@ import edu.stanford.nlp.process.AbstractTokenizer;
 public final class OpenNlpTokenizer implements TextTokenizer {
 
     /** The OpenNLP Tokenizer to use. */
-    private final opennlp.tools.tokenize.Tokenizer tokenizer;
+    private final Tokenizer tokenizer;
 
     /**
      * <p>
@@ -47,13 +49,12 @@ public final class OpenNlpTokenizer implements TextTokenizer {
 
     /**
      * <p>
-     * Create a new {@link OpenNlpTokenizer} using an arbitrary implementation of
-     * {@link opennlp.tools.tokenize.Tokenizer}.
+     * Create a new {@link OpenNlpTokenizer} using an arbitrary implementation of {@link Tokenizer}.
      * </p>
      * 
      * @param tokenizer
      */
-    public OpenNlpTokenizer(opennlp.tools.tokenize.Tokenizer tokenizer) {
+    public OpenNlpTokenizer(Tokenizer tokenizer) {
         Validate.notNull(tokenizer, "tokenizer must not be null");
         this.tokenizer = tokenizer;
     }
@@ -83,8 +84,8 @@ public final class OpenNlpTokenizer implements TextTokenizer {
     }
 
     @Override
-    public Iterator<Token> iterateSpans(final String text) {
-        final opennlp.tools.util.Span[] spans = tokenizer.tokenizePos(text);
+    public Iterator<Token> iterateTokens(final String text) {
+        final Span[] spans = tokenizer.tokenizePos(text);
         return new AbstractIterator<Token>() {
             int idx = 0;
 
@@ -93,7 +94,7 @@ public final class OpenNlpTokenizer implements TextTokenizer {
                 if (idx >= spans.length) {
                     throw FINISHED;
                 }
-                opennlp.tools.util.Span span = spans[idx++];
+                Span span = spans[idx++];
                 String value = text.substring(span.getStart(), span.getEnd());
                 return new ImmutableToken(span.getStart(), value);
             }

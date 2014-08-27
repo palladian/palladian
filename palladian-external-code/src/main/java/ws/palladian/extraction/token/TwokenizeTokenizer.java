@@ -20,7 +20,7 @@ import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
 public final class TwokenizeTokenizer implements TextTokenizer {
 
     @Override
-    public Iterator<Token> iterateSpans(final String text) {
+    public Iterator<Token> iterateTokens(final String text) {
 
         final Iterator<String> tokens = Twokenize.tokenizeForTagger_J(text).iterator();
         return new AbstractIterator<Token>() {
