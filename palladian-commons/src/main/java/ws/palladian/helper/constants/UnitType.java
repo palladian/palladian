@@ -1,4 +1,4 @@
-package ws.palladian.helper.normalization;
+package ws.palladian.helper.constants;
 
 import java.util.Collections;
 import java.util.List;
@@ -7,7 +7,6 @@ import org.javatuples.Pair;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
-import ws.palladian.helper.constants.TemperatureUnit;
 
 /**
  * <p>
