@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
+import ws.palladian.helper.constants.UnitType;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
