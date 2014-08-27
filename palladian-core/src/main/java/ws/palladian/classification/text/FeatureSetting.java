@@ -18,7 +18,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  */
 public class FeatureSetting implements Serializable {
 
-    private static final long serialVersionUID = 8129286644101075891L;
+    private static final long serialVersionUID = 8747272894244244525L;
 
     /** Name of the key for maxTermLength when creating a map. */
     public static final String PROPERTY_MAX_TERM_LENGTH = "maxTermLength";
@@ -38,6 +38,9 @@ public class FeatureSetting implements Serializable {
     /** Name of the key for textFeatureType when creating a map. */
     public static final String PROPERTY_TEXT_FEATURE_TYPE = "textFeatureType";
 
+    /** Name of the key for caseSensitive switch when creating a map. */
+    public static final String PROPERTY_CASE_SENSITIVE = "caseSensitive";
+
     /** The default maximum term length. */
     static final int DEFAULT_MIN_TERM_LENGTH = 3;
 
@@ -52,6 +55,9 @@ public class FeatureSetting implements Serializable {
 
     /** The default maximum n-gram length. */
     static final int DEFAULT_MAX_NGRAM_LENGTH = 7;
+
+    /** The default value for case sensitive switch. */
+    static final boolean DEFAULT_CASE_SENSITIVE = false;
 
     public static enum TextFeatureType {
         /** Use n-Grams on a character level. */
@@ -83,6 +89,9 @@ public class FeatureSetting implements Serializable {
      * {@link TextFeatureType#WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
      */
     private int maximumTermLength = DEFAULT_MAX_TERM_LENGTH;
+
+    /** Indicate, whether the text should be treated case insensitively or not. */
+    private boolean caseSensitive = DEFAULT_CASE_SENSITIVE;
 
     /**
      * @deprecated Consider using the {@link FeatureSettingBuilder} for better readability.
@@ -123,6 +132,7 @@ public class FeatureSetting implements Serializable {
         this.maxNGramLength = builder.maxNGramLength;
         this.minimumTermLength = builder.minTermLength;
         this.maximumTermLength = builder.maxTermLength;
+        this.caseSensitive = builder.caseSensitive;
     }
 
     /**
@@ -139,6 +149,8 @@ public class FeatureSetting implements Serializable {
         this.maxNGramLength = Integer.parseInt(properties.get(PROPERTY_MAX_N_GRAM_LENGTH));
         this.minimumTermLength = Integer.parseInt(properties.get(PROPERTY_MIN_TERM_LENGTH));
         this.maximumTermLength = Integer.parseInt(properties.get(PROPERTY_MAX_TERM_LENGTH));
+        String csValue = properties.get(PROPERTY_CASE_SENSITIVE);
+        this.caseSensitive = csValue != null ? Boolean.parseBoolean(csValue) : DEFAULT_CASE_SENSITIVE;
     }
 
     public TextFeatureType getTextFeatureType() {
@@ -172,6 +184,10 @@ public class FeatureSetting implements Serializable {
         return textFeatureType == TextFeatureType.WORD_NGRAMS && minNGramLength == 1 & maxNGramLength == 1;
     }
 
+    public boolean isCaseSensitive() {
+        return caseSensitive;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -190,6 +206,9 @@ public class FeatureSetting implements Serializable {
         if (DEFAULT_MAX_TERMS != maxTerms) {
             builder.append(", maxTerms=").append(maxTerms);
         }
+        if (isCaseSensitive()) {
+            builder.append(", caseSensitive");
+        }
         builder.append("]");
         return builder.toString();
     }
@@ -205,6 +224,7 @@ public class FeatureSetting implements Serializable {
         map.put(PROPERTY_MAX_N_GRAM_LENGTH, String.valueOf(maxNGramLength));
         map.put(PROPERTY_MIN_TERM_LENGTH, String.valueOf(minimumTermLength));
         map.put(PROPERTY_MAX_TERM_LENGTH, String.valueOf(maximumTermLength));
+        map.put(PROPERTY_CASE_SENSITIVE, String.valueOf(caseSensitive));
         return map;
     }
 

@@ -26,14 +26,17 @@ public class Preprocessor implements Function<String, Iterator<String>> {
 
     @Override
     public Iterator<String> compute(String input) {
-        String lowercaseContent = input.toLowerCase();
+        String content = input;
+        if (!featureSetting.isCaseSensitive()) {
+            content = content.toLowerCase();
+        }
         int minNGramLength = featureSetting.getMinNGramLength();
         int maxNGramLength = featureSetting.getMaxNGramLength();
         Iterator<Token> tokenIterator;
         if (featureSetting.getTextFeatureType() == TextFeatureType.CHAR_NGRAMS) {
-            tokenIterator = new CharacterNGramTokenizer(minNGramLength, maxNGramLength).iterateSpans(lowercaseContent);
+            tokenIterator = new CharacterNGramTokenizer(minNGramLength, maxNGramLength).iterateSpans(content);
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            tokenIterator = new WordTokenizer().iterateSpans(lowercaseContent);
+            tokenIterator = new WordTokenizer().iterateSpans(content);
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
         } else {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
