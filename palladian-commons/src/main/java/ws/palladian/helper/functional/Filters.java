@@ -137,14 +137,30 @@ public final class Filters {
 
     }
 
-    public static <T> Filter<T> chain(Set<Filter<? super T>> filters) {
+    /**
+     * <p>
+     * Combine multiple filters so that they act as <code>AND</code> combination (i.e. each of the given filters needs
+     * to accept and item).
+     * 
+     * @param filters The filters to combine, not <code>null</code>.
+     * @return An <code>AND</code>-combination of the given filters.
+     */
+    public static <T> Filter<T> and(Set<? extends Filter<? super T>> filters) {
         Validate.notNull(filters, "filters must not be null");
-        return new FilterChain<T>(filters);
+        return new AndFilter<T>(filters);
     }
 
-    public static <T> Filter<T> chain(Filter<? super T>... filters) {
+    /**
+     * <p>
+     * Combine multiple filters so that they act as <code>AND</code> combination (i.e. each of the given filters needs
+     * to accept and item).
+     * 
+     * @param filters The filters to combine, not <code>null</code>.
+     * @return An <code>AND</code>-combination of the given filters.
+     */
+    public static <T> Filter<T> and(Filter<? super T>... filters) {
         Validate.notNull(filters, "filters must not be null");
-        return new FilterChain<T>(new HashSet<Filter<? super T>>(Arrays.asList(filters)));
+        return new AndFilter<T>(new HashSet<Filter<? super T>>(Arrays.asList(filters)));
     }
 
     /**
@@ -154,11 +170,11 @@ public final class Filters {
      * @param <T> Type of items to be processed.
      * @author pk
      */
-    private static final class FilterChain<T> implements Filter<T> {
+    private static final class AndFilter<T> implements Filter<T> {
 
-        private final Set<Filter<? super T>> filters;
+        private final Set<? extends Filter<? super T>> filters;
 
-        public FilterChain(Set<Filter<? super T>> filters) {
+        AndFilter(Set<? extends Filter<? super T>> filters) {
             this.filters = filters;
         }
 
