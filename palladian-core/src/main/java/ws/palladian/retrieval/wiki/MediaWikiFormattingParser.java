@@ -133,14 +133,9 @@ public final class MediaWikiFormattingParser {
                     parsedApostrophe();
                     parsedBold();
                 } else {
-                    if (earlierBold(parseIdx)) {
-                        parsedApostrophe();
-                        parsedBold();
-                    } else if (parseIdx >= 2 && chars[parseIdx - 1] == ' ' && chars[parseIdx - 2] != ' ') {
-                        parsedApostrophe();
-                        parsedApostrophe();
-                        parsedItalic();
-                    }
+                    parsedApostrophe();
+                    parsedApostrophe();
+                    parsedItalic();
                 }
                 break;
             case 5:
@@ -213,6 +208,9 @@ public final class MediaWikiFormattingParser {
                 apostropheMap.put(i - numApostrophes, numApostrophes);
                 numApostrophes = 0;
             }
+        }
+        if (numApostrophes > 0) {
+            apostropheMap.put(chars.length - numApostrophes, numApostrophes);
         }
         return apostropheMap;
     }
