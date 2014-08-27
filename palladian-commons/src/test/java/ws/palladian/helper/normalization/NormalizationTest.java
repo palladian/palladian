@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
+import ws.palladian.helper.constants.UnitType;
 
 /**
  * Test cases for the normalization.
