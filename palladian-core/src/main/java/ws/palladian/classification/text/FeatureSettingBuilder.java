@@ -21,6 +21,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     int maxNGramLength = FeatureSetting.DEFAULT_MAX_NGRAM_LENGTH;
     int minTermLength = FeatureSetting.DEFAULT_MIN_TERM_LENGTH;
     int maxTermLength = FeatureSetting.DEFAULT_MAX_TERM_LENGTH;
+    boolean caseSensitive = FeatureSetting.DEFAULT_CASE_SENSITIVE;
 
     /**
      * <p>
@@ -191,6 +192,16 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         this.minTermLength = min;
         this.maxTermLength = max;
         nGramLength(1);
+        return this;
+    }
+
+    /**
+     * Make the feature extraction case sensitive (as opposed to the default setting, where case does not matter).
+     * 
+     * @return The builder, to allow method chaining.
+     */
+    public FeatureSettingBuilder caseSensitive() {
+        this.caseSensitive = true;
         return this;
     }
 
