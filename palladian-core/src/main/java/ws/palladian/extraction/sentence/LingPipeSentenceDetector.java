@@ -43,7 +43,7 @@ public final class LingPipeSentenceDetector implements SentenceDetector {
     }
 
     @Override
-    public Iterator<Token> iterateSpans(final String text) {
+    public Iterator<Token> iterateTokens(final String text) {
         Validate.notNull(text, "text must not be null");
         Chunking chunking = sentenceChunker.chunk(text);
         final Iterator<Chunk> chunkIterator = chunking.chunkSet().iterator();

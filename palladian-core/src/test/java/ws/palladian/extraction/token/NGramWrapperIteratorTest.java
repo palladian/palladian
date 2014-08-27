@@ -17,7 +17,7 @@ public class NGramWrapperIteratorTest {
 
     @Test
     public void test_1_2() {
-        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateSpans(STRING), 1, 2);
+        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateTokens(STRING), 1, 2);
         List<Token> nGrams = CollectionHelper.newArrayList(iterator);
         // CollectionHelper.print(nGrams);
         assertEquals(7, nGrams.size());
@@ -32,7 +32,7 @@ public class NGramWrapperIteratorTest {
 
     @Test
     public void test_1_3() {
-        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateSpans(STRING), 1, 3);
+        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateTokens(STRING), 1, 3);
         List<Token> nGrams = CollectionHelper.newArrayList(iterator);
         // CollectionHelper.print(nGrams);
         assertEquals(9, nGrams.size());
@@ -49,7 +49,7 @@ public class NGramWrapperIteratorTest {
 
     @Test
     public void test_1_1() {
-        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateSpans(STRING), 1, 1);
+        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateTokens(STRING), 1, 1);
         List<Token> nGrams = CollectionHelper.newArrayList(iterator);
         // CollectionHelper.print(nGrams);
         assertEquals(4, nGrams.size());
@@ -61,7 +61,7 @@ public class NGramWrapperIteratorTest {
 
     @Test
     public void test_2_2() {
-        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateSpans(STRING), 2, 2);
+        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateTokens(STRING), 2, 2);
         List<Token> nGrams = CollectionHelper.newArrayList(iterator);
         // CollectionHelper.print(nGrams);
         assertEquals(3, nGrams.size());
@@ -72,7 +72,7 @@ public class NGramWrapperIteratorTest {
 
     @Test
     public void test_5() {
-        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateSpans(STRING), 5, 5);
+        Iterator<Token> iterator = new NGramWrapperIterator(new WordTokenizer().iterateTokens(STRING), 5, 5);
         List<Token> nGrams = CollectionHelper.newArrayList(iterator);
         assertEquals(0, nGrams.size());
     }

@@ -19,7 +19,7 @@ public final class WordTokenizer implements TextTokenizer {
     private static final Pattern PATTERN = Pattern.compile(Tokenizer.TOKEN_SPLIT_REGEX, DOTALL | CASE_INSENSITIVE);
 
     @Override
-    public Iterator<Token> iterateSpans(String text) {
+    public Iterator<Token> iterateTokens(String text) {
         Validate.notNull(text, "text must not be null");
         final Matcher matcher = PATTERN.matcher(text);
         return new AbstractIterator<Token>() {

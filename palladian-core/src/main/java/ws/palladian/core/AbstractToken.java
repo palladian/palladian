@@ -62,5 +62,10 @@ public abstract class AbstractToken implements Token {
         }
         return true;
     }
+    
+    @Override
+    public String toString() {
+        return getValue() + " (" + getStartPosition() + "," + getEndPosition() + ")";
+    }
 
 }

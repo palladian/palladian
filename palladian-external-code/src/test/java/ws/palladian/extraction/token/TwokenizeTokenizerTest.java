@@ -34,7 +34,7 @@ public class TwokenizeTokenizerTest {
 
     @Test
     public void testTwokenizeTokenizer() {
-        Iterator<Token> spans = tokenizer.iterateSpans(TWEET);
+        Iterator<Token> spans = tokenizer.iterateTokens(TWEET);
         int i = 0;
         while (spans.hasNext()) {
             Token span = spans.next();
@@ -45,7 +45,7 @@ public class TwokenizeTokenizerTest {
     @Test
     public void testTwokenizeProblem() {
         // see comment in TwokenizeTokenizer class, line 35
-        tokenizer.iterateSpans(TWEET2);
+        tokenizer.iterateTokens(TWEET2);
     }
 
 }

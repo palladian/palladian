@@ -59,7 +59,7 @@ public class SentenceDetectorTest {
     @Test
     public void testLingPipeSentenceChunker() throws Exception {
         SentenceDetector sentenceDetector = new LingPipeSentenceDetector();
-        Iterator<Token> sentences = sentenceDetector.iterateSpans(fixture);
+        Iterator<Token> sentences = sentenceDetector.iterateTokens(fixture);
         while (sentences.hasNext()){
             assertTrue(expectedResult.contains(sentences.next().getValue()));
         }
@@ -69,7 +69,7 @@ public class SentenceDetectorTest {
     public void testOpenNLPSentenceChunker() throws Exception {
         SentenceDetector sentenceDetector = new OpenNlpSentenceDetector(
                 ResourceHelper.getResourceFile("/model/en-sent.bin"));
-        Iterator<Token> sentences = sentenceDetector.iterateSpans(fixture);
+        Iterator<Token> sentences = sentenceDetector.iterateTokens(fixture);
         while (sentences.hasNext()){
             assertTrue(expectedResult.contains(sentences.next().getValue()));
         }
@@ -78,7 +78,7 @@ public class SentenceDetectorTest {
     @Test
     public void testPalladianSentenceChunker() throws FileNotFoundException {
         SentenceDetector sentenceDetector = new PalladianSentenceDetector(Language.ENGLISH);
-        List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector.iterateSpans(fixture2));
+        List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector.iterateTokens(fixture2));
         assertThat(sentences.size(), Matchers.is(269));
         assertThat(sentences.get(sentences.size() - 1).getValue(), is("DBConnection disconnect\nINFO: disconnected"));
     }
@@ -87,7 +87,7 @@ public class SentenceDetectorTest {
     public void testPalladianSentenceChunkerWithMaskAtEndOfText() {
         SentenceDetector sentenceDetector = new PalladianSentenceDetector(Language.ENGLISH);
         List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector
-                .iterateSpans("Web Dynpro is just in ramp up now. You can't use Web Dynpro in production environments.\n\nYou can develop BSP and J2EE Applications with 6.20. You connect to your R/3 System through RFC. This applications can also be used in 4.7."));
+                .iterateTokens("Web Dynpro is just in ramp up now. You can't use Web Dynpro in production environments.\n\nYou can develop BSP and J2EE Applications with 6.20. You connect to your R/3 System through RFC. This applications can also be used in 4.7."));
         assertThat(sentences.size(), is(5));
         assertThat(sentences.get(sentences.size() - 1).getValue(), is("This applications can also be used in 4.7."));
     }
@@ -96,7 +96,7 @@ public class SentenceDetectorTest {
     public void testPalladianSentenceChunkerWithLineBreakAtEndOfText() throws IOException {
         SentenceDetector sentenceDetector = new PalladianSentenceDetector(Language.ENGLISH);
         String text = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/contribution03.txt"));
-        List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector.iterateSpans(text));
+        List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector.iterateTokens(text));
         assertThat(sentences.size(), is(81));
         assertThat(sentences.get(sentences.size() - 1).getValue(), is("Return code: 4"));
     }

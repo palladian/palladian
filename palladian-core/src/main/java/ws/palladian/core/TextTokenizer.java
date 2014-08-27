@@ -4,6 +4,6 @@ import java.util.Iterator;
 
 public interface TextTokenizer {
 
-    Iterator<Token> iterateSpans(String text);
+    Iterator<Token> iterateTokens(String text);
 
 }

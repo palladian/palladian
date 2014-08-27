@@ -58,7 +58,7 @@ public final class OpenNlpSentenceDetector implements SentenceDetector {
     }
 
     @Override
-    public Iterator<Token> iterateSpans(final String text) {
+    public Iterator<Token> iterateTokens(final String text) {
         final opennlp.tools.util.Span[] spans = model.sentPosDetect(text);
         return new AbstractIterator<Token>() {
             int idx = 0;

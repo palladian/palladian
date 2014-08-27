@@ -30,7 +30,7 @@ public final class LingPipeTokenizer implements TextTokenizer {
     }
 
     @Override
-    public Iterator<Token> iterateSpans(String text) {
+    public Iterator<Token> iterateTokens(String text) {
         final Tokenizer tokenizer = tokenizerFactory.tokenizer(text.toCharArray(), 0, text.length());
         return new AbstractIterator<Token>() {
             @Override
