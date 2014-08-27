@@ -1,5 +1,7 @@
 package ws.palladian.helper;
 
+import java.util.concurrent.TimeUnit;
+
 import ws.palladian.helper.date.DateHelper;
 
 /**
@@ -24,6 +26,9 @@ public class StopWatch {
 
     /** Whether the stop watch is running or not. */
     private boolean running = false;
+
+    /** To which detail the output should be shown. */
+    private TimeUnit outputDetail = TimeUnit.MILLISECONDS;
 
     /**
      * The StopWatch starts running right after object creation.
@@ -127,8 +132,24 @@ public class StopWatch {
         } else {
             elapsed = DateHelper.formatDuration(lastBreakpointTime, stopTime);
         }
+
+        elapsed = shortenTimeString(elapsed);
+
         if (output) {
             System.out.println(elapsed);
+        }
+        return elapsed;
+    }
+
+    private String shortenTimeString(String elapsed) {
+        if (outputDetail != TimeUnit.MILLISECONDS) {
+            elapsed = elapsed.replaceAll("\\:\\d+ms.*", "");
+            if (outputDetail != TimeUnit.SECONDS) {
+                elapsed = elapsed.replaceAll("\\:\\d+s.*", "");
+                if (outputDetail != TimeUnit.MINUTES) {
+                    elapsed = elapsed.replaceAll("\\:\\d+m\\:.*", "");
+                }
+            }
         }
         return elapsed;
     }
@@ -155,6 +176,9 @@ public class StopWatch {
         } else {
             elapsed = DateHelper.formatDuration(startTime, stopTime);
         }
+
+        elapsed = shortenTimeString(elapsed);
+
         if (output) {
             System.out.println(elapsed);
         }
@@ -170,10 +194,17 @@ public class StopWatch {
         return getTotalElapsedTimeString(false);
     }
 
-
     @Override
     public String toString() {
         return getElapsedTimeString();
+    }
+
+    public TimeUnit getOutputDetail() {
+        return outputDetail;
+    }
+
+    public void setOutputDetail(TimeUnit outputDetail) {
+        this.outputDetail = outputDetail;
     }
 
     public static void main(String[] args) {

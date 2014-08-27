@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import ws.palladian.helper.constants.TemperatureUnit;
+import ws.palladian.helper.constants.UnitType;
 import ws.palladian.helper.normalization.UnitNormalizer;
-import ws.palladian.helper.normalization.UnitType;
 
 /**
  * <p>
