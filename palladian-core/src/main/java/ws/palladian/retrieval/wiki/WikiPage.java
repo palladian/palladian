@@ -160,7 +160,7 @@ public class WikiPage extends WikiPageReference {
             @Override
             public void bold() {
                 if (bold) {
-                    result.add(buffer.toString());
+                    result.add(buffer.toString().trim());
                     buffer = new StringBuilder();
                 }
                 bold ^= true;
