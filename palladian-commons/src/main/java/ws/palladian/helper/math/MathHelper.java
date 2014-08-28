@@ -976,4 +976,21 @@ public final class MathHelper {
         return (int)Math.floor(Math.log10(number));
     }
 
+    /**
+     * <p>
+     * Add two int values and check for integer overflows.
+     * 
+     * @param a The first value.
+     * @param b The second value (negative value to subtract).
+     * @return The sum of the given values.
+     * @throws ArithmeticException in case of a numeric overflow.
+     */
+    public static int add(int a, int b) throws ArithmeticException {
+        int sum = a + b;
+        if ((a & b & ~sum | ~a & ~b & sum) < 0) {
+            throw new ArithmeticException("Overflow for " + a + "+" + b);
+        }
+        return sum;
+    }
+
 }

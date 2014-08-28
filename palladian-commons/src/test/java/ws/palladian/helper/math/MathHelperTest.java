@@ -2,6 +2,7 @@ package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -191,12 +192,36 @@ public class MathHelperTest {
         assertEquals(0.333, MathHelper.round(1. / 3, 3), 0.);
         assertTrue(Double.isNaN(MathHelper.round(Double.NaN, 2)));
     }
-    
+
     @Test
     public void testConfidenceInterval() {
         assertEquals(0.052, MathHelper.computeConfidenceInterval(1000, 0.999, 0.5), 0.001);
         assertEquals(0.026, MathHelper.computeConfidenceInterval(1000, 0.9, 0.5), 0.001);
         assertEquals(0.018, MathHelper.computeConfidenceInterval(1000, 0.75, 0.5), 0.001);
+    }
+
+    @Test
+    public void testAdd() {
+        assertEquals(46912, MathHelper.add(12345, 34567));
+        assertEquals(22222, MathHelper.add(34567, -12345));
+        try {
+            MathHelper.add(Integer.MAX_VALUE, 1);
+            fail();
+        } catch (ArithmeticException e) {
+            // expected
+        }
+        try {
+            MathHelper.add(1, Integer.MAX_VALUE);
+            fail();
+        } catch (ArithmeticException e) {
+            // expected
+        }
+        try {
+            MathHelper.add(Integer.MIN_VALUE, -1);
+            fail();
+        } catch (ArithmeticException e) {
+            // expected
+        }
     }
 
 }

@@ -4,14 +4,12 @@ final class ImmutableInstance implements Instance {
 
     private final FeatureVector vector;
     private final String category;
+    private final int weight;
 
-    ImmutableInstance(FeatureVector vector, String category) {
+    ImmutableInstance(FeatureVector vector, String category, int weight) {
         this.vector = vector;
         this.category = category;
-    }
-
-    ImmutableInstance(FeatureVector vector, boolean category) {
-        this(vector, String.valueOf(category));
+        this.weight = weight;
     }
 
     @Override
@@ -25,8 +23,18 @@ final class ImmutableInstance implements Instance {
     }
 
     @Override
+    public int getWeight() {
+        return weight;
+    }
+
+    @Override
     public String toString() {
-        return vector + "=" + category;
+        StringBuilder toStringBuilder = new StringBuilder();
+        toStringBuilder.append(vector + "=" + category);
+        if (weight > 1) {
+            toStringBuilder.append(" (weight=").append(weight).append(")");
+        }
+        return toStringBuilder.toString();
     }
 
     @Override
@@ -35,6 +43,8 @@ final class ImmutableInstance implements Instance {
         int result = 1;
         result = prime * result + category.hashCode();
         result = prime * result + vector.hashCode();
+        long temp = Double.doubleToLongBits(weight);
+        result = prime * result + (int)(temp ^ (temp >>> 32));
         return result;
     }
 
@@ -51,6 +61,9 @@ final class ImmutableInstance implements Instance {
             return false;
         }
         if (!vector.equals(other.vector)) {
+            return false;
+        }
+        if (weight != other.weight) {
             return false;
         }
         return true;

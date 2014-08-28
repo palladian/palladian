@@ -79,8 +79,14 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
         @Override
         public DictionaryBuilder addDocument(Collection<String> terms, String category) {
+            return addDocument(terms, category, 1);
+        }
+
+        @Override
+        public DictionaryBuilder addDocument(Collection<String> terms, String category, int weight) {
             Validate.notNull(terms, "terms must not be null");
             Validate.notNull(category, "category must not be null");
+            Validate.isTrue(weight >= 1, "weight must be equal/greater one");
             for (String term : terms) {
                 if (term == null || term.isEmpty()) {
                     continue; // skip, because trie does not allow empty/null values
@@ -89,10 +95,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 if (entries.getTotalCount() == 0) { // term was not present before
                     numTerms++;
                 }
-                entries.increment(category, 1);
-                termCountBuilder.add(category, 1);
+                entries.increment(category, weight);
+                termCountBuilder.add(category, weight);
             }
-            documentCountBuilder.add(category, 1);
+            documentCountBuilder.add(category, weight);
             return this;
         }
 
