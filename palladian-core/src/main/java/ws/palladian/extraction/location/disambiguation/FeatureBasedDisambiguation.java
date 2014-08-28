@@ -45,20 +45,23 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
     private final QuickDtModel model;
 
-    private final int contextSize;
-
     public FeatureBasedDisambiguation(QuickDtModel model) {
         this(model, PROBABILITY_THRESHOLD, CONTEXT_SIZE);
     }
 
     public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold, int contextSize) {
+        this(model, probabilityThreshold, new DefaultLocationFeatureExtractor(contextSize));
+    }
+
+    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold,
+            LocationFeatureExtractor featureExtractor) {
         Validate.notNull(model, "model must not be null");
         Validate.inclusiveBetween(0., 1., probabilityThreshold,
                 "probabilityThreshold must be between inclusive 0 and 1.");
+        Validate.notNull(featureExtractor, "featureExtractor must not be null");
         this.model = model;
         this.probabilityThreshold = probabilityThreshold;
-        this.contextSize = contextSize;
-        this.featureExtractor = new DefaultLocationFeatureExtractor(contextSize);
+        this.featureExtractor = featureExtractor;
     }
 
     @Override
@@ -103,8 +106,8 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         StringBuilder builder = new StringBuilder();
         builder.append("FeatureBasedDisambiguation [probabilityThreshold=");
         builder.append(probabilityThreshold);
-        builder.append(", contextSize=");
-        builder.append(contextSize);
+        builder.append(", featureExtractor=");
+        builder.append(featureExtractor);
         builder.append("]");
         return builder.toString();
     }
