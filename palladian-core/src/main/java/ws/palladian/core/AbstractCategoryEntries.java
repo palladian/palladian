@@ -75,7 +75,12 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
             if (category.getCount() == -1) {
                 return -1; // in case, at least one item has a count of -1, we can determine no total count
             }
-            totalCount += category.getCount();
+//            totalCount += category.getCount();
+            try {
+                totalCount = MathHelper.add(totalCount, category.getCount());
+            } catch (ArithmeticException e) {
+                return Integer.MAX_VALUE;
+            }
         }
         return totalCount;
     }
