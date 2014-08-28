@@ -201,7 +201,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
-            dictionaryBuilder.addDocument(terms, targetClass);
+            dictionaryBuilder.addDocument(terms, targetClass, instance.getWeight());
         }
         return dictionaryBuilder.create();
     }

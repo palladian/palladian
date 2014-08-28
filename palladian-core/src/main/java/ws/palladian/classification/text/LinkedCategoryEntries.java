@@ -7,6 +7,7 @@ import ws.palladian.core.Category;
 import ws.palladian.core.ImmutableCategory;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.functional.Factory;
+import ws.palladian.helper.math.MathHelper;
 
 final class LinkedCategoryEntries extends AbstractCategoryEntries {
     
@@ -55,8 +56,8 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
     public void increment(String category, int count) {
         for (LinkedCategoryCount current = firstCategory; current != null; current = current.nextCategory) {
             if (category.equals(current.categoryName)) {
-                current.count += count;
-                totalCount += count;
+                current.count = MathHelper.add(current.count, count);
+                totalCount = MathHelper.add(totalCount, count);
                 return;
             }
         }
@@ -74,7 +75,7 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
         LinkedCategoryCount tmp = firstCategory;
         firstCategory = new LinkedCategoryCount(category, count);
         firstCategory.nextCategory = tmp;
-        totalCount += count;
+        totalCount = MathHelper.add(totalCount, count);
     }
     
     public void append(Category category) {

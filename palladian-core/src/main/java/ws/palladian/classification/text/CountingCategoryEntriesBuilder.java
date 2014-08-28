@@ -12,6 +12,7 @@ import ws.palladian.core.ImmutableCategory;
 import ws.palladian.core.ImmutableCategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
+import ws.palladian.helper.math.MathHelper;
 
 public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> {
 
@@ -52,7 +53,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         if (value == null) {
             entryMap.put(categoryName, new MutableInt(count));
         } else {
-            value.add(count);
+            value.setValue(MathHelper.add(value.intValue(), count));
         }
         return this;
     }
@@ -78,7 +79,8 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         Validate.isTrue(count >= 0, "count must be greater/equal zero");
         MutableInt value = entryMap.get(categoryName);
         if (value != null) {
-            value.setValue(value.intValue() - count);
+            int newValue = MathHelper.add(value.intValue(), -count);
+            value.setValue(newValue);
         }
         return this;
     }

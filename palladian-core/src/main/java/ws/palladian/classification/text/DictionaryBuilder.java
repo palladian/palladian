@@ -40,6 +40,16 @@ public interface DictionaryBuilder extends Factory<DictionaryModel> {
     DictionaryBuilder addDocument(Collection<String> terms, String category);
 
     /**
+     * Add a document to the dictionary.
+     * 
+     * @param terms The terms extracted from the document, not <code>null</code>.
+     * @param category The category of the document, not <code>null</code>.
+     * @param weight A weight for the document (values greater one act like adding the document n times).
+     * @return The builder instance.
+     */
+    DictionaryBuilder addDocument(Collection<String> terms, String category, int weight);
+
+    /**
      * Set a {@link Filter} for pruning to this builder. The filter should be applied before invoking the
      * {@link #create()} method.
      * 
