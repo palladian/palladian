@@ -615,6 +615,7 @@ public final class FileHelper {
         Writer writer = null;
 
         try {
+            CollectionHelper.removeNulls(lines);
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), DEFAULT_ENCODING));
             for (Object line : lines) {
                 writer.write(line.toString());
