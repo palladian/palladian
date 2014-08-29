@@ -110,7 +110,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         LocationStats stats = new LocationStats(locationList);
         Set<Location> locationSet = new HashSet<Location>(stats.getLocationsWithCoordinates());
 
-        List<GeoCoordinate> coordinates = stats.getCoordinates();
+        Set<GeoCoordinate> coordinates = stats.getCoordinates();
         if (coordinates.isEmpty()) {
             return Collections.emptySet();
         }

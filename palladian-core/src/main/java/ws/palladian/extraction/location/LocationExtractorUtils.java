@@ -9,7 +9,6 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.geo.GeoCoordinate;
 
@@ -46,47 +45,47 @@ public final class LocationExtractorUtils {
         return value;
     }
 
-    /**
-     * <p>
-     * Get the biggest {@link Location} from the given {@link Collection}.
-     * </p>
-     * 
-     * @param locations The locations.
-     * @return The {@link Location} with the highest population, or <code>null</code> in case the collection was empty,
-     *         or none of the locations has a population specified.
-     */
-    public static Location getBiggest(Collection<? extends Location> locations) {
-        Validate.notNull(locations, "locations must not be null");
-        Location biggest = null;
-        for (Location location : locations) {
-            Long population = location.getPopulation();
-            if (population == null) {
-                continue;
-            }
-            if (biggest == null || population > biggest.getPopulation()) {
-                biggest = location;
-            }
-        }
-        return biggest;
-    }
+//    /**
+//     * <p>
+//     * Get the biggest {@link Location} from the given {@link Collection}.
+//     * </p>
+//     * 
+//     * @param locations The locations.
+//     * @return The {@link Location} with the highest population, or <code>null</code> in case the collection was empty,
+//     *         or none of the locations has a population specified.
+//     */
+//    public static Location getBiggest(Collection<? extends Location> locations) {
+//        Validate.notNull(locations, "locations must not be null");
+//        Location biggest = null;
+//        for (Location location : locations) {
+//            Long population = location.getPopulation();
+//            if (population == null) {
+//                continue;
+//            }
+//            if (biggest == null || population > biggest.getPopulation()) {
+//                biggest = location;
+//            }
+//        }
+//        return biggest;
+//    }
 
-    /**
-     * <p>
-     * Get the highest population from the given {@link Collection} of {@link Location}s.
-     * </p>
-     * 
-     * @param locations The locations, not <code>null</code>.
-     * @return The count of the highest population, or zero, in case the collection was empty or non of the locations
-     *         had a population value.
-     */
-    public static long getHighestPopulation(Collection<Location> locations) {
-        Validate.notNull(locations, "locations must not be null");
-        Location biggestLocation = getBiggest(locations);
-        if (biggestLocation == null || biggestLocation.getPopulation() == null) {
-            return 0;
-        }
-        return biggestLocation.getPopulation();
-    }
+//    /**
+//     * <p>
+//     * Get the highest population from the given {@link Collection} of {@link Location}s.
+//     * </p>
+//     * 
+//     * @param locations The locations, not <code>null</code>.
+//     * @return The count of the highest population, or zero, in case the collection was empty or non of the locations
+//     *         had a population value.
+//     */
+//    public static long getHighestPopulation(Collection<Location> locations) {
+//        Validate.notNull(locations, "locations must not be null");
+//        Location biggestLocation = getBiggest(locations);
+//        if (biggestLocation == null || biggestLocation.getPopulation() == null) {
+//            return 0;
+//        }
+//        return biggestLocation.getPopulation();
+//    }
 
     /**
      * <p>
@@ -146,33 +145,33 @@ public final class LocationExtractorUtils {
         return true;
     }
 
-    public static <T> Set<T> filterConditionally(Collection<T> set, Filter<T> filter) {
-        Set<T> temp = new HashSet<T>(set);
-        CollectionHelper.remove(temp, filter);
-        return temp.size() > 0 ? temp : new HashSet<T>(set);
-    }
+//    public static <T> Set<T> filterConditionally(Collection<T> set, Filter<T> filter) {
+//        Set<T> temp = new HashSet<T>(set);
+//        CollectionHelper.remove(temp, filter);
+//        return temp.size() > 0 ? temp : new HashSet<T>(set);
+//    }
 
-    /**
-     * <p>
-     * Check, whether the given {@link Collection} contains a {@link Location} of one of the specified
-     * {@link LocationType}s.
-     * </p>
-     * 
-     * @param locations The locations, not <code>null</code>.
-     * @param types The {@link LocationType}s for which to check.
-     * @return <code>true</code> in case there is at least one location of the specified types, <code>false</code>
-     *         otherwise.
-     */
-    public static boolean containsType(Collection<Location> locations, LocationType... types) {
-        for (LocationType type : types) {
-            for (Location location : locations) {
-                if (location.getType() == type) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+//    /**
+//     * <p>
+//     * Check, whether the given {@link Collection} contains a {@link Location} of one of the specified
+//     * {@link LocationType}s.
+//     * </p>
+//     * 
+//     * @param locations The locations, not <code>null</code>.
+//     * @param types The {@link LocationType}s for which to check.
+//     * @return <code>true</code> in case there is at least one location of the specified types, <code>false</code>
+//     *         otherwise.
+//     */
+//    public static boolean containsType(Collection<Location> locations, LocationType... types) {
+//        for (LocationType type : types) {
+//            for (Location location : locations) {
+//                if (location.getType() == type) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * <p>

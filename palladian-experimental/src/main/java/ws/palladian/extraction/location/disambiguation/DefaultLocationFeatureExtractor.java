@@ -16,6 +16,7 @@ import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationFilters;
+import ws.palladian.extraction.location.LocationStats;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -96,7 +97,7 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 
             String value = annotation.getValue();
             String normalizedValue = LocationExtractorUtils.normalizeName(value);
-            Location biggestLocation = LocationExtractorUtils.getBiggest(candidates);
+            Location biggestLocation = new LocationStats(candidates).getBiggest();
             long maxPopulation = Math.max(1, biggestLocation != null ? biggestLocation.getPopulation() : 1);
             // boolean unique = isUnique(candidates);
             // boolean uniqueAndLong = unique && annotation.getValue().split("\\s").length > 2;
@@ -402,7 +403,7 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 //    }
 
     private static boolean isUnique(Collection<Location> locations) {
-        Set<Location> group = LocationExtractorUtils.filterConditionally(locations, LocationFilters.coordinate());
+        LocationStats group = new LocationStats(locations).whereConditionally(LocationFilters.coordinate());
         Set<GeoCoordinate> coordinates = CollectionHelper.convertSet(group, LOCATION_COORDINATE_FUNCTION);
         return LocationExtractorUtils.largestDistanceBelow(50, coordinates);
     }

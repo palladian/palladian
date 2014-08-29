@@ -1,6 +1,8 @@
 package ws.palladian.extraction.location;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
+import static ws.palladian.extraction.location.LocationFilters.coordinate;
+import static ws.palladian.helper.collection.CollectionHelper.convertSet;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -85,11 +87,25 @@ public class LocationStats implements Iterable<Location> {
     }
 
     public Location getBiggest() {
-        return LocationExtractorUtils.getBiggest(locations);
+        Location biggest = null;
+        for (Location location : locations) {
+            Long population = location.getPopulation();
+            if (population == null) {
+                continue;
+            }
+            if (biggest == null || population > biggest.getPopulation()) {
+                biggest = location;
+            }
+        }
+        return biggest;
     }
 
     public long getBiggestPopulation() {
-        return LocationExtractorUtils.getHighestPopulation(locations);
+        Location biggestLocation = getBiggest();
+        if (biggestLocation == null || biggestLocation.getPopulation() == null) {
+            return 0;
+        }
+        return biggestLocation.getPopulation();
     }
     
     public long totalPopulation() {
@@ -102,8 +118,8 @@ public class LocationStats implements Iterable<Location> {
         return pop;
     }
 
-    public List<GeoCoordinate> getCoordinates() {
-        return CollectionHelper.convertList(where(LocationFilters.coordinate()), LOCATION_COORDINATE_FUNCTION);
+    public Set<GeoCoordinate> getCoordinates() {
+        return convertSet(where(coordinate()), LOCATION_COORDINATE_FUNCTION);
     }
 
     public Set<Location> getLocations() {
@@ -157,15 +173,16 @@ public class LocationStats implements Iterable<Location> {
         return new LocationStats(CollectionHelper.filterSet(locations, filter));
     }
     
+    // XXX rename to size
     public int count(){
         return CollectionHelper.newHashSet(locations).size();
     }
 
     public double distance(GeoCoordinate coordinate) {
         double minDistance = GeoUtils.EARTH_MAX_DISTANCE_KM;
-        for (Location loc : locations){
-            if(loc.getCoordinate()!=null){
-                minDistance=Math.min(minDistance, loc.getCoordinate().distance(coordinate));
+        for (Location loc : locations) {
+            if (loc.getCoordinate() != null) {
+                minDistance = Math.min(minDistance, loc.getCoordinate().distance(coordinate));
             }
         }
         return minDistance;
@@ -178,6 +195,11 @@ public class LocationStats implements Iterable<Location> {
     @Override
     public Iterator<Location> iterator() {
         return locations.iterator();
+    }
+
+    public LocationStats whereConditionally(Filter<Location> filter) {
+        LocationStats temp = where(filter);
+        return temp.count() > 0 ? temp : this;
     }
 
 }
