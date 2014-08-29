@@ -13,44 +13,17 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
 public class LocationExtractorUtilsTest {
 
-//    private final Location l1 = new ImmutableLocation(2028461, "Ulaanbaatar Hot", null, UNIT,
-//            new ImmutableGeoCoordinate(47.91667, 106.91667), 844818l, Arrays.asList(2029969, 6255147, 6295630));
-//    private final Location l2 = new ImmutableLocation(2028462, "Ulaanbaatar", null, CITY, new ImmutableGeoCoordinate(
-//            47.90771, 106.88324), 844818l, Arrays.asList(2028461, 2029969, 6255147, 6295630));
-//    private final Location l3 = new ImmutableLocation(6295630, "Earth", null, REGION,
-//            new ImmutableGeoCoordinate(0., 0.), 6814400000l, Collections.<Integer> emptyList());
     private final Location l4 = new ImmutableLocation(4653031, "Richmond", CITY, new ImmutableGeoCoordinate(35.38563,
             -86.59194), 0l);
     private final Location l5 = new ImmutableLocation(4074277, "Madison County", UNIT, new ImmutableGeoCoordinate(
             34.73342, -86.56666), 0l);
     private final Location l6 = new ImmutableLocation(100080784, "Madison County", UNIT, new ImmutableGeoCoordinate(
             34.76583, -86.55778), null);
-//    private final Location l7 = new ImmutableLocation(8468884, "Fayetteville State University", POI, null, null);
-
-//    @Test
-//    public void testIsChildOf() {
-//        assertFalse(l1.descendantOf(l2));
-//        assertFalse(l1.childOf(l2));
-//        assertTrue(l2.descendantOf(l1));
-//        assertTrue(l2.childOf(l1));
-//
-//        assertTrue(l1.descendantOf(l3));
-//        assertFalse(l3.descendantOf(l1));
-//        assertFalse(l1.childOf(l3));
-//    }
 
     @Test
     public void testDifferentNames() {
         assertTrue(LocationExtractorUtils.differentNames(Arrays.asList(l4, l5, l6)));
         assertFalse(LocationExtractorUtils.differentNames(Arrays.asList(l5, l6)));
     }
-
-//    @Test
-//    public void testLocationRangeFilter() {
-//        Filter<Location> filter = LocationFilters.radius(l1.getCoordinate(), 50);
-//        assertTrue(filter.accept(l2));
-//        assertFalse(filter.accept(l3));
-//        assertFalse(filter.accept(l7));
-//    }
 
 }
