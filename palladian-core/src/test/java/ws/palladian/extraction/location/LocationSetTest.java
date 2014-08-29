@@ -21,7 +21,7 @@ import org.junit.Test;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
-public class LocationStatsTest {
+public class LocationSetTest {
 
     private final Location l1 = new ImmutableLocation(2028461, "Ulaanbaatar Hot", null, UNIT,
             new ImmutableGeoCoordinate(47.91667, 106.91667), 844818l, Arrays.asList(2029969, 6255147, 6295630));
@@ -40,7 +40,7 @@ public class LocationStatsTest {
     @Test
     public void testWherePredicates() {
         List<Location> allLocations = Arrays.asList(l1, l2, l3, l4, l5, l6, l7);
-        LocationStats stats = new LocationStats(allLocations);
+        LocationSet stats = new LocationSet(allLocations);
         assertFalse(stats.where(descendantOf(l2)).contains(l1));
         assertFalse(stats.where(childOf(l2)).contains(l1));
         assertTrue(stats.where(descendantOf(l1)).contains(l2));
@@ -48,36 +48,36 @@ public class LocationStatsTest {
         assertTrue(stats.where(descendantOf(l3)).contains(l1));
         assertFalse(stats.where(descendantOf(l1)).contains(l3));
         assertFalse(stats.where(childOf(l3)).contains(l1));
-        assertEquals(3, stats.where(LocationFilters.radius(l5.getCoordinate(), 100)).count());
+        assertEquals(3, stats.where(LocationFilters.radius(l5.getCoordinate(), 100)).size());
     }
 
     @Test
     public void testGetLargestDistance() {
-        LocationStats stats = new LocationStats(Arrays.asList(l1, l2, l4));
+        LocationSet stats = new LocationSet(Arrays.asList(l1, l2, l4));
         assertEquals(10656, stats.largestDistance(), 1);
 
-        stats = new LocationStats(Arrays.asList(l1, l2));
+        stats = new LocationSet(Arrays.asList(l1, l2));
         assertEquals(2.7, stats.largestDistance(), 0.1);
 
-        stats = new LocationStats(Arrays.asList(l1, l2, l4, l7));
+        stats = new LocationSet(Arrays.asList(l1, l2, l4, l7));
         assertEquals(GeoUtils.EARTH_MAX_DISTANCE_KM, stats.largestDistance(), 0);
 
-        stats = new LocationStats(Arrays.asList(l1));
+        stats = new LocationSet(Arrays.asList(l1));
         assertEquals(0, stats.largestDistance(), 0);
 
-        stats = new LocationStats(Arrays.asList(l7));
+        stats = new LocationSet(Arrays.asList(l7));
         assertEquals(0, stats.largestDistance(), 0);
     }
 
     @Test
     public void testExcept() {
-        LocationStats stats = new LocationStats(Arrays.asList(l1, l2, l3, l4));
-        assertEquals(4, stats.count());
-        LocationStats statsExcept = stats.where(not(equal(l2, l3, l5, l7)));
-        assertEquals(2, statsExcept.count());
+        LocationSet stats = new LocationSet(Arrays.asList(l1, l2, l3, l4));
+        assertEquals(4, stats.size());
+        LocationSet statsExcept = stats.where(not(equal(l2, l3, l5, l7)));
+        assertEquals(2, statsExcept.size());
         assertTrue(statsExcept.contains(l1));
         assertTrue(statsExcept.contains(l4));
-        assertEquals(3, stats.where(not(equal(l1))).count());
+        assertEquals(3, stats.where(not(equal(l1))).size());
     }
 
 }

@@ -4,6 +4,7 @@ import static java.lang.Math.toRadians;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
@@ -336,6 +337,34 @@ public final class GeoUtils {
             result -= 360;
         }
         return result;
+    }
+    
+    /**
+     * <p>
+     * For each pair in the given Collection of {@link GeoCoordinate}s determine the distance, and return the highest
+     * distance.
+     * </p>
+     * 
+     * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
+     * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection was
+     *         empty.
+     * @see #largestDistanceBelow(double, Collection) is faster, if you just care about a maximum value.
+     */
+    public static double getLargestDistance(Collection<? extends GeoCoordinate> coordinates) {
+        Validate.notNull(coordinates, "coordinates must not be null");
+        if (coordinates.contains(null) && coordinates.size() > 1) { // multiple null coordinates?
+            return EARTH_MAX_DISTANCE_KM;
+        }
+        double largestDistance = 0;
+        List<GeoCoordinate> temp = CollectionHelper.newArrayList(CollectionHelper.newHashSet(coordinates));
+        for (int i = 0; i < temp.size(); i++) {
+            GeoCoordinate c1 = temp.get(i);
+            for (int j = i + 1; j < temp.size(); j++) {
+                GeoCoordinate c2 = temp.get(j);
+                largestDistance = Math.max(largestDistance, c1.distance(c2));
+            }
+        }
+        return largestDistance;
     }
 
     private GeoUtils() {

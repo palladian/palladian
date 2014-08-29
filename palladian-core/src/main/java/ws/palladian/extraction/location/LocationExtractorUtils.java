@@ -1,12 +1,8 @@
 package ws.palladian.extraction.location;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Function;
@@ -87,63 +83,63 @@ public final class LocationExtractorUtils {
 //        return biggestLocation.getPopulation();
 //    }
 
-    /**
-     * <p>
-     * For each pair in the given Collection of {@link GeoCoordinate}s determine the distance, and return the highest
-     * distance.
-     * </p>
-     * 
-     * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
-     * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection was
-     *         empty.
-     * @see #largestDistanceBelow(double, Collection) is faster, if you just care about a maximum value.
-     */
-    public static double getLargestDistance(Collection<? extends GeoCoordinate> coordinates) {
-        Validate.notNull(coordinates, "coordinates must not be null");
-        if (coordinates.contains(null) && coordinates.size() > 1) { // multiple null coordinates?
-            return Double.MAX_VALUE;
-        }
-        double largestDistance = 0;
-        List<GeoCoordinate> temp = new ArrayList<GeoCoordinate>(coordinates);
-        for (int i = 0; i < temp.size(); i++) {
-            GeoCoordinate c1 = temp.get(i);
-            for (int j = i + 1; j < temp.size(); j++) {
-                GeoCoordinate c2 = temp.get(j);
-                largestDistance = Math.max(largestDistance, c1.distance(c2));
-            }
-        }
-        return largestDistance;
-    }
+//    /**
+//     * <p>
+//     * For each pair in the given Collection of {@link GeoCoordinate}s determine the distance, and return the highest
+//     * distance.
+//     * </p>
+//     * 
+//     * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
+//     * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection was
+//     *         empty.
+//     * @see #largestDistanceBelow(double, Collection) is faster, if you just care about a maximum value.
+//     */
+//    public static double getLargestDistance(Collection<? extends GeoCoordinate> coordinates) {
+//        Validate.notNull(coordinates, "coordinates must not be null");
+//        if (coordinates.contains(null) && coordinates.size() > 1) { // multiple null coordinates?
+//            return Double.MAX_VALUE;
+//        }
+//        double largestDistance = 0;
+//        List<GeoCoordinate> temp = new ArrayList<GeoCoordinate>(coordinates);
+//        for (int i = 0; i < temp.size(); i++) {
+//            GeoCoordinate c1 = temp.get(i);
+//            for (int j = i + 1; j < temp.size(); j++) {
+//                GeoCoordinate c2 = temp.get(j);
+//                largestDistance = Math.max(largestDistance, c1.distance(c2));
+//            }
+//        }
+//        return largestDistance;
+//    }
 
-    /**
-     * <p>
-     * For each pair in the given Collection of {@link GeoCoordinate}s determine, if its distance is below the specified
-     * distance.
-     * </p>
-     * 
-     * @param distance The distance threshold, larger/equal zero.
-     * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
-     * @return <code>true</code> in case the distance for each pair in the given collection is below the specified
-     *         distance, <code>false</code> otherwise.
-     */
-    public static boolean largestDistanceBelow(double distance, Collection<? extends GeoCoordinate> coordinates) {
-        Validate.isTrue(distance >= 0, "distance must be greater/equal zero.");
-        Validate.notNull(coordinates, "coordinates must not be null");
-        if (coordinates.contains(null) && coordinates.size() > 1) {
-            return false;
-        }
-        List<GeoCoordinate> temp = new ArrayList<GeoCoordinate>(coordinates);
-        for (int i = 0; i < temp.size(); i++) {
-            GeoCoordinate c1 = temp.get(i);
-            for (int j = i + 1; j < temp.size(); j++) {
-                GeoCoordinate c2 = temp.get(j);
-                if (c1.distance(c2) >= distance) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+//    /**
+//     * <p>
+//     * For each pair in the given Collection of {@link GeoCoordinate}s determine, if its distance is below the specified
+//     * distance.
+//     * </p>
+//     * 
+//     * @param distance The distance threshold, larger/equal zero.
+//     * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
+//     * @return <code>true</code> in case the distance for each pair in the given collection is below the specified
+//     *         distance, <code>false</code> otherwise.
+//     */
+//    public static boolean largestDistanceBelow(double distance, Collection<? extends GeoCoordinate> coordinates) {
+//        Validate.isTrue(distance >= 0, "distance must be greater/equal zero.");
+//        Validate.notNull(coordinates, "coordinates must not be null");
+//        if (coordinates.contains(null) && coordinates.size() > 1) {
+//            return false;
+//        }
+//        List<GeoCoordinate> temp = new ArrayList<GeoCoordinate>(coordinates);
+//        for (int i = 0; i < temp.size(); i++) {
+//            GeoCoordinate c1 = temp.get(i);
+//            for (int j = i + 1; j < temp.size(); j++) {
+//                GeoCoordinate c2 = temp.get(j);
+//                if (c1.distance(c2) >= distance) {
+//                    return false;
+//                }
+//            }
+//        }
+//        return true;
+//    }
 
 //    public static <T> Set<T> filterConditionally(Collection<T> set, Filter<T> filter) {
 //        Set<T> temp = new HashSet<T>(set);

@@ -1,12 +1,14 @@
 package ws.palladian.extraction.location.scope;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
+import static ws.palladian.extraction.location.LocationFilters.ancestorOf;
+import static ws.palladian.extraction.location.LocationFilters.coordinate;
+import static ws.palladian.extraction.location.LocationFilters.descendantOf;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +34,7 @@ import ws.palladian.core.Model;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.LocationStats;
+import ws.palladian.extraction.location.LocationSet;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.ClassifiableLocation;
 import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
@@ -107,19 +109,19 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
     private static Set<ClassifiableLocation> extractFeatures(Collection<LocationAnnotation> annotations) {
 
         List<Location> locationList = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
-        LocationStats stats = new LocationStats(locationList);
-        Set<Location> locationSet = new HashSet<Location>(stats.getLocationsWithCoordinates());
+        LocationSet stats = new LocationSet(locationList);
+        LocationSet locationSet = stats.where(coordinate());
 
-        Set<GeoCoordinate> coordinates = stats.getCoordinates();
+        Set<GeoCoordinate> coordinates = stats.coordinates();
         if (coordinates.isEmpty()) {
             return Collections.emptySet();
         }
-        GeoCoordinate midpoint = stats.getMidpoint();
-        GeoCoordinate centerpoint = stats.getCenterOfMinimumDistance();
-        double maxDistanceMidpoint = stats.getMaxMidpointDistance();
-        double maxDistanceCenterpoint = stats.getMaxCenterDistance();
-        int maxHierarchyDepth = stats.getMaxHierarchyDepth();
-        long biggestLocationPopulation = stats.getBiggestPopulation();
+        GeoCoordinate midpoint = stats.midpoint();
+        GeoCoordinate centerpoint = stats.center();
+        double maxDistanceMidpoint = stats.maxDistance(stats.midpoint());
+        double maxDistanceCenterpoint = stats.maxDistance(stats.center());
+        int maxHierarchyDepth = stats.maxHierarchyDepth();
+        long biggestLocationPopulation = stats.biggestPopulation();
         int maxOffset = 1;
         for (LocationAnnotation annotation : annotations) {
             maxOffset = Math.max(maxOffset, annotation.getStartPosition());
@@ -133,8 +135,8 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             double centerpointDistance = centerpoint.distance(location.getCoordinate());
             double normalizeCenterpointDistance = centerpointDistance / maxDistanceCenterpoint;
             int occurrenceCount = Collections.frequency(locationList, location);
-            int descendantCount = stats.countDescendants(location);
-            int ancestorCount = stats.countAncestors(location);
+            int descendantCount = stats.where(descendantOf(location)).size();
+            int ancestorCount = stats.where(ancestorOf(location)).size();
             double occurenceFrequency = (double)occurrenceCount / annotations.size();
             double descendantPercentage = (double)descendantCount / annotations.size();
             double ancestorPercentage = (double)ancestorCount / annotations.size();
@@ -152,7 +154,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
                     lastPosition = Math.max(lastPosition, annotation.getStartPosition());
                 }
             }
-            Stats distances = stats.getDistanceStats(location);
+            Stats distances = stats.distanceStats(location);
 
             InstanceBuilder builder = new InstanceBuilder();
             builder.set("midpointDistance", midpointDistance);

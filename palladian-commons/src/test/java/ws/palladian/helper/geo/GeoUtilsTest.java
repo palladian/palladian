@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.junit.BeforeClass;
@@ -193,6 +195,16 @@ public class GeoUtilsTest {
         assertEquals(0, GeoUtils.normalizeLongitude(0), 0);
         assertEquals(-175, GeoUtils.normalizeLongitude(185), 0);
         assertEquals(175, GeoUtils.normalizeLongitude(-185), 0);
+    }
+
+    @Test
+    public void testGetLargestDistance() {
+        assertEquals(976.3, GeoUtils.getLargestDistance(coordinates1), 0.1);
+        assertEquals(10848.7, GeoUtils.getLargestDistance(coordinates2), 0.1);
+        assertEquals(0, GeoUtils.getLargestDistance(coordinates3), 0.1);
+        assertEquals(0, GeoUtils.getLargestDistance(Collections.<GeoCoordinate> singleton(null)), 0.1);
+        assertEquals(GeoUtils.EARTH_MAX_DISTANCE_KM,
+                GeoUtils.getLargestDistance(Arrays.<GeoCoordinate> asList(null, null)), 0.1);
     }
 
 }
