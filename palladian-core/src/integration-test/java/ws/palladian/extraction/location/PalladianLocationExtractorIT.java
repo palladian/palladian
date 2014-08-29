@@ -140,7 +140,7 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.84);
+        assertGreater("MUC-Pr", result.mucPr, 0.83);
         assertGreater("MUC-Rc", result.mucRc, 0.73);
         assertGreater("MUC-F1", result.mucF1, 0.78);
         assertGreater("Geo-Pr", result.geoPr, 0.96);
@@ -163,10 +163,10 @@ public class PalladianLocationExtractorIT {
         // System.out.println(result);
         assertGreater("MUC-Pr", result.mucPr, 0.77);
         assertGreater("MUC-Rc", result.mucRc, 0.60);
-        assertGreater("MUC-F1", result.mucF1, 0.68);
-        assertGreater("Geo-Pr", result.geoPr, 0.80);
-        assertGreater("Geo-Rc", result.geoRc, 0.64);
-        assertGreater("Geo-F1", result.geoF1, 0.71);
+        assertGreater("MUC-F1", result.mucF1, 0.67);
+        assertGreater("Geo-Pr", result.geoPr, 0.78);
+        assertGreater("Geo-Rc", result.geoRc, 0.62);
+        assertGreater("Geo-F1", result.geoF1, 0.69);
     }
 
     @Test
