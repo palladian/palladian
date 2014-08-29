@@ -25,7 +25,7 @@ import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationStats;
+import ws.palladian.extraction.location.LocationSet;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -67,11 +67,11 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     @Override
     public Set<ClassifiableLocation> extract(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
         Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
-        LocationStats allLocations = new LocationStats(locations.allValues());
-        LocationStats uniqLocations = new LocationStats(getUniqueLocations(locations.values()));
-        LocationStats continents = allLocations.where(type(LocationType.CONTINENT));
-        LocationStats countries = allLocations.where(type(LocationType.COUNTRY));
-        LocationStats units = allLocations.where(type(LocationType.UNIT));
+        LocationSet allLocations = new LocationSet(locations.allValues());
+        LocationSet uniqLocations = new LocationSet(getUniqueLocations(locations.values()));
+        LocationSet continents = allLocations.where(type(LocationType.CONTINENT));
+        LocationSet countries = allLocations.where(type(LocationType.COUNTRY));
+        LocationSet units = allLocations.where(type(LocationType.UNIT));
         List<GeoCoordinate> scopes = determineTextScopes(text);
         MultiMap<Location, String> mentions = createMentionMap(locations);
 
@@ -89,8 +89,8 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                 continue;
             }
             String normalizedValue = LocationExtractorUtils.normalizeName(value);
-            LocationStats currentLocations = new LocationStats(candidates);
-            LocationStats otherLocations = allLocations.where(not(equal(candidates)));
+            LocationSet currentLocations = new LocationSet(candidates);
+            LocationSet otherLocations = allLocations.where(not(equal(candidates)));
             int numCharacters = value.length();
             int numTokens = value.split("\\s").length;
             boolean acronym = value.matches("[A-Z]+|([A-Z]\\.)+");
@@ -118,17 +118,17 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                 builder.set("hierarchyDepth", location.getAncestorIds().size());
                 builder.set("nameAmbiguity", nameAmbiguity);
 
-                builder.set("leaf", currentLocations.where(childOf(location)).count() == 0);
+                builder.set("leaf", currentLocations.where(childOf(location)).size() == 0);
                 builder.set("nameDiversity", 1. / location.collectAlternativeNames().size());
                 builder.set("geoDiversity", geoDiversity);
                 builder.set("unique", unique);
                 builder.set("altMention", mentions.get(location).size() > 1);
 
-                int numAncestors = otherLocations.where(ancestorOf(location)).count();
-                int numChildren = otherLocations.where(childOf(location)).count();
-                int numDescendants = otherLocations.where(descendantOf(location)).count();
-                int numParents = otherLocations.where(parentOf(location)).count();
-                int numSiblings = otherLocations.where(siblingOf(location)).count();
+                int numAncestors = otherLocations.where(ancestorOf(location)).size();
+                int numChildren = otherLocations.where(childOf(location)).size();
+                int numDescendants = otherLocations.where(descendantOf(location)).size();
+                int numParents = otherLocations.where(parentOf(location)).size();
+                int numSiblings = otherLocations.where(siblingOf(location)).size();
                 builder.set("contains(ancestor)", numAncestors > 0);
                 builder.set("contains(child)", numChildren > 0);
                 builder.set("contains(descendant)", numDescendants > 0);
@@ -140,19 +140,19 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                 builder.set("num(sibling)", numSiblings);
 
                 for (int d : setting.getDistanceValues()) {
-                    LocationStats otherInDist = otherLocations.where(radius(coordinate, d));
-                    LocationStats allInDist = allLocations.where(radius(coordinate, d));
-                    builder.set(String.format("numLocIn(%d)", d), otherInDist.count());
+                    LocationSet otherInDist = otherLocations.where(radius(coordinate, d));
+                    LocationSet allInDist = allLocations.where(radius(coordinate, d));
+                    builder.set(String.format("numLocIn(%d)", d), otherInDist.size());
                     builder.set(String.format("popIn(%d,true)", d), allInDist.totalPopulation());
                     builder.set(String.format("popIn(%d,false)", d), otherInDist.where(not(equal(location)))
                             .totalPopulation());
                     builder.set(String.format("uniqueIn(%d)", d),
-                            uniqLocations.where(radius(coordinate, d)).count() > 0);
+                            uniqLocations.where(radius(coordinate, d)).size() > 0);
                 }
                 for (int p : setting.getPopulationValues()) {
                     double distOther = otherLocations.where(population(p)).where(not(equal(location)))
-                            .distance(coordinate);
-                    double distAll = allLocations.where(population(p)).distance(coordinate);
+                            .minDistance(coordinate);
+                    double distAll = allLocations.where(population(p)).minDistance(coordinate);
                     builder.set(String.format("distLoc(%d,true)", p), distAll);
                     builder.set(String.format("distLoc(%d,false)", p), distOther);
                     for (int d : setting.getDistanceValues()) {
@@ -161,9 +161,9 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                     }
                 }
                 builder.set("primaryName", value.equalsIgnoreCase(location.getPrimaryName()));
-                builder.set("inContinent", continents.where(ancestorOf(location)).count() > 0);
-                builder.set("inCountry", countries.where(ancestorOf(location)).count() > 0);
-                builder.set("inUnit", units.where(ancestorOf(location)).count() > 0);
+                builder.set("inContinent", continents.where(ancestorOf(location)).size() > 0);
+                builder.set("inCountry", countries.where(ancestorOf(location)).size() > 0);
+                builder.set("inUnit", units.where(ancestorOf(location)).size() > 0);
 
                 for (int n = 0; n < scopes.size(); n++) {
                     GeoCoordinate scope = scopes.get(n);
@@ -239,7 +239,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     private Set<Location> getUniqueLocations(Collection<Collection<Location>> locationGroups) {
         Set<Location> uniqueLocations = CollectionHelper.newHashSet();
         for (Collection<Location> group : locationGroups) {
-            if (new LocationStats(group).where(coordinate()).largestDistance() < setting.getEqualDistance()) {
+            if (new LocationSet(group).where(coordinate()).largestDistance() < setting.getEqualDistance()) {
                 uniqueLocations.addAll(group);
             }
         }

@@ -1,7 +1,5 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +14,7 @@ import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationFilters;
-import ws.palladian.extraction.location.LocationStats;
+import ws.palladian.extraction.location.LocationSet;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -97,7 +95,7 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 
             String value = annotation.getValue();
             String normalizedValue = LocationExtractorUtils.normalizeName(value);
-            Location biggestLocation = new LocationStats(candidates).getBiggest();
+            Location biggestLocation = new LocationSet(candidates).biggest();
             long maxPopulation = Math.max(1, biggestLocation != null ? biggestLocation.getPopulation() : 1);
             // boolean unique = isUnique(candidates);
             // boolean uniqueAndLong = unique && annotation.getValue().split("\\s").length > 2;
@@ -403,9 +401,11 @@ public class DefaultLocationFeatureExtractor implements LocationFeatureExtractor
 //    }
 
     private static boolean isUnique(Collection<Location> locations) {
-        LocationStats group = new LocationStats(locations).whereConditionally(LocationFilters.coordinate());
-        Set<GeoCoordinate> coordinates = CollectionHelper.convertSet(group, LOCATION_COORDINATE_FUNCTION);
-        return LocationExtractorUtils.largestDistanceBelow(50, coordinates);
+        LocationSet group = new LocationSet(locations).whereConditionally(LocationFilters.coordinate());
+//        Set<GeoCoordinate> coordinates = CollectionHelper.convertSet(group, LOCATION_COORDINATE_FUNCTION);
+//        return LocationExtractorUtils.largestDistanceBelow(50, coordinates);
+//        return LocationExtractorUtils.getLargestDistance(coordinates) < 50;
+        return group.largestDistance() < 50;
     }
 
     private static long getPopulationInRadius(Location location, Collection<Location> others, double distance) {
