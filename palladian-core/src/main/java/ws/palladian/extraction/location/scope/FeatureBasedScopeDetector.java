@@ -35,6 +35,7 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationStats;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.ClassifiableLocation;
+import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
@@ -299,7 +300,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         // recall here, and let the classifier scope detection's classifier decide about each candidate (this is at
         // least the case in the Wikipedia dataset; on the TUD-Loc-2013, it actually harms performance, but we have much
         // less data here for making a definite statement).
-        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0, 1000);
+        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0, new ConfigurableFeatureExtractor());
         LocationExtractor extractor = new PalladianLocationExtractor(database, disambiguation);
 
         // Wikipedia scope dataset //////////////////////////////////////////////////////////////////////////////

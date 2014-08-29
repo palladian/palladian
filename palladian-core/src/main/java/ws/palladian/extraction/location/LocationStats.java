@@ -24,10 +24,10 @@ import ws.palladian.helper.math.Stats;
  */
 public class LocationStats implements Iterable<Location> {
 
-    private final List<Location> locations;
+    private final Set<Location> locations;
 
     public LocationStats(Collection<? extends Location> locations) {
-        this.locations = Collections.unmodifiableList(CollectionHelper.newArrayList(locations));
+        this.locations = Collections.unmodifiableSet(CollectionHelper.newHashSet(locations));
     }
 
     public int getMaxHierarchyDepth() {
@@ -106,8 +106,8 @@ public class LocationStats implements Iterable<Location> {
         return CollectionHelper.convertList(where(LocationFilters.coordinate()), LOCATION_COORDINATE_FUNCTION);
     }
 
-    public List<Location> getLocations() {
-        return Collections.unmodifiableList(locations);
+    public Set<Location> getLocations() {
+        return locations;
     }
 
     public List<Location> getLocationsWithCoordinates() {
