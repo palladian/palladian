@@ -29,6 +29,12 @@ public final class AddressTagger implements Tagger {
                             +
                             // prefix rules
                             "(?:^rue\\s.+|via\\s.+|viale\\s.+)[A-Za-z]+(?:\\s[A-Za-z]+)?", Pattern.CASE_INSENSITIVE);
+    
+    public static final AddressTagger INSTANCE = new AddressTagger();
+    
+    private AddressTagger() {
+        // singleton instance
+    }
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {

@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Annotation;
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractorUtils;
@@ -174,8 +174,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             if (likelyLocation || bigLocation) {
                 continue;
             }
-            double personProbability = annotation.getCategoryEntries().getProbability("PER");
-            if (personProbability == 1) {
+            if ("PER".equals(annotation.getCategoryEntries().getMostLikelyCategory())) {
                 LOGGER.debug("{} does not seem to be a location and will be dropped", annotation);
                 unlikelyLocations.add(annotation);
             }
