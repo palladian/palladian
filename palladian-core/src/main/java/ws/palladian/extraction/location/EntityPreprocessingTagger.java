@@ -17,7 +17,6 @@ import ws.palladian.extraction.entity.ContextTagger;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.entity.WindowSizeContextTagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -100,6 +99,10 @@ public class EntityPreprocessingTagger implements Tagger {
         List<Annotation> fixedAnnotations = CollectionHelper.newArrayList();
 
         Set<String> inSentence = getInSentenceCandidates(annotations);
+        if (inSentence.isEmpty()) { // do not try to fix any phrases, if we do not have any sentences at all (#294)
+            fixedAnnotations.addAll(annotations);
+            return fixedAnnotations;
+        }
 
         // XXX consider also removing within-sentence annotations by case dictionary?
 
@@ -157,7 +160,7 @@ public class EntityPreprocessingTagger implements Tagger {
             }
             fixedAnnotations.add(annotation);
         }
-        LOGGER.debug("Reduced from {} to {} with with case dictionary", annotations.size(), fixedAnnotations.size());
+        LOGGER.debug("Reduced from {} to {} with case dictionary", annotations.size(), fixedAnnotations.size());
 
         if (longAnnotationSplit > 0) {
             List<Annotation> additionalAnnotations = getLongAnnotationSplit(fixedAnnotations, longAnnotationSplit);
@@ -282,8 +285,8 @@ public class EntityPreprocessingTagger implements Tagger {
 
     public static void main(String[] args) {
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
-        List<Annotation> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper
-                .tryReadFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1/text27.txt")));
+        String text = "New York City";
+        List<Annotation> annotations = tagger.getAnnotations(text);
         CollectionHelper.print(annotations);
     }
 
