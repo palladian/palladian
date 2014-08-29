@@ -25,12 +25,19 @@ import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator;
 import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator.LocationEvaluationResult;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.extraction.location.sources.NewsSeecrLocationSource;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
+/**
+ * <p>
+ * Integration test for the {@link PalladianLocationExtractor} and its {@link LocationDisambiguation} strategies. The
+ * test must be run with a local database and the following database dump, in order to produce meaningful results:
+ * <code>locations_2013-08-05.sql.gz</code>.
+ * 
+ * @author pk
+ */
 public class PalladianLocationExtractorIT {
 
     /** The logger for this class. */
@@ -41,7 +48,6 @@ public class PalladianLocationExtractorIT {
 
     private static Configuration config;
 
-    @SuppressWarnings("deprecation")
     @BeforeClass
     public static void readConfiguration() throws ConfigurationException {
         if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
@@ -52,16 +58,17 @@ public class PalladianLocationExtractorIT {
             String dbUrl = config.getString("db.jdbcUrl");
             String dbUsername = config.getString("db.username");
             String dbPassword = config.getString("db.password");
-            String mashapeTestKey = config.getString("api.newsseecr.mashapeKey");
+//            String mashapeTestKey = config.getString("api.newsseecr.mashapeKey");
             if (StringUtils.isNotBlank(dbUrl) && StringUtils.isNotBlank(dbUsername)) {
                 locationSource = DatabaseManagerFactory.create(LocationDatabase.class, dbUrl, dbUsername, dbPassword);
                 LOGGER.info("Using local DB ({}) for testing", dbUrl);
-            } else if (StringUtils.isNotBlank(mashapeTestKey)) {
-                locationSource = new NewsSeecrLocationSource(mashapeTestKey);
-                LOGGER.info("Using NewsSeecr DB for testing");
+//            } else if (StringUtils.isNotBlank(mashapeTestKey)) {
+//                locationSource = new NewsSeecrLocationSource(mashapeTestKey);
+//                LOGGER.info("Using NewsSeecr DB for testing");
             } else {
                 assumeTrue(
-                        "palladian-test.properties must either provide a database configuration, or a Mashape API key",
+//                        "palladian-test.properties must either provide a database configuration, or a Mashape API key",
+                        "palladian-test.properties must provide a database configuration",
                         false);
             }
         } catch (FileNotFoundException e) {
