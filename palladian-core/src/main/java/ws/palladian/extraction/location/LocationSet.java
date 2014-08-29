@@ -23,7 +23,7 @@ import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;
 
 /**
- * Provides various statistics for lists of {@link Location}s.
+ * Provides various statistics for sets of {@link Location}s.
  *
  * @author pk
  */
@@ -87,6 +87,10 @@ public class LocationSet extends AbstractSet<Location> {
         return coordinates.isEmpty() ? GeoCoordinate.NULL : GeoUtils.getCenterOfMinimumDistance(coordinates);
     }
 
+    /**
+     * @return The largest distance between any pair in this set, or {@link GeoUtils#EARTH_MAX_DISTANCE_KM} in case this
+     *         set contained two or more locations without coordinates.
+     */
     public double largestDistance() {
         Set<GeoCoordinate> coordinates = coordinates();
         if (size() > 1 && size() - coordinates.size() > 0) {
@@ -95,6 +99,13 @@ public class LocationSet extends AbstractSet<Location> {
         return GeoUtils.getLargestDistance(coordinates);
     }
 
+    /**
+     * Get distance statistics from the given location to all locations in this set (except the given location, in case
+     * it is also in this set).
+     * 
+     * @param location The location, not <code>null</code>.
+     * @return Distance statistics (e.g. mean, min, max, median, ...)
+     */
     public Stats distanceStats(Location location) {
         Validate.notNull(location, "location must not be null");
         LocationSet others = where(coordinate()).where(not(equal(location)));
