@@ -1,7 +1,5 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import static ws.palladian.extraction.location.PalladianLocationExtractor.LONG_ANNOTATION_SPLIT;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -14,15 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
-import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.core.Annotation;
+import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.extraction.location.AnnotationFilter;
-import ws.palladian.extraction.location.ContextClassifier;
-import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
-import ws.palladian.extraction.location.EntityPreprocessingTagger;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
+import ws.palladian.extraction.location.DefaultLocationTagger;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationSource;
@@ -53,28 +47,27 @@ public class FeatureBasedDisambiguationLearner {
 
     /** Maximum distance between train and candidate location to be considered positive. */
     private static final int MAX_DISTANCE = 50;
-    
+
     private final QuickDtLearner learner;
 
     private final LocationFeatureExtractor featureExtraction;
 
-    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
-
-    private final AnnotationFilter filter = new AnnotationFilter();
-
-    private final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
-
     private final LocationSource locationSource;
 
-    public FeatureBasedDisambiguationLearner(LocationSource locationSource, int numTrees, LocationFeatureExtractor featureExtractor) {
+    private final ClassifyingTagger tagger;
+
+    public FeatureBasedDisambiguationLearner(LocationSource locationSource, ClassifyingTagger tagger, int numTrees,
+            LocationFeatureExtractor featureExtractor) {
         Validate.notNull(locationSource, "locationSource must not be null");
-        this.learner = QuickDtLearner.randomForest(numTrees);
         this.locationSource = locationSource;
+        this.tagger = tagger;
+        this.learner = QuickDtLearner.randomForest(numTrees);
         this.featureExtraction = featureExtractor;
     }
-    
+
+    @Deprecated
     public FeatureBasedDisambiguationLearner(LocationSource locationSource) {
-        this(locationSource, 10, new DefaultLocationFeatureExtractor(
+        this(locationSource, DefaultLocationTagger.INSTANCE, 10, new DefaultLocationFeatureExtractor(
                 FeatureBasedDisambiguation.CONTEXT_SIZE));
     }
 
@@ -89,7 +82,7 @@ public class FeatureBasedDisambiguationLearner {
      * 
      * @param datasetDirectories The directories to the training data sets, not <code>null</code>.
      * @return The model.
-     * @throws IOException 
+     * @throws IOException
      */
     public QuickDtModel learn(File... datasetDirectories) throws IOException {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
@@ -103,7 +96,7 @@ public class FeatureBasedDisambiguationLearner {
     public QuickDtModel learn(Iterator<LocationDocument> trainDocuments) throws IOException {
         Set<Instance> trainingData = createTrainingData(trainDocuments);
         String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
-        ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
+        // ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
         QuickDtModel model = learner.train(trainingData);
         String modelFileName = baseFileName + ".model";
         FileHelper.serialize(model, modelFileName);
@@ -116,10 +109,7 @@ public class FeatureBasedDisambiguationLearner {
             LocationDocument trainDocument = trainDocuments.next();
             String text = trainDocument.getText();
             List<LocationAnnotation> trainAnnotations = trainDocument.getAnnotations();
-
-            List<Annotation> taggedEntities = tagger.getAnnotations(text);
-            taggedEntities = filter.filter(taggedEntities);
-            List<ClassifiedAnnotation> classifiedEntities = contextClassifier.classify(taggedEntities, text);
+            List<ClassifiedAnnotation> classifiedEntities = tagger.getAnnotations(text);
             MultiMap<ClassifiedAnnotation, Location> locations = PalladianLocationExtractor.fetchLocations(
                     locationSource, classifiedEntities);
 

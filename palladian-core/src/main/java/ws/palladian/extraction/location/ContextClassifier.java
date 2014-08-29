@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
@@ -49,34 +48,6 @@ public class ContextClassifier {
          * This is the assumption of a "single sense per discourse".
          */
         PROPAGATION
-    }
-
-    public static class ClassifiedAnnotation extends ImmutableAnnotation {
-
-        private final CategoryEntries categoryEntries;
-
-        public ClassifiedAnnotation(Annotation annotation, CategoryEntries categoryEntries) {
-            super(annotation.getStartPosition(), annotation.getValue(), annotation.getTag());
-            this.categoryEntries = categoryEntries;
-        }
-
-        public CategoryEntries getCategoryEntries() {
-            return categoryEntries;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("ClassifiedAnnotation [value=");
-            builder.append(getValue());
-            builder.append(", startPosition=");
-            builder.append(getStartPosition());
-            builder.append(", classification=");
-            builder.append(categoryEntries);
-            builder.append("]");
-            return builder.toString();
-        }
-
     }
 
     public ContextClassifier(ClassificationMode mode) {

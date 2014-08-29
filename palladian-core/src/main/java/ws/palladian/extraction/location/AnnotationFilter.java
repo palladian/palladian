@@ -51,10 +51,10 @@ public class AnnotationFilter {
                 new Object[] {words.size(), parts.size(), prefixes.size(), suffixes.size()});
     }
 
-    public List<Annotation> filter(List<Annotation> annotations) {
-        List<Annotation> result = CollectionHelper.newArrayList();
+    public <A extends Annotation> List<A> filter(List<A> annotations) {
+        List<A> result = CollectionHelper.newArrayList();
         Set<String> removeFragments = CollectionHelper.newHashSet();
-        out: for (Annotation annotation : annotations) {
+        out: for (A annotation : annotations) {
             for (String part : parts) {
                 if (annotation.getValue().contains(part)) {
                     removeFragments.addAll(getParts(annotation.getValue()));
@@ -75,7 +75,7 @@ public class AnnotationFilter {
             }
         }
         LOGGER.debug("Fragment blacklist: {}", removeFragments);
-        for (Annotation annotation : annotations) {
+        for (A annotation : annotations) {
             if (words.contains(annotation.getValue())) {
                 LOGGER.debug("Remove by word list: {}", annotation.getValue());
                 continue;

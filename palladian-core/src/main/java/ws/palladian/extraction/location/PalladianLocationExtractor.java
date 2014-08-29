@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.core.Annotation;
+import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -17,7 +16,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -32,47 +30,34 @@ import ws.palladian.persistence.DatabaseManagerFactory;
  */
 public class PalladianLocationExtractor extends LocationExtractor {
 
-    /** Long annotations exceeding the specified token count, are split up and parts of them are treated as candidates. */
-    public final static int LONG_ANNOTATION_SPLIT = 3;
-
-    private static final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
-
-    private static final AnnotationFilter filter = new AnnotationFilter();
-
     private final LocationSource locationSource;
+
+    private final ClassifyingTagger tagger;
 
     private final LocationDisambiguation disambiguation;
 
-    private static final AddressTagger addressTagger = new AddressTagger();
+    private static final AddressTagger addressTagger = AddressTagger.INSTANCE;
 
-    private static final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
-    
     private static final CoordinateTagger coordinateTagger = CoordinateTagger.INSTANCE;
 
-    public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
+    public PalladianLocationExtractor(LocationSource locationSource, ClassifyingTagger tagger,
+            LocationDisambiguation disambiguation) {
         this.locationSource = locationSource;
+        this.tagger = tagger;
         this.disambiguation = disambiguation;
     }
 
+    public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
+        this(locationSource, DefaultLocationTagger.INSTANCE, disambiguation);
+    }
+
     public PalladianLocationExtractor(LocationSource locationSource) {
-        this(locationSource, new HeuristicDisambiguation());
+        this(locationSource, DefaultLocationTagger.INSTANCE, new HeuristicDisambiguation());
     }
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
-        List<Annotation> taggedEntities = tagger.getAnnotations(text);
-        taggedEntities = filter.filter(taggedEntities);
-        List<ClassifiedAnnotation> classifiedEntities = contextClassifier.classify(taggedEntities, text);
-
-        CollectionHelper.remove(classifiedEntities, new Filter<Annotation>() {
-            @Override
-            public boolean accept(Annotation item) {
-                String value = item.getValue();
-                // the probability, that we are wrong when tagging one or two-letter abbreviations is very high, so we
-                // discard them here, except for "US" and "UK".
-                return value.equals("US") || value.equals("UK") || !value.matches("[A-Z]{1,2}|[A-Z]\\.");
-            }
-        });
+        List<ClassifiedAnnotation> classifiedEntities = tagger.getAnnotations(text);
 
         MultiMap<ClassifiedAnnotation, Location> locations = fetchLocations(locationSource, classifiedEntities);
 

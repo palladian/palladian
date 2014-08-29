@@ -13,7 +13,7 @@ import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.helper.collection.CollectionHelper;

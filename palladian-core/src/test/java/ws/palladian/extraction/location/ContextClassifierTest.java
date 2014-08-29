@@ -10,7 +10,6 @@ import ws.palladian.core.Annotation;
 import ws.palladian.core.Tagger;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
 
 public class ContextClassifierTest {
 

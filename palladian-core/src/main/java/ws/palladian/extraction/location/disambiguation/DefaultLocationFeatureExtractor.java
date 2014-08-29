@@ -12,7 +12,7 @@ import java.util.Set;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.feature.StopWordRemover;
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationFilters;
