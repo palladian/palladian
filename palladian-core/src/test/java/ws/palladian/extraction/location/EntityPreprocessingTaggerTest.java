@@ -29,6 +29,15 @@ public class EntityPreprocessingTaggerTest {
     }
 
     @Test
+    public void testEntityPreprocessor_shortPhrase_issue294() throws IOException {
+        String text = "New York City";
+        EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
+        List<Annotation> annotations = tagger.getAnnotations(text);
+        assertEquals(1, annotations.size());
+        assertEquals("New York City", annotations.get(0).getValue());
+    }
+
+    @Test
     public void testCorrectCapitalization() {
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
         String corrected = tagger.correctCapitalization("Senior U.S. Military Official Visits Georgia.");
