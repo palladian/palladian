@@ -148,7 +148,6 @@ public final class Tokenizer {
             return string;
         }
 
-        // /////// XXX
         List<String> sentences = getSentences(string, language);
         String pickedSentence = "";
         for (String sentence : sentences) {
@@ -159,18 +158,7 @@ public final class Tokenizer {
                 break;
             }
         }
-        if (true) {
-            return pickedSentence;
-        }
-        // ////////
-
-        String beginning = getPhraseFromBeginningOfSentence(string.substring(0, position));
-        String end = getPhraseToEndOfSentence(string.substring(position));
-        if (beginning.endsWith(" ")) {
-            end = end.trim();
-        }
-
-        return beginning + end;
+        return pickedSentence;
     }
 
     public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
@@ -402,7 +390,7 @@ public final class Tokenizer {
 
         for (int i = 0; i < 1000; i++) {
             Tokenizer
-            .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
+                    .getSentences("Zum Einen ist das Ding ein bisschen groß und es sieht sehr merkwürdig aus, wenn man damit durch die Stadt läuft und es am Ohr hat und zum Anderen ein bisschen unhandlich.\nNun möchte ich noch etwas über die Akkulaufzeit sagen.");
         }
         System.out.println(stopWatch.getElapsedTimeString());
 

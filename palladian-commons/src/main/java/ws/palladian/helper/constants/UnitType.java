@@ -1,4 +1,4 @@
-package ws.palladian.helper.normalization;
+package ws.palladian.helper.constants;
 
 import java.util.Collections;
 import java.util.List;
@@ -7,7 +7,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
-import ws.palladian.helper.constants.TemperatureUnit;
 
 /**
  * <p>
@@ -31,6 +30,7 @@ public enum UnitType {
     SPEED, //
     TEMPERATURE, //
     PIXEL, //
+    CURRENCY,
     OTHER;
 
     private List<Pair<List<String>, Double>> units = CollectionHelper.newArrayList();
@@ -503,6 +503,17 @@ public enum UnitType {
         unitList = CollectionHelper.newArrayList();
         unitList.add("db");
         UnitType.POWER_RATIO.units.add(Pair.of(unitList, 1.));
+
+        // CURRENCY units are not normalized
+        unitList = CollectionHelper.newArrayList();
+        unitList.add("euros");
+        unitList.add("euro");
+        unitList.add("eur");
+        unitList.add("€");
+        unitList.add("dollars");
+        unitList.add("dollar");
+        unitList.add("$");
+        UnitType.CURRENCY.units.add(Pair.of(unitList, 1.));
 
         // OTHER units are normalized to different values
         unitList = CollectionHelper.newArrayList();
