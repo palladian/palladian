@@ -13,6 +13,7 @@ import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
@@ -171,7 +172,7 @@ public class ScopeDetectorEvaluator {
                 .deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
 
         // the extractors
-        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0, 1000);
+        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0, new ConfigurableFeatureExtractor());
         LocationExtractor extractor = new PalladianLocationExtractor(source, disambiguation);
 
         // the test datasets

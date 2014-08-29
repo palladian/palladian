@@ -40,6 +40,7 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -460,22 +461,21 @@ public final class LocationExtractionEvaluator {
         List<LocationExtractor> extractors = CollectionHelper.newArrayList();
         for (int i = 0; i <= 10; i++) {
             double threshold = i / 10.;
-            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, threshold,
-                    FeatureBasedDisambiguation.CONTEXT_SIZE);
+            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, threshold, new ConfigurableFeatureExtractor());
             extractors.add(new PalladianLocationExtractor(database, disambiguation));
         }
         return extractors;
     }
 
-    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
-        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
-        for (int i = 0; i <= 5000; i += 100) {
-            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
-                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);
-            extractors.add(new PalladianLocationExtractor(database, disambiguation));
-        }
-        return extractors;
-    }
+//    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
+//        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+//        for (int i = 0; i <= 5000; i += 100) {
+//            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
+//                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);
+//            extractors.add(new PalladianLocationExtractor(database, disambiguation));
+//        }
+//        return extractors;
+//    }
 
     public static void main(String[] args) throws IOException {
 

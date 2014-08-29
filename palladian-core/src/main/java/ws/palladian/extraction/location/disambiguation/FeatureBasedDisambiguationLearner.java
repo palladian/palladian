@@ -41,7 +41,6 @@ import ws.palladian.persistence.DatabaseManagerFactory;
  */
 public class FeatureBasedDisambiguationLearner {
 
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguationLearner.class);
 
@@ -65,13 +64,7 @@ public class FeatureBasedDisambiguationLearner {
         this.featureExtraction = featureExtractor;
     }
 
-    @Deprecated
-    public FeatureBasedDisambiguationLearner(LocationSource locationSource) {
-        this(locationSource, DefaultLocationTagger.INSTANCE, 10, new DefaultLocationFeatureExtractor(
-                FeatureBasedDisambiguation.CONTEXT_SIZE));
-    }
-
-    public QuickDtModel learn(File datasetDirectory) throws IOException {
+    public QuickDtModel learn(File datasetDirectory) {
         return learn(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
     }
 
@@ -84,7 +77,7 @@ public class FeatureBasedDisambiguationLearner {
      * @return The model.
      * @throws IOException
      */
-    public QuickDtModel learn(File... datasetDirectories) throws IOException {
+    public QuickDtModel learn(File... datasetDirectories) {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
         List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
         for (File datasetDirectory : datasetDirectories) {
@@ -93,14 +86,9 @@ public class FeatureBasedDisambiguationLearner {
         return learn(new CompositeIterator<LocationDocument>(datasetIterators));
     }
 
-    public QuickDtModel learn(Iterator<LocationDocument> trainDocuments) throws IOException {
+    public QuickDtModel learn(Iterator<LocationDocument> trainDocuments) {
         Set<Instance> trainingData = createTrainingData(trainDocuments);
-        String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
-        // ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
-        QuickDtModel model = learner.train(trainingData);
-        String modelFileName = baseFileName + ".model";
-        FileHelper.serialize(model, modelFileName);
-        return model;
+        return learner.train(trainingData);
     }
 
     public Set<Instance> createTrainingData(Iterator<LocationDocument> trainDocuments) {
@@ -155,14 +143,17 @@ public class FeatureBasedDisambiguationLearner {
 
     public static void main(String[] args) throws IOException {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource);
+        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
+                DefaultLocationTagger.INSTANCE, 100, new ConfigurableFeatureExtractor());
         File datasetTud = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
         File datasetLgl = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
         File datasetClust = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/1-train");
-        learner.learn(datasetTud);
-        learner.learn(datasetLgl);
-        learner.learn(datasetClust);
-        learner.learn(datasetTud, datasetLgl, datasetClust);
+        QuickDtModel model;
+        model = learner.learn(datasetTud);
+        model = learner.learn(datasetLgl);
+        model = learner.learn(datasetClust);
+        model = learner.learn(datasetTud, datasetLgl, datasetClust);
+        FileHelper.serialize(model, "locationDisambiguationModel.ser.gz");
         // dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
         // learner.learn(dataset);
     }

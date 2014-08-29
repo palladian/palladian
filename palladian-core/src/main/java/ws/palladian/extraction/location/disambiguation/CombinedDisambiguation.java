@@ -35,7 +35,7 @@ public class CombinedDisambiguation implements LocationDisambiguation {
 
     private final QuickDtClassifier classifier = new QuickDtClassifier();
 
-    private final LocationFeatureExtractor featureExtractor = new DefaultLocationFeatureExtractor();
+    private final LocationFeatureExtractor featureExtractor = new ConfigurableFeatureExtractor();
 
     private final QuickDtModel model;
 

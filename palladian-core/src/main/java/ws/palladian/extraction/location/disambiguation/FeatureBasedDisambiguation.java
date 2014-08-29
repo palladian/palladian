@@ -33,9 +33,6 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguation.class);
 
     public static final double PROBABILITY_THRESHOLD = 0.15;
-    
-    /** The size of the disambiguation context. See {@link DisambiguationContext}. */
-    public static final int CONTEXT_SIZE = 1000;
 
     private final double probabilityThreshold;
 
@@ -46,11 +43,11 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     private final QuickDtModel model;
 
     public FeatureBasedDisambiguation(QuickDtModel model) {
-        this(model, PROBABILITY_THRESHOLD, CONTEXT_SIZE);
+        this(model, PROBABILITY_THRESHOLD);
     }
 
-    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold, int contextSize) {
-        this(model, probabilityThreshold, new DefaultLocationFeatureExtractor(contextSize));
+    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold) {
+        this(model, probabilityThreshold, new ConfigurableFeatureExtractor());
     }
 
     public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold,
