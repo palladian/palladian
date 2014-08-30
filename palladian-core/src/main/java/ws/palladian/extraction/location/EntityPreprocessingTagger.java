@@ -34,7 +34,7 @@ public class EntityPreprocessingTagger implements Tagger {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityPreprocessingTagger.class);
 
     /** The threshold total:uppercase, above which tokens are considered being lowercase. */
-    private static final double LOWERCASE_THRESHOLD = 1.75;
+    private static final double LOWERCASE_THRESHOLD = 2;
 
     /** Length of the context. */
     private static final int CONTEXT_LENGTH = 5;

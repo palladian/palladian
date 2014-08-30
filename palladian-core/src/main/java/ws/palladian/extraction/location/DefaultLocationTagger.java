@@ -11,7 +11,7 @@ import ws.palladian.helper.functional.Filter;
 public final class DefaultLocationTagger implements ClassifyingTagger {
 
     /** Long annotations exceeding the specified token count, are split up and parts of them are treated as candidates. */
-    public final static int LONG_ANNOTATION_SPLIT = 3;
+    public final static int LONG_ANNOTATION_SPLIT = 2;
 
     private static final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
 
