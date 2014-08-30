@@ -58,18 +58,17 @@ public class PalladianLocationExtractorIT {
             String dbUrl = config.getString("db.jdbcUrl");
             String dbUsername = config.getString("db.username");
             String dbPassword = config.getString("db.password");
-//            String mashapeTestKey = config.getString("api.newsseecr.mashapeKey");
+            // String mashapeTestKey = config.getString("api.newsseecr.mashapeKey");
             if (StringUtils.isNotBlank(dbUrl) && StringUtils.isNotBlank(dbUsername)) {
                 locationSource = DatabaseManagerFactory.create(LocationDatabase.class, dbUrl, dbUsername, dbPassword);
                 LOGGER.info("Using local DB ({}) for testing", dbUrl);
-//            } else if (StringUtils.isNotBlank(mashapeTestKey)) {
-//                locationSource = new NewsSeecrLocationSource(mashapeTestKey);
-//                LOGGER.info("Using NewsSeecr DB for testing");
+                // } else if (StringUtils.isNotBlank(mashapeTestKey)) {
+                // locationSource = new NewsSeecrLocationSource(mashapeTestKey);
+                // LOGGER.info("Using NewsSeecr DB for testing");
             } else {
                 assumeTrue(
-//                        "palladian-test.properties must either provide a database configuration, or a Mashape API key",
-                        "palladian-test.properties must provide a database configuration",
-                        false);
+                // "palladian-test.properties must either provide a database configuration, or a Mashape API key",
+                        "palladian-test.properties must provide a database configuration", false);
             }
         } catch (FileNotFoundException e) {
             assumeTrue("palladian-test.properties not found; test is skipped!", false);
@@ -85,12 +84,12 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.8163);
-        assertGreater("MUC-Rc", result.mucRc, 0.7287);
-        assertGreater("MUC-F1", result.mucF1, 0.7700);
-        assertGreater("Geo-Pr", result.geoPr, 0.9214);
-        assertGreater("Geo-Rc", result.geoRc, 0.7825);
-        assertGreater("Geo-F1", result.geoF1, 0.8463);
+        assertGreater("MUC-Pr", result.mucPr, 0.8247);
+        assertGreater("MUC-Rc", result.mucRc, 0.7509);
+        assertGreater("MUC-F1", result.mucF1, 0.7861);
+        assertGreater("Geo-Pr", result.geoPr, 0.9369);
+        assertGreater("Geo-Rc", result.geoRc, 0.7935);
+        assertGreater("Geo-F1", result.geoF1, 0.8593);
     }
 
     @Test
@@ -102,12 +101,12 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.7339);
-        assertGreater("MUC-Rc", result.mucRc, 0.5755);
-        assertGreater("MUC-F1", result.mucF1, 0.6451);
-        assertGreater("Geo-Pr", result.geoPr, 0.6746);
-        assertGreater("Geo-Rc", result.geoRc, 0.5330);
-        assertGreater("Geo-F1", result.geoF1, 0.5955);
+        assertGreater("MUC-Pr", result.mucPr, 0.7327);
+        assertGreater("MUC-Rc", result.mucRc, 0.6155);
+        assertGreater("MUC-F1", result.mucF1, 0.6690);
+        assertGreater("Geo-Pr", result.geoPr, 0.6866);
+        assertGreater("Geo-Rc", result.geoRc, 0.5697);
+        assertGreater("Geo-F1", result.geoF1, 0.6227);
     }
 
     @Test
@@ -119,12 +118,12 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.8068);
-        assertGreater("MUC-Rc", result.mucRc, 0.6730);
-        assertGreater("MUC-F1", result.mucF1, 0.7338);
-        assertGreater("Geo-Pr", result.geoPr, 0.9018);
-        assertGreater("Geo-Rc", result.geoRc, 0.7447);
-        assertGreater("Geo-F1", result.geoF1, 0.8158);
+        assertGreater("MUC-Pr", result.mucPr, 0.8044);
+        assertGreater("MUC-Rc", result.mucRc, 0.6878);
+        assertGreater("MUC-F1", result.mucF1, 0.7416);
+        assertGreater("Geo-Pr", result.geoPr, 0.9027);
+        assertGreater("Geo-Rc", result.geoRc, 0.7624);
+        assertGreater("Geo-F1", result.geoF1, 0.8267);
     }
 
     @Test
