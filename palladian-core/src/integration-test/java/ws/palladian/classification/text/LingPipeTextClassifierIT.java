@@ -17,6 +17,8 @@ import org.junit.Test;
 import ws.palladian.classification.text.LingPipeTextClassifier.LingPipeTextClassifierModel;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.helper.ProcessHelper;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
@@ -42,10 +44,10 @@ public class LingPipeTextClassifierIT {
         } catch (FileNotFoundException e) {
             fail("palladian-test.properties not found; test is skipped!");
         }
-//        // make sure, we have enough heap
-//        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
-//            fail("Not enough memory. This test requires at least 1 GB heap memory.");
-//        }
+        // make sure, we have enough heap
+        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
+            fail("Not enough memory. This test requires at least 1 GB heap memory.");
+        }
     }
 
     @After
@@ -64,7 +66,7 @@ public class LingPipeTextClassifierIT {
         String trainFile = config.getString("dataset.jrc.train");
         String testFile = config.getString("dataset.jrc.test");
         checkExistence("JRC", testFile, trainFile);
-        assertAccuracy(trainFile, testFile, 1); // FIXME
+        assertAccuracy(trainFile, testFile, 1);
     }
 
     @Test
@@ -72,7 +74,7 @@ public class LingPipeTextClassifierIT {
         String trainFile = config.getString("dataset.wikipedia.train");
         String testFile = config.getString("dataset.wikipedia.test");
         checkExistence("Wikipedia", testFile, trainFile);
-        assertAccuracy(trainFile, testFile, 1); // FIXME
+        assertAccuracy(trainFile, testFile, 0.98);
     }
 
     @Test

@@ -43,6 +43,12 @@ public class PalladianLocationExtractorIT {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianLocationExtractorIT.class);
 
+    /**
+     * The expected amount of location entries in the database. Checked prior testing, to guarantee comparable testing
+     * results.
+     */
+    private static final int EXPECTED_DB_LOCATION_COUNT = 9605378;
+
     /** The gazetteer. */
     private static LocationSource locationSource;
 
@@ -65,6 +71,11 @@ public class PalladianLocationExtractorIT {
                 // } else if (StringUtils.isNotBlank(mashapeTestKey)) {
                 // locationSource = new NewsSeecrLocationSource(mashapeTestKey);
                 // LOGGER.info("Using NewsSeecr DB for testing");
+                if (locationSource.size() != EXPECTED_DB_LOCATION_COUNT) {
+                    LOGGER.warn(
+                            "LocationSource does not contain the expected amount of locations; make sure to use the correct database ({} instead of {}).",
+                            locationSource.size(), EXPECTED_DB_LOCATION_COUNT);
+                }
             } else {
                 assumeTrue(
                 // "palladian-test.properties must either provide a database configuration, or a Mashape API key",
