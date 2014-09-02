@@ -42,10 +42,6 @@ public class OpenNlpTextClassifierIT {
         } catch (FileNotFoundException e) {
             fail("palladian-test.properties not found; test is skipped!");
         }
-//        // make sure, we have enough heap
-//        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
-//            fail("Not enough memory. This test requires at least 1 GB heap memory.");
-//        }
     }
 
     @After
@@ -64,7 +60,7 @@ public class OpenNlpTextClassifierIT {
         String trainFile = config.getString("dataset.jrc.train");
         String testFile = config.getString("dataset.jrc.test");
         checkExistence("JRC", testFile, trainFile);
-        assertAccuracy(trainFile, testFile, 1); // FIXME
+        assertAccuracy(trainFile, testFile, 0.97);
     }
 
     @Test
@@ -72,7 +68,7 @@ public class OpenNlpTextClassifierIT {
         String trainFile = config.getString("dataset.wikipedia.train");
         String testFile = config.getString("dataset.wikipedia.test");
         checkExistence("Wikipedia", testFile, trainFile);
-        assertAccuracy(trainFile, testFile, 1); // FIXME
+        assertAccuracy(trainFile, testFile, 0.67);
     }
 
     @Test
