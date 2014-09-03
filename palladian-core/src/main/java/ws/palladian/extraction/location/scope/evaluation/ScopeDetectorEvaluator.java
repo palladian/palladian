@@ -89,8 +89,9 @@ public class ScopeDetectorEvaluator {
      *            .
      * @param documentIterator The {@link Iterator} over the dataset, not <code>null</code>.
      * @param detailedResults <code>true</code> to write an additional CSV file with detailed results information.
+     * @return The error distance statistics.
      */
-    public static void evaluateScopeDetection(ScopeDetector scopeDetector,
+    public static Stats evaluateScopeDetection(ScopeDetector scopeDetector,
             Iterable<LocationDocument> documentIterator, boolean detailedResults) {
         Validate.notNull(scopeDetector, "scopeDetector must not be null");
         Validate.notNull(documentIterator, "documentIterator must not be null");
@@ -161,6 +162,8 @@ public class ScopeDetectorEvaluator {
             FileHelper.writeToFile(String.format(RESULT_DETAILS_FILE, System.currentTimeMillis()),
                     detailedResultsBuilder);
         }
+        
+        return distanceStats;
     }
 
     public static void main(String[] args) throws IOException {

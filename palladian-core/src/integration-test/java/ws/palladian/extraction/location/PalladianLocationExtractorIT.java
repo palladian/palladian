@@ -1,11 +1,11 @@
 package ws.palladian.extraction.location;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -27,6 +27,7 @@ import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator.L
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
@@ -89,59 +90,59 @@ public class PalladianLocationExtractorIT {
     @Test
     public void test_Heuristic_TUD() {
         String validationPath = config.getString("dataset.tudloc2013.validation");
-        assumeDirectory(validationPath);
+        LocationTestHelper.assumeDirectory(validationPath);
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
         LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE,
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.8247);
-        assertGreater("MUC-Rc", result.mucRc, 0.7509);
-        assertGreater("MUC-F1", result.mucF1, 0.7861);
-        assertGreater("Geo-Pr", result.geoPr, 0.9369);
-        assertGreater("Geo-Rc", result.geoRc, 0.7935);
-        assertGreater("Geo-F1", result.geoF1, 0.8593);
+        LocationTestHelper.assertGreater("MUC-Pr", result.mucPr, 0.8247);
+        LocationTestHelper.assertGreater("MUC-Rc", result.mucRc, 0.7509);
+        LocationTestHelper.assertGreater("MUC-F1", result.mucF1, 0.7861);
+        LocationTestHelper.assertGreater("Geo-Pr", result.geoPr, 0.9369);
+        LocationTestHelper.assertGreater("Geo-Rc", result.geoRc, 0.7935);
+        LocationTestHelper.assertGreater("Geo-F1", result.geoF1, 0.8593);
     }
 
     @Test
     public void test_Heuristic_LGL() {
         String validationPath = config.getString("dataset.lgl.validation");
-        assumeDirectory(validationPath);
+        LocationTestHelper.assumeDirectory(validationPath);
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
         LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE,
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.7327);
-        assertGreater("MUC-Rc", result.mucRc, 0.6155);
-        assertGreater("MUC-F1", result.mucF1, 0.6690);
-        assertGreater("Geo-Pr", result.geoPr, 0.6866);
-        assertGreater("Geo-Rc", result.geoRc, 0.5697);
-        assertGreater("Geo-F1", result.geoF1, 0.6227);
+        LocationTestHelper.assertGreater("MUC-Pr", result.mucPr, 0.7327);
+        LocationTestHelper.assertGreater("MUC-Rc", result.mucRc, 0.6155);
+        LocationTestHelper.assertGreater("MUC-F1", result.mucF1, 0.6690);
+        LocationTestHelper.assertGreater("Geo-Pr", result.geoPr, 0.6866);
+        LocationTestHelper.assertGreater("Geo-Rc", result.geoRc, 0.5697);
+        LocationTestHelper.assertGreater("Geo-F1", result.geoF1, 0.6227);
     }
 
     @Test
     public void test_Heuristic_CLUST() {
         String validationPath = config.getString("dataset.clust.validation");
-        assumeDirectory(validationPath);
+        LocationTestHelper.assumeDirectory(validationPath);
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
         LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE,
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.8044);
-        assertGreater("MUC-Rc", result.mucRc, 0.6878);
-        assertGreater("MUC-F1", result.mucF1, 0.7416);
-        assertGreater("Geo-Pr", result.geoPr, 0.9027);
-        assertGreater("Geo-Rc", result.geoRc, 0.7624);
-        assertGreater("Geo-F1", result.geoF1, 0.8267);
+        LocationTestHelper.assertGreater("MUC-Pr", result.mucPr, 0.8044);
+        LocationTestHelper.assertGreater("MUC-Rc", result.mucRc, 0.6878);
+        LocationTestHelper.assertGreater("MUC-F1", result.mucF1, 0.7416);
+        LocationTestHelper.assertGreater("Geo-Pr", result.geoPr, 0.9027);
+        LocationTestHelper.assertGreater("Geo-Rc", result.geoRc, 0.7624);
+        LocationTestHelper.assertGreater("Geo-F1", result.geoF1, 0.8267);
     }
 
     @Test
     public void test_MachineLearning_TUD() {
         String trainPath = config.getString("dataset.tudloc2013.train");
         String validationPath = config.getString("dataset.tudloc2013.validation");
-        assumeDirectory(trainPath, validationPath);
+        LocationTestHelper.assumeDirectory(trainPath, validationPath);
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
                 DefaultLocationTagger.INSTANCE, 100, new ConfigurableFeatureExtractor());
         QuickDtModel model = learner.learn(new File(trainPath));
@@ -150,19 +151,19 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.83);
-        assertGreater("MUC-Rc", result.mucRc, 0.73);
-        assertGreater("MUC-F1", result.mucF1, 0.78);
-        assertGreater("Geo-Pr", result.geoPr, 0.96);
-        assertGreater("Geo-Rc", result.geoRc, 0.82);
-        assertGreater("Geo-F1", result.geoF1, 0.89);
+        LocationTestHelper.assertGreater("MUC-Pr", result.mucPr, 0.83);
+        LocationTestHelper.assertGreater("MUC-Rc", result.mucRc, 0.73);
+        LocationTestHelper.assertGreater("MUC-F1", result.mucF1, 0.78);
+        LocationTestHelper.assertGreater("Geo-Pr", result.geoPr, 0.96);
+        LocationTestHelper.assertGreater("Geo-Rc", result.geoRc, 0.82);
+        LocationTestHelper.assertGreater("Geo-F1", result.geoF1, 0.89);
     }
 
     @Test
     public void test_MachineLearning_LGL() {
         String trainPath = config.getString("dataset.lgl.train");
         String validationPath = config.getString("dataset.lgl.validation");
-        assumeDirectory(trainPath, validationPath);
+        LocationTestHelper.assumeDirectory(trainPath, validationPath);
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
                 DefaultLocationTagger.INSTANCE, 100, new ConfigurableFeatureExtractor());
         QuickDtModel model = learner.learn(new File(trainPath));
@@ -171,19 +172,19 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.77);
-        assertGreater("MUC-Rc", result.mucRc, 0.60);
-        assertGreater("MUC-F1", result.mucF1, 0.67);
-        assertGreater("Geo-Pr", result.geoPr, 0.78);
-        assertGreater("Geo-Rc", result.geoRc, 0.62);
-        assertGreater("Geo-F1", result.geoF1, 0.69);
+        LocationTestHelper.assertGreater("MUC-Pr", result.mucPr, 0.77);
+        LocationTestHelper.assertGreater("MUC-Rc", result.mucRc, 0.60);
+        LocationTestHelper.assertGreater("MUC-F1", result.mucF1, 0.67);
+        LocationTestHelper.assertGreater("Geo-Pr", result.geoPr, 0.78);
+        LocationTestHelper.assertGreater("Geo-Rc", result.geoRc, 0.62);
+        LocationTestHelper.assertGreater("Geo-F1", result.geoF1, 0.69);
     }
 
     @Test
     public void test_MachineLearning_CLUST() {
         String trainPath = config.getString("dataset.clust.train");
         String validationPath = config.getString("dataset.clust.validation");
-        assumeDirectory(trainPath, validationPath);
+        LocationTestHelper.assumeDirectory(trainPath, validationPath);
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
                 DefaultLocationTagger.INSTANCE, 100, new ConfigurableFeatureExtractor());
         QuickDtModel model = learner.learn(new File(trainPath));
@@ -192,28 +193,37 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        assertGreater("MUC-Pr", result.mucPr, 0.80);
-        assertGreater("MUC-Rc", result.mucRc, 0.69);
-        assertGreater("MUC-F1", result.mucF1, 0.74);
-        assertGreater("Geo-Pr", result.geoPr, 0.93);
-        assertGreater("Geo-Rc", result.geoRc, 0.82);
-        assertGreater("Geo-F1", result.geoF1, 0.87);
+        LocationTestHelper.assertGreater("MUC-Pr", result.mucPr, 0.80);
+        LocationTestHelper.assertGreater("MUC-Rc", result.mucRc, 0.69);
+        LocationTestHelper.assertGreater("MUC-F1", result.mucF1, 0.74);
+        LocationTestHelper.assertGreater("Geo-Pr", result.geoPr, 0.93);
+        LocationTestHelper.assertGreater("Geo-Rc", result.geoRc, 0.82);
+        LocationTestHelper.assertGreater("Geo-F1", result.geoF1, 0.87);
     }
 
     /**
-     * Make sure, all given paths are pointing to directories.
+     * Run the test of the {@link FeatureBasedDisambiguation} with a pre-learned model. In contrast to
+     * {@link #test_MachineLearning_TUD()}, we can make exact assertions about results here.
      * 
-     * @param paths The paths to check.
+     * @throws IOException In case the model cannot be loaded (should not happen).
      */
-    private static void assumeDirectory(String... paths) {
-        for (String path : paths) {
-            assumeTrue(path + " not present", new File(path).isDirectory());
-        }
-    }
-
-    private static void assertGreater(String valueName, double value, double minimumExpected) {
-        String msg = valueName + " must be greater/equal " + minimumExpected + ", but was " + value;
-        assertTrue(msg, value >= minimumExpected);
+    @Test
+    public void test_MachineLearning_TUD_existingModel() throws IOException {
+        String validationPath = config.getString("dataset.tudloc2013.validation");
+        LocationTestHelper.assumeDirectory(validationPath);
+        QuickDtModel model = FileHelper.deserialize(ResourceHelper
+                .getResourcePath("/model/locationDisambiguationModel_tud_1409729069110.ser.gz"));
+        LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
+        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE,
+                disambiguation);
+        LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
+        // System.out.println(result);
+        LocationTestHelper.assertGreater("MUC-Pr", result.mucPr, 0.8366);
+        LocationTestHelper.assertGreater("MUC-Rc", result.mucRc, 0.7542);
+        LocationTestHelper.assertGreater("MUC-F1", result.mucF1, 0.7933);
+        LocationTestHelper.assertGreater("Geo-Pr", result.geoPr, 0.9710);
+        LocationTestHelper.assertGreater("Geo-Rc", result.geoRc, 0.8362);
+        LocationTestHelper.assertGreater("Geo-F1", result.geoF1, 0.8986);
     }
 
 }
