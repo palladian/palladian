@@ -24,7 +24,6 @@ import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.featureselection.BackwardFeatureElimination;
 import ws.palladian.classification.featureselection.BackwardFeatureElimination.FMeasureScorer;
 import ws.palladian.classification.featureselection.FeatureRanking;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
@@ -46,8 +45,6 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.Stats;
@@ -55,8 +52,8 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * <p>
- * A {@link RankingScopeDetector} which uses various features to train a model, which is then used for predicting the scope.
- * The features are mainly influenced from the rule-based {@link RankingScopeDetector}s (see implementations).
+ * A {@link RankingScopeDetector} which uses various features to train a model, which is then used for predicting the
+ * scope. The features are mainly influenced from the rule-based {@link RankingScopeDetector}s (see implementations).
  * </p>
  * 
  * @author pk
@@ -113,37 +110,18 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         if (coordinateStats.isEmpty()) {
             return Collections.emptySet();
         }
-        
+
         GeoCoordinate midpoint = coordinateStats.midpoint();
         GeoCoordinate centerpoint = coordinateStats.center();
-        // double maxDistanceMidpoint = stats.maxDistance(stats.midpoint());
-        // double maxDistanceCenterpoint = stats.maxDistance(stats.center());
-        // int maxHierarchyDepth = stats.maxHierarchyDepth();
-        // long biggestLocationPopulation = allStats.biggestPopulation();
         int maxOffset = 1;
         for (LocationAnnotation annotation : annotations) {
             maxOffset = Math.max(maxOffset, annotation.getStartPosition());
         }
-        // double overallMaxDist = Math.max(1, stats.largestDistance());
+        int numLocations = annotations.size();
 
         Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
         for (Location location : allStats) {
             GeoCoordinate coordinate = CollectionHelper.coalesce(location.getCoordinate(), GeoCoordinate.NULL);
-            double midpointDistance = midpoint.distance(coordinate);
-            // double normalizedMidpointDistance = maxDistanceMidpoint > 0 ? midpointDistance / maxDistanceMidpoint : 0;
-            double centerpointDistance = centerpoint.distance(coordinate);
-            // double normalizeCenterpointDistance = maxDistanceCenterpoint > 0 ? centerpointDistance /
-            // maxDistanceCenterpoint : 0;
-            int occurrenceCount = Collections.frequency(locationList, location);
-            int descendantCount = allStats.where(descendantOf(location)).size();
-            int ancestorCount = allStats.where(ancestorOf(location)).size();
-            double occurrenceFrequency = (double)occurrenceCount / annotations.size();
-            double descendantPercentage = (double)descendantCount / annotations.size();
-            double ancestorPercentage = (double)ancestorCount / annotations.size();
-            int hierarchyDepth = location.getAncestorIds().size();
-            // double normalizedHierarchyDepth = (double)hierarchyDepth / maxHierarchyDepth;
-            // long maxPopulation = Math.max(1, biggestLocationPopulation);
-            long population = location.getPopulation() != null ? location.getPopulation() : 0;
             double maxDisambiguationTrust = 0;
             int firstPosition = Integer.MAX_VALUE;
             int lastPosition = Integer.MIN_VALUE;
@@ -157,38 +135,22 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             Stats distances = coordinateStats.distanceStats(location);
 
             InstanceBuilder builder = new InstanceBuilder();
-            builder.set("midpointDistance", midpointDistance);
-            // builder.set("normalizedMidpointDistance", normalizedMidpointDistance);
-            builder.set("centerpointDistance", centerpointDistance);
-            // builder.set("normalizedCenterpointDistance", normalizeCenterpointDistance);
-            // builder.set("occurrenceCount", occurrenceCount);
-            // builder.set("childCount", descendantCount);
-            // builder.set("ancestorCount", ancestorCount);
-            builder.set("occurrenceFrequency", occurrenceFrequency);
-            builder.set("childPercentage", descendantPercentage);
-            builder.set("ancestorPercentage", ancestorPercentage);
-            builder.set("hierarchyDepth", hierarchyDepth);
-            // builder.set("normalizedHierarchyDepth", normalizedHierarchyDepth);
-            builder.set("population", population);
-            // builder.set("populationNorm", population / maxPopulation);
-            // builder.set("populationMagnitude", MathHelper.getOrderOfMagnitude(population));
+            builder.set("midpointDistance", midpoint.distance(coordinate));
+            builder.set("centerpointDistance", centerpoint.distance(coordinate));
+            builder.set("occurrenceFrequency", (double)Collections.frequency(locationList, location) / numLocations);
+            builder.set("descendantPercentage", (double)allStats.where(descendantOf(location)).size() / numLocations);
+            builder.set("ancestorPercentage", (double)allStats.where(ancestorOf(location)).size() / numLocations);
+            builder.set("hierarchyDepth", location.getAncestorIds().size());
+            builder.set("population", CollectionHelper.coalesce(location.getPopulation(), 0l));
             builder.set("locationType", location.getType().toString());
             builder.set("disambiguationTrust", maxDisambiguationTrust);
             builder.set("offsetFirst", (double)firstPosition / maxOffset);
             builder.set("offsetLast", (double)lastPosition / maxOffset);
             builder.set("offsetSpread", (double)(lastPosition - firstPosition) / maxOffset);
-            double minDistance = Double.isNaN(distances.getMin()) ? 0 : distances.getMin();
-            double maxDistance = Double.isNaN(distances.getMax()) ? 0 : distances.getMax();
-            double meanDistance = Double.isNaN(distances.getMean()) ? 0 : distances.getMean();
-            double medianDistance = Double.isNaN(distances.getMedian()) ? 0 : distances.getMedian();
-            builder.set("minDistanceToOthers", minDistance);
-            builder.set("maxDistanceToOthers", maxDistance);
-            builder.set("meanDistanceToOthers", meanDistance);
-            builder.set("medianDistanceToOthers", medianDistance);
-            // builder.set("normalizedMinDistanceToOthers", minDistance / overallMaxDist);
-            // builder.set("normalizedMaxDistanceToOthers", maxDistance / overallMaxDist);
-            // builder.set("normalizedMeanDistanceToOthers", meanDistance / overallMaxDist);
-            // builder.set("normalizedMedianDistanceToOthers", medianDistance / overallMaxDist);
+            builder.set("minDistanceToOthers", Double.isNaN(distances.getMin()) ? 0 : distances.getMin());
+            builder.set("maxDistanceToOthers", Double.isNaN(distances.getMax()) ? 0 : distances.getMax());
+            builder.set("meanDistanceToOthers", Double.isNaN(distances.getMean()) ? 0 : distances.getMean());
+            builder.set("medianDistanceToOthers", Double.isNaN(distances.getMedian()) ? 0 : distances.getMedian());
 
             instances.add(new ClassifiableLocation(location, builder.create()));
         }
@@ -207,23 +169,15 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
      * 
      * @param documentIterator The iterator representing the dataset, not <code>null</code>.
      * @param extractor The {@link LocationExtractor}, not <code>null</code>.
-     * @param learner The {@link Learner}, in case a model is to be trained, <code>null</code> otherwise.
-     * @param featureFilter A filter to exclude specific features, <code>null</code> to perform no filtering.
      * @return The trained model.
      */
-    public static <M extends Model> M train(Iterable<LocationDocument> documentIterator, LocationExtractor extractor,
-            Learner<M> learner, Filter<? super String> featureFilter) {
+    public static QuickDtModel train(Iterable<LocationDocument> documentIterator, LocationExtractor extractor) {
         Validate.notNull(documentIterator, "documentIterator must not be null");
         Validate.notNull(extractor, "extractor must not be null");
         Collection<Instance> instances = createInstances(documentIterator, extractor);
-        // maybe filter (some) features
-        if (featureFilter != null) {
-            instances = ClassificationUtils.filterFeatures(instances, featureFilter);
-        }
-        // build the model
         StopWatch stopWatch = new StopWatch();
-        M scopeModel = learner.train(instances);
-        LOGGER.info("Trained model with {} in {}", learner, stopWatch.getElapsedTimeString());
+        QuickDtModel scopeModel = QuickDtLearner.randomForest(100).train(instances);
+        LOGGER.info("Trained model in {}", stopWatch.getElapsedTimeString());
         return scopeModel;
     }
 
@@ -294,13 +248,15 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
     }
 
     public static void main(String[] args) throws IOException {
-        QuickDtModel model = FileHelper.deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
+        QuickDtModel model = FileHelper
+                .deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // note that we are using a zero confidence threshold here; experiments showed, that it's better to go for high
         // recall here, and let the classifier scope detection's classifier decide about each candidate (this is at
         // least the case in the Wikipedia dataset; on the TUD-Loc-2013, it actually harms performance, but we have much
         // less data here for making a definite statement).
-        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0, new ConfigurableFeatureExtractor());
+        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0,
+                new ConfigurableFeatureExtractor());
         LocationExtractor extractor = new PalladianLocationExtractor(database, disambiguation);
 
         // Wikipedia scope dataset //////////////////////////////////////////////////////////////////////////////
@@ -328,12 +284,8 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         // feature set was determined using backward feature elimination, using train + validation set on Wikipedia set
 
         // QuickDt model
-        Filter<String> featureFilter = Filters
-                .regex("normalizedMidpointDistance|normalizedMedianDistanceToOthers|normalizedMinDistanceToOthers|normalizedCenterpointDistance|"
-                        + "disambiguationTrust|ancestorCount|normalizedMeanDistanceToOthers|occurenceFrequency|minDistanceToOthers|"
-                        + "populationMagnitude|offsetFirst|locationType|hierarchyDepth");
         File modelOutput = new File("scopeDetection_tud-loc_quickDt.model");
-        Model scopeModel = train(trainingSet, extractor, QuickDtLearner.randomForest(100), featureFilter);
+        QuickDtModel scopeModel = train(trainingSet, extractor);
         FileHelper.serialize(scopeModel, modelOutput.getPath());
     }
 
