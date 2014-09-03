@@ -45,7 +45,7 @@ public class LocationSet extends AbstractSet<Location> {
      * @return A {@link LocationSet} with all items matching the filter.
      * @see LocationFilters
      */
-    public LocationSet where(Filter<Location> filter) {
+    public LocationSet where(Filter<? super Location> filter) {
         Validate.notNull(filter, "filter must not be null");
         return new LocationSet(filterSet(this, filter));
     }
@@ -59,7 +59,7 @@ public class LocationSet extends AbstractSet<Location> {
      *         result would be empty.
      * @see LocationFilters
      */
-    public LocationSet whereConditionally(Filter<Location> filter) {
+    public LocationSet whereConditionally(Filter<? super Location> filter) {
         Validate.notNull(filter, "filter must not be null");
         LocationSet temp = where(filter);
         return temp.size() > 0 ? temp : this;
@@ -108,10 +108,11 @@ public class LocationSet extends AbstractSet<Location> {
      */
     public Stats distanceStats(Location location) {
         Validate.notNull(location, "location must not be null");
+        GeoCoordinate coordinate = CollectionHelper.coalesce(location.getCoordinate(), GeoCoordinate.NULL);
         LocationSet others = where(coordinate()).where(not(equal(location)));
         Stats distances = new FatStats();
         for (Location other : others) {
-            distances.add(location.getCoordinate().distance(other.getCoordinate()));
+            distances.add(coordinate.distance(other.getCoordinate()));
         }
         return distances;
     }
