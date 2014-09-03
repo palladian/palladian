@@ -1,11 +1,8 @@
 package ws.palladian.extraction.pos;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -16,6 +13,7 @@ import org.junit.Test;
 import ws.palladian.classification.universal.UniversalClassifierModel;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.integrationtests.ITHelper;
 
 /**
  * <p>
@@ -38,20 +36,9 @@ public class PalladianPosTaggerIT {
                     ResourceHelper.getResourceFile("/palladian-test.properties"));
             trainDataSet = config.getString("dataset.brown.train");
             testDataSet = config.getString("dataset.brown.test");
-            assumeDirectory(trainDataSet, testDataSet);
+            ITHelper.assumeDirectory(trainDataSet, testDataSet);
         } catch (FileNotFoundException e) {
             fail("palladian-test.properties not found; test is skipped!");
-        }
-    }
-
-    /**
-     * Make sure, all given paths are pointing to directories.
-     * 
-     * @param paths
-     */
-    private static void assumeDirectory(String... paths) {
-        for (String path : paths) {
-            assumeTrue(path + " not present", new File(path).isDirectory());
         }
     }
 
@@ -92,11 +79,7 @@ public class PalladianPosTaggerIT {
         UniversalClassifierModel model = PalladianPosTagger.trainModel(trainDataSet);
         PalladianPosTagger ppt = new PalladianPosTagger(model);
         ConfusionMatrix result = ppt.evaluate(testDataSet);
-        assertGreater("accuracy", 0.89, result.getAccuracy());
-    }
-
-    private static void assertGreater(String value, double expected, double actual) {
-        assertTrue("expected value of " + expected + " for " + value + ", was " + actual, actual > expected);
+        ITHelper.assertGreater("accuracy", 0.89, result.getAccuracy());
     }
 
 }

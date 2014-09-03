@@ -6,7 +6,6 @@ import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.ref.WeakReference;
 
 import opennlp.tools.doccat.BagOfWordsFeatureGenerator;
 
@@ -22,6 +21,7 @@ import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.integrationtests.ITHelper;
 
 /**
  * <p>
@@ -46,13 +46,7 @@ public class OpenNlpTextClassifierIT {
 
     @After
     public void cleanup() {
-        // make sure, garbage collector runs
-        Object obj = new Object();
-        WeakReference<Object> ref = new WeakReference<Object>(obj);
-        obj = null;
-        while (ref.get() != null) {
-            System.gc();
-        }
+        ITHelper.forceGc();
     }
 
     @Test

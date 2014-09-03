@@ -19,7 +19,6 @@ import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.DefaultLocationTagger;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationSource;
-import ws.palladian.extraction.location.LocationTestHelper;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.PalladianLocationExtractorIT;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
@@ -31,6 +30,7 @@ import ws.palladian.extraction.location.scope.evaluation.ScopeDetectorEvaluator;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.Stats;
+import ws.palladian.integrationtests.ITHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
 public class ScopeDetectorIT {
@@ -86,15 +86,15 @@ public class ScopeDetectorIT {
     @Test
     public void testFirstScopeDetector() throws IOException {
         String validationPath = config.getString("dataset.tudloc2013.validation");
-        LocationTestHelper.assumeDirectory(validationPath);
+        ITHelper.assumeDirectory(validationPath);
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0);
         LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE,
                 disambiguation);
         FirstScopeDetector detector = new FirstScopeDetector(extractor);
         Iterable<LocationDocument> documentIterator = new TudLoc2013DatasetIterable(new File(validationPath));
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
-        LocationTestHelper.assertGreater("meanErrorDistance", evaluationResult.getMean(), 1631.17);
-        LocationTestHelper.assertGreater("medianErrorDistance", evaluationResult.getMedian(), 2.83);
+        ITHelper.assertGreater("meanErrorDistance", 1631.17, evaluationResult.getMean());
+        ITHelper.assertGreater("medianErrorDistance", 2.83, evaluationResult.getMedian());
     }
 
 }
