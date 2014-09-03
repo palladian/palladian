@@ -3,29 +3,20 @@ package ws.palladian.extraction.location;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
 
-import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.integrationtests.ITHelper;
 
 public class NewsSeecrLocationExtractorIT {
 
     private static String mashapeTestKey = getMashapeTestKey();
 
     private static String getMashapeTestKey() {
-        try {
-            PropertiesConfiguration config = new PropertiesConfiguration(
-                    ResourceHelper.getResourceFile("/palladian-test.properties"));
-            return config.getString("api.newsseecr.mashapeKey");
-        } catch (ConfigurationException e) {
-            throw new IllegalStateException("Could not read configuration");
-        } catch (FileNotFoundException e) {
-            throw new IllegalStateException("Configuration file not found");
-        }
+        Configuration config = ITHelper.getTestConfig();
+        return config.getString("api.newsseecr.mashapeKey");
     }
 
     @Test

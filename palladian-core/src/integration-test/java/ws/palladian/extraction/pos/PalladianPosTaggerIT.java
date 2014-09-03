@@ -1,17 +1,13 @@
 package ws.palladian.extraction.pos;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-import java.io.FileNotFoundException;
-
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ws.palladian.classification.universal.UniversalClassifierModel;
-import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.integrationtests.ITHelper;
 
@@ -31,15 +27,10 @@ public class PalladianPosTaggerIT {
 
     @BeforeClass
     public static void readConfiguration() throws ConfigurationException {
-        try {
-            PropertiesConfiguration config = new PropertiesConfiguration(
-                    ResourceHelper.getResourceFile("/palladian-test.properties"));
-            trainDataSet = config.getString("dataset.brown.train");
-            testDataSet = config.getString("dataset.brown.test");
-            ITHelper.assumeDirectory(trainDataSet, testDataSet);
-        } catch (FileNotFoundException e) {
-            fail("palladian-test.properties not found; test is skipped!");
-        }
+        Configuration config = ITHelper.getTestConfig();
+        trainDataSet = config.getString("dataset.brown.train");
+        testDataSet = config.getString("dataset.brown.test");
+        ITHelper.assertDirectory(trainDataSet, testDataSet);
     }
 
     @Test
@@ -79,7 +70,7 @@ public class PalladianPosTaggerIT {
         UniversalClassifierModel model = PalladianPosTagger.trainModel(trainDataSet);
         PalladianPosTagger ppt = new PalladianPosTagger(model);
         ConfusionMatrix result = ppt.evaluate(testDataSet);
-        ITHelper.assertGreater("accuracy", 0.89, result.getAccuracy());
+        ITHelper.assertMin("accuracy", 0.89, result.getAccuracy());
     }
 
 }

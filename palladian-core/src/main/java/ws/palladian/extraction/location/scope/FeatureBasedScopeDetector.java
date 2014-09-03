@@ -4,6 +4,7 @@ import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION
 import static ws.palladian.extraction.location.LocationFilters.ancestorOf;
 import static ws.palladian.extraction.location.LocationFilters.coordinate;
 import static ws.palladian.extraction.location.LocationFilters.descendantOf;
+import static ws.palladian.helper.collection.CollectionHelper.coalesce;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +50,6 @@ import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
@@ -60,7 +60,6 @@ import ws.palladian.persistence.DatabaseManagerFactory;
  * </p>
  * 
  * @author pk
- * @param <M> Type of the model, depending on the actual classifier.
  */
 public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetector {
 
@@ -84,7 +83,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
 
     @Override
     public Location getScope(Collection<LocationAnnotation> annotations) {
-        Validate.notNull(annotations, "locations must not be null");
+        Validate.notNull(annotations, "annotations must not be null");
         if (annotations.isEmpty()) {
             return null;
         }
@@ -109,40 +108,41 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
     private static Set<ClassifiableLocation> extractFeatures(Collection<LocationAnnotation> annotations) {
 
         List<Location> locationList = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
-        LocationSet stats = new LocationSet(locationList);
-        LocationSet locationSet = stats.where(coordinate());
-
-        Set<GeoCoordinate> coordinates = stats.coordinates();
-        if (coordinates.isEmpty()) {
+        LocationSet allStats = new LocationSet(locationList);
+        LocationSet coordinateStats = allStats.where(coordinate());
+        if (coordinateStats.isEmpty()) {
             return Collections.emptySet();
         }
-        GeoCoordinate midpoint = stats.midpoint();
-        GeoCoordinate centerpoint = stats.center();
-        double maxDistanceMidpoint = stats.maxDistance(stats.midpoint());
-        double maxDistanceCenterpoint = stats.maxDistance(stats.center());
-        int maxHierarchyDepth = stats.maxHierarchyDepth();
-        long biggestLocationPopulation = stats.biggestPopulation();
+        
+        GeoCoordinate midpoint = coordinateStats.midpoint();
+        GeoCoordinate centerpoint = coordinateStats.center();
+        // double maxDistanceMidpoint = stats.maxDistance(stats.midpoint());
+        // double maxDistanceCenterpoint = stats.maxDistance(stats.center());
+        // int maxHierarchyDepth = stats.maxHierarchyDepth();
+        // long biggestLocationPopulation = allStats.biggestPopulation();
         int maxOffset = 1;
         for (LocationAnnotation annotation : annotations) {
             maxOffset = Math.max(maxOffset, annotation.getStartPosition());
         }
-        double overallMaxDist = Math.max(1, stats.largestDistance());
+        // double overallMaxDist = Math.max(1, stats.largestDistance());
 
         Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
-        for (Location location : locationSet) {
-            double midpointDistance = midpoint.distance(location.getCoordinate());
-            double normalizedMidpointDistance = midpointDistance / maxDistanceMidpoint;
-            double centerpointDistance = centerpoint.distance(location.getCoordinate());
-            double normalizeCenterpointDistance = centerpointDistance / maxDistanceCenterpoint;
+        for (Location location : allStats) {
+            GeoCoordinate coordinate = CollectionHelper.coalesce(location.getCoordinate(), GeoCoordinate.NULL);
+            double midpointDistance = midpoint.distance(coordinate);
+            // double normalizedMidpointDistance = maxDistanceMidpoint > 0 ? midpointDistance / maxDistanceMidpoint : 0;
+            double centerpointDistance = centerpoint.distance(coordinate);
+            // double normalizeCenterpointDistance = maxDistanceCenterpoint > 0 ? centerpointDistance /
+            // maxDistanceCenterpoint : 0;
             int occurrenceCount = Collections.frequency(locationList, location);
-            int descendantCount = stats.where(descendantOf(location)).size();
-            int ancestorCount = stats.where(ancestorOf(location)).size();
-            double occurenceFrequency = (double)occurrenceCount / annotations.size();
+            int descendantCount = allStats.where(descendantOf(location)).size();
+            int ancestorCount = allStats.where(ancestorOf(location)).size();
+            double occurrenceFrequency = (double)occurrenceCount / annotations.size();
             double descendantPercentage = (double)descendantCount / annotations.size();
             double ancestorPercentage = (double)ancestorCount / annotations.size();
             int hierarchyDepth = location.getAncestorIds().size();
-            double normalizedHierarchyDepth = (double)hierarchyDepth / maxHierarchyDepth;
-            long maxPopulation = Math.max(1, biggestLocationPopulation);
+            // double normalizedHierarchyDepth = (double)hierarchyDepth / maxHierarchyDepth;
+            // long maxPopulation = Math.max(1, biggestLocationPopulation);
             long population = location.getPopulation() != null ? location.getPopulation() : 0;
             double maxDisambiguationTrust = 0;
             int firstPosition = Integer.MAX_VALUE;
@@ -154,23 +154,24 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
                     lastPosition = Math.max(lastPosition, annotation.getStartPosition());
                 }
             }
-            Stats distances = stats.distanceStats(location);
+            Stats distances = coordinateStats.distanceStats(location);
 
             InstanceBuilder builder = new InstanceBuilder();
             builder.set("midpointDistance", midpointDistance);
-            builder.set("normalizedMidpointDistance", normalizedMidpointDistance);
+            // builder.set("normalizedMidpointDistance", normalizedMidpointDistance);
             builder.set("centerpointDistance", centerpointDistance);
-            builder.set("normalizedCenterpointDistance", normalizeCenterpointDistance);
-            builder.set("occurrenceCount", occurrenceCount);
-            builder.set("childCount", descendantCount);
-            builder.set("ancestorCount", ancestorCount);
-            builder.set("occurenceFrequency", occurenceFrequency);
+            // builder.set("normalizedCenterpointDistance", normalizeCenterpointDistance);
+            // builder.set("occurrenceCount", occurrenceCount);
+            // builder.set("childCount", descendantCount);
+            // builder.set("ancestorCount", ancestorCount);
+            builder.set("occurrenceFrequency", occurrenceFrequency);
             builder.set("childPercentage", descendantPercentage);
             builder.set("ancestorPercentage", ancestorPercentage);
             builder.set("hierarchyDepth", hierarchyDepth);
-            builder.set("normalizedHierarchyDepth", normalizedHierarchyDepth);
-            builder.set("populationNorm", population / maxPopulation);
-            builder.set("populationMagnitude", MathHelper.getOrderOfMagnitude(population));
+            // builder.set("normalizedHierarchyDepth", normalizedHierarchyDepth);
+            builder.set("population", population);
+            // builder.set("populationNorm", population / maxPopulation);
+            // builder.set("populationMagnitude", MathHelper.getOrderOfMagnitude(population));
             builder.set("locationType", location.getType().toString());
             builder.set("disambiguationTrust", maxDisambiguationTrust);
             builder.set("offsetFirst", (double)firstPosition / maxOffset);
@@ -184,10 +185,10 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             builder.set("maxDistanceToOthers", maxDistance);
             builder.set("meanDistanceToOthers", meanDistance);
             builder.set("medianDistanceToOthers", medianDistance);
-            builder.set("normalizedMinDistanceToOthers", minDistance / overallMaxDist);
-            builder.set("normalizedMaxDistanceToOthers", maxDistance / overallMaxDist);
-            builder.set("normalizedMeanDistanceToOthers", meanDistance / overallMaxDist);
-            builder.set("normalizedMedianDistanceToOthers", medianDistance / overallMaxDist);
+            // builder.set("normalizedMinDistanceToOthers", minDistance / overallMaxDist);
+            // builder.set("normalizedMaxDistanceToOthers", maxDistance / overallMaxDist);
+            // builder.set("normalizedMeanDistanceToOthers", meanDistance / overallMaxDist);
+            // builder.set("normalizedMedianDistanceToOthers", medianDistance / overallMaxDist);
 
             instances.add(new ClassifiableLocation(location, builder.create()));
         }
@@ -206,19 +207,32 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
      * 
      * @param documentIterator The iterator representing the dataset, not <code>null</code>.
      * @param extractor The {@link LocationExtractor}, not <code>null</code>.
-     * @param modelFile The file path where the created model is to be stored, <code>null</code> to train no model.
-     * @param csvFile The file path where to write the CSV with the instances, <code>null</code> to write no CSV file.
      * @param learner The {@link Learner}, in case a model is to be trained, <code>null</code> otherwise.
-     * @param featureFilter A filter to exclude specific features, not <code>null</code>. Set to {@link Filter#ALL}
-     *            to remove no features.
-     * @throws IOException In case of an I/O exception when writing the model.
+     * @param featureFilter A filter to exclude specific features, <code>null</code> to perform no filtering.
+     * @return The trained model.
      */
-    public static void train(Iterable<LocationDocument> documentIterator, LocationExtractor extractor, File modelFile,
-            File csvFile, Learner<? extends Model> learner, Filter<? super String> featureFilter) throws IOException {
+    public static <M extends Model> M train(Iterable<LocationDocument> documentIterator, LocationExtractor extractor,
+            Learner<M> learner, Filter<? super String> featureFilter) {
         Validate.notNull(documentIterator, "documentIterator must not be null");
+        Validate.notNull(extractor, "extractor must not be null");
+        Collection<Instance> instances = createInstances(documentIterator, extractor);
+        // maybe filter (some) features
+        if (featureFilter != null) {
+            instances = ClassificationUtils.filterFeatures(instances, featureFilter);
+        }
+        // build the model
+        StopWatch stopWatch = new StopWatch();
+        M scopeModel = learner.train(instances);
+        LOGGER.info("Trained model with {} in {}", learner, stopWatch.getElapsedTimeString());
+        return scopeModel;
+    }
+
+    public static Collection<Instance> createInstances(Iterable<LocationDocument> documents, LocationExtractor extractor) {
+        Validate.notNull(documents, "documents must not be null");
+        Validate.notNull(extractor, "extractor must not be null");
 
         Collection<Instance> instances = CollectionHelper.newHashSet();
-        for (LocationDocument trainDocument : documentIterator) {
+        for (LocationDocument trainDocument : documents) {
             List<LocationAnnotation> annotations = extractor.getAnnotations(trainDocument.getText());
             Location mainLocation = trainDocument.getMainLocation();
             if (annotations.isEmpty() || mainLocation == null || mainLocation.getCoordinate() == null) {
@@ -231,8 +245,9 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             ClassifiableLocation positiveCandidate = null;
             double minDistance = Double.MAX_VALUE;
             for (ClassifiableLocation classifiableLocation : classifiableLocations) {
-                double currentDistance = mainLocation.getCoordinate().distance(
-                        classifiableLocation.getLocation().getCoordinate());
+                GeoCoordinate coordinate = coalesce(classifiableLocation.getLocation().getCoordinate(),
+                        GeoCoordinate.NULL);
+                double currentDistance = mainLocation.getCoordinate().distance(coordinate);
                 if (currentDistance < minDistance) {
                     minDistance = currentDistance;
                     positiveCandidate = classifiableLocation;
@@ -254,24 +269,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
                 instances.add(new InstanceBuilder().add(location.getFeatureVector()).create(positive));
             }
         }
-
-        // maybe filter (some) features
-        if (featureFilter != null) {
-            instances = ClassificationUtils.filterFeatures(instances, featureFilter);
-        }
-        // write CSV file if requested
-        if (csvFile != null) {
-            ClassificationUtils.writeCsv(instances, csvFile);
-        }
-
-        // build the model
-        if (modelFile != null) {
-            StopWatch stopWatch = new StopWatch();
-            Model scopeModel = learner.train(instances);
-            FileHelper.serialize(scopeModel, modelFile.getPath());
-            LOGGER.info("Trained model with {} in {} and wrote to {}", learner, stopWatch.getElapsedTimeString(),
-                    modelFile);
-        }
+        return instances;
     }
 
     /**
@@ -330,12 +328,13 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         // feature set was determined using backward feature elimination, using train + validation set on Wikipedia set
 
         // QuickDt model
-        Filter<String> featureFilter = Filters.regex(
-                "normalizedMidpointDistance|normalizedMedianDistanceToOthers|normalizedMinDistanceToOthers|normalizedCenterpointDistance|"
+        Filter<String> featureFilter = Filters
+                .regex("normalizedMidpointDistance|normalizedMedianDistanceToOthers|normalizedMinDistanceToOthers|normalizedCenterpointDistance|"
                         + "disambiguationTrust|ancestorCount|normalizedMeanDistanceToOthers|occurenceFrequency|minDistanceToOthers|"
                         + "populationMagnitude|offsetFirst|locationType|hierarchyDepth");
         File modelOutput = new File("scopeDetection_tud-loc_quickDt.model");
-        train(trainingSet, extractor, modelOutput, null, QuickDtLearner.randomForest(), featureFilter);
+        Model scopeModel = train(trainingSet, extractor, QuickDtLearner.randomForest(100), featureFilter);
+        FileHelper.serialize(scopeModel, modelOutput.getPath());
     }
 
 }

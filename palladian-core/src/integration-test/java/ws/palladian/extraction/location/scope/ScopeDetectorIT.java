@@ -1,32 +1,30 @@
 package ws.palladian.extraction.location.scope;
 
-import static org.junit.Assume.assumeTrue;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.DefaultLocationTagger;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.PalladianLocationExtractorIT;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.scope.evaluation.ScopeDetectorEvaluator;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.Stats;
@@ -36,7 +34,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 public class ScopeDetectorIT {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianLocationExtractorIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScopeDetectorIT.class);
 
     /**
      * The expected amount of location entries in the database. Checked prior testing, to guarantee comparable testing
@@ -47,54 +45,112 @@ public class ScopeDetectorIT {
     /** Path to the feature based disambiguation model. */
     private static final String DISAMBIGUATION_PATH = "/model/locationDisambiguationModel_tud_1409729069110.ser.gz";
 
-    /** The gazetteer. */
-    private static LocationSource locationSource;
-
+    /** The configuration .*/
     private static Configuration config;
+    
+    /** The location extractor used for all tests. */
+    private static LocationExtractor extractor;
 
-    private static QuickDtModel disambiguationModel;
+    /** The validation data set. */
+    private static Iterable<LocationDocument> documentIterator;
 
     @BeforeClass
-    public static void readConfiguration() throws ConfigurationException {
-        try {
-            config = new PropertiesConfiguration(ResourceHelper.getResourceFile("/palladian-test.properties"));
-            String dbUrl = config.getString("db.jdbcUrl");
-            String dbUsername = config.getString("db.username");
-            String dbPassword = config.getString("db.password");
-            if (StringUtils.isNotBlank(dbUrl) && StringUtils.isNotBlank(dbUsername)) {
-                locationSource = DatabaseManagerFactory.create(LocationDatabase.class, dbUrl, dbUsername, dbPassword);
-                LOGGER.info("Using local DB ({}) for testing", dbUrl);
-                if (locationSource.size() != EXPECTED_DB_LOCATION_COUNT) {
-                    LOGGER.warn(
-                            "LocationSource does not contain the expected amount of locations; make sure to use the correct database ({} instead of {}).",
-                            locationSource.size(), EXPECTED_DB_LOCATION_COUNT);
-                }
-            } else {
-                assumeTrue("palladian-test.properties must provide a database configuration", false);
-            }
-        } catch (FileNotFoundException e) {
-            assumeTrue("palladian-test.properties not found; test is skipped!", false);
+    public static void readConfiguration() {
+        config = ITHelper.getTestConfig();
+        String dbUrl = config.getString("db.jdbcUrl");
+        String dbUsername = config.getString("db.username");
+        String dbPassword = config.getString("db.password");
+        assertTrue("palladian-test.properties must provide a database URL", StringUtils.isNotBlank(dbUrl));
+        assertTrue("palladian-test.properties must provide a database username", StringUtils.isNotBlank(dbUsername));
+
+        String validationPath = config.getString("dataset.tudloc2013.validation");
+        ITHelper.assertDirectory(validationPath);
+        documentIterator = new TudLoc2013DatasetIterable(new File(validationPath));
+
+        LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, dbUrl, dbUsername,
+                dbPassword);
+        if (locationSource.size() != EXPECTED_DB_LOCATION_COUNT) {
+            LOGGER.warn(
+                    "LocationSource does not contain the expected amount of locations; make sure to use the correct database ({} instead of {}).",
+                    locationSource.size(), EXPECTED_DB_LOCATION_COUNT);
         }
+        QuickDtModel disambiguationModel;
         try {
             disambiguationModel = FileHelper.deserialize(ResourceHelper.getResourcePath(DISAMBIGUATION_PATH));
         } catch (IOException e) {
-            throw new IllegalStateException("Could not load disambiguation model from resource path '"
-                    + DISAMBIGUATION_PATH + ".", e);
+            throw new IllegalStateException("Could not deserialize disambiguation model from '" + DISAMBIGUATION_PATH
+                    + "'.");
         }
+        LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0);
+        extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE, disambiguation);
     }
 
     @Test
     public void testFirstScopeDetector() throws IOException {
-        String validationPath = config.getString("dataset.tudloc2013.validation");
-        ITHelper.assumeDirectory(validationPath);
-        LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0);
-        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE,
-                disambiguation);
-        FirstScopeDetector detector = new FirstScopeDetector(extractor);
-        Iterable<LocationDocument> documentIterator = new TudLoc2013DatasetIterable(new File(validationPath));
+        ScopeDetector detector = new FirstScopeDetector(extractor);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
-        ITHelper.assertGreater("meanErrorDistance", 1631.17, evaluationResult.getMean());
-        ITHelper.assertGreater("medianErrorDistance", 2.83, evaluationResult.getMedian());
+        // System.out.println(evaluationResult);
+        ITHelper.assertMax("meanErrorDistance", 1632, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 3, evaluationResult.getMedian());
+    }
+
+    @Test
+    public void testFrequencyScopeDetector() {
+        ScopeDetector detector = new FrequencyScopeDetector(extractor);
+        Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
+        // System.out.println(evaluationResult);
+        ITHelper.assertMax("meanErrorDistance", 566, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 0, evaluationResult.getMedian());
+    }
+
+    @Test
+    public void testHighestPopulationScopeDetector() {
+        ScopeDetector detector = new HighestPopulationScopeDetector(extractor);
+        Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
+        // System.out.println(evaluationResult);
+        ITHelper.assertMax("meanErrorDistance", 3244, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 1284, evaluationResult.getMedian());
+    }
+
+    @Test
+    public void testHighestTrustScopeDetector() {
+        ScopeDetector detector = new HighestTrustScopeDetector(extractor);
+        Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
+        // System.out.println(evaluationResult);
+        ITHelper.assertMax("meanErrorDistance", 1777, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 136, evaluationResult.getMedian());
+    }
+
+    @Test
+    public void testLeastDistanceScopeDetector() {
+        ScopeDetector detector = new LeastDistanceScopeDetector(extractor);
+        Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
+        // System.out.println(evaluationResult);
+        ITHelper.assertMax("meanErrorDistance", 574, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 11, evaluationResult.getMedian());
+    }
+
+    @Test
+    public void testMidpointScopeDetector() {
+        ScopeDetector detector = new MidpointScopeDetector(extractor);
+        Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
+        // System.out.println(evaluationResult);
+        ITHelper.assertMax("meanErrorDistance", 975, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 413, evaluationResult.getMedian());
+    }
+
+    @Test
+    public void testFeatureBasedScopeDetector() {
+        String trainPath = config.getString("dataset.tudloc2013.train");
+        ITHelper.assertDirectory(trainPath);
+        Iterable<LocationDocument> trainIterator = new TudLoc2013DatasetIterable(new File(trainPath));
+        QuickDtModel model = FeatureBasedScopeDetector.train(trainIterator, extractor,
+                QuickDtLearner.randomForest(100), Filters.ALL);
+        FeatureBasedScopeDetector detector = new FeatureBasedScopeDetector(extractor, model);
+        Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
+        // System.out.println(evaluationResult);
+        ITHelper.assertMax("meanErrorDistance", 405, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 0, evaluationResult.getMedian());
     }
 
 }
