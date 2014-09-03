@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.DefaultLocationTagger;
 import ws.palladian.extraction.location.LocationExtractor;
@@ -24,7 +23,6 @@ import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.scope.evaluation.ScopeDetectorEvaluator;
-import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.Stats;
@@ -45,9 +43,9 @@ public class ScopeDetectorIT {
     /** Path to the feature based disambiguation model. */
     private static final String DISAMBIGUATION_PATH = "/model/locationDisambiguationModel_tud_1409729069110.ser.gz";
 
-    /** The configuration .*/
+    /** The configuration. */
     private static Configuration config;
-    
+
     /** The location extractor used for all tests. */
     private static LocationExtractor extractor;
 
@@ -140,16 +138,26 @@ public class ScopeDetectorIT {
     }
 
     @Test
-    public void testFeatureBasedScopeDetector() {
+    public void testFeatureBasedScopeDetector() throws IOException {
         String trainPath = config.getString("dataset.tudloc2013.train");
         ITHelper.assertDirectory(trainPath);
         Iterable<LocationDocument> trainIterator = new TudLoc2013DatasetIterable(new File(trainPath));
-        QuickDtModel model = FeatureBasedScopeDetector.train(trainIterator, extractor,
-                QuickDtLearner.randomForest(100), Filters.ALL);
+        QuickDtModel model = FeatureBasedScopeDetector.train(trainIterator, extractor);
         FeatureBasedScopeDetector detector = new FeatureBasedScopeDetector(extractor, model);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);
         ITHelper.assertMax("meanErrorDistance", 405, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 0, evaluationResult.getMedian());
+    }
+
+    @Test
+    public void testFeatureBasedScopeDetector_existingModel() throws IOException {
+        QuickDtModel model = FileHelper.deserialize(ResourceHelper
+                .getResourcePath("/model/locationScopeModel_tud_1409780094255.ser.gz"));
+        FeatureBasedScopeDetector detector = new FeatureBasedScopeDetector(extractor, model);
+        Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
+        // System.out.println(evaluationResult);
+        ITHelper.assertMax("meanErrorDistance", 401.81, evaluationResult.getMean());
         ITHelper.assertMax("medianErrorDistance", 0, evaluationResult.getMedian());
     }
 
