@@ -6,7 +6,6 @@ import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.ref.WeakReference;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -17,10 +16,10 @@ import org.junit.Test;
 import ws.palladian.classification.text.LingPipeTextClassifier.LingPipeTextClassifierModel;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
-import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.integrationtests.ITHelper;
 
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenFeatureExtractor;
@@ -44,21 +43,12 @@ public class LingPipeTextClassifierIT {
         } catch (FileNotFoundException e) {
             fail("palladian-test.properties not found; test is skipped!");
         }
-        // make sure, we have enough heap
-        if (ProcessHelper.getFreeMemory() < SizeUnit.MEGABYTES.toBytes(750)) {
-            fail("Not enough memory. This test requires at least 1 GB heap memory.");
-        }
+        ITHelper.assertMemory(750, SizeUnit.MEGABYTES);
     }
 
     @After
     public void cleanup() {
-        // make sure, garbage collector runs
-        Object obj = new Object();
-        WeakReference<Object> ref = new WeakReference<Object>(obj);
-        obj = null;
-        while (ref.get() != null) {
-            System.gc();
-        }
+        ITHelper.forceGc();
     }
 
     @Test
