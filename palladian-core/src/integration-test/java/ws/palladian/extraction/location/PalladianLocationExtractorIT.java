@@ -154,7 +154,7 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        ITHelper.assertMin("MUC-Pr", 0.77, result.mucPr);
+        ITHelper.assertMin("MUC-Pr", 0.76, result.mucPr);
         ITHelper.assertMin("MUC-Rc", 0.60, result.mucRc);
         ITHelper.assertMin("MUC-F1", 0.67, result.mucF1);
         ITHelper.assertMin("Geo-Pr", 0.78, result.geoPr);

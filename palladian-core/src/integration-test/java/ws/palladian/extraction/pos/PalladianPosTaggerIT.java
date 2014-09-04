@@ -30,7 +30,7 @@ public class PalladianPosTaggerIT {
         Configuration config = ITHelper.getTestConfig();
         trainDataSet = config.getString("dataset.brown.train");
         testDataSet = config.getString("dataset.brown.test");
-        ITHelper.assertDirectory(trainDataSet, testDataSet);
+        ITHelper.assumeDirectory("Brown corpus", trainDataSet, testDataSet);
     }
 
     @Test
