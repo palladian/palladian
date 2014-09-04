@@ -46,7 +46,7 @@ public class PalladianTextClassifierIT {
     public void testJrcChar() {
         String trainFile = config.getString("dataset.jrc.train");
         String testFile = config.getString("dataset.jrc.test");
-        ITHelper.assumeExistence("JRC", testFile, trainFile);
+        ITHelper.assumeFile("JRC", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.99, new DefaultScorer());
     }
@@ -55,7 +55,7 @@ public class PalladianTextClassifierIT {
     public void testWikipediaWord() {
         String trainFile = config.getString("dataset.wikipedia.train");
         String testFile = config.getString("dataset.wikipedia.test");
-        ITHelper.assumeExistence("Wikipedia", testFile, trainFile);
+        ITHelper.assumeFile("Wikipedia", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.99, new DefaultScorer());
     }
@@ -64,7 +64,7 @@ public class PalladianTextClassifierIT {
     public void test20NewsgroupsChar() {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
-        ITHelper.assumeExistence("20 Newsgroups", testFile, trainFile);
+        ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.89, new DefaultScorer());
     }
@@ -73,7 +73,7 @@ public class PalladianTextClassifierIT {
     public void test20NewsgroupsChar_Bayes() {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
-        ITHelper.assumeExistence("20 Newsgroups", testFile, trainFile);
+        ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.90, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
@@ -82,7 +82,7 @@ public class PalladianTextClassifierIT {
     public void test20NewsgroupsWord() {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
-        ITHelper.assumeExistence("20 Newsgroups", testFile, trainFile);
+        ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.81, new DefaultScorer());
     }
@@ -91,7 +91,7 @@ public class PalladianTextClassifierIT {
     public void test20NewsgroupsWord_Bayes() {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
-        ITHelper.assumeExistence("20 Newsgroups", testFile, trainFile);
+        ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.81, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
@@ -100,7 +100,7 @@ public class PalladianTextClassifierIT {
     public void testSpamAssassinChar() {
         String trainFile = config.getString("dataset.spamassassin.train");
         String testFile = config.getString("dataset.spamassassin.test");
-        ITHelper.assumeExistence("SpamAssassin", trainFile, testFile);
+        ITHelper.assumeFile("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.87, new DefaultScorer());
     }
@@ -109,7 +109,7 @@ public class PalladianTextClassifierIT {
     public void testSpamAssassinChar_categoryEqualization() {
         String trainFile = config.getString("dataset.spamassassin.train");
         String testFile = config.getString("dataset.spamassassin.test");
-        ITHelper.assumeExistence("SpamAssassin", trainFile, testFile);
+        ITHelper.assumeFile("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.98, new ExperimentalScorers.CategoryEqualizationScorer());
     }
@@ -118,7 +118,7 @@ public class PalladianTextClassifierIT {
     public void testSpamAssassinChar_BayesScorer() {
         String trainFile = config.getString("dataset.spamassassin.train");
         String testFile = config.getString("dataset.spamassassin.test");
-        ITHelper.assumeExistence("SpamAssassin", trainFile, testFile);
+        ITHelper.assumeFile("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.97, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
@@ -127,7 +127,7 @@ public class PalladianTextClassifierIT {
     public void testImdbWord_PalladianScorer() {
         String trainFile = config.getString("dataset.imdb.train");
         String testFile = config.getString("dataset.imdb.test");
-        ITHelper.assumeExistence("IMDB", trainFile, testFile);
+        ITHelper.assumeFile("IMDB", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.74, new DefaultScorer());
     }
@@ -136,7 +136,7 @@ public class PalladianTextClassifierIT {
     public void testImdbWord_BayesScorer() {
         String trainFile = config.getString("dataset.imdb.train");
         String testFile = config.getString("dataset.imdb.test");
-        ITHelper.assumeExistence("IMDB", trainFile, testFile);
+        ITHelper.assumeFile("IMDB", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
         assertAccuracy(trainFile, testFile, featureSetting, 0.76, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }

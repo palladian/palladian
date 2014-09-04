@@ -42,7 +42,7 @@ public class OpenNlpTextClassifierIT {
     public void testJrc() {
         String trainFile = config.getString("dataset.jrc.train");
         String testFile = config.getString("dataset.jrc.test");
-        ITHelper.assumeExistence("JRC", testFile, trainFile);
+        ITHelper.assumeFile("JRC", testFile, trainFile);
         assertAccuracy(trainFile, testFile, 0.97);
     }
 
@@ -50,7 +50,7 @@ public class OpenNlpTextClassifierIT {
     public void testWikipedia() {
         String trainFile = config.getString("dataset.wikipedia.train");
         String testFile = config.getString("dataset.wikipedia.test");
-        ITHelper.assumeExistence("Wikipedia", testFile, trainFile);
+        ITHelper.assumeFile("Wikipedia", testFile, trainFile);
         assertAccuracy(trainFile, testFile, 0.67);
     }
 
@@ -58,7 +58,7 @@ public class OpenNlpTextClassifierIT {
     public void test20Newsgroups() {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
-        ITHelper.assumeExistence("20 Newsgroups", testFile, trainFile);
+        ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
         assertAccuracy(trainFile, testFile, 0.59);
     }
 
@@ -66,7 +66,7 @@ public class OpenNlpTextClassifierIT {
     public void testSpamAssassin() {
         String trainFile = config.getString("dataset.spamassassin.train");
         String testFile = config.getString("dataset.spamassassin.test");
-        ITHelper.assumeExistence("SpamAssassin", trainFile, testFile);
+        ITHelper.assumeFile("SpamAssassin", trainFile, testFile);
         assertAccuracy(trainFile, testFile, 0.75);
     }
 
@@ -74,7 +74,7 @@ public class OpenNlpTextClassifierIT {
     public void testImdb() {
         String trainFile = config.getString("dataset.imdb.train");
         String testFile = config.getString("dataset.imdb.test");
-        ITHelper.assumeExistence("IMDB", trainFile, testFile);
+        ITHelper.assumeFile("IMDB", trainFile, testFile);
         assertAccuracy(trainFile, testFile, 0.79);
     }
 

@@ -122,7 +122,7 @@
 			</plugin>
 			<plugin>
 				<!-- Integration tests are skipped by default, and should only run if 
-					explicitly requested; see profile integration-tests -->
+					explicitly requested; see profile integration-test -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.12.4</version>
@@ -133,9 +133,9 @@
 							<goal>verify</goal>
 						</goals>
 						<configuration>
-							<!-- Skips integration tests if the value of skip.integration.tests 
+							<!-- Skips integration tests if the value of skip.integration.test 
 								property is true -->
-							<skipTests>${skip.integration.tests}</skipTests>
+							<skipTests>${skip.integration.test}</skipTests>
 						</configuration>
 					</execution>
 				</executions>
@@ -215,7 +215,7 @@
 	</build>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<skip.integration.tests>true</skip.integration.tests>
+		<skip.integration.test>true</skip.integration.test>
 		<slf4j.version>1.7.7</slf4j.version>
 		<logback.version>1.1.2</logback.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
@@ -223,9 +223,9 @@
 	</properties>
 	<profiles>
 		<profile>
-			<id>integration-tests</id>
+			<id>integration-test</id>
 			<properties>
-				<skip.integration.tests>false</skip.integration.tests>
+				<skip.integration.test>false</skip.integration.test>
 			</properties>
 		</profile>
 	</profiles>

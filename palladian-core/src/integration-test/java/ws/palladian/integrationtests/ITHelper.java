@@ -111,7 +111,7 @@ public final class ITHelper {
      * @param datasetName The name of the dataset, used for log output in case the files do not exist.
      * @param filePaths The paths whose existence to verify.
      */
-    public static void assumeExistence(String datasetName, String... filePaths) {
+    public static void assumeFile(String datasetName, String... filePaths) {
         boolean runTest = true;
         for (String filePath : filePaths) {
             if (filePath == null || !new File(filePath).isFile()) {
@@ -119,11 +119,28 @@ public final class ITHelper {
                 break;
             }
         }
-        if (!runTest) {
-            assumeTrue("Dataset for '" + datasetName
-                    + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.",
-                    false);
+        assumeTrue("Dataset for '" + datasetName
+                + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.", runTest);
+    }
+
+    /**
+     * <p>
+     * Verify that the given files with datasets exist. If not, output a warning message and skip the test.
+     * </p>
+     * 
+     * @param datasetName The name of the dataset, used for log output in case the files do not exist.
+     * @param directoryPaths The paths whose existence to verify.
+     */
+    public static void assumeDirectory(String datasetName, String... directoryPaths) {
+        boolean runTest = true;
+        for (String filePath : directoryPaths) {
+            if (filePath == null || !new File(filePath).isDirectory()) {
+                runTest = false;
+                break;
+            }
         }
+        assumeTrue("Dataset for '" + datasetName
+                + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.", runTest);
     }
 
 }

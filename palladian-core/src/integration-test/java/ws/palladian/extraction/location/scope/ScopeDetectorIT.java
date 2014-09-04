@@ -138,7 +138,7 @@ public class ScopeDetectorIT {
     }
 
     @Test
-    public void testFeatureBasedScopeDetector() throws IOException {
+    public void testFeatureBasedScopeDetector() {
         String trainPath = config.getString("dataset.tudloc2013.train");
         ITHelper.assertDirectory(trainPath);
         Iterable<LocationDocument> trainIterator = new TudLoc2013DatasetIterable(new File(trainPath));
