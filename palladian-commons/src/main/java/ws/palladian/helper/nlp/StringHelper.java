@@ -941,6 +941,26 @@ public final class StringHelper {
 
     /**
      * <p>
+     * Align casings of words, e.g. "dog","Dogge" => "Dog".
+     * </p>
+     * <p>
+     * This method is useful for handling stemming and other word transformations.
+     * </p>
+     * 
+     * @param toAlign The word that needs to get the same casing as the targetCasing.
+     * @param targetCasing The word which casing should be induced into the toAlign word.
+     * @return The toAlign word with the casing of the targetCasing word.
+     */
+    public static String alignCasing(String toAlign, String targetCasing) {
+        if (startsUppercase(targetCasing)) {
+            return upperCaseFirstLetter(toAlign);
+        } else {
+            return lowerCaseFirstLetter(toAlign);
+        }
+    }
+
+    /**
+     * <p>
      * Check, if a character is a vowel.
      * </p>
      * 
