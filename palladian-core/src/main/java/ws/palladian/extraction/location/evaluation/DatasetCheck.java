@@ -206,10 +206,16 @@ final class DatasetCheck {
             inputText = inputText.replace(MAIN_ROLE_ATTRIBUTE, "");
             Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(inputText);
             for (ContextAnnotation annotation : annotations) {
-                totalTypeCounts.add(annotation.getTag());
-                GeoCoordinate coordinate = coordinates.get(file.getName()).get(annotation.getStartPosition());
-                if (coordinate != null) {
-                    disambiguatedTypeCounts.add(annotation.getTag());
+                String tag = annotation.getTag();
+                int start = annotation.getStartPosition();
+                totalTypeCounts.add(tag);
+                if (coordinates.get(file.getName()).containsKey(start)) {
+                    GeoCoordinate coordinate = coordinates.get(file.getName()).get(start);
+                    if (coordinate != null) {
+                        disambiguatedTypeCounts.add(tag);
+                    }
+                } else {
+                    System.out.println("[warn] missing entry for " + file.getName() + ": " + annotation);
                 }
             }
         }
