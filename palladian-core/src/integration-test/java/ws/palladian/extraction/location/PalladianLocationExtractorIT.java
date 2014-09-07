@@ -9,6 +9,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,7 @@ public class PalladianLocationExtractorIT {
     }
 
     @Test
+    @Ignore
     public void test_Heuristic_LGL() {
         String validationPath = config.getString("dataset.lgl.validation");
         ITHelper.assertDirectory(validationPath);
@@ -104,6 +106,7 @@ public class PalladianLocationExtractorIT {
     }
 
     @Test
+    @Ignore
     public void test_Heuristic_CLUST() {
         String validationPath = config.getString("dataset.clust.validation");
         ITHelper.assertDirectory(validationPath);
@@ -142,6 +145,7 @@ public class PalladianLocationExtractorIT {
     }
 
     @Test
+    @Ignore
     public void test_MachineLearning_LGL() {
         String trainPath = config.getString("dataset.lgl.train");
         String validationPath = config.getString("dataset.lgl.validation");
@@ -163,6 +167,7 @@ public class PalladianLocationExtractorIT {
     }
 
     @Test
+    @Ignore
     public void test_MachineLearning_CLUST() {
         String trainPath = config.getString("dataset.clust.train");
         String validationPath = config.getString("dataset.clust.validation");
