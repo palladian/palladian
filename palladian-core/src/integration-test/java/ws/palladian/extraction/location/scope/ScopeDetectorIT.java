@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -81,6 +82,13 @@ public class ScopeDetectorIT {
         }
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0);
         extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE, disambiguation);
+    }
+    
+    @AfterClass
+    public static void cleanUp() {
+        config = null;
+        extractor = null;
+        documentIterator = null;
     }
 
     @Test

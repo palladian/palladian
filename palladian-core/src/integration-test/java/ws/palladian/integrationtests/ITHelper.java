@@ -16,6 +16,11 @@ import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.ResourceHelper;
 
+/**
+ * Helper methods for integration testing.
+ * 
+ * @author pk
+ */
 public final class ITHelper {
 
     /** File path to the test properties (in resources path). */
@@ -67,8 +72,12 @@ public final class ITHelper {
      * @param unit The unit.
      */
     public static void assertMemory(long size, SizeUnit unit) {
-        if (ProcessHelper.getFreeMemory() < unit.toBytes(size)) {
-            String msg = String.format("Not enough memory. This test requires at least %d %s heap memory.", size, unit);
+        long freeMemory = ProcessHelper.getFreeMemory();
+        if (freeMemory < unit.toBytes(size)) {
+            long freeUnit = unit.convert(freeMemory, SizeUnit.BYTES);
+            String msg = String
+                    .format("Not enough memory. This test requires at least %d %s of heap memory, but only %d %s are available.",
+                            size, unit, freeUnit, unit);
             fail(msg);
         }
     }

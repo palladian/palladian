@@ -136,6 +136,7 @@
 							<!-- Skips integration tests if the value of skip.integration.test 
 								property is true -->
 							<skipTests>${skip.integration.test}</skipTests>
+							<argLine>-Xms256m -Xmx1024m</argLine>
 						</configuration>
 					</execution>
 				</executions>
@@ -226,6 +227,7 @@
 			<id>integration-test</id>
 			<properties>
 				<skip.integration.test>false</skip.integration.test>
+				<skipTests>true</skipTests> <!-- skip unit tests -->
 			</properties>
 		</profile>
 	</profiles>
