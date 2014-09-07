@@ -34,7 +34,9 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @deprecated This searcher uses unpublished JavaScript APIs, and is not reliable.
  */
+@Deprecated
 public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
     /** The logger for this class. */
