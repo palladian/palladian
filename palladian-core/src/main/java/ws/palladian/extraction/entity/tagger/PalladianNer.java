@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.classification.text.DictionaryTrieModel;
+import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.core.Annotation;
@@ -52,7 +53,7 @@ import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
- * Palladian's Named Entity Recognizer. It is based on rule-based entity delimination (for English texts), a text
+ * Palladian's Named Entity Recognizer. It is based on rule-based entity delimitation (for English texts), a text
  * classification approach, and analyzes the contexts around annotations. The major difference to other NERs is that it
  * can be learned on seed entities (just the names) or classically using supervised learning on a tagged dataset.
  * 
@@ -93,6 +94,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianNer.class);
 
+    private static final FeatureSetting ANNOTATION_FEATURE_SETTING = FeatureSettingBuilder.chars(2, 8).create();
+
+    private static final FeatureSetting CONTEXT_FEATURE_SETTING = FeatureSettingBuilder.chars(4, 5).create();
+
     public static final class PalladianNerModel implements Serializable {
         /** The serial version id. */
         private static final long serialVersionUID = 1L;
@@ -132,7 +137,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
     private PalladianNerModel model;
 
-    // /////////////////// Constructors /////////////////////
     public PalladianNer(PalladianNerSettings settings) {
         Validate.notNull(settings, "settings must not be null");
 
@@ -148,10 +152,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         // the n-gram settings for the entity classifier should be tuned, they do not have a big influence on the size
         // of the model (3-5 to 2-8 => 2MB)
-        annotationClassifier = new PalladianTextClassifier(FeatureSettingBuilder.chars(2, 8).create());
+        annotationClassifier = new PalladianTextClassifier(ANNOTATION_FEATURE_SETTING);
 
         // be careful with the n-gram sizes, they heavily influence the model size
-        contextClassifier = new PalladianTextClassifier(FeatureSettingBuilder.chars(4, 5).create());
+        contextClassifier = new PalladianTextClassifier(CONTEXT_FEATURE_SETTING);
 
         model.conceptLikelihoodOrder = CollectionHelper.newArrayList();
 
@@ -180,8 +184,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         // precision exact: 62.54%, recall exact: 67.56%, F1 exact: 64.95%
 
     }
-
-    // //////////////////////////////////////////////////////
 
     public static String getModelFileEndingStatic() {
         return "model.gz";
@@ -525,7 +527,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * @param entityCandidates The annotations to be classified.
      * @return Classified annotations.
      */
-    private Annotations<ContextAnnotation> classifyCandidatesEnglish(List<ContextAnnotation> entityCandidates) {
+    private Annotations<ContextAnnotation> classifyCandidates(List<ContextAnnotation> entityCandidates) {
         Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
         for (ContextAnnotation annotation : entityCandidates) {
 
@@ -535,40 +537,18 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                 wrappedAnnotations = unwrapAnnotations(annotation, annotations);
             }
 
-            if (!wrappedAnnotations.isEmpty()) {
-                for (ContextAnnotation annotation2 : wrappedAnnotations) {
-                    if (hasAssignedType(annotation2.getTags())) {
-                        annotations.add(annotation2);
-                    }
-                }
-            } else {
+            if (wrappedAnnotations.isEmpty()) {
                 CategoryEntries results = annotationClassifier.classify(annotation.getValue(), model.annotationModel);
                 if (hasAssignedType(results)) {
                     annotation.setTags(results);
                     annotations.add(annotation);
                 }
-            }
-        }
-
-        return annotations;
-    }
-
-    /**
-     * Classify candidate annotations in language independent mode.
-     * 
-     * @param entityCandidates The annotations to be classified.
-     * @return Classified annotations.
-     */
-    private Annotations<ContextAnnotation> classifyCandidatesLanguageIndependent(
-            List<ContextAnnotation> entityCandidates) {
-        Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
-
-        for (ContextAnnotation annotation : entityCandidates) {
-
-            CategoryEntries results = annotationClassifier.classify(annotation.getValue(), model.annotationModel);
-            if (hasAssignedType(results)) {
-                annotation.setTags(results);
-                annotations.add(annotation);
+            } else {
+                for (ContextAnnotation annotation2 : wrappedAnnotations) {
+                    if (hasAssignedType(annotation2.getTags())) {
+                        annotations.add(annotation2);
+                    }
+                }
             }
         }
 
@@ -889,7 +869,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         Annotations<ContextAnnotation> entityCandidates = StringTagger.getTaggedEntities(inputText);
 
         // classify annotations with the UniversalClassifier
-        Annotations<ContextAnnotation> annotations = classifyCandidatesEnglish(entityCandidates);
+        Annotations<ContextAnnotation> annotations = classifyCandidates(entityCandidates);
 
         postProcessAnnotations(annotations);
 
@@ -903,7 +883,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                 Tokenizer.TOKEN_SPLIT_REGEX);
 
         // classify annotations with the UniversalClassifier
-        annotations = classifyCandidatesLanguageIndependent(annotations);
+        annotations = classifyCandidates(annotations);
 
         // filter annotations
         postProcessAnnotations(annotations);
