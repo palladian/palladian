@@ -20,7 +20,8 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
-import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
@@ -52,7 +53,11 @@ public class NerTest {
 
     @Test
     public void testPalladianNerLi() {
-        PalladianNer tagger = new PalladianNer(LanguageMode.LanguageIndependent);
+        PalladianNerSettings settings = new PalladianNerSettings(LanguageMode.LanguageIndependent,
+                TrainingMode.Complete);
+        settings.setTagUrls(false);
+        settings.setTagDates(false);
+        PalladianNer tagger = new PalladianNer(settings);
         String tudnerLiModel = new File(FileHelper.getTempDir(), "tudnerLI.model.gz").getPath();
         boolean traininSuccessful = tagger.train(trainingFile, tudnerLiModel);
         assertTrue(traininSuccessful);
@@ -80,8 +85,6 @@ public class NerTest {
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.52);
 
         tagger.loadModel(tudnerLiModel);
-        tagger.setTagUrls(false);
-        tagger.setTagDates(false);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
         // annotations.removeNestedAnnotations();
         // annotations.sort();
@@ -105,9 +108,10 @@ public class NerTest {
 
     @Test
     public void testPalladianNerEnglish() {
-        PalladianNer tagger = new PalladianNer(LanguageMode.English);
-        tagger.setTagUrls(false);
-        tagger.setTagDates(false);
+        PalladianNerSettings settings = new PalladianNerSettings(LanguageMode.English, TrainingMode.Complete);
+        PalladianNer tagger = new PalladianNer(settings);
+        settings.setTagUrls(false);
+        settings.setTagDates(false);
         String tudnerEnModel = new File(FileHelper.getTempDir(), "tudnerEn.model.gz").getPath();
         boolean trainingSuccessful = tagger.train(trainingFile, tudnerEnModel);
         assertTrue(trainingSuccessful);
@@ -137,8 +141,6 @@ public class NerTest {
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.90);
 
         tagger.loadModel(tudnerEnModel);
-        tagger.setTagUrls(false);
-        tagger.setTagDates(false);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
