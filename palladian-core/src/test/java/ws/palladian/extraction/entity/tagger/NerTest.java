@@ -81,8 +81,8 @@ public class NerTest {
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.68);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.52);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.75);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.58);
 
         tagger.loadModel(tudnerLiModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));

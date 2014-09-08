@@ -193,6 +193,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
     @Override
     public DictionaryModel train(Iterable<? extends Instance> instances) {
+        Validate.notNull(instances, "instances must not be null");
         for (Instance instance : instances) {
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
@@ -208,6 +209,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
     @Override
     public CategoryEntries classify(FeatureVector featureVector, DictionaryModel model) {
+        Validate.notNull(featureVector, "featureVector must not be null");
+        Validate.notNull(model, "model must not be null");
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         TextValue textValue = (TextValue)featureVector.get(VECTOR_TEXT_IDENTIFIER);
         Iterator<String> iterator = preprocessor.compute(textValue.getText());
@@ -266,6 +269,8 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     }
 
     public CategoryEntries classify(String text, DictionaryModel model) {
+        Validate.notNull(text, "text must not be null");
+        Validate.notNull(model, "model must not be null");
         FeatureVector featureVector = new InstanceBuilder().setText(text).create();
         return classify(featureVector, model);
     }

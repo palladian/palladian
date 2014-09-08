@@ -37,6 +37,8 @@ import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
+import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
@@ -50,41 +52,41 @@ import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
- * This is the Named Entity Recognizer from Palladian. It is based on rule-based entity delimination (for English
- * texts), a text classification approach, and analyzes the contexts around annotations. The major different to other
- * NERs is that it can be learned on seed entities (just the names) or classically using supervised learning on a tagged
- * dataset.
- * </p>
+ * Palladian's Named Entity Recognizer. It is based on rule-based entity delimination (for English texts), a text
+ * classification approach, and analyzes the contexts around annotations. The major difference to other NERs is that it
+ * can be learned on seed entities (just the names) or classically using supervised learning on a tagged dataset.
  * 
  * <p>
  * Palladian NER provides two language modes:
+ * 
  * <ol>
- * <li>TUDLI => token-based, language independent, that is you can learn any language, the performance is rather poor
- * though. Consider using another recognizer.</li>
- * <li>TUDEng => NED + NEC, English only, this recognizer has shown to reach similar performance on the CoNLL 2003
- * dataset as the state-of-the-art. It works on English texts only.</li>
- * </p>
+ * <li>{@link LanguageMode#LanguageIndependent}: token-based, that is you can learn any language, the performance is
+ * rather poor though. Consider using another recognizer.
+ * <li>{@link LanguageMode#English}: NED + NEC, English only, this recognizer has shown to reach similar performance on
+ * the CoNLL 2003 dataset as the state-of-the-art. It works on English texts only.
+ * </ol>
  * 
  * <p>
  * Palladian NER provides two learning modes:
+ * 
  * <ol>
- * <li>Complete => you must have a tagged corpus in column format where the first colum is the token and the second
- * column (separated by a tabstop) is the entity type.</li>
- * <li>Sparse => you just need a set of seed entities per concept (the same number per concept is preferred) and you can
- * learn a sparse training file with the {@link DatasetCreator} to learn on. Alternatively you can also learn on the
- * seed entities alone but no context information can be learned which results in a slightly worse performance.</li>
- * </p>
+ * <li>{@link TrainingMode#Complete}: You must have a tagged corpus in column format where the first colum is the token
+ * and the second column (separated by a tabstop) is the entity type.
+ * <li>{@link TrainingMode#Sparse}: You just need a set of seed entities per concept (the same number per concept is
+ * preferred) and you can learn a sparse training file with the {@link DatasetCreator} to learn on. Alternatively you
+ * can also learn on the seed entities alone but no context information can be learned which results in a slightly worse
+ * performance.
+ * </ol>
  * 
  * <p>
  * Parameters for performance tuning:
  * <ul>
- * <li>n-gram size of the entity classifier (2-8 seems good)</li>
- * <li>n-gram size of the context classifier (4-6 seems good)</li>
- * <li>window size of the Annotation: {@link Annotation.WINDOW_SIZE}</li>
- * </p>
+ * <li>n-gram size of the entity classifier (2-8 seems good)
+ * <li>n-gram size of the context classifier (4-6 seems good)
+ * <li>window size of the Annotation: {@link Annotation.WINDOW_SIZE}
+ * </ul>
  * 
  * @author David Urbansky
- * 
  */
 public class PalladianNer extends TrainableNamedEntityRecognizer {
 
@@ -979,8 +981,14 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                 builder.add(entry.getKey(), probability);
             }
         }
-
         builder.add(annotation.getTags());
+
+        if (model.contextModel != null) {
+            String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
+            CategoryEntries contextClassification = contextClassifier.classify(context, model.contextModel);
+            builder.add(contextClassification);
+        }
+
         annotation.setTags(builder.create());
     }
 
