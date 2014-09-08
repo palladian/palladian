@@ -11,8 +11,8 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
-import ws.palladian.extraction.entity.tagger.PalladianNer.TrainingMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -24,17 +24,14 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 public class PalladianNerExperiments {
 
     public void trainTest() {
-        PalladianNer tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
+        PalladianNerSettings settings = new PalladianNerSettings(LanguageMode.English, TrainingMode.Complete);
+        settings.setTagDates(false);
+        settings.setTagUrls(false);
+        PalladianNer tagger = new PalladianNer(settings);
 
         // String trainingPath = "data/ner/conll/training.txt";
         String trainingPath = "data/datasets/ner/conll/training.txt";
         String modelPath = "data/temp/conllModel";
-
-        // set whether to tag dates
-        tagger.setTagDates(false);
-
-        // set whether to tag URLs
-        tagger.setTagUrls(false);
 
         // create a dictionary from a dictionary txt file
         // tagger.makeDictionary("mergedDictComplete.csv");
