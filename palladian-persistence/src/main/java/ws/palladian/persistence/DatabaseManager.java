@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -575,6 +577,35 @@ public class DatabaseManager {
 
         runQuery(callback, converter, query);
         return result;
+    }
+
+    /**
+     * <p>
+     * Run a query operation on the database, return the result as set.
+     * </p>
+     * 
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return Set with results.
+     */
+    public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, String sql, Object... args) {
+        return new HashSet<T>(runQuery(converter, new BasicQuery(sql, args)));
+    }
+
+    /**
+     * <p>
+     * Run a query operation on the database, return the result as set.
+     * </p>
+     * 
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return Set with results.
+     */
+    public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, Query query) {
+        return new HashSet<T>(runQuery(converter, query));
     }
 
     /**
