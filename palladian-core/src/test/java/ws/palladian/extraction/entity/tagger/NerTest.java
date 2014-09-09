@@ -1,9 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -79,14 +76,14 @@ public class NerTest {
         assertEquals(4, patternProbabilities.getNumCategories());
         assertEquals(15533, patternProbabilities.getNumEntries());
 
-        // precision MUC: 62.71%, recall MUC: 75.17%, F1 MUC: 68.38%
-        // precision exact: 48.6%, recall exact: 58.26%, F1 exact: 53.0%
-        EvaluationResult er = tagger.evaluate(trainingFile, TaggingFormat.COLUMN);
-        System.out.println(er.getMUCResultsReadable());
-        System.out.println(er.getExactMatchResultsReadable());
-
-        assertTrue(er.getF1(EvaluationMode.MUC) >= 0.7578);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.5861);
+        // Palladian#f8c6aab on testing set
+        // precision MUC: 55.95%, recall MUC: 49.91%, F1 MUC: 52.75%
+        // precision exact: 42.54%, recall exact: 37.94%, F1 exact: 40.11%
+        EvaluationResult er = tagger.evaluate(testFile, TaggingFormat.COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.58);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.44);
 
         tagger.loadModel(tudnerLiModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
@@ -135,14 +132,14 @@ public class NerTest {
         assertEquals(59587, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
-        // precision MUC: 94.23%, recall MUC: 94.89%, F1 MUC: 94.56%
-        // precision exact: 90.56%, recall exact: 91.19%, F1 exact: 90.88%
-        EvaluationResult er = tagger.evaluate(trainingFile, TaggingFormat.COLUMN);
-        System.out.println(er.getMUCResultsReadable());
-        System.out.println(er.getExactMatchResultsReadable());
-        
-        assertTrue(er.getF1(EvaluationMode.MUC) >= 0.9448); // 0.9449
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) >= 0.9078); // 0.9076
+        // Palladian#f8c6aab on testing set
+        // precision MUC: 68.49%, recall MUC: 83.88%, F1 MUC: 75.4%
+        // precision exact: 60.13%, recall exact: 73.64%, F1 exact: 66.2%
+        EvaluationResult er = tagger.evaluate(testFile, TaggingFormat.COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.81);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.70);
 
         tagger.loadModel(tudnerEnModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
@@ -245,8 +242,8 @@ public class NerTest {
         EvaluationResult er = tagger.evaluate(testFile, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertThat(er.getF1(EvaluationMode.MUC), is(greaterThan(0.56)));
-        assertThat(er.getF1(EvaluationMode.EXACT_MATCH), is(greaterThan(0.46)));
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.57);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.49);
 
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 
