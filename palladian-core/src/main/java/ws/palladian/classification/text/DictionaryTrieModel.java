@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategoryEntries;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Trie;
@@ -313,9 +312,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         }
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(numTerms);
-        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
-        ProgressMonitor monitor = new ProgressMonitor();
-        monitor.startTask("Writing " + dictName, numTerms);
+//        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
+//        ProgressMonitor monitor = new ProgressMonitor();
+//        monitor.startTask("Writing " + dictName, numTerms);
         for (TermCategoryEntries termEntry : this) {
             out.writeObject(termEntry.getTerm());
             out.writeInt(termEntry.size());
@@ -324,7 +323,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 out.writeInt(categoryIdx);
                 out.writeInt(category.getCount());
             }
-            monitor.increment();
+//            monitor.increment();
         }
         // feature setting
         out.writeObject(featureSetting);
@@ -355,9 +354,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         // terms
         numTerms = in.readInt();
 //    System.out.println("numTerms="+numTerms);
-        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
-        ProgressMonitor monitor = new ProgressMonitor();
-        monitor.startTask("Reading " + dictName, numTerms);
+//        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
+//        ProgressMonitor monitor = new ProgressMonitor();
+//        monitor.startTask("Reading " + dictName, numTerms);
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
@@ -371,7 +370,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 entries.append(categoryName, categoryCount);
                 termCountBuilder.add(categoryName, categoryCount);
             }
-            monitor.increment();
+//            monitor.increment();
         }
         termCounts = termCountBuilder.create();
         // feature setting
