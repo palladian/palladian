@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -28,7 +28,7 @@ public final class FileFormatParser {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FileFormatParser.class);
 
-    private static final int WINDOW_SIZE = 40;
+    public static final int WINDOW_SIZE = 40;
 
     private FileFormatParser() {
         // no instances.
@@ -668,7 +668,7 @@ public final class FileFormatParser {
         Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
 
         // count the number of collected seeds per concept
-        CountMap<String> conceptSeedCount = CountMap.create();
+        Bag<String> conceptSeedCount = Bag.create();
 
         // store entities in a set to avoid duplicates
         Set<String> entitySet = new HashSet<String>();
@@ -679,7 +679,7 @@ public final class FileFormatParser {
         for (ContextAnnotation annotation : allAnnotations) {
 
             String conceptName = annotation.getTag();
-            int numberOfSeeds = conceptSeedCount.getCount(conceptName);
+            int numberOfSeeds = conceptSeedCount.count(conceptName);
 
             if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)
                     && !entitySet.contains(annotation.getValue())) {

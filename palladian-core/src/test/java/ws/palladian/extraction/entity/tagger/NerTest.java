@@ -65,6 +65,7 @@ public class NerTest {
         DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
         DictionaryModel contextClassifier = tagger.getModel().contextModel;
         DictionaryModel annotationDictionary = tagger.getModel().annotationModel;
+        DictionaryModel patternProbabilities = tagger.getModel().patternProbabilities;
         assertEquals(2185, tagger.getModel().entityDictionary.getNumUniqTerms());
         assertEquals(0, caseDictionary.getNumUniqTerms());
         assertEquals(0, caseDictionary.getNumCategories());
@@ -74,6 +75,9 @@ public class NerTest {
         assertEquals(4, contextClassifier.getNumCategories());
         assertEquals(53513, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
+        assertEquals(14198, patternProbabilities.getNumUniqTerms());
+        assertEquals(4, patternProbabilities.getNumCategories());
+        assertEquals(15533, patternProbabilities.getNumEntries());
 
         // precision MUC: 62.71%, recall MUC: 75.17%, F1 MUC: 68.38%
         // precision exact: 48.6%, recall exact: 58.26%, F1 exact: 53.0%
@@ -81,8 +85,8 @@ public class NerTest {
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.75);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.58);
+        assertTrue(er.getF1(EvaluationMode.MUC) >= 0.7578);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.5861);
 
         tagger.loadModel(tudnerLiModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
@@ -136,9 +140,9 @@ public class NerTest {
         EvaluationResult er = tagger.evaluate(trainingFile, TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
-
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.94);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.90);
+        
+        assertTrue(er.getF1(EvaluationMode.MUC) >= 0.9448); // 0.9449
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) >= 0.9078); // 0.9076
 
         tagger.loadModel(tudnerEnModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));

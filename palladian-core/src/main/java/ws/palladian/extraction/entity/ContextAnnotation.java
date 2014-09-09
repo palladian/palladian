@@ -1,6 +1,10 @@
 package ws.palladian.extraction.entity;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+import java.util.Arrays;
+import java.util.List;
+
 import ws.palladian.core.AbstractAnnotation;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
@@ -80,7 +84,7 @@ public class ContextAnnotation extends AbstractAnnotation {
         return rightContext;
     }
 
-    public String[] getLeftContexts() {
+    public List<String> getLeftContexts() {
 
         String[] contexts = new String[3];
         contexts[0] = "";
@@ -127,10 +131,10 @@ public class ContextAnnotation extends AbstractAnnotation {
             contexts[1] = "";
         }
 
-        return contexts;
+        return Arrays.asList(contexts);
     }
 
-    public String[] getRightContexts() {
+    public List<String> getRightContexts() {
 
         String[] contexts = new String[3];
         contexts[0] = "";
@@ -177,7 +181,7 @@ public class ContextAnnotation extends AbstractAnnotation {
             contexts[1] = "";
         }
 
-        return contexts;
+        return Arrays.asList(contexts);
     }
 
 }

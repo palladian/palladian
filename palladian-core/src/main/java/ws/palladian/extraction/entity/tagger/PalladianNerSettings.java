@@ -99,7 +99,7 @@ public class PalladianNerSettings implements Serializable {
         return languageMode == English;
     }
 
-    boolean retraining() {
+    boolean retraining() { // XXX isn't this the same property as removeIncorrectlyTaggedInTraining?
         return trainingMode == Complete;
     }
 
