@@ -517,6 +517,7 @@ public enum UnitType {
 
         // OTHER units are normalized to different values
         unitList = CollectionHelper.newArrayList();
+        unitList.add("kcal");
         unitList.add("kilowatts");
         unitList.add("kilowatt");
         unitList.add("kw");
