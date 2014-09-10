@@ -255,19 +255,23 @@ public final class PageAnalyzer {
         // find the xpath with index that belongs to the group of a highest count xpath
         String mutualXPath = "";
         xPathIterator = xPathSet.iterator();
+        int maxMatches = 0;
         while (xPathIterator.hasNext()) {
             String currentXPath = xPathIterator.next();
             boolean match = true;
             String[] xPathElements = removeXPathIndices(currentXPath).split("/");
+            int matches = 0;
+
             for (int i = 0; i < Math.min(xPathElements.length, highestCountXPathElements.length); i++) {
                 if (!xPathElements[i].equals(highestCountXPathElements[i])) {
                     match = false;
                     break;
                 }
+                matches++;
             }
-            if (match) {
+            if (match && matches > maxMatches) {
+                maxMatches = matches;
                 mutualXPath = currentXPath;
-                break;
             }
         }
 

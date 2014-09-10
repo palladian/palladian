@@ -40,6 +40,9 @@ public class WordTransformer {
     private static final Map<String, String> GERMAN_SINGULAR_PLURAL = new HashMap<String, String>();
     private static final List<String> GERMAN_NOUNS = new ArrayList<String>();
 
+    /** Exceptions for German stemming. */
+    private static final Map<String, String> GERMAN_STEMMING_EXCEPTIONS = CollectionHelper.newHashMap();
+
     static {
 
         // German nouns
@@ -62,6 +65,22 @@ public class WordTransformer {
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.keySet());
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.values());
         Collections.sort(GERMAN_NOUNS, new StringLengthComparator());
+
+        // German stemming exceptions
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/germanStemmingExceptions.tsv");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split("\t");
+                if (parts[1].isEmpty()) {
+                    continue;
+                }
+                GERMAN_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
 
         // irregular verbs
         inputStream = null;
@@ -399,6 +418,10 @@ public class WordTransformer {
 
     public static String stemGermanWord(String word) {
         // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
+        String exception = GERMAN_STEMMING_EXCEPTIONS.get(word.toLowerCase());
+        if (exception != null) {
+            return StringHelper.alignCasing(exception, word);
+        }
         return new StemmerAnnotator(Language.GERMAN).stem(word);
     }
 
@@ -599,9 +622,11 @@ public class WordTransformer {
 
     public static void main(String[] args) {
 
+        System.out.println(WordTransformer.stemGermanWord("Strassen"));
+        System.out.println(WordTransformer.stemGermanWord("straße"));
         // System.out.println(WordTransformer.stemEnglishWord("bleed"));
         // System.out.println(WordTransformer.getThirdPersonSingular("cross"));
-        System.out.println(WordTransformer.wordToSingularGerman("arasdften"));
+        // System.out.println(WordTransformer.wordToSingularGerman("arasdften"));
         System.exit(0);
 
         // 335ms
