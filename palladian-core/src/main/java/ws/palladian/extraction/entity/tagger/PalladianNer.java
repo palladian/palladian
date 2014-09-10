@@ -43,6 +43,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -154,13 +155,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
     }
 
-    public static String getModelFileEndingStatic() {
-        return "model.gz";
-    }
-
     @Override
     public String getModelFileEnding() {
-        return getModelFileEndingStatic();
+        return "model.gz";
     }
 
     @Override
@@ -250,14 +247,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
     public boolean train(String trainingFilePath, List<? extends Annotation> annotations, String modelFilePath) {
-
         LOGGER.info("Start creating {} annotations for training", annotations.size());
-
-        // save training entities in a dedicated dictionary
         for (Annotation annotation : annotations) {
             model.entityDictionary.updateTerm(annotation.getValue(), annotation.getTag());
         }
-
         if (model.settings.languageMode == LanguageIndependent) {
             return trainLanguageIndependent(trainingFilePath, modelFilePath, annotations);
         } else {
@@ -576,7 +569,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                     c++;
                 }
             }
-            LOGGER.debug("Removed {} partial date annotations in ", c, stopWatch);
+            LOGGER.debug("Removed {} partial date annotations in {}", c, stopWatch);
         }
 
         // remove annotations that were found to be incorrectly tagged in the training data
@@ -606,7 +599,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
                     double upperCaseToLowerCaseRatio = 2;
 
-                    // FIXME something is not correct here!!!
                     CategoryEntries ces = model.caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
                     if (ces != null && ces.iterator().hasNext()) {
                         double allUpperCase = ces.getProbability("A");
@@ -953,7 +945,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
 
         // fill the leftContextMap with the context and the ratio of inside annotation / outside annotation
+        
+        ProgressMonitor monitor = new ProgressMonitor();
+        monitor.startTask(null, leftContextMapCountMap.unique().size());
+
         for (Entry<String, Integer> entry : leftContextMapCountMap.unique()) {
+            
+            monitor.increment();
+
+            
             String leftContext = entry.getKey();
             int outside = entry.getValue();
             int inside = 0;
@@ -1054,6 +1054,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                 }
             }
         }
+        unwrappedAnnotations.removeNested();
         return unwrappedAnnotations;
     }
 

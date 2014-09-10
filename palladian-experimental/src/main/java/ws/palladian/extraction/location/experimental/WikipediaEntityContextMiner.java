@@ -114,7 +114,7 @@ public class WikipediaEntityContextMiner {
         FileHelper.serialize(rightModel, rightFile.getPath());
     }
 
-    private static Map<String, String> createTypeMap() {
+    static Map<String, String> createTypeMap() {
         Map<String, String> result = CollectionHelper.newHashMap();
         result.put("settlement", "LOC");
         result.put("album", "MISC");
@@ -182,6 +182,7 @@ public class WikipediaEntityContextMiner {
         result.put("u.s. state", "LOC");
         result.put("german state", "LOC");
         result.put("islands", "LOC");
+        result.put("island", "LOC");
         result.put("information appliance", "MISC");
         result.put("mobile phone", "MISC");
         result.put("computer", "MISC");
@@ -190,6 +191,46 @@ public class WikipediaEntityContextMiner {
         result.put("electric vehicle", "MISC");
         result.put("zoo", "LOC");
         result.put("newspaper", "MISC");
+        result.put("senator", "PER");
+        result.put("historic building", "LOC");
+        result.put("first lady", "PER");
+        result.put("president", "PER");
+        result.put("law school", "ORG");
+
+        result.put("oil field", "LOC");
+        result.put("body of water", "LOC");
+        result.put("athletic conference", "MISC");
+        result.put("mlb", "ORG");
+        result.put("magazine", "MISC");
+        result.put("fbi ten most wanted", "PER");
+        result.put("tv channel", "MISC");
+        result.put("military structure", "LOC");
+        result.put("brand", "ORG"); // or MISC
+        result.put("award", "MISC");
+        result.put("comedian", "PER");
+        result.put("venue", "LOC");
+        result.put("education in canada", "LOC"); // ???
+        result.put("sea", "LOC");
+        result.put("bridge", "LOC");
+        result.put("religious building", "LOC");
+        result.put("german district", "LOC");
+        result.put("former country", "LOC"); // ???
+        result.put("department", "LOC");
+        result.put("district de", "LOC");
+        result.put("deutsche bahn station", "LOC");
+        result.put("militant organization", "ORG");
+        result.put("united nations", "ORG");
+        result.put("artist", "PER");
+        result.put("architect", "PER");
+        result.put("law enforcement agency", "ORG");
+        result.put("broadcasting network", "MISC");
+        result.put("mountain range", "LOC");
+        result.put("canton", "LOC");
+        result.put("scotland council area", "LOC");
+        result.put("u.s. county", "LOC");
+        result.put("england county", "LOC");
+        result.put("province", "LOC");
+        result.put("prc province", "LOC");
 
         return Collections.unmodifiableMap(result);
     }

@@ -57,16 +57,14 @@ public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecogniz
 
     /**
      * <p>
-     * Train the named entity recognizer using the data from the training file and save it to the model file path.
-     * </p>
-     * <p>
-     * The training file must be given in tab (\t) separated column format where the first column is the term and the
-     * second column is the concept.
+     * Train the named entity recognizer using the data from the training file and save it to the model file path. The
+     * training file must be given in tab (<code>\t</code>) separated column format where the first column is the term
+     * and the second column is the concept.
      * </p>
      * 
      * @param trainingFilePath The path where the training data can be found.
      * @param modelFilePath The path where the trained model should be saved to.
-     * @return True, if the training succeeded, false otherwise.
+     * @return <code>true</code>, if the training succeeded, false otherwise.
      */
     public abstract boolean train(String trainingFilePath, String modelFilePath);
 

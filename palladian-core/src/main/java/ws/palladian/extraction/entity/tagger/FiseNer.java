@@ -81,7 +81,6 @@ public class FiseNer extends NamedEntityRecognizer {
         Annotations<Annotation> annotations = new Annotations<Annotation>();
         JsonObject jsonObject = new JsonObject(json);
 
-
         for (String key : jsonObject.keySet()) {
             JsonObject current = jsonObject.getJsonObject(key);
 
@@ -116,6 +115,7 @@ public class FiseNer extends NamedEntityRecognizer {
                 annotations.add(new ImmutableAnnotation(offset, entityName, type));
             }
         }
+        annotations.removeNested();
         return annotations;
     }
 
