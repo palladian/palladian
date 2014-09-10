@@ -20,7 +20,6 @@ public class WikiLink {
     }
 
     public String getTitle() {
-        // return title != null ? title : destination;
         return title;
     }
 

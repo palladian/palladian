@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import ws.palladian.core.Annotation;
-import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
@@ -25,16 +24,6 @@ public class Annotations<T extends Annotation> extends ArrayList<T> implements L
 
     public Annotations(Collection<? extends T> c) {
         super(c);
-    }
-
-    /**
-     * Save the annotation list to a file.
-     * 
-     * @param outputFilePath The path where the annotation list should be saved to.
-     */
-    public void save(String outputFilePath) {
-        String output = toString();
-        FileHelper.writeToFile(outputFilePath, output);
     }
 
     @Override
@@ -73,16 +62,6 @@ public class Annotations<T extends Annotation> extends ArrayList<T> implements L
      */
     public void sort() {
         Collections.sort(this);
-    }
-
-    @Override
-    public boolean add(T e) {
-        for (Annotation a : this) {
-            if (a.getStartPosition() == e.getStartPosition()) {
-                return false;
-            }
-        }
-        return super.add(e);
     }
 
 }
