@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
+import static ws.palladian.classification.text.FeatureSettingBuilder.chars;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.LanguageIndependent;
 
 import java.io.IOException;
@@ -9,10 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -22,9 +21,10 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.classification.text.DictionaryTrieModel;
+import ws.palladian.classification.text.ExperimentalScorers;
 import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
@@ -48,7 +48,6 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
@@ -76,7 +75,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * Palladian NER provides two learning modes:
  * 
  * <ol>
- * <li>{@link TrainingMode#Complete}: You must have a tagged corpus in column format where the first colum is the token
+ * <li>{@link TrainingMode#Complete}: You must have a tagged corpus in column format where the first column is the token
  * and the second column (separated by a tabstop) is the entity type.
  * <li>{@link TrainingMode#Sparse}: You just need a set of seed entities per concept (the same number per concept is
  * preferred) and you can learn a sparse training file with the {@link DatasetCreator} to learn on. Alternatively you
@@ -103,15 +102,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * n-gram settings for the entity classifier should be tuned, they do not have a big influence on the size of the
      * model (3-5 to 2-8 => 2MB).
      */
-    private static final FeatureSetting ANNOTATION_FEATURE_SETTING = FeatureSettingBuilder.chars(2, 8).create();
+    private static final FeatureSetting ANNOTATION_FEATURE_SETTING = chars(4, 8).characterPadding().create();
 
     /** be careful with the n-gram sizes, they heavily influence the model size. */
-    private static final FeatureSetting CONTEXT_FEATURE_SETTING = FeatureSettingBuilder.chars(4, 5).create();
+    private static final FeatureSetting CONTEXT_FEATURE_SETTING = chars(5).create();
 
     public static final class PalladianNerModel implements Serializable {
         /** The serial version id. */
         private static final long serialVersionUID = 1L;
-        
+
         /** This dictionary contains the entity terms as they are. */
         DictionaryModel entityDictionary;
         /** A list containing the order of likelihood of the concepts. */
@@ -124,9 +123,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         DictionaryModel caseDictionary;
 
         Set<String> leftContexts;
-
-        // XXX this does not really seem to have an impact on the accuracy (there's already contextModel, see above).
-        DictionaryModel patternProbabilities;
 
         Set<String> removeAnnotations;
 
@@ -439,6 +435,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         analyzeContexts(fileAnnotations);
         saveModel(modelFilePath);
     }
+    
 
     /**
      * Classify candidate annotations.
@@ -447,7 +444,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * @return Classified annotations.
      */
     private Annotations<ContextAnnotation> classifyCandidates(List<ContextAnnotation> entityCandidates) {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(model.annotationModel.getFeatureSetting());
+        PalladianTextClassifier classifier = new PalladianTextClassifier(model.annotationModel.getFeatureSetting()/*,SCORER */);
         Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
         for (ContextAnnotation annotation : entityCandidates) {
             CategoryEntries classificationResult = classifier.classify(annotation.getValue(), model.annotationModel);
@@ -781,31 +778,21 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     }
 
     private void applyContextAnalysis(ContextAnnotation annotation) {
-        
-        List<String> contexts = CollectionHelper.newArrayList();
-        contexts.addAll(annotation.getLeftContexts());
-        contexts.addAll(annotation.getRightContexts());
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         builder.add(annotation.getTags());
-        if (model.patternProbabilities != null) {
-            for (String contextPattern : contexts) {
-                if (contextPattern.length() > 0) {
-                    TermCategoryEntries patternClassificaiton = model.patternProbabilities
-                            .getCategoryEntries(contextPattern.toLowerCase());
-                    builder.add(patternClassificaiton);
-                }
-            }
-        }
-
         if (model.contextModel != null) {
-            PalladianTextClassifier contextClassifier = new PalladianTextClassifier(model.contextModel.getFeatureSetting());
+            FeatureSetting featureSetting = model.contextModel.getFeatureSetting();
+            Scorer scorer = new ExperimentalScorers.CategoryEqualizationScorer();
+            PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
             String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            CategoryEntries contextClassificaiton = contextClassifier.classify(context, model.contextModel);
+            CategoryEntries contextClassificaiton = classifier.classify(context, model.contextModel);
             builder.add(contextClassificaiton);
         }
-        
         CategoryEntries result = builder.create();
-//        LOGGER.debug("{} with context: {} -> {}", annotation.getValue(), annotation.getTag(), result.getMostLikelyCategory());
+        if (!annotation.getTag().equals(result.getMostLikelyCategory())) {
+            LOGGER.debug("Changed {} with context: {} -> {}", annotation.getValue(), annotation.getTag(),
+                    result.getMostLikelyCategory());
+        }
         annotation.setTags(result);
     }
 
@@ -865,19 +852,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     private void analyzeContexts(Annotations<ContextAnnotation> annotations) {
 
         LOGGER.debug("Start analyzing contexts");
-
-        Map<String, Bag<String>> contextMap = LazyMap.create(new TreeMap<String, Bag<String>>(), new Bag.BagFactory<String>());
         
         Bag<String> leftContextCounts = Bag.create();
         Bag<String> insideAnnotationCounts = Bag.create();
 
         // iterate over all annotations and analyze their left and right contexts for patterns
         for (ContextAnnotation annotation : annotations) {
-            String tag = annotation.getTag();
-            contextMap.get(tag).addAll(annotation.getLeftContexts());
-            contextMap.get(tag).addAll(annotation.getRightContexts());
             leftContextCounts.addAll(annotation.getLeftContexts());
-            
             String[] split = annotation.getValue().split("\\s");
             StringBuilder partBuilder = new StringBuilder();
             boolean first = true;
@@ -909,22 +890,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         model.contextModel = buildContextDictionary(annotations);
 
-        DictionaryTrieModel.Builder patternProbabilitiesBuilder = new DictionaryTrieModel.Builder();
-
-        // tagMap to matrix
-        for (Entry<String, Bag<String>> patternEntry : contextMap.entrySet()) {
-
-            for (Entry<String, Integer> tagEntry : patternEntry.getValue().unique()) {
-                String pattern = tagEntry.getKey().toLowerCase();
-                String tag = patternEntry.getKey();
-                if (StringUtils.isNotBlank(tag) && StringUtils.isNotBlank(pattern)) {
-                    int count = tagEntry.getValue();
-                    patternProbabilitiesBuilder.addDocument(Collections.singleton(pattern), tag, count);
-                }
-            }
-        }
-        
-        model.patternProbabilities = patternProbabilitiesBuilder.create();
     }
 
     private static DictionaryModel buildContextDictionary(Iterable<? extends ContextAnnotation> annotations) {
