@@ -202,6 +202,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * @return The dictionary model with categories <code>Aa</code>, <code>A</code>, and <code>a</code> for each token.
      */
     private static DictionaryModel buildCaseDictionary(List<String> tokens) {
+        LOGGER.info("Building case dictionary");
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
         for (String token : tokens) {
             String trimmedToken = StringHelper.trim(token);
@@ -318,6 +319,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     }
 
     private static DictionaryModel buildEntityDictionary(Iterable<? extends Annotation> annotations) {
+        LOGGER.info("Building entity dictionary");
         DictionaryTrieModel.Builder entityDictionaryBuilder = new DictionaryTrieModel.Builder();
         for (Annotation annotation : annotations) {
             entityDictionaryBuilder.addDocument(Collections.singleton(annotation.getValue()), annotation.getTag());
@@ -326,6 +328,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     }
 
     private static DictionaryModel buildAnnotationDictionary(Iterable<? extends Annotation> annotations) {
+        LOGGER.info("Building annotation dictionary");
         PalladianTextClassifier textClassifier = new PalladianTextClassifier(ANNOTATION_FEATURE_SETTING);
         Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation, Instance>() {
             @Override
@@ -356,7 +359,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         Annotations<ContextAnnotation> combinedAnnotations = FileFormatParser
                 .getAnnotationsFromColumn(trainingFilePath);
 
-        analyzeContexts(combinedAnnotations);
+        model.leftContexts = buildLeftContexts(combinedAnnotations);
+        model.contextModel = buildContextDictionary(combinedAnnotations);
 
         // add the additional training annotations
         for (Annotation annotation : additionalTrainingAnnotations) {
@@ -432,7 +436,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
 
         model.annotationModel = buildAnnotationDictionary(annotations);
-        analyzeContexts(fileAnnotations);
+        model.leftContexts = buildLeftContexts(fileAnnotations);
+        model.contextModel = buildContextDictionary(fileAnnotations);
         saveModel(modelFilePath);
     }
     
@@ -670,11 +675,14 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
 
         if (model.settings.unwrapEntities()) {
-            for (ContextAnnotation a : annotations) {
-                Annotations<ContextAnnotation> unwrapped = unwrapAnnotations(a, annotations);
-                if (unwrapped.size() > 0) {
-                    toAdd.addAll(unwrapped);
-                    toRemove.add(a);
+            for (ContextAnnotation annotation : annotations) {
+                boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
+                if (isAllUppercase) {
+                    Annotations<ContextAnnotation> unwrapped = unwrapAnnotations(annotation, annotations);
+                    if (unwrapped.size() > 0) {
+                        toAdd.addAll(unwrapped);
+                        toRemove.add(annotation);
+                    }
                 }
             }
             annotations.removeAll(toRemove);
@@ -842,40 +850,30 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     }
 
     /**
-     * <p>
-     * Analyze the context around the annotations. The context classifier will be trained and left context patterns will
-     * be stored.
-     * </p>
+     * Build a set with left contexts. These are tokens which appear to the left of an entity, e.g.
+     * "President Barack Obama". From the available annotations we determine, whether "President" belongs to the entity,
+     * or to the context. This information can be used later, to fix the boundaries of an annotation.
      * 
-     * @param trainingFilePath The path to the training data.
+     * @param annotations The annotations.
+     * @return A set with tokens which appear more often in the context, than within an entity (e.g. "President").
      */
-    private void analyzeContexts(Annotations<ContextAnnotation> annotations) {
-
-        LOGGER.debug("Start analyzing contexts");
-        
+    private static Set<String> buildLeftContexts(Annotations<ContextAnnotation> annotations) {
+        LOGGER.debug("Analyzing left contexts");
         Bag<String> leftContextCounts = Bag.create();
         Bag<String> insideAnnotationCounts = Bag.create();
-
-        // iterate over all annotations and analyze their left and right contexts for patterns
         for (ContextAnnotation annotation : annotations) {
             leftContextCounts.addAll(annotation.getLeftContexts());
             String[] split = annotation.getValue().split("\\s");
             StringBuilder partBuilder = new StringBuilder();
-            boolean first = true;
-            for (String part : split) {
-                if (first) {
-                    first = false;
-                } else {
+            for (int i = 0; i < split.length; i++) {
+                if (i > 0) {
                     partBuilder.append(' ');
                 }
-                partBuilder.append(part);
+                partBuilder.append(split[i]);
                 insideAnnotationCounts.add(partBuilder.toString());
             }
         }
-
-        // fill the leftContexts with those terms, which appear more often in the context than within an entity
-
-        model.leftContexts = CollectionHelper.newHashSet();
+        Set<String> leftContexts = CollectionHelper.newHashSet();
         for (Entry<String, Integer> entry : leftContextCounts.unique()) {
             String leftContext = entry.getKey();
             if (StringHelper.startsUppercase(leftContext)) {
@@ -883,16 +881,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                 int inside = insideAnnotationCounts.count(leftContext);
                 double ratio = (double)inside / outside;
                 if (ratio < 1 && outside >= 2) {
-                    model.leftContexts.add(leftContext);
+                    leftContexts.add(leftContext);
                 }
             }
         }
-
-        model.contextModel = buildContextDictionary(annotations);
-
+        return leftContexts;
     }
 
     private static DictionaryModel buildContextDictionary(Iterable<? extends ContextAnnotation> annotations) {
+        LOGGER.info("Building context dictionary");
         PalladianTextClassifier contextClassifier = new PalladianTextClassifier(CONTEXT_FEATURE_SETTING);
         Iterable<Instance> instances = CollectionHelper.convert(annotations,
                 new Function<ContextAnnotation, Instance>() {
@@ -920,14 +917,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * @return A set of annotations found in this annotation.
      */
     private Annotations<ContextAnnotation> unwrapAnnotations(Annotation annotation, List<ContextAnnotation> annotations) {
-
         Annotations<ContextAnnotation> unwrappedAnnotations = new Annotations<ContextAnnotation>();
-
-        boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
-        if (!isAllUppercase) {
-            return unwrappedAnnotations;
-        }
-
         for (Annotation currentAnnotation : annotations) {
             String currentValue = currentAnnotation.getValue();
             String currentTag = currentAnnotation.getTag();
