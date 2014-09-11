@@ -417,6 +417,9 @@ public final class FileFormatParser {
      * @return A list of annotations that were found in the text.
      */
     public static Annotations<ContextAnnotation> getAnnotationsFromXmlText(String taggedText) {
+        
+        String strippedText = HtmlHelper.stripHtmlTags(taggedText);
+        
         Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
 
         // count offset that is caused by the tags, this should be taken into account when calculating the offset of the
@@ -436,11 +439,11 @@ public final class FileFormatParser {
         Matcher matcher = pattern.matcher(taggedText);
         while (matcher.find()) {
             // get the left and right context of the annotation
-            String leftContext = HtmlHelper.stripHtmlTags(
-                    taggedText.substring(Math.max(0, matcher.start() - WINDOW_SIZE), matcher.start())).trim();
-            String rightContext = HtmlHelper.stripHtmlTags(
-                    taggedText.substring(matcher.end(), Math.min(taggedText.length(), matcher.end() + WINDOW_SIZE)))
-                    .trim();
+//            String leftContext = HtmlHelper.stripHtmlTags(
+//                    taggedText.substring(Math.max(0, matcher.start() - WINDOW_SIZE), matcher.start())).trim();
+//            String rightContext = HtmlHelper.stripHtmlTags(
+//                    taggedText.substring(matcher.end(), Math.min(taggedText.length(), matcher.end() + WINDOW_SIZE)))
+//                    .trim();
 
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);
@@ -457,6 +460,10 @@ public final class FileFormatParser {
             cumulatedTagOffset += tagOffset;
 
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
+            
+            String leftContext = strippedText.substring(Math.max(0, offset - WINDOW_SIZE), offset).trim();
+            String rightContext = strippedText.substring(offset + entityName.length(),
+                    Math.min(strippedText.length(), offset + entityName.length() + WINDOW_SIZE)).trim();
 
             annotations.add(new ContextAnnotation(offset, entityName, conceptName, leftContext, rightContext));
 

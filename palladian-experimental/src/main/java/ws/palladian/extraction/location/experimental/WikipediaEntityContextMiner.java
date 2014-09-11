@@ -141,7 +141,7 @@ public class WikipediaEntityContextMiner {
         result.put("scientist", "PER");
         result.put("football club", "ORG");
         result.put("vg", "MISC"); // video game
-        result.put("military unit", "MISC");
+        result.put("military unit", "ORG"); // ... was MISC
         result.put("sportsperson", "PER");
         result.put("mountain", "LOC");
         result.put("german location", "LOC");
