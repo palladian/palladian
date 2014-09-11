@@ -130,7 +130,7 @@ public class NerTest {
         assertEquals(5818, caseDictionary.getNumUniqTerms());
         assertEquals(3, caseDictionary.getNumCategories());
         assertEquals(1109, tagger.getModel().leftContexts.size());
-        assertEquals(372, tagger.getModel().removeAnnotations.size());
+        assertEquals(365, tagger.getModel().removeAnnotations.size());
         assertEquals(87983, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
         assertEquals(59589, annotationDictionary.getNumUniqTerms());
