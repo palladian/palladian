@@ -1,5 +1,6 @@
 package ws.palladian.integrationtests;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
@@ -37,7 +38,8 @@ public final class ITHelper {
      */
     public static void assertDirectory(String... paths) {
         for (String path : paths) {
-            assertTrue("Directory" + path + " is not present", new File(path).isDirectory());
+            assertNotNull("Value for directory path is null", path);
+            assertTrue("Directory '" + path + "' is not present", new File(path).isDirectory());
         }
     }
 

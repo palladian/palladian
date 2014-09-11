@@ -143,10 +143,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
     }
 
-//    private final PalladianTextClassifier annotationClassifier = new PalladianTextClassifier(ANNOTATION_FEATURE_SETTING);
-
-    private final PalladianTextClassifier contextClassifier = new PalladianTextClassifier(CONTEXT_FEATURE_SETTING);
-
     private final static String NO_ENTITY = "###NO_ENTITY###";
 
     private PalladianNerModel model;
@@ -327,19 +323,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     private boolean trainLanguageIndependent(Annotations<ContextAnnotation> annotations,
             Annotations<ContextAnnotation> combinedAnnotations, String modelFilePath) {
 
-        List<Instance> textInstances = CollectionHelper.newArrayList();
-
-        LOGGER.info("Start creating {} annotations for training", annotations.size());
-        for (Annotation annotation : annotations) {
-            textInstances.add(new InstanceBuilder().setText(annotation.getValue()).create(annotation.getTag()));
-        }
-
-        // save training entities in a dedicated dictionary
         model.entityDictionary = buildEntityDictionary(combinedAnnotations);
-        
         model.annotationModel = buildAnnotationDictionary(annotations);
 
-//        trainAnnotationClassifier(textInstances);
         saveModel(modelFilePath);
         return true;
     }
@@ -353,8 +339,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     }
 
     private static DictionaryModel buildAnnotationDictionary(Iterable<? extends Annotation> annotations) {
-        DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
-        PalladianTextClassifier textClassifier = new PalladianTextClassifier(ANNOTATION_FEATURE_SETTING, builder);
+        PalladianTextClassifier textClassifier = new PalladianTextClassifier(ANNOTATION_FEATURE_SETTING);
         Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation,Instance>() {
             @Override
             public Instance compute(Annotation input) {
@@ -363,11 +348,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         });
         return textClassifier.train(instances);
     }
-
-//    private void trainAnnotationClassifier(List<Instance> textInstances) {
-//        LOGGER.debug("Start training classifiers now...");
-//        model.annotationModel = annotationClassifier.train(textInstances);
-//    }
 
     /**
      * <p>
@@ -424,14 +404,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             annotations.add(new ContextAnnotation(annotation));
         }
         LOGGER.info("Add {} additional training annotations", additionalTrainingAnnotations.size());
-        
-        model.entityDictionary = buildEntityDictionary(annotations);
 
-        List<Instance> textInstances = CollectionHelper.newArrayList();
-        for (ContextAnnotation annotation : annotations) {
-            textInstances.add(new InstanceBuilder().setText(annotation.getValue()).create(annotation.getTag()));
-            // model.entityDictionary.updateTerm(annotation.getValue(), annotation.getTag());
-        }
+        model.entityDictionary = buildEntityDictionary(annotations);
 
         List<String> tokens = Tokenizer.tokenize(FileFormatParser.getText(trainingFilePath, TaggingFormat.COLUMN));
         model.caseDictionary = buildCaseDictionary(tokens);
@@ -441,7 +415,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             LOGGER.info("Start retraining (because of complete dataset, no sparse annotations)");
 
             // //////////////////////////////////////////// wrong entities //////////////////////////////////////
-//            trainAnnotationClassifier(textInstances);
             model.annotationModel = buildAnnotationDictionary(annotations);
 
             model.removeAnnotations.clear();
@@ -454,9 +427,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             // be in ERROR1 set and NOT in the gold standard
             for (Annotation wrongAnnotation : evaluationResult.getAnnotations(ResultType.ERROR1)) {
 
-//                textInstances.add(new InstanceBuilder().setText(wrongAnnotation.getValue()).create(NO_ENTITY));
-                // FIXME
-                annotations.add(new ContextAnnotation(wrongAnnotation.getStartPosition(), wrongAnnotation.getValue(), NO_ENTITY));
+                annotations.add(new ContextAnnotation(wrongAnnotation.getStartPosition(), wrongAnnotation.getValue(),
+                        NO_ENTITY));
 
                 // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
                 boolean addAnnotation = true;
@@ -468,14 +440,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                     }
                 }
                 if (addAnnotation) {
-                    model.removeAnnotations.add(wrongAnnotation.getValue());
+                    model.removeAnnotations.add(wrongAnnotation.getValue().toLowerCase());
                 }
             }
             LOGGER.info("{} annotations need to be completely removed", model.removeAnnotations.size());
             // //////////////////////////////////////////////////////////////////////////////////////////////////
         }
 
-//        trainAnnotationClassifier(textInstances);
         model.annotationModel = buildAnnotationDictionary(annotations);
         analyzeContexts(trainingFilePath);
         saveModel(modelFilePath);
@@ -641,7 +612,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         preProcessAnnotations(annotations);
 
         annotations = classifyCandidates(annotations);
-        // CollectionHelper.print(annotations);
 
         postProcessAnnotations(annotations);
 
@@ -726,19 +696,18 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             }
             LOGGER.debug("Removed {} partial date annotations in {}", c, stopWatch);
         }
-        
+
         // remove annotations that were found to be incorrectly tagged in the training data
         if (model.settings.removeIncorrectlyTaggedInTraining()) {
             stopWatch.start();
-            for (String removeAnnotation : model.removeAnnotations) {
-                for (ContextAnnotation annotation : annotations) {
-                    if (removeAnnotation.equalsIgnoreCase(annotation.getValue())) {
-                        toRemove.add(annotation);
-                    }
+            int c = 0;
+            for (ContextAnnotation annotation : annotations) {
+                if (model.removeAnnotations.contains(annotation.getValue().toLowerCase())) {
+                    toRemove.add(annotation);
+                    c++;
                 }
             }
-            LOGGER.debug("Removed {} incorrectly tagged entities in training data in {}",
-                    model.removeAnnotations.size(), stopWatch);
+            LOGGER.debug("Removed {} incorrectly tagged entities in training data in {}", c, stopWatch);
         }
 
         // use a learned case dictionary to remove possibly incorrectly tagged sentence starts. For example ". This" is
@@ -853,6 +822,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     }
 
     private void applyContextAnalysis(ContextAnnotation annotation) {
+        
+        
         List<String> contexts = CollectionHelper.newArrayList();
         contexts.addAll(annotation.getLeftContexts());
         contexts.addAll(annotation.getRightContexts());
@@ -869,6 +840,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
 
         if (model.contextModel != null) {
+            PalladianTextClassifier contextClassifier = new PalladianTextClassifier(model.contextModel.getFeatureSetting());
             String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
             CategoryEntries contextClassificaiton = contextClassifier.classify(context, model.contextModel);
             builder.add(contextClassificaiton);
@@ -939,8 +911,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         // get all training annotations including their features
         Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
-        List<Instance> trainingInstances = CollectionHelper.newArrayList();
-
         // iterate over all annotations and analyze their left and right contexts for patterns
         for (ContextAnnotation annotation : annotations) {
 
@@ -953,9 +923,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             contextMap.get(tag).addAll(annotation.getLeftContexts());
             contextMap.get(tag).addAll(annotation.getRightContexts());
             leftContextMapCountMap.addAll(annotation.getLeftContexts());
-
-            String text = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            trainingInstances.add(new InstanceBuilder().setText(text).create(tag));
         }
 
         // fill the leftContextMap with the context and the ratio of inside annotation / outside annotation
@@ -983,7 +950,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             model.leftContexts.add(leftContext, value ? 0 : 1);
         }
 
-        model.contextModel = contextClassifier.train(trainingInstances);
+        model.contextModel = buildContextDictionary(annotations);
         
         DictionaryTrieModel.Builder patternProbabilitiesBuilder = new DictionaryTrieModel.Builder();
 
@@ -1001,6 +968,19 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
         
         model.patternProbabilities = patternProbabilitiesBuilder.create();
+    }
+
+    private static DictionaryModel buildContextDictionary(Iterable<? extends ContextAnnotation> annotations) {
+        PalladianTextClassifier contextClassifier = new PalladianTextClassifier(CONTEXT_FEATURE_SETTING);
+        Iterable<Instance> instances = CollectionHelper.convert(annotations,
+                new Function<ContextAnnotation, Instance>() {
+                    @Override
+                    public Instance compute(ContextAnnotation input) {
+                        String context = input.getLeftContext() + "__" + input.getRightContext();
+                        return new InstanceBuilder().setText(context).create(input.getTag());
+                    }
+                });
+        return contextClassifier.train(instances);
     }
 
     public PalladianNerModel getModel() {
