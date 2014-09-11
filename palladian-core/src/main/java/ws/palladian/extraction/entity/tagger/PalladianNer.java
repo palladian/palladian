@@ -4,8 +4,10 @@ import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.Languag
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -538,92 +540,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         StopWatch stopWatch = new StopWatch();
 
-        Annotations<ContextAnnotation> toRemove = new Annotations<ContextAnnotation>();
+//        Annotations<ContextAnnotation> toRemove = new Annotations<ContextAnnotation>();
 
-        // remove dates
-        if (model.settings.removeDates()) {
-            stopWatch.start();
-            int c = 0;
-            for (ContextAnnotation annotation : annotations) {
-                if (isDateFragment(annotation.getValue())) {
-                    toRemove.add(annotation);
-                    c++;
-                }
-            }
-            LOGGER.debug("Removed {} purely date annotations in {}", c, stopWatch);
-        }
 
-        // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
-        if (model.settings.removeDateFragments()) {
-            stopWatch.start();
-            int c = 0;
-            for (ContextAnnotation annotation : annotations) {
 
-                Pair<String, Integer> result = removeDateFragment(annotation.getValue());
-                String entity = result.getLeft();
-
-                annotation.setValue(entity);
-                annotation.setStartPosition(annotation.getStartPosition() + result.getRight());
-
-                if (result.getRight() > 0) {
-                    c++;
-                }
-            }
-            LOGGER.debug("Removed {} partial date annotations in {}", c, stopWatch);
-        }
-
-        // remove annotations that were found to be incorrectly tagged in the training data
-        if (model.settings.removeIncorrectlyTaggedInTraining()) {
-            stopWatch.start();
-            for (String removeAnnotation : model.removeAnnotations) {
-                for (ContextAnnotation annotation : annotations) {
-                    if (removeAnnotation.equalsIgnoreCase(annotation.getValue())) {
-                        toRemove.add(annotation);
-                    }
-                }
-            }
-            LOGGER.debug("Removed {} incorrectly tagged entities in training data in {}",
-                    model.removeAnnotations.size(), stopWatch);
-        }
-
-        // use a learned case dictionary to remove possibly incorrectly tagged sentence starts. For example ". This" is
-        // removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
-        // sentence start but all single token words.
-        int c = 0;
-        if (model.settings.removeSentenceStartErrorsCaseDictionary()) {
-            stopWatch.start();
-
-            for (ContextAnnotation annotation : annotations) {
-
-                if (annotation.getValue().indexOf(" ") == -1) {
-
-                    double upperCaseToLowerCaseRatio = 2;
-
-                    CategoryEntries ces = model.caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
-                    if (ces != null && ces.iterator().hasNext()) {
-                        double allUpperCase = ces.getProbability("A");
-                        double upperCase = ces.getProbability("Aa");
-                        double lowerCase = ces.getProbability("a");
-                        if (lowerCase > 0) {
-                            upperCaseToLowerCaseRatio = upperCase / lowerCase;
-                        }
-                        if (allUpperCase > upperCase && allUpperCase > lowerCase) {
-                            upperCaseToLowerCaseRatio = 2;
-                        }
-                    }
-                    if (upperCaseToLowerCaseRatio <= 1) {
-                        c++;
-                        toRemove.add(annotation);
-                        LOGGER.debug("Remove word using the case signature: {} (ratio:{}) | {}", annotation.getValue(),
-                                upperCaseToLowerCaseRatio, annotation.getRightContext());
-                    }
-                }
-            }
-            LOGGER.debug("Removed {} words at beginning of sentence in {}", c, stopWatch);
-        }
-
-        LOGGER.debug("Remove {} entities", toRemove.size());
-        annotations.removeAll(toRemove);
+//        LOGGER.debug("Remove {} entities", toRemove.size());
+//        annotations.removeAll(toRemove);
 
         // switch using pattern information
         int changed = 0;
@@ -686,40 +608,275 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                     stopWatch);
         }
 
-        Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
+//        Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
 
-        stopWatch.start();
+//        stopWatch.start();
 
-        for (ContextAnnotation annotation : annotations) {
+//        for (ContextAnnotation annotation : annotations) {
 
-            // remove all annotations with "DOCSTART- " in them because that is for format purposes
-            if (annotation.getValue().toLowerCase().indexOf("docstart") > -1) {
-                toRemove.add(annotation);
-                continue;
-            }
+//            // remove all annotations with "DOCSTART- " in them because that is for format purposes
+//            if (annotation.getValue().toLowerCase().indexOf("docstart") > -1) {
+//                toRemove.add(annotation);
+//                continue;
+//            }
 
-            if (model.settings.unwrapEntities()) {
-                Annotations<ContextAnnotation> wrappedAnnotations = unwrapAnnotations(annotation, annotations);
-
-                if (!wrappedAnnotations.isEmpty()) {
-                    for (ContextAnnotation annotation2 : wrappedAnnotations) {
-                        if (hasAssignedType(annotation2.getTags())) {
-                            toAdd.add(annotation2);
-                        }
-                    }
-                    if (LOGGER.isDebugEnabled()) {
-                        String debugString = "Tried to unwrap again " + annotation.getValue();
-                        for (ContextAnnotation wrappedAnnotation : wrappedAnnotations) {
-                            debugString += " | " + wrappedAnnotation.getValue();
-                        }
-                        LOGGER.debug(debugString);
-                    }
-                }
-            }
+//            if (model.settings.unwrapEntities()) {
+//                Annotations<ContextAnnotation> wrappedAnnotations = unwrapAnnotations(annotation, annotations);
+//
+//                if (!wrappedAnnotations.isEmpty()) {
+//                    for (ContextAnnotation annotation2 : wrappedAnnotations) {
+//                        if (hasAssignedType(annotation2.getTags())) {
+//                            toAdd.add(annotation2);
+//                        }
+//                    }
+//                    if (LOGGER.isDebugEnabled()) {
+//                        String debugString = "Tried to unwrap again " + annotation.getValue();
+//                        for (ContextAnnotation wrappedAnnotation : wrappedAnnotations) {
+//                            debugString += " | " + wrappedAnnotation.getValue();
+//                        }
+//                        LOGGER.debug(debugString);
+//                    }
+//                }
+//            }
 
             // unwrap annotations containing context patterns, e.g. "President Obama" => "President" is known left
             // context for people
             // XXX move this up?
+//            if (model.settings.unwrapEntitiesWithContext()) {
+//                Bag<String> sortedMap = model.leftContextMap.createSorted(Order.DESCENDING);
+//                for (Entry<String, Integer> leftContextEntry : sortedMap.unique()) {
+//
+//                    String leftContext = leftContextEntry.getKey();
+//
+//                    // 0 means the context appears more often inside an entity than outside so we should not delete it
+//                    if (leftContextEntry.getValue() == 0) {
+//                        // the map is sorted by number of occurrences so we can break as soon as the threshold is
+//                        // reached
+//                        break;
+//                    }
+//
+//                    if (!StringHelper.startsUppercase(leftContext)) {
+//                        continue;
+//                    }
+//
+//                    String entity = annotation.getValue();
+//
+//                    int index1 = entity.indexOf(leftContext + " ");
+//                    int index2 = entity.indexOf(" " + leftContext + " ");
+//                    int length = -1;
+//                    int index = -1;
+//                    if (index1 == 0) {
+//                        length = leftContext.length() + 1;
+//                        index = index1;
+//                    } else if (index2 > -1) {
+//                        length = leftContext.length() + 2;
+//                        index = index2;
+//                    }
+//                    if (index1 == 0 || index2 > -1) {
+//
+//                        // get the annotation after the index
+//                        ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition()
+//                                + index + length, annotation.getValue().substring(index + length), annotation.getTag());
+//                        toAdd.add(wrappedAnnotation);
+//
+//                        // search for a known instance in the prefix
+//                        // go through the entity dictionary
+//                        for (TermCategoryEntries termEntries : model.entityDictionary) {
+//                            String term = termEntries.getTerm();
+//
+//                            int indexPrefix = annotation.getValue().substring(0, index + length).indexOf(term + " ");
+//                            if (indexPrefix > -1 && term.length() > 2) {
+//                                ContextAnnotation wrappedAnnotation2 = new ContextAnnotation(
+//                                        annotation.getStartPosition() + indexPrefix, term,
+//                                        termEntries.getMostLikelyCategory());
+//                                toAdd.add(wrappedAnnotation2);
+//                                LOGGER.debug("Add from prefix {}", wrappedAnnotation2.getValue());
+//                                break;
+//                            }
+//                        }
+//                        toRemove.add(annotation);
+//
+//                        // FIXME need to be re-classified!!!!
+//                        CategoryEntries results = annotationClassifier.classify(wrappedAnnotation.getValue(),
+//                                model.annotationModel);
+//                        if (hasAssignedType(results)) {
+//                            LOGGER.debug(annotation.getValue() + " -> " + wrappedAnnotation.getValue());
+//                            LOGGER.debug(annotation.getTags() + " -> " + results);
+//                            wrappedAnnotation.setTags(results);
+//                        }
+//
+//                        LOGGER.debug("Add {}, delete {} (left context: {}, {})", wrappedAnnotation.getValue(),
+//                                annotation.getValue(), leftContext, leftContextEntry.getValue());
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        LOGGER.debug("Unwrapped entities in {}", stopWatch);
+
+//        LOGGER.debug("Add {} entities", toAdd.size());
+//        annotations.addAll(toAdd);
+
+//        LOGGER.debug("Remove {} entities", toRemove.size());
+//        annotations.removeAll(toRemove);
+    }
+
+    private Annotations<ContextAnnotation> getAnnotationsInternal(String inputText) {
+
+        Annotations<ContextAnnotation> annotations;
+
+        if (model.settings.languageMode == LanguageIndependent) {
+            // get the candidates, every token is potentially a (part of) an entity
+            annotations = StringTagger.getTaggedEntities(inputText, Tokenizer.TOKEN_SPLIT_REGEX);
+        } else {
+            // use the the string tagger to tag entities in English mode
+            annotations = StringTagger.getTaggedEntities(inputText);
+        }
+        
+        preProcessAnnotations(annotations);
+
+        annotations = classifyCandidates(annotations);
+        // CollectionHelper.print(annotations);
+
+        postProcessAnnotations(annotations);
+
+        if (model.settings.languageMode == LanguageIndependent) {
+
+            // combine annotations that are right next to each other having the same tag
+            Annotations<ContextAnnotation> combinedAnnotations = new Annotations<ContextAnnotation>();
+            annotations.sort();
+
+            Annotation previous = null;
+            Annotation previousCombined = null;
+
+            for (ContextAnnotation current : annotations) {
+                if (!current.getTag().equalsIgnoreCase("o") && previous != null && current.sameTag(previous)
+                        && current.getStartPosition() == previous.getEndPosition() + 1) {
+
+                    if (previousCombined == null) {
+                        previousCombined = previous;
+                    }
+
+                    ContextAnnotation combined = new ContextAnnotation(previousCombined.getStartPosition(),
+                            previousCombined.getValue() + " " + current.getValue(), current.getTag());
+                    combinedAnnotations.add(combined);
+                    previousCombined = combined;
+                    combinedAnnotations.remove(previousCombined);
+                } else {
+                    combinedAnnotations.add(current);
+                    previousCombined = null;
+                }
+                previous = current;
+            }
+
+            // remove all "O"
+            CollectionHelper.remove(combinedAnnotations, new Filter<ContextAnnotation>() {
+                @Override
+                public boolean accept(ContextAnnotation item) {
+                    return !item.getTag().equalsIgnoreCase("o") && item.getValue().length() > 1;
+                }
+            });
+            annotations = combinedAnnotations;
+        }
+
+        return annotations;
+    }
+
+    private void preProcessAnnotations(Annotations<ContextAnnotation> annotations) {
+        LOGGER.debug("Start pre processing annotations");
+
+        Annotations<ContextAnnotation> toRemove = new Annotations<ContextAnnotation>();
+        Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
+        
+        StopWatch stopWatch = new StopWatch();
+        
+        // remove dates
+        if (model.settings.removeDates()) {
+            stopWatch.start();
+            int c = 0;
+            for (ContextAnnotation annotation : annotations) {
+                if (isDateFragment(annotation.getValue())) {
+                    toRemove.add(annotation);
+                    c++;
+                }
+            }
+            LOGGER.debug("Removed {} purely date annotations in {}", c, stopWatch);
+        }
+
+        // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
+        if (model.settings.removeDateFragments()) {
+            stopWatch.start();
+            int c = 0;
+            for (ContextAnnotation annotation : annotations) {
+
+                Pair<String, Integer> result = removeDateFragment(annotation.getValue());
+                String entity = result.getLeft();
+
+                annotation.setValue(entity);
+                annotation.setStartPosition(annotation.getStartPosition() + result.getRight());
+
+                if (result.getRight() > 0) {
+                    c++;
+                }
+            }
+            LOGGER.debug("Removed {} partial date annotations in {}", c, stopWatch);
+        }
+        
+        // remove annotations that were found to be incorrectly tagged in the training data
+        if (model.settings.removeIncorrectlyTaggedInTraining()) {
+            stopWatch.start();
+            for (String removeAnnotation : model.removeAnnotations) {
+                for (ContextAnnotation annotation : annotations) {
+                    if (removeAnnotation.equalsIgnoreCase(annotation.getValue())) {
+                        toRemove.add(annotation);
+                    }
+                }
+            }
+            LOGGER.debug("Removed {} incorrectly tagged entities in training data in {}",
+                    model.removeAnnotations.size(), stopWatch);
+        }
+
+        // use a learned case dictionary to remove possibly incorrectly tagged sentence starts. For example ". This" is
+        // removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
+        // sentence start but all single token words.
+        int c = 0;
+        if (model.settings.removeSentenceStartErrorsCaseDictionary()) {
+            stopWatch.start();
+
+            for (ContextAnnotation annotation : annotations) {
+
+                if (annotation.getValue().indexOf(" ") == -1) {
+
+                    double upperCaseToLowerCaseRatio = 2;
+
+                    CategoryEntries ces = model.caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
+                    if (ces != null && ces.iterator().hasNext()) {
+                        double allUpperCase = ces.getProbability("A");
+                        double upperCase = ces.getProbability("Aa");
+                        double lowerCase = ces.getProbability("a");
+                        if (lowerCase > 0) {
+                            upperCaseToLowerCaseRatio = upperCase / lowerCase;
+                        }
+                        if (allUpperCase > upperCase && allUpperCase > lowerCase) {
+                            upperCaseToLowerCaseRatio = 2;
+                        }
+                    }
+                    if (upperCaseToLowerCaseRatio <= 1) {
+                        c++;
+                        toRemove.add(annotation);
+                        if (LOGGER.isDebugEnabled()) {
+                            NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+                            LOGGER.debug("Remove word using the case signature: {} (ratio:{})", annotation.getValue(),
+                                    format.format(upperCaseToLowerCaseRatio));
+                        }
+                    }
+                }
+            }
+            LOGGER.debug("Removed {} words at beginning of sentence in {}", c, stopWatch);
+        }
+
+        for (ContextAnnotation annotation : annotations) {
+
             if (model.settings.unwrapEntitiesWithContext()) {
                 Bag<String> sortedMap = model.leftContextMap.createSorted(Order.DESCENDING);
                 for (Entry<String, Integer> leftContextEntry : sortedMap.unique()) {
@@ -773,6 +930,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                             }
                         }
                         toRemove.add(annotation);
+
                         LOGGER.debug("Add {}, delete {} (left context: {}, {})", wrappedAnnotation.getValue(),
                                 annotation.getValue(), leftContext, leftContextEntry.getValue());
                         break;
@@ -780,71 +938,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                 }
             }
         }
-        LOGGER.debug("Unwrapped entities in {}", stopWatch);
 
         LOGGER.debug("Add {} entities", toAdd.size());
         annotations.addAll(toAdd);
 
         LOGGER.debug("Remove {} entities", toRemove.size());
         annotations.removeAll(toRemove);
-    }
 
-    private Annotations<ContextAnnotation> getAnnotationsInternal(String inputText) {
-
-        Annotations<ContextAnnotation> annotations;
-
-        if (model.settings.languageMode == LanguageIndependent) {
-            // get the candidates, every token is potentially a (part of) an entity
-            annotations = StringTagger.getTaggedEntities(inputText, Tokenizer.TOKEN_SPLIT_REGEX);
-        } else {
-            // use the the string tagger to tag entities in English mode
-            annotations = StringTagger.getTaggedEntities(inputText);
-        }
-
-        annotations = classifyCandidates(annotations);
-
-        postProcessAnnotations(annotations);
-
-        if (model.settings.languageMode == LanguageIndependent) {
-
-            // combine annotations that are right next to each other having the same tag
-            Annotations<ContextAnnotation> combinedAnnotations = new Annotations<ContextAnnotation>();
-            annotations.sort();
-
-            Annotation previous = null;
-            Annotation previousCombined = null;
-
-            for (ContextAnnotation current : annotations) {
-                if (!current.getTag().equalsIgnoreCase("o") && previous != null && current.sameTag(previous)
-                        && current.getStartPosition() == previous.getEndPosition() + 1) {
-
-                    if (previousCombined == null) {
-                        previousCombined = previous;
-                    }
-
-                    ContextAnnotation combined = new ContextAnnotation(previousCombined.getStartPosition(),
-                            previousCombined.getValue() + " " + current.getValue(), current.getTag());
-                    combinedAnnotations.add(combined);
-                    previousCombined = combined;
-                    combinedAnnotations.remove(previousCombined);
-                } else {
-                    combinedAnnotations.add(current);
-                    previousCombined = null;
-                }
-                previous = current;
-            }
-
-            // remove all "O"
-            CollectionHelper.remove(combinedAnnotations, new Filter<ContextAnnotation>() {
-                @Override
-                public boolean accept(ContextAnnotation item) {
-                    return !item.getTag().equalsIgnoreCase("o") && item.getValue().length() > 1;
-                }
-            });
-            annotations = combinedAnnotations;
-        }
-
-        return annotations;
     }
 
     private void applyContextAnalysis(ContextAnnotation annotation) {
@@ -855,14 +955,20 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         builder.add(annotation.getTags());
         for (String contextPattern : contexts) {
             if (contextPattern.length() > 0) {
-                builder.add(model.patternProbabilities.getCategoryEntries(contextPattern.toLowerCase()));
+                TermCategoryEntries patternClassificaiton = model.patternProbabilities.getCategoryEntries(contextPattern.toLowerCase());
+                builder.add(patternClassificaiton);
             }
         }
+        
         if (model.contextModel != null) {
             String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            builder.add(contextClassifier.classify(context, model.contextModel));
+            CategoryEntries contextClassificaiton = contextClassifier.classify(context, model.contextModel);
+            builder.add(contextClassificaiton);
         }
-        annotation.setTags(builder.create());
+        
+        CategoryEntries result = builder.create();
+//        LOGGER.debug("{} with context: {} -> {}", annotation.getValue(), annotation.getTag(), result.getMostLikelyCategory());
+        annotation.setTags(result);
     }
 
     /**
@@ -993,9 +1099,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
     /**
      * <p>
-     * Try to find which of the given annotation are part of this entity. For example: "New York City and Dresden"
-     * contains two entities that might be in the given annotation set. If so, we return the found annotations.
-     * </p>
+     * If the annotation is completely upper case, like "NEW YORK CITY AND DRESDEN", try to find which of the given
+     * annotation are part of this entity. The given example contains two entities that might be in the given annotation
+     * set. If so, we return the found annotations.
      * 
      * @param annotation The annotation to check.
      * @param annotations The annotations we are searching for in this entity.
@@ -1055,6 +1161,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             }
         }
         unwrappedAnnotations.removeNested();
+        if (unwrappedAnnotations.size() > 0) {
+            LOGGER.debug("Unwrapped {} to {}", annotation.getValue(), unwrappedAnnotations.size());
+        }
         return unwrappedAnnotations;
     }
 
