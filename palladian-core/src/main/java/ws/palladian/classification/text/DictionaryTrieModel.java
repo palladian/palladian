@@ -182,21 +182,21 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     /** The optional name of the model. */
     private transient String name;
 
-    /**
-     * Create a new {@link DictionaryTrieModel}.
-     * 
-     * @param featureSetting The feature setting which was used for creating this model, may be <code>null</code>.
-     * @deprecated Use a {@link Builder} instead.
-     */
-    @Deprecated
-    public DictionaryTrieModel(FeatureSetting featureSetting) {
-        this.entryTrie = new Trie<LinkedCategoryEntries>();
-        this.numTerms = 0;
-        this.featureSetting = featureSetting;
-        this.name = NO_NAME;
-        this.documentCounts = ImmutableCategoryEntries.EMPTY;
-        this.termCounts = ImmutableCategoryEntries.EMPTY;
-    }
+//    /**
+//     * Create a new {@link DictionaryTrieModel}.
+//     * 
+//     * @param featureSetting The feature setting which was used for creating this model, may be <code>null</code>.
+//     * @deprecated Use a {@link Builder} instead.
+//     */
+//    @Deprecated
+//    public DictionaryTrieModel(FeatureSetting featureSetting) {
+//        this.entryTrie = new Trie<LinkedCategoryEntries>();
+//        this.numTerms = 0;
+//        this.featureSetting = featureSetting;
+//        this.name = NO_NAME;
+//        this.documentCounts = ImmutableCategoryEntries.EMPTY;
+//        this.termCounts = ImmutableCategoryEntries.EMPTY;
+//    }
 
     /** Constructor invoked from the builder only. */
     private DictionaryTrieModel(Builder builder) {
@@ -218,19 +218,19 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         return featureSetting;
     }
 
-    /**
-     * @deprecated Use {@link #addDocument(Collection, String)} instead.
-     */
-    @Deprecated
-    public void updateTerm(String term, String category) {
-        Validate.notNull(term, "term must not be null");
-        Validate.notNull(category, "category must not be null");
-        LinkedCategoryEntries categoryEntries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
-        if (categoryEntries.getTotalCount() == 0) { // term was not present before
-            numTerms++;
-        }
-        categoryEntries.increment(category, 1);
-    }
+//    /**
+//     * @deprecated Use {@link #addDocument(Collection, String)} instead.
+//     */
+//    @Deprecated
+//    public void updateTerm(String term, String category) {
+//        Validate.notNull(term, "term must not be null");
+//        Validate.notNull(category, "category must not be null");
+//        LinkedCategoryEntries categoryEntries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
+//        if (categoryEntries.getTotalCount() == 0) { // term was not present before
+//            numTerms++;
+//        }
+//        categoryEntries.increment(category, 1);
+//    }
 
     @Override
     public TermCategoryEntries getCategoryEntries(String term) {
