@@ -10,7 +10,9 @@ import java.io.File;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -36,17 +38,17 @@ import ws.palladian.helper.io.ResourceHelper;
  */
 public class NerTest {
 
-    private String trainingFile;
-    private String testFile;
+    private static String trainingFile;
+    private static String testFile;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         trainingFile = ResourceHelper.getResourcePath("/ner/training.txt");
         testFile = ResourceHelper.getResourcePath("/ner/test.txt");
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterClass
+    public static void tearDown() throws Exception {
         trainingFile = null;
         testFile = null;
     }
@@ -68,8 +70,8 @@ public class NerTest {
         DictionaryModel patternProbabilities = tagger.getModel().patternProbabilities;
         assertEquals(2185, entityDictionary.getNumUniqTerms());
         assertNull(caseDictionary);
-        assertEquals(1109, tagger.getModel().leftContexts.size());
-        assertEquals(0, tagger.getModel().removeAnnotations.size());
+        assertEquals(645, tagger.getModel().leftContexts.size());
+        assertNull(tagger.getModel().removeAnnotations);
         assertEquals(87983, contextClassifier.getNumUniqTerms());
         assertEquals(4, contextClassifier.getNumCategories());
         assertEquals(53513, annotationDictionary.getNumUniqTerms());
@@ -89,8 +91,6 @@ public class NerTest {
 
         tagger.loadModel(tudnerLiModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
-        // annotations.removeNestedAnnotations();
-        // annotations.sort();
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -129,11 +129,11 @@ public class NerTest {
         assertEquals(4, entityDictionary.getNumCategories());
         assertEquals(5818, caseDictionary.getNumUniqTerms());
         assertEquals(3, caseDictionary.getNumCategories());
-        assertEquals(1109, tagger.getModel().leftContexts.size());
-        assertEquals(365, tagger.getModel().removeAnnotations.size());
+        assertEquals(645, tagger.getModel().leftContexts.size());
+        assertEquals(377, tagger.getModel().removeAnnotations.size());
         assertEquals(87983, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(59589, annotationDictionary.getNumUniqTerms());
+        assertEquals(59665, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
         assertEquals(14207, patternProbabilities.getNumUniqTerms());
         assertEquals(4, patternProbabilities.getNumCategories());
@@ -156,12 +156,12 @@ public class NerTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2209, annotations.size());
-        assertEquals(49, annotations.get(0).getStartPosition());
-        assertEquals(25, annotations.get(0).getValue().length());
+        assertEquals(2274, annotations.size());
+        assertEquals(21, annotations.get(0).getStartPosition());
+        assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(15349, annotations.get(500).getStartPosition());
-        assertEquals(12, annotations.get(500).getValue().length());
+        assertEquals(15079, annotations.get(500).getStartPosition());
+        assertEquals(9, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
