@@ -9,9 +9,7 @@ import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.Trainin
 import java.io.File;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -67,18 +65,14 @@ public class NerTest {
         DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
         DictionaryModel contextClassifier = tagger.getModel().contextModel;
         DictionaryModel annotationDictionary = tagger.getModel().annotationModel;
-        DictionaryModel patternProbabilities = tagger.getModel().patternProbabilities;
         assertEquals(2185, entityDictionary.getNumUniqTerms());
         assertNull(caseDictionary);
         assertEquals(645, tagger.getModel().leftContexts.size());
         assertNull(tagger.getModel().removeAnnotations);
-        assertEquals(87983, contextClassifier.getNumUniqTerms());
+        assertEquals(58571, contextClassifier.getNumUniqTerms());
         assertEquals(4, contextClassifier.getNumCategories());
-        assertEquals(53513, annotationDictionary.getNumUniqTerms());
+        assertEquals(169640, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
-        assertEquals(14207, patternProbabilities.getNumUniqTerms());
-        assertEquals(4, patternProbabilities.getNumCategories());
-        assertEquals(15555, patternProbabilities.getNumEntries());
 
         // Palladian#f8c6aab on testing set
         // precision MUC: 55.95%, recall MUC: 49.91%, F1 MUC: 52.75%
@@ -86,7 +80,7 @@ public class NerTest {
         EvaluationResult er = tagger.evaluate(testFile, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.58);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.60);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.44);
 
         tagger.loadModel(tudnerLiModel);
@@ -97,12 +91,12 @@ public class NerTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1516, annotations.size());
+        assertEquals(1709, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(25542, annotations.get(500).getStartPosition());
-        assertEquals(7, annotations.get(500).getValue().length());
+        assertEquals(23029, annotations.get(500).getStartPosition());
+        assertEquals(5, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
@@ -123,7 +117,6 @@ public class NerTest {
         DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
         DictionaryModel contextDictionary = tagger.getModel().contextModel;
         DictionaryModel annotationDictionary = tagger.getModel().annotationModel;
-        DictionaryModel patternProbabilities = tagger.getModel().patternProbabilities;
 
         assertEquals(2185, entityDictionary.getNumUniqTerms());
         assertEquals(4, entityDictionary.getNumCategories());
@@ -131,13 +124,10 @@ public class NerTest {
         assertEquals(3, caseDictionary.getNumCategories());
         assertEquals(645, tagger.getModel().leftContexts.size());
         assertEquals(377, tagger.getModel().removeAnnotations.size());
-        assertEquals(87983, contextDictionary.getNumUniqTerms());
+        assertEquals(58571, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(59665, annotationDictionary.getNumUniqTerms());
+        assertEquals(102774, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
-        assertEquals(14207, patternProbabilities.getNumUniqTerms());
-        assertEquals(4, patternProbabilities.getNumCategories());
-        assertEquals(15555, patternProbabilities.getNumEntries());
 
         // Palladian#f8c6aab on testing set
         // precision MUC: 68.49%, recall MUC: 83.88%, F1 MUC: 75.4%
@@ -145,8 +135,8 @@ public class NerTest {
         EvaluationResult er = tagger.evaluate(testFile, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.81);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.71);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.83);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.73);
 
         tagger.loadModel(tudnerEnModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
@@ -156,12 +146,12 @@ public class NerTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2274, annotations.size());
+        assertEquals(2166, annotations.size());
         assertEquals(21, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(15079, annotations.get(500).getStartPosition());
-        assertEquals(9, annotations.get(500).getValue().length());
+        assertEquals(15437, annotations.get(500).getStartPosition());
+        assertEquals(12, annotations.get(500).getValue().length());
 
         assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
