@@ -462,7 +462,7 @@ public class EvaluationResult {
             results.append(" (total: ").append(getResultTypeCount(resultType)).append("):\n\n");
 
             Bag<String> cm = getAnnotationCount(resultType);
-            for (String item : cm) {
+            for (String item : cm.uniqueItems()) {
                 results.append(item).append(":; ").append(cm.count(item)).append("\n");
             }
             results.append("\n");

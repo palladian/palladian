@@ -5,6 +5,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.core.AbstractAnnotation;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
@@ -18,10 +20,10 @@ public class ContextAnnotation extends AbstractAnnotation {
     private CategoryEntries tags = ImmutableCategoryEntries.EMPTY;
 
     /** The start index of the annotation in the annotated text. */
-    private int offset;
+    private final int offset;
 
     /** The annotated entity. */
-    private String value;
+    private final String value;
 
     /** The left context of the annotation */
     private final String leftContext;
@@ -32,7 +34,11 @@ public class ContextAnnotation extends AbstractAnnotation {
     public ContextAnnotation(int offset, String value, String tag, String leftContext, String rightContext) {
         this.offset = offset;
         this.value = value;
-        this.tags = new CategoryEntriesBuilder().set(tag, 1).create();
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
+        if (StringUtils.isNotBlank(tag)) {
+            builder.set(tag, 1);
+        }
+        this.tags = builder.create();
         this.leftContext = leftContext;
         this.rightContext = rightContext;
     }
@@ -50,17 +56,9 @@ public class ContextAnnotation extends AbstractAnnotation {
         return offset;
     }
 
-    public void setStartPosition(int offset) {
-        this.offset = offset;
-    }
-
     @Override
     public String getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     @Override

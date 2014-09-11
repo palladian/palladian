@@ -4,28 +4,31 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+
+import ws.palladian.extraction.entity.ContextAnnotation;
 
 public class PalladianNerTest {
 
     @Test
     public void testRemoveDateFragment() {
-        Pair<String, Integer> result = PalladianNer.removeDateFragment("June John Hiatt");
-        assertEquals(5, (int)result.getRight());
-        assertEquals("John Hiatt", result.getLeft());
+        ContextAnnotation result = PalladianNer.removeDateFragment(new ContextAnnotation(10, "June John Hiatt",
+                StringUtils.EMPTY));
+        assertEquals(15, result.getStartPosition());
+        assertEquals("John Hiatt", result.getValue());
 
-        result = PalladianNer.removeDateFragment("John Hiatt June");
-        assertEquals(0, (int)result.getRight());
-        assertEquals("John Hiatt", result.getLeft());
+        result = PalladianNer.removeDateFragment(new ContextAnnotation(0, "John Hiatt June", StringUtils.EMPTY));
+        assertEquals(0, result.getStartPosition());
+        assertEquals("John Hiatt", result.getValue());
 
-        result = PalladianNer.removeDateFragment("Apr. John Hiatt");
-        assertEquals(5, (int)result.getRight());
-        assertEquals("John Hiatt", result.getLeft());
+        result = PalladianNer.removeDateFragment(new ContextAnnotation(0, "Apr. John Hiatt", StringUtils.EMPTY));
+        assertEquals(5, result.getStartPosition());
+        assertEquals("John Hiatt", result.getValue());
 
-        result = PalladianNer.removeDateFragment("John Hiatt Apr.");
-        assertEquals(0, (int)result.getRight());
-        assertEquals("John Hiatt", result.getLeft());
+        result = PalladianNer.removeDateFragment(new ContextAnnotation(0, "John Hiatt Apr.", StringUtils.EMPTY));
+        assertEquals(0, result.getStartPosition());
+        assertEquals("John Hiatt", result.getValue());
     }
 
     @Test
