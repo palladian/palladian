@@ -8,47 +8,43 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.Validate;
 
+/**
+ * @author David Urbansky
+ * @author Philipp Katz
+ */
 public class PalladianNerSettings implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * The language mode, language independent uses more generic regexp to detect entities, while there are more
-     * specific ones for English texts.
-     * 
-     * @author David Urbansky
-     * 
+     * <p>
+     * The language mode, language independent uses more generic regular expressions to detect entities, while there are
+     * more specific ones for English texts.
      */
-    public enum LanguageMode {
+    public static enum LanguageMode {
         LanguageIndependent, English
     }
 
     /**
+     * <p>
      * The two possible learning modes. Complete requires fully tagged data, sparse needs only some entities tagged in
      * the training file.
-     * 
-     * @author David Urbansky
-     * 
      */
-    public enum TrainingMode {
+    public static enum TrainingMode {
         Complete, Sparse
     }
 
-    // private static final LanguageMode DEFAULT_LANGUAGE_MODE = English;
-
-    // private static final TrainingMode DEFAULT_TRAINING_MODE = Complete;
-
-    /** Whether the tagger should tag URLs. */
-    boolean tagUrls = true;
-
-    /** Whether the tagger should tag dates. */
-    boolean tagDates = true;
-
-    /** The language mode. */
-    final LanguageMode languageMode;
-
     /** The training mode. */
     private final TrainingMode trainingMode;
+
+    /** The language mode. */
+    private final LanguageMode languageMode;
+
+    /** Whether the tagger should tag URLs. */
+    private boolean tagUrls = true;
+
+    /** Whether the tagger should tag dates. */
+    private boolean tagDates = true;
 
     public PalladianNerSettings(LanguageMode languageMode, TrainingMode trainingMode) {
         Validate.notNull(languageMode, "languageMode must not be null");
@@ -65,42 +61,69 @@ public class PalladianNerSettings implements Serializable {
         this.tagDates = tagDates;
     }
 
+    public LanguageMode getLanguageMode() {
+        return languageMode;
+    }
+
     // learning features
 
-    boolean removeDates() {
+    boolean isRemoveDates() {
         return languageMode == English;
     }
 
-    boolean removeDateFragments() {
+    boolean isRemoveDateFragments() {
         return languageMode == English;
     }
 
-    boolean removeIncorrectlyTaggedInTraining() {
+    boolean isRemoveIncorrectlyTaggedInTraining() {
         return languageMode == English && trainingMode == Complete;
     }
 
-    boolean removeSentenceStartErrorsCaseDictionary() {
+    boolean isRemoveSentenceStartErrorsCaseDictionary() {
         return trainingMode == Sparse;
     }
 
-    boolean switchTagAnnotationsUsingPatterns() {
+    boolean isSwitchTagAnnotationsUsingPatterns() {
         return languageMode == English;
     }
 
-    boolean switchTagAnnotationsUsingDictionary() {
+    boolean isSwitchTagAnnotationsUsingDictionary() {
         return true;
     }
 
-    boolean unwrapEntities() {
+    boolean isUnwrapEntities() {
         return languageMode == English;
     }
 
-    boolean unwrapEntitiesWithContext() {
+    boolean isUnwrapEntitiesWithContext() {
         return languageMode == English;
     }
 
-    boolean retraining() { // XXX isn't this the same property as removeIncorrectlyTaggedInTraining?
+    boolean isRetraining() { // XXX isn't this the same property as removeIncorrectlyTaggedInTraining?
         return trainingMode == Complete;
+    }
+
+    public boolean isTagUrls() {
+        return tagUrls;
+    }
+
+    public boolean isTagDates() {
+        return tagDates;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PalladianNerSettings [trainingMode=");
+        builder.append(trainingMode);
+        builder.append(", languageMode=");
+        builder.append(languageMode);
+        builder.append(", tagUrls=");
+        builder.append(tagUrls);
+        builder.append(", tagDates=");
+        builder.append(tagDates);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
