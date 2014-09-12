@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,55 +25,40 @@ import edu.stanford.nlp.util.StringUtils;
 
 /**
  * <p>
- * This class wraps the Stanford Named Entity Recognizer which is based on conditional random fields (CRF).<br>
- * The NER has been described in the following paper:
- * </p>
+ * This class wraps the Stanford Named Entity Recognizer which is based on conditional random fields (CRF).
+ * 
+ * <p>
+ * The NER has been described in: Jenny Rose Finkel, Trond Grenager, and Christopher Manning;
+ * "<a href="http://nlp.stanford.edu/~manning/papers/gibbscrf3.pdf
+ * ">Incorporating Non-local Information into Information Extraction Systems</a>"; Proceedings of the 43nd Annual
+ * Meeting of the Association for Computational Linguistics (ACL 2005), pp. 363-370.
  * 
  * <p>
  * The following models exist already for this recognizer:
  * <ul>
- * <li>Person</li>
- * <li>Location</li>
- * <li>Organization</li>
+ * <li>Person
+ * <li>Location
+ * <li>Organization
  * </ul>
- * </p>
  * 
- * <p>
- * Jenny Rose Finkel, Trond Grenager, and Christopher Manning<br>
- * "Incorporating Non-local Information into Information Extraction Systems", 2005<br>
- * Proceedings of the 43nd Annual Meeting of the Association for Computational Linguistics (ACL 2005), pp. 363-370<br>
- * <a href="http://nlp.stanford.edu/~manning/papers/gibbscrf3.pdf">Read Paper</a>
- * </p>
- * 
- * <p>
- * See also <a
- * href="http://www-nlp.stanford.edu/software/crf-faq.shtml">http://www-nlp.stanford.edu/software/crf-faq.shtml</a>
- * </p>
- * 
+ * @see <a href="http://www-nlp.stanford.edu/software/crf-faq.shtml">Stanford NER CRF FAQ</a>
  * @author David Urbansky
- * 
  */
 public class StanfordNer extends TrainableNamedEntityRecognizer {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(StanfordNer.class);
 
-    /** Hold the configuration settings here instead of a file. */
-    private String configFileContent = "";
     private AbstractSequenceClassifier<CoreLabel> classifier;
 
-    public StanfordNer() {
-        buildConfigFile();
-    }
-
-    private void buildConfigFile() {
-        configFileContent = "";
+    private static String buildConfigFile(String trainingFile, String modelFile) {
+        String configFileContent = "";
         configFileContent += "#location of the training file" + "\n";
-        configFileContent += "trainFile = ###TRAINING_FILE###" + "\n";
+        configFileContent += "trainFile = " + trainingFile + "\n";
         configFileContent += "#location where you would like to save (serialize to) your" + "\n";
         configFileContent += "#classifier; adding .gz at the end automatically gzips the file," + "\n";
         configFileContent += "#making it faster and smaller" + "\n";
-        configFileContent += "serializeTo = ###MODEL_FILE###" + "\n";
+        configFileContent += "serializeTo = " + modelFile + "\n";
         configFileContent += "#structure of your training file; this tells the classifier" + "\n";
         configFileContent += "#that the word is in column 0 and the correct answer is in" + "\n";
         configFileContent += "#column 1" + "\n";
@@ -98,6 +84,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         configFileContent += "useTypeSeqs2=true" + "\n";
         configFileContent += "useTypeySequences=true" + "\n";
         configFileContent += "wordShape=chris2useLC";
+        return configFileContent;
     }
 
 //    @SuppressWarnings("unchecked")
@@ -155,55 +142,21 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
-        String trainingFilePath2 = FileHelper.appendToFileName(trainingFilePath, "_t");
-        FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, trainingFilePath2, "_");
+        File tempDirectory = FileHelper.getTempDir();
+
+        String transformedTrainingPath = new File(tempDirectory, "StanfordNer-" + UUID.randomUUID() + ".txt").getPath();
+        FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, transformedTrainingPath, "_");
 
         // set the location to the training and the model file in the configs and save the file
-        buildConfigFile();
-        configFileContent = configFileContent.replaceAll("###TRAINING_FILE###", trainingFilePath2);
-        configFileContent = configFileContent.replaceAll("###MODEL_FILE###", modelFilePath);
-        String propertiesFilePath = new File(FileHelper.getTempDir(), "stanfordNerConfig.props").getPath();
+        String configFileContent = buildConfigFile(transformedTrainingPath, modelFilePath);
+        String propertiesFilePath = new File(tempDirectory, "StanfordNer-" + UUID.randomUUID() + ".props").getPath();
         FileHelper.writeToFile(propertiesFilePath, configFileContent);
 
-        String[] args = new String[2];
-        args[0] = "-props";
-        args[1] = propertiesFilePath;
-
+        String[] args = {"-props", propertiesFilePath};
         Properties props = StringUtils.argsToProperties(args);
         CRFClassifier<CoreLabel> crf = new CRFClassifier<CoreLabel>(props);
-        String loadPath = crf.flags.loadClassifier;
-        String loadTextPath = crf.flags.loadTextClassifier;
-        String serializeTo = crf.flags.serializeTo;
-        String serializeToText = crf.flags.serializeToText;
-
-        if (loadPath != null) {
-            crf.loadClassifierNoExceptions(loadPath, props);
-        } else if (loadTextPath != null) {
-            System.err.println("Warning: this is now only tested for Chinese Segmenter");
-            System.err.println("(Sun Dec 23 00:59:39 2007) (pichuan)");
-            try {
-                crf.loadTextClassifier(loadTextPath, props);
-                // System.err.println("DEBUG: out from crf.loadTextClassifier");
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("error loading " + loadTextPath);
-            }
-        } else if (crf.flags.loadJarClassifier != null) {
-            crf.loadJarClassifier(crf.flags.loadJarClassifier, props);
-        } else if (crf.flags.trainFile != null || crf.flags.trainFileList != null) {
-            crf.train();
-        } else {
-            crf.loadDefaultClassifier();
-        }
-
-        if (serializeTo != null) {
-            crf.serializeClassifier(serializeTo);
-        }
-
-        if (serializeToText != null) {
-            crf.serializeTextClassifier(serializeToText);
-        }
-
+        crf.train();
+        crf.serializeClassifier(crf.flags.serializeTo);
         return true;
     }
 
@@ -238,13 +191,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
 
         Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
 
-        // FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
-
         annotations.removeNested();
-        annotations.sort();
-
-        // CollectionHelper.print(annotations);
-
         return new ArrayList<Annotation>(annotations);
     }
 

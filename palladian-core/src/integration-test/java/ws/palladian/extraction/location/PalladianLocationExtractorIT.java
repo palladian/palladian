@@ -141,7 +141,7 @@ public class PalladianLocationExtractorIT {
         ITHelper.assertMin("MUC-F1", 0.78, result.mucF1);
         ITHelper.assertMin("Geo-Pr", 0.96, result.geoPr);
         ITHelper.assertMin("Geo-Rc", 0.82, result.geoRc);
-        ITHelper.assertMin("Geo-F1", 0.89, result.geoF1);
+        ITHelper.assertMin("Geo-F1", 0.88, result.geoF1);
     }
 
     @Test

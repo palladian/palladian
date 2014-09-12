@@ -2,9 +2,8 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +17,7 @@ import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.helper.Conll2002ChunkTagParser;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.io.FileHelper;
 
 import com.aliasi.chunk.CharLmRescoringChunker;
 import com.aliasi.chunk.Chunk;
@@ -35,17 +35,11 @@ import com.aliasi.util.AbstractExternalizable;
  * language model HMM chunker.
  * </p>
  * 
- * <p>
- * See also <a
- * href="http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html">http://alias-i.com/lingpipe/demos/tutorial
- * /ne/read-me.html</a>
- * </p>
- * 
+ * @see <a href="http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html">LingPipeNamed: Named Entity Tutorial</a>
  * @author David Urbansky
- * 
  */
 public class LingPipeNer extends TrainableNamedEntityRecognizer {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LingPipeNer.class);
 
@@ -70,42 +64,35 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
     public boolean train(String trainingFilePath, String modelFilePath) {
 
         try {
-            String trainingFilePath2 = trainingFilePath.replaceAll("\\.", "_tranformed.");
+            File tempDirectory = FileHelper.getTempDir();
+            String transformedPath = new File(tempDirectory, "LingPipeNer-" + UUID.randomUUID() + ".txt").getPath();
 
-            FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, trainingFilePath2, "_");
-            FileFormatParser.tsvToSsv(trainingFilePath2, trainingFilePath2);
+            FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, transformedPath, "_");
+            FileFormatParser.tsvToSsv(transformedPath, transformedPath);
+            FileFormatParser.columnToColumnBio(transformedPath, transformedPath, " ");
 
-            FileFormatParser.columnToColumnBio(trainingFilePath2, trainingFilePath2, " ");
+            LOGGER.debug("Setting up Chunker Estimator");
+            TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+            CharLmRescoringChunker chunkerEstimator = new CharLmRescoringChunker(tokenizerFactory,
+                    NUM_CHUNKINGS_RESCORED, MAX_N_GRAM, NUM_CHARS, LM_INTERPOLATION);
+            // HmmCharLmEstimator hmmEstimator = new HmmCharLmEstimator(MAX_N_GRAM, NUM_CHARS, LM_INTERPOLATION);
+            // CharLmHmmChunker chunkerEstimator = new CharLmHmmChunker(tokenizerFactory, hmmEstimator);
 
-            File corpusFile = new File(trainingFilePath2);
-            File modelFile = new File(modelFilePath);
-            // File devFile = new File(developmentFilePath);
-
-            LOGGER.debug("setting up Chunker Estimator");
-            TokenizerFactory factory = IndoEuropeanTokenizerFactory.INSTANCE;
-            CharLmRescoringChunker chunkerEstimator = new CharLmRescoringChunker(factory, NUM_CHUNKINGS_RESCORED,
-                    MAX_N_GRAM, NUM_CHARS, LM_INTERPOLATION);
-            // HmmCharLmEstimator hmmEstimator = new
-            // HmmCharLmEstimator(MAX_N_GRAM, NUM_CHARS, LM_INTERPOLATION);
-            // CharLmHmmChunker chunkerEstimator = new CharLmHmmChunker(factory,
-            // hmmEstimator);
-
-            LOGGER.debug("setting up Data Parser");
+            LOGGER.debug("Setting up Data Parser");
             // GeneTagParser parser = new GeneTagParser();
             Conll2002ChunkTagParser parser = new Conll2002ChunkTagParser();
             parser.setHandler(chunkerEstimator);
 
-            LOGGER.trace("training with data from file={}", corpusFile);
+            File corpusFile = new File(transformedPath);
+            LOGGER.trace("Training with data from file={}", corpusFile);
             parser.parse(corpusFile);
 
-            // System.out.println("Training with Data from File=" + devFile);
-            // parser.parse(devFile);
-
-            LOGGER.debug("compiling and writing model to file={}", modelFile);
+            File modelFile = new File(modelFilePath);
+            LOGGER.debug("Compiling and writing model to file={}", modelFile);
             AbstractExternalizable.compileTo(chunkerEstimator, modelFile);
 
         } catch (IOException e) {
-            LOGGER.error("{} failed training: {}", getName(), e.getMessage());
+            LOGGER.error("IOException during training", e);
             return false;
         }
 
@@ -115,45 +102,30 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
     @Override
     public boolean loadModel(String configModelFilePath) {
         StopWatch stopWatch = new StopWatch();
-
         File modelFile = new File(configModelFilePath);
-
         LOGGER.debug("Reading chunker from file {}", modelFile);
         try {
             chunker = (Chunker)AbstractExternalizable.readObject(modelFile);
-        } catch (Exception e) {
-            LOGGER.error("{} error in loading model from {}: {}", new Object[] {getName(), modelFile, e.getMessage()});
-            return false;
+        } catch (IOException e) {
+            LOGGER.error("IOException when loading model", e);
+        } catch (ClassNotFoundException e) {
+            LOGGER.error("ClassNotFoundException when loading model", e);
         }
-
-        LOGGER.debug("Model {} successfully loaded in {}", modelFile, stopWatch.getElapsedTimeString());
+        LOGGER.debug("Model {} successfully loaded in {}", modelFile, stopWatch);
         return true;
     }
 
     @Override
     public List<Annotation> getAnnotations(String inputText) {
         Annotations<Annotation> annotations = new Annotations<Annotation>();
-
-        String[] args = {inputText};
-        Set<Chunk> chunkSet = new HashSet<Chunk>();
-        for (int i = 0; i < args.length; ++i) {
-            Chunking chunking = chunker.chunk(args[i]);
-            LOGGER.trace("Chunking={}", chunking);
-            chunkSet.addAll(chunking.chunkSet());
-        }
-
-        for (Chunk chunk : chunkSet) {
+        Chunking chunking = chunker.chunk(inputText);
+        for (Chunk chunk : chunking.chunkSet()) {
             int offset = chunk.start();
             String entityName = inputText.substring(offset, chunk.end());
             String tagName = chunk.type();
             annotations.add(new ImmutableAnnotation(offset, entityName, tagName));
         }
-
-        // FileHelper.writeToFile("data/test/ner/lingPipeOutput.txt", tagText(inputText, annotations));
-        // CollectionHelper.print(annotations);
-
         annotations.removeNested();
-        annotations.sort();
         return annotations;
     }
 

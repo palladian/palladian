@@ -858,7 +858,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * @return A set with tokens which appear more often in the context, than within an entity (e.g. "President").
      */
     private static Set<String> buildLeftContexts(Annotations<ContextAnnotation> annotations) {
-        LOGGER.debug("Analyzing left contexts");
+        LOGGER.info("Building left contexts");
         Bag<String> leftContextCounts = Bag.create();
         Bag<String> insideAnnotationCounts = Bag.create();
         for (ContextAnnotation annotation : annotations) {
