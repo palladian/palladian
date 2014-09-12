@@ -1,8 +1,10 @@
 package ws.palladian.extraction.entity;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,12 +64,18 @@ public final class FileFormatParser {
         if (format.equals(TaggingFormat.XML)) {
             return getTextFromXML(inputFilePath);
         } else if (format.equals(TaggingFormat.COLUMN)) {
-            String outputFilePath = FileHelper.appendToFileName(inputFilePath, "_temp");
+            String outputFilePath = getTempFile();
+            // String outputFilePath = FileHelper.appendToFileName(inputFilePath, "_temp");
             columnToXml(inputFilePath, outputFilePath, "\t");
             return getText(outputFilePath, TaggingFormat.XML);
         } else {
             throw new IllegalArgumentException("Unsupported format: " + format);
         }
+    }
+
+    private static String getTempFile() {
+        File tempDirectory = FileHelper.getTempDir();
+        return new File(tempDirectory, "text_" + UUID.randomUUID().toString() + ".txt").getPath();
     }
 
     /**
@@ -401,13 +409,17 @@ public final class FileFormatParser {
     }
 
     public static Annotations<ContextAnnotation> getAnnotationsFromColumn(String taggedTextFilePath) {
-        columnToXml(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
-        return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
+        // String tempFile = FileHelper.appendToFileName(taggedTextFilePath, "_t");
+        String tempFile = getTempFile();
+        columnToXml(taggedTextFilePath, tempFile, "\t");
+        return getAnnotationsFromXmlFile(tempFile);
     }
 
     public static Annotations<ContextAnnotation> getAnnotationsFromColumnTokenBased(String taggedTextFilePath) {
-        columnToXmlTokenBased(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
-        return getAnnotationsFromXmlFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
+        // String tempFile = FileHelper.appendToFileName(taggedTextFilePath, "_t");
+        String tempFile = getTempFile();
+        columnToXmlTokenBased(taggedTextFilePath, tempFile, "\t");
+        return getAnnotationsFromXmlFile(tempFile);
     }
 
     /**
