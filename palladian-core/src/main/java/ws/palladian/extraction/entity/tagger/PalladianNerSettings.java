@@ -80,7 +80,8 @@ public class PalladianNerSettings implements Serializable {
     }
 
     boolean isRemoveSentenceStartErrorsCaseDictionary() {
-        return trainingMode == Sparse;
+        // return trainingMode == Sparse;
+        return true;
     }
 
     boolean isSwitchTagAnnotationsUsingPatterns() {

@@ -132,10 +132,10 @@ public class PalladianNerIT {
         assertEquals(5817, caseDictionary.getNumUniqTerms());
         assertEquals(3, caseDictionary.getNumCategories());
         assertEquals(654, tagger.getModel().leftContexts.size());
-        assertEquals(375, tagger.getModel().removeAnnotations.size());
+        assertEquals(187, tagger.getModel().removeAnnotations.size());
         assertEquals(59051, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(102717, annotationDictionary.getNumUniqTerms());
+        assertEquals(98853, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // Palladian#f8c6aab on testing set
@@ -144,8 +144,8 @@ public class PalladianNerIT {
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.83);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.73);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.84);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.74);
 
         tagger.loadModel(tudnerEnModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, TaggingFormat.COLUMN));
@@ -155,12 +155,12 @@ public class PalladianNerIT {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2187, annotations.size());
+        assertEquals(2180, annotations.size());
         assertEquals(9, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(15248, annotations.get(500).getStartPosition());
-        assertEquals(18, annotations.get(500).getValue().length());
+        assertEquals(15458, annotations.get(500).getStartPosition());
+        assertEquals(12, annotations.get(500).getValue().length());
 
         assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
@@ -182,7 +182,7 @@ public class PalladianNerIT {
         // precision exact: 28.71%, recall exact: 30.99%, F1 exact: 29.81%
         // System.out.println(result.getMUCResultsReadable());
         // System.out.println(result.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.52, result.getF1(EvaluationMode.MUC));
+        ITHelper.assertMin("F1-MUC", 0.54, result.getF1(EvaluationMode.MUC));
         ITHelper.assertMin("F1-Exact", 0.31, result.getF1(EvaluationMode.EXACT_MATCH));
     }
 

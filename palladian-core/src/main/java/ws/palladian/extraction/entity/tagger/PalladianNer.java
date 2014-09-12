@@ -478,6 +478,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             LOGGER.info("Tagging dates");
             annotations.addAll(new DateAndTimeTagger().getAnnotations(inputText));
         }
+        
+        CollectionHelper.remove(annotations, new Filter<Annotation>() {
+            @Override
+            public boolean accept(Annotation item) {
+                return !item.getTag().equals(NO_ENTITY);
+            }
+        });
 
         annotations.removeNested();
         LOGGER.info("Got {} annotations in {}", annotations.size(), stopWatch);
@@ -675,7 +682,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         // removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
         // sentence start but all single token words.
         int c = 0;
-        if (model.settings.isRemoveSentenceStartErrorsCaseDictionary()) {
+        if (model.caseDictionary != null && model.settings.isRemoveSentenceStartErrorsCaseDictionary()) {
             stopWatch.start();
 
             for (ContextAnnotation annotation : annotations) {
