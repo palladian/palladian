@@ -712,9 +712,14 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         if (model.settings.isUnwrapEntitiesWithContext() && model.leftContexts != null) {
             for (ContextAnnotation annotation : annotations) {
-                
+
                 String entity = annotation.getValue();
-                
+
+                // do not unwrap, in case we have the value in the entity dictionary
+                if (model.entityDictionary.getCategoryEntries(entity).getTotalCount() > 0) {
+                    continue;
+                }
+
                 for (String leftContext : model.leftContexts) {
                     int index1 = entity.indexOf(leftContext + " ");
                     int index2 = entity.indexOf(" " + leftContext + " ");
