@@ -74,6 +74,7 @@ public final class ITHelper {
      * @param unit The unit.
      */
     public static void assertMemory(long size, SizeUnit unit) {
+        forceGc();
         long freeMemory = ProcessHelper.getFreeMemory();
         if (freeMemory < unit.toBytes(size)) {
             long freeUnit = unit.convert(freeMemory, SizeUnit.BYTES);

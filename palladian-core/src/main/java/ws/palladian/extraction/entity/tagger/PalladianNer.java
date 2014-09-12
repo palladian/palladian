@@ -793,8 +793,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             Scorer scorer = new ExperimentalScorers.CategoryEqualizationScorer();
             PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
             String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            CategoryEntries contextClassificaiton = classifier.classify(context, model.contextModel);
-            builder.add(contextClassificaiton);
+            CategoryEntries contextClassification = classifier.classify(context, model.contextModel);
+            builder.add(contextClassification);
         }
         CategoryEntries result = builder.create();
         if (!annotation.getTag().equals(result.getMostLikelyCategory())) {
