@@ -103,6 +103,10 @@ public final class FileFormatParser {
                 if (parts.length < 2 && xml.length() == 0) {
                     return;
                 }
+                // skip =-DOCSTART-
+                if (line.contains("=-DOCSTART-")) {
+                    return;
+                }
                 if (parts.length < 2) {
                     // add breaks for empty lines
                     if (line.length() == 0) {
@@ -163,6 +167,10 @@ public final class FileFormatParser {
 
             @Override
             public void performAction(String line, int lineNumber) {
+                // skip =-DOCSTART-
+                if (line.contains("=-DOCSTART-")) {
+                    return;
+                }
                 String[] parts = line.split(columnSeparator);
                 if (parts.length < 2) {
                     // add breaks for empty lines

@@ -13,16 +13,18 @@ public class FileFormatParserTest {
     @Test
     public void testGetAnnotationsFromColumnTokenBased() throws FileNotFoundException {
 
-        Annotations<ContextAnnotation> annotations = FileFormatParser
-                .getAnnotationsFromColumnTokenBased(ResourceHelper.getResourcePath("/ner/training.txt"));
-        assertEquals(35026, annotations.size());
-        assertEquals(0, annotations.get(0).getStartPosition());
-        assertEquals(11, annotations.get(0).getValue().length());
-        assertEquals("=-DOCSTART-", annotations.get(0).getValue());
+        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(ResourceHelper
+                .getResourcePath("/ner/training.txt"));
 
-        assertEquals(60, annotations.get(10).getStartPosition());
-        assertEquals(5, annotations.get(10).getValue().length());
-        assertEquals("Peter", annotations.get(10).getValue());
+        assertEquals(34860, annotations.size());
+
+        assertEquals(0, annotations.get(0).getStartPosition());
+        assertEquals(2, annotations.get(0).getValue().length());
+        assertEquals("EU", annotations.get(0).getValue());
+
+        assertEquals(54, annotations.get(10).getStartPosition());
+        assertEquals(9, annotations.get(10).getValue().length());
+        assertEquals("Blackburn", annotations.get(10).getValue());
         assertEquals("PER", annotations.get(10).getTag());
     }
 
@@ -32,12 +34,13 @@ public class FileFormatParserTest {
                 .getResourcePath("/ner/training.txt"));
 
         assertEquals(4598, annotations.size());
-        assertEquals(12, annotations.get(0).getStartPosition());
+
+        assertEquals(0, annotations.get(0).getStartPosition());
         assertEquals(2, annotations.get(0).getValue().length());
         assertEquals("EU", annotations.get(0).getValue());
         assertEquals("ORG", annotations.get(0).getTag());
 
-        assertEquals(188581, annotations.get(4594).getStartPosition());
+        assertEquals(186754, annotations.get(4594).getStartPosition());
         assertEquals(11, annotations.get(4594).getValue().length());
         assertEquals("Sri Lankans", annotations.get(4594).getValue());
         assertEquals("MISC", annotations.get(4594).getTag());

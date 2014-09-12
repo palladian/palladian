@@ -75,14 +75,14 @@ public class ExternalNerIT {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2044, annotations.size());
-        assertEquals(21, annotations.get(0).getStartPosition());
+        assertEquals(2041, annotations.size());
+        assertEquals(9, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(17692, annotations.get(500).getStartPosition());
+        assertEquals(17526, annotations.get(500).getStartPosition());
         assertEquals(4, annotations.get(500).getValue().length());
 
-        assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
+        assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
     }
 
@@ -113,14 +113,14 @@ public class ExternalNerIT {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1906, annotations.size());
-        assertEquals(21, annotations.get(0).getStartPosition());
-        assertEquals(14, annotations.get(0).getValue().length());
+        assertEquals(1903, annotations.size());
+        assertEquals(34, annotations.get(0).getStartPosition());
+        assertEquals(2, annotations.get(0).getValue().length());
 
-        assertEquals(17108, annotations.get(500).getStartPosition());
-        assertEquals(5, annotations.get(500).getValue().length());
+        assertEquals(17251, annotations.get(500).getStartPosition());
+        assertEquals(10, annotations.get(500).getValue().length());
 
-        assertEquals(105048, annotations.get(annotations.size() - 1).getStartPosition());
+        assertEquals(104255, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(6, annotations.get(annotations.size() - 1).getValue().length());
     }
 
@@ -141,8 +141,8 @@ public class ExternalNerIT {
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.57);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.49);
+        assertTrue(er.getF1(EvaluationMode.MUC) > 0.59);
+        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.51);
 
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, TaggingFormat.COLUMN));
 
@@ -151,14 +151,14 @@ public class ExternalNerIT {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1924, annotations.size());
-        assertEquals(2, annotations.get(0).getStartPosition());
-        assertEquals(8, annotations.get(0).getValue().length());
+        assertEquals(1804, annotations.size());
+        assertEquals(0, annotations.get(0).getStartPosition());
+        assertEquals(7, annotations.get(0).getValue().length());
 
-        assertEquals(16348, annotations.get(500).getStartPosition());
-        assertEquals(1, annotations.get(500).getValue().length());
+        assertEquals(17499, annotations.get(500).getStartPosition());
+        assertEquals(4, annotations.get(500).getValue().length());
 
-        assertEquals(105072, annotations.get(annotations.size() - 1).getStartPosition());
+        assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
     }
 
