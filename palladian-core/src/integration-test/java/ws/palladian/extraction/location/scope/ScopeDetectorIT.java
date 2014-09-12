@@ -154,7 +154,7 @@ public class ScopeDetectorIT {
         FeatureBasedScopeDetector detector = new FeatureBasedScopeDetector(extractor, model);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);
-        ITHelper.assertMax("meanErrorDistance", 405, evaluationResult.getMean());
+        ITHelper.assertMax("meanErrorDistance", 410, evaluationResult.getMean());
         ITHelper.assertMax("medianErrorDistance", 0, evaluationResult.getMedian());
     }
 
