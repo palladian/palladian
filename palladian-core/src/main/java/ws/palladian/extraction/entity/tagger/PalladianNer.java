@@ -235,7 +235,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      */
     public boolean train(String trainingFilePath, List<? extends Annotation> annotations, String modelFilePath) {
         LOGGER.info("Start creating {} annotations for training", annotations.size());
-        if (model.settings.languageMode == LanguageIndependent) {
+        if (model.settings.getLanguageMode() == LanguageIndependent) {
             trainLanguageIndependent(trainingFilePath, modelFilePath, annotations);
         } else {
             trainEnglish(trainingFilePath, modelFilePath, annotations);
@@ -399,7 +399,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         model.caseDictionary = buildCaseDictionary(tokens);
 
         // in complete training mode, the tagger is learned twice on the training data
-        if (model.settings.retraining()) {
+        if (model.settings.isRetraining()) {
             LOGGER.info("Start retraining (because of complete dataset, no sparse annotations)");
 
             // //////////////////////////////////////////// wrong entities //////////////////////////////////////
@@ -470,20 +470,19 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         annotations.addAll(getAnnotationsInternal(inputText));
 
         // recognize and add URLs, remove annotations that were part of a URL
-        if (model.settings.tagUrls) {
+        if (model.settings.isTagUrls()) {
+            LOGGER.info("Tagging URLs");
             annotations.addAll(UrlTagger.INSTANCE.getAnnotations(inputText));
         }
 
         // recognize and add dates, remove annotations that were part of a date
-        if (model.settings.tagDates) {
+        if (model.settings.isTagDates()) {
+            LOGGER.info("Tagging dates");
             annotations.addAll(new DateAndTimeTagger().getAnnotations(inputText));
         }
 
         annotations.removeNested();
-        annotations.sort();
-
         LOGGER.info("Got {} annotations in {}", annotations.size(), stopWatch);
-
         return annotations;
     }
 
@@ -504,7 +503,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         // switch using pattern information
         int changed = 0;
-        if (model.settings.switchTagAnnotationsUsingPatterns()) {
+        if (model.settings.isSwitchTagAnnotationsUsingPatterns()) {
             stopWatch.start();
 
             for (ContextAnnotation annotation : annotations) {
@@ -527,7 +526,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         // switch annotations that are in the dictionary
         changed = 0;
-        if (model.settings.switchTagAnnotationsUsingDictionary()) {
+        if (model.settings.isSwitchTagAnnotationsUsingDictionary()) {
             stopWatch.start();
 
             for (ContextAnnotation annotation : annotations) {
@@ -569,7 +568,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         Annotations<ContextAnnotation> annotations;
 
-        if (model.settings.languageMode == LanguageIndependent) {
+        if (model.settings.getLanguageMode() == LanguageIndependent) {
             // get the candidates, every token is potentially a (part of) an entity
             annotations = StringTagger.getTaggedEntities(inputText, Tokenizer.TOKEN_SPLIT_REGEX);
         } else {
@@ -583,7 +582,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
         postProcessAnnotations(annotations);
 
-        if (model.settings.languageMode == LanguageIndependent) {
+        if (model.settings.getLanguageMode() == LanguageIndependent) {
 
             // combine annotations that are right next to each other having the same tag
             Annotations<ContextAnnotation> combinedAnnotations = new Annotations<ContextAnnotation>();
@@ -634,7 +633,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         StopWatch stopWatch = new StopWatch();
         
         // remove dates
-        if (model.settings.removeDates()) {
+        if (model.settings.isRemoveDates()) {
             stopWatch.start();
             int c = 0;
             for (ContextAnnotation annotation : annotations) {
@@ -647,7 +646,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
 
         // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
-        if (model.settings.removeDateFragments()) {
+        if (model.settings.isRemoveDateFragments()) {
             stopWatch.start();
             int c = 0;
             for (ContextAnnotation annotation : annotations) {
@@ -662,7 +661,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         }
 
         // remove annotations that were found to be incorrectly tagged in the training data
-        if (model.settings.removeIncorrectlyTaggedInTraining()) {
+        if (model.settings.isRemoveIncorrectlyTaggedInTraining()) {
             stopWatch.start();
             int c = 0;
             for (ContextAnnotation annotation : annotations) {
@@ -674,7 +673,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             LOGGER.debug("Removed {} incorrectly tagged entities in training data in {}", c, stopWatch);
         }
 
-        if (model.settings.unwrapEntities()) {
+        if (model.settings.isUnwrapEntities()) {
             for (ContextAnnotation annotation : annotations) {
                 boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
                 if (isAllUppercase) {
@@ -693,7 +692,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         // removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
         // sentence start but all single token words.
         int c = 0;
-        if (model.settings.removeSentenceStartErrorsCaseDictionary()) {
+        if (model.settings.isRemoveSentenceStartErrorsCaseDictionary()) {
             stopWatch.start();
 
             for (ContextAnnotation annotation : annotations) {
@@ -728,7 +727,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             LOGGER.debug("Removed {} words at beginning of sentence in {}", c, stopWatch);
         }
 
-        if (model.settings.unwrapEntitiesWithContext() && model.leftContexts != null) {
+        if (model.settings.isUnwrapEntitiesWithContext() && model.leftContexts != null) {
             for (ContextAnnotation annotation : annotations) {
                 
                 String entity = annotation.getValue();
@@ -793,8 +792,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             Scorer scorer = new ExperimentalScorers.CategoryEqualizationScorer();
             PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
             String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            CategoryEntries contextClassification = classifier.classify(context, model.contextModel);
-            builder.add(contextClassification);
+            if (context.trim().length() > 2) {
+                CategoryEntries contextClassification = classifier.classify(context, model.contextModel);
+                builder.add(contextClassification);
+            }
         }
         CategoryEntries result = builder.create();
         if (!annotation.getTag().equals(result.getMostLikelyCategory())) {
