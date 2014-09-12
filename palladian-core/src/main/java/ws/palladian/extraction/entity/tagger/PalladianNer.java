@@ -52,7 +52,6 @@ import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -344,7 +343,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * Train the tagger in language independent mode.
      * </p>
      * 
-     * @param trainingFilePath The apther of the training file.
+     * @param trainingFilePath The path of the training file.
      * @param modelFilePath The path where the model should be saved to.
      * @param additionalTrainingAnnotations Additional annotations that can be used for training.
      */
@@ -440,7 +439,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         model.contextModel = buildContextDictionary(fileAnnotations);
         saveModel(modelFilePath);
     }
-    
 
     /**
      * Classify candidate annotations.
@@ -449,7 +447,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
      * @return Classified annotations.
      */
     private Annotations<ContextAnnotation> classifyCandidates(List<ContextAnnotation> entityCandidates) {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(model.annotationModel.getFeatureSetting()/*,SCORER */);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(model.annotationModel.getFeatureSetting());
         Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
         for (ContextAnnotation annotation : entityCandidates) {
             CategoryEntries classificationResult = classifier.classify(annotation.getValue(), model.annotationModel);
@@ -498,42 +496,30 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     private void postProcessAnnotations(List<ContextAnnotation> annotations) {
 
         LOGGER.debug("Start post processing annotations");
-
-        StopWatch stopWatch = new StopWatch();
+        NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
 
         // switch using pattern information
-        int changed = 0;
-        if (model.settings.isSwitchTagAnnotationsUsingPatterns()) {
-            stopWatch.start();
-
+        if (model.settings.isSwitchTagAnnotationsUsingPatterns() && model.contextModel != null) {
+            int changed = 0;
             for (ContextAnnotation annotation : annotations) {
-
                 String tagNameBefore = annotation.getTag();
-
                 applyContextAnalysis(annotation);
-
                 if (!annotation.getTag().equalsIgnoreCase(tagNameBefore)) {
                     LOGGER.debug("Changed {} from {} to {}, context: {} __ {}", annotation.getValue(), tagNameBefore,
                             annotation.getTag(), annotation.getLeftContext(), annotation.getRightContext());
                     changed++;
                 }
-
             }
-            LOGGER.debug("Changed {}% of the entities using patterns in {}",
-                    MathHelper.round(100 * changed / (annotations.size() + 0.000000000001), 2), stopWatch);
-
+            double percentage = changed > 0 ? 100. * changed / annotations.size() : 0;
+            LOGGER.debug("Changed {} % using patterns", format.format(percentage));
         }
 
         // switch annotations that are in the dictionary
-        changed = 0;
         if (model.settings.isSwitchTagAnnotationsUsingDictionary()) {
-            stopWatch.start();
-
+            int changed = 0;
             for (ContextAnnotation annotation : annotations) {
-
                 CategoryEntries categoryEntries = model.entityDictionary.getCategoryEntries(annotation.getValue());
                 if (categoryEntries != null && categoryEntries.iterator().hasNext()) {
-
                     // get only the most likely concept
                     CategoryEntriesBuilder mostLikelyBuilder = new CategoryEntriesBuilder();
                     if (model.conceptLikelihoodOrder != null) {
@@ -551,15 +537,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                             categoryEntries = mostLikelyCes;
                         }
                     }
-
                     annotation.setTags(categoryEntries);
                     changed++;
                 }
-
             }
-            LOGGER.debug("Changed with entity dictionary {} % of the entities (total entities: {}) in {}",
-                    MathHelper.round(100 * changed / (annotations.size() + 0.000000000001), 2), annotations.size(),
-                    stopWatch);
+            double percentage = changed > 0 ? 100. * changed / annotations.size() : 0;
+            LOGGER.debug("Changed {} % using entity dictionary", format.format(percentage));
         }
 
     }
@@ -787,22 +770,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     private void applyContextAnalysis(ContextAnnotation annotation) {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         builder.add(annotation.getTags());
-        if (model.contextModel != null) {
-            FeatureSetting featureSetting = model.contextModel.getFeatureSetting();
-            Scorer scorer = new ExperimentalScorers.CategoryEqualizationScorer();
-            PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
-            String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            if (context.trim().length() > 2) {
-                CategoryEntries contextClassification = classifier.classify(context, model.contextModel);
-                builder.add(contextClassification);
-            }
+        FeatureSetting featureSetting = model.contextModel.getFeatureSetting();
+        Scorer scorer = new ExperimentalScorers.CategoryEqualizationScorer();
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
+        String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
+        if (context.trim().length() > 2) {
+            CategoryEntries contextClassification = classifier.classify(context, model.contextModel);
+            builder.add(contextClassification);
         }
-        CategoryEntries result = builder.create();
-        if (!annotation.getTag().equals(result.getMostLikelyCategory())) {
-            LOGGER.debug("Changed {} with context: {} -> {}", annotation.getValue(), annotation.getTag(),
-                    result.getMostLikelyCategory());
-        }
-        annotation.setTags(result);
+        annotation.setTags(builder.create());
     }
 
     /**
