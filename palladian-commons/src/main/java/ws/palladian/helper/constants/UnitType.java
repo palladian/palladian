@@ -517,7 +517,6 @@ public enum UnitType {
 
         // OTHER units are normalized to different values
         unitList = CollectionHelper.newArrayList();
-        unitList.add("kcal");
         unitList.add("kilowatts");
         unitList.add("kilowatt");
         unitList.add("kw");
@@ -526,6 +525,7 @@ public enum UnitType {
         unitList = CollectionHelper.newArrayList();
         unitList.add("horsepower");
         unitList.add("horses");
+        unitList.add("kcal");
         unitList.add("metric horsepower");
         unitList.add("bhp");
         unitList.add("hp");
