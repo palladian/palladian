@@ -15,7 +15,7 @@ import ws.palladian.helper.functional.Function;
 public abstract class AbstractDictionaryModel implements DictionaryModel {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static final char CSV_SEPARATOR = ';';
 
     @Override
@@ -43,9 +43,10 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         printStream.print(CSV_SEPARATOR);
         printStream.print("sum=" + getDocumentCounts().getTotalCount() + "\n");
         printStream.flush();
-        for (TermCategoryEntries entries : this) {
-            printStream.print(entries.getTerm());
-            CategoryEntries temp = new CountingCategoryEntriesBuilder().add(entries).create();
+        for (DictionaryEntry entry : this) {
+            printStream.print(entry.getTerm());
+            CategoryEntries categoryEntries = entry.getCategoryEntries();
+            CategoryEntries temp = new CountingCategoryEntriesBuilder().add(categoryEntries).create();
             for (String category : categories) {
                 printStream.print(CSV_SEPARATOR);
                 int count = temp.getCount(category);
@@ -54,7 +55,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
                 }
             }
             printStream.print(CSV_SEPARATOR);
-            printStream.print(entries.getTotalCount());
+            printStream.print(categoryEntries.getTotalCount());
             printStream.print('\n');
         }
         printStream.flush();
@@ -68,33 +69,21 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
     @Override
     public int getNumEntries() {
         int numEntries = 0;
-        for (TermCategoryEntries entries : this) {
-            numEntries += entries.size();
+        for (DictionaryEntry entry : this) {
+            numEntries += entry.getCategoryEntries().size();
         }
         return numEntries;
     }
-    
+
     @Override
     public int getNumDocuments() {
         return getDocumentCounts().getTotalCount();
     }
-    
+
     @Override
     public int getNumTerms() {
         return getTermCounts().getTotalCount();
     }
-
-    // deprecated functionality
-
-//    @Override
-//    public void addDocument(Collection<String> terms, String category) {
-//        throw new UnsupportedOperationException("Use a builder to create the model");
-//    }
-//
-//    @Override
-//    public void setName(String name) {
-//        throw new UnsupportedOperationException("Use a builder to set the name of the model");
-//    }
 
     // toString
 
@@ -118,7 +107,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        for (TermCategoryEntries entries : this) {
+        for (DictionaryEntry entries : this) {
             result += entries.hashCode();
         }
         result = prime * result + (getFeatureSetting() == null ? 0 : getFeatureSetting().hashCode());
@@ -152,9 +141,10 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         if (!getTermCounts().equals(other.getTermCounts())) {
             return false;
         }
-        for (TermCategoryEntries thisEntries : this) {
-            TermCategoryEntries otherEntries = other.getCategoryEntries(thisEntries.getTerm());
-            if (!thisEntries.equals(otherEntries)) {
+        for (DictionaryEntry thisEntries : this) {
+            CategoryEntries thisCategoryEntries = thisEntries.getCategoryEntries();
+            CategoryEntries otherEntries = other.getCategoryEntries(thisEntries.getTerm());
+            if (!thisCategoryEntries.equals(otherEntries)) {
                 return false;
             }
         }

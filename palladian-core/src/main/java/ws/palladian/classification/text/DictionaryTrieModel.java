@@ -62,7 +62,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         /** The number of terms stored in this dictionary. */
         private int numTerms;
         /** The pruning strategies to apply when creating the model. */
-        private Filter<TermCategoryEntries> pruningStrategy;
+        private Filter<CategoryEntries> pruningStrategy;
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -108,9 +108,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 int numRemoved = 0;
                 while (iterator.hasNext()) {
                     Entry<String, LinkedCategoryEntries> next = iterator.next();
-                    String term = next.getKey();
                     LinkedCategoryEntries entries = next.getValue();
-                    if (!pruningStrategy.accept(new ImmutableTermCategoryEntries(term, entries))) {
+                    if (!pruningStrategy.accept(entries)) {
                         iterator.remove();
                         numRemoved++;
                     }
@@ -128,7 +127,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         }
 
         @Override
-        public DictionaryBuilder setPruningStrategy(Filter<TermCategoryEntries> strategy) {
+        public DictionaryBuilder setPruningStrategy(Filter<CategoryEntries> strategy) {
             Validate.notNull(strategy, "strategy must not be null");
             this.pruningStrategy = strategy;
             return this;
@@ -137,10 +136,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         @Override
         public DictionaryBuilder addDictionary(DictionaryModel model) {
             Validate.notNull(model, "model must not be null");
-            for (TermCategoryEntries addEntry : model) {
+            for (DictionaryEntry addEntry : model) {
                 String term = addEntry.getTerm();
                 LinkedCategoryEntries entries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
-                for (Category addCategory : addEntry) {
+                for (Category addCategory : addEntry.getCategoryEntries()) {
                     entries.append(addCategory);
                 }
                 numTerms++;
@@ -233,10 +232,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 //    }
 
     @Override
-    public TermCategoryEntries getCategoryEntries(String term) {
+    public CategoryEntries getCategoryEntries(String term) {
         Validate.notNull(term, "term must not be null");
         LinkedCategoryEntries entries = entryTrie.get(term);
-        return new ImmutableTermCategoryEntries(term, entries != null ? entries : ImmutableCategoryEntries.EMPTY);
+        return entries != null ? entries : ImmutableCategoryEntries.EMPTY;
     }
 
     @Override
@@ -245,12 +244,12 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     }
 
     @Override
-    public Iterator<TermCategoryEntries> iterator() {
-        return new AbstractIterator<TermCategoryEntries>() {
+    public Iterator<DictionaryEntry> iterator() {
+        return new AbstractIterator<DictionaryEntry>() {
             final Iterator<Entry<String, LinkedCategoryEntries>> trieIterator = entryTrie.iterator();
 
             @Override
-            protected TermCategoryEntries getNext() throws Finished {
+            protected DictionaryEntry getNext() throws Finished {
                 if (trieIterator.hasNext()) {
                     Entry<String, LinkedCategoryEntries> nextNode = trieIterator.next();
                     return new ImmutableTermCategoryEntries(nextNode.getKey(), nextNode.getValue());
@@ -268,8 +267,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             // workaround; if priors have not been set explicitly, by using the now deprecated #updateTerm method,
             // we need to collect the category names from the term entries
             CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
-            for (TermCategoryEntries entries : this) {
-                for (Category category : entries) {
+            for (DictionaryEntry entry : this) {
+                for (Category category : entry.getCategoryEntries()) {
                     builder.set(category.getName(), 1);
                 }
             }
@@ -315,10 +314,11 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 //        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
 //        ProgressMonitor monitor = new ProgressMonitor();
 //        monitor.startTask("Writing " + dictName, numTerms);
-        for (TermCategoryEntries termEntry : this) {
+        for (DictionaryEntry termEntry : this) {
             out.writeObject(termEntry.getTerm());
-            out.writeInt(termEntry.size());
-            for (Category category : termEntry) {
+            CategoryEntries categoryEntries = termEntry.getCategoryEntries();
+            out.writeInt(categoryEntries.size());
+            for (Category category : categoryEntries) {
                 int categoryIdx = categoryIndices.get(category.getName());
                 out.writeInt(categoryIdx);
                 out.writeInt(category.getCount());

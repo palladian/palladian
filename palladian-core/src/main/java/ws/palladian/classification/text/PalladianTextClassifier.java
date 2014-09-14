@@ -7,14 +7,13 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Learner;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.collection.Bag;
@@ -227,7 +226,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
 
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
-            TermCategoryEntries categoryEntries = model.getCategoryEntries(term);
+            CategoryEntries categoryEntries = model.getCategoryEntries(term);
             int docCount = termCount.getValue();
             int dictCount = categoryEntries.getTotalCount();
             for (Category category : categoryEntries) {

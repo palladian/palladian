@@ -2,7 +2,7 @@ package ws.palladian.classification.text;
 
 import java.util.Collection;
 
-import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 
@@ -56,7 +56,7 @@ public interface DictionaryBuilder extends Factory<DictionaryModel> {
      * @param strategy The pruning strategy, not <code>null</code>.
      * @return The builder instance.
      */
-    DictionaryBuilder setPruningStrategy(Filter<TermCategoryEntries> strategy);
+    DictionaryBuilder setPruningStrategy(Filter<CategoryEntries> strategy);
 
     /**
      * Adds the content of a given {@link DictionaryModel}.
