@@ -231,6 +231,10 @@ public class WikipediaEntityContextMiner {
         result.put("england county", "LOC");
         result.put("province", "LOC");
         result.put("prc province", "LOC");
+        result.put("sports league", "MISC");
+        result.put("central bank", "ORG");
+        result.put("non-profit", "ORG");
+        result.put("legislature", "ORG"); // could also be MISC
 
         return Collections.unmodifiableMap(result);
     }

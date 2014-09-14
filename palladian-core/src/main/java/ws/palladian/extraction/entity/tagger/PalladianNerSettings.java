@@ -2,7 +2,6 @@ package ws.palladian.extraction.entity.tagger;
 
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.English;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode.Complete;
-import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode.Sparse;
 
 import java.io.Serializable;
 
