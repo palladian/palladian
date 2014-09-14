@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -616,167 +617,186 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
 
     private void preProcessAnnotations(Annotations<ContextAnnotation> annotations) {
         LOGGER.debug("Start pre processing annotations");
-
-        Annotations<ContextAnnotation> toRemove = new Annotations<ContextAnnotation>();
-        Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
-        
-        StopWatch stopWatch = new StopWatch();
-        
-        // remove dates
-        if (model.settings.isRemoveDates()) {
-            stopWatch.start();
-            int c = 0;
-            for (ContextAnnotation annotation : annotations) {
-                if (isDateFragment(annotation.getValue())) {
-                    toRemove.add(annotation);
-                    c++;
-                }
-            }
-            LOGGER.debug("Removed {} purely date annotations in {}", c, stopWatch);
-        }
-
-        // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
-        if (model.settings.isRemoveDateFragments()) {
-            stopWatch.start();
-            int c = 0;
-            for (ContextAnnotation annotation : annotations) {
-                ContextAnnotation result = removeDateFragment(annotation);
-                if (result != null) {
-                    c++;
-                    toRemove.add(annotation);
-                    toAdd.add(result);
-                }
-            }
-            LOGGER.debug("Removed {} partial date annotations in {}", c, stopWatch);
-        }
-
-        // remove annotations that were found to be incorrectly tagged in the training data
         if (model.settings.isRemoveIncorrectlyTaggedInTraining()) {
-            stopWatch.start();
-            int c = 0;
-            for (ContextAnnotation annotation : annotations) {
-                if (model.removeAnnotations.contains(annotation.getValue().toLowerCase())) {
-                    toRemove.add(annotation);
-                    c++;
-                }
-            }
-            LOGGER.debug("Removed {} incorrectly tagged entities in training data in {}", c, stopWatch);
+            removeIncorrectlyTaggedInTraining(annotations);
         }
-
         if (model.settings.isUnwrapEntities()) {
-            for (ContextAnnotation annotation : annotations) {
-                boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
-                if (isAllUppercase) {
-                    Annotations<ContextAnnotation> unwrapped = unwrapAnnotations(annotation, annotations);
-                    if (unwrapped.size() > 0) {
-                        toAdd.addAll(unwrapped);
-                        toRemove.add(annotation);
-                    }
-                }
-            }
-            annotations.removeAll(toRemove);
-            annotations.addAll(toAdd);
+            unwrapEntities(annotations);
         }
-
-        // use a learned case dictionary to remove possibly incorrectly tagged sentence starts. For example ". This" is
-        // removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
-        // sentence start but all single token words.
-        int c = 0;
-        if (model.caseDictionary != null && model.settings.isRemoveSentenceStartErrorsCaseDictionary()) {
-            stopWatch.start();
-
-            for (ContextAnnotation annotation : annotations) {
-
-                if (annotation.getValue().indexOf(" ") == -1) {
-
-                    double upperCaseToLowerCaseRatio = 2;
-
-                    CategoryEntries ces = model.caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
-                    if (ces != null && ces.iterator().hasNext()) {
-                        double allUpperCase = ces.getProbability("A");
-                        double upperCase = ces.getProbability("Aa");
-                        double lowerCase = ces.getProbability("a");
-                        if (lowerCase > 0) {
-                            upperCaseToLowerCaseRatio = upperCase / lowerCase;
-                        }
-                        if (allUpperCase > upperCase && allUpperCase > lowerCase) {
-                            upperCaseToLowerCaseRatio = 2;
-                        }
-                    }
-                    if (upperCaseToLowerCaseRatio <= 1) {
-                        c++;
-                        toRemove.add(annotation);
-                        if (LOGGER.isDebugEnabled()) {
-                            NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
-                            LOGGER.debug("Remove word using the case signature: {} (ratio:{})", annotation.getValue(),
-                                    format.format(upperCaseToLowerCaseRatio));
-                        }
-                    }
-                }
-            }
-            LOGGER.debug("Removed {} words at beginning of sentence in {}", c, stopWatch);
+        if (model.settings.isRemoveSentenceStartErrorsCaseDictionary() && model.caseDictionary != null) {
+            removeSentenceStartErrors(annotations);
         }
-
         if (model.settings.isUnwrapEntitiesWithContext() && model.leftContexts != null) {
-            for (ContextAnnotation annotation : annotations) {
+            unwrapWithContext(annotations);
+        }
+        if (model.settings.isRemoveDateFragments()) {
+            removeDateFragments(annotations);
+        }
+        if (model.settings.isRemoveDates()) {
+            removeDates(annotations);
+        }
+    }
 
-                String entity = annotation.getValue();
+    private void removeDateFragments(Annotations<ContextAnnotation> annotations) {
+        Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
+        Annotations<ContextAnnotation> toRemove = new Annotations<ContextAnnotation>();
+        StopWatch stopWatch = new StopWatch();
+        int c = 0;
+        for (ContextAnnotation annotation : annotations) {
+            ContextAnnotation result = removeDateFragment(annotation);
+            if (result != null) {
+                c++;
+                toRemove.add(annotation);
+                toAdd.add(result);
+            }
+        }
+        LOGGER.debug("Removed {} partial date annotations in {}", c, stopWatch);
+        annotations.addAll(toAdd);
+        annotations.removeAll(toRemove);
+    }
 
-                // do not unwrap, in case we have the value in the entity dictionary
-                if (model.entityDictionary.getCategoryEntries(entity).getTotalCount() > 0) {
-                    continue;
+    private void removeDates(Annotations<ContextAnnotation> annotations) {
+        StopWatch stopWatch = new StopWatch();
+        int c = 0;
+        Iterator<ContextAnnotation> iterator = annotations.iterator();
+        while (iterator.hasNext()) {
+            ContextAnnotation annotation = iterator.next();
+            if (isDateFragment(annotation.getValue())) {
+                iterator.remove();
+                c++;
+            }
+        }
+        LOGGER.debug("Removed {} purely date annotations in {}", c, stopWatch);
+    }
+
+    private void unwrapWithContext(Annotations<ContextAnnotation> annotations) {
+        Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
+        Annotations<ContextAnnotation> toRemove = new Annotations<ContextAnnotation>();
+
+        for (ContextAnnotation annotation : annotations) {
+            String entity = annotation.getValue();
+            // do not unwrap, in case we have the value in the entity dictionary
+            if (model.entityDictionary.getCategoryEntries(entity).getTotalCount() > 0) {
+                continue;
+            }
+            for (String leftContext : model.leftContexts) {
+                int index1 = entity.indexOf(leftContext + " ");
+                int index2 = entity.indexOf(" " + leftContext + " ");
+                int length = -1;
+                int index = -1;
+                if (index1 == 0) {
+                    length = leftContext.length() + 1;
+                    index = index1;
+                } else if (index2 > -1) {
+                    length = leftContext.length() + 2;
+                    index = index2;
                 }
+                if (index != -1) {
+                    // get the annotation after the index
+                    ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition()
+                            + index + length, annotation.getValue().substring(index + length), annotation.getTag());
+                    toAdd.add(wrappedAnnotation);
+                    // search for a known instance in the prefix
+                    // go through the entity dictionary
+                    for (TermCategoryEntries termEntries : model.entityDictionary) {
+                        String term = termEntries.getTerm();
 
-                for (String leftContext : model.leftContexts) {
-                    int index1 = entity.indexOf(leftContext + " ");
-                    int index2 = entity.indexOf(" " + leftContext + " ");
-                    int length = -1;
-                    int index = -1;
-                    if (index1 == 0) {
-                        length = leftContext.length() + 1;
-                        index = index1;
-                    } else if (index2 > -1) {
-                        length = leftContext.length() + 2;
-                        index = index2;
-                    }
-                    if (index != -1) {
-
-                        // get the annotation after the index
-                        ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition()
-                                + index + length, annotation.getValue().substring(index + length), annotation.getTag());
-                        toAdd.add(wrappedAnnotation);
-
-                        // search for a known instance in the prefix
-                        // go through the entity dictionary
-                        for (TermCategoryEntries termEntries : model.entityDictionary) {
-                            String term = termEntries.getTerm();
-
-                            int indexPrefix = annotation.getValue().substring(0, index + length).indexOf(term + " ");
-                            if (indexPrefix > -1 && term.length() > 2) {
-                                ContextAnnotation wrappedAnnotation2 = new ContextAnnotation(
-                                        annotation.getStartPosition() + indexPrefix, term,
-                                        termEntries.getMostLikelyCategory());
-                                toAdd.add(wrappedAnnotation2);
-                                LOGGER.debug("Add from prefix {}", wrappedAnnotation2.getValue());
-                                break;
-                            }
+                        int indexPrefix = annotation.getValue().substring(0, index + length).indexOf(term + " ");
+                        if (indexPrefix > -1 && term.length() > 2) {
+                            ContextAnnotation wrappedAnnotation2 = new ContextAnnotation(
+                                    annotation.getStartPosition() + indexPrefix, term,
+                                    termEntries.getMostLikelyCategory());
+                            toAdd.add(wrappedAnnotation2);
+                            LOGGER.debug("Add from prefix {}", wrappedAnnotation2.getValue());
+                            break;
                         }
-                        toRemove.add(annotation);
+                    }
+                    toRemove.add(annotation);
+                    LOGGER.debug("Add {}, delete {} (left context: {})", wrappedAnnotation.getValue(),
+                            annotation.getValue(), leftContext);
+                    break;
+                }
+            }
+        }
+        annotations.addAll(toAdd);
+        annotations.removeAll(toRemove);
+    }
 
-                        LOGGER.debug("Add {}, delete {} (left context: {})", wrappedAnnotation.getValue(),
-                                annotation.getValue(), leftContext);
-                        break;
+    /**
+     * Use a learned case dictionary to remove possibly incorrectly tagged sentence starts. For example ". This" is
+     * removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
+     * sentence start but all single token words.
+     * 
+     * @param annotations
+     */
+    private void removeSentenceStartErrors(Annotations<ContextAnnotation> annotations) {
+        StopWatch stopWatch = new StopWatch();
+        int c = 0;
+
+        Iterator<ContextAnnotation> iterator = annotations.iterator();
+        while (iterator.hasNext()) {
+            ContextAnnotation annotation = iterator.next();
+
+            if (annotation.getValue().indexOf(" ") == -1) {
+
+                double upperCaseToLowerCaseRatio = 2;
+
+                CategoryEntries ces = model.caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
+                if (ces != null && ces.iterator().hasNext()) {
+                    double allUpperCase = ces.getProbability("A");
+                    double upperCase = ces.getProbability("Aa");
+                    double lowerCase = ces.getProbability("a");
+                    if (lowerCase > 0) {
+                        upperCaseToLowerCaseRatio = upperCase / lowerCase;
+                    }
+                    if (allUpperCase > upperCase && allUpperCase > lowerCase) {
+                        upperCaseToLowerCaseRatio = 2;
+                    }
+                }
+                if (upperCaseToLowerCaseRatio <= 1) {
+                    c++;
+                    iterator.remove();
+                    if (LOGGER.isDebugEnabled()) {
+                        NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
+                        LOGGER.debug("Remove word using the case signature: {} (ratio:{})", annotation.getValue(),
+                                format.format(upperCaseToLowerCaseRatio));
                     }
                 }
             }
         }
+        LOGGER.debug("Removed {} words at beginning of sentence in {}", c, stopWatch);
+    }
 
-        LOGGER.debug("Add {} entities", toAdd.size());
-        annotations.addAll(toAdd);
 
-        LOGGER.debug("Remove {} entities", toRemove.size());
+    private void removeIncorrectlyTaggedInTraining(Annotations<ContextAnnotation> annotations) {
+        StopWatch stopWatch = new StopWatch();
+        int c = 0;
+        Iterator<ContextAnnotation> iterator = annotations.iterator();
+        while (iterator.hasNext()) {
+            ContextAnnotation annotation = iterator.next();
+            if (model.removeAnnotations.contains(annotation.getValue().toLowerCase())) {
+                iterator.remove();
+                c++;
+            }
+        }
+        LOGGER.debug("Removed {} incorrectly tagged entities in training data in {}", c, stopWatch);
+    }
+    
+    private void unwrapEntities(Annotations<ContextAnnotation> annotations) {
+        Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
+        Annotations<ContextAnnotation> toRemove = new Annotations<ContextAnnotation>();
+        for (ContextAnnotation annotation : annotations) {
+            boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
+            if (isAllUppercase) {
+                Annotations<ContextAnnotation> unwrapped = unwrapAnnotations(annotation, annotations);
+                if (unwrapped.size() > 0) {
+                    toAdd.addAll(unwrapped);
+                    toRemove.add(annotation);
+                }
+            }
+        }
         annotations.removeAll(toRemove);
-
+        annotations.addAll(toAdd);
     }
 
     private void applyContextAnalysis(ContextAnnotation annotation) {
@@ -907,9 +927,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
     private Annotations<ContextAnnotation> unwrapAnnotations(Annotation annotation, List<ContextAnnotation> annotations) {
         Annotations<ContextAnnotation> unwrappedAnnotations = new Annotations<ContextAnnotation>();
         for (Annotation currentAnnotation : annotations) {
-            String currentValue = currentAnnotation.getValue();
-            String currentTag = currentAnnotation.getTag();
-            unwrappedAnnotations.addAll(processUnwrap(annotation, currentValue, currentTag));
+            if (!currentAnnotation.equals(annotation)) {
+                String currentValue = currentAnnotation.getValue();
+                String currentTag = currentAnnotation.getTag();
+                unwrappedAnnotations.addAll(processUnwrap(annotation, currentValue, currentTag));
+            }
         }
         for (TermCategoryEntries categoryEntries : model.entityDictionary) {
             String term = categoryEntries.getTerm();
@@ -917,8 +939,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
             unwrappedAnnotations.addAll(processUnwrap(annotation, term, category));
         }
         unwrappedAnnotations.removeNested();
-        if (unwrappedAnnotations.size() > 0) {
-            LOGGER.debug("Unwrapped {} in {} parts", annotation.getValue(), unwrappedAnnotations.size());
+        if (LOGGER.isDebugEnabled() && unwrappedAnnotations.size() > 0) {
+            StringBuilder parts = new StringBuilder();
+            for (ContextAnnotation unwrappedAnnotation : unwrappedAnnotations) {
+                if (parts.length() > 0) {
+                    parts.append(", ");
+                }
+                parts.append(unwrappedAnnotation.getValue());
+            }
+            LOGGER.debug("Unwrapped {} in {} parts: {}", annotation.getValue(), unwrappedAnnotations.size(), parts);
         }
         return unwrappedAnnotations;
     }
@@ -929,7 +958,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         int entityLength = entityName.length();
         int entityStart = annotation.getStartPosition();
         List<ContextAnnotation> unwrappedAnnotations = CollectionHelper.newArrayList();
-        if (currentLength > 2 && currentLength < entityLength) {
+        if (entityName.equalsIgnoreCase(value)) {
+            unwrappedAnnotations.add(new ContextAnnotation(entityStart, value, tag));
+        } else if (currentLength > 2 && currentLength < entityLength) {
             int index = entityName.indexOf(" " + value.toLowerCase() + " ");
             if (index > -1) {
                 unwrappedAnnotations.add(new ContextAnnotation(entityStart + index + 1, value, tag));
