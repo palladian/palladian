@@ -512,8 +512,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                 String tagNameBefore = annotation.getTag();
                 applyContextAnalysis(annotation);
                 if (!annotation.getTag().equalsIgnoreCase(tagNameBefore)) {
-                    LOGGER.debug("Changed {} from {} to {}, context: {} __ {}", annotation.getValue(), tagNameBefore,
-                            annotation.getTag(), annotation.getLeftContext(), annotation.getRightContext());
+                    LOGGER.debug("Changed {} from {} to {}, context: {}", annotation.getValue(), tagNameBefore,
+                            annotation.getTag(), annotation.getContext());
                     changed++;
                 }
             }
@@ -785,7 +785,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
         FeatureSetting featureSetting = model.contextModel.getFeatureSetting();
         Scorer scorer = new ExperimentalScorers.CategoryEqualizationScorer();
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
-        String context = annotation.getLeftContext() + "__" + annotation.getRightContext();
+        String context = annotation.getContext();
         if (context.trim().length() > 2) {
             CategoryEntries contextClassification = classifier.classify(context, model.contextModel);
             builder.add(contextClassification);
@@ -884,8 +884,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer {
                 new Function<ContextAnnotation, Instance>() {
                     @Override
                     public Instance compute(ContextAnnotation input) {
-                        String context = input.getLeftContext() + "__" + input.getRightContext();
-                        return new InstanceBuilder().setText(context).create(input.getTag());
+                        return new InstanceBuilder().setText(input.getContext()).create(input.getTag());
                     }
                 });
         return contextClassifier.train(instances);
