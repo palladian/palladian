@@ -235,6 +235,12 @@ public class WikipediaEntityContextMiner {
         result.put("central bank", "ORG");
         result.put("non-profit", "ORG");
         result.put("legislature", "ORG"); // could also be MISC
+        result.put("nfl team", "ORG");
+        result.put("golf tournament", "MISC");
+        result.put("athlete", "PER");
+        result.put("swiss town", "LOC");
+        result.put("government agency", "ORG");
+        result.put("airline", "ORG");
 
         return Collections.unmodifiableMap(result);
     }
