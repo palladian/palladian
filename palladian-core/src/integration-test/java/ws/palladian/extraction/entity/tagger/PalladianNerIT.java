@@ -132,10 +132,10 @@ public class PalladianNerIT {
         assertEquals(5817, caseDictionary.getNumUniqTerms());
         assertEquals(3, caseDictionary.getNumCategories());
         assertEquals(654, tagger.getModel().leftContexts.size());
-        assertEquals(187, tagger.getModel().removeAnnotations.size());
+        assertEquals(184, tagger.getModel().removeAnnotations.size());
         assertEquals(59051, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(98853, annotationDictionary.getNumUniqTerms());
+        assertEquals(98745, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // Palladian#f8c6aab on testing set
@@ -155,11 +155,11 @@ public class PalladianNerIT {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2180, annotations.size());
+        assertEquals(2189, annotations.size());
         assertEquals(9, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(15458, annotations.get(500).getStartPosition());
+        assertEquals(15271, annotations.get(500).getStartPosition());
         assertEquals(12, annotations.get(500).getValue().length());
 
         assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
