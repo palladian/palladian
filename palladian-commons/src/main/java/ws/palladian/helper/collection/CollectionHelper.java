@@ -447,9 +447,9 @@ public final class CollectionHelper {
      * </p>
      * 
      * @param collection The iterable from which to remove <code>null</code> elements.
-     * @return <code>true</code> if any elements were removed, else <code>false</code>.
+     * @return The number of items which were removed, <code>0</code> in case no items were removed.
      */
-    public static <T> boolean removeNulls(Iterable<T> iterable) {
+    public static <T> int removeNulls(Iterable<T> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
         return remove(iterable, Filters.NOT_NULL);
     }
@@ -462,22 +462,22 @@ public final class CollectionHelper {
      * 
      * @param iterable The Iterable to filter, not <code>null</code>.
      * @param filter The Filter to apply, not <code>null</code>.
-     * @return <code>true</code> if any items were removed, else <code>false</code>.
+     * @return The number of items which were removed, <code>0</code> in case no items were removed.
      */
-    public static <T> boolean remove(Iterable<T> iterable, Filter<? super T> filter) {
+    public static <T> int remove(Iterable<T> iterable, Filter<? super T> filter) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
 
-        boolean modified = false;
+        int removed = 0;
         Iterator<T> iterator = iterable.iterator();
         while (iterator.hasNext()) {
             T item = iterator.next();
             if (!filter.accept(item)) {
                 iterator.remove();
-                modified = true;
+                removed++;
             }
         }
-        return modified;
+        return removed;
     }
 
     /**

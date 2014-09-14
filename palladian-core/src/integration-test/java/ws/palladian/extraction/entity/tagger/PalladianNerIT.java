@@ -85,8 +85,8 @@ public class PalladianNerIT {
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.60);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.44);
+        ITHelper.assertMin("MUC-F1", 0.6, er.getF1(EvaluationMode.MUC));
+        ITHelper.assertMin("MUC-Exact", 0.44, er.getF1(EvaluationMode.EXACT_MATCH));
 
         tagger.loadModel(tudnerLiModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, TaggingFormat.COLUMN));
@@ -129,13 +129,13 @@ public class PalladianNerIT {
 
         assertEquals(2185, entityDictionary.getNumUniqTerms());
         assertEquals(4, entityDictionary.getNumCategories());
-        assertEquals(5817, caseDictionary.getNumUniqTerms());
-        assertEquals(3, caseDictionary.getNumCategories());
+        assertEquals(6083, caseDictionary.getNumUniqTerms());
+        assertEquals(2, caseDictionary.getNumCategories());
         assertEquals(654, tagger.getModel().leftContexts.size());
-        assertEquals(184, tagger.getModel().removeAnnotations.size());
+        assertEquals(182, tagger.getModel().removeAnnotations.size());
         assertEquals(59051, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(98745, annotationDictionary.getNumUniqTerms());
+        assertEquals(98484, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // Palladian#f8c6aab on testing set
@@ -144,8 +144,8 @@ public class PalladianNerIT {
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.84);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.74);
+        ITHelper.assertMin("MUC-F1", 0.84, er.getF1(EvaluationMode.MUC));
+        ITHelper.assertMin("MUC-Exact", 0.74, er.getF1(EvaluationMode.EXACT_MATCH));
 
         tagger.loadModel(tudnerEnModel);
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, TaggingFormat.COLUMN));
@@ -155,12 +155,12 @@ public class PalladianNerIT {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2189, annotations.size());
+        assertEquals(2190, annotations.size());
         assertEquals(9, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(15271, annotations.get(500).getStartPosition());
-        assertEquals(12, annotations.get(500).getValue().length());
+        assertEquals(15248, annotations.get(500).getStartPosition());
+        assertEquals(18, annotations.get(500).getValue().length());
 
         assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());

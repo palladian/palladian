@@ -139,8 +139,8 @@ public class CollectionHelperTest {
     @Test
     public void removeNulls() {
         List<Integer> list = new ArrayList<Integer>(Arrays.asList(null, 1, 2, 3, 4, null));
-        boolean removed = CollectionHelper.removeNulls(list);
-        assertTrue(removed);
+        int removed = CollectionHelper.removeNulls(list);
+        assertEquals(2, removed);
         assertEquals(4, list.size());
     }
 
@@ -186,13 +186,13 @@ public class CollectionHelperTest {
     @Test
     public void testRemove() {
         List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
-        boolean filtered = CollectionHelper.remove(items, new Filter<String>() {
+        int filtered = CollectionHelper.remove(items, new Filter<String>() {
             @Override
             public boolean accept(String item) {
                 return item.equals("a") || item.equals("b");
             }
         });
-        assertTrue(filtered);
+        assertEquals(3, filtered);
         assertEquals(4, items.size());
     }
 
