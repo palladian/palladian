@@ -4,10 +4,7 @@ import static ws.palladian.classification.utils.ClassificationUtils.entropy;
 import static ws.palladian.helper.math.MathHelper.log2;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.functional.Filter;
@@ -25,7 +22,7 @@ public final class PruningStrategies {
      * 
      * @author pk
      */
-    public static final class TermCountPruningStrategy implements Filter<TermCategoryEntries> {
+    public static final class TermCountPruningStrategy implements Filter<CategoryEntries> {
 
         private final int minCount;
 
@@ -35,7 +32,7 @@ public final class PruningStrategies {
         }
 
         @Override
-        public boolean accept(TermCategoryEntries entries) {
+        public boolean accept(CategoryEntries entries) {
             return entries.getTotalCount() >= minCount;
         }
 
@@ -51,10 +48,7 @@ public final class PruningStrategies {
      * 
      * @author pk
      */
-    public static final class InformationGainPruningStrategy implements Filter<TermCategoryEntries> {
-
-        /** The logger for this class. */
-        private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainPruningStrategy.class);
+    public static final class InformationGainPruningStrategy implements Filter<CategoryEntries> {
 
         private final double threshold;
 
@@ -73,7 +67,7 @@ public final class PruningStrategies {
             this.numDocuments = model.getNumDocuments();
         }
 
-        public double getInformationGain(TermCategoryEntries entries) {
+        public double getInformationGain(CategoryEntries entries) {
             double ig = categoryEntropy;
             double pTerm = (double)entries.getTotalCount() / numDocuments;
             double pNotTerm = 1 - pTerm;
@@ -90,10 +84,8 @@ public final class PruningStrategies {
         }
 
         @Override
-        public boolean accept(TermCategoryEntries entries) {
-            double informationGain = getInformationGain(entries);
-            LOGGER.trace("IG({})={}", entries.getTerm(), informationGain);
-            return informationGain >= threshold;
+        public boolean accept(CategoryEntries entries) {
+            return getInformationGain(entries) >= threshold;
         }
 
         @Override

@@ -11,19 +11,23 @@ import ws.palladian.core.Model;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCategoryEntries> {
+public interface DictionaryModel extends Model, Iterable<DictionaryModel.DictionaryEntry> {
 
     /**
      * Category entries associated with a specific term.
      * 
      * @author pk
      */
-    interface TermCategoryEntries extends CategoryEntries {
-
+    interface DictionaryEntry {
         /**
          * @return The term.
          */
         String getTerm();
+
+        /**
+         * @return The category entries.
+         */
+        CategoryEntries getCategoryEntries();
 
     }
 
@@ -47,10 +51,10 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.TermCat
      * </p>
      * 
      * @param term The term, not <code>null</code>.
-     * @return The category probabilities for the specified term, or an empty {@link TermCategoryEntries} instance, in
+     * @return The category probabilities for the specified term, or an empty {@link DictionaryEntry} instance, in
      *         case the term is not present in this model. Never <code>null</code>.
      */
-    TermCategoryEntries getCategoryEntries(String term);
+    CategoryEntries getCategoryEntries(String term);
 
     /**
      * @return The number of distinct terms in this model.

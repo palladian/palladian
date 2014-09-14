@@ -1,16 +1,12 @@
 package ws.palladian.classification.text;
 
-import java.util.Iterator;
-
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.text.DictionaryModel.TermCategoryEntries;
-import ws.palladian.core.AbstractCategoryEntries;
-import ws.palladian.core.Category;
+import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategoryEntries;
 
-public final class ImmutableTermCategoryEntries extends AbstractCategoryEntries implements TermCategoryEntries {
+public final class ImmutableTermCategoryEntries implements DictionaryEntry {
 
     private final String term;
     private final CategoryEntries categoryEntries;
@@ -27,28 +23,8 @@ public final class ImmutableTermCategoryEntries extends AbstractCategoryEntries 
     }
 
     @Override
-    public Category getMostLikely() {
-        return categoryEntries.getMostLikely();
-    }
-
-    @Override
-    public Category getCategory(String categoryName) {
-        return categoryEntries.getCategory(categoryName);
-    }
-
-    @Override
-    public int size() {
-        return categoryEntries.size();
-    }
-
-    @Override
-    public int getTotalCount() {
-        return categoryEntries.getTotalCount();
-    }
-
-    @Override
-    public Iterator<Category> iterator() {
-        return categoryEntries.iterator();
+    public CategoryEntries getCategoryEntries() {
+        return categoryEntries;
     }
 
     @Override
