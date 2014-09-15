@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.ImmutableCategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Trie;
@@ -235,7 +234,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     public CategoryEntries getCategoryEntries(String term) {
         Validate.notNull(term, "term must not be null");
         LinkedCategoryEntries entries = entryTrie.get(term);
-        return entries != null ? entries : ImmutableCategoryEntries.EMPTY;
+        return entries != null ? entries : CategoryEntries.EMPTY;
     }
 
     @Override
@@ -252,7 +251,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             protected DictionaryEntry getNext() throws Finished {
                 if (trieIterator.hasNext()) {
                     Entry<String, LinkedCategoryEntries> nextNode = trieIterator.next();
-                    return new ImmutableTermCategoryEntries(nextNode.getKey(), nextNode.getValue());
+                    return new ImmutableDictionaryEntry(nextNode.getKey(), nextNode.getValue());
                 }
                 throw FINISHED;
             }

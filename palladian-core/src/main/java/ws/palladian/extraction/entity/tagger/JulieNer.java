@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
@@ -180,7 +179,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
         // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
         String alignedContent = NerHelper
                 .alignContentText(FileHelper.tryReadFileToString(outFile.getPath()), inputText);
-        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
+        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
         annotations.removeNested();
         annotations.sort();
 

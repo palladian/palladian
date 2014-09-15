@@ -2,6 +2,7 @@ package ws.palladian.extraction.entity;
 
 import java.util.regex.Pattern;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -98,12 +99,12 @@ public final class StringTagger extends RegExTagger {
         return PATTERN.matcher(StringHelper.replaceProtectedSpace(s)).replaceAll(CANDIDATE_TAG_WRAP);
     }
 
-    public static Annotations<ContextAnnotation> getTaggedEntities(String text, String regexp) {
+    public static Annotations<Annotation> getTaggedEntities(String text, String regexp) {
         String taggedText = tagString(text, regexp);
         return FileFormatParser.getAnnotationsFromXmlText(taggedText);
     }
 
-    public static Annotations<ContextAnnotation> getTaggedEntities(String text) {
+    public static Annotations<Annotation> getTaggedEntities(String text) {
         String taggedText = tagString(text);
         return FileFormatParser.getAnnotationsFromXmlText(taggedText);
     }

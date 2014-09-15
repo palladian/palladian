@@ -6,8 +6,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.location.LocationType;
@@ -204,8 +204,8 @@ final class DatasetCheck {
                 mainRoleCount++;
             }
             inputText = inputText.replace(MAIN_ROLE_ATTRIBUTE, "");
-            Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(inputText);
-            for (ContextAnnotation annotation : annotations) {
+            Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(inputText);
+            for (Annotation annotation : annotations) {
                 String tag = annotation.getTag();
                 int start = annotation.getStartPosition();
                 totalTypeCounts.add(tag);

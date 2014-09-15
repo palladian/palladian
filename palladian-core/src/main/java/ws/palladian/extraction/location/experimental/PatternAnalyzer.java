@@ -2,8 +2,8 @@ package ws.palladian.extraction.location.experimental;
 
 import java.io.File;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.location.ContextClassifier;
 import ws.palladian.helper.ProgressMonitor;
@@ -34,8 +34,8 @@ public class PatternAnalyzer {
                     text = StringHelper.replaceProtectedSpace(text);
                     text = StringHelper.normalizeQuotes(text);
                     String cleanText = HtmlHelper.stripHtmlTags(text);
-                    Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(text);
-                    for (ContextAnnotation annotation : annotations) {
+                    Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(text);
+                    for (Annotation annotation : annotations) {
                         String tagName = annotation.getTag();
                         // String context = getLeftContext(annotation, cleanText, 1);
                         String context;

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.html.HtmlHelper;
@@ -154,7 +153,7 @@ public class DatasetProcessor {
             }
 
             StringBuilder newDataset = new StringBuilder();
-            Annotations<ContextAnnotation> annotations = FileFormatParser.getSeedAnnotations(columnFilePath,
+            Annotations<Annotation> annotations = FileFormatParser.getSeedAnnotations(columnFilePath,
                     numberOfSeeds);
 
             for (String document : documents) {

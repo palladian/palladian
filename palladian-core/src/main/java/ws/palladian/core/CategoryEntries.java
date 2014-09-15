@@ -12,6 +12,9 @@ package ws.palladian.core;
  */
 public interface CategoryEntries extends Iterable<Category> {
 
+    /** An empty instance. */
+    public static final CategoryEntries EMPTY = new ImmutableCategoryEntries();
+
     /**
      * <p>
      * Retrieve the probability of a category.

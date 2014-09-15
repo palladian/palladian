@@ -17,13 +17,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ws.palladian.classification.text.DictionaryModel;
-import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.integrationtests.ITHelper;
 
@@ -68,11 +68,11 @@ public class PalladianNerIT {
 
         DictionaryModel entityDictionary = tagger.getModel().entityDictionary;
         DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
-        DictionaryModel contextClassifier = tagger.getModel().contextModel;
-        DictionaryModel annotationDictionary = tagger.getModel().annotationModel;
+        DictionaryModel contextClassifier = tagger.getModel().contextDictionary;
+        DictionaryModel annotationDictionary = tagger.getModel().annotationDictionary;
         assertEquals(2185, entityDictionary.getNumUniqTerms());
         assertNull(caseDictionary);
-        assertEquals(654, tagger.getModel().leftContexts.size());
+        assertEquals(591, tagger.getModel().leftContexts.size());
         assertNull(tagger.getModel().removeAnnotations);
         assertEquals(59051, contextClassifier.getNumUniqTerms());
         assertEquals(4, contextClassifier.getNumCategories());
@@ -85,11 +85,12 @@ public class PalladianNerIT {
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        ITHelper.assertMin("MUC-F1", 0.6, er.getF1(EvaluationMode.MUC));
-        ITHelper.assertMin("MUC-Exact", 0.44, er.getF1(EvaluationMode.EXACT_MATCH));
+        ITHelper.assertMin("F1-MUC", 0.6, er.getF1(EvaluationMode.MUC));
+        ITHelper.assertMin("F1-Exact", 0.44, er.getF1(EvaluationMode.EXACT_MATCH));
 
         tagger.loadModel(tudnerLiModel);
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, TaggingFormat.COLUMN));
+        List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath,
+                TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -124,14 +125,14 @@ public class PalladianNerIT {
 
         DictionaryModel entityDictionary = tagger.getModel().entityDictionary;
         DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
-        DictionaryModel contextDictionary = tagger.getModel().contextModel;
-        DictionaryModel annotationDictionary = tagger.getModel().annotationModel;
+        DictionaryModel contextDictionary = tagger.getModel().contextDictionary;
+        DictionaryModel annotationDictionary = tagger.getModel().annotationDictionary;
 
         assertEquals(2185, entityDictionary.getNumUniqTerms());
         assertEquals(4, entityDictionary.getNumCategories());
         assertEquals(6083, caseDictionary.getNumUniqTerms());
         assertEquals(2, caseDictionary.getNumCategories());
-        assertEquals(654, tagger.getModel().leftContexts.size());
+        assertEquals(591, tagger.getModel().leftContexts.size());
         assertEquals(182, tagger.getModel().removeAnnotations.size());
         assertEquals(59051, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
@@ -144,23 +145,24 @@ public class PalladianNerIT {
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        ITHelper.assertMin("MUC-F1", 0.84, er.getF1(EvaluationMode.MUC));
-        ITHelper.assertMin("MUC-Exact", 0.74, er.getF1(EvaluationMode.EXACT_MATCH));
+        ITHelper.assertMin("F1-MUC", 0.84, er.getF1(EvaluationMode.MUC));
+        ITHelper.assertMin("F1-Exact", 0.74, er.getF1(EvaluationMode.EXACT_MATCH));
 
         tagger.loadModel(tudnerEnModel);
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, TaggingFormat.COLUMN));
+        List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath,
+                TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2190, annotations.size());
+        assertEquals(2192, annotations.size());
         assertEquals(9, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(15248, annotations.get(500).getStartPosition());
-        assertEquals(18, annotations.get(500).getValue().length());
+        assertEquals(15229, annotations.get(500).getStartPosition());
+        assertEquals(9, annotations.get(500).getValue().length());
 
         assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
@@ -183,7 +185,7 @@ public class PalladianNerIT {
         // System.out.println(result.getMUCResultsReadable());
         // System.out.println(result.getExactMatchResultsReadable());
         ITHelper.assertMin("F1-MUC", 0.54, result.getF1(EvaluationMode.MUC));
-        ITHelper.assertMin("F1-Exact", 0.31, result.getF1(EvaluationMode.EXACT_MATCH));
+        ITHelper.assertMin("F1-Exact", 0.32, result.getF1(EvaluationMode.EXACT_MATCH));
     }
 
     @Test

@@ -60,7 +60,7 @@ public class PalladianNerSettings implements Serializable {
         this.tagDates = tagDates;
     }
 
-    public LanguageMode getLanguageMode() {
+    LanguageMode getLanguageMode() {
         return languageMode;
     }
 
@@ -79,11 +79,10 @@ public class PalladianNerSettings implements Serializable {
     }
 
     boolean isRemoveSentenceStartErrorsCaseDictionary() {
-        // return trainingMode == Sparse;
         return true;
     }
 
-    boolean isSwitchTagAnnotationsUsingPatterns() {
+    boolean isSwitchTagAnnotationsUsingContext() {
         return languageMode == English;
     }
 
@@ -99,15 +98,15 @@ public class PalladianNerSettings implements Serializable {
         return languageMode == English;
     }
 
-    boolean isRetraining() { // XXX isn't this the same property as removeIncorrectlyTaggedInTraining?
+    boolean isRetraining() {
         return trainingMode == Complete;
     }
 
-    public boolean isTagUrls() {
+    boolean isTagUrls() {
         return tagUrls;
     }
 
-    public boolean isTagDates() {
+    boolean isTagDates() {
         return tagDates;
     }
 

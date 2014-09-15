@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class StringTaggerTest {
@@ -11,7 +12,7 @@ public class StringTaggerTest {
     @Test
     public void testTagString() {
 
-        Annotations<ContextAnnotation> annotations = null;
+        Annotations<Annotation> annotations = null;
         String text = "";
 
         // abbreviations

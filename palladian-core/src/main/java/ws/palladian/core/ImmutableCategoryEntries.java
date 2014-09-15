@@ -17,11 +17,8 @@ public final class ImmutableCategoryEntries extends AbstractCategoryEntries {
     /** The most likely {@link Category}; determined and cached upon creation for quick access. */
     private final Category mostLikely;
 
-    /** An empty instance. */
-    public static final CategoryEntries EMPTY = new ImmutableCategoryEntries();
-
-    /** Empty ImmutableCategoryEntries; use the constant {@link #EMPTY} */
-    private ImmutableCategoryEntries() {
+    /** Empty ImmutableCategoryEntries; use the constant {@link CategoryEntries#EMPTY} */
+    ImmutableCategoryEntries() {
         this.entryMap = Collections.<String, Category> emptyMap();
         this.mostLikely = null;
     }
