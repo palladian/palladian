@@ -85,7 +85,7 @@ public abstract class NamedEntityRecognizer implements Tagger {
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format, Set<String> ignore) {
 
         // get the correct annotations from the testing file
-        Annotations<ContextAnnotation> goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
+        Annotations<Annotation> goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
         goldStandard.sort();
         // goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
 

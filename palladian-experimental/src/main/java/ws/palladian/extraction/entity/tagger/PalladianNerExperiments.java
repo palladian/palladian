@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -42,7 +42,7 @@ public class PalladianNerExperiments {
 
         // Annotations annotations = new Annotations();
         String trainingSeedFilePath = "data/namesNerDictionary.txt";
-        Annotations<ContextAnnotation> trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath,
+        Annotations<Annotation> trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath,
                 -1);
         tagger.train(trainingPath, trainingAnnotations, modelPath);
 

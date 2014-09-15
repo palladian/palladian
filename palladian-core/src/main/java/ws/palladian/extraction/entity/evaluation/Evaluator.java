@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
@@ -101,7 +100,7 @@ public class Evaluator {
                 PalladianNerSettings settings = new PalladianNerSettings(mode, TrainingMode.Sparse);
                 PalladianNer tagger = new PalladianNer(settings);
 
-                Annotations<ContextAnnotation> annotations = FileFormatParser
+                Annotations<Annotation> annotations = FileFormatParser
                         .getSeedAnnotations(trainingFilePath, j);
 
                 LOGGER.info("train on these annotations: " + annotations);
@@ -212,7 +211,7 @@ public class Evaluator {
             String numberOfDocuments = StringHelper.getSubstringBetween(filePath, "_sep_", ".");
 
             // get the annotations
-            Annotations<ContextAnnotation> annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
+            Annotations<Annotation> annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
             String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
                     + tagger.getModelFileEndingIfNotSetAutomatically();
@@ -305,7 +304,7 @@ public class Evaluator {
         StringBuilder averagedLine = new StringBuilder();
 
         // get the annotations
-        Annotations<ContextAnnotation> annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
+        Annotations<Annotation> annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
 
         // evaluate once with complete test set and once only over unseen entities
         stopWatch.start();

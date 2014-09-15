@@ -4,18 +4,17 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.ImmutableCategoryEntries;
 
-public final class ImmutableTermCategoryEntries implements DictionaryEntry {
+public final class ImmutableDictionaryEntry implements DictionaryEntry {
 
     private final String term;
     private final CategoryEntries categoryEntries;
 
-    public ImmutableTermCategoryEntries(String term) {
-        this(term, ImmutableCategoryEntries.EMPTY);
+    public ImmutableDictionaryEntry(String term) {
+        this(term, CategoryEntries.EMPTY);
     }
 
-    public ImmutableTermCategoryEntries(String term, CategoryEntries categoryEntries) {
+    public ImmutableDictionaryEntry(String term, CategoryEntries categoryEntries) {
         Validate.notNull(term, "term must not be null");
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
         this.term = term;
@@ -49,7 +48,7 @@ public final class ImmutableTermCategoryEntries implements DictionaryEntry {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        ImmutableTermCategoryEntries other = (ImmutableTermCategoryEntries)obj;
+        ImmutableDictionaryEntry other = (ImmutableDictionaryEntry)obj;
         if (!term.equals(other.term)) {
             return false;
         }

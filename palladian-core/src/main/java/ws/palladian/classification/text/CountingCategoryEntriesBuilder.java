@@ -89,7 +89,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
     public CategoryEntries create() {
         int totalCount = getTotalCount();
         if (totalCount == 0) {
-            return ImmutableCategoryEntries.EMPTY;
+            return CategoryEntries.EMPTY;
         }
         Map<String, Category> entries = CollectionHelper.newHashMap();
         Category mostLikely = null;

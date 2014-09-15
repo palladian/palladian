@@ -8,6 +8,11 @@ public final class ClassifiedAnnotation extends ImmutableAnnotation {
 
     private final CategoryEntries categoryEntries;
 
+    public ClassifiedAnnotation(int startPosition, String value, CategoryEntries categoryEntries) {
+        super(startPosition, value, categoryEntries.getMostLikelyCategory());
+        this.categoryEntries = categoryEntries;
+    }
+
     public ClassifiedAnnotation(Annotation annotation, CategoryEntries categoryEntries) {
         super(annotation.getStartPosition(), annotation.getValue(), categoryEntries.getMostLikelyCategory());
         this.categoryEntries = categoryEntries;

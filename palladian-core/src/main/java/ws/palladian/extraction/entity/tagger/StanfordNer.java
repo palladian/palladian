@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
@@ -168,29 +167,18 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         try {
             classifier = CRFClassifier.getClassifierNoExceptions(configModelFilePath);
         } catch (Exception e) {
-            LOGGER.error("{} error in loading model from {}: {}",
-                    new Object[] {getName(), configModelFilePath, e.getMessage()});
+            LOGGER.error("Exception when loading model from {}", configModelFilePath, e);
             return false;
         }
 
-        LOGGER.debug("Model {} successfully loaded in {}", configModelFilePath, stopWatch.getElapsedTimeString());
+        LOGGER.debug("Model {} successfully loaded in {}", configModelFilePath, stopWatch);
         return true;
     }
 
     @Override
     public List<Annotation> getAnnotations(String inputText) {
-
-        String inputTextPath = new File(FileHelper.getTempDir(), "inputText.txt").getPath();
-        FileHelper.writeToFile(inputTextPath, inputText);
-
-        StringBuilder taggedText = new StringBuilder();
-        taggedText.append(classifier.classifyWithInlineXML(inputText));
-
-        String taggedTextFilePath = new File(FileHelper.getTempDir(), "stanfordNERTaggedText.txt").getPath();
-        FileHelper.writeToFile(taggedTextFilePath, taggedText);
-
-        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
-
+        String taggedText = classifier.classifyWithInlineXML(inputText);
+        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         annotations.removeNested();
         return new ArrayList<Annotation>(annotations);
     }

@@ -12,8 +12,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
@@ -218,7 +218,7 @@ class LocalGlobalLexiconConverter {
         for (File file : files) {
             String fileContent = FileHelper.tryReadFileToString(file);
             if (deduplication.add(fileContent.hashCode())) {
-                Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(fileContent);
+                Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(fileContent);
                 if (annotations.size() > 0) {
                     annotated++;
                     FileHelper.copyFileToDirectory(file, destinationDirectory);

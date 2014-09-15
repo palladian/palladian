@@ -3,6 +3,7 @@ package ws.palladian.extraction.entity;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
@@ -27,17 +28,15 @@ public class DateAndTimeTagger implements Tagger {
     public static final String DATETIME_TAG_NAME = "DATETIME";
 
     /** All date formats defined by default, plus additionally years in context. */
-    private static final DateFormat[] ALL_DATES_WITH_YEARS = ArrayUtils.addAll(RegExp.ALL_DATE_FORMATS,
-            RegExp.DATE_CONTEXT_YYYY);
+    public static final DateAndTimeTagger DEFAULT = new DateAndTimeTagger(ArrayUtils.addAll(
+            RegExp.ALL_DATE_FORMATS, RegExp.DATE_CONTEXT_YYYY));
 
     private final DateFormat[] dateFormats;
 
     public DateAndTimeTagger(DateFormat... dateFormats) {
+        Validate.notNull(dateFormats, "dateFormats must not be null");
+        Validate.isTrue(dateFormats.length > 0, "dateFormats must not be empty");
         this.dateFormats = dateFormats;
-    }
-
-    public DateAndTimeTagger() {
-        this(ALL_DATES_WITH_YEARS);
     }
 
     @Override

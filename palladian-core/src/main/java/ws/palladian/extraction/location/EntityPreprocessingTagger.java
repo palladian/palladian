@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
-import ws.palladian.extraction.entity.ContextAnnotation;
-import ws.palladian.extraction.entity.ContextTagger;
 import ws.palladian.extraction.entity.StringTagger;
-import ws.palladian.extraction.entity.WindowSizeContextTagger;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -36,13 +33,10 @@ public class EntityPreprocessingTagger implements Tagger {
     /** The threshold total:uppercase, above which tokens are considered being lowercase. */
     private static final double LOWERCASE_THRESHOLD = 2;
 
-    /** Length of the context. */
-    private static final int CONTEXT_LENGTH = 5;
-
     public static final String SPLIT_ANNOTATION_TAG = "PARTIAL_CANDIDATE";
 
     /** The base tagger, which delivers the annotations. */
-    private final ContextTagger tagger;
+    private final Tagger tagger = new StringTagger();
 
     /** The case dictionary which contains the lowercase ratio for tokens. */
     private final Map<String, Double> caseDictionary;
@@ -63,7 +57,6 @@ public class EntityPreprocessingTagger implements Tagger {
      *            zero to disable spitting.
      */
     public EntityPreprocessingTagger(int longAnnotationSplit) {
-        tagger = new WindowSizeContextTagger(StringTagger.PATTERN, StringTagger.CANDIDATE_TAG, CONTEXT_LENGTH);
         InputStream inputStream = null;
         try {
             inputStream = EntityPreprocessingTagger.class.getResourceAsStream("/caseDictionary.csv");
@@ -95,10 +88,10 @@ public class EntityPreprocessingTagger implements Tagger {
 
     @Override
     public List<Annotation> getAnnotations(String text) {
-        List<ContextAnnotation> annotations = tagger.getAnnotations(text);
+        List<? extends Annotation> annotations = tagger.getAnnotations(text);
         List<Annotation> fixedAnnotations = CollectionHelper.newArrayList();
 
-        Set<String> inSentence = getInSentenceCandidates(annotations);
+        Set<String> inSentence = getInSentenceCandidates(text, annotations);
         if (inSentence.isEmpty()) { // do not try to fix any phrases, if we do not have any sentences at all (#294)
             fixedAnnotations.addAll(annotations);
             return fixedAnnotations;
@@ -106,11 +99,11 @@ public class EntityPreprocessingTagger implements Tagger {
 
         // XXX consider also removing within-sentence annotations by case dictionary?
 
-        for (ContextAnnotation annotation : annotations) {
+        for (Annotation annotation : annotations) {
             String value = annotation.getValue();
             // only annotations at sentence start are processed, but if the annotation also occurs within a sentence, no
             // processing is required
-            if (isWithinSentence(annotation)) {
+            if (isWithinSentence(text, annotation)) {
                 fixedAnnotations.add(annotation);
                 continue;
             }
@@ -228,12 +221,12 @@ public class EntityPreprocessingTagger implements Tagger {
      * @param annotations
      * @return
      */
-    private static Set<String> getInSentenceCandidates(List<ContextAnnotation> annotations) {
+    private static Set<String> getInSentenceCandidates(String text, List<? extends Annotation> annotations) {
         Set<String> inSentence = CollectionHelper.newHashSet();
-        for (ContextAnnotation annotation : annotations) {
-            if (isWithinSentence(annotation)) {
+        for (Annotation annotation : annotations) {
+            if (isWithinSentence(text, annotation)) {
                 String value = annotation.getValue();
-                LOGGER.trace("Add '{}' to in-sentence candidates ({})", value, annotation.getLeftContext());
+                LOGGER.trace("Add '{}' to in-sentence candidates", value);
                 inSentence.add(value);
             }
         }
@@ -246,8 +239,9 @@ public class EntityPreprocessingTagger implements Tagger {
      * @param annotation
      * @return
      */
-    private static boolean isWithinSentence(ContextAnnotation annotation) {
-        return annotation.getLeftContext().matches(".*[A-Za-z0-9,]+\\s");
+    private static boolean isWithinSentence(String text, Annotation annotation) {
+        int start = annotation.getStartPosition();
+        return text.substring(Math.max(0, start - 10), start).matches(".*[A-Za-z0-9,]+\\s");
     }
 
     /**

@@ -15,9 +15,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import opennlp.tools.namefind.NameFinderEventStream;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
@@ -29,9 +26,12 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.helper.StopWatch;
@@ -236,7 +236,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
         // FileHelper.writeToFile(taggedTextFilePath, taggedText);
         // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
         // FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
-        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
+        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
         return Collections.<Annotation> unmodifiableList(annotations);
     }
 
