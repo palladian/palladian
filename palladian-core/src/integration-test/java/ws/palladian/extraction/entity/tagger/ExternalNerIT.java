@@ -18,6 +18,7 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.integrationtests.ITHelper;
@@ -144,19 +145,20 @@ public class ExternalNerIT {
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.59);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.51);
 
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, TaggingFormat.COLUMN));
+        List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath,
+                TaggingFormat.COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1804, annotations.size());
+        assertEquals(1883, annotations.size());
         assertEquals(0, annotations.get(0).getStartPosition());
         assertEquals(7, annotations.get(0).getValue().length());
 
-        assertEquals(17499, annotations.get(500).getStartPosition());
-        assertEquals(4, annotations.get(500).getValue().length());
+        assertEquals(16809, annotations.get(500).getStartPosition());
+        assertEquals(10, annotations.get(500).getValue().length());
 
         assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
