@@ -33,8 +33,8 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.retrieval.wiki.InfoboxTypeMapper;
 import ws.palladian.retrieval.wiki.MarkupCoordinate;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
 import ws.palladian.retrieval.wiki.MultiStreamBZip2InputStream;
@@ -70,31 +70,6 @@ public class WikipediaLocationImporter {
 
     /** Pages with those titles will be ignored. */
     private static final Pattern IGNORED_PAGES = Pattern.compile("(?:Geography|Battle) of .*");
-    
-    private static final Map<String, LocationType> INFOBOX_MAPPING = loadMapping();
-
-    private static Map<String, LocationType> loadMapping() {
-        InputStream inputStream = null;
-        try {
-            final Map<String, LocationType> result = CollectionHelper.newHashMap();
-            inputStream = WikipediaLocationImporter.class.getResourceAsStream("/wikipediaLocationInfoboxMappings.csv");
-            FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
-                @Override
-                public void performAction(String line, int lineNumber) {
-                    if (line.isEmpty() || line.startsWith("#")) {
-                        return;
-                    }
-                    String[] split = line.split("\\t");
-                    String infoboxType = split[0];
-                    LocationType locationType = LocationType.map(split[1]);
-                    result.put(infoboxType, locationType);
-                }
-            });
-            return result;
-        } finally {
-            FileHelper.close(inputStream);
-        }
-    }
 
     private final LocationStore locationStore;
 
@@ -196,7 +171,7 @@ public class WikipediaLocationImporter {
                 }
                 LocationType type = null;
                 for (WikiTemplate infobox : infoboxes) {
-                    type = INFOBOX_MAPPING.get(infobox.getName());
+                    type = InfoboxTypeMapper.getLocationType(infobox.getName());
                     if (type != null) {
                         break;
                     }

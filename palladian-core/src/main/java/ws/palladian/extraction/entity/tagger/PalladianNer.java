@@ -364,8 +364,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         String text = FileFormatParser.getText(trainingFilePath, COLUMN);
 
         Annotations<Annotation> annotations = new Annotations<Annotation>(fileAnnotations);
-        annotations.addAll(additionalTrainingAnnotations);
-        LOGGER.info("Add {} additional training annotations", additionalTrainingAnnotations.size());
+        if (additionalTrainingAnnotations.size() > 0) {
+            annotations.addAll(additionalTrainingAnnotations);
+            LOGGER.info("Add {} additional training annotations", additionalTrainingAnnotations.size());
+        }
 
         model.entityDictionary = buildEntityDictionary(annotations);
         model.caseDictionary = buildCaseDictionary(trainingFilePath);
@@ -712,6 +714,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         }
         annotations.removeAll(toRemove);
         annotations.addAll(toAdd);
+        LOGGER.debug("Unwrapping removed {}, added {} entities", toRemove.size(), toAdd.size());
     }
 
     private ClassifiedAnnotation applyContextAnalysis(ClassifiedAnnotation annotation, String text) {
@@ -883,12 +886,16 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         if (LOGGER.isDebugEnabled() && unwrappedAnnotations.size() > 0) {
             StringBuilder parts = new StringBuilder();
             for (Annotation unwrappedAnnotation : unwrappedAnnotations) {
-                if (parts.length() > 0) {
-                    parts.append(", ");
+                if (!unwrappedAnnotation.getValue().equalsIgnoreCase(annotation.getValue())) {
+                    if (parts.length() > 0) {
+                        parts.append(", ");
+                    }
+                    parts.append(unwrappedAnnotation.getValue());
                 }
-                parts.append(unwrappedAnnotation.getValue());
             }
-            LOGGER.debug("Unwrapped {} in {} parts: {}", annotation.getValue(), unwrappedAnnotations.size(), parts);
+            if (parts.length() > 0) {
+                LOGGER.debug("Unwrapped {} in {} parts: {}", annotation.getValue(), unwrappedAnnotations.size(), parts);
+            }
         }
         return unwrappedAnnotations;
     }
