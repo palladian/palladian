@@ -1,5 +1,8 @@
 package ws.palladian.extraction.entity.tagger;
 
+import static ws.palladian.helper.functional.Filters.NONE;
+import static ws.palladian.helper.functional.Filters.fileExtension;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,237 +10,144 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import opennlp.tools.namefind.NameFinderEventStream;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
 import opennlp.tools.namefind.NameSampleDataStream;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.core.Annotation;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
+import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
- * This class wraps the OpenNLP Named Entity Recognizer which uses a maximum entropy approach.
- * </p>
+ * This class wraps the <a href="https://opennlp.apache.org">OpenNLP</a> Named Entity Recognizer which uses a maximum
+ * entropy approach.
  * 
  * <p>
  * The following models exist already for this recognizer:
  * <ul>
- * <li>Date</li>
- * <li>Location</li>
- * <li>Money</li>
- * <li>Organization</li>
- * <li>Percentage</li>
- * <li>Person</li>
- * <li>Time</li>
+ * <li>Date
+ * <li>Location
+ * <li>Money
+ * <li>Organization
+ * <li>Percentage
+ * <li>Person
+ * <li>Time
  * </ul>
- * </p>
  * 
- * <p>
- * Changes to the original OpenNLP code:
- * <ul>
- * <li>made nameFinder public in NameFinder.java</li>
- * <li>NameSampleDataStream.java added lines 43 to 46 to allow non white-spaced tagging</li>
- * <li>the model names must have the following format openNLP_TAG.bin.gz where "TAG" is the name of the tag that will be
- * tagged by this model</li>
- * </ul>
- * </p>
- * 
- * <p>
- * See also <a
- * href="http://sourceforge.net/apps/mediawiki/opennlp/index.php?title=Name_Finder#Named_Entity_Annotation_Guidelines"
- * >http://sourceforge.net/apps/mediawiki/opennlp/index.php?title=Name_Finder#Named_Entity_Annotation_Guidelines</a>
- * </p>
- * 
+ * @see <a href="https://opennlp.apache.org/documentation/1.5.3/manual/opennlp.html#tools.namefind">Apache OpenNLP
+ *      Developer Documentation: Name Finder</a>
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
-public class OpenNlpNer extends TrainableNamedEntityRecognizer {
-    
+public class OpenNlpNer extends TrainableNamedEntityRecognizer implements ClassifyingTagger {
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpNer.class);
 
     /** Set this true if you evaluate on the CoNLL 2003 corpus. */
     private boolean conllEvaluation = false;
-    private NameFinderME[] finders;
-    private String[] tags;
+
+    private List<TokenNameFinderModel> nameFinderModels;
 
     /**
-     * Adds tags to the given text using the name entity models.
+     * Load the models for the tagger. The models in the specified folders must start with "openNLP_" and all of them
+     * will be loaded.
      * 
-     * @param finders The name finders to be used.
-     * @param tags The tag names for the corresponding name finder.
-     * @param input The input reader.
-     * @return A tagged string.
-     * @throws IOException
-     */
-    private String processText(NameFinderME[] finders, String[] tags, String text) throws IOException {
-        if (text.isEmpty()) {
-            return "";
-        }
-
-        // the names of the tags
-        Span[][] nameSpans = new Span[finders.length][];
-        String[][] nameOutcomes = new String[finders.length][];
-        Tokenizer tokenizer = SimpleTokenizer.INSTANCE;
-
-        StringBuilder output = new StringBuilder();
-
-        Span[] spans = tokenizer.tokenizePos(text);
-        String[] tokens = Span.spansToStrings(spans, text);
-
-        // let each model (one for each concept) tag the text
-        for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-            NameFinderME finder = finders[fi];
-            finder.clearAdaptiveData(); // necessary to make results deterministic.
-            nameSpans[fi] = finder.find(tokens);
-            nameOutcomes[fi] = NameFinderEventStream.generateOutcomes(nameSpans[fi], null, tokens.length);
-        }
-
-        // if this is true, we have tagged a token already and should not tag it again with another name finder
-        boolean tagOpen = false;
-        String openTag = "";
-
-        for (int ti = 0, tl = tokens.length; ti < tl; ti++) {
-            for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-                // check for end tags
-                if (ti != 0) {
-                    if (tagOpen
-                            && (nameOutcomes[fi][ti].endsWith(NameFinderME.START) || nameOutcomes[fi][ti]
-                                    .endsWith(NameFinderME.OTHER))
-                                    && (nameOutcomes[fi][ti - 1].endsWith(NameFinderME.START) || nameOutcomes[fi][ti - 1]
-                                            .endsWith(NameFinderME.CONTINUE))) {
-                        output.append("</").append(openTag).append(">");
-                        tagOpen = false;
-                    }
-                }
-            }
-            if (ti > 0 && spans[ti - 1].getEnd() < spans[ti].getStart()) {
-                output.append(text.substring(spans[ti - 1].getEnd(), spans[ti].getStart()));
-            }
-            // check for start tags
-
-            for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-                if (!tagOpen) {
-                    if (nameOutcomes[fi][ti].endsWith(NameFinderME.START)) {
-                        openTag = tags[fi];
-                        tagOpen = true;
-                        output.append("<").append(openTag).append(">");
-                    }
-                }
-            }
-            output.append(tokens[ti]);
-        }
-        // final end tags
-        if (tokens.length != 0) {
-            for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-                if (nameOutcomes[fi][tokens.length - 1].endsWith(NameFinderME.START)
-                        || nameOutcomes[fi][tokens.length - 1].endsWith(NameFinderME.CONTINUE)) {
-                    output.append("</").append(tags[fi]).append(">");
-                }
-            }
-        }
-        if (tokens.length != 0) {
-            if (spans[tokens.length - 1].getEnd() < text.length()) {
-                output.append(text.substring(spans[tokens.length - 1].getEnd()));
-            }
-        }
-
-        return output.toString();
-    }
-
-    /**
-     * Load the models for the tagger. The models in the specified folders must start with "openNLP_" and all of them will be loaded.
      * @param configModelFilePath The path to the folder where the models lie.
      */
     @Override
     public boolean loadModel(String configModelFilePath) {
-
-        StopWatch stopWatch = new StopWatch();
-
         File modelDirectory = new File(configModelFilePath);
-        if (!modelDirectory.isDirectory()) {
-            throw new IllegalArgumentException("Model file path must be an existing directory.");
-        }
+        Validate.isTrue(modelDirectory.isDirectory(), "Model file path must be an existing directory.");
 
-        // get all models in the given folder that have the schema of "openNLP_" + conceptName + ".bin"
-        File[] modelFiles = FileHelper.getFiles(modelDirectory.getPath(), "openNLP_");
-        if (modelFiles.length == 0) {
-            throw new IllegalArgumentException("No model files found at path " + modelDirectory.getPath());
-        }
+        List<File> modelFiles = FileHelper.getFiles(new File(configModelFilePath), fileExtension(".bin"), NONE);
+        Validate.isTrue(modelFiles.size() > 0, "Model file path must at least provide one .bin model.");
 
-        this.finders = new NameFinderME[modelFiles.length];
-        this.tags = new String[finders.length];
-
-        for (int finderIndex = 0; finderIndex < modelFiles.length; finderIndex++) {
-
-            String modelName = modelFiles[finderIndex].getPath();
-            String tagName = modelName;
-            int tagStartIndex = modelName.lastIndexOf("_");
-            if (tagStartIndex > -1) {
-                tagName = modelName.substring(tagStartIndex + 1, modelName.indexOf(".", tagStartIndex));
-            } else {
-                LOGGER.warn("Model name does not comply \"openNLP_TAG.bin\" format: {}", modelName);
-            }
-
+        this.nameFinderModels = CollectionHelper.newArrayList();
+        for (File modelFile : modelFiles) {
             try {
-                finders[finderIndex] = new NameFinderME(new TokenNameFinderModel(new FileInputStream(
-                        new File(modelName))));
+                this.nameFinderModels.add(new TokenNameFinderModel(modelFile));
+            } catch (InvalidFormatException e) {
+                throw new IllegalStateException("InvalidFormatException when trying to load " + modelFile);
             } catch (IOException e) {
-                LOGGER.error("{} error in loading model: {}, {}", new Object[] {getName(), modelName, e.getMessage()});
-                return false;
+                throw new IllegalStateException("IOException when trying to load " + modelFile);
             }
-            tags[finderIndex] = tagName.toUpperCase();
         }
 
-        LOGGER.info("Models {} successfully loaded in {}", Arrays.toString(modelFiles),
-                stopWatch.getElapsedTimeString());
-
+        LOGGER.info("{} models successfully loaded", modelFiles.size());
         return true;
     }
 
     @Override
-    public List<Annotation> getAnnotations(String inputText) {
-        if (finders == null || tags == null) {
+    public List<ClassifiedAnnotation> getAnnotations(String inputText) {
+        if (nameFinderModels == null || nameFinderModels.isEmpty()) {
             throw new IllegalStateException("No model available; make sure to load an existing model.");
         }
-
-
-        String taggedText = "";
-        try {
-            taggedText = processText(finders, tags, inputText).toString();
-        } catch (IOException e) {
-            LOGGER.error("could not tag text with {}, {}", getName(), e.getMessage());
+        // Map to collect all classifications for a given span; this is necessary, because individual entity types are
+        // classified separately, and more than one entity classifier might tag an entity occurrence. We use the
+        // probability values provided by the name finders to weight the individual type assignments.
+        Map<Pair<Integer, Integer>, CategoryEntriesBuilder> collectedAnnotations = LazyMap
+                .create(new Factory<CategoryEntriesBuilder>() {
+                    @Override
+                    public CategoryEntriesBuilder create() {
+                        return new CategoryEntriesBuilder();
+                    }
+                });
+        Tokenizer tokenizer = SimpleTokenizer.INSTANCE;
+        Span[] tokenSpans = tokenizer.tokenizePos(inputText);
+        String[] tokenStrings = Span.spansToStrings(tokenSpans, inputText);
+        for (TokenNameFinderModel nameFinderModel : nameFinderModels) {
+            NameFinderME nameFinder = new NameFinderME(nameFinderModel);
+            Span[] nameSpans = nameFinder.find(tokenStrings);
+            double[] probs = nameFinder.probs(nameSpans);
+            for (int i = 0; i < nameSpans.length; i++) {
+                Span nameSpan = nameSpans[i];
+                int startOffset = tokenSpans[nameSpan.getStart()].getStart();
+                int endOffset = tokenSpans[nameSpan.getEnd() - 1].getEnd();
+                collectedAnnotations.get(Pair.of(startOffset, endOffset)).add(nameSpan.getType(), probs[i]);
+            }
         }
-
-        // String taggedTextFilePath = "data/test/ner/openNLPOutput_tmp.txt";
-        // FileHelper.writeToFile(taggedTextFilePath, taggedText);
-        // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(taggedTextFilePath);
-        // FileHelper.writeToFile("data/test/ner/openNLPOutput.txt", tagText(inputText, annotations));
-        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlText(taggedText);
-        return Collections.<Annotation> unmodifiableList(annotations);
+        Annotations<ClassifiedAnnotation> annotations = new Annotations<ClassifiedAnnotation>();
+        for (Entry<Pair<Integer, Integer>, CategoryEntriesBuilder> entry : collectedAnnotations.entrySet()) {
+            int startOffset = entry.getKey().getLeft();
+            int endOffset = entry.getKey().getRight();
+            String value = inputText.substring(startOffset, endOffset);
+            CategoryEntries categoryEntries = entry.getValue().create();
+            annotations.add(new ClassifiedAnnotation(startOffset, value, categoryEntries));
+        }
+        annotations.sort();
+        return annotations;
     }
 
     @Override
@@ -391,7 +301,9 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer {
      */
     public static void main(String[] args) throws Exception {
 
-        // OpenNlpNer tagger = new OpenNlpNer();
+        OpenNlpNer tagger = new OpenNlpNer();
+        tagger.loadModel("/Users/pk/Desktop/OpenNLP-Models");
+        tagger.getAnnotations("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. New York City is where he wants to buy an iPhone 4 or a Samsung i7110 phone. The iphone 4 is modern. Seattle is a rainy city.");
 
         // // HOW TO USE (some functions require the models in
         // data/models/opennlp) ////

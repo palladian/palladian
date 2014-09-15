@@ -31,7 +31,7 @@ import com.aliasi.util.AbstractExternalizable;
  * <p>
  * This class wraps the LingPipe implementation of a Named Entity Recognizer. We wrapped the slowest but most accurate
  * recognizer (CharLmRescoringChunker) since we are interested in the best possible results. LingPipe uses a
- * "long-distance character language model-based chunker that operates by resocring the output of a contained character
+ * "long-distance character language model-based chunker that operates by rescoring the output of a contained character
  * language model HMM chunker.
  * </p>
  * 
