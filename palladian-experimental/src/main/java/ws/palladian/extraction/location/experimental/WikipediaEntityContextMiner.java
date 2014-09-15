@@ -2,9 +2,7 @@ package ws.palladian.extraction.location.experimental;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -24,6 +22,7 @@ import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.wiki.InfoboxTypeMapper;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
 import ws.palladian.retrieval.wiki.WikiPage;
 
@@ -41,8 +40,6 @@ public class WikipediaEntityContextMiner {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaEntityContextMiner.class);
-
-    private static final Map<String, String> TYPE_MAP = createTypeMap();
     
     private static DictionaryTrieModel.Builder entityBuilder = new DictionaryTrieModel.Builder();
 
@@ -88,7 +85,7 @@ public class WikipediaEntityContextMiner {
                     if (pageType == null) {
                         return;
                     }
-                    String mappedType = TYPE_MAP.get(pageType);
+                    String mappedType = InfoboxTypeMapper.getConLLType(pageType);
                     if (mappedType != null) {
                         extractContexts(page, mappedType, contextSize);
                     }
@@ -112,137 +109,6 @@ public class WikipediaEntityContextMiner {
         FileHelper.serialize(entityModel, entityFile.getPath());
         FileHelper.serialize(leftModel, leftFile.getPath());
         FileHelper.serialize(rightModel, rightFile.getPath());
-    }
-
-    static Map<String, String> createTypeMap() {
-        Map<String, String> result = CollectionHelper.newHashMap();
-        result.put("settlement", "LOC");
-        result.put("album", "MISC");
-        result.put("person", "PER");
-        result.put("football biography", "PER");
-        result.put("film", "MISC");
-        // result.put("musical artist", ""); // ambiguous, may be person, may be band
-        result.put("single", "MISC");
-        result.put("company", "ORG");
-        result.put("french commune", "LOC");
-        result.put("nrhp", "LOC"); // National Register of Historic Places
-        result.put("book", "MISC");
-        result.put("ship begin", "MISC");
-        result.put("television", "MISC");
-        result.put("officeholder", "PER");
-        result.put("military person", "PER");
-        result.put("school", "ORG");
-        result.put("uk place", "LOC");
-        result.put("mlb player", "PER");
-        result.put("radio station", "MISC");
-        result.put("road", "LOC");
-        result.put("writer", "PER");
-        result.put("university", "ORG");
-        result.put("scientist", "PER");
-        result.put("football club", "ORG");
-        result.put("vg", "MISC"); // video game
-        result.put("military unit", "ORG"); // ... was MISC
-        result.put("sportsperson", "PER");
-        result.put("mountain", "LOC");
-        result.put("german location", "LOC");
-        result.put("airport", "LOC");
-        // result.put("planet", "");
-        result.put("ice hockey player", "PER");
-        result.put("nfl player", "PER");
-        result.put("cricketer", "PER");
-        result.put("military conflict", "MISC");
-        result.put("station", "LOC");
-        result.put("aircraft begin", "MISC");
-        result.put("software", "MISC");
-        result.put("lake", "LOC");
-        // result.put("artist", "");
-        result.put("politician", "PER");
-        result.put("italian comune", "LOC");
-        result.put("river", "LOC");
-        result.put("australian place", "LOC");
-        result.put("language", "MISC");
-        // result.put("building", "");
-        // result.put("television episode", "MISC");
-        result.put("organization", "ORG");
-        // result.put("indian jurisdiction", "");
-        // result.put("stadium", "");
-        // result.put("royalty", "");
-        result.put("gridiron football person", "PER");
-        result.put("protected area", "LOC");
-        // removed:
-        // result.put("football club season", "MISC");
-        // result.put("election", "MISC");
-        result.put("college coach", "PER");
-        result.put("journal", "MISC");
-
-        result.put("building", "LOC");
-        result.put("country", "LOC");
-        result.put("rail service", "MISC");
-        result.put("geopolitical organization", "MISC");
-        result.put("u.s. state", "LOC");
-        result.put("german state", "LOC");
-        result.put("islands", "LOC");
-        result.put("island", "LOC");
-        result.put("information appliance", "MISC");
-        result.put("mobile phone", "MISC");
-        result.put("computer", "MISC");
-        result.put("disease", "MISC");
-        result.put("automobile", "MISC");
-        result.put("electric vehicle", "MISC");
-        result.put("zoo", "LOC");
-        result.put("newspaper", "MISC");
-        result.put("senator", "PER");
-        result.put("historic building", "LOC");
-        result.put("first lady", "PER");
-        result.put("president", "PER");
-        result.put("law school", "ORG");
-
-        result.put("oil field", "LOC");
-        result.put("body of water", "LOC");
-        result.put("athletic conference", "MISC");
-        result.put("mlb", "ORG");
-        result.put("magazine", "MISC");
-        result.put("fbi ten most wanted", "PER");
-        result.put("tv channel", "MISC");
-        result.put("military structure", "LOC");
-        result.put("brand", "ORG"); // or MISC
-        result.put("award", "MISC");
-        result.put("comedian", "PER");
-        result.put("venue", "LOC");
-        result.put("education in canada", "LOC"); // ???
-        result.put("sea", "LOC");
-        result.put("bridge", "LOC");
-        result.put("religious building", "LOC");
-        result.put("german district", "LOC");
-        result.put("former country", "LOC"); // ???
-        result.put("department", "LOC");
-        result.put("district de", "LOC");
-        result.put("deutsche bahn station", "LOC");
-        result.put("militant organization", "ORG");
-        result.put("united nations", "ORG");
-        result.put("artist", "PER");
-        result.put("architect", "PER");
-        result.put("law enforcement agency", "ORG");
-        result.put("broadcasting network", "MISC");
-        result.put("mountain range", "LOC");
-        result.put("canton", "LOC");
-        result.put("scotland council area", "LOC");
-        result.put("u.s. county", "LOC");
-        result.put("england county", "LOC");
-        result.put("province", "LOC");
-        result.put("prc province", "LOC");
-        result.put("sports league", "MISC");
-        result.put("central bank", "ORG");
-        result.put("non-profit", "ORG");
-        result.put("legislature", "ORG"); // could also be MISC
-        result.put("nfl team", "ORG");
-        result.put("golf tournament", "MISC");
-        result.put("athlete", "PER");
-        result.put("swiss town", "LOC");
-        result.put("government agency", "ORG");
-        result.put("airline", "ORG");
-
-        return Collections.unmodifiableMap(result);
     }
 
     private static void extractContexts(WikiPage page, String type, int contextSize) {
