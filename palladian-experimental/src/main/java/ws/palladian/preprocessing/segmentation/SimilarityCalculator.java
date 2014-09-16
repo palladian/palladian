@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -34,7 +34,7 @@ public class SimilarityCalculator {
      * @param page2 Map of q-grams of the document to compare.
      * @return The similarity value between 0 and 1.
      */
-    public static double calculateSimilarity(CountMap<String> page1, CountMap<String> page2) {
+    public static double calculateSimilarity(Bag<String> page1, Bag<String> page2) {
 
         double result = 0;
         List<Double> variance = new ArrayList<Double>();
@@ -43,11 +43,11 @@ public class SimilarityCalculator {
             // If both maps contain same key, exermine if there is a difference in the value
             if (page2.contains(qGram)) {
                 // Calculate the difference in the value
-                if (page2.getCount(qGram) == page1.getCount(qGram)) {
+                if (page2.count(qGram) == page1.count(qGram)) {
                     variance.add(new Double(0));
                 } else {
-                    Integer value = page1.getCount(qGram);
-                    Integer value2 = page2.getCount(qGram);
+                    Integer value = page1.count(qGram);
+                    Integer value2 = page2.count(qGram);
 
                     double d = 0;
                     if (value > value2)
@@ -88,13 +88,13 @@ public class SimilarityCalculator {
      */
     public static double calculateSimilarityForNode(List<Document> list, String xPath) {
         double result = 0.0;
-        List<CountMap<String>> listOfNodeLines = new ArrayList<CountMap<String>>();
+        List<Bag<String>> listOfNodeLines = new ArrayList<Bag<String>>();
 
         for (Document doc : list) {
 
             String simNode = HtmlHelper.documentToReadableText(XPathHelper.getXhtmlNode(doc, xPath));
 
-            CountMap<String> nodeLines = CountMap.create();
+            Bag<String> nodeLines = Bag.create();
             StringTokenizer st = new StringTokenizer(simNode, "\n");
 
             while (st.hasMoreTokens()) {
@@ -106,12 +106,12 @@ public class SimilarityCalculator {
 
         List<Double> allJaccAverage = new ArrayList<Double>();
         for (int i = 0; i < listOfNodeLines.size(); i++) {
-            CountMap<String> currentNodeLines = listOfNodeLines.get(i);
+            Bag<String> currentNodeLines = listOfNodeLines.get(i);
             List<Double> jaccArray = new ArrayList<Double>();
             double jaccAverage = 0.0;
 
             for (int j = 0; j < listOfNodeLines.size(); j++) {
-                CountMap<String> compareNodeLines = listOfNodeLines.get(j);
+                Bag<String> compareNodeLines = listOfNodeLines.get(j);
 
                 if (currentNodeLines != compareNodeLines) {
                     Double jacc = MathHelper.computeJaccardSimilarity(currentNodeLines.uniqueItems(),

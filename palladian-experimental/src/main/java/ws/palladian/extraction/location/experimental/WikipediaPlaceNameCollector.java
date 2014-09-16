@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -16,14 +17,15 @@ import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
 import ws.palladian.retrieval.wiki.MultiStreamBZip2InputStream;
 import ws.palladian.retrieval.wiki.WikiPage;
-import ws.palladian.retrieval.wiki.MediaWikiUtil;
 
 public class WikipediaPlaceNameCollector {
 
@@ -88,7 +90,7 @@ public class WikipediaPlaceNameCollector {
     }
 
     static void collectNameParts() {
-        final CountMap<String> counts = CountMap.create();
+        final Bag<String> counts = Bag.create();
         FileHelper.performActionOnEveryLine("locationNames.txt", new LineAction() {
 
             @Override
@@ -98,11 +100,11 @@ public class WikipediaPlaceNameCollector {
             }
         });
 
-        Map<String, Integer> map = counts.getSortedMapDescending();
-        for (String value : map.keySet()) {
-            int count = map.get(value);
+        Bag<String> map = counts.createSorted(Order.DESCENDING);
+        for (Entry<String, Integer> entry : map.unique()) {
+            int count = entry.getValue();
             if (count > 200) {
-                System.out.println(value + " (" + count + ")");
+                System.out.println(entry.getValue() + " (" + count + ")");
             }
         }
     }

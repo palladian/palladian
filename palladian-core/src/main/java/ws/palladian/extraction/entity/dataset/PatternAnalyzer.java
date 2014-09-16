@@ -4,15 +4,16 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.io.FileHelper;
 
 public class PatternAnalyzer {
 
     private StringBuilder analyzePatterns(String type, String xml, Pattern pattern) {
 
-        CountMap<String> patternPrefixCounts = new CountMap<String>();
-        CountMap<String> patternSuffixCounts = new CountMap<String>();
+        Bag<String> patternPrefixCounts = Bag.create();
+        Bag<String> patternSuffixCounts = Bag.create();
 
         Matcher matcher = pattern.matcher(xml);
         while (matcher.find()) {
@@ -25,14 +26,14 @@ public class PatternAnalyzer {
         StringBuilder tsv = new StringBuilder();
         tsv.append(type).append("\n\n");
         tsv.append("PREFIX PATTERNS\n");
-        for (Entry<String, Integer> entry : patternPrefixCounts.getSortedMapDescending().entrySet()) {
+        for (Entry<String, Integer> entry : patternPrefixCounts.createSorted(Order.DESCENDING).unique()) {
             tsv.append(entry.getKey());
             tsv.append("\t");
             tsv.append(entry.getValue());
             tsv.append("\n");
         }
         tsv.append("\nSUFFIX PATTERNS\n");
-        for (Entry<String, Integer> entry : patternSuffixCounts.getSortedMapDescending().entrySet()) {
+        for (Entry<String, Integer> entry : patternSuffixCounts.createSorted(Order.DESCENDING).unique()) {
             tsv.append(entry.getKey());
             tsv.append("\t");
             tsv.append(entry.getValue());

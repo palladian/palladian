@@ -26,7 +26,7 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
@@ -222,7 +222,7 @@ public class DatasetCreator {
             o[0] = seedFileName;
 
             File[] markedUpFiles = FileHelper.getFiles(new File(datasetLocation, seedFileName).getPath());
-            CountMap<String> countMap = CountMap.create();
+            Bag<String> countMap = Bag.create();
             for (File markedUpFile : markedUpFiles) {
                 if (markedUpFile.isDirectory()) {
                     continue;
@@ -244,7 +244,7 @@ public class DatasetCreator {
             String entitiesWithFewMentions = "";
             int totalMentions = 0;
             for (String item : countMap) {
-                int count = countMap.getCount(item);
+                int count = countMap.count(item);
                 if (count < mentionsPerSeed) {
                     entitiesWithFewMentions += item + "(" + count + "), ";
                 }
@@ -295,15 +295,15 @@ public class DatasetCreator {
         // write a seed file in classification format with all the seeds used for the current concept
         StringBuilder seedFileCopy = new StringBuilder();
 
-        ProgressMonitor progressMonitor = new ProgressMonitor(seedEntities.size(), 1);
+        ProgressMonitor progressMonitor = new ProgressMonitor();
+        progressMonitor.startTask(null, seedEntities.size());
         int entityCount = 0;
 
         for (String seedEntity : seedEntities) {
 
             StopWatch sw = new StopWatch();
 
-            // ProgressHelper.printProgress(entityCount, seedEntities.size(), 1, stopWatch);
-            progressMonitor.incrementAndPrintProgress();
+            progressMonitor.increment();
             LOGGER.info("start processing seed entity {} ({})", seedEntity, seedFileName);
 
             seedFileCopy.append(seedEntity).append("###")

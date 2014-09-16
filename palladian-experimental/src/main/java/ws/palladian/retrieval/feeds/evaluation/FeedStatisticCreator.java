@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.FatStats;
@@ -922,7 +922,7 @@ public class FeedStatisticCreator {
         colors.add("FF9900");
 
         // count number of feeds in each updateClass
-        CountMap<FeedActivityPattern> updateClassCounts = CountMap.create();
+        Bag<FeedActivityPattern> updateClassCounts = Bag.create();
 
         // number of unique domain names
         Set<String> uniqueDomains = new HashSet<String>();
@@ -948,9 +948,9 @@ public class FeedStatisticCreator {
         String chartDataLabels = "";
         String chartColors = "";
         for (FeedActivityPattern o : updateClassCounts.uniqueItems()) {
-            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.getCount(o))
+            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.count(o))
             .append("\n");
-            chartData += updateClassCounts.getCount(o) + ",";
+            chartData += updateClassCounts.count(o) + ",";
             chartDataLabels += o + "|";
             chartColors += colors.get(o.getIdentifier()) + "|";
         }
