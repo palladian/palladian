@@ -54,13 +54,15 @@ public class DictionaryTagger implements Tagger {
         int flags = caseSensitive ? 0 : Pattern.CASE_INSENSITIVE;
         for (Entry<String, String> dictionaryEntry : dictionary.entrySet()) {
             String dictionaryString = dictionaryEntry.getKey();
-            String tagName = dictionaryEntry.getValue();
-            String patternString = "(?<!\\w)" + Pattern.quote(dictionaryString) + "(?!\\w)";
-            Pattern pattern = Pattern.compile(patternString, flags);
-            Matcher matcher = pattern.matcher(text);
-            while (matcher.find()) {
-                Annotation annotation = new ImmutableAnnotation(matcher.start(), matcher.group(), tagName);
-                annotations.add(annotation);
+            if (dictionaryString.length() > 1) {
+                String tagName = dictionaryEntry.getValue();
+                String patternString = "(?<!\\w)" + Pattern.quote(dictionaryString) + "(?!\\w)";
+                Pattern pattern = Pattern.compile(patternString, flags);
+                Matcher matcher = pattern.matcher(text);
+                while (matcher.find()) {
+                    Annotation annotation = new ImmutableAnnotation(matcher.start(), matcher.group(), tagName);
+                    annotations.add(annotation);
+                }
             }
         }
         annotations.removeNested();
