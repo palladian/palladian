@@ -4,7 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import opennlp.tools.sentdetect.SentenceDetector;
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.tokenize.TokenizerME;
+import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.util.InvalidFormatException;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -21,6 +30,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.integrationtests.ITHelper;
 
 /**
@@ -33,30 +43,30 @@ import ws.palladian.integrationtests.ITHelper;
  */
 public class ExternalNerIT {
 
-    private static Configuration config;
     private static File tempDirectory;
+    private static String trainPath;
+    private static String testPath;
 
     @BeforeClass
     public static void setUp() throws ConfigurationException {
         ITHelper.assertMemory(750, SizeUnit.MEGABYTES);
-        config = ITHelper.getTestConfig();
+        Configuration config = ITHelper.getTestConfig();
+        trainPath = config.getString("dataset.conll.train");
+        testPath = config.getString("dataset.conll.test");
+        ITHelper.assumeFile(trainPath, testPath);
         tempDirectory = FileHelper.getTempDir();
     }
 
     @AfterClass
     public static void cleanUp() {
-        config = null;
+        trainPath = null;
+        testPath = null;
         tempDirectory = null;
     }
 
     @Test
     public void test_StanfordNer_CoNLL() {
-        String trainPath = config.getString("dataset.conll.train");
-        String testPath = config.getString("dataset.conll.test");
-        ITHelper.assumeFile(trainPath, testPath);
-
         StanfordNer tagger = new StanfordNer();
-
         String stanfordNerModel = new File(tempDirectory, "stanfordner.ser.gz").getPath();
         tagger.train(trainPath, stanfordNerModel);
         tagger.loadModel(stanfordNerModel);
@@ -89,12 +99,8 @@ public class ExternalNerIT {
 
     @Test
     public void test_LingPipeNer_CoNLL() {
-        String trainPath = config.getString("dataset.conll.train");
-        String testPath = config.getString("dataset.conll.test");
-        ITHelper.assumeFile(trainPath, testPath);
-
-        String lingpipeNerModelFile = new File(tempDirectory, "lingpipe.model").getPath();
         LingPipeNer tagger = new LingPipeNer();
+        String lingpipeNerModelFile = new File(tempDirectory, "lingpipe.model").getPath();
         tagger.train(trainPath, lingpipeNerModelFile);
         tagger.loadModel(lingpipeNerModelFile);
 
@@ -126,13 +132,13 @@ public class ExternalNerIT {
     }
 
     @Test
-    public void test_OpenNlpNer_CoNLL() {
-        String trainPath = config.getString("dataset.conll.train");
-        String testPath = config.getString("dataset.conll.test");
-        ITHelper.assumeFile(trainPath, testPath);
-
+    public void test_OpenNlpNer_CoNLL() throws InvalidFormatException, IOException {
+        File tokenizerModel = ResourceHelper.getResourceFile("/model/en-token.bin");
+        File sentenceModel = ResourceHelper.getResourceFile("/model/en-sent.bin");
+        Tokenizer tokenizer = new TokenizerME(new TokenizerModel(tokenizerModel));
+        SentenceDetector sentenceDetector = new SentenceDetectorME(new SentenceModel(sentenceModel));
         String openNlpModelFile = new File(tempDirectory, "openNLP.model").getPath();
-        OpenNlpNer tagger = new OpenNlpNer();
+        OpenNlpNer tagger = new OpenNlpNer(tokenizer, sentenceDetector);
 
         tagger.train(trainPath, openNlpModelFile);
         tagger.loadModel(openNlpModelFile);
@@ -142,8 +148,8 @@ public class ExternalNerIT {
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.59);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.51);
+        ITHelper.assertMin("F1-MUC", 0.73, er.getF1(EvaluationMode.MUC));
+        ITHelper.assertMin("F1-Exact", 0.67, er.getF1(EvaluationMode.MUC));
 
         List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath,
                 TaggingFormat.COLUMN));
@@ -153,12 +159,12 @@ public class ExternalNerIT {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(1883, annotations.size());
-        assertEquals(0, annotations.get(0).getStartPosition());
-        assertEquals(7, annotations.get(0).getValue().length());
+        assertEquals(1720, annotations.size());
+        assertEquals(9, annotations.get(0).getStartPosition());
+        assertEquals(14, annotations.get(0).getValue().length());
 
-        assertEquals(16809, annotations.get(500).getStartPosition());
-        assertEquals(10, annotations.get(500).getValue().length());
+        assertEquals(20692, annotations.get(500).getStartPosition());
+        assertEquals(15, annotations.get(500).getValue().length());
 
         assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
         assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
@@ -168,10 +174,6 @@ public class ExternalNerIT {
     @Ignore
     // Different results when run locally in Eclipse and on Jenkins...ignore for now.
     public void test_JulieNer_CoNLL() {
-        String trainPath = config.getString("dataset.conll.train");
-        String testPath = config.getString("dataset.conll.test");
-        ITHelper.assumeFile(trainPath, testPath);
-
         JulieNer tagger = new JulieNer();
         String julieNerModelFile = new File(tempDirectory, "juliener.mod").getPath();
         tagger.train(trainPath, julieNerModelFile);

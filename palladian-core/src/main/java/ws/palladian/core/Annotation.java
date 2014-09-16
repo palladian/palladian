@@ -1,5 +1,7 @@
 package ws.palladian.core;
 
+import ws.palladian.helper.functional.Function;
+
 /**
  * <p>
  * Interface defining some annotated entity in a text. The annotation is characterized by its start and end position,
@@ -16,6 +18,14 @@ package ws.palladian.core;
  * @author Philipp Katz
  */
 public interface Annotation extends Token {
+
+    /** Function to convert an {@link Annotation} to its tag. */
+    Function<Annotation, String> TAG_CONVERTER = new Function<Annotation, String>() {
+        @Override
+        public String compute(Annotation input) {
+            return input.getTag();
+        }
+    };
 
     /**
      * @return The tag assigned to this annotation (like POS, entity, etc.).

@@ -1,34 +1,31 @@
 package ws.palladian.extraction.entity.tagger;
 
+import static ws.palladian.core.AnnotationFilters.range;
+import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
+import static ws.palladian.helper.collection.CollectionHelper.filterList;
 import static ws.palladian.helper.functional.Filters.NONE;
 import static ws.palladian.helper.functional.Filters.fileExtension;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
-import opennlp.tools.namefind.NameSampleDataStream;
 import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.tokenize.SimpleTokenizer;
+import opennlp.tools.sentdetect.SentenceDetector;
 import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.util.CollectionObjectStream;
 import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
+import opennlp.tools.util.TrainingParameters;
 import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
 import org.apache.commons.lang3.Validate;
@@ -36,6 +33,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.AnnotationFilters;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.ClassifyingTagger;
@@ -67,6 +66,7 @@ import ws.palladian.helper.io.FileHelper;
  * 
  * @see <a href="https://opennlp.apache.org/documentation/1.5.3/manual/opennlp.html#tools.namefind">Apache OpenNLP
  *      Developer Documentation: Name Finder</a>
+ * @see <a href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP Tools Models</a>
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -75,19 +75,41 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpNer.class);
 
-    /** Set this true if you evaluate on the CoNLL 2003 corpus. */
-    private boolean conllEvaluation = false;
+    private static final TrainingParameters TRAIN_PARAMS = TrainingParameters.defaultParams();
+
+    private static final AdaptiveFeatureGenerator FEATURE_GENERATOR = null;
+
+    private static final Map<String, Object> RESOURCES = Collections.emptyMap();
+
+    private final Tokenizer tokenizer;
+
+    private final SentenceDetector sentenceDetector;
 
     private List<TokenNameFinderModel> nameFinderModels;
 
     /**
-     * Load the models for the tagger. The models in the specified folders must start with "openNLP_" and all of them
-     * will be loaded.
+     * Create a new {@link OpenNlpNer}. The NER requires a tokenizer and a sentence detector in order to work properly.
+     * 
+     * @param tokenizer The tokenizer to use, not <code>null</code>.
+     * @param sentenceDetector The sentence detector to use, not <code>null</code>.
+     */
+    public OpenNlpNer(Tokenizer tokenizer, SentenceDetector sentenceDetector) {
+        Validate.notNull(tokenizer, "tokenizer must not be null");
+        Validate.notNull(sentenceDetector, "sentenceDetector must not be null");
+        this.tokenizer = tokenizer;
+        this.sentenceDetector = sentenceDetector;
+    }
+
+    /**
+     * <p>
+     * Load the models for the entity recognizer. All files in the specified directory with the file name extension
+     * ".bin" are considered as OpenNLP {@link TokenNameFinderModel}s.
      * 
      * @param configModelFilePath The path to the folder where the models lie.
      */
     @Override
     public boolean loadModel(String configModelFilePath) {
+        Validate.notNull(configModelFilePath, "configModelFilePath must not be null");
         File modelDirectory = new File(configModelFilePath);
         Validate.isTrue(modelDirectory.isDirectory(), "Model file path must be an existing directory.");
 
@@ -96,6 +118,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
 
         this.nameFinderModels = CollectionHelper.newArrayList();
         for (File modelFile : modelFiles) {
+            LOGGER.info("Loading {}", modelFile);
             try {
                 this.nameFinderModels.add(new TokenNameFinderModel(modelFile));
             } catch (InvalidFormatException e) {
@@ -124,18 +147,22 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
                         return new CategoryEntriesBuilder();
                     }
                 });
-        Tokenizer tokenizer = SimpleTokenizer.INSTANCE;
-        Span[] tokenSpans = tokenizer.tokenizePos(inputText);
-        String[] tokenStrings = Span.spansToStrings(tokenSpans, inputText);
-        for (TokenNameFinderModel nameFinderModel : nameFinderModels) {
-            NameFinderME nameFinder = new NameFinderME(nameFinderModel);
-            Span[] nameSpans = nameFinder.find(tokenStrings);
-            double[] probs = nameFinder.probs(nameSpans);
-            for (int i = 0; i < nameSpans.length; i++) {
-                Span nameSpan = nameSpans[i];
-                int startOffset = tokenSpans[nameSpan.getStart()].getStart();
-                int endOffset = tokenSpans[nameSpan.getEnd() - 1].getEnd();
-                collectedAnnotations.get(Pair.of(startOffset, endOffset)).add(nameSpan.getType(), probs[i]);
+        Span[] sentences = sentenceDetector.sentPosDetect(inputText);
+        for (Span sentence : sentences) {
+            String sentenceString = sentence.getCoveredText(inputText).toString();
+            int sentenceOffset = sentence.getStart();
+            Span[] tokenSpans = tokenizer.tokenizePos(sentenceString);
+            String[] tokenStrings = Span.spansToStrings(tokenSpans, sentenceString);
+            for (TokenNameFinderModel nameFinderModel : nameFinderModels) {
+                NameFinderME nameFinder = new NameFinderME(nameFinderModel);
+                Span[] nameSpans = nameFinder.find(tokenStrings);
+                double[] probs = nameFinder.probs(nameSpans);
+                for (int i = 0; i < nameSpans.length; i++) {
+                    Span nameSpan = nameSpans[i];
+                    int nameStart = sentenceOffset + tokenSpans[nameSpan.getStart()].getStart();
+                    int nameEnd = sentenceOffset + tokenSpans[nameSpan.getEnd() - 1].getEnd();
+                    collectedAnnotations.get(Pair.of(nameStart, nameEnd)).add(nameSpan.getType(), probs[i]);
+                }
             }
         }
         Annotations<ClassifiedAnnotation> annotations = new Annotations<ClassifiedAnnotation>();
@@ -165,194 +192,96 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
         return true;
     }
 
-    private String[] getUsedTags(String filePath) {
-        Set<String> tags = new HashSet<String>();
-        String inputString = FileHelper.tryReadFileToString(filePath);
-        Pattern pattern = Pattern.compile("</?(.*?)>");
-        Matcher matcher = pattern.matcher(inputString);
-        while (matcher.find()) {
-            tags.add(matcher.group(1));
-        }
-        return tags.toArray(new String[tags.size()]);
-    }
-
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
-        // Open NLP creates several model files for each trained tag, so for the supplied model file path, a directory
-        // will be created, which contains all those files.
+        // OpenNLP creates one model file for each trained tag, so for the supplied model file path, a directory will be
+        // created, which contains all those files.
         File modelDirectory = new File(modelFilePath);
-        if (modelDirectory.isFile()) {
-            throw new IllegalArgumentException("File " + modelFilePath + " already exists.");
+        if (!modelDirectory.isDirectory() && !modelDirectory.mkdirs()) {
+            throw new IllegalArgumentException("Directory " + modelFilePath + " could not be created.");
         }
-        modelDirectory.mkdirs();
 
-        // open nlp needs xml format
-        File tempDir = FileHelper.getTempDir();
-        String tempTrainingFile = new File(tempDir, "openNLPNERTraining.xml").getPath();
-        String tempTrainingFile2 = new File(tempDir, "openNLPNERTraining2.xml").getPath();
-        FileFormatParser.columnToXml(trainingFilePath, tempTrainingFile, "\t");
+        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+        String text = FileFormatParser.getText(trainingFilePath, COLUMN);
 
-        // let us get all tags that are used
-        String[] tags = getUsedTags(tempTrainingFile);
-        LOGGER.debug("Found {} tags in the training file, computing the models now", tags.length);
+        // need to train for each type; so collect all occurring annotation types
+        Set<String> types = CollectionHelper.convertSet(annotations, Annotation.TAG_CONVERTER);
+        LOGGER.info("Training for types: {}", types);
 
-        // create one model for each used tag, that is delete all the other tags from the file and learn
-        for (int i = 0; i < tags.length; i++) {
-
-            String tag = tags[i].toUpperCase();
-            LOGGER.debug("Start learning for tag {}", tag);
-
-            // XXX this is for the TUD dataset, for some reason opennlp does not find some concepts when they're only in
-            // few places, so we delete all lines with no tags for the concepts with few mentions
-            if (!isConllEvaluation()/*
-             * conceptName.equalsIgnoreCase("mouse") || conceptName.equalsIgnoreCase("car")
-             * || conceptName.equalsIgnoreCase("actor")|| conceptName.equalsIgnoreCase("phone")
-             */) {
-
-                List<String> array = FileHelper.readFileToArray(tempTrainingFile);
-
-                StringBuilder sb = new StringBuilder();
-                for (String string : array) {
-                    if (string.indexOf("<" + tag + ">") > -1) {
-                        sb.append(string).append("\n");
-                    }
-                }
-
-                FileHelper.writeToFile(tempTrainingFile2, sb);
-            } else {
-                FileHelper.copyFile(tempTrainingFile, tempTrainingFile2);
-            }
-
-            String content = FileHelper.tryReadFileToString(tempTrainingFile2);
-
-            // we need to use the tag style <START:tagname> blabla <END>
-            content = content.replaceAll("<" + tag + ">", "<START:" + tag.toLowerCase() + "> ");
-            content = content.replaceAll("</" + tag + ">", " <END> ");
-
-            // we need to remove all other tags for training the current tag
-            for (String otherTag : tags) {
-                if (otherTag.equalsIgnoreCase(tag)) {
-                    continue;
-                }
-                content = content.replace("<" + otherTag.toUpperCase() + ">", "");
-                content = content.replace("</" + otherTag.toUpperCase() + ">", "");
-            }
-
-            String tempFileTag = new File(tempDir, "openNLPNERTraining" + tag + ".xml").getPath();
-            FileHelper.writeToFile(tempFileTag, content);
-
-            ObjectStream<String> lineStream = null;
-            TokenNameFinderModel model;
-            try {
-                lineStream = new PlainTextByLineStream(new FileInputStream(tempFileTag), "UTF-8");
-
-                ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
-
-                model = NameFinderME.train("en", tag, sampleStream, (AdaptiveFeatureGenerator)null,
-                        Collections.<String, Object> emptyMap(), 100, 5);
-
-            } catch (UnsupportedEncodingException e) {
-                throw new IllegalStateException(e);
-            } catch (FileNotFoundException e) {
-                throw new IllegalStateException(e);
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            } finally {
-                if (lineStream != null) {
-                    try {
-                        lineStream.close();
-                    } catch (IOException ignore) {
-                    }
+        for (final String type : types) {
+            LOGGER.debug("Training {}", type);
+            List<Annotation> currentAnnotations = filterList(annotations, AnnotationFilters.tag(type));
+            List<NameSample> nameSamples = CollectionHelper.newArrayList();
+            Span[] sentences = sentenceDetector.sentPosDetect(text);
+            for (Span sentence : sentences) {
+                String sentenceString = sentence.getCoveredText(text).toString();
+                int sentenceStart = sentence.getStart();
+                int sentenceEnd = sentence.getEnd();
+                Span[] tokenSpans = tokenizer.tokenizePos(sentenceString);
+                String[] tokens = Span.spansToStrings(tokenSpans, sentenceString);
+                List<Annotation> inSentence = filterList(currentAnnotations, range(sentenceStart, sentenceEnd));
+                if (inSentence.size() > 0) {
+                    Span[] spans = getSpans(sentenceStart, inSentence, tokenSpans);
+                    nameSamples.add(new NameSample(tokens, spans, true));
                 }
             }
-
+            ObjectStream<NameSample> stream = new CollectionObjectStream<NameSample>(nameSamples);
             BufferedOutputStream modelOut = null;
-
             try {
-                File modelFile = new File(modelDirectory, "openNLP_" + tag + ".bin");
+                TokenNameFinderModel model = NameFinderME.train("en", type, stream, TRAIN_PARAMS, FEATURE_GENERATOR,
+                        RESOURCES);
+                File modelFile = new File(modelDirectory, "openNLP_" + type + ".bin");
                 modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
                 model.serialize(modelOut);
             } catch (IOException e) {
-                throw new IllegalStateException(e);
+                throw new IllegalStateException("IOException during training", e);
             } finally {
+                try {
+                    stream.close();
+                } catch (IOException ignore) {
+                }
                 FileHelper.close(modelOut);
             }
         }
         return true;
     }
 
-    public void setConllEvaluation(boolean conllEvaluation) {
-        this.conllEvaluation = conllEvaluation;
-    }
-
-    public boolean isConllEvaluation() {
-        return conllEvaluation;
+    /**
+     * Transform the training annotations to an array of OpenNLP spans.
+     * 
+     * @param sentenceOffset The character offset of the current sentence.
+     * @param annotations The training annotations.
+     * @param tokenSpans The tokens of the current sentence.
+     * @return An array of spans representing the annotated and tagged entities.
+     */
+    private static Span[] getSpans(int sentenceOffset, List<Annotation> annotations, Span[] tokenSpans) {
+        List<Span> spans = CollectionHelper.newArrayList();
+        for (int idx = 0; idx < annotations.size(); idx++) {
+            Annotation annotation = annotations.get(idx);
+            int start = -1;
+            int end = -1;
+            for (int i = 0; i < tokenSpans.length; i++) {
+                if (sentenceOffset + tokenSpans[i].getStart() == annotation.getStartPosition()) {
+                    start = i;
+                }
+                if (sentenceOffset + tokenSpans[i].getEnd() == annotation.getEndPosition()) {
+                    end = i + 1;
+                }
+            }
+            if (start == -1 || end == -1) {
+                // FIXME I currently don't know, why the end position is sometimes -1
+                LOGGER.warn("Could not properly align {} (start={}, end={})", annotation, start, end);
+            } else {
+                spans.add(new Span(start, end, annotation.getTag()));
+            }
+        }
+        return spans.toArray(new Span[spans.size()]);
     }
 
     @Override
     public String getName() {
         return "OpenNLP NER";
-    }
-
-    /**
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-
-        OpenNlpNer tagger = new OpenNlpNer();
-        tagger.loadModel("/Users/pk/Desktop/OpenNLP-Models");
-        tagger.getAnnotations("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. New York City is where he wants to buy an iPhone 4 or a Samsung i7110 phone. The iphone 4 is modern. Seattle is a rainy city.");
-
-        // // HOW TO USE (some functions require the models in
-        // data/models/opennlp) ////
-        // // train
-        // tagger.train("data/datasets/ner/sample/trainingPhoneXML.xml",
-        // "data/models/opennlp/openNLP_phone.bin.gz");
-
-        // // tag
-        // String taggedText = tagger
-        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. New York City is where he wants to buy an iPhone 4 or a Samsung i7110 phone. The iphone 4 is modern. Seattle is a rainy city.",
-        // "data/models/opennlp/openNLP_location.bin,data/models/opennlp/openNLP_person.bin");
-        // System.out.println(taggedText);
-        // System.exit(1);
-        // System.out.println(taggedText);
-
-        // // demo
-        // tagger.demo();
-
-        // // evaluate
-        // System.out
-        // .println(
-        // tagger
-        // .evaluate(
-        // "data/datasets/ner/sample/testingXML.xml",
-        // "data/models/opennlp/openNLP_organization.bin.gz,data/models/opennlp/openNLP_person.bin.gz,data/models/opennlp/openNLP_location.bin.gz",
-        // TaggingFormat.XML));
-
-        // /////////////////////////// train and test /////////////////////////////
-        // tagger.setConllEvaluation(true);
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/openNLP.bin");
-        // tagger.train("data/temp/seedsTest1.txt", "data/temp/openNLP.bin");
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/openNLP.bin",
-        // TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-
-        // TODO one model per concept
-        // Dataset trainingDataset = new Dataset();
-        // trainingDataset.setPath("data/datasets/ner/www_test_0/index_split1.txt");
-        // tagger.train(trainingDataset, "data/temp/openNLP.bin");
-        //
-        // Dataset testingDataset = new Dataset();
-        // testingDataset.setPath("data/datasets/ner/www_test_0/index_split2.txt");
-        // EvaluationResult er = tagger.evaluate(testingDataset,
-        // "data/temp/openNLP_MOVIE.bin,data/temp/openNLP_POLITICIAN.bin");
-        // // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/opennlp/openNLP_person.bin");
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-
     }
 
 }
