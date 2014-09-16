@@ -22,13 +22,14 @@ public class PatternAnalyzer {
     static CountMatrix<String> getPatterns(File inputFile, final Direction direction, final int size) {
         final CountMatrix<String> countMatrix = CountMatrix.create();
         final int numLines = FileHelper.getNumberOfLines(inputFile);
-        final ProgressMonitor monitor = new ProgressMonitor(numLines, 1);
+        final ProgressMonitor monitor = new ProgressMonitor();
+        monitor.startTask(null, numLines);
         FileHelper.performActionOnEveryLine(inputFile, new LineAction() {
             StringBuilder buffer = new StringBuilder();
 
             @Override
             public void performAction(String line, int lineNumber) {
-                monitor.incrementAndPrintProgress();
+                monitor.increment();
                 if (line.startsWith("=-DOCSTART-")) {
                     String text = buffer.toString();
                     text = StringHelper.replaceProtectedSpace(text);

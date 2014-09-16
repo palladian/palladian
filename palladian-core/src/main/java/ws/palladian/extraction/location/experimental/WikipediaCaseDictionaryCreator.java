@@ -16,23 +16,23 @@ import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProcessHelper;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.wiki.WikiPage;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
+import ws.palladian.retrieval.wiki.WikiPage;
 
 class WikipediaCaseDictionaryCreator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaCaseDictionaryCreator.class);
 
-    private static final CountMap<String> wordCounts = CountMap.create();
+    private static final Bag<String> wordCounts = Bag.create();
 
-    private static final CountMap<String> uppercaseCounts = CountMap.create();
+    private static final Bag<String> uppercaseCounts = Bag.create();
 
     /**
      * @param wikipediaDump Path to the Wikipedia dump file (in .bz2 format).
@@ -95,11 +95,11 @@ class WikipediaCaseDictionaryCreator {
     private static void writeCaseDictionary(File outputFile) {
         Writer writer = null;
         try {
-            Set<String> words = wordCounts.keySet();
+            Set<String> words = wordCounts.uniqueItems();
             writer = new BufferedWriter(new FileWriter(outputFile));
             for (String word : words) {
-                int totalCount = wordCounts.getCount(word);
-                int uppercaseCount = uppercaseCounts.getCount(word);
+                int totalCount = wordCounts.count(word);
+                int uppercaseCount = uppercaseCounts.count(word);
                 writer.write(String.format("%s\t%s\t%s\n", word, totalCount, uppercaseCount));
             }
         } catch (IOException e) {

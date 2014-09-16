@@ -48,7 +48,8 @@ public class TextDatasetIterator implements Iterable<Instance> {
     public Iterator<Instance> iterator() {
         final Iterator<String> lineIterator = fileLines.iterator();
         final int totalLines = fileLines.size();
-        final ProgressMonitor progressMonitor = new ProgressMonitor(totalLines, 1, "Dataset: " + name);
+        final ProgressMonitor progressMonitor = new ProgressMonitor();
+        progressMonitor.startTask("Dataset: " + name, totalLines);
 
         return new Iterator<Instance>() {
 
@@ -72,7 +73,7 @@ public class TextDatasetIterator implements Iterable<Instance> {
                     learningText = new String(parts[0]);
                 }
                 String instanceCategory = new String(parts[1]);
-                progressMonitor.incrementAndPrintProgress();
+                progressMonitor.increment();
                 return new InstanceBuilder().setText(learningText).create(instanceCategory);
             }
 

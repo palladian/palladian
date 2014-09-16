@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
@@ -116,7 +116,7 @@ public final class DatasetManager {
         final FileWriter indexFile = new FileWriter(indexFilename);
 
         // number of instances for each class
-        final CountMap<String> cm = CountMap.create();
+        final Bag<String> cm = Bag.create();
 
         LineAction la = new LineAction() {
 
@@ -127,7 +127,7 @@ public final class DatasetManager {
                     return;
                 }
 
-                if (cm.getCount(parts[parts.length - 1]) >= instancesPerClass) {
+                if (cm.count(parts[parts.length - 1]) >= instancesPerClass) {
                     return;
                 }
 
@@ -167,10 +167,11 @@ public final class DatasetManager {
         Dataset ds = new Dataset();
         ds.setSeparationString(separator);
         ds.setPath(indexFilePath);
-      
-        CountMap<String> classDistribution = calculateClassDistribution(ds);
-        int lowestCount = classDistribution.getSortedMap().values().iterator().next();
-        
+
+        Bag<String> classDistribution = calculateClassDistribution(ds);
+        Entry<String, Integer> min = classDistribution.getMin();
+        int lowestCount = min != null ? min.getValue() : 0;
+
         return createIndexExcerpt(indexFilePath, separator, lowestCount);
     }
 
@@ -528,13 +529,13 @@ public final class DatasetManager {
      * @param datasetPath The path to the dataset index file.
      * @param csvPath The path where the csv file should be saved to.
      */
-    public static CountMap<String> calculateClassDistribution(final Dataset dataset) {
+    public static Bag<String> calculateClassDistribution(final Dataset dataset) {
         return calculateClassDistribution(dataset, null);
     }
     
-    public static CountMap<String> calculateClassDistribution(final Dataset dataset, String csvPath) {
+    public static Bag<String> calculateClassDistribution(final Dataset dataset, String csvPath) {
 
-        final CountMap<String> classCounts = CountMap.create();
+        final Bag<String> classCounts = Bag.create();
         LineAction la = new LineAction() {
 
             @Override
@@ -554,7 +555,7 @@ public final class DatasetManager {
         if (csvPath != null) {
             StringBuilder csv = new StringBuilder();
             for (String entry : classCounts) {
-                csv.append(entry).append(";").append(classCounts.getCount(entry)).append("\n");
+                csv.append(entry).append(";").append(classCounts.count(entry)).append("\n");
             }
             FileHelper.writeToFile(csvPath, csv);
         }
@@ -606,12 +607,13 @@ public final class DatasetManager {
         modifiedDataset.setName(dataset.getName());
 
         // get class distribution to remove categories that appear not frequently enough
-        CountMap<String> cd = calculateClassDistribution(dataset, "data/distributionFull.csv");
+        Bag<String> cd = calculateClassDistribution(dataset, "data/distributionFull.csv");
 
-        Set<String> keepClasses = cd.getObjectsWithHigherCountThan(minFrequency - 1);
         StringBuilder keepClassesString = new StringBuilder();
-        for (Object keepClass : keepClasses) {
-            keepClassesString.append("#").append((String)keepClass).append("#");
+        for (Entry<String, Integer> entry : cd.unique()) {
+            if (entry.getValue() >= minFrequency) {
+                keepClassesString.append("#").append(entry.getKey()).append("#");
+            }
         }
 
         List<String> processedLines = new ArrayList<String>();

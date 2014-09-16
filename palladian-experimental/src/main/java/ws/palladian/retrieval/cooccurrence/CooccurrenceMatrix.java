@@ -11,7 +11,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.PairMatrix;
 import ws.palladian.helper.io.FileHelper;
@@ -38,11 +38,11 @@ public final class CooccurrenceMatrix implements Serializable {
 
     private final CountMatrix<String> pairs;
 
-    private final CountMap<String> items;
+    private final Bag<String> items;
 
     public CooccurrenceMatrix() {
         pairs = new CountMatrix<String>(new PairMatrix<String, Integer>());
-        items = CountMap.create();
+        items = Bag.create();
     }
 
     public CooccurrenceMatrix add(String itemA, String itemB) {
@@ -78,7 +78,7 @@ public final class CooccurrenceMatrix implements Serializable {
     }
 
     public int getCount(String item) {
-        return items.getCount(item);
+        return items.count(item);
     }
 
     public int getCount(String itemA, String itemB) {
@@ -86,11 +86,11 @@ public final class CooccurrenceMatrix implements Serializable {
     }
 
     public int getNumItems() {
-        return items.totalSize();
+        return items.size();
     }
 
     public int getNumUniqueItems() {
-        return items.uniqueSize();
+        return items.unique().size();
     }
 
     public int getNumPairs() {
@@ -127,7 +127,7 @@ public final class CooccurrenceMatrix implements Serializable {
         // XXX according to the lecture slides, add-one smoothing is not well suited for n-gram modelling,
         // consider implementing better smoothing algorithm, see lecture PDFs, page 71 ff.
         int s1 = smoothing ? 1 : 0;
-        int s2 = smoothing ? items.uniqueSize() : 0;
+        int s2 = smoothing ? items.unique().size() : 0;
         return (double)(getCount(itemB, itemA) + s1) / (getCount(itemB) + s2);
     }
 
@@ -150,7 +150,7 @@ public final class CooccurrenceMatrix implements Serializable {
             writer = new PrintWriter(stream);
             writer.println(FREQ_HEADER);
             for (String term : items.uniqueItems()) {
-                writer.println(term + SEPARATOR + items.getCount(term));
+                writer.println(term + SEPARATOR + items.count(term));
                 monitor.incrementAndPrintProgress();
             }
             writer.println(COOC_HEADER);
@@ -225,7 +225,7 @@ public final class CooccurrenceMatrix implements Serializable {
         builder.append("numUniqueItems: ").append(getNumUniqueItems()).append('\n');
         builder.append("numPairs: ").append(getNumPairs()).append('\n').append('\n');
         for (String item : items.uniqueItems()) {
-            builder.append(item).append(" : ").append(items.getCount(item)).append('\n');
+            builder.append(item).append(" : ").append(items.count(item)).append('\n');
         }
         builder.append('\n').append('\n');
         builder.append(pairs);
