@@ -237,6 +237,19 @@ public class CountMap<T> implements Collection<T>, Serializable {
         return validCountSet;
     }
 
+    public T getLowest() {
+        int lowest = Integer.MAX_VALUE;
+        T result = null;
+        for (T item : uniqueItems()) {
+            int current = getCount(item);
+            if (current < lowest) {
+                result = item;
+                lowest = current;
+            }
+        }
+        return result;
+    }
+
     public T getHighest() {
         int highest = 0;
         T result = null;
