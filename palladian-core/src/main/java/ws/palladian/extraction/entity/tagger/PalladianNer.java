@@ -4,6 +4,7 @@ import static ws.palladian.classification.text.FeatureSettingBuilder.chars;
 import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.LanguageIndependent;
+import static ws.palladian.helper.functional.Filters.not;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -27,6 +28,7 @@ import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.core.Annotation;
+import ws.palladian.core.AnnotationFilters;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.ClassifyingTagger;
@@ -516,12 +518,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         preProcessAnnotations(annotations);
         Annotations<ClassifiedAnnotation> classifiedAnnotations = classifyCandidates(annotations);
         classifiedAnnotations = postProcessAnnotations(inputText, classifiedAnnotations);
-        CollectionHelper.remove(classifiedAnnotations, new Filter<Annotation>() {
-            @Override
-            public boolean accept(Annotation item) {
-                return !item.getTag().equals(NO_ENTITY);
-            }
-        });
+        CollectionHelper.remove(classifiedAnnotations, not(AnnotationFilters.tag(NO_ENTITY)));
         if (model.settings.getLanguageMode() == LanguageIndependent) {
             classifiedAnnotations = combineAnnotations(classifiedAnnotations);
         }
@@ -672,13 +669,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             public boolean accept(Annotation annotation) {
                 if (annotation.getValue().indexOf(" ") == -1) {
                     CategoryEntries ces = model.caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
-                    double upperCase = ces.getProbability("A");
                     double lowerCase = ces.getProbability("a");
-                    if (lowerCase > 0 && upperCase / lowerCase <= 1) {
+                    if (lowerCase >= 0.5) {
                         if (LOGGER.isDebugEnabled()) {
                             NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
                             LOGGER.debug("Remove by case signature: {} (ratio:{})", annotation.getValue(),
-                                    format.format(upperCase / lowerCase));
+                                    format.format(lowerCase));
                         }
                         return false;
                     }
