@@ -28,7 +28,7 @@
 		<module>palladian-persistence</module>
 		<module>palladian-retrieval</module>
 		<module>palladian-experimental</module>
-		<module>palladian-external-code</module>
+		<module>palladian-external</module>
 	</modules>
 	<build>
 		<plugins>
