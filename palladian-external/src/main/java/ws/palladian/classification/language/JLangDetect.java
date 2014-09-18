@@ -21,7 +21,6 @@ import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -146,10 +145,8 @@ public class JLangDetect implements LanguageClassifier {
         Iterator<Score> iterator = languages.iterator();
         if (iterator.hasNext()) {
             Score langScore = iterator.next();
-            // wtf are those attributes private? So we have to parse them from toString()
-            String scoreString = langScore.toString();
-            String lang = StringHelper.getSubstringBetween(scoreString, "Score{language='", "', score=");
-            double score = Double.valueOf(StringHelper.getSubstringBetween(scoreString, "score=", "}"));
+            String lang = langScore.getLanguage();
+            double score = langScore.getScore();
             if (score > THRESHOLD) {
                 return Language.getByIso6391(lang);
             }
