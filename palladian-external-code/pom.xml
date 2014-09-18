@@ -31,42 +31,11 @@
 			<artifactId>weka-stable</artifactId>
 			<version>3.6.10</version>
 		</dependency>
-		<!-- following dependencies are necessary for ark-tweet-nlp -->
 		<dependency>
-			<groupId>edu.cmu.cs.lti.ark.tweetnlp</groupId>
+			<groupId>edu.cmu.cs</groupId>
 			<artifactId>ark-tweet-nlp</artifactId>
-			<version>0.2</version>
+			<version>0.3.2</version>
 		</dependency>
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math</artifactId>
-			<version>2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>jargs.gnu</groupId>
-			<artifactId>jargs</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>posBerkeley</groupId>
-			<artifactId>posBerkeley</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.twitter.common</groupId>
-			<artifactId>text</artifactId>
-			<version>0.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>2.9.1-1</version>
-		</dependency>
-		<!-- // end ark-tweet-nlp -->
 		<dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-core</artifactId>
