@@ -39,8 +39,8 @@
 				<configuration>
 					<compilerArgument>-Xlint:all</compilerArgument>
 					<showWarnings>true</showWarnings>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>${project.jdk.version}</source>
+					<target>${project.jdk.version}</target>
 					<compilerArguments>
 						<encoding>UTF-8</encoding>
 					</compilerArguments>
@@ -77,12 +77,14 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>2.5</version>
+				<version>2.7.1</version>
 				<configuration>
+					<linkXref>true</linkXref>
+					<sourceEncoding>utf-8</sourceEncoding>
 					<rulesets>
 						<ruleset>${project.parent.basedir}/config/pmd_ruleset</ruleset>
 					</rulesets>
-					<targetJdk>1.6</targetJdk>
+					<targetJdk>${project.jdk.version}</targetJdk>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -221,6 +223,7 @@
 		<logback.version>1.1.2</logback.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+		<project.jdk.version>1.7</project.jdk.version>
 	</properties>
 	<profiles>
 		<profile>

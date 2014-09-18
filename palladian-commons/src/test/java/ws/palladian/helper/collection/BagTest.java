@@ -112,6 +112,14 @@ public class BagTest {
         assertEquals(8, bag1.size());
         assertEquals(2, bag1.unique().size());
     }
+    
+    @Test
+    public void testSet2() {
+        bag1.set("four", 5);
+        bag1.set("four", 10);
+        bag1.set("four", 5);
+        assertEquals(15, bag1.size());
+    }
 
     @Test
     public void testBagAdd() {

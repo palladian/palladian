@@ -146,12 +146,13 @@ public final class CooccurrenceMatrix implements Serializable {
         try {
             long totalCount = (long)items.uniqueItems().size();
             totalCount += (long)pairs.getRowKeys().size() * pairs.getColumnKeys().size();
-            ProgressMonitor monitor = new ProgressMonitor(totalCount);
+            ProgressMonitor monitor = new ProgressMonitor();
+            monitor.startTask(null, totalCount);
             writer = new PrintWriter(stream);
             writer.println(FREQ_HEADER);
             for (String term : items.uniqueItems()) {
                 writer.println(term + SEPARATOR + items.count(term));
-                monitor.incrementAndPrintProgress();
+                monitor.increment();
             }
             writer.println(COOC_HEADER);
             for (String term1 : pairs.getRowKeys()) {
@@ -160,7 +161,7 @@ public final class CooccurrenceMatrix implements Serializable {
                     if (count != 0) {
                         writer.println(term1 + SEPARATOR + term2 + SEPARATOR + count);
                     }
-                    monitor.incrementAndPrintProgress();
+                    monitor.increment();
                 }
             }
         } finally {

@@ -13,23 +13,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.1</version>
-				<configuration>
-					<compilerArgument>-Xlint:all</compilerArgument>
-					<showWarnings>true</showWarnings>
-					<source>1.6</source>
-					<target>1.6</target>
-					<compilerArguments>
-						<encoding>UTF-8</encoding>
-					</compilerArguments>
-					<showDeprecation>true</showDeprecation>
-					<verbose>true</verbose>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
@@ -40,11 +23,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>2.7.1</version>
 				<configuration>
-					<linkXref>true</linkXref>
-					<sourceEncoding>utf-8</sourceEncoding>
-					<targetJdk>1.6</targetJdk>
 					<!-- Exclude this project from PMD -->
 					<excludeRoots>
 						<excludeRoot>${project.basedir}/src/main/java</excludeRoot>
