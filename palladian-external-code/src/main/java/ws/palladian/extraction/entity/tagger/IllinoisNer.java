@@ -2,8 +2,12 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -25,37 +29,56 @@ import edu.illinois.cs.cogcomp.LbjNer.LbjTagger.Parameters;
  */
 public class IllinoisNer extends TrainableNamedEntityRecognizer {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(IllinoisNer.class);
+
+    /** The name of the configuration file in the target directory. */
+    private static final String CONFIG_FILE_NAME = "IllinoisNer.config";
+
     /** The default number of training rounds. */
-    public static final int DEFAULT_TRAINING_ROUNDS = 20;
+    public static final int DEFAULT_TRAINING_ROUNDS = -1;
 
     /** Number of rounds for training. */
     private final int trainingRounds;
 
+    /**
+     * <p>
+     * Create a new {@link IllinoisNer} using specified number of iterations for training.
+     * 
+     * @param trainingRounds The number of iterations for training, greater zero, or -1 to use an automatic convergence
+     *            criterion.
+     */
     public IllinoisNer(int trainingRounds) {
-        Validate.isTrue(trainingRounds > 0, "trainingRounds must be greater zero");
+        Validate.isTrue(trainingRounds == -1 || trainingRounds > 0,
+                "trainingRounds must be greater zero, or -1 to use automatic convergence criterion");
         this.trainingRounds = trainingRounds;
     }
 
+    /**
+     * <p>
+     * Create a new {@link IllinoisNer} using the automatic convergence criterion for training.
+     */
     public IllinoisNer() {
         this(DEFAULT_TRAINING_ROUNDS);
     }
 
-    private static String buildConfig(String modelFile) {
+    private static String buildConfig(String modelFile, Set<String> tags) {
         StringBuilder config = new StringBuilder();
         // # Required fields
-        config.append("configFilename config").append('\n');
+        config.append("configFilename ").append("IllinoisNER").append('\n');
         config.append("pathToModelFile ").append(modelFile).append('\n');
         config.append("taggingEncodingScheme BIO\n");
         config.append("tokenizationScheme LbjTokenizationScheme\n");
         // # Optional fields
-        config.append("beamSize 5\n");
+        // config.append("beamSize 5\n");
         config.append("forceNewSentenceOnLineBreaks true\n");
+        config.append("labelTypes ").append(StringUtils.join(tags, " ")).append('\n');
         config.append("logging false\n");
-        config.append("inferenceMethod GREEDY\n");
-        config.append("normalizeTitleText false\n");
-        config.append("sortLexicallyFilesInFolders true\n");
-        config.append("thresholdPrediction false\n");
-        config.append("treatAllFilesInFolderAsOneBigDocument true\n");
+        // config.append("inferenceMethod GREEDY\n");
+        // config.append("normalizeTitleText false\n");
+        // config.append("sortLexicallyFilesInFolders true\n");
+        // config.append("thresholdPrediction false\n");
+        // config.append("treatAllFilesInFolderAsOneBigDocument true\n");
         config.append("debug true\n");
         // # Features
         config.append("Forms 1\n");
@@ -75,12 +98,12 @@ public class IllinoisNer extends TrainableNamedEntityRecognizer {
 
     @Override
     public String getModelFileEnding() {
-        return "model";
+        return "";
     }
 
     @Override
     public boolean setsModelFileEndingAutomatically() {
-        return false;
+        return true;
     }
 
     @Override
@@ -90,8 +113,11 @@ public class IllinoisNer extends TrainableNamedEntityRecognizer {
             if (modelFile.isDirectory() && !modelFile.mkdirs()) {
                 throw new IllegalArgumentException("Could not create directory '" + modelFilePath + "'.");
             }
-            String configuration = buildConfig(modelFilePath);
-            File configFile = FileHelper.getTempFile();
+            Set<String> tags = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
+            LOGGER.debug("Available tags in training data: {}", tags);
+            String configuration = buildConfig(modelFilePath, tags);
+            LOGGER.debug("Configuration\n{}", configuration);
+            File configFile = new File(modelFilePath, CONFIG_FILE_NAME);
             FileHelper.writeToFile(configFile.getPath(), configuration);
             Parameters.readConfigAndLoadExternalData(configFile.getPath(), true);
             File trainFile = FileHelper.getTempFile();
@@ -109,10 +135,8 @@ public class IllinoisNer extends TrainableNamedEntityRecognizer {
         Validate.isTrue(new File(configModelFilePath).isDirectory(),
                 "The given path must point to a directory with the model files.");
         try {
-            String configFileContent = buildConfig(configModelFilePath);
-            File configFile = FileHelper.getTempFile();
-            FileHelper.writeToFile(configFile.getPath(), configFileContent);
-            Parameters.readConfigAndLoadExternalData(configFile.getPath());
+            String configFilePath = new File(configModelFilePath, CONFIG_FILE_NAME).getPath();
+            Parameters.readConfigAndLoadExternalData(configFilePath);
             return true;
         } catch (Exception e) {
             throw new IllegalStateException("Exception when loading model from '" + configModelFilePath + "'.", e);
@@ -138,7 +162,7 @@ public class IllinoisNer extends TrainableNamedEntityRecognizer {
 
     @Override
     public String getName() {
-        return "Lbj NER";
+        return "Illinois NER";
     }
 
 }

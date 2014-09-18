@@ -3,7 +3,6 @@ package ws.palladian.extraction.entity.tagger;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +63,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
     public boolean train(String trainingFilePath, String modelFilePath) {
 
         try {
-            File tempDirectory = FileHelper.getTempDir();
-            String transformedPath = new File(tempDirectory, "LingPipeNer-" + UUID.randomUUID() + ".txt").getPath();
+            String transformedPath = FileHelper.getTempFile().getPath();
 
             FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, transformedPath, "_");
             FileFormatParser.tsvToSsv(transformedPath, transformedPath);

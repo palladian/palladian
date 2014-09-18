@@ -316,7 +316,6 @@ public class Evaluator {
         LOGGER.info("evaluating " + tagger.getName() + " on the unseen data took " + stopWatch.getElapsedTimeString());
 
         Set<String> concepts = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
-        concepts.remove("O");
 
         // write head
         results.append(";Complete Testset;;;;;;Unseen Data Only;;;;;\n");

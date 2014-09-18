@@ -1,10 +1,8 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,14 +139,12 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
-        File tempDirectory = FileHelper.getTempDir();
-
-        String transformedTrainingPath = new File(tempDirectory, "StanfordNer-" + UUID.randomUUID() + ".txt").getPath();
+        String transformedTrainingPath = FileHelper.getTempFile().getPath();
         FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, transformedTrainingPath, "_");
 
         // set the location to the training and the model file in the configs and save the file
         String configFileContent = buildConfigFile(transformedTrainingPath, modelFilePath);
-        String propertiesFilePath = new File(tempDirectory, "StanfordNer-" + UUID.randomUUID() + ".props").getPath();
+        String propertiesFilePath = FileHelper.getTempFile().getPath();
         FileHelper.writeToFile(propertiesFilePath, configFileContent);
 
         String[] args = {"-props", propertiesFilePath};
