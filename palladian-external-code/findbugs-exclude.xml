@@ -1,9 +1,0 @@
-<FindBugsFilter>
-     <!-- Ignore everything in this project -->
-     <Match>
-      <Not>
-          <Package name=".*" />
-      </Not>
-     </Match>
-
-</FindBugsFilter>

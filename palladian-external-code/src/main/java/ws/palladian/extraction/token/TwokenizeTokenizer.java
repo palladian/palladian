@@ -3,10 +3,10 @@ package ws.palladian.extraction.token;
 import java.util.Iterator;
 
 import ws.palladian.core.ImmutableToken;
-import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
+import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
-import edu.cmu.cs.lti.ark.tweetnlp.Twokenize;
+import cmu.arktweetnlp.Twokenize;
 
 /**
  * <p>
@@ -22,7 +22,7 @@ public final class TwokenizeTokenizer implements TextTokenizer {
     @Override
     public Iterator<Token> iterateTokens(final String text) {
 
-        final Iterator<String> tokens = Twokenize.tokenizeForTagger_J(text).iterator();
+        final Iterator<String> tokens = Twokenize.tokenizeRawTweetText(text).iterator();
         return new AbstractIterator<Token>() {
 
             int endPosition = 0;

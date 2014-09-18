@@ -23,7 +23,6 @@ import ws.palladian.core.Annotation;
  * 
  * @author Philipp Katz
  */
-@Ignore
 @RunWith(Parameterized.class)
 public class TweetNlpPosTaggerTest {
 
@@ -38,14 +37,14 @@ public class TweetNlpPosTaggerTest {
     @Parameters
     public static Collection<Object[]> testData() {
         String tweet1 = "I predict I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh";
-        String[] tags1 = {"O", "V", "O", "V", "V", "D", "A", "N", "O", "V", "P", ",", "V", "^", "^", "N", ",", "R",
+        String[] tags1 = {"O", "V", "O", "V", "V", "D", "A", "N", "O", "V", "P", ",", "V", "^", "^", "N", ",", "P",
                 "P", "O", "V", "L", "P", "O", "~", "@", "~", "^", ",", "~", ",", "U"};
 
         String tweet2 = "RT @DjBlack_Pearl: wat muhfuckaz wearin 4 the lingerie party?????";
         String[] tags2 = {"~", "@", "~", "O", "N", "V", "P", "D", "N", "N", ","};
 
         String tweet3 = "Wednesday 27th october 2010. 》have a nice day :)";
-        String[] tags3 = {"^", "$", "^", "$", ",", "V", "D", "A", "N", "E"};
+        String[] tags3 = {"^", "A", "^", "$", ",", "V", "D", "A", "N", "E"};
 
         String tweet4 = "RT @ddlovato: @joejonas oh, hey THANKS jerk!";
         String[] tags4 = {"~", "@", "~", "@", "!", ",", "!", "N", "N", ","};
@@ -77,7 +76,7 @@ public class TweetNlpPosTaggerTest {
 
     @Test
     public void testTweetNlpPosTagger() {
-        TweetNlpPosTagger posTagger = new TweetNlpPosTagger();
+        TweetNlpPosTagger posTagger = TweetNlpPosTagger.DEFAULT;
         List<Annotation> tags = posTagger.getAnnotations(tweetText);
         assertEquals(expectedTags.length, tags.size());
         for (int i = 0; i < expectedTags.length; i++) {
