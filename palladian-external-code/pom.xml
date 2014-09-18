@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>ws.palladian</groupId>
@@ -53,8 +52,6 @@
 		<dependency>
 			<groupId>com.aliasi</groupId>
 			<artifactId>lingpipe</artifactId>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
@@ -120,7 +117,7 @@
 		<dependency>
 			<groupId>de.l3s.boilerpipe</groupId>
 			<artifactId>boilerpipe</artifactId>
-			<version>1.2.0</version>			
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
@@ -128,9 +125,9 @@
 			<version>1.9.17</version>
 		</dependency>
 		<dependency>
-  			<groupId>me.champeau.jlangdetect</groupId>
-  			<artifactId>jlangdetect-extra</artifactId>
-  			<version>0.3</version>
+			<groupId>me.champeau.jlangdetect</groupId>
+			<artifactId>jlangdetect-extra</artifactId>
+			<version>0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>de.bwaldvogel</groupId>
@@ -142,23 +139,22 @@
 			<artifactId>clavin</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>edu.illinois.cs.cogcomp</groupId>
+			<artifactId>IllinoisNerExtended</artifactId>
+			<version>2.7</version>
+		</dependency>
 	</dependencies>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<repositories>
 		<repository>
-			<id>releases</id>
-			<url>http://effingo.de/nexus/content/groups/public</url>
+			<id>jlangdetect-googlecode</id>
+			<name>JLangDetect Maven repository</name>
+			<url>https://jlangdetect.googlecode.com/svn/repo</url>
 		</repository>
 		<repository>
-			<id>snapshots</id>
-			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
-		</repository>
-		<repository>
-  			<id>jlangdetect-googlecode</id>
-  			<name>JLangDetect Maven repository</name>
-  			<url>https://jlangdetect.googlecode.com/svn/repo</url>
+			<id>CogcompSoftware</id>
+			<name>CogcompSoftware</name>
+			<url>http://cogcomp.cs.illinois.edu/m2repo/</url>
 		</repository>
 	</repositories>
 </project>

@@ -2,13 +2,11 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -18,9 +16,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 
 public final class NerHelper {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(NerHelper.class);
 
     private NerHelper() {
         // no instances.
@@ -76,37 +71,36 @@ public final class NerHelper {
         int alignIndex = 0;
         boolean jumpOne = false;
         for (int i = 0; i < correctContent.length(); i++, alignIndex++) {
-            Character correctCharacter = correctContent.charAt(i);
-            Character alignedCharacter = alignedContent.charAt(alignIndex);
-            Character nextAlignedCharacter = 0;
+            char correctCharacter = correctContent.charAt(i);
+            char alignedCharacter = alignedContent.charAt(alignIndex);
+            char nextAlignedCharacter = 0;
             if (i < correctContent.length() - 1) {
                 if (alignIndex + 1 >= alignedContent.length()) {
-                    LOGGER.warn("Length error when aligning; aligned content is shorter than expected.");
-                    break;
+                    throw new IllegalStateException("Length error when aligning; aligned content is shorter than expected.");
                 }
                 nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
             }
 
             // if same, continue
-            if (correctCharacter.equals(alignedCharacter)) {
+            if (correctCharacter == alignedCharacter) {
                 continue;
             }
 
-            // don't distinguish between " and '
-            if ((correctCharacter.charValue() == 34 || correctCharacter.charValue() == 39)
-                    && (alignedCharacter.charValue() == 34 || alignedCharacter.charValue() == 39)) {
+            // don't distinguish between " and ' and `
+            List<Character> quoteCharacters = Arrays.asList('"', '\'', '`');
+            if (quoteCharacters.contains(correctCharacter) && quoteCharacters.contains(alignedCharacter)) {
                 continue;
             }
 
             // characters are different
 
             // if tag "<" skip it
-            if (alignedCharacter.charValue() == 60
-                    && (!Character.isWhitespace(correctCharacter) || nextAlignedCharacter.charValue() == 47 || jumpOne)) {
+            if (alignedCharacter == '<'
+                    && (!Character.isWhitespace(correctCharacter) || nextAlignedCharacter == 47 || jumpOne)) {
                 do {
                     alignIndex++;
                     alignedCharacter = alignedContent.charAt(alignIndex);
-                } while (alignedCharacter.charValue() != 62);
+                } while (alignedCharacter != '>');
 
                 if (jumpOne) {
                     alignIndex++;
@@ -114,23 +108,23 @@ public final class NerHelper {
                 }
                 alignedCharacter = alignedContent.charAt(++alignIndex);
 
-                if (alignedCharacter.charValue() == 60) {
+                if (alignedCharacter == '<') {
                     do {
                         alignIndex++;
                         alignedCharacter = alignedContent.charAt(alignIndex);
-                    } while (alignedCharacter.charValue() != 62);
+                    } while (alignedCharacter != '>');
                     alignedCharacter = alignedContent.charAt(++alignIndex);
                 }
 
                 nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
 
                 // check again if the characters are the same
-                if (correctCharacter.equals(alignedCharacter)) {
+                if (correctCharacter == alignedCharacter) {
                     continue;
                 }
             }
 
-            if (correctCharacter.charValue() == 10) {
+            if (correctCharacter == '\n') {
                 alignedContent = alignedContent.substring(0, alignIndex) + "\n"
                         + alignedContent.substring(alignIndex, alignedContent.length());
                 // alignIndex--;
@@ -138,7 +132,7 @@ public final class NerHelper {
 
                 alignedContent = alignedContent.substring(0, alignIndex)
                         + alignedContent.substring(alignIndex + 1, alignedContent.length());
-                if (nextAlignedCharacter.charValue() == 60) {
+                if (nextAlignedCharacter == '<') {
                     alignIndex--;
                     jumpOne = true;
                 } else {

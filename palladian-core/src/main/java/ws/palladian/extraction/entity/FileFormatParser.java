@@ -360,12 +360,12 @@ public final class FileFormatParser {
 
     public static String bracketToXmlText(String inputText) {
         String outputText = inputText;
-        Pattern pattern = Pattern.compile("\\[(\\w+)\\s(.+?)(\\s(.+?))*?\\s{1,2}\\]", Pattern.DOTALL
+        Pattern pattern = Pattern.compile("\\[(\\w+)\\s([^]]+?)(\\s([^]]+?))*?\\s{0,2}\\]", Pattern.DOTALL
                 | Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(inputText);
         while (matcher.find()) {
-            String tagName = StringHelper.getSubstringBetween(matcher.group(0), "[", " ");
-            String tagContent = StringHelper.getSubstringBetween(matcher.group(0), " ", " ]");
+            String tagName = StringHelper.getSubstringBetween(matcher.group(0), "[", " ").trim();
+            String tagContent = StringHelper.getSubstringBetween(matcher.group(0), " ", "]").trim();
             String xmlTag = "<" + tagName + ">" + tagContent.trim() + "</" + tagName + ">";
             outputText = outputText.replace(matcher.group(0), xmlTag);
         }
@@ -411,9 +411,17 @@ public final class FileFormatParser {
             return getAnnotationsFromXmlFile(taggedTextFilePath);
         } else if (format.equals(TaggingFormat.COLUMN)) {
             return getAnnotationsFromColumn(taggedTextFilePath);
+        } else if (format.equals(TaggingFormat.BRACKETS)) {
+            return getAnnotationsFromBrackets(taggedTextFilePath);
         } else {
             throw new IllegalArgumentException("Format " + format + " not supported.");
         }
+    }
+
+    private static Annotations<Annotation> getAnnotationsFromBrackets(String taggedTextFilePath) {
+        String tempFile = getTempFile();
+        bracketToXml(taggedTextFilePath, tempFile);
+        return getAnnotationsFromXmlFile(tempFile);
     }
 
     public static Annotations<Annotation> getAnnotationsFromColumn(String taggedTextFilePath) {
@@ -528,9 +536,6 @@ public final class FileFormatParser {
         return annotations;
     }
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
 
         // FileFormatParser.xmlToColumn("data/datasets/ner/taggedTextTraining.xml",
