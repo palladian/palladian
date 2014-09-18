@@ -19,22 +19,22 @@ import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>
- * A Bag is a collection which allows counting equal items, it behaves similar to a {@link Set}, but counts occurrences
- * of items. It is also often referred to as a <a href="http://en.wikipedia.org/wiki/Multiset">multiset</a>. A typical
- * use case for this class is a bag of words model of a text document, where the counts in this bag represent the
- * frequencies of tokens within the document. The implementation of this class uses a {@link Map} to store the items and
- * their counts. This class mostly adheres to the interface definition of a {@link Collection}. Keep in mind the
- * following peculiarities:
+ * A Bag is a collection which allows counting equal items, it behaves similar to a {@link Set}, but adds functionality
+ * to retrieve the occurrence count of an item. It is also often referred to as a <a
+ * href="http://en.wikipedia.org/wiki/Multiset">multiset</a>. A typical use case for this class is a bag of words model
+ * of a text document, where the counts in this bag represent the frequencies of tokens within the document. The
+ * implementation of this class uses a {@link Map} to store the items and their counts. This class mostly adheres to the
+ * interface definition of a {@link Collection}. Keep in mind the following peculiarities:
  * <ul>
  * <li>No <code>null</code> entries are allowed.
- * <li>{@link #size()} represents the sum of all counts within this bag; in contrast, to retrieve the number of unique
- * items, use {@link Set#size()} on {@link #unique()}.
+ * <li>{@link #size()} represents the sum of all counts within this bag; in contrast, to retrieve the number of
+ * <b>unique</b> items, use {@link Set#size()} on {@link #unique()}.
  * <li>{@link #iterator()} returns an {@link Iterator} which iterates all items (i.e. also duplicates) within this bag.
  * <li>To retrieve unique items (i.e. no duplicates), use {@link #unique()}.
  * <li>For items which are not present in this bag, {@link #count(Object)} returns a value of zero.
  * <li>Items, which counts are set to zero are removed from the bag.
  * <li>Items with biggest/smallest count can be retrieved using {@link #getMax()} and {@link #getMin()}.
- * <li>You can retrieve copy of this map, where entries are sorted by their counts using {@link #createSorted(Order)}.
+ * <li>You can retrieve a copy of this map, where entries are sorted by their counts using {@link #createSorted(Order)}.
  * </ul>
  * </p>
  * 
@@ -214,6 +214,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
         if (oldValue != null) {
             size -= oldValue;
         }
+        size += count;
         return oldValue != null ? oldValue : 0;
     }
 
