@@ -5,9 +5,9 @@
 		<artifactId>palladian</artifactId>
 		<version>0.2.2-SNAPSHOT</version>
 	</parent>
-	<artifactId>palladian-external-code</artifactId>
-	<name>Palladian: External Code</name>
-	<description>External modified source code that is used by Palladian.</description>
+	<artifactId>palladian-external</artifactId>
+	<name>Palladian: External Tools</name>
+	<description>External libraries and tools integrated within Palladian's API.</description>
 	<build>
 		<plugins>
 			<plugin>

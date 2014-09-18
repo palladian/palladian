@@ -12,7 +12,7 @@ import org.junit.Test;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.integrationtests.ITHelper;
+import ws.palladian.integrationtests.ITHelper; // FIXME copied class from palladian-core
 
 public class IllinoisNerIT {
 
