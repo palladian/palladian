@@ -1,50 +1,66 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static org.junit.Assert.assertTrue;
 import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.EXACT_MATCH;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
 
+import org.apache.commons.configuration.Configuration;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.integrationtests.ITHelper;
 
 public class IllinoisNerIT {
 
-    private static String trainingFile;
-    private static String testFile;
+    private static Configuration config;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        trainingFile = ResourceHelper.getResourcePath("/ner/training.txt");
-        testFile = ResourceHelper.getResourcePath("/ner/test.txt");
+        ITHelper.assertMemory(750, SizeUnit.MEGABYTES);
+        config = ITHelper.getTestConfig();
     }
 
     @AfterClass
     public static void cleanUp() throws Exception {
-        trainingFile = null;
-        testFile = null;
+        config = null;
     }
 
     @Test
-    public void testIllinoisNer() {
-        IllinoisNer tagger = new IllinoisNer(2);
+    public void testIllinoisNer_CoNLL() {
+        String trainPath = config.getString("dataset.conll.train");
+        String testPath = config.getString("dataset.conll.test");
+        ITHelper.assumeFile(trainPath, testPath);
 
+        IllinoisNer tagger = new IllinoisNer();
         String modelFiles = FileHelper.getTempFile().getPath();
-        tagger.train(trainingFile, modelFiles);
+        tagger.train(trainPath, modelFiles);
+        EvaluationResult er = tagger.evaluate(testPath, COLUMN);
 
-        EvaluationResult er = tagger.evaluate(testFile, COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+        ITHelper.assertMin("F1-MUC", 0.84, er.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.79, er.getF1(EXACT_MATCH));
+    }
 
-        // precision MUC: 78.28%, recall MUC: 80.07%, F1 MUC: 79.16%
-        // precision exact: 69.3%, recall exact: 70.89%, F1 exact: 70.09%
-        System.out.println(er.getMUCResultsReadable());
-        System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(MUC) > 0.77);
-        assertTrue(er.getF1(EXACT_MATCH) > 0.70);
+    @Test
+    public void testIllinoisNer_TUDCS4() {
+        String trainPath = config.getString("dataset.tudcs4.train");
+        String testPath = config.getString("dataset.tudcs4.test");
+        ITHelper.assumeFile(trainPath, testPath);
+
+        IllinoisNer tagger = new IllinoisNer();
+        String modelFiles = FileHelper.getTempFile().getPath();
+        tagger.train(trainPath, modelFiles);
+        EvaluationResult er = tagger.evaluate(testPath, COLUMN);
+        
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+        ITHelper.assertMin("F1-MUC", 0.44, er.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.31, er.getF1(EXACT_MATCH));
     }
 
 }

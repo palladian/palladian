@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.token.Tokenizer;
@@ -31,13 +33,17 @@ public final class FileFormatParser {
     }
 
     /**
-     * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the ConLL 2003 file.
+     * <p>
+     * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the ConLL 2003 file (O tags
+     * are ignored).
      * 
      * @param trainingFilePath The path to the training file.
      * @param separator The separator used.
      * @return A set with all tags used.
      */
     public static Set<String> getTagsFromColumnFile(String trainingFilePath, final String separator) {
+        Validate.notEmpty(trainingFilePath, "trainingFilePath must not be empty");
+        Validate.notEmpty(separator, "separator must not be empty");
         final Set<String> tags = new HashSet<String>();
         FileHelper.performActionOnEveryLine(trainingFilePath, new LineAction() {
             @Override
@@ -49,7 +55,10 @@ public final class FileFormatParser {
                 if (parts.length != 2) {
                     return;
                 }
-                tags.add(parts[parts.length - 1]);
+                String tag = parts[parts.length - 1];
+                if (!"O".equalsIgnoreCase(tag)) {
+                    tags.add(tag);
+                }
             }
         });
         return tags;
