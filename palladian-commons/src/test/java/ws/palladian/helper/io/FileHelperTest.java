@@ -1,9 +1,12 @@
 package ws.palladian.helper.io;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.junit.Test;
 
@@ -41,7 +44,7 @@ public class FileHelperTest {
         assertEquals("data/temp/abc_0.jpg", FileHelper.appendToFileName("data/temp/abc.jpg", "_0"));
         assertEquals("abcX123.jpg", FileHelper.appendToFileName("abc.jpg", "X123"));
     }
-    
+
     @Test
     public void testIsFileName() {
         assertEquals(true, FileHelper.isFileName(" website.html"));
@@ -49,7 +52,7 @@ public class FileHelperTest {
         assertEquals(false, FileHelper.isFileName(".just a sentence. "));
         assertEquals(false, FileHelper.isFileName("everything..."));
     }
-    
+
     @Test
     public void testRename() throws FileNotFoundException {
         // System.out.println(FileHelper.rename(new
@@ -58,6 +61,13 @@ public class FileHelperTest {
                 "empty_tagged");
         renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
         assertEquals("empty_tagged.txt", renamedFile);
+    }
+
+    @Test
+    public void testGetTempFile() throws IOException {
+        assertFalse(FileHelper.getTempFile().exists());
+        assertTrue(FileHelper.getTempFile().createNewFile());
+        assertFalse(FileHelper.getTempFile().equals(FileHelper.getTempFile()));
     }
 
 }

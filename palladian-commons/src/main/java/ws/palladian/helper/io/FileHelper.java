@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -1979,6 +1980,24 @@ public final class FileHelper {
             }
         }
         return tempDirectory;
+    }
+
+    /**
+     * <p>
+     * Get a file object which points to a (non existent) temporary file within the temp directory.
+     * 
+     * @return A file in the temp directory, which will be deleted upon VM termination.
+     * @see #getTempDir()
+     */
+    public static File getTempFile() {
+        for (;;) {
+            String fileName = UUID.randomUUID().toString();
+            File tempFile = new File(getTempDir(), fileName);
+            if (tempFile.exists()) { // should never happen, as UUIDs are unique, but never say never
+                continue;
+            }
+            return tempFile;
+        }
     }
 
     /**

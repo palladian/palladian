@@ -51,7 +51,9 @@ import LBJ2.classify.Classifier;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @deprecated Use the updated {@link IllinoisLbj2Ner} instead.
  */
+@Deprecated
 public class IllinoisLbjNer extends TrainableNamedEntityRecognizer {
 
     /** The default number of training rounds. */
