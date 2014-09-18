@@ -23,7 +23,7 @@ import edu.illinois.cs.cogcomp.LbjNer.LbjTagger.Parameters;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class IllinoisLbj2Ner extends TrainableNamedEntityRecognizer {
+public class IllinoisNer extends TrainableNamedEntityRecognizer {
 
     /** The default number of training rounds. */
     public static final int DEFAULT_TRAINING_ROUNDS = 20;
@@ -31,12 +31,12 @@ public class IllinoisLbj2Ner extends TrainableNamedEntityRecognizer {
     /** Number of rounds for training. */
     private final int trainingRounds;
 
-    public IllinoisLbj2Ner(int trainingRounds) {
+    public IllinoisNer(int trainingRounds) {
         Validate.isTrue(trainingRounds > 0, "trainingRounds must be greater zero");
         this.trainingRounds = trainingRounds;
     }
 
-    public IllinoisLbj2Ner() {
+    public IllinoisNer() {
         this(DEFAULT_TRAINING_ROUNDS);
     }
 
@@ -48,8 +48,15 @@ public class IllinoisLbj2Ner extends TrainableNamedEntityRecognizer {
         config.append("taggingEncodingScheme BIO\n");
         config.append("tokenizationScheme LbjTokenizationScheme\n");
         // # Optional fields
-        config.append("debug true\n");
+        config.append("beamSize 5\n");
         config.append("forceNewSentenceOnLineBreaks true\n");
+        config.append("logging false\n");
+        config.append("inferenceMethod GREEDY\n");
+        config.append("normalizeTitleText false\n");
+        config.append("sortLexicallyFilesInFolders true\n");
+        config.append("thresholdPrediction false\n");
+        config.append("treatAllFilesInFolderAsOneBigDocument true\n");
+        config.append("debug true\n");
         // # Features
         config.append("Forms 1\n");
         config.append("Capitalization 1\n");

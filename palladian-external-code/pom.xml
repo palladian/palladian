@@ -19,36 +19,9 @@
 					<excludes>**/*.java</excludes>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<configuration>
-					<!-- Exclude this project from PMD -->
-					<excludeRoots>
-						<excludeRoot>${project.basedir}/src/main/java</excludeRoot>
-						<excludeRoot>${project.basedir}/src/test/java</excludeRoot>
-					</excludeRoots>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>2.5.1</version>
-				<configuration>
-					<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
 	<dependencies>
-		<dependency>
-			<groupId>edu.illinois</groupId>
-			<artifactId>lbj2library</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.aliasi</groupId>
 			<artifactId>lingpipe</artifactId>
