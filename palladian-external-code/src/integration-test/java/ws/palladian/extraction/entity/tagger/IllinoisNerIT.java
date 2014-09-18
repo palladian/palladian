@@ -13,7 +13,7 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
-public class IllinoisLbjNer2IT {
+public class IllinoisNerIT {
 
     private static String trainingFile;
     private static String testFile;
@@ -32,7 +32,7 @@ public class IllinoisLbjNer2IT {
 
     @Test
     public void testIllinoisNer() {
-        IllinoisLbj2Ner tagger = new IllinoisLbj2Ner(2);
+        IllinoisNer tagger = new IllinoisNer(2);
 
         String modelFiles = FileHelper.getTempFile().getPath();
         tagger.train(trainingFile, modelFiles);
