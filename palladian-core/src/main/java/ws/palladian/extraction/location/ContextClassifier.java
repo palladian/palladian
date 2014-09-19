@@ -1,8 +1,6 @@
 package ws.palladian.extraction.location;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -12,14 +10,12 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.Tagger;
+import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -70,40 +66,27 @@ public class ContextClassifier {
         return rules;
     }
 
-    public CategoryEntries classify(String text, Annotation annotation) {
+    private CategoryEntries classify(String text, Annotation annotation) {
         CategoryEntriesBuilder result = new CategoryEntriesBuilder();
+        List<String> rightContexts = NerHelper.getRightContexts(annotation, text, 3);
+        List<String> leftContexts = NerHelper.getLeftContexts(annotation, text, 3);
+
         for (String rule : rules.keySet()) {
             if (rule.startsWith("* ")) { // note the space
-                // suffix rules
                 String token = rule.substring(2);
-                int windowSize = token.split("\\s").length;
-                String context = getRightContext(annotation, text, windowSize);
-                if (token.equalsIgnoreCase(context)) {
-                    result.add(rules.get(rule), 1);
+                for (String value : rightContexts) {
+                    if (value.equalsIgnoreCase(token)) {
+                        result.add(rules.get(rule), 1);
+                        break;
+                    }
                 }
             } else if (rule.endsWith(" *")) {
-                // prefix rules
                 String token = rule.substring(0, rule.length() - 2);
-                int windowSize = token.split("\\s").length;
-                String context = getLeftContext(annotation, text, windowSize);
-                if (token.equalsIgnoreCase(context)) {
-                    result.add(rules.get(rule), 1);
-                }
-            } else if (rule.startsWith("*")) {
-                // suffix proximity rules
-                int windowSize = countAsteriscs(rule);
-                String token = rule.replaceAll("\\**\\s", "");
-                List<String> contextTokens = getRightContexts(annotation, text, windowSize);
-                if (containsIgnoreCase(contextTokens, token)) {
-                    result.add(rules.get(rule), 1);
-                }
-            } else if (rule.endsWith("*")) {
-                // prefix proximity rules
-                int windowSize = countAsteriscs(rule);
-                String token = rule.replaceAll("\\s\\**", "");
-                List<String> contextTokens = getLeftContexts(annotation, text, windowSize);
-                if (containsIgnoreCase(contextTokens, token)) {
-                    result.add(rules.get(rule), 1);
+                for (String value : leftContexts) {
+                    if (value.equalsIgnoreCase(token)) {
+                        result.add(rules.get(rule), 1);
+                        break;
+                    }
                 }
             } else {
                 // unknown rule
@@ -111,19 +94,6 @@ public class ContextClassifier {
             }
         }
         return result.create();
-    }
-
-    private boolean containsIgnoreCase(Collection<String> collection, String string) {
-        for (String item : collection) {
-            if (item.equalsIgnoreCase(string)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private int countAsteriscs(String rule) {
-        return rule.length() - rule.replace("*", "").length();
     }
 
     public List<ClassifiedAnnotation> classify(List<? extends Annotation> annotations, String text) {
@@ -153,86 +123,4 @@ public class ContextClassifier {
         return result;
     }
 
-    public static String getLeftContext(Annotation annotation, String text, int numWords) {
-        try {
-            StringBuilder builder = new StringBuilder();
-            int wordCounter = 0;
-            int start = annotation.getStartPosition() - 1;
-            for (int i = start; i >= 0; i--) {
-                char current = text.charAt(i);
-                if (current == ' ' && i < start) {
-                    wordCounter++;
-                }
-                if (wordCounter >= numWords || current == '\n' || StringHelper.isPunctuation(current)) {
-                    break;
-                }
-                builder.append(current);
-            }
-            return StringHelper.reverseString(builder.toString()).trim();
-        } catch (Exception e) {
-            // this exception is only caused by nested annotations as far as i can see
-            // System.out.println("Exception for:");
-            // System.out.println("Text:\n");
-            // System.out.println(text);
-            // System.out.println(annotation);
-            // throw new IllegalStateException(e);
-        }
-        return null;
-    }
-
-    public static String getRightContext(Annotation annotation, String text, int numWords) {
-        try {
-            StringBuilder builder = new StringBuilder();
-            int wordCounter = 0;
-            int start = annotation.getEndPosition();
-            for (int i = start; i < text.length(); i++) {
-                char current = text.charAt(i);
-                // commented, to include following word(s) after 's apostrophe;
-                // before, 's was treated as one word in the context
-                if (current == ' '/* && i > start */) {
-                    wordCounter++;
-                }
-                if (wordCounter > /* = */numWords || current == '\n' || StringHelper.isPunctuation(current)) {
-                    break;
-                }
-                builder.append(current);
-            }
-            return builder.toString().trim();
-        } catch (Exception e) {
-            // see above.
-        }
-        return null;
-    }
-
-    public static List<String> getLeftContexts(Annotation annotation, String text, int numWords) {
-        return Arrays.asList(getLeftContext(annotation, text, numWords).split("\\s"));
-    }
-
-    public static List<String> getRightContexts(Annotation annotation, String text, int numWords) {
-        return Arrays.asList(getRightContext(annotation, text, numWords).split("\\s"));
-    }
-
-    public static void main(String[] args) {
-        String text = FileHelper
-                .tryReadFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation/text_44148889.txt");
-        // String text = FileHelper.readFileToString("src/test/resources/Dresden.wikipedia");
-        // text = WikipediaUtil.stripMediaWikiMarkup(text);
-        // String text = "ruler of Saxony Frederick Augustus I became King";
-        text = HtmlHelper.stripHtmlTags(text);
-
-        // Tagger tagger = new StringTagger();
-        Tagger tagger = new EntityPreprocessingTagger();
-        List<? extends Annotation> annotations = tagger.getAnnotations(text);
-        ContextClassifier classifier = new ContextClassifier(ClassificationMode.PROPAGATION);
-        // classifier.filter(annotations, text);
-        List<ClassifiedAnnotation> classification = classifier.classify(annotations, text);
-        CollectionHelper.print(classification);
-        //        for (Annotated annotation : annotations) {
-        //            CategoryEntries result = classifier.classify(text, annotation);
-        //            // CategoryEntries result = classifier.classify(text, annotation);
-        //            if (result.getProbability("PER") == 1) {
-        //                System.out.println(annotation.getValue() + " : " + result);
-        //            }
-        //        }
-    }
 }

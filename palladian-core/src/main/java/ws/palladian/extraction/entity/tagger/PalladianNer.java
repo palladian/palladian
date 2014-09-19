@@ -738,25 +738,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         return leftContext + "__" + rightContext;
     }
 
-    static List<String> getLeftContexts(Annotation annotation, String text, int size) {
-        List<String> contexts = CollectionHelper.newArrayList();
-        StringBuilder builder = new StringBuilder();
-        for (int idx = annotation.getStartPosition() - 1; idx >= 0; idx--) {
-            char ch = text.charAt(idx);
-            builder.append(ch);
-            if (ch == ' ' || idx == 0) {
-                String value = builder.toString().trim().replaceAll("\\d", "§");
-                if (value.length() > 0) {
-                    contexts.add(StringHelper.reverseString(value));
-                }
-            }
-            if (contexts.size() == size) {
-                break;
-            }
-        }
-        return contexts;
-    }
-
     /**
      * Check whether the given text is a date fragment, e.g. "June".
      * 
@@ -814,7 +795,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         Bag<String> leftContextCounts = Bag.create();
         Bag<String> insideAnnotationCounts = Bag.create();
         for (Annotation annotation : annotations) {
-            leftContextCounts.addAll(getLeftContexts(annotation, text, 3));
+            leftContextCounts.addAll(NerHelper.getLeftContexts(annotation, text, 3));
             String[] split = annotation.getValue().split("\\s");
             StringBuilder partBuilder = new StringBuilder();
             for (int i = 0; i < split.length; i++) {

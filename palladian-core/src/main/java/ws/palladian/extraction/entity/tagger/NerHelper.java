@@ -14,6 +14,7 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 public final class NerHelper {
 
@@ -76,7 +77,8 @@ public final class NerHelper {
             char nextAlignedCharacter = 0;
             if (i < correctContent.length() - 1) {
                 if (alignIndex + 1 >= alignedContent.length()) {
-                    throw new IllegalStateException("Length error when aligning; aligned content is shorter than expected.");
+                    throw new IllegalStateException(
+                            "Length error when aligning; aligned content is shorter than expected.");
                 }
                 nextAlignedCharacter = alignedContent.charAt(alignIndex + 1);
             }
@@ -229,6 +231,52 @@ public final class NerHelper {
             offsets.add(offset);
         }
         return offsets;
+    }
+
+    public static List<String> getLeftContexts(Annotation annotation, String text, int size) {
+        List<String> contexts = CollectionHelper.newArrayList();
+        if (text.length() < annotation.getStartPosition()) {
+            return contexts;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int idx = annotation.getStartPosition() - 1; idx >= 0; idx--) {
+            char ch = text.charAt(idx);
+            builder.append(ch);
+            if (ch == ' ' || idx == 0) {
+                String value = builder.toString().trim().replaceAll("\\d", "§");
+                if (value.length() > 0) {
+                    contexts.add(StringHelper.reverseString(value));
+                }
+            }
+            if (contexts.size() == size) {
+                break;
+            }
+        }
+        return contexts;
+    }
+
+    public static List<String> getRightContexts(Annotation annotation, String text, int size) {
+        List<String> contexts = CollectionHelper.newArrayList();
+        StringBuilder builder = new StringBuilder();
+        for (int idx = annotation.getEndPosition(); idx < text.length(); idx++) {
+            char ch = text.charAt(idx);
+            builder.append(ch);
+            if (ch == ' ' || idx == 0) {
+                String value = builder.toString().trim().replaceAll("\\d", "§");
+                if (value.length() > 0) {
+                    if (StringHelper.isPunctuation(value.charAt(value.length() - 1))) {
+                        value = value.substring(0, value.length() - 1);
+                    }
+                    if (value.length() > 0) {
+                        contexts.add(value);
+                    }
+                }
+            }
+            if (contexts.size() == size) {
+                break;
+            }
+        }
+        return contexts;
     }
 
 }

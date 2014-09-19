@@ -53,7 +53,7 @@ public class PalladianNerTest {
     public void testGetLeftContexts() {
         String text = "Blistering heat blanketed much of the eastern United States for the third straight day on Sunday, after violent storms that took at least a dozen lives and knocked out power to more than 3 million customers.";
         Annotation annotation = new ImmutableAnnotation(46, "United States");
-        List<String> leftContexts = PalladianNer.getLeftContexts(annotation, text, 3);
+        List<String> leftContexts = NerHelper.getLeftContexts(annotation, text, 3);
         assertEquals(3, leftContexts.size());
         assertEquals("eastern", leftContexts.get(0));
         assertEquals("the eastern", leftContexts.get(1));
