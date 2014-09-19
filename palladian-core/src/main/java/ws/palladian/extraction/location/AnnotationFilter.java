@@ -1,8 +1,6 @@
 package ws.palladian.extraction.location;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -91,7 +89,7 @@ public class AnnotationFilter {
     }
 
     private Set<String> getParts(String value) {
-        return new HashSet<String>(Arrays.asList(value.split("\\s")));
+        return CollectionHelper.newHashSet(value.split("\\s"));
     }
 
 }
