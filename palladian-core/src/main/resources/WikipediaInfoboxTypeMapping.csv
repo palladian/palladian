@@ -200,3 +200,6 @@ football league;MISC;;
 olympic games;MISC;;
 russian federal subject;LOC;UNIT;
 continent;LOC;CONTINENT;
+palestine municipality;LOC;CITY;
+israel municipality;LOC;CITY;
+palestinian authority municipality;LOC;CITY;

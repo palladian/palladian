@@ -288,11 +288,6 @@
 				<version>3.9.2</version>
 			</dependency>
 			<dependency>
-				<groupId>edu.illinois</groupId>
-				<artifactId>lbj2library</artifactId>
-				<version>1.0</version>
-			</dependency>
-			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 				<version>5.1.31</version>
@@ -357,11 +352,6 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>3.3.2</version>
-			</dependency>
-			<dependency>
-				<groupId>tw.edu.ntu.csie</groupId>
-				<artifactId>libsvm</artifactId>
-				<version>3.17</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
