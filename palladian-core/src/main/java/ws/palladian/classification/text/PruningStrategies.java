@@ -44,6 +44,27 @@ public final class PruningStrategies {
     }
 
     /**
+     * Prunes such terms, where the most likely probability is below a given threshold.
+     * 
+     * @author pk
+     */
+    public static final class MinProbabilityPruningStrategy implements Filter<CategoryEntries> {
+
+        private final double minProbability;
+
+        public MinProbabilityPruningStrategy(double minProbability) {
+            Validate.isTrue(minProbability > 0, "minProbability must be greater zero");
+            this.minProbability = minProbability;
+        }
+
+        @Override
+        public boolean accept(CategoryEntries item) {
+            return item.getMostLikely().getProbability() >= minProbability;
+        }
+
+    }
+
+    /**
      * Prunes {@link CategoryEntries} by Information Gain.
      * 
      * @author pk

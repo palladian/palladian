@@ -9,7 +9,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,16 +78,15 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        ITHelper.assertMin("MUC-Pr", 0.8312, result.mucPr);
-        ITHelper.assertMin("MUC-Rc", 0.7615, result.mucRc);
-        ITHelper.assertMin("MUC-F1", 0.7948, result.mucF1);
-        ITHelper.assertMin("Geo-Pr", 0.9382, result.geoPr);
-        ITHelper.assertMin("Geo-Rc", 0.8085, result.geoRc);
-        ITHelper.assertMin("Geo-F1", 0.8685, result.geoF1);
+        ITHelper.assertMin("MUC-Pr", 0.8269, result.mucPr);
+        ITHelper.assertMin("MUC-Rc", 0.7757, result.mucRc);
+        ITHelper.assertMin("MUC-F1", 0.8005, result.mucF1);
+        ITHelper.assertMin("Geo-Pr", 0.9409, result.geoPr);
+        ITHelper.assertMin("Geo-Rc", 0.8475, result.geoRc);
+        ITHelper.assertMin("Geo-F1", 0.8917, result.geoF1);
     }
 
     @Test
-    @Ignore
     public void test_Heuristic_LGL() {
         String validationPath = config.getString("dataset.lgl.validation");
         ITHelper.assertDirectory(validationPath);
@@ -97,16 +95,15 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        ITHelper.assertMin("MUC-Pr", 0.7388, result.mucPr);
-        ITHelper.assertMin("MUC-Rc", 0.6166, result.mucRc);
-        ITHelper.assertMin("MUC-F1", 0.6722, result.mucF1);
-        ITHelper.assertMin("Geo-Pr", 0.6894, result.geoPr);
-        ITHelper.assertMin("Geo-Rc", 0.5734, result.geoRc);
-        ITHelper.assertMin("Geo-F1", 0.6261, result.geoF1);
+        ITHelper.assertMin("MUC-Pr", 0.7363, result.mucPr);
+        ITHelper.assertMin("MUC-Rc", 0.6193, result.mucRc);
+        ITHelper.assertMin("MUC-F1", 0.6728, result.mucF1);
+        ITHelper.assertMin("Geo-Pr", 0.7025, result.geoPr);
+        ITHelper.assertMin("Geo-Rc", 0.5876, result.geoRc);
+        ITHelper.assertMin("Geo-F1", 0.6399, result.geoF1);
     }
 
     @Test
-    @Ignore
     public void test_Heuristic_CLUST() {
         String validationPath = config.getString("dataset.clust.validation");
         ITHelper.assertDirectory(validationPath);
@@ -115,12 +112,12 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        ITHelper.assertMin("MUC-Pr", 0.8041, result.mucPr);
-        ITHelper.assertMin("MUC-Rc", 0.6883, result.mucRc);
-        ITHelper.assertMin("MUC-F1", 0.7417, result.mucF1);
-        ITHelper.assertMin("Geo-Pr", 0.9028, result.geoPr);
-        ITHelper.assertMin("Geo-Rc", 0.7635, result.geoRc);
-        ITHelper.assertMin("Geo-F1", 0.8274, result.geoF1);
+        ITHelper.assertMin("MUC-Pr", 0.7833, result.mucPr);
+        ITHelper.assertMin("MUC-Rc", 0.6908, result.mucRc);
+        ITHelper.assertMin("MUC-F1", 0.7341, result.mucF1);
+        ITHelper.assertMin("Geo-Pr", 0.9033, result.geoPr);
+        ITHelper.assertMin("Geo-Rc", 0.7680, result.geoRc);
+        ITHelper.assertMin("Geo-F1", 0.8302, result.geoF1);
     }
 
     @Test
@@ -145,7 +142,6 @@ public class PalladianLocationExtractorIT {
     }
 
     @Test
-    @Ignore
     public void test_MachineLearning_LGL() {
         String trainPath = config.getString("dataset.lgl.train");
         String validationPath = config.getString("dataset.lgl.validation");
@@ -167,7 +163,6 @@ public class PalladianLocationExtractorIT {
     }
 
     @Test
-    @Ignore
     public void test_MachineLearning_CLUST() {
         String trainPath = config.getString("dataset.clust.train");
         String validationPath = config.getString("dataset.clust.validation");
@@ -205,9 +200,9 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        ITHelper.assertMin("MUC-Pr", 0.8449, result.mucPr);
+        ITHelper.assertMin("MUC-Pr", 0.8413, result.mucPr);
         ITHelper.assertMin("MUC-Rc", 0.7654, result.mucRc);
-        ITHelper.assertMin("MUC-F1", 0.8032, result.mucF1);
+        ITHelper.assertMin("MUC-F1", 0.8016, result.mucF1);
         ITHelper.assertMin("Geo-Pr", 0.9716, result.geoPr);
         ITHelper.assertMin("Geo-Rc", 0.8510, result.geoRc);
         ITHelper.assertMin("Geo-F1", 0.9073, result.geoF1);
