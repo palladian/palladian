@@ -643,7 +643,7 @@ public final class PageAnalyzer {
     }
 
     /**
-     * Find the last box section ("p", "div", "td" or "th") of the given xPath. This is helpful as a certain term might
+     * Find the last box section ("p", "div", "hX", "td" or "th") of the given xPath. This is helpful as a certain term might
      * be in a too deep structure and searched
      * elements are around it. e.g. /table/tr/td/div[4]/span/b/a => /table/tr/td/div[4]
      * 
@@ -659,7 +659,13 @@ public final class PageAnalyzer {
             if (nodes[i].toLowerCase().indexOf("p") == 0 || nodes[i].toLowerCase().indexOf("xhtml:p") == 0
                     || nodes[i].toLowerCase().indexOf("div") == 0 || nodes[i].toLowerCase().indexOf("xhtml:div") == 0
                     || nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0
-                    || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0) {
+                    || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0
+                    || nodes[i].toLowerCase().indexOf("h1") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h1") == 0
+                    || nodes[i].toLowerCase().indexOf("h2") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h2") == 0
+                    || nodes[i].toLowerCase().indexOf("h3") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h3") == 0
+                    || nodes[i].toLowerCase().indexOf("h4") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h4") == 0
+                    || nodes[i].toLowerCase().indexOf("h5") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h5") == 0
+                    || nodes[i].toLowerCase().indexOf("h6") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h6") == 0) {
                 index = i + 1;
                 break;
             }
