@@ -39,7 +39,7 @@ public class EntityPreprocessingTagger implements Tagger {
     private static final double LOWERCASE_THRESHOLD = 2;
 
     /** The base tagger, which delivers the annotations. */
-    private static final Tagger TAGGER = new StringTagger();
+    private static final Tagger TAGGER = StringTagger.INSTANCE;
 
     /** The case dictionary which contains the lowercase ratio for tokens. */
     private static final Map<String, Double> CASE_DICTIONARY = loadCaseDictionaryFromResources("/.caseDictionary.csv");
@@ -86,7 +86,9 @@ public class EntityPreprocessingTagger implements Tagger {
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split("\t");
                 Double ratio = Double.parseDouble(parts[1]) / Double.parseDouble(parts[2]);
-                result.put(parts[0], ratio);
+                if (ratio >= LOWERCASE_THRESHOLD) { // only add what we really need; save some memory
+                    result.put(parts[0], ratio);
+                }
             }
         });
         return result;

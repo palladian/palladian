@@ -15,7 +15,7 @@ public class ContextClassifierTest {
 
     @Test
     public void testContextClassifier() {
-        Tagger tagger = new StringTagger();
+        Tagger tagger = StringTagger.INSTANCE;
         ContextClassifier classifier = new ContextClassifier(ClassificationMode.ISOLATED);
 
         String text = "The coast of east Sri Lanka is nice. I have been in Sri Lanka.";
