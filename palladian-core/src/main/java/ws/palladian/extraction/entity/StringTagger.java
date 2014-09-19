@@ -2,9 +2,6 @@ package ws.palladian.extraction.entity;
 
 import java.util.regex.Pattern;
 
-import ws.palladian.core.Annotation;
-import ws.palladian.helper.nlp.StringHelper;
-
 /**
  * <p>
  * Tag possible named entities in an English text.
@@ -17,11 +14,11 @@ public final class StringTagger extends RegExTagger {
 
     public static final String CANDIDATE_TAG = "CANDIDATE";
 
-    private static final String CANDIDATE_TAG_WRAP = "<" + CANDIDATE_TAG + ">$0</" + CANDIDATE_TAG + ">";
+    private static final Pattern PATTERN = compilePattern();
 
-    public static final Pattern PATTERN = compilePattern();
+    public static final StringTagger INSTANCE = new StringTagger();
 
-    public StringTagger() {
+    private StringTagger() {
         super(StringTagger.PATTERN, CANDIDATE_TAG);
     }
 
@@ -77,24 +74,6 @@ public final class StringTagger extends RegExTagger {
         regexp += "([a-z][A-Z][A-Za-z0-9]+( [A-Z0-9][A-Za-z0-9]{0,20}){0,20})";
 
         return Pattern.compile(regexp);
-    }
-
-    private static String tagString(String s, String regexp) {
-        return StringHelper.replaceProtectedSpace(s).replaceAll(regexp, CANDIDATE_TAG_WRAP);
-    }
-
-    private static String tagString(String s) {
-        return PATTERN.matcher(StringHelper.replaceProtectedSpace(s)).replaceAll(CANDIDATE_TAG_WRAP);
-    }
-
-    public static Annotations<Annotation> getTaggedEntities(String text, String regexp) {
-        String taggedText = tagString(text, regexp);
-        return FileFormatParser.getAnnotationsFromXmlText(taggedText);
-    }
-
-    public static Annotations<Annotation> getTaggedEntities(String text) {
-        String taggedText = tagString(text);
-        return FileFormatParser.getAnnotationsFromXmlText(taggedText);
     }
 
 }

@@ -2,23 +2,25 @@ package ws.palladian.extraction.entity;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import ws.palladian.core.Annotation;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class StringTaggerTest {
 
     @Test
     public void testTagString() {
 
-        Annotations<Annotation> annotations = null;
+        List<Annotation> annotations = null;
         String text = "";
+        StringTagger tagger = StringTagger.INSTANCE;
 
         // abbreviations
         text = "the United States of America (USA) are often called the USA, the U.S.A., or simply the U.S., the U.S.S. Enterprise is a space ship.";
 
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
 
         assertEquals(6, annotations.size());
@@ -30,7 +32,7 @@ public class StringTaggerTest {
         assertEquals("U.S.S. Enterprise", annotations.get(5).getValue());
 
         text = "The outfit that stages the festival, Black Rock City LLC, is now a $23 million-per-year concern with 40 full-time employees, hundreds of volunteers, and a non-profit arts foundation that doles out grants.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
         assertEquals(2, annotations.size());
         assertEquals("Black Rock City LLC", annotations.get(1).getValue());
@@ -38,7 +40,7 @@ public class StringTaggerTest {
         // names
         text = "Mr. Yakomoto, John J. Smith, and Bill Drody cooperate with T. Shéff, L.Carding, T.O'Brian, Harry O'Sullivan and O'Brody. they are partying on Saturday's night special, Friday's Night special or THURSDAY'S, in St. Petersburg there is Dr. Mark Litwin";
 
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
 
         assertEquals(14, annotations.size());
@@ -60,7 +62,7 @@ public class StringTaggerTest {
 
         // long names
         text = "Mayor Bobby E. Horton called the Special Council Meeting of the West Columbia Council to order on Monday, March 16, 2009 at 6 pm.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
         assertEquals(5, annotations.size());
         assertEquals("Mayor Bobby E. Horton", annotations.get(0).getValue());
@@ -68,7 +70,7 @@ public class StringTaggerTest {
         // composites
         text = "Dolce & Gabana as well as S&P are companies.";
 
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
 
         assertEquals(2, annotations.size());
@@ -94,7 +96,7 @@ public class StringTaggerTest {
         // fill words
         text = "the Republic of Ireland, and Return of King Arthur, the National Bank of Scotland, Erin Purcell of Boston-based Reagan Communications";
 
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
 
         assertEquals(6, annotations.size());
@@ -108,7 +110,7 @@ public class StringTaggerTest {
         // dashes
         text = "Maria-Hillary Johnson lives on Chester-le-Street and Ontario-based Victor Vool, the All-England Club and Patricia Djate-Taillard were in the United Nations-sponsored ceasfire with St. Louis-based NFL coach trains in MG-Gym (MG-GYM), the Real- Rumble, TOTALLY FREE- Choice, Australia-- Germany";
 
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
 
         assertEquals(17, annotations.size());
@@ -133,7 +135,7 @@ public class StringTaggerTest {
         // apostrophes
         text = "Early in 1939, Georgia O’Keeffe, the artist most famous for depicting the arid Southwest, suddenly decided to paint America’s diametrically opposite landscape — the lush tropical valleys of Hawaii.";
 
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
         assertEquals(5, annotations.size());
         assertEquals("Early", annotations.get(0).getValue());
@@ -143,24 +145,24 @@ public class StringTaggerTest {
         assertEquals("Hawaii", annotations.get(4).getValue());
 
         text = "The Adam Opel GmbH unit is based in Germany.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         assertEquals("The Adam Opel GmbH", annotations.get(0).getValue());
         // CollectionHelper.print(annotations);
 
         text = "In 2009, GM scrapped a plan — favored by Berlin — to sell a majority stake to a consortium led by Canadian auto parts maker Magna International Inc. and decided to restructure the brands itself instead.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         assertEquals("Magna International Inc.", annotations.get(4).getValue());
         // CollectionHelper.print(annotations);
 
         text = "General Motors Co.'s Opel unit said Monday that it plans to end car production at one plant in Germany in 2016, but a slimmed-down factory may continue to make components.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         assertEquals("General Motors Co.", annotations.get(0).getValue());
         // CollectionHelper.print(annotations);
 
         // starting small and camel case
         text = "the last ex-England, mid-SCORER player, al-Rama is a person Rami al-Sadani, the iPhone 4 is a phone. Veronica Swenston VENICE alternative Frank HERALD which was found at Universal Orlando® Resort";
 
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
 
         assertEquals(10, annotations.size());
@@ -176,51 +178,56 @@ public class StringTaggerTest {
         assertEquals("Universal Orlando® Resort", annotations.get(9).getValue());
 
         text = "Sterling Cooper is located on Madison Ave. in New York City.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         assertEquals(3, annotations.size());
         assertEquals("Madison Ave.", annotations.get(1).getValue());
 
         // accents
         text = "the city is called Yaoundé and that's a fact";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         assertEquals(1, annotations.size());
         assertEquals("Yaoundé", annotations.get(0).getValue());
 
-        // see https://bitbucket.org/palladian/palladian/issue/205/stringtagger-and-initials
+        // XXX see https://bitbucket.org/palladian/palladian/issue/205/stringtagger-and-initials
         text = "Mayor Bobby E. Horton called the Special Council Meeting of the West Columbia Council to order on Monday, March 16, 2009 at 6 pm.";
-        annotations = StringTagger.getTaggedEntities(text);
-        CollectionHelper.print(annotations);
+        annotations = tagger.getAnnotations(text);
+        // CollectionHelper.print(annotations);
 
+        // XXX
         text = "ST. PARIS, Ohio";
-        annotations = StringTagger.getTaggedEntities(text);
-        CollectionHelper.print(annotations);
+        annotations = tagger.getAnnotations(text);
+        // CollectionHelper.print(annotations);
 
+        // XXX
         text = "McDonald's, McDonald’s, Kentucky Fried Chicken and a Pizza Hut!";
-        annotations = StringTagger.getTaggedEntities(text);
-        CollectionHelper.print(annotations);
+        annotations = tagger.getAnnotations(text);
+        // CollectionHelper.print(annotations);
 
+        // XXX
         text = "3 Ind. fugitives transferred to another Neb. jail.";
-        annotations = StringTagger.getTaggedEntities(text);
-        CollectionHelper.print(annotations);
+        annotations = tagger.getAnnotations(text);
+        // CollectionHelper.print(annotations);
 
+        // XXX
         text = "Sahuyé is a town and commune in Côte d'Ivoire.";
-        annotations = StringTagger.getTaggedEntities(text);
-        CollectionHelper.print(annotations);
+        annotations = tagger.getAnnotations(text);
+        // CollectionHelper.print(annotations);
 
+        // XXX
         text = "Marina del Rey is an affluent unincorporated seaside community and census-designated place (CDP) in Los Angeles County, California.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         // should extract "Marina del Rey"
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         // note, that there is a non-breaking space in between "West Virginia"; this needs dedicted treatment.
         text = "Up to 300,000 people in West Virginia have been told not to drink tap water after the spill of a dangerous chemical sparked a federal emergency.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         assertEquals(2, annotations.size());
         assertEquals("West Virginia", annotations.get(1).getValue());
         // CollectionHelper.print(annotations);
 
         text = "A Short History of L’Arc de Triomphe.";
-        annotations = StringTagger.getTaggedEntities(text);
+        annotations = tagger.getAnnotations(text);
         assertEquals(2, annotations.size());
         assertEquals("L’Arc de Triomphe", annotations.get(1).getValue());
     }

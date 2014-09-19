@@ -40,6 +40,7 @@ import ws.palladian.core.Token;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.FileFormatParser;
+import ws.palladian.extraction.entity.RegExTagger;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.UrlTagger;
@@ -507,14 +508,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private Annotations<ClassifiedAnnotation> getAnnotationsInternal(String inputText) {
-        Annotations<Annotation> annotations;
+        Tagger tagger;
         if (model.settings.getLanguageMode() == LanguageIndependent) {
             // get the candidates, every token is potentially a (part of) an entity
-            annotations = StringTagger.getTaggedEntities(inputText, Tokenizer.TOKEN_SPLIT_REGEX);
+            tagger = new RegExTagger(Tokenizer.TOKEN_SPLIT_REGEX, StringTagger.CANDIDATE_TAG);
         } else {
             // use the the string tagger to tag entities in English mode
-            annotations = StringTagger.getTaggedEntities(inputText);
+            tagger = StringTagger.INSTANCE;
         }
+        Annotations<Annotation> annotations = new Annotations<Annotation>(tagger.getAnnotations(inputText));
         preProcessAnnotations(annotations);
         Annotations<ClassifiedAnnotation> classifiedAnnotations = classifyCandidates(annotations);
         classifiedAnnotations = postProcessAnnotations(inputText, classifiedAnnotations);

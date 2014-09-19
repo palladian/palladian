@@ -54,7 +54,7 @@ public class EntityPreprocessingTaggerTest {
 
     @Test
     public void testLongAnnotationSplit() {
-        StringTagger tagger = new StringTagger();
+        StringTagger tagger = StringTagger.INSTANCE;
         List<Annotation> annotations = tagger
                 .getAnnotations("Rocky Hill Tax Credits Available. Jordan Elementary School Principal Stacy DeCorsey shows her students an oversized check made out to the school for $1,825.40. Former Bloomfield Town Councilman Richard Days Dead At 79. Platte County Attorney Sandra Allen Calls Tourism Australia Managing Director Andrew McEvoy.");
         EntityPreprocessingTagger preprocessingTagger = new EntityPreprocessingTagger();
