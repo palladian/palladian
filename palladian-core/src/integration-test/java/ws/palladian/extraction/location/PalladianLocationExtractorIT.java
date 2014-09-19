@@ -79,12 +79,12 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        ITHelper.assertMin("MUC-Pr", 0.8247, result.mucPr);
-        ITHelper.assertMin("MUC-Rc", 0.7509, result.mucRc);
-        ITHelper.assertMin("MUC-F1", 0.7861, result.mucF1);
-        ITHelper.assertMin("Geo-Pr", 0.9369, result.geoPr);
-        ITHelper.assertMin("Geo-Rc", 0.7935, result.geoRc);
-        ITHelper.assertMin("Geo-F1", 0.8593, result.geoF1);
+        ITHelper.assertMin("MUC-Pr", 0.8312, result.mucPr);
+        ITHelper.assertMin("MUC-Rc", 0.7615, result.mucRc);
+        ITHelper.assertMin("MUC-F1", 0.7948, result.mucF1);
+        ITHelper.assertMin("Geo-Pr", 0.9382, result.geoPr);
+        ITHelper.assertMin("Geo-Rc", 0.8085, result.geoRc);
+        ITHelper.assertMin("Geo-F1", 0.8685, result.geoF1);
     }
 
     @Test
@@ -205,12 +205,12 @@ public class PalladianLocationExtractorIT {
                 disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
-        ITHelper.assertMin("MUC-Pr", 0.8366, result.mucPr);
-        ITHelper.assertMin("MUC-Rc", 0.7542, result.mucRc);
-        ITHelper.assertMin("MUC-F1", 0.7933, result.mucF1);
-        ITHelper.assertMin("Geo-Pr", 0.9710, result.geoPr);
-        ITHelper.assertMin("Geo-Rc", 0.8362, result.geoRc);
-        ITHelper.assertMin("Geo-F1", 0.8986, result.geoF1);
+        ITHelper.assertMin("MUC-Pr", 0.8449, result.mucPr);
+        ITHelper.assertMin("MUC-Rc", 0.7654, result.mucRc);
+        ITHelper.assertMin("MUC-F1", 0.8032, result.mucF1);
+        ITHelper.assertMin("Geo-Pr", 0.9716, result.geoPr);
+        ITHelper.assertMin("Geo-Rc", 0.8510, result.geoRc);
+        ITHelper.assertMin("Geo-F1", 0.9073, result.geoF1);
     }
 
 }
