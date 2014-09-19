@@ -114,6 +114,7 @@ public class IllinoisNer extends TrainableNamedEntityRecognizer {
                 throw new IllegalArgumentException("Could not create directory '" + modelFilePath + "'.");
             }
             Set<String> tags = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
+            // XXX looks, there are issues when we only have one tag?
             LOGGER.debug("Available tags in training data: {}", tags);
             String configuration = buildConfig(modelFilePath, tags);
             LOGGER.debug("Configuration\n{}", configuration);

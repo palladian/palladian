@@ -23,10 +23,6 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>com.aliasi</groupId>
-			<artifactId>lingpipe</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
 			<artifactId>weka-stable</artifactId>
 			<version>3.6.10</version>
@@ -44,6 +40,7 @@
 		<dependency>
 			<groupId>tw.edu.ntu.csie</groupId>
 			<artifactId>libsvm</artifactId>
+			<version>3.17</version>
 		</dependency>
 		<dependency>
 			<groupId>com.gravity</groupId>

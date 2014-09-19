@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
@@ -164,6 +165,12 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                 builder.set("inContinent", continents.where(ancestorOf(location)).size() > 0);
                 builder.set("inCountry", countries.where(ancestorOf(location)).size() > 0);
                 builder.set("inUnit", units.where(ancestorOf(location)).size() > 0);
+
+                CategoryEntries typeClassification = annotation.getCategoryEntries();
+                for (String categoryName : setting.getEntityCategories()) {
+                    double probability = typeClassification.getProbability(categoryName);
+                    builder.set(String.format("category(%s)", categoryName), probability);
+                }
 
                 for (int n = 0; n < scopes.size(); n++) {
                     GeoCoordinate scope = scopes.get(n);

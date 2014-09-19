@@ -1,10 +1,13 @@
 package ws.palladian.extraction.location.disambiguation;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
@@ -57,6 +60,13 @@ public interface FeatureExtractorSetting {
      */
     boolean isDebug();
 
+    /**
+     * @return The categories for which to extract probabilities for each annotation (as supplied by the
+     *         {@link ClassifyingTagger}). When using e.g. a CoNLL model, you would typically specify
+     *         <code>[PER, LOC, ORG, MISC]</code> here.
+     */
+    Set<String> getEntityCategories();
+
     class Builder implements Factory<FeatureExtractorSetting> {
 
         public static final int DEFAULT_EQUAL_DISTANCE = 50;
@@ -68,6 +78,7 @@ public interface FeatureExtractorSetting {
         List<Searcher<? extends WebContent>> indexSearchers = CollectionHelper.newArrayList();
         String[] locationMarkers = new String[0];
         boolean debug = false;
+        HashSet<String> entityCategories = CollectionHelper.newHashSet();
 
         public Builder setEqualDistance(int equalDistance) {
             this.equalDistance = equalDistance;
@@ -104,6 +115,11 @@ public interface FeatureExtractorSetting {
             return this;
         }
 
+        public Builder setEntityCategories(String... entityCategories) {
+            this.entityCategories = CollectionHelper.newHashSet(entityCategories);
+            return this;
+        }
+
         public Builder setFeatureExtractorSetting(FeatureExtractorSetting setting) {
             Validate.notNull(setting, "setting must not be null");
             this.equalDistance = setting.getEqualDistance();
@@ -113,6 +129,7 @@ public interface FeatureExtractorSetting {
             this.indexSearchers = CollectionHelper.newArrayList(setting.getIndexSearchers());
             this.locationMarkers = Arrays.copyOf(setting.getLocationMarkers(), setting.getLocationMarkers().length);
             this.debug = setting.isDebug();
+            this.entityCategories = CollectionHelper.newHashSet(setting.getEntityCategories());
             return this;
         }
 
