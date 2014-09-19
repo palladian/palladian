@@ -31,13 +31,13 @@ public final class StringTagger extends RegExTagger {
         String camelCaseWords = "(GmbH|LLC)";
         String suffixes = "((?<=(Inc|Corp|Co|Ave))\\.)?";
 
-        // // dashes (such as "Ontario-based" "Victor" or St. Louis-based)
+        // dashes (such as "Ontario-based" "Victor" or St. Louis-based)
         regexp += "([A-Z][a-z]\\. )?([A-Z]{1}[A-Za-z\\p{Ll}]+(-[a-z\\p{Ll}]+)(-[A-Za-z\\p{Ll}]+)*)";
-
-        // // names
         regexp += "|";
+
+        // names
         // A. Anderson
-        regexp += "([A-Z]\\.)( )?[A-Z]{1}[['’]A-Za-z\\p{Ll}]{1,100}";
+        regexp += "([A-Z]\\.)( )?[A-Z]{1}['’A-Za-z\\p{Ll}]{1,100}";
         regexp += "|";
         // Alexander A. Anderson, Mayor Bobby E. Horton
         regexp += "([A-Z][a-z\\p{Ll}]+ ){1,2}[A-Z]{1}\\. [A-Za-z\\p{Ll}]{1,100}";
@@ -45,44 +45,34 @@ public final class StringTagger extends RegExTagger {
         // Dr. Anderson Emeraldy
         regexp += "([A-Z][a-z\\p{Ll}]{0,2}\\.) [A-Z]{1}[A-Za-z\\p{Ll}]{1,100}( [A-Z]{1}[A-Za-z\\p{Ll}]{1,100})?";
         regexp += "|";
-        // regexp +=
-        // "([A-Z]\\.)+ (([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ ])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})";
         // A.B.C. Anderson00 Anderson12 Emeraldy
         regexp += "([A-Z]\\.)+( ([A-Z]{1}([A-Za-z-\\p{Ll}0-9&]+))+(([ ])*[A-Z]+([A-Za-z-\\p{Ll}0-9]*)){0,10})*";
-        // regexp += "|";
-        // regexp +=
-        // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9']+))+(( )?[A-Z]+('[A-Z])?([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
 
-        // // ending with dash (Real- Rumble => should be two words, TOTALLY FREE- Abc => also two matches)
+        // ending with dash (Real- Rumble => should be two words, TOTALLY FREE- Abc => also two matches)
         regexp += "|";
         regexp += "([A-Z][A-Za-z\\p{Ll}]+ )*[A-Z][A-Za-z\\p{Ll}]+(?=-+? )";
 
-        // // small with dash (ex-President)
+        // small with dash (ex-President)
         regexp += "|";
         regexp += "([A-Z][A-Za-z\\p{Ll}]+ )?([a-z\\p{Ll}]+-[A-Z][A-Za-z\\p{Ll}0-9]+)";
 
-        // // ___ of ___ (such as "National Bank of Scotland" or "Duke of South Carolina") always in the form of X Y of
-        // Z
-        // // OR X of Y Z
+        // ___ of ___, ___ de ___
+        // such as "National Bank of Scotland" or "Duke of South Carolina" or "L’Arc de Triomphe"
+        // always in the form of X Y of Z OR X of Y Z
         regexp += "|";
-        regexp += "(([A-Z]{1}[A-Za-z\\p{Ll}]+ ){2,}of (([A-Z]{1}[A-Za-z-\\p{Ll}]+)(?!([a-z-]{0,20}\\s[A-Z]))))|([A-Z]{1}[A-Za-z-\\p{Ll}]+ of( [A-Z]{1}[A-Za-z\\p{Ll}]+){1,})";
+        regexp += "(([A-Z]{1}['’]?[A-Za-z\\p{Ll}]+ )+(?:of|de) (([A-Z]{1}[A-Za-z-\\p{Ll}]+)(?!([a-z-]{0,20}\\s[A-Z]))))|([A-Z]{1}[A-Za-z-\\p{Ll}]+ of( [A-Z]{1}[A-Za-z\\p{Ll}]+){1,})";
 
-        // // prevent mixtures of mix camel cases => "Veronica Swenston VENICE" should be two matches
+        // prevent mixtures of mix camel cases => "Veronica Swenston VENICE" should be two matches
         regexp += "|";
         regexp += "([A-Z]{1}([a-z-\\p{Ll}0-9®]+)(( " + camelCaseWords
-                + ")?(([ &])*([A-Z]['’])?[A-Z]{1}([a-z-\\p{Ll}0-9®]+))?)*)"
-                + suffixes;
+                + ")?(([ &])*([A-Z]['’])?[A-Z]{1}([a-z-\\p{Ll}0-9®]+))?)*)" + suffixes;
 
-        // // names (such as "O'Sullivan"), compounds such as "D&G"
+        // names (such as "O'Sullivan"), compounds such as "D&G"
         regexp += "|";
         regexp += "((([A-Z]{1}([A-Za-z-\\p{Ll}0-9&]+|['’][A-Z][A-Za-z]{2,20}))+(([ &])*[A-Z]+(['’][A-Z])?([A-Za-z-\\p{Ll}0-9®]*)){0,10})(?!(\\.[A-Z])+))"
                 + suffixes;
 
-        // regexp += "|";
-        // regexp +=
-        // "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9&]+))+(([ &])*[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
-
-        // // camel case (iPhone 4)
+        // camel case (iPhone 4)
         regexp += "|";
         regexp += "([a-z][A-Z][A-Za-z0-9]+( [A-Z0-9][A-Za-z0-9]{0,20}){0,20})";
 
@@ -90,12 +80,10 @@ public final class StringTagger extends RegExTagger {
     }
 
     private static String tagString(String s, String regexp) {
-        // XXX StringHelper#replaceProtectedSpace is also in ContextTagger; can we not unify those two classes?
         return StringHelper.replaceProtectedSpace(s).replaceAll(regexp, CANDIDATE_TAG_WRAP);
     }
 
     private static String tagString(String s) {
-        // XXX StringHelper#replaceProtectedSpace is also in ContextTagger; can we not unify those two classes?
         return PATTERN.matcher(StringHelper.replaceProtectedSpace(s)).replaceAll(CANDIDATE_TAG_WRAP);
     }
 

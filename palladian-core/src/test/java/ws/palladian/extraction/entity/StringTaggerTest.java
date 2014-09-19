@@ -202,22 +202,27 @@ public class StringTaggerTest {
         text = "3 Ind. fugitives transferred to another Neb. jail.";
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
-        
+
         text = "Sahuyé is a town and commune in Côte d'Ivoire.";
         annotations = StringTagger.getTaggedEntities(text);
         CollectionHelper.print(annotations);
-        
+
         text = "Marina del Rey is an affluent unincorporated seaside community and census-designated place (CDP) in Los Angeles County, California.";
         annotations = StringTagger.getTaggedEntities(text);
         // should extract "Marina del Rey"
         CollectionHelper.print(annotations);
-        
+
         // note, that there is a non-breaking space in between "West Virginia"; this needs dedicted treatment.
         text = "Up to 300,000 people in West Virginia have been told not to drink tap water after the spill of a dangerous chemical sparked a federal emergency.";
         annotations = StringTagger.getTaggedEntities(text);
         assertEquals(2, annotations.size());
         assertEquals("West Virginia", annotations.get(1).getValue());
         // CollectionHelper.print(annotations);
+
+        text = "A Short History of L’Arc de Triomphe.";
+        annotations = StringTagger.getTaggedEntities(text);
+        assertEquals(2, annotations.size());
+        assertEquals("L’Arc de Triomphe", annotations.get(1).getValue());
     }
 
 }

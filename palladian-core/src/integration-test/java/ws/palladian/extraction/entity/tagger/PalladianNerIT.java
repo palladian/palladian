@@ -3,6 +3,9 @@ package ws.palladian.extraction.entity.tagger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.EXACT_MATCH;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.English;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.LanguageIndependent;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode.Complete;
@@ -18,11 +21,7 @@ import org.junit.Test;
 
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
-import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
-import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.integrationtests.ITHelper;
@@ -82,15 +81,14 @@ public class PalladianNerIT {
         // Palladian#f8c6aab on testing set
         // precision MUC: 55.95%, recall MUC: 49.91%, F1 MUC: 52.75%
         // precision exact: 42.54%, recall exact: 37.94%, F1 exact: 40.11%
-        EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
+        EvaluationResult er = tagger.evaluate(testPath, COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.6, er.getF1(EvaluationMode.MUC));
-        ITHelper.assertMin("F1-Exact", 0.44, er.getF1(EvaluationMode.EXACT_MATCH));
+        ITHelper.assertMin("F1-MUC", 0.6, er.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.44, er.getF1(EXACT_MATCH));
 
         tagger.loadModel(tudnerLiModel);
-        List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath,
-                TaggingFormat.COLUMN));
+        List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
@@ -115,7 +113,7 @@ public class PalladianNerIT {
         String testPath = config.getString("dataset.conll.test");
         ITHelper.assumeFile(trainPath, testPath);
 
-        PalladianNerSettings settings = new PalladianNerSettings(LanguageMode.English, TrainingMode.Complete);
+        PalladianNerSettings settings = new PalladianNerSettings(English, Complete);
         PalladianNer tagger = new PalladianNer(settings);
         settings.setTagUrls(false);
         settings.setTagDates(false);
@@ -142,22 +140,21 @@ public class PalladianNerIT {
         // Palladian#f8c6aab on testing set
         // precision MUC: 68.49%, recall MUC: 83.88%, F1 MUC: 75.4%
         // precision exact: 60.13%, recall exact: 73.64%, F1 exact: 66.2%
-        EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
+        EvaluationResult er = tagger.evaluate(testPath, COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.84, er.getF1(EvaluationMode.MUC));
-        ITHelper.assertMin("F1-Exact", 0.74, er.getF1(EvaluationMode.EXACT_MATCH));
+        ITHelper.assertMin("F1-MUC", 0.84, er.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.74, er.getF1(EXACT_MATCH));
 
         tagger.loadModel(tudnerEnModel);
-        List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath,
-                TaggingFormat.COLUMN));
+        List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, COLUMN));
 
         // System.out.println(annotations.size());
         // System.out.println(annotations.get(0));
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        assertEquals(2192, annotations.size());
+        assertEquals(2189, annotations.size());
         assertEquals(9, annotations.get(0).getStartPosition());
         assertEquals(14, annotations.get(0).getValue().length());
 
@@ -179,13 +176,13 @@ public class PalladianNerIT {
         settings.setTagDates(false);
         PalladianNer ner = new PalladianNer(settings);
         ner.train(new File(trainPath), new File(tempDirectory, "palladianNerTUDCS4.model.gz"));
-        EvaluationResult result = ner.evaluate(testPath, TaggingFormat.COLUMN);
+        EvaluationResult result = ner.evaluate(testPath, COLUMN);
         // precision MUC: 50.84%, recall MUC: 54.87%, F1 MUC: 52.78%
         // precision exact: 28.71%, recall exact: 30.99%, F1 exact: 29.81%
         // System.out.println(result.getMUCResultsReadable());
         // System.out.println(result.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.54, result.getF1(EvaluationMode.MUC));
-        ITHelper.assertMin("F1-Exact", 0.32, result.getF1(EvaluationMode.EXACT_MATCH));
+        ITHelper.assertMin("F1-MUC", 0.54, result.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.32, result.getF1(EXACT_MATCH));
     }
 
     @Test
@@ -198,13 +195,13 @@ public class PalladianNerIT {
         settings.setTagDates(false);
         PalladianNer ner = new PalladianNer(settings);
         ner.train(new File(trainPath), new File(tempDirectory, "palladianNerTUDCS4.model.gz"));
-        EvaluationResult result = ner.evaluate(testPath, TaggingFormat.COLUMN);
+        EvaluationResult result = ner.evaluate(testPath, COLUMN);
         // precision MUC: 50.38%, recall MUC: 16.56%, F1 MUC: 24.93%
         // precision exact: 34.23%, recall exact: 11.25%, F1 exact: 16.93%
         // System.out.println(result.getMUCResultsReadable());
         // System.out.println(result.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.26, result.getF1(EvaluationMode.MUC));
-        ITHelper.assertMin("F1-Exact", 0.16, result.getF1(EvaluationMode.EXACT_MATCH));
+        ITHelper.assertMin("F1-MUC", 0.26, result.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.16, result.getF1(EXACT_MATCH));
     }
 
 }
