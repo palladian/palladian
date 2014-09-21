@@ -660,6 +660,7 @@ public final class PageAnalyzer {
                     || nodes[i].toLowerCase().indexOf("div") == 0 || nodes[i].toLowerCase().indexOf("xhtml:div") == 0
                     || nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0
                     || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0
+                    || nodes[i].toLowerCase().indexOf("li") == 0 || nodes[i].toLowerCase().indexOf("xhtml:li") == 0
                     || nodes[i].toLowerCase().indexOf("h1") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h1") == 0
                     || nodes[i].toLowerCase().indexOf("h2") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h2") == 0
                     || nodes[i].toLowerCase().indexOf("h3") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h3") == 0
