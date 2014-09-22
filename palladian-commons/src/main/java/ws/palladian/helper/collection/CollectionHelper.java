@@ -345,6 +345,7 @@ public final class CollectionHelper {
      * @param elements The elements to add to the {@link ArrayList}, not <code>null</code>.
      * @return A new {@link ArrayList} containing the given elements.
      */
+    @SafeVarargs
     public static <E> ArrayList<E> newArrayList(E... elements) {
         Validate.notNull(elements, "elements must not be null");
         return new ArrayList<E>(Arrays.asList(elements));
@@ -382,6 +383,7 @@ public final class CollectionHelper {
      * @param elements The elements to add to the {@link HashSet}, not <code>null</code>.
      * @return A new {@link HashSet} containing the given elements.
      */
+    @SafeVarargs
     public static <E> HashSet<E> newHashSet(E... elements) {
         Validate.notNull(elements, "elements must not be null");
         return new HashSet<E>(Arrays.asList(elements));
@@ -848,6 +850,7 @@ public final class CollectionHelper {
      * @param keys The keys.
      * @return The value if any of the keys matches, or <code>null</code>.
      */
+    @SafeVarargs
     public static <K, V> V getTrying(Map<K, V> map, K... keys) {
         Validate.notNull(map, "map must not be null");
         Validate.notNull(keys, "keys must not be null");
@@ -869,6 +872,7 @@ public final class CollectionHelper {
      * @return The first non-null item from the given, or <code>null</code> in case the only <code>null</code> or no
      *         values were given.
      */
+    @SafeVarargs
     public static <T> T coalesce(T... items) {
         for (T item : items) {
             if (item != null) {
@@ -923,6 +927,7 @@ public final class CollectionHelper {
      * @param collections The collections, not <code>null</code>.
      * @return A {@link Set} with distinct values from the given collections.
      */
+    @SafeVarargs
     public static <T> Set<T> distinct(Collection<T>... collections) {
         Validate.notNull(collections, "collections must not be null");
         Set<T> distinct = newHashSet();
