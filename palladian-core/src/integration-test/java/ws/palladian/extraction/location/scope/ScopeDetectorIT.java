@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.dt.QuickDtModel;
-import ws.palladian.extraction.location.DefaultLocationTagger;
+import ws.palladian.extraction.location.DefaultCandidateExtractor;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
@@ -81,9 +81,9 @@ public class ScopeDetectorIT {
                     + "'.");
         }
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0);
-        extractor = new PalladianLocationExtractor(locationSource, DefaultLocationTagger.INSTANCE, disambiguation);
+        extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
     }
-    
+
     @AfterClass
     public static void cleanUp() {
         config = null;
@@ -96,7 +96,7 @@ public class ScopeDetectorIT {
         ScopeDetector detector = new FirstScopeDetector(extractor);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);
-        ITHelper.assertMax("meanErrorDistance", 1632, evaluationResult.getMean());
+        ITHelper.assertMax("meanErrorDistance", 1754, evaluationResult.getMean());
         ITHelper.assertMax("medianErrorDistance", 3, evaluationResult.getMedian());
     }
 
@@ -105,7 +105,7 @@ public class ScopeDetectorIT {
         ScopeDetector detector = new FrequencyScopeDetector(extractor);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);
-        ITHelper.assertMax("meanErrorDistance", 566, evaluationResult.getMean());
+        ITHelper.assertMax("meanErrorDistance", 410, evaluationResult.getMean());
         ITHelper.assertMax("medianErrorDistance", 0, evaluationResult.getMedian());
     }
 
@@ -123,7 +123,7 @@ public class ScopeDetectorIT {
         ScopeDetector detector = new HighestTrustScopeDetector(extractor);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);
-        ITHelper.assertMax("meanErrorDistance", 1777, evaluationResult.getMean());
+        ITHelper.assertMax("meanErrorDistance", 1738, evaluationResult.getMean());
         ITHelper.assertMax("medianErrorDistance", 136, evaluationResult.getMedian());
     }
 
@@ -132,7 +132,7 @@ public class ScopeDetectorIT {
         ScopeDetector detector = new LeastDistanceScopeDetector(extractor);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);
-        ITHelper.assertMax("meanErrorDistance", 574, evaluationResult.getMean());
+        ITHelper.assertMax("meanErrorDistance", 560, evaluationResult.getMean());
         ITHelper.assertMax("medianErrorDistance", 11, evaluationResult.getMedian());
     }
 
@@ -141,8 +141,8 @@ public class ScopeDetectorIT {
         ScopeDetector detector = new MidpointScopeDetector(extractor);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);
-        ITHelper.assertMax("meanErrorDistance", 975, evaluationResult.getMean());
-        ITHelper.assertMax("medianErrorDistance", 413, evaluationResult.getMedian());
+        ITHelper.assertMax("meanErrorDistance", 1293, evaluationResult.getMean());
+        ITHelper.assertMax("medianErrorDistance", 639, evaluationResult.getMedian());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class ScopeDetectorIT {
         FeatureBasedScopeDetector detector = new FeatureBasedScopeDetector(extractor, model);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);
-        ITHelper.assertMax("meanErrorDistance", 410, evaluationResult.getMean());
+        ITHelper.assertMax("meanErrorDistance", 450, evaluationResult.getMean());
         ITHelper.assertMax("medianErrorDistance", 0, evaluationResult.getMedian());
     }
 

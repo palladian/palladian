@@ -1,0 +1,1456 @@
+# rules for the location candidate extraction phase;
+#
+# The aim is not to harm recall, but remove/classify sure-fire non-location candidates.
+# This includes e.g. phrases, which occur with explicit person indicators within the text,
+# e.g. "Mr. Smith". Also, common ambiguities, which are almost never a location are removed
+# here (this incudes adjectives such as "African", temporal words such as "January" or "Sunday").
+# As a last step, we use prefix/suffix context clues (e.g. "in XXX" vs. "YYY said" which
+# likely denote a LOCATION vs. a PERSON), to classify entities. In this case, no immediate
+# filtering of non-locations takes place, but the classification data is exploited by the
+# following disambiguation phase.
+
+# This rule language is quick and dirty and most likely contains still some minor bugs.
+# Basically, each rule consists of a condition and an action.
+# Conditions can target the entity name, its suffix, or prefix.
+# Actions can remove or classify candidates, optionally also propagating the action to candidates
+# with same or similar names.
+
+# remove candidates by explicit match:
+# |African|	REMOVE_THIS
+
+# remove candidates by regex; include regex in double curly braces {{regex}}:
+# |{{[A-Z]{2}}}|	REMOVE_THIS
+
+# remove candidates by fuzzy match:
+# |Dr *|	REMOVE_THIS
+
+# remove candidates by fuzzy match and also fragments which occur in the match;
+# e.g. "Dr Mabuse" is matched, occurrences of "Mabuse" withing the text will therefor also be removed:
+# |Dr *|	REMOVE_FRAGMENTS
+
+# prefix and suffix rules for classification:
+# |island	CLASSIFY_VALUE	LOC
+# lake|	CLASSIFY_VALUE	LOC
+
+##########################################################################
+
+# the probability, that we are wrong when tagging one or two-letter abbreviations is very high, 
+# so we discard them here, except for "US" and "UK".
+|{{(?!US|UK)[A-Z]{2}|[A-Z]\.}}|	REMOVE_THIS
+
+# PER titles
+|Dr *|	REMOVE_FRAGMENTS
+|Dr. *|	REMOVE_FRAGMENTS
+|Lady *|	REMOVE_FRAGMENTS
+|Mr *|	REMOVE_FRAGMENTS
+|Mr. *|	REMOVE_FRAGMENTS
+|Mrs *|	REMOVE_FRAGMENTS
+|Mrs. *|	REMOVE_FRAGMENTS
+|Ms *|	REMOVE_FRAGMENTS
+|Ms. *|	REMOVE_FRAGMENTS
+|Prof *|	REMOVE_FRAGMENTS
+|Prof. *|	REMOVE_FRAGMENTS
+|Professor *|	REMOVE_FRAGMENTS
+|Sir *|	REMOVE_FRAGMENTS
+
+# adjectives and demonyms for continents
+|African|	REMOVE_THIS
+|Africans|	REMOVE_THIS
+|Antarctic|	REMOVE_THIS
+|Antarctican|	REMOVE_THIS
+|Americana|	REMOVE_THIS
+|Americansa|	REMOVE_THIS
+|Asian|	REMOVE_THIS
+|Asians|	REMOVE_THIS
+|Middle Eastern|	REMOVE_THIS
+|Middle Easterners|	REMOVE_THIS
+|Australasian|	REMOVE_THIS
+|Australasians|	REMOVE_THIS
+|Australian|	REMOVE_THIS
+|Australians|	REMOVE_THIS
+|Eurasian|	REMOVE_THIS
+|Eurasians|	REMOVE_THIS
+|European|	REMOVE_THIS
+|Europeans|	REMOVE_THIS
+|North American|	REMOVE_THIS
+|North Americans|	REMOVE_THIS
+|Central American|	REMOVE_THIS
+|Central Americans|	REMOVE_THIS
+|Oceanian|	REMOVE_THIS
+|Oceanians|	REMOVE_THIS
+|South American|	REMOVE_THIS
+|South Americans|	REMOVE_THIS
+
+# adjectives and demonyms for countries
+|Abkhaz|	REMOVE_THIS
+|Abkhazian|	REMOVE_THIS
+|Abkhazians|	REMOVE_THIS
+|Afghan|	REMOVE_THIS
+|Afghans|	REMOVE_THIS
+|Albanian|	REMOVE_THIS
+|Albanians|	REMOVE_THIS
+|Algerian|	REMOVE_THIS
+|Algerians|	REMOVE_THIS
+|American Samoan|	REMOVE_THIS
+|American Samoans|	REMOVE_THIS
+|Americani|	REMOVE_THIS
+|Americansj|	REMOVE_THIS
+|Andorran|	REMOVE_THIS
+|Andorrans|	REMOVE_THIS
+|Angolan|	REMOVE_THIS
+|Angolans|	REMOVE_THIS
+|Anguillan|	REMOVE_THIS
+|Anguillans|	REMOVE_THIS
+|Antiguan|	REMOVE_THIS
+|Antiguans|	REMOVE_THIS
+|Argentine|	REMOVE_THIS
+|Argentinean|	REMOVE_THIS
+|Argentineans|	REMOVE_THIS
+|Argentines|	REMOVE_THIS
+|Argentinian|	REMOVE_THIS
+|Argentinians|	REMOVE_THIS
+|Armenian|	REMOVE_THIS
+|Armenians|	REMOVE_THIS
+|Aruban|	REMOVE_THIS
+|Arubans|	REMOVE_THIS
+|Aussies|	REMOVE_THIS
+|Australian|	REMOVE_THIS
+|Australians|	REMOVE_THIS
+|Austrian|	REMOVE_THIS
+|Austrians|	REMOVE_THIS
+|Ayisyen|	REMOVE_THIS
+|Azerbaijani|	REMOVE_THIS
+|Azerbaijanis|	REMOVE_THIS
+|Azeri|	REMOVE_THIS
+|Azeris|	REMOVE_THIS
+|Bahamian|	REMOVE_THIS
+|Bahamians|	REMOVE_THIS
+|Bahraini|	REMOVE_THIS
+|Bahrainis|	REMOVE_THIS
+|Bajan|	REMOVE_THIS
+|Bajans|	REMOVE_THIS
+|Bamar|	REMOVE_THIS
+|Bangladeshi|	REMOVE_THIS
+|Bangladeshis|	REMOVE_THIS
+|Barbadian|	REMOVE_THIS
+|Barbadians|	REMOVE_THIS
+|Barbudan|	REMOVE_THIS
+|Barbudans|	REMOVE_THIS
+|Basotho|	REMOVE_THIS
+|Belarusian|	REMOVE_THIS
+|Belarusians|	REMOVE_THIS
+|Belgian|	REMOVE_THIS
+|Belgians|	REMOVE_THIS
+|Belizean|	REMOVE_THIS
+|Belizeans|	REMOVE_THIS
+|Belongers|	REMOVE_THIS
+|Beninese|	REMOVE_THIS
+|Beninois|	REMOVE_THIS
+|Bermudan|	REMOVE_THIS
+|Bermudans|	REMOVE_THIS
+|Bermudian|	REMOVE_THIS
+|Bermudians|	REMOVE_THIS
+|Bhutanese|	REMOVE_THIS
+|Bolivian|	REMOVE_THIS
+|Bolivians|	REMOVE_THIS
+|Boricuas|	REMOVE_THIS
+|Bosniak|	REMOVE_THIS
+|Bosniaks|	REMOVE_THIS
+|Bosnian|	REMOVE_THIS
+|Bosnians|	REMOVE_THIS
+|Botswanan|	REMOVE_THIS
+|Botswanans|	REMOVE_THIS
+|Brazilian|	REMOVE_THIS
+|Brazilians|	REMOVE_THIS
+|British|	REMOVE_THIS
+|British Virgin Islanders|	REMOVE_THIS
+|Britons|	REMOVE_THIS
+|Bruneian|	REMOVE_THIS
+|Bruneians|	REMOVE_THIS
+|Bulgarian|	REMOVE_THIS
+|Bulgarians|	REMOVE_THIS
+|Burkinabè|	REMOVE_THIS
+|Burkinabé|	REMOVE_THIS
+|Burmese|	REMOVE_THIS
+|Burundian|	REMOVE_THIS
+|Burundians|	REMOVE_THIS
+|Cambodian|	REMOVE_THIS
+|Cambodians|	REMOVE_THIS
+|Cameroonian|	REMOVE_THIS
+|Cameroonians|	REMOVE_THIS
+|Canadian|	REMOVE_THIS
+|Canadians|	REMOVE_THIS
+|Canucks|	REMOVE_THIS
+|Cape Verdean|	REMOVE_THIS
+|Cape Verdeans|	REMOVE_THIS
+|Catrachos|	REMOVE_THIS
+|Caymanian|	REMOVE_THIS
+|Caymanians|	REMOVE_THIS
+|Central African|	REMOVE_THIS
+|Central Africans|	REMOVE_THIS
+|Chadian|	REMOVE_THIS
+|Chadians|	REMOVE_THIS
+|Chilean|	REMOVE_THIS
+|Chileans|	REMOVE_THIS
+|Chinese|	REMOVE_THIS
+|Christmas Islanders|	REMOVE_THIS
+|Cocos Islanders|	REMOVE_THIS
+|Colombian|	REMOVE_THIS
+|Colombians|	REMOVE_THIS
+|Comorian|	REMOVE_THIS
+|Comorians|	REMOVE_THIS
+|Congolese|	REMOVE_THIS
+|Cook Islanders|	REMOVE_THIS
+|Cook Islands|	REMOVE_THIS
+|Costa Rican|	REMOVE_THIS
+|Costa Ricans|	REMOVE_THIS
+|Croatian|	REMOVE_THIS
+|Croatians|	REMOVE_THIS
+|Croats|	REMOVE_THIS
+|Cuban|	REMOVE_THIS
+|Cubans|	REMOVE_THIS
+|Cypriot|	REMOVE_THIS
+|Cypriots|	REMOVE_THIS
+|Czech|	REMOVE_THIS
+|Czechs|	REMOVE_THIS
+|Danes|	REMOVE_THIS
+|Danish|	REMOVE_THIS
+|Djiboutian|	REMOVE_THIS
+|Djiboutians|	REMOVE_THIS
+|Dominicand|	REMOVE_THIS
+|Dominicane|	REMOVE_THIS
+|Dominicansd|	REMOVE_THIS
+|Dominicanse|	REMOVE_THIS
+|Dutch|	REMOVE_THIS
+|Ecuadorian|	REMOVE_THIS
+|Ecuadorians|	REMOVE_THIS
+|Egyptian|	REMOVE_THIS
+|Egyptians|	REMOVE_THIS
+|Emirati|	REMOVE_THIS
+|Emiratis|	REMOVE_THIS
+|Emirian|	REMOVE_THIS
+|Emirians|	REMOVE_THIS
+|English|	REMOVE_THIS
+|Equatoguinean|	REMOVE_THIS
+|Equatoguineans|	REMOVE_THIS
+|Equatorial Guinean|	REMOVE_THIS
+|Equatorial Guineans|	REMOVE_THIS
+|Eritrean|	REMOVE_THIS
+|Eritreans|	REMOVE_THIS
+|Estonian|	REMOVE_THIS
+|Estonians|	REMOVE_THIS
+|Ethiopian|	REMOVE_THIS
+|Ethiopians|	REMOVE_THIS
+|Falkland Islanders|	REMOVE_THIS
+|Faroese|	REMOVE_THIS
+|Fijian|	REMOVE_THIS
+|Fijians|	REMOVE_THIS
+|Filipinas|	REMOVE_THIS
+|Filipino|	REMOVE_THIS
+|Filipinos|	REMOVE_THIS
+|Finnish|	REMOVE_THIS
+|Finns|	REMOVE_THIS
+|French|	REMOVE_THIS
+|French Guianese|	REMOVE_THIS
+|French Polynesian|	REMOVE_THIS
+|French Polynesians|	REMOVE_THIS
+|Frenchman|	REMOVE_THIS
+|Frenchwoman|	REMOVE_THIS
+|Futunan|	REMOVE_THIS
+|Futunans|	REMOVE_THIS
+|Gabonese|	REMOVE_THIS
+|Gambian|	REMOVE_THIS
+|Gambians|	REMOVE_THIS
+|Georgian|	REMOVE_THIS
+|Georgians|	REMOVE_THIS
+|German|	REMOVE_THIS
+|Germans|	REMOVE_THIS
+|Ghanaian|	REMOVE_THIS
+|Ghanaians|	REMOVE_THIS
+|Gibraltarians|	REMOVE_THIS
+|Grecian|	REMOVE_THIS
+|Grecians|	REMOVE_THIS
+|Greek|	REMOVE_THIS
+|Greeks|	REMOVE_THIS
+|Greenlanders|	REMOVE_THIS
+|Greenlandic|	REMOVE_THIS
+|Grenadian|	REMOVE_THIS
+|Grenadians|	REMOVE_THIS
+|Guadeloupe|	REMOVE_THIS
+|Guadeloupians|	REMOVE_THIS
+|Guamanian|	REMOVE_THIS
+|Guamanians|	REMOVE_THIS
+|Guatemalan|	REMOVE_THIS
+|Guatemalans|	REMOVE_THIS
+|Guinean|	REMOVE_THIS
+|Guineans|	REMOVE_THIS
+|Guyanese|	REMOVE_THIS
+|Haitian|	REMOVE_THIS
+|Haitians|	REMOVE_THIS
+|Hellenes|	REMOVE_THIS
+|Hellenic|	REMOVE_THIS
+|Herzegovinian|	REMOVE_THIS
+|Herzegovinians|	REMOVE_THIS
+|Honduran|	REMOVE_THIS
+|Hondurans|	REMOVE_THIS
+|Hongers|	REMOVE_THIS
+|Hongkies|	REMOVE_THIS
+|Hongkongers|	REMOVE_THIS
+|Hongkongese|	REMOVE_THIS
+|Hungarian|	REMOVE_THIS
+|Hungarians|	REMOVE_THIS
+|I-Kiribati|	REMOVE_THIS
+|Icelanders|	REMOVE_THIS
+|Icelandic|	REMOVE_THIS
+|Indian|	REMOVE_THIS
+|Indians|	REMOVE_THIS
+|Indonesian|	REMOVE_THIS
+|Indonesians|	REMOVE_THIS
+|Iranian|	REMOVE_THIS
+|Iranians|	REMOVE_THIS
+|Iraqi|	REMOVE_THIS
+|Iraqis|	REMOVE_THIS
+|Irish|	REMOVE_THIS
+|Israeli|	REMOVE_THIS
+|Israelis|	REMOVE_THIS
+|Italian|	REMOVE_THIS
+|Italians|	REMOVE_THIS
+|Italic|	REMOVE_THIS
+|Italics|	REMOVE_THIS
+|Ivorian|	REMOVE_THIS
+|Ivorians|	REMOVE_THIS
+|Jamaican|	REMOVE_THIS
+|Jamaicans|	REMOVE_THIS
+|Japanese|	REMOVE_THIS
+|Jordanian|	REMOVE_THIS
+|Jordanians|	REMOVE_THIS
+|Kazakh|	REMOVE_THIS
+|Kazakhs|	REMOVE_THIS
+|Kazakhstani|	REMOVE_THIS
+|Kazakhstanis|	REMOVE_THIS
+|Kenyan|	REMOVE_THIS
+|Kenyans|	REMOVE_THIS
+|Kirghiz|	REMOVE_THIS
+|Kirgiz|	REMOVE_THIS
+|Kittitian|	REMOVE_THIS
+|Kittitians|	REMOVE_THIS
+|Kiwis|	REMOVE_THIS
+|Koreans|	REMOVE_THIS
+|Kosovan|	REMOVE_THIS
+|Kosovar|	REMOVE_THIS
+|Kosovars|	REMOVE_THIS
+|Kuwaiti|	REMOVE_THIS
+|Kuwaitis|	REMOVE_THIS
+|Kyrgyz|	REMOVE_THIS
+|Kyrgyzstani|	REMOVE_THIS
+|Kyrgyzstanis|	REMOVE_THIS
+|Lao|	REMOVE_THIS
+|Laotian|	REMOVE_THIS
+|Laotians|	REMOVE_THIS
+|Latvian|	REMOVE_THIS
+|Latvians|	REMOVE_THIS
+|Lebanese|	REMOVE_THIS
+|Letts|	REMOVE_THIS
+|Liberian|	REMOVE_THIS
+|Liberians|	REMOVE_THIS
+|Libyan|	REMOVE_THIS
+|Libyans|	REMOVE_THIS
+|Liechtensteiners|	REMOVE_THIS
+|Lithuanian|	REMOVE_THIS
+|Lithuanians|	REMOVE_THIS
+|Llanitos|	REMOVE_THIS
+|Luxembourgers|	REMOVE_THIS
+|Luxembourgish|	REMOVE_THIS
+|Macanese|	REMOVE_THIS
+|Macedonian|	REMOVE_THIS
+|Macedonians|	REMOVE_THIS
+|Magyar|	REMOVE_THIS
+|Magyars|	REMOVE_THIS
+|Mahorais|	REMOVE_THIS
+|Mahoran|	REMOVE_THIS
+|Malagasy|	REMOVE_THIS
+|Malawian|	REMOVE_THIS
+|Malawians|	REMOVE_THIS
+|Malaysian|	REMOVE_THIS
+|Malaysians|	REMOVE_THIS
+|Maldivian|	REMOVE_THIS
+|Maldivians|	REMOVE_THIS
+|Malian|	REMOVE_THIS
+|Malians|	REMOVE_THIS
+|Maltese|	REMOVE_THIS
+|Manx|	REMOVE_THIS
+|Marshallese|	REMOVE_THIS
+|Martinican|	REMOVE_THIS
+|Martiniquais|	REMOVE_THIS
+|Maubere|	REMOVE_THIS
+|Mauritanian|	REMOVE_THIS
+|Mauritanians|	REMOVE_THIS
+|Mauritian|	REMOVE_THIS
+|Mauritians|	REMOVE_THIS
+|Mexican|	REMOVE_THIS
+|Mexicans|	REMOVE_THIS
+|Micronesian|	REMOVE_THIS
+|Micronesians|	REMOVE_THIS
+|Miquelonnais|	REMOVE_THIS
+|Moldovan|	REMOVE_THIS
+|Moldovans|	REMOVE_THIS
+|Monacan|	REMOVE_THIS
+|Monacans|	REMOVE_THIS
+|Mongolian|	REMOVE_THIS
+|Mongolians|	REMOVE_THIS
+|Mongols|	REMOVE_THIS
+|Montenegrin|	REMOVE_THIS
+|Montenegrins|	REMOVE_THIS
+|Montserratian|	REMOVE_THIS
+|Montserratians|	REMOVE_THIS
+|Monégasque|	REMOVE_THIS
+|Monégasques|	REMOVE_THIS
+|Moroccan|	REMOVE_THIS
+|Moroccans|	REMOVE_THIS
+|Motswana|	REMOVE_THIS
+|Mozambican|	REMOVE_THIS
+|Mozambicans|	REMOVE_THIS
+|Namibian|	REMOVE_THIS
+|Namibians|	REMOVE_THIS
+|Nauruan|	REMOVE_THIS
+|Nauruans|	REMOVE_THIS
+|Nepalese|	REMOVE_THIS
+|Nepali|	REMOVE_THIS
+|Nevisian|	REMOVE_THIS
+|Nevisians|	REMOVE_THIS
+|New Caledonian|	REMOVE_THIS
+|New Caledonians|	REMOVE_THIS
+|New Zealanders|	REMOVE_THIS
+|Ni-Vanuatu|	REMOVE_THIS
+|Nicaraguan|	REMOVE_THIS
+|Nicaraguans|	REMOVE_THIS
+|Nigerian|	REMOVE_THIS
+|Nigerians|	REMOVE_THIS
+|Nigerien|	REMOVE_THIS
+|Nigeriens|	REMOVE_THIS
+|Niuean|	REMOVE_THIS
+|Niueans|	REMOVE_THIS
+|North Korean|	REMOVE_THIS
+|Northern Irish|	REMOVE_THIS
+|Northern Marianan|	REMOVE_THIS
+|Northern Marianans|	REMOVE_THIS
+|Norwegian|	REMOVE_THIS
+|Norwegians|	REMOVE_THIS
+|Omani|	REMOVE_THIS
+|Omanis|	REMOVE_THIS
+|Pakistani|	REMOVE_THIS
+|Pakistanis|	REMOVE_THIS
+|Palauan|	REMOVE_THIS
+|Palauans|	REMOVE_THIS
+|Palestinian|	REMOVE_THIS
+|Palestinians|	REMOVE_THIS
+|Panamanian|	REMOVE_THIS
+|Panamanians|	REMOVE_THIS
+|Papua New Guinean|	REMOVE_THIS
+|Papua New Guineans|	REMOVE_THIS
+|Papuan|	REMOVE_THIS
+|Papuans|	REMOVE_THIS
+|Paraguayan|	REMOVE_THIS
+|Paraguayans|	REMOVE_THIS
+|Persian|	REMOVE_THIS
+|Persians|	REMOVE_THIS
+|Peruvian|	REMOVE_THIS
+|Peruvians|	REMOVE_THIS
+|Philippine|	REMOVE_THIS
+|Pinoys|	REMOVE_THIS
+|Pitcairn Islanders|	REMOVE_THIS
+|Poles|	REMOVE_THIS
+|Polish|	REMOVE_THIS
+|Portuguese|	REMOVE_THIS
+|Puerto Rican|	REMOVE_THIS
+|Puerto Ricans|	REMOVE_THIS
+|Qatari|	REMOVE_THIS
+|Qataris|	REMOVE_THIS
+|Quisqueyanos|	REMOVE_THIS
+|Romanian|	REMOVE_THIS
+|Romanians|	REMOVE_THIS
+|Russian|	REMOVE_THIS
+|Russians|	REMOVE_THIS
+|Rwandan|	REMOVE_THIS
+|Rwandans|	REMOVE_THIS
+|Réunionese|	REMOVE_THIS
+|Réunionnais|	REMOVE_THIS
+|Sahraouian|	REMOVE_THIS
+|Sahraouis|	REMOVE_THIS
+|Sahraw|	REMOVE_THIS
+|Sahrawian|	REMOVE_THIS
+|Sahrawis|	REMOVE_THIS
+|Saint-Pierrais|	REMOVE_THIS
+|Salvadoran|	REMOVE_THIS
+|Salvadorans|	REMOVE_THIS
+|Sammarinese|	REMOVE_THIS
+|Samoan|	REMOVE_THIS
+|Samoans|	REMOVE_THIS
+|Saudi|	REMOVE_THIS
+|Saudi Arabian|	REMOVE_THIS
+|Saudi Arabians|	REMOVE_THIS
+|Saudis|	REMOVE_THIS
+|Scotchh|	REMOVE_THIS
+|Scots|	REMOVE_THIS
+|Scotsmen|	REMOVE_THIS
+|Scottish|	REMOVE_THIS
+|Senegalese|	REMOVE_THIS
+|Serbian|	REMOVE_THIS
+|Serbians|	REMOVE_THIS
+|Serbs|	REMOVE_THIS
+|Seychellois|	REMOVE_THIS
+|Sierra Leonean|	REMOVE_THIS
+|Sierra Leoneans|	REMOVE_THIS
+|Singapore|	REMOVE_THIS
+|Singaporeans|	REMOVE_THIS
+|Slovak|	REMOVE_THIS
+|Slovaks|	REMOVE_THIS
+|Slovene|	REMOVE_THIS
+|Slovenes|	REMOVE_THIS
+|Slovenian|	REMOVE_THIS
+|Slovenians|	REMOVE_THIS
+|Solomon Islanders|	REMOVE_THIS
+|Somali|	REMOVE_THIS
+|Somalian|	REMOVE_THIS
+|Somalis|	REMOVE_THIS
+|Somalians|	REMOVE_THIS
+|South African|	REMOVE_THIS
+|South Africans|	REMOVE_THIS
+|South Korean|	REMOVE_THIS
+|South Ossetian|	REMOVE_THIS
+|South Ossetians|	REMOVE_THIS
+|South Sudanese|	REMOVE_THIS
+|Southern Irish|	REMOVE_THIS
+|Spaniards|	REMOVE_THIS
+|Spanish|	REMOVE_THIS
+|Sri Lankan|	REMOVE_THIS
+|Sri Lankans|	REMOVE_THIS
+|St. Helenian|	REMOVE_THIS
+|St. Helenians|	REMOVE_THIS
+|St. Lucian|	REMOVE_THIS
+|St. Lucians|	REMOVE_THIS
+|St. Vincentian|	REMOVE_THIS
+|St. Vincentians|	REMOVE_THIS
+|Sudanese|	REMOVE_THIS
+|Surinamers|	REMOVE_THIS
+|Surinamese|	REMOVE_THIS
+|Swazi|	REMOVE_THIS
+|Swazis|	REMOVE_THIS
+|Swedes|	REMOVE_THIS
+|Swedish|	REMOVE_THIS
+|Swiss|	REMOVE_THIS
+|Syrian|	REMOVE_THIS
+|Syrians|	REMOVE_THIS
+|São Toméan|	REMOVE_THIS
+|São Toméans|	REMOVE_THIS
+|Tahitians|	REMOVE_THIS
+|Taiwanese|	REMOVE_THIS
+|Tajikistani|	REMOVE_THIS
+|Tajikistanis|	REMOVE_THIS
+|Tajiks|	REMOVE_THIS
+|Tanzanian|	REMOVE_THIS
+|Tanzanians|	REMOVE_THIS
+|Thai|	REMOVE_THIS
+|Ticos|	REMOVE_THIS
+|Timorese|	REMOVE_THIS
+|Tobagonian|	REMOVE_THIS
+|Tobagonians|	REMOVE_THIS
+|Togolese|	REMOVE_THIS
+|Tongan|	REMOVE_THIS
+|Tongans|	REMOVE_THIS
+|Trinibagonians|	REMOVE_THIS
+|Trinidadian|	REMOVE_THIS
+|Trinidadians|	REMOVE_THIS
+|Trinis|	REMOVE_THIS
+|Tunisian|	REMOVE_THIS
+|Tunisians|	REMOVE_THIS
+|Turkish|	REMOVE_THIS
+|Turkmen|	REMOVE_THIS
+|Turkmens|	REMOVE_THIS
+|Turks|	REMOVE_THIS
+|Turks and Caicos Islanders|	REMOVE_THIS
+|Tuvaluan|	REMOVE_THIS
+|Tuvaluans|	REMOVE_THIS
+|Ugandan|	REMOVE_THIS
+|Ugandans|	REMOVE_THIS
+|Ukrainian|	REMOVE_THIS
+|Ukrainians|	REMOVE_THIS
+|Uruguayan|	REMOVE_THIS
+|Uruguayans|	REMOVE_THIS
+|Uzbek|	REMOVE_THIS
+|Uzbekistani|	REMOVE_THIS
+|Uzbekistanis|	REMOVE_THIS
+|Uzbeks|	REMOVE_THIS
+|Vanuatuan|	REMOVE_THIS
+|Venezuelan|	REMOVE_THIS
+|Venezuelans|	REMOVE_THIS
+|Vietnamese|	REMOVE_THIS
+|Vincentian|	REMOVE_THIS
+|Vincentians|	REMOVE_THIS
+|Virgin Islanders|	REMOVE_THIS
+|Wallisian|	REMOVE_THIS
+|Wallisians|	REMOVE_THIS
+|Welsh|	REMOVE_THIS
+|Yemeni|	REMOVE_THIS
+|Yemenis|	REMOVE_THIS
+|Zambian|	REMOVE_THIS
+|Zambians|	REMOVE_THIS
+|Zimbabwean|	REMOVE_THIS
+|Zimbabweans|	REMOVE_THIS
+|American|	REMOVE_THIS
+
+# days, months
+|Monday|	REMOVE_THIS
+|Tuesday|	REMOVE_THIS
+|Wednesday|	REMOVE_THIS
+|Thursday|	REMOVE_THIS
+|Friday|	REMOVE_THIS
+|Saturday|	REMOVE_THIS
+|Sunday|	REMOVE_THIS
+|January|	REMOVE_THIS
+|February|	REMOVE_THIS
+|March|	REMOVE_THIS
+|April|	REMOVE_THIS
+|May|	REMOVE_THIS
+|June|	REMOVE_THIS
+|July|	REMOVE_THIS
+|August|	REMOVE_THIS
+|September|	REMOVE_THIS
+|October|	REMOVE_THIS
+|November|	REMOVE_THIS
+|December|	REMOVE_THIS
+|Jan|	REMOVE_THIS
+|Feb|	REMOVE_THIS
+|Mar|	REMOVE_THIS
+|Apr|	REMOVE_THIS
+|Jun|	REMOVE_THIS
+|Jul|	REMOVE_THIS
+|Aug|	REMOVE_THIS
+|Sep|	REMOVE_THIS
+|Oct|	REMOVE_THIS
+|Nov|	REMOVE_THIS
+|Dec|	REMOVE_THIS
+
+# these words alone are too general
+|North|	REMOVE_THIS
+|East|	REMOVE_THIS
+|South|	REMOVE_THIS
+|West|	REMOVE_THIS
+|Northeast|	REMOVE_THIS
+|Southeast|	REMOVE_THIS
+|Southwest|	REMOVE_THIS
+|Northwest|	REMOVE_THIS
+
+|island	CLASSIFY_VALUE	LOC
+|independent	CLASSIFY_VALUE	LOC
+|intersects	CLASSIFY_VALUE	LOC
+|includes	CLASSIFY_VALUE	LOC
+|infantry	CLASSIFY_VALUE	LOC
+|itself	CLASSIFY_VALUE	LOC
+|, alberta	CLASSIFY_VALUE	LOC
+|, alabama	CLASSIFY_VALUE	LOC
+|, alaska	CLASSIFY_VALUE	LOC
+|, algeria	CLASSIFY_VALUE	LOC
+|, australia	CLASSIFY_VALUE	LOC
+|, austria	CLASSIFY_VALUE	LOC
+|, approximately	CLASSIFY_VALUE	LOC
+|, about	CLASSIFY_VALUE	LOC
+|, arkansas	CLASSIFY_VALUE	LOC
+|, arriving	CLASSIFY_VALUE	LOC
+|, argentina	CLASSIFY_VALUE	LOC
+|, arizona	CLASSIFY_VALUE	LOC
+|, british	CLASSIFY_VALUE	LOC
+|, brazil	CLASSIFY_VALUE	LOC
+|, built	CLASSIFY_VALUE	LOC
+|, between	CLASSIFY_VALUE	LOC
+|, belgium	CLASSIFY_VALUE	LOC
+|, born	CLASSIFY_VALUE	PER
+|, bosnia	CLASSIFY_VALUE	LOC
+|, where	CLASSIFY_VALUE	LOC
+|, washington	CLASSIFY_VALUE	LOC
+|, warmian-masurian	CLASSIFY_VALUE	LOC
+|, within	CLASSIFY_VALUE	LOC
+|, wisconsin	CLASSIFY_VALUE	LOC
+|, west	CLASSIFY_VALUE	LOC
+|, western	CLASSIFY_VALUE	LOC
+|, wyoming	CLASSIFY_VALUE	LOC
+|, canada	CLASSIFY_VALUE	LOC
+|, california	CLASSIFY_VALUE	LOC
+|, colorado	CLASSIFY_VALUE	LOC
+|, connecticut	CLASSIFY_VALUE	LOC
+|, county	CLASSIFY_VALUE	LOC
+|, china	CLASSIFY_VALUE	LOC
+|, close	CLASSIFY_VALUE	LOC
+|, georgia	CLASSIFY_VALUE	LOC
+|, germany	CLASSIFY_VALUE	LOC
+|, greece	CLASSIFY_VALUE	LOC
+|, greater	CLASSIFY_VALUE	LOC
+|, gilan	CLASSIFY_VALUE	LOC
+|, north	CLASSIFY_VALUE	LOC
+|, northern	CLASSIFY_VALUE	LOC
+|, norway	CLASSIFY_VALUE	LOC
+|, nova	CLASSIFY_VALUE	LOC
+|, new	CLASSIFY_VALUE	LOC
+|, nevada	CLASSIFY_VALUE	LOC
+|, near	CLASSIFY_VALUE	LOC
+|, netherlands	CLASSIFY_VALUE	LOC
+|, nebraska	CLASSIFY_VALUE	LOC
+|, ny	CLASSIFY_VALUE	LOC
+|, in	CLASSIFY_VALUE	LOC
+|, india	CLASSIFY_VALUE	LOC
+|, indiana	CLASSIFY_VALUE	LOC
+|, indonesia	CLASSIFY_VALUE	LOC
+|, italy	CLASSIFY_VALUE	LOC
+|, illinois	CLASSIFY_VALUE	LOC
+|, iran	CLASSIFY_VALUE	LOC
+|, ireland	CLASSIFY_VALUE	LOC
+|, iowa	CLASSIFY_VALUE	LOC
+|, idaho	CLASSIFY_VALUE	LOC
+|, united	CLASSIFY_VALUE	LOC
+|, utah	CLASSIFY_VALUE	LOC
+|, us	CLASSIFY_VALUE	LOC
+|, usa	CLASSIFY_VALUE	LOC
+|, uk	CLASSIFY_VALUE	LOC
+|, france	CLASSIFY_VALUE	LOC
+|, fars	CLASSIFY_VALUE	LOC
+|, florida	CLASSIFY_VALUE	LOC
+|, just	CLASSIFY_VALUE	LOC
+|, jr	CLASSIFY_VALUE	PER
+|, japan	CLASSIFY_VALUE	LOC
+|, james	CLASSIFY_VALUE	PER
+|, romania	CLASSIFY_VALUE	LOC
+|, robert	CLASSIFY_VALUE	PER
+|, russia	CLASSIFY_VALUE	LOC
+|, razavi	CLASSIFY_VALUE	LOC
+|, rhode	CLASSIFY_VALUE	LOC
+|, there	CLASSIFY_VALUE	LOC
+|, thailand	CLASSIFY_VALUE	LOC
+|, turkey	CLASSIFY_VALUE	LOC
+|, texas	CLASSIFY_VALUE	LOC
+|, tennessee	CLASSIFY_VALUE	LOC
+|, tamil	CLASSIFY_VALUE	LOC
+|, situated	CLASSIFY_VALUE	LOC
+|, st	CLASSIFY_VALUE	LOC
+|, starring	CLASSIFY_VALUE	PER
+|, south	CLASSIFY_VALUE	LOC
+|, scotland	CLASSIFY_VALUE	LOC
+|, san	CLASSIFY_VALUE	LOC
+|, serving	CLASSIFY_VALUE	LOC
+|, serbia	CLASSIFY_VALUE	LOC
+|, spain	CLASSIFY_VALUE	LOC
+|, sweden	CLASSIFY_VALUE	LOC
+|, switzerland	CLASSIFY_VALUE	LOC
+|, queensland	CLASSIFY_VALUE	LOC
+|, quebec	CLASSIFY_VALUE	LOC
+|, east	CLASSIFY_VALUE	LOC
+|, england	CLASSIFY_VALUE	LOC
+|, egypt	CLASSIFY_VALUE	LOC
+|, victoria	CLASSIFY_VALUE	LOC
+|, virginia	CLASSIFY_VALUE	LOC
+|, via	CLASSIFY_VALUE	LOC
+|, vermont	CLASSIFY_VALUE	LOC
+|, §	CLASSIFY_VALUE	LOC
+|, §§	CLASSIFY_VALUE	LOC
+|, §§%	CLASSIFY_VALUE	LOC
+|, §§§	CLASSIFY_VALUE	LOC
+|, §.§§%	CLASSIFY_VALUE	LOC
+|, oregon	CLASSIFY_VALUE	LOC
+|, ontario	CLASSIFY_VALUE	LOC
+|, ohio	CLASSIFY_VALUE	LOC
+|, oklahoma	CLASSIFY_VALUE	LOC
+|, pennsylvania	CLASSIFY_VALUE	LOC
+|, peter	CLASSIFY_VALUE	PER
+|, podlaskie	CLASSIFY_VALUE	LOC
+|, poland	CLASSIFY_VALUE	LOC
+|, pomeranian	CLASSIFY_VALUE	LOC
+|, pakistan	CLASSIFY_VALUE	LOC
+|, philippines	CLASSIFY_VALUE	LOC
+|, puerto	CLASSIFY_VALUE	LOC
+|, hungary	CLASSIFY_VALUE	LOC
+|, hampshire	CLASSIFY_VALUE	LOC
+|, hawaii	CLASSIFY_VALUE	LOC
+|, lublin	CLASSIFY_VALUE	LOC
+|, located	CLASSIFY_VALUE	LOC
+|, los	CLASSIFY_VALUE	LOC
+|, louisiana	CLASSIFY_VALUE	LOC
+|, lorestan	CLASSIFY_VALUE	LOC
+|, london	CLASSIFY_VALUE	LOC
+|, lower	CLASSIFY_VALUE	LOC
+|, la	CLASSIFY_VALUE	LOC
+|, lancashire	CLASSIFY_VALUE	LOC
+|, montana	CLASSIFY_VALUE	LOC
+|, minnesota	CLASSIFY_VALUE	LOC
+|, mississippi	CLASSIFY_VALUE	LOC
+|, missouri	CLASSIFY_VALUE	LOC
+|, michigan	CLASSIFY_VALUE	LOC
+|, michael	CLASSIFY_VALUE	PER
+|, mexico	CLASSIFY_VALUE	LOC
+|, massachusetts	CLASSIFY_VALUE	LOC
+|, masovian	CLASSIFY_VALUE	LOC
+|, mazandaran	CLASSIFY_VALUE	LOC
+|, maryland	CLASSIFY_VALUE	LOC
+|, maine	CLASSIFY_VALUE	LOC
+|, malaysia	CLASSIFY_VALUE	LOC
+|, kerman	CLASSIFY_VALUE	LOC
+|, kermanshah	CLASSIFY_VALUE	LOC
+|, kent	CLASSIFY_VALUE	LOC
+|, kentucky	CLASSIFY_VALUE	LOC
+|, khuzestan	CLASSIFY_VALUE	LOC
+|, kansas	CLASSIFY_VALUE	LOC
+|, kuyavian-pomeranian	CLASSIFY_VALUE	LOC
+|, d.c	CLASSIFY_VALUE	LOC
+|, d.c.	CLASSIFY_VALUE	LOC
+|, david	CLASSIFY_VALUE	PER
+|, łódź	CLASSIFY_VALUE	LOC
+|, świętokrzyskie	CLASSIFY_VALUE	LOC
+|war	CLASSIFY_VALUE	LOC
+|wanted	CLASSIFY_VALUE	PER
+|water	CLASSIFY_VALUE	LOC
+|west	CLASSIFY_VALUE	LOC
+|went	CLASSIFY_VALUE	PER
+|worked	CLASSIFY_VALUE	PER
+|where	CLASSIFY_VALUE	LOC
+|within	CLASSIFY_VALUE	LOC
+|wrote	CLASSIFY_VALUE	PER
+|writes	CLASSIFY_VALUE	PER
+|harbour	CLASSIFY_VALUE	LOC
+|harbor	CLASSIFY_VALUE	LOC
+|hotel	CLASSIFY_VALUE	LOC
+|hospital	CLASSIFY_VALUE	LOC
+|historic	CLASSIFY_VALUE	LOC
+|historical	CLASSIFY_VALUE	LOC
+|high	CLASSIFY_VALUE	LOC
+|highway	CLASSIFY_VALUE	LOC
+|himself	CLASSIFY_VALUE	PER
+|hired	CLASSIFY_VALUE	PER
+|hit	CLASSIFY_VALUE	PER
+|heads	CLASSIFY_VALUE	LOC
+|helped	CLASSIFY_VALUE	PER
+|lies	CLASSIFY_VALUE	LOC
+|line	CLASSIFY_VALUE	LOC
+|lives	CLASSIFY_VALUE	PER
+|lived	CLASSIFY_VALUE	PER
+|land	CLASSIFY_VALUE	LOC
+|landed	CLASSIFY_VALUE	PER
+|later	CLASSIFY_VALUE	PER
+|learned	CLASSIFY_VALUE	PER
+|left	CLASSIFY_VALUE	PER
+|legislature	CLASSIFY_VALUE	LOC
+|led	CLASSIFY_VALUE	PER
+|local	CLASSIFY_VALUE	LOC
+|located	CLASSIFY_VALUE	LOC
+|via	CLASSIFY_VALUE	LOC
+|village	CLASSIFY_VALUE	LOC
+|visited	CLASSIFY_VALUE	PER
+|valley	CLASSIFY_VALUE	LOC
+|volunteer	CLASSIFY_VALUE	LOC
+|announced	CLASSIFY_VALUE	PER
+|attorney	CLASSIFY_VALUE	LOC
+|attended	CLASSIFY_VALUE	PER
+|association	CLASSIFY_VALUE	LOC
+|assembly	CLASSIFY_VALUE	LOC
+|assumed	CLASSIFY_VALUE	PER
+|asked	CLASSIFY_VALUE	PER
+|area	CLASSIFY_VALUE	LOC
+|army	CLASSIFY_VALUE	LOC
+|architect	CLASSIFY_VALUE	LOC
+|argued	CLASSIFY_VALUE	PER
+|around	CLASSIFY_VALUE	LOC
+|accepted	CLASSIFY_VALUE	PER
+|academy	CLASSIFY_VALUE	LOC
+|acted	CLASSIFY_VALUE	PER
+|across	CLASSIFY_VALUE	LOC
+|appeared	CLASSIFY_VALUE	PER
+|appointed	CLASSIFY_VALUE	PER
+|admitted	CLASSIFY_VALUE	PER
+|air	CLASSIFY_VALUE	LOC
+|airport	CLASSIFY_VALUE	LOC
+|transferred	CLASSIFY_VALUE	PER
+|traveled	CLASSIFY_VALUE	PER
+|tried	CLASSIFY_VALUE	PER
+|troops	CLASSIFY_VALUE	LOC
+|town	CLASSIFY_VALUE	LOC
+|told	CLASSIFY_VALUE	PER
+|threw	CLASSIFY_VALUE	PER
+|thought	CLASSIFY_VALUE	PER
+|turns	CLASSIFY_VALUE	LOC
+|times	CLASSIFY_VALUE	LOC
+|taluk	CLASSIFY_VALUE	LOC
+|taught	CLASSIFY_VALUE	PER
+|singer	CLASSIFY_VALUE	LOC
+|site	CLASSIFY_VALUE	LOC
+|side	CLASSIFY_VALUE	LOC
+|signed	CLASSIFY_VALUE	PER
+|station	CLASSIFY_VALUE	LOC
+|stations	CLASSIFY_VALUE	LOC
+|statistical	CLASSIFY_VALUE	LOC
+|state	CLASSIFY_VALUE	LOC
+|stated	CLASSIFY_VALUE	PER
+|started	CLASSIFY_VALUE	PER
+|starred	CLASSIFY_VALUE	PER
+|stayed	CLASSIFY_VALUE	PER
+|struggled	CLASSIFY_VALUE	PER
+|stepped	CLASSIFY_VALUE	PER
+|studied	CLASSIFY_VALUE	PER
+|such	CLASSIFY_VALUE	LOC
+|successfully	CLASSIFY_VALUE	PER
+|succeeded	CLASSIFY_VALUE	PER
+|suggested	CLASSIFY_VALUE	PER
+|suburb	CLASSIFY_VALUE	LOC
+|section	CLASSIFY_VALUE	LOC
+|service	CLASSIFY_VALUE	LOC
+|served	CLASSIFY_VALUE	PER
+|senator	CLASSIFY_VALUE	LOC
+|senate	CLASSIFY_VALUE	LOC
+|set	CLASSIFY_VALUE	PER
+|showed	CLASSIFY_VALUE	PER
+|shot	CLASSIFY_VALUE	PER
+|school	CLASSIFY_VALUE	LOC
+|schools	CLASSIFY_VALUE	LOC
+|scoring	CLASSIFY_VALUE	PER
+|scored	CLASSIFY_VALUE	PER
+|south	CLASSIFY_VALUE	LOC
+|soldiers	CLASSIFY_VALUE	LOC
+|sports	CLASSIFY_VALUE	LOC
+|spoke	CLASSIFY_VALUE	PER
+|spent	CLASSIFY_VALUE	PER
+|said	CLASSIFY_VALUE	PER
+|says	CLASSIFY_VALUE	PER
+|between	CLASSIFY_VALUE	LOC
+|begins	CLASSIFY_VALUE	LOC
+|believed	CLASSIFY_VALUE	PER
+|beach	CLASSIFY_VALUE	LOC
+|border	CLASSIFY_VALUE	LOC
+|borders	CLASSIFY_VALUE	LOC
+|borough	CLASSIFY_VALUE	LOC
+|board	CLASSIFY_VALUE	LOC
+|band	CLASSIFY_VALUE	LOC
+|batted	CLASSIFY_VALUE	PER
+|bay	CLASSIFY_VALUE	LOC
+|branch	CLASSIFY_VALUE	LOC
+|brothers	CLASSIFY_VALUE	PER
+|bypass	CLASSIFY_VALUE	LOC
+|bus	CLASSIFY_VALUE	LOC
+|business	CLASSIFY_VALUE	LOC
+|businessman	CLASSIFY_VALUE	LOC
+|/us	CLASSIFY_VALUE	LOC
+|medical	CLASSIFY_VALUE	LOC
+|met	CLASSIFY_VALUE	PER
+|metropolitan	CLASSIFY_VALUE	LOC
+|market	CLASSIFY_VALUE	LOC
+|married	CLASSIFY_VALUE	PER
+|managed	CLASSIFY_VALUE	PER
+|mayor	CLASSIFY_VALUE	LOC
+|made	CLASSIFY_VALUE	PER
+|mountain	CLASSIFY_VALUE	LOC
+|mountains	CLASSIFY_VALUE	LOC
+|moved	CLASSIFY_VALUE	PER
+|military	CLASSIFY_VALUE	LOC
+|missed	CLASSIFY_VALUE	PER
+|municipal	CLASSIFY_VALUE	LOC
+|municipality	CLASSIFY_VALUE	LOC
+|-born	CLASSIFY_VALUE	LOC
+|-based	CLASSIFY_VALUE	LOC
+|ordered	CLASSIFY_VALUE	PER
+|office	CLASSIFY_VALUE	LOC
+|obtained	CLASSIFY_VALUE	PER
+|central	CLASSIFY_VALUE	LOC
+|census	CLASSIFY_VALUE	LOC
+|cemetery	CLASSIFY_VALUE	LOC
+|contains	CLASSIFY_VALUE	LOC
+|connects	CLASSIFY_VALUE	LOC
+|consists	CLASSIFY_VALUE	LOC
+|considered	CLASSIFY_VALUE	PER
+|confirmed	CLASSIFY_VALUE	PER
+|community	CLASSIFY_VALUE	LOC
+|commanded	CLASSIFY_VALUE	PER
+|commented	CLASSIFY_VALUE	PER
+|competed	CLASSIFY_VALUE	PER
+|council	CLASSIFY_VALUE	LOC
+|county	CLASSIFY_VALUE	LOC
+|counties	CLASSIFY_VALUE	LOC
+|covers	CLASSIFY_VALUE	LOC
+|coast	CLASSIFY_VALUE	LOC
+|coached	CLASSIFY_VALUE	PER
+|co-founded	CLASSIFY_VALUE	PER
+|campus	CLASSIFY_VALUE	LOC
+|caught	CLASSIFY_VALUE	PER
+|castle	CLASSIFY_VALUE	LOC
+|city	CLASSIFY_VALUE	LOC
+|civil	CLASSIFY_VALUE	LOC
+|chapter	CLASSIFY_VALUE	LOC
+|church	CLASSIFY_VALUE	LOC
+|chose	CLASSIFY_VALUE	PER
+|creek	CLASSIFY_VALUE	LOC
+|crosses	CLASSIFY_VALUE	LOC
+|cricket	CLASSIFY_VALUE	LOC
+|club	CLASSIFY_VALUE	LOC
+|province	CLASSIFY_VALUE	LOC
+|provincial	CLASSIFY_VALUE	LOC
+|professional	CLASSIFY_VALUE	LOC
+|primary	CLASSIFY_VALUE	LOC
+|presented	CLASSIFY_VALUE	PER
+|president	CLASSIFY_VALUE	LOC
+|prefecture	CLASSIFY_VALUE	LOC
+|parish	CLASSIFY_VALUE	LOC
+|participated	CLASSIFY_VALUE	PER
+|passes	CLASSIFY_VALUE	LOC
+|played	CLASSIFY_VALUE	PER
+|plays	CLASSIFY_VALUE	PER
+|plant	CLASSIFY_VALUE	LOC
+|public	CLASSIFY_VALUE	LOC
+|published	CLASSIFY_VALUE	PER
+|post	CLASSIFY_VALUE	LOC
+|posted	CLASSIFY_VALUE	PER
+|police	CLASSIFY_VALUE	LOC
+|politician	CLASSIFY_VALUE	LOC
+|port	CLASSIFY_VALUE	LOC
+|portrayed	CLASSIFY_VALUE	PER
+|population	CLASSIFY_VALUE	LOC
+|power	CLASSIFY_VALUE	LOC
+|personally	CLASSIFY_VALUE	PER
+|performed	CLASSIFY_VALUE	PER
+|people	CLASSIFY_VALUE	LOC
+|peninsula	CLASSIFY_VALUE	LOC
+|pitched	CLASSIFY_VALUE	PER
+|fire	CLASSIFY_VALUE	LOC
+|filed	CLASSIFY_VALUE	PER
+|forms	CLASSIFY_VALUE	LOC
+|forces	CLASSIFY_VALUE	LOC
+|football	CLASSIFY_VALUE	LOC
+|footballer	CLASSIFY_VALUE	LOC
+|found	CLASSIFY_VALUE	PER
+|felt	CLASSIFY_VALUE	PER
+|federal	CLASSIFY_VALUE	LOC
+|flows	CLASSIFY_VALUE	LOC
+|fleet	CLASSIFY_VALUE	LOC
+|flew	CLASSIFY_VALUE	PER
+|university	CLASSIFY_VALUE	LOC
+|urban	CLASSIFY_VALUE	LOC
+|department	CLASSIFY_VALUE	LOC
+|development	CLASSIFY_VALUE	LOC
+|described	CLASSIFY_VALUE	PER
+|describes	CLASSIFY_VALUE	PER
+|decided	CLASSIFY_VALUE	PER
+|debuted	CLASSIFY_VALUE	PER
+|directed	CLASSIFY_VALUE	PER
+|district	CLASSIFY_VALUE	LOC
+|discovered	CLASSIFY_VALUE	PER
+|division	CLASSIFY_VALUE	LOC
+|died	CLASSIFY_VALUE	PER
+|dropped	CLASSIFY_VALUE	PER
+|river	CLASSIFY_VALUE	LOC
+|road	CLASSIFY_VALUE	LOC
+|route	CLASSIFY_VALUE	LOC
+|rock	CLASSIFY_VALUE	LOC
+|runs	CLASSIFY_VALUE	LOC
+|rule	CLASSIFY_VALUE	LOC
+|rushed	CLASSIFY_VALUE	PER
+|received	CLASSIFY_VALUE	PER
+|recorded	CLASSIFY_VALUE	PER
+|region	CLASSIFY_VALUE	LOC
+|regional	CLASSIFY_VALUE	LOC
+|residents	CLASSIFY_VALUE	LOC
+|resigned	CLASSIFY_VALUE	PER
+|responded	CLASSIFY_VALUE	PER
+|represented	CLASSIFY_VALUE	PER
+|reportedly	CLASSIFY_VALUE	PER
+|released	CLASSIFY_VALUE	PER
+|refused	CLASSIFY_VALUE	PER
+|revealed	CLASSIFY_VALUE	PER
+|retired	CLASSIFY_VALUE	PER
+|returned	CLASSIFY_VALUE	PER
+|railway	CLASSIFY_VALUE	LOC
+|railroad	CLASSIFY_VALUE	LOC
+|range	CLASSIFY_VALUE	LOC
+|radio	CLASSIFY_VALUE	LOC
+|national	CLASSIFY_VALUE	LOC
+|native	CLASSIFY_VALUE	LOC
+|naval	CLASSIFY_VALUE	LOC
+|navy	CLASSIFY_VALUE	LOC
+|neighborhood	CLASSIFY_VALUE	LOC
+|near	CLASSIFY_VALUE	LOC
+|news	CLASSIFY_VALUE	LOC
+|north	CLASSIFY_VALUE	LOC
+|noted	CLASSIFY_VALUE	PER
+|novel	CLASSIFY_VALUE	PER
+|nominated	CLASSIFY_VALUE	PER
+|§§	CLASSIFY_VALUE	LOC
+|§§§	CLASSIFY_VALUE	LOC
+|east	CLASSIFY_VALUE	LOC
+|earned	CLASSIFY_VALUE	PER
+|enters	CLASSIFY_VALUE	LOC
+|enlisted	CLASSIFY_VALUE	PER
+|enrolled	CLASSIFY_VALUE	PER
+|expressed	CLASSIFY_VALUE	PER
+|explained	CLASSIFY_VALUE	PER
+|every	CLASSIFY_VALUE	LOC
+|; also	CLASSIFY_VALUE	LOC
+|junction	CLASSIFY_VALUE	LOC
+|jr	CLASSIFY_VALUE	PER
+|joined	CLASSIFY_VALUE	PER
+|golf	CLASSIFY_VALUE	LOC
+|governor	CLASSIFY_VALUE	LOC
+|graduated	CLASSIFY_VALUE	PER
+|general	CLASSIFY_VALUE	LOC
+|youth	CLASSIFY_VALUE	LOC
+offered|	CLASSIFY_VALUE	PER
+ontario,|	CLASSIFY_VALUE	LOC
+oakland,|	CLASSIFY_VALUE	LOC
+oregon,|	CLASSIFY_VALUE	LOC
+ordered|	CLASSIFY_VALUE	PER
+orleans,|	CLASSIFY_VALUE	LOC
+occupied|	CLASSIFY_VALUE	LOC
+outside|	CLASSIFY_VALUE	LOC
+ohio,|	CLASSIFY_VALUE	LOC
+owner|	CLASSIFY_VALUE	PER
+oblast,|	CLASSIFY_VALUE	LOC
+in|	CLASSIFY_VALUE	LOC
+into|	CLASSIFY_VALUE	LOC
+intersects|	CLASSIFY_VALUE	LOC
+independent|	CLASSIFY_VALUE	LOC
+injured|	CLASSIFY_VALUE	PER
+island,|	CLASSIFY_VALUE	LOC
+its|	CLASSIFY_VALUE	LOC
+iowa,|	CLASSIFY_VALUE	LOC
+houston,|	CLASSIFY_VALUE	LOC
+hollywood,|	CLASSIFY_VALUE	LOC
+host|	CLASSIFY_VALUE	PER
+historic|	CLASSIFY_VALUE	LOC
+historian|	CLASSIFY_VALUE	PER
+hired|	CLASSIFY_VALUE	PER
+him.|	CLASSIFY_VALUE	PER
+hills,|	CLASSIFY_VALUE	LOC
+halifax,|	CLASSIFY_VALUE	LOC
+henry|	CLASSIFY_VALUE	PER
+friend|	CLASSIFY_VALUE	PER
+francisco,|	CLASSIFY_VALUE	LOC
+form|	CLASSIFY_VALUE	LOC
+former|	CLASSIFY_VALUE	LOC
+featured|	CLASSIFY_VALUE	PER
+features|	CLASSIFY_VALUE	PER
+featuring|	CLASSIFY_VALUE	PER
+falls,|	CLASSIFY_VALUE	LOC
+father|	CLASSIFY_VALUE	PER
+father,|	CLASSIFY_VALUE	PER
+filmmaker|	CLASSIFY_VALUE	PER
+film.|	CLASSIFY_VALUE	PER
+film,|	CLASSIFY_VALUE	PER
+west|	CLASSIFY_VALUE	LOC
+western|	CLASSIFY_VALUE	LOC
+west-central|	CLASSIFY_VALUE	LOC
+within|	CLASSIFY_VALUE	LOC
+winner|	CLASSIFY_VALUE	PER
+wife|	CLASSIFY_VALUE	PER
+wife,|	CLASSIFY_VALUE	PER
+washington,|	CLASSIFY_VALUE	LOC
+wales,|	CLASSIFY_VALUE	LOC
+war|	CLASSIFY_VALUE	PER
+what|	CLASSIFY_VALUE	PER
+whom|	CLASSIFY_VALUE	PER
+writer|	CLASSIFY_VALUE	PER
+an|	CLASSIFY_VALUE	LOC
+angeles,|	CLASSIFY_VALUE	LOC
+at|	CLASSIFY_VALUE	LOC
+atlanta,|	CLASSIFY_VALUE	LOC
+athens,|	CLASSIFY_VALUE	LOC
+alberta,|	CLASSIFY_VALUE	LOC
+along|	CLASSIFY_VALUE	LOC
+alongside|	CLASSIFY_VALUE	PER
+all-|	CLASSIFY_VALUE	LOC
+allowed|	CLASSIFY_VALUE	PER
+alexandria,|	CLASSIFY_VALUE	LOC
+architect|	CLASSIFY_VALUE	PER
+around|	CLASSIFY_VALUE	LOC
+artist|	CLASSIFY_VALUE	PER
+adjacent|	CLASSIFY_VALUE	LOC
+admiral|	CLASSIFY_VALUE	PER
+asked|	CLASSIFY_VALUE	PER
+across|	CLASSIFY_VALUE	LOC
+actor|	CLASSIFY_VALUE	PER
+actors|	CLASSIFY_VALUE	PER
+actress|	CLASSIFY_VALUE	PER
+accused|	CLASSIFY_VALUE	PER
+austin,|	CLASSIFY_VALUE	LOC
+author|	CLASSIFY_VALUE	PER
+airport,|	CLASSIFY_VALUE	LOC
+above|	CLASSIFY_VALUE	LOC
+the|	CLASSIFY_VALUE	LOC
+their|	CLASSIFY_VALUE	LOC
+through|	CLASSIFY_VALUE	LOC
+throughout|	CLASSIFY_VALUE	LOC
+thomas|	CLASSIFY_VALUE	PER
+today's|	CLASSIFY_VALUE	LOC
+toward|	CLASSIFY_VALUE	LOC
+towards|	CLASSIFY_VALUE	LOC
+town|	CLASSIFY_VALUE	LOC
+township,|	CLASSIFY_VALUE	LOC
+toronto,|	CLASSIFY_VALUE	LOC
+told|	CLASSIFY_VALUE	PER
+traded|	CLASSIFY_VALUE	PER
+team.|	CLASSIFY_VALUE	PER
+teammate|	CLASSIFY_VALUE	PER
+tampa,|	CLASSIFY_VALUE	LOC
+street,|	CLASSIFY_VALUE	LOC
+striker|	CLASSIFY_VALUE	PER
+station,|	CLASSIFY_VALUE	LOC
+star|	CLASSIFY_VALUE	PER
+stars|	CLASSIFY_VALUE	PER
+starring|	CLASSIFY_VALUE	PER
+starred|	CLASSIFY_VALUE	PER
+serving|	CLASSIFY_VALUE	LOC
+serve|	CLASSIFY_VALUE	LOC
+serves|	CLASSIFY_VALUE	LOC
+series.|	CLASSIFY_VALUE	PER
+series,|	CLASSIFY_VALUE	PER
+sergeant|	CLASSIFY_VALUE	PER
+senator|	CLASSIFY_VALUE	PER
+sent|	CLASSIFY_VALUE	PER
+selected|	CLASSIFY_VALUE	PER
+seattle,|	CLASSIFY_VALUE	LOC
+season|	CLASSIFY_VALUE	PER
+season,|	CLASSIFY_VALUE	PER
+seasons,|	CLASSIFY_VALUE	PER
+season.|	CLASSIFY_VALUE	PER
+secretary|	CLASSIFY_VALUE	PER
+said|	CLASSIFY_VALUE	PER
+saxony,|	CLASSIFY_VALUE	LOC
+south|	CLASSIFY_VALUE	LOC
+southern|	CLASSIFY_VALUE	LOC
+southeast|	CLASSIFY_VALUE	LOC
+southeastern|	CLASSIFY_VALUE	LOC
+south-eastern|	CLASSIFY_VALUE	LOC
+south-western|	CLASSIFY_VALUE	LOC
+southwest|	CLASSIFY_VALUE	LOC
+southwestern|	CLASSIFY_VALUE	LOC
+south,|	CLASSIFY_VALUE	LOC
+son|	CLASSIFY_VALUE	PER
+son,|	CLASSIFY_VALUE	PER
+system,|	CLASSIFY_VALUE	LOC
+sydney,|	CLASSIFY_VALUE	LOC
+springs,|	CLASSIFY_VALUE	LOC
+springfield,|	CLASSIFY_VALUE	LOC
+singer|	CLASSIFY_VALUE	PER
+sir|	CLASSIFY_VALUE	PER
+sister|	CLASSIFY_VALUE	PER
+signed|	CLASSIFY_VALUE	PER
+succeeded|	CLASSIFY_VALUE	PER
+university.|	CLASSIFY_VALUE	PER
+upper|	CLASSIFY_VALUE	LOC
+east|	CLASSIFY_VALUE	LOC
+east,|	CLASSIFY_VALUE	LOC
+east-central|	CLASSIFY_VALUE	LOC
+eastern|	CLASSIFY_VALUE	LOC
+early|	CLASSIFY_VALUE	LOC
+enters|	CLASSIFY_VALUE	LOC
+entering|	CLASSIFY_VALUE	LOC
+entire|	CLASSIFY_VALUE	LOC
+election,|	CLASSIFY_VALUE	PER
+emperor|	CLASSIFY_VALUE	PER
+city|	CLASSIFY_VALUE	LOC
+city,|	CLASSIFY_VALUE	LOC
+cincinnati,|	CLASSIFY_VALUE	LOC
+charles|	CLASSIFY_VALUE	PER
+charleston,|	CLASSIFY_VALUE	LOC
+chairman|	CLASSIFY_VALUE	PER
+chicago,|	CLASSIFY_VALUE	LOC
+church,|	CLASSIFY_VALUE	LOC
+career,|	CLASSIFY_VALUE	PER
+career.|	CLASSIFY_VALUE	PER
+capital|	CLASSIFY_VALUE	LOC
+capital,|	CLASSIFY_VALUE	LOC
+captured|	CLASSIFY_VALUE	LOC
+captain|	CLASSIFY_VALUE	PER
+candidate|	CLASSIFY_VALUE	PER
+colonel|	CLASSIFY_VALUE	PER
+columbia,|	CLASSIFY_VALUE	LOC
+columbus,|	CLASSIFY_VALUE	LOC
+connects|	CLASSIFY_VALUE	LOC
+connecting|	CLASSIFY_VALUE	LOC
+county,|	CLASSIFY_VALUE	LOC
+commodore|	CLASSIFY_VALUE	PER
+commander|	CLASSIFY_VALUE	PER
+comedian|	CLASSIFY_VALUE	PER
+coach|	CLASSIFY_VALUE	PER
+co-star|	CLASSIFY_VALUE	PER
+century|	CLASSIFY_VALUE	LOC
+central|	CLASSIFY_VALUE	LOC
+census,|	CLASSIFY_VALUE	LOC
+census.|	CLASSIFY_VALUE	LOC
+cemetery,|	CLASSIFY_VALUE	LOC
+ceo|	CLASSIFY_VALUE	PER
+critic|	CLASSIFY_VALUE	PER
+cricketer.|	CLASSIFY_VALUE	PER
+current|	CLASSIFY_VALUE	LOC
+cleveland,|	CLASSIFY_VALUE	LOC
+brooklyn,|	CLASSIFY_VALUE	LOC
+brother|	CLASSIFY_VALUE	PER
+brother,|	CLASSIFY_VALUE	PER
+beach,|	CLASSIFY_VALUE	LOC
+baltimore,|	CLASSIFY_VALUE	LOC
+base,|	CLASSIFY_VALUE	LOC
+bavaria,|	CLASSIFY_VALUE	LOC
+bay,|	CLASSIFY_VALUE	LOC
+back|	CLASSIFY_VALUE	PER
+boston,|	CLASSIFY_VALUE	LOC
+borders|	CLASSIFY_VALUE	LOC
+buffalo,|	CLASSIFY_VALUE	LOC
+birmingham,|	CLASSIFY_VALUE	LOC
+near|	CLASSIFY_VALUE	LOC
+nearby|	CLASSIFY_VALUE	LOC
+neighbouring|	CLASSIFY_VALUE	LOC
+neighboring|	CLASSIFY_VALUE	LOC
+newark,|	CLASSIFY_VALUE	LOC
+north|	CLASSIFY_VALUE	LOC
+north-central|	CLASSIFY_VALUE	LOC
+north-eastern|	CLASSIFY_VALUE	LOC
+north-western|	CLASSIFY_VALUE	LOC
+northern|	CLASSIFY_VALUE	LOC
+northeast|	CLASSIFY_VALUE	LOC
+northeastern|	CLASSIFY_VALUE	LOC
+northwest|	CLASSIFY_VALUE	LOC
+northwestern|	CLASSIFY_VALUE	LOC
+north,|	CLASSIFY_VALUE	LOC
+norfolk,|	CLASSIFY_VALUE	LOC
+now|	CLASSIFY_VALUE	LOC
+nominated|	CLASSIFY_VALUE	PER
+novelist|	CLASSIFY_VALUE	PER
+native|	CLASSIFY_VALUE	LOC
+nashville,|	CLASSIFY_VALUE	LOC
+nadu,|	CLASSIFY_VALUE	LOC
+via|	CLASSIFY_VALUE	LOC
+village,|	CLASSIFY_VALUE	LOC
+victoria,|	CLASSIFY_VALUE	LOC
+von|	CLASSIFY_VALUE	PER
+valley,|	CLASSIFY_VALUE	LOC
+van|	CLASSIFY_VALUE	PER
+vancouver,|	CLASSIFY_VALUE	LOC
+downtown|	CLASSIFY_VALUE	LOC
+departed|	CLASSIFY_VALUE	LOC
+democrat|	CLASSIFY_VALUE	PER
+death,|	CLASSIFY_VALUE	PER
+detroit,|	CLASSIFY_VALUE	LOC
+del|	CLASSIFY_VALUE	PER
+dr|	CLASSIFY_VALUE	PER
+draft.|	CLASSIFY_VALUE	PER
+dr.|	CLASSIFY_VALUE	PER
+da|	CLASSIFY_VALUE	PER
+dakota,|	CLASSIFY_VALUE	LOC
+dallas,|	CLASSIFY_VALUE	LOC
+daughter|	CLASSIFY_VALUE	PER
+daughter,|	CLASSIFY_VALUE	PER
+district|	CLASSIFY_VALUE	LOC
+district,|	CLASSIFY_VALUE	LOC
+director|	CLASSIFY_VALUE	PER
+director,|	CLASSIFY_VALUE	PER
+diego,|	CLASSIFY_VALUE	LOC
+kenya's|	CLASSIFY_VALUE	LOC
+king|	CLASSIFY_VALUE	PER
+kansas,|	CLASSIFY_VALUE	LOC
+karnataka,|	CLASSIFY_VALUE	LOC
+reach|	CLASSIFY_VALUE	LOC
+reached|	CLASSIFY_VALUE	LOC
+reaching|	CLASSIFY_VALUE	LOC
+region,|	CLASSIFY_VALUE	LOC
+renamed|	CLASSIFY_VALUE	LOC
+represent|	CLASSIFY_VALUE	LOC
+represented|	CLASSIFY_VALUE	LOC
+representing|	CLASSIFY_VALUE	LOC
+representative|	CLASSIFY_VALUE	PER
+replacing|	CLASSIFY_VALUE	PER
+republican|	CLASSIFY_VALUE	PER
+retirement,|	CLASSIFY_VALUE	PER
+released|	CLASSIFY_VALUE	PER
+river|	CLASSIFY_VALUE	LOC
+richmond,|	CLASSIFY_VALUE	LOC
+road,|	CLASSIFY_VALUE	LOC
+robert|	CLASSIFY_VALUE	PER
+rural|	CLASSIFY_VALUE	LOC
+rhineland-palatinate,|	CLASSIFY_VALUE	LOC
+§§§|	CLASSIFY_VALUE	LOC
+§§/|	CLASSIFY_VALUE	LOC
+§§%.|	CLASSIFY_VALUE	LOC
+§-§.|	CLASSIFY_VALUE	PER
+lower|	CLASSIFY_VALUE	LOC
+lord|	CLASSIFY_VALUE	PER
+local|	CLASSIFY_VALUE	LOC
+louisville,|	CLASSIFY_VALUE	LOC
+louis,|	CLASSIFY_VALUE	LOC
+linking|	CLASSIFY_VALUE	LOC
+lieutenant|	CLASSIFY_VALUE	PER
+life,|	CLASSIFY_VALUE	PER
+life.|	CLASSIFY_VALUE	PER
+le|	CLASSIFY_VALUE	PER
+leave|	CLASSIFY_VALUE	LOC
+leaves|	CLASSIFY_VALUE	LOC
+leader|	CLASSIFY_VALUE	PER
+league.|	CLASSIFY_VALUE	PER
+lexington,|	CLASSIFY_VALUE	LOC
+larger|	CLASSIFY_VALUE	LOC
+lake|	CLASSIFY_VALUE	LOC
+lake,|	CLASSIFY_VALUE	LOC
+lady|	CLASSIFY_VALUE	PER
+manager|	CLASSIFY_VALUE	PER
+many|	CLASSIFY_VALUE	LOC
+main|	CLASSIFY_VALUE	LOC
+mainland|	CLASSIFY_VALUE	LOC
+mayor|	CLASSIFY_VALUE	PER
+married|	CLASSIFY_VALUE	PER
+mary|	CLASSIFY_VALUE	PER
+marshal|	CLASSIFY_VALUE	PER
+melbourne,|	CLASSIFY_VALUE	LOC
+member|	CLASSIFY_VALUE	PER
+met|	CLASSIFY_VALUE	PER
+minister|	CLASSIFY_VALUE	PER
+minister,|	CLASSIFY_VALUE	PER
+missouri,|	CLASSIFY_VALUE	LOC
+miami,|	CLASSIFY_VALUE	LOC
+montreal,|	CLASSIFY_VALUE	LOC
+modern|	CLASSIFY_VALUE	LOC
+municipality|	CLASSIFY_VALUE	LOC
+municipality,|	CLASSIFY_VALUE	LOC
+municipalities:|	CLASSIFY_VALUE	LOC
+mrs.|	CLASSIFY_VALUE	PER
+mr.|	CLASSIFY_VALUE	PER
+justice|	CLASSIFY_VALUE	PER
+judge|	CLASSIFY_VALUE	PER
+jacksonville,|	CLASSIFY_VALUE	LOC
+journalist|	CLASSIFY_VALUE	PER
+john|	CLASSIFY_VALUE	PER
+joseph|	CLASSIFY_VALUE	PER
+player|	CLASSIFY_VALUE	PER
+player,|	CLASSIFY_VALUE	PER
+portland,|	CLASSIFY_VALUE	LOC
+poet|	CLASSIFY_VALUE	PER
+province,|	CLASSIFY_VALUE	LOC
+producer|	CLASSIFY_VALUE	PER
+professor|	CLASSIFY_VALUE	PER
+president|	CLASSIFY_VALUE	PER
+president,|	CLASSIFY_VALUE	PER
+present|	CLASSIFY_VALUE	LOC
+present-day|	CLASSIFY_VALUE	LOC
+pradesh,|	CLASSIFY_VALUE	LOC
+praised|	CLASSIFY_VALUE	PER
+prince|	CLASSIFY_VALUE	PER
+princess|	CLASSIFY_VALUE	PER
+pasadena,|	CLASSIFY_VALUE	LOC
+parish,|	CLASSIFY_VALUE	LOC
+partner|	CLASSIFY_VALUE	PER
+park,|	CLASSIFY_VALUE	LOC
+painter|	CLASSIFY_VALUE	PER
+philadelphia,|	CLASSIFY_VALUE	LOC
+pitcher|	CLASSIFY_VALUE	PER
+games,|	CLASSIFY_VALUE	PER
+games.|	CLASSIFY_VALUE	PER
+game.|	CLASSIFY_VALUE	PER
+game,|	CLASSIFY_VALUE	PER
+governor|	CLASSIFY_VALUE	PER
+goalkeeper|	CLASSIFY_VALUE	PER
+general|	CLASSIFY_VALUE	PER
+gen.|	CLASSIFY_VALUE	PER
+george|	CLASSIFY_VALUE	PER
+greater|	CLASSIFY_VALUE	LOC
+quebec,|	CLASSIFY_VALUE	LOC
+queen|	CLASSIFY_VALUE	PER
+queensland,|	CLASSIFY_VALUE	LOC
+quarterback|	CLASSIFY_VALUE	PER

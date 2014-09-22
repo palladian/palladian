@@ -59,8 +59,8 @@ public class IllinoisNerIT {
         
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.44, er.getF1(MUC));
-        ITHelper.assertMin("F1-Exact", 0.31, er.getF1(EXACT_MATCH));
+        ITHelper.assertMin("F1-MUC", 0.43, er.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.30, er.getF1(EXACT_MATCH));
     }
 
 }

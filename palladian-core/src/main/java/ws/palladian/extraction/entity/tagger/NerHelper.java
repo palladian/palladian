@@ -233,6 +233,15 @@ public final class NerHelper {
         return offsets;
     }
 
+    /**
+     * Get left context tokens for the given annotation. For example, for an annotation "New York", the text
+     * "going to New York", and a specified length of 2, the following contexts would be extracted: "to" and "going to".
+     * 
+     * @param annotation The annotation, not <code>null</code>.
+     * @param text The text, which is referred to by the annotation, not <code>null</code>.
+     * @param size The size in tokens.
+     * @return A list with cumulated left context tokens from length 1 ... n.
+     */
     public static List<String> getLeftContexts(Annotation annotation, String text, int size) {
         List<String> contexts = CollectionHelper.newArrayList();
         if (text.length() < annotation.getStartPosition()) {
@@ -255,6 +264,16 @@ public final class NerHelper {
         return contexts;
     }
 
+    /**
+     * Get right context tokens for the given annotation. For example, for an annotation "New York", the text
+     * "New York is a city", and a specified length of 3, the following contexts would be extracted: "is", "is a", and
+     * "is a city".
+     * 
+     * @param annotation The annotation, not <code>null</code>.
+     * @param text The text, which is referred to by the annotation, not <code>null</code>.
+     * @param size The size in tokens.
+     * @return A list with cumulated right context tokens from length 1 ... n.
+     */
     public static List<String> getRightContexts(Annotation annotation, String text, int size) {
         List<String> contexts = CollectionHelper.newArrayList();
         StringBuilder builder = new StringBuilder();

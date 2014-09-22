@@ -48,11 +48,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
-        this(locationSource, DefaultLocationTagger.INSTANCE, disambiguation);
+        this(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
     }
 
     public PalladianLocationExtractor(LocationSource locationSource) {
-        this(locationSource, DefaultLocationTagger.INSTANCE, new HeuristicDisambiguation());
+        this(locationSource, DefaultCandidateExtractor.INSTANCE, new HeuristicDisambiguation());
     }
 
     @Override
