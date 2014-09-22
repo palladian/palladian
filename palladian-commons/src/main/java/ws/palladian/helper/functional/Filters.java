@@ -72,6 +72,7 @@ public final class Filters {
         return new EqualsFilter<T>(new HashSet<T>(values));
     }
 
+    @SafeVarargs
     public static <T> Filter<T> equal(T... values) {
         return new EqualsFilter<T>(new HashSet<T>(Arrays.asList(values)));
     }
@@ -158,6 +159,7 @@ public final class Filters {
      * @param filters The filters to combine, not <code>null</code>.
      * @return An <code>AND</code>-combination of the given filters.
      */
+    @SafeVarargs
     public static <T> Filter<T> and(Filter<? super T>... filters) {
         Validate.notNull(filters, "filters must not be null");
         return new AndFilter<T>(new HashSet<Filter<? super T>>(Arrays.asList(filters)));
