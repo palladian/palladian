@@ -35,41 +35,31 @@ public class EntityPreprocessingTagger implements Tagger {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityPreprocessingTagger.class);
 
-    /** The threshold total:uppercase, above which tokens are considered being lowercase. */
-    private static final double LOWERCASE_THRESHOLD = 2;
-
     /** The base tagger, which delivers the annotations. */
     private static final Tagger TAGGER = StringTagger.INSTANCE;
 
     /** The case dictionary which contains the lowercase ratio for tokens. */
-    private static final Map<String, Double> CASE_DICTIONARY = loadCaseDictionaryFromResources("/.caseDictionary.csv");
+    private final Map<String, Double> caseDictionary;
+
+    private final double lowercaseThreshold;
 
     private final int longAnnotationSplit;
-
-    public EntityPreprocessingTagger() {
-        this(0);
-    }
-
-    private static Map<String, Double> loadCaseDictionaryFromResources(String string) {
-        InputStream inputStream = null;
-        try {
-            inputStream = EntityPreprocessingTagger.class.getResourceAsStream("/caseDictionary.csv");
-            return loadCaseDictionary(inputStream);
-        } finally {
-            FileHelper.close(inputStream);
-        }
-    }
 
     /**
      * <p>
      * Create a new {@link EntityPreprocessingTagger}.
      * </p>
      * 
+     * @param caseDictionaryStream Input stream for the case dictionary file.
+     * @param lowercaseThreshold The minimum threshold total/uppercase.
      * @param longAnnotationSplit Annotations exceeding this amount of tokens, are <i>additionally</i> split up. This
      *            means, for long annotations, additional sub-annotations are created using the case dictionary. Set to
      *            zero to disable spitting.
      */
-    public EntityPreprocessingTagger(int longAnnotationSplit) {
+    public EntityPreprocessingTagger(InputStream caseDictionaryStream, double lowercaseThreshold,
+            int longAnnotationSplit) {
+        this.caseDictionary = loadCaseDictionary(caseDictionaryStream, lowercaseThreshold);
+        this.lowercaseThreshold = lowercaseThreshold;
         this.longAnnotationSplit = longAnnotationSplit;
     }
 
@@ -79,14 +69,14 @@ public class EntityPreprocessingTagger implements Tagger {
      * @param inputStream
      * @return
      */
-    private static final Map<String, Double> loadCaseDictionary(InputStream inputStream) {
+    private static final Map<String, Double> loadCaseDictionary(InputStream inputStream, final double lowercaseThreshold) {
         final Map<String, Double> result = CollectionHelper.newHashMap();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split("\t");
                 Double ratio = Double.parseDouble(parts[1]) / Double.parseDouble(parts[2]);
-                if (ratio >= LOWERCASE_THRESHOLD) { // only add what we really need; save some memory
+                if (ratio >= lowercaseThreshold) {
                     result.put(parts[0], ratio);
                 }
             }
@@ -103,7 +93,7 @@ public class EntityPreprocessingTagger implements Tagger {
         inSentence = CollectionHelper.filterSet(inSentence, new Filter<String>() {
             @Override
             public boolean accept(String item) {
-                return getLowercaseRatio(item) <= LOWERCASE_THRESHOLD;
+                return getLowercaseRatio(item) <= lowercaseThreshold;
             }
         });
         if (inSentence.isEmpty()) { // do not try to fix any phrases, if we do not have any sentences at all (#294)
@@ -127,7 +117,7 @@ public class EntityPreprocessingTagger implements Tagger {
             String[] parts = value.split("\\s");
             if (parts.length == 1) { // filtering of single token annotations
                 double lcRatio = getLowercaseRatio(value);
-                if (lcRatio > LOWERCASE_THRESHOLD) {
+                if (lcRatio > lowercaseThreshold) {
                     LOGGER.debug("Drop '{}' because of lc/uc ratio of {}", value, lcRatio);
                     continue;
                 }
@@ -138,7 +128,7 @@ public class EntityPreprocessingTagger implements Tagger {
                 String newValue = value;
                 for (String token : parts) {
                     double lcRatio = getLowercaseRatio(token);
-                    if (lcRatio <= LOWERCASE_THRESHOLD) {
+                    if (lcRatio <= lowercaseThreshold) {
                         LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}", new Object[] {value,
                                 newValue, lcRatio});
                         break;
@@ -192,7 +182,7 @@ public class EntityPreprocessingTagger implements Tagger {
                 List<String> cumulatedTokens = CollectionHelper.newArrayList();
                 for (String token : parts) {
                     double lcRatio = getLowercaseRatio(token);
-                    if (lcRatio < LOWERCASE_THRESHOLD) {
+                    if (lcRatio < lowercaseThreshold) {
                         cumulatedTokens.add(token);
                     } else if (cumulatedTokens.size() > 0) {
                         String value = StringUtils.join(cumulatedTokens, " ");
@@ -265,7 +255,7 @@ public class EntityPreprocessingTagger implements Tagger {
      * @return
      */
     private double getLowercaseRatio(String value) {
-        Double ratio = CASE_DICTIONARY.get(value.toLowerCase());
+        Double ratio = caseDictionary.get(value.toLowerCase());
         return ratio == null ? 0 : ratio;
     }
 
@@ -283,7 +273,7 @@ public class EntityPreprocessingTagger implements Tagger {
             if (i == split.length - 1 && part.endsWith(".")) {
                 temp = part.substring(0, part.length() - 1);
             }
-            if (getLowercaseRatio(temp) > LOWERCASE_THRESHOLD) {
+            if (getLowercaseRatio(temp) > lowercaseThreshold) {
                 part = part.toLowerCase();
             }
             result.append(part);

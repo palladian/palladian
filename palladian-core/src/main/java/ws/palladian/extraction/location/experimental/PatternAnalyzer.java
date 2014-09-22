@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.experimental;
 import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.LEFT;
 import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.RIGHT;
 import static ws.palladian.helper.functional.Filters.and;
+import static ws.palladian.helper.functional.Filters.regex;
 import static ws.palladian.helper.functional.Functions.LOWERCASE;
 
 import java.io.File;
@@ -45,7 +46,7 @@ public class PatternAnalyzer {
      * @param minProb The minimum probability for a context.
      * @param categories
      */
-    public static void getPatterns(File inputFile, File outputPath, final Direction direction, final int size,
+    public static void extractPatterns(File inputFile, File outputPath, final Direction direction, final int size,
             int minCount, double minProb, String... categories) {
         Validate.notNull(inputFile, "inputFile must not be null");
         Validate.notNull(outputPath, "outputPath must not be null");
@@ -78,6 +79,8 @@ public class PatternAnalyzer {
                             context = NerHelper.getRightContexts(annotation, cleanText, size);
                         }
                         context = CollectionHelper.convertList(context, LOWERCASE);
+                        // should be at least two characters long
+                        context = CollectionHelper.filterList(context, regex(".{2,}"));
                         builder.addDocument(context, annotation.getTag());
                     }
                 }
@@ -88,6 +91,7 @@ public class PatternAnalyzer {
         pruningStrategies.add(new PruningStrategies.MinProbabilityPruningStrategy(minProb));
         builder.setPruningStrategy(and(pruningStrategies));
         DictionaryModel dictionary = builder.create();
+        System.out.println("Category probabilities: " + dictionary.getDocumentCounts());
         System.out.println(dictionary);
         File outputFile = new File(outputPath, "contexts_" + direction + "_" + System.currentTimeMillis() + ".txt");
         for (DictionaryEntry dictionaryEntry : dictionary) {
@@ -106,8 +110,13 @@ public class PatternAnalyzer {
         // File inputFile = new File("/Users/pk/Desktop/allCleansed.xml");
         File inputFile = new File("/Users/pk/Desktop/Wikipedia-EN-entity-dataset/annotations-combined.xml");
         File outputPath = new File("/Users/pk/Desktop");
-        Direction direction = RIGHT;
-        getPatterns(inputFile, outputPath, direction, /* size */3, /* minCount */50, /* minProb */0.9);
+        int size = 1;
+        int minCount = 50;
+        double minProb = 0.9;
+        // extractPatterns(inputFile, outputPath, RIGHT, size, minCount, minProb);
+        // extractPatterns(inputFile, outputPath, LEFT, size, minCount, minProb);
+        extractPatterns(inputFile, outputPath, RIGHT, size, minCount, minProb, "LOC", "PER");
+        extractPatterns(inputFile, outputPath, LEFT, size, minCount, minProb, "LOC", "PER");
     }
 
 }

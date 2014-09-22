@@ -16,7 +16,7 @@ import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.location.ClassifiedAnnotation;
-import ws.palladian.extraction.location.DefaultLocationTagger;
+import ws.palladian.extraction.location.DefaultCandidateExtractor;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationSource;
@@ -144,7 +144,7 @@ public class FeatureBasedDisambiguationLearner {
     public static void main(String[] args) throws IOException {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
-                DefaultLocationTagger.INSTANCE, 100, new ConfigurableFeatureExtractor());
+                DefaultCandidateExtractor.INSTANCE, 100, new ConfigurableFeatureExtractor());
         File datasetTud = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
         File datasetLgl = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
         File datasetClust = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/1-train");
