@@ -98,6 +98,10 @@
 			<artifactId>opennlp-tools</artifactId>
 			<version>1.5.3</version>
 		</dependency>
+		<dependency>
+			<groupId>tud.iir.external</groupId>
+			<artifactId>juliener</artifactId>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
