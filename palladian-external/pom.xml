@@ -8,19 +8,6 @@
 	<artifactId>palladian-external</artifactId>
 	<name>Palladian: External Tools</name>
 	<description>External libraries and tools integrated within Palladian's API.</description>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
-					<excludes>**/*.java</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
@@ -91,17 +78,15 @@
 		<dependency>
 			<groupId>com.aliasi</groupId>
 			<artifactId>lingpipe</artifactId>
-			<version>3.9.2</version>
+			<version>4.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-tools</artifactId>
 			<version>1.5.3</version>
 		</dependency>
-		<dependency>
-			<groupId>tud.iir.external</groupId>
-			<artifactId>juliener</artifactId>
-		</dependency>
+		<!--<dependency><groupId>tud.iir.external</groupId><artifactId>juliener</artifactId></dependency>-->
+		<!--<dependency><groupId>edu.smu.tspell</groupId><artifactId>jaws-bin</artifactId><version>1.2</version></dependency>-->
 	</dependencies>
 	<repositories>
 		<repository>
@@ -113,6 +98,14 @@
 			<id>CogcompSoftware</id>
 			<name>CogcompSoftware</name>
 			<url>http://cogcomp.cs.illinois.edu/m2repo/</url>
+		</repository>
+		<repository>
+			<id>boilerpipe</id>
+			<url>http://boilerpipe.googlecode.com/svn/repo/</url>
+		</repository>
+		<repository>
+			<id>aksw</id>
+			<url>http://maven.aksw.org/archiva/repository/internal</url>
 		</repository>
 	</repositories>
 </project>
