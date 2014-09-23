@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>ws.palladian</groupId>
@@ -30,7 +29,7 @@
 							used in OGSi environments, so we might want to remove this later again. Philipp, 
 							2012-08-01 -->
 						<!-- manifestFile>${project.build.directory}/osgi/MANIFEST.MF</manifestFile -->
-						<manifest></manifest>
+						<manifest/>
 					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -38,10 +37,13 @@
 				</configuration>
 				<executions>
 					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>package</phase> <!-- append to the packaging phase. -->
+						<id>make-assembly</id>
+						<!-- this is used for inheritance merges -->
+						<phase>package</phase>
+						<!-- append to the packaging phase. -->
 						<goals>
-							<goal>single</goal> <!-- goals == mojos -->
+							<goal>single</goal>
+							<!-- goals == mojos -->
 						</goals>
 					</execution>
 				</executions>
@@ -80,7 +82,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -91,17 +93,6 @@
 		</pluginManagement>
 	</build>
 	<dependencies>
-		<!-- FIXME remove the two following dependencies later -->
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-compress</artifactId>
-			<version>1.5</version>
-		</dependency>
-		<!-- // end remove -->
 		<dependency>
 			<groupId>ws.palladian</groupId>
 			<artifactId>palladian-commons</artifactId>
@@ -112,30 +103,16 @@
 			<artifactId>palladian-retrieval</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!--
-		<dependency>
-			<groupId>ws.palladian</groupId>
-			<artifactId>palladian-processing-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		-->
-		<!-- dependency> <groupId>org.hamcrest</groupId> <artifactId>hamcrest-all</artifactId> 
-			<scope>test</scope> </dependency -->
 		<dependency>
 			<groupId>com.github.rholder</groupId>
 			<artifactId>snowball-stemmer</artifactId>
 			<version>1.3.0.581.1</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.media</groupId>
-			<artifactId>jai-core</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.sun.media</groupId>
 			<artifactId>jai-codec</artifactId>
+			<version>1.1.3</version>
 		</dependency>
-		<!-- dependency> <groupId>com.uea.stemmer</groupId> <artifactId>UEALite</artifactId> 
-			</dependency -->
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>juliener</artifactId>
@@ -144,32 +121,6 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
-		<!-- dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2library</artifactId> 
-			</dependency -->
-		<!-- dependency> <groupId>trove</groupId> <artifactId>trove</artifactId> 
-			</dependency -->
-		<!-- dependency> <groupId>uk.ac.shef.wit.simmetrics</groupId> <artifactId>similaritymetrics</artifactId> 
-			</dependency -->
-		<!-- dependency> <groupId>de.l3s.boilerpipe</groupId> <artifactId>boilerpipe</artifactId> 
-			</dependency -->
-		<!-- dependency> <groupId>junit</groupId> <artifactId>junit</artifactId> 
-			<scope>test</scope> </dependency -->
-		<!-- dependency> <groupId>com.ibm.icu</groupId> <artifactId>icu4j</artifactId> 
-			</dependency -->
-		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-core</artifactId> 
-			</dependency -->
-		<!-- <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-analyzers</artifactId> 
-			</dependency> -->
-		<!-- dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-queries</artifactId> 
-			</dependency -->
-		<!-- <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-memory</artifactId> 
-			</dependency> -->
-		<!-- <dependency> <groupId>org.apache.lucene</groupId> <artifactId>lucene-similarity</artifactId> 
-			<version>2.2.0</version> </dependency> -->
-		<!-- <dependency> <groupId>commons-cli</groupId> <artifactId>commons-cli</artifactId> 
-			</dependency> -->
-		<!-- dependency> <groupId>commons-beanutils</groupId> <artifactId>commons-beanutils</artifactId> 
-			</dependency -->
 		<dependency>
 			<groupId>quickdt</groupId>
 			<artifactId>quickdt</artifactId>
@@ -190,13 +141,18 @@
 		<dependency>
 			<groupId>edu.smu.tspell</groupId>
 			<artifactId>jaws-bin</artifactId>
+			<version>1.2</version>
 		</dependency>
-		<!-- dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
-			<version>1.6.4</version> </dependency -->
-		<!-- dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-api</artifactId> 
-			</dependency -->
-		<!-- dependency> <groupId>org.imgscalr</groupId> <artifactId>imgscalr-lib</artifactId> 
-			<version>4.2</version> </dependency -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.31</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.5</version>
+		</dependency>
 	</dependencies>
 </project>
-
