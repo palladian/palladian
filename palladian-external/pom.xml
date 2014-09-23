@@ -93,6 +93,11 @@
 			<artifactId>lingpipe</artifactId>
 			<version>3.9.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-tools</artifactId>
+			<version>1.5.3</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
