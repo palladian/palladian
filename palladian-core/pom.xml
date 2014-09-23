@@ -158,10 +158,6 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.aliasi</groupId>
-			<artifactId>lingpipe</artifactId>
-		</dependency>
 		<!-- dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2library</artifactId> 
 			</dependency -->
 		<!-- dependency> <groupId>trove</groupId> <artifactId>trove</artifactId> 
