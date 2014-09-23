@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ws.palladian</groupId>
 	<artifactId>palladian</artifactId>
@@ -73,7 +72,6 @@
 					<outputEncoding>UTF-8</outputEncoding>
 				</configuration>
 			</plugin>
-			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
@@ -187,26 +185,20 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											build-helper-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.7,)
-										</versionRange>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>build-helper-maven-plugin</artifactId>
+										<versionRange>[1.7,)</versionRange>
 										<goals>
 											<goal>add-test-source</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -230,7 +222,8 @@
 			<id>integration-test</id>
 			<properties>
 				<skip.integration.test>false</skip.integration.test>
-				<skipTests>true</skipTests> <!-- skip unit tests -->
+				<skipTests>true</skipTests>
+				<!-- skip unit tests -->
 			</properties>
 		</profile>
 	</profiles>
@@ -279,81 +272,12 @@
 				<version>1.4.180</version>
 			</dependency>
 			<dependency>
-				<groupId>commons-codec</groupId>
-				<artifactId>commons-codec</artifactId>
-				<version>1.9</version>
-			</dependency>
-			<dependency>
-				<groupId>tud.iir.external</groupId>
-				<artifactId>juliener</artifactId>
-				<version>1.5</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.mail</groupId>
-				<artifactId>mail</artifactId>
-				<version>1.4.7</version>
-			</dependency>
-			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>3.3.2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<repositories>
-		<!-- <repository> <releases> <enabled>true</enabled> </releases> <id>bonecp-repo</id> 
-			<name>BoneCP Repository</name> <url>http://jolbox.com/bonecp/downloads/maven</url> 
-			</repository> -->
-		<!-- <repository> -->
-		<!-- <id>Apache Repository</id> -->
-		<!-- <url>https://repository.apache.org</url> -->
-		<!-- </repository> -->
-		<repository>
-			<!-- Contains JAI dependencies -->
-			<id>JBoss Repository</id>
-			<url>http://repository.jboss.org/nexus/content/groups/public-jboss
-			</url>
-		</repository>
-		<!-- <repository> -->
-		<!-- <id>MVN Repository</id> -->
-		<!-- <url>http://mvnrepository.com/</url> -->
-		<!-- </repository> -->
-		<repository>
-			<!-- Contains Weka and Jena dependencies -->
-			<id>weka</id>
-			<url>https://maven.ch.cam.ac.uk/content/repositories/wwmm-releases/</url>
-		</repository>
-		<!-- <repository> -->
-		<!-- <id>Maven HUB</id> -->
-		<!-- <url>http://mavenhub.com/mvn/central</url> -->
-		<!-- </repository> -->
-		<!-- <repository> -->
-		<!-- <id>Maven MSE</id> -->
-		<!-- <url>http://maven.mse.jhu.edu/m2repository/</url> -->
-		<!-- </repository> -->
-		<repository>
-			<id>releases</id>
-			<url>http://effingo.de/nexus/content/groups/public</url>
-		</repository>
-		<repository>
-			<id>snapshots</id>
-			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
-		</repository>
-		<repository>
-			<id>Twitter</id>
-			<url>http://maven.twttr.com/</url>
-		</repository>
-		<repository>
-			<!-- Required for QuickDT -->
-			<id>sanity-maven-repo</id>
-			<name>Sanity's Maven repository on GitHub</name>
-			<url>http://sanity.github.com/maven-repo/repository/</url>
-		</repository>
-		<repository>
-			<id>boilerpipe</id>
-			<url>http://boilerpipe.googlecode.com/svn/repo/</url>
-		</repository>
-	</repositories>
 	<distributionManagement>
 		<repository>
 			<id>releases</id>
