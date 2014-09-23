@@ -66,14 +66,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<outputEncoding>UTF-8</outputEncoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>2.7.1</version>
 				<configuration>
@@ -89,36 +81,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.8</version>
-			</plugin>
-			<!-- Configuration for maven-jar-plugin and maven-bundle-plugin for creating 
-				a Palladian bundle. I took this workflow from the Apache approach, as described 
-				here: http://wiki.apache.org/commons/CommonsOsgi -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<archive>
-						<manifestFile>${project.build.directory}/osgi/MANIFEST.MF</manifestFile>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.7</version>
-				<configuration>
-					<manifestLocation>${project.build.directory}/osgi</manifestLocation>
-				</configuration>
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<!-- Integration tests are skipped by default, and should only run if 
@@ -175,19 +137,6 @@
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.felix</groupId>
-										<artifactId>maven-bundle-plugin</artifactId>
-										<versionRange>[2.3.7,)</versionRange>
-										<goals>
-											<goal>manifest</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore/>
-									</action>
-								</pluginExecution>
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>org.codehaus.mojo</groupId>
