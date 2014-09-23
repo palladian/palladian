@@ -155,7 +155,6 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean loadModel(String configModelFilePath) {
         StopWatch stopWatch = new StopWatch();

@@ -12,7 +12,6 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import edu.stanford.nlp.process.AbstractTokenizer;
 
 /**
  * <p>
@@ -26,7 +25,7 @@ import edu.stanford.nlp.process.AbstractTokenizer;
  */
 public abstract class AbstractPosTagger implements Tagger {
 
-    /** The default {@link AbstractTokenizer} used if not overridden. */
+    /** The default tokenizer used if not overridden. */
     private static final TextTokenizer DEFAULT_TOKENIZER = new WordTokenizer();
 
     @Override
@@ -50,12 +49,12 @@ public abstract class AbstractPosTagger implements Tagger {
 
     /**
      * <p>
-     * Return the {@link AbstractTokenizer} which this {@link PosTagger} uses when tagging String using {@link #tag(String)}
+     * Return the {@link TextTokenizer} which this {@link PosTagger} uses when tagging String using {@link #tag(String)}
      * . Per default, a {@link RegExTokenizer} is returned, subclasses may override this method, if a specific
-     * {@link AbstractTokenizer} is required.
+     * {@link TextTokenizer} is required.
      * </p>
      * 
-     * @return The {@link AbstractTokenizer} to use.
+     * @return The {@link TextTokenizer} to use.
      */
     protected TextTokenizer getTokenizer() {
         return DEFAULT_TOKENIZER;
