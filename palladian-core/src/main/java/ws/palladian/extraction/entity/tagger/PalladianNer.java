@@ -1,6 +1,8 @@
 package ws.palladian.extraction.entity.tagger;
 
 import static ws.palladian.classification.text.FeatureSettingBuilder.chars;
+import static ws.palladian.core.Annotation.TAG_CONVERTER;
+import static ws.palladian.core.Token.STRING_CONVERTER;
 import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.LanguageIndependent;
@@ -9,6 +11,7 @@ import static ws.palladian.helper.functional.Filters.not;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -36,7 +39,6 @@ import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Tagger;
-import ws.palladian.core.Token;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -57,6 +59,7 @@ import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -211,7 +214,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         List<String> tokens = Tokenizer.tokenize(FileFormatParser.getText(trainingFilePath, COLUMN));
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
         for (String token : tokens) {
-            String trimmedToken = StringHelper.trim(token);
+            String trimmedToken = token.trim();
             if (trimmedToken.length() > 1) {
                 String caseSignature = StringHelper.getCaseSignature(trimmedToken);
                 if (caseSignature.toLowerCase().startsWith("a")) {
@@ -373,6 +376,21 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         }
 
         model.entityDictionary = buildEntityDictionary(annotations);
+
+        if (model.settings.isEqualizeTypeCounts()) {
+            Bag<String> typeCounts = Bag.create(CollectionHelper.convert(annotations, TAG_CONVERTER));
+            int minCount = typeCounts.getMin().getValue();
+            Annotations<Annotation> equalizedSampling = new Annotations<Annotation>();
+            for (String type : typeCounts.uniqueItems()) {
+                Iterable<Annotation> currentType = CollectionHelper.filter(annotations, AnnotationFilters.tag(type));
+                Collection<Annotation> sampled = MathHelper.sample(currentType, minCount);
+                equalizedSampling.addAll(CollectionHelper.newHashSet(sampled));
+            }
+            LOGGER.info("Original distribution {}; reduced from {} to {} for equalization", typeCounts,
+                    annotations.size(), equalizedSampling.size());
+            annotations = equalizedSampling;
+        }
+
         model.caseDictionary = buildCaseDictionary(trainingFilePath);
 
         // in complete training mode, the tagger is learned twice on the training data
@@ -381,7 +399,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             model.annotationDictionary = buildAnnotationDictionary(annotations);
             model.removeAnnotations = CollectionHelper.newHashSet();
             EvaluationResult evaluationResult = evaluate(trainingFilePath, COLUMN);
-            Set<String> goldAnnotations = CollectionHelper.convertSet(fileAnnotations, Token.STRING_CONVERTER);
+            Set<String> goldAnnotations = CollectionHelper.convertSet(fileAnnotations, STRING_CONVERTER);
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
             // be in ERROR1 set and NOT in the gold standard
             for (Annotation wrongAnnotation : evaluationResult.getAnnotations(ERROR1)) {

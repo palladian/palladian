@@ -60,7 +60,7 @@ former subdivision;;UNDETERMINED;
 french canton;LOC;UNIT;
 french commune;LOC;CITY;
 gb station;LOC;POI;
-geopolitical organization;MISC;;
+geopolitical organization;ORG;;was MISC
 german district;LOC;UNIT;
 german location;LOC;CITY;
 german state;LOC;UNIT;
@@ -152,7 +152,7 @@ scotland council area;LOC;UNIT;
 sea;LOC;LANDMARK;
 secondary school;ORG;POI;
 senator;PER;;
-settlement;LOC;CITY;
+settlement;LOC;CITY;"????? Catalonia is also settlement; make UNETERMINED or remove entry in TUD-Loc"
 sg rail;LOC;POI;
 ship begin;MISC;;
 shopping mall;LOC;POI;
@@ -203,3 +203,22 @@ continent;LOC;CONTINENT;
 palestine municipality;LOC;CITY;
 israel municipality;LOC;CITY;
 palestinian authority municipality;LOC;CITY;
+region of italy;LOC;UNIT;
+french region;LOC;UNIT;
+english county;LOC;UNIT;
+ethnic group;MISC;;
+prepared food;MISC;;
+hill of rome;LOC;LANDMARK;
+dot-com company;ORG;;
+christian leader;PER;;
+monarch;PER;;
+forest;LOC;LANDMARK;
+beverage;MISC;;
+attraction;LOC;POI;
+football tournament;MISC;;
+index;MISC;;e.g. DAX, Dow Jones
+exchange;MISC;;e.g. NASDAQ
+grandslamtournaments;MISC;;e.g. Wimbledon
+basketball club;ORG;;e.g. Alba Berlin
+ship image;MISC;;
+weapon;MISC;;

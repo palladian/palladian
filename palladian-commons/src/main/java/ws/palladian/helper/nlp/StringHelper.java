@@ -1883,14 +1883,45 @@ public final class StringHelper {
      * @return The case signature.
      */
     public static String getCaseSignature(String string) {
-        String caseSignature = string;
+//        String caseSignature = string;
+//
+//        caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
+//        caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
+//        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
+//        caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
+//
+//        return caseSignature;
+        
+        CharStack charStack = new CharStack();
+        for (int i = 0; i < string.length(); i++) {
+            char signature = getCharSignature(string.charAt(i));
+            if (i == 0 || signature != getCharSignature(charStack.peek())) {
+                charStack.push(signature);
+            }
+        }
+        return charStack.toString();
+    }
 
-        caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
-        caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
-        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
-        caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
-
-        return caseSignature;
+    /**
+     * <p>
+     * Get a char signature for the given character. Uppercase letters are mapped to 'A', lowercase letters to 'a',
+     * digits to '0', spaces to ' ', and special characters to '-'.
+     * 
+     * @param ch The char.
+     * @return The case signature [Aa0 -] representing the given char.
+     */
+    private static final char getCharSignature(char ch) {
+        if (Character.isUpperCase(ch)) {
+            return 'A';
+        } else if (Character.isLowerCase(ch)) {
+            return 'a';
+        } else if (Character.isDigit(ch)) {
+            return '0';
+        } else if (Character.isWhitespace(ch)) {
+            return ' ';
+        } else {
+            return '-';
+        }
     }
 
     /**

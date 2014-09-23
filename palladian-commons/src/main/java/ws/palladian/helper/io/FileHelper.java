@@ -2002,12 +2002,12 @@ public final class FileHelper {
 
     /**
      * <p>
-     * Traverse a directory, and (optionally) its subdirectories and process each file using a {@link Consumer}.
+     * Traverse a directory, and (optionally) its subdirectories and process each item using a {@link Consumer}.
      * 
      * @param path The starting path, not <code>null</code>.
      * @param fileFilter A filter which determines which files to process, not <code>null</code>.
      * @param directoryFilter A filter which determines which directories to follow, not <code>null</code>.
-     * @param consumer A consumer to process the matching files, not <code>null</code>.
+     * @param consumer A consumer to process the matching items, not <code>null</code>.
      * @return The number of processed files.
      */
     public static int traverseFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter,
@@ -2024,11 +2024,10 @@ public final class FileHelper {
         for (File file : files) {
             if (file.isDirectory() && directoryFilter.accept(file)) {
                 traverseFiles(file, fileFilter, directoryFilter, consumer);
-            } else {
-                if (fileFilter.accept(file)) {
-                    counter++;
-                    consumer.process(file);
-                }
+            }
+            if (fileFilter.accept(file)) {
+                counter++;
+                consumer.process(file);
             }
         }
         return counter;

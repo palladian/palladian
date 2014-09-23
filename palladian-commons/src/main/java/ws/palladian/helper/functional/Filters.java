@@ -248,4 +248,18 @@ public final class Filters {
 
     }
 
+    /**
+     * Get a filter which accepts directories.
+     * 
+     * @return A filter accepting directories.
+     */
+    public static Filter<File> directory() {
+        return new Filter<File>() {
+            @Override
+            public boolean accept(File item) {
+                return item.isDirectory();
+            }
+        };
+    }
+
 }

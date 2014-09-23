@@ -86,13 +86,15 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * Create a new Bag and add all items from the given {@link Collection}.
      * </p>
      * 
-     * @param collection The collection from which to add items, not <code>null</code>.
+     * @param iterable The iterable from which to add items, not <code>null</code>.
      * @return The Bag containing all items from the given collection.
      */
-    public static <T> Bag<T> create(Collection<? extends T> collection) {
-        Validate.notNull(collection, "collection must not be null");
+    public static <T> Bag<T> create(Iterable<? extends T> iterable) {
+        Validate.notNull(iterable, "iterable must not be null");
         Bag<T> bag = create();
-        bag.addAll(collection);
+        for (T item : iterable) {
+            bag.add(item);
+        }
         return bag;
     }
 
