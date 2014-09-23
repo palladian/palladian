@@ -2,12 +2,10 @@ package ws.palladian.extraction.sentence;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -54,16 +52,6 @@ public class SentenceDetectorTest {
     @AfterClass
     public static void tearDown() throws Exception {
         fixture2 = null;
-    }
-
-    @Test
-    public void testOpenNLPSentenceChunker() throws Exception {
-        SentenceDetector sentenceDetector = new OpenNlpSentenceDetector(
-                ResourceHelper.getResourceFile("/model/en-sent.bin"));
-        Iterator<Token> sentences = sentenceDetector.iterateTokens(fixture);
-        while (sentences.hasNext()) {
-            assertTrue(expectedResult.contains(sentences.next().getValue()));
-        }
     }
 
     @Test

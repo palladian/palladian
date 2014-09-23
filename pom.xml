@@ -312,16 +312,6 @@
 				<artifactId>commons-codec</artifactId>
 				<version>1.9</version>
 			</dependency>
-			<dependency>
-				<groupId>org.apache.opennlp</groupId>
-				<artifactId>opennlp-maxent</artifactId>
-				<version>3.0.3</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.opennlp</groupId>
-				<artifactId>opennlp-tools</artifactId>
-				<version>1.5.3</version>
-			</dependency>
 			<!-- dependency> <groupId>com.uea.stemmer</groupId> <artifactId>UEALite</artifactId> 
 				<version>1.0</version> </dependency -->
 			<dependency>
