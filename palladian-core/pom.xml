@@ -122,8 +122,9 @@
 		<!-- dependency> <groupId>org.hamcrest</groupId> <artifactId>hamcrest-all</artifactId> 
 			<scope>test</scope> </dependency -->
 		<dependency>
-			<groupId>org.tartarus.snowball</groupId>
-			<artifactId>snowball</artifactId>
+			<groupId>com.github.rholder</groupId>
+			<artifactId>snowball-stemmer</artifactId>
+			<version>1.3.0.581.1</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.media</groupId>

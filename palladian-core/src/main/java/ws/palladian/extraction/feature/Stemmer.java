@@ -131,7 +131,7 @@ public final class Stemmer implements Function<String, String> {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("StemmerAnnotator [stemmer=");
+        builder.append("Stemmer [stemmer=");
         builder.append(stemmer.getClass().getSimpleName());
         builder.append("]");
         return builder.toString();
