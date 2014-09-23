@@ -27,7 +27,7 @@ import ws.palladian.integrationtests.ITHelper;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public class ExternalNerIT {
+public class JulieNerIT {
 
     private static File tempDirectory;
     private static String trainPath;
