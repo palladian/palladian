@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
@@ -123,16 +122,6 @@ public final class Foursquare extends AbstractRankingService implements RankingS
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public static void main(String[] a) throws RankingServiceException {
-        Foursquare gpl = new Foursquare(ConfigHolder.getInstance().getConfig());
-        Ranking ranking = null;
-
-        ranking = gpl.getRanking("4d5314d8169bcbff48131cf9");
-        System.out.println(ranking);
-        System.out.println(ranking.getValues().get(Foursquare.FOURSQUARE_CHECKINS) + " -> Foursquare checkins");
-        System.out.println(ranking.getValues().get(Foursquare.FOURSQUARE_LIKES) + " -> Foursquare likes");
     }
 
 }
