@@ -339,11 +339,6 @@
 				<artifactId>mail</artifactId>
 				<version>1.4.7</version>
 			</dependency>
-			<dependency>
-				<groupId>org.tartarus.snowball</groupId>
-				<artifactId>snowball</artifactId>
-				<version>2010-08-04</version>
-			</dependency>
 			<!-- dependency> <groupId>trove</groupId> <artifactId>trove</artifactId> 
 				<version>2.1.0</version> </dependency -->
 			<!-- dependency> <groupId>com.ibm.icu</groupId> <artifactId>icu4j</artifactId> 
