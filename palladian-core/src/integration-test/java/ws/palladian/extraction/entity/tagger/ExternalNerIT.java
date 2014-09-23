@@ -65,39 +65,6 @@ public class ExternalNerIT {
     }
 
     @Test
-    public void test_StanfordNer_CoNLL() {
-        StanfordNer tagger = new StanfordNer();
-        String stanfordNerModel = new File(tempDirectory, "stanfordner.ser.gz").getPath();
-        tagger.train(trainPath, stanfordNerModel);
-        tagger.loadModel(stanfordNerModel);
-
-        // precision MUC: 85.22%, recall MUC: 83.55%, F1 MUC: 84.38%
-        // precision exact: 76.6%, recall exact: 75.09%, F1 exact: 75.84%
-        EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.84);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.75);
-
-        List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, TaggingFormat.COLUMN));
-
-        // System.out.println(annotations.size());
-        // System.out.println(annotations.get(0));
-        // System.out.println(annotations.get(500));
-        // System.out.println(annotations.get(annotations.size() - 1));
-
-        assertEquals(2041, annotations.size());
-        assertEquals(9, annotations.get(0).getStartPosition());
-        assertEquals(14, annotations.get(0).getValue().length());
-
-        assertEquals(17526, annotations.get(500).getStartPosition());
-        assertEquals(4, annotations.get(500).getValue().length());
-
-        assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
-        assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
-    }
-
-    @Test
     public void test_LingPipeNer_CoNLL() {
         LingPipeNer tagger = new LingPipeNer();
         String lingpipeNerModelFile = new File(tempDirectory, "lingpipe.model").getPath();

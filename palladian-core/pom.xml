@@ -164,11 +164,6 @@
 		</dependency>
 		<!-- dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2library</artifactId> 
 			</dependency -->
-		<dependency>
-			<groupId>edu.stanford.nlp</groupId>
-			<artifactId>stanford-ner</artifactId>
-			<version>1.2.6</version>
-		</dependency>
 		<!-- dependency> <groupId>trove</groupId> <artifactId>trove</artifactId> 
 			</dependency -->
 		<!-- dependency> <groupId>uk.ac.shef.wit.simmetrics</groupId> <artifactId>similaritymetrics</artifactId> 

@@ -19,11 +19,10 @@ import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.io.FileHelper;
-import edu.stanford.nlp.process.AbstractTokenizer;
 
 /**
  * <p>
- * A {@link AbstractTokenizer} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP
+ * A {@link TextTokenizer} implemenation based on <a href="http://opennlp.apache.org/">Apache OpenNLP</a>. OpenNLP
  * provides several different tokenizers, ranging from simple, rule-based ones to learnable tokenizers relying on a
  * trained model. For more information, see the documentation <a
  * href="http://opennlp.apache.org/documentation/1.5.2-incubating/manual/opennlp.html#tools.tokenizer">section on
