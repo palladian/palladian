@@ -1,6 +1,7 @@
 package ws.palladian.helper.collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -156,6 +157,12 @@ public class BagTest {
         FileHelper.serialize(bag1, tempFile.getPath());
         Bag<String> deserialized = FileHelper.deserialize(tempFile.getPath());
         assertEquals(bag1, deserialized);
+    }
+
+    @Test
+    public void testCopy() {
+        Bag<String> copy = Bag.create(bag1);
+        assertTrue(copy.equals(bag1));
     }
 
 }

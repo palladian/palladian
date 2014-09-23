@@ -2,10 +2,12 @@ package ws.palladian.helper.nlp;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.EmptyStackException;
+
 import org.junit.Test;
 
 public class CharStackTest {
-    
+
     @Test
     public void testCharStack() {
         CharStack charStack = new CharStack();
@@ -19,6 +21,12 @@ public class CharStackTest {
         assertEquals("abcd", charStack.toString());
         assertEquals('d', charStack.pop());
         assertEquals("abc", charStack.toString());
+    }
+
+    @Test(expected = EmptyStackException.class)
+    public void testEmptyCharStack() {
+        CharStack charStack = new CharStack();
+        charStack.peek();
     }
 
 }

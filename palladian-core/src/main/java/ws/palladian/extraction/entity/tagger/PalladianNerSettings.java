@@ -45,6 +45,8 @@ public class PalladianNerSettings implements Serializable {
     /** Whether the tagger should tag dates. */
     private boolean tagDates = true;
 
+    private boolean equalizeTypeCounts = false;
+
     public PalladianNerSettings(LanguageMode languageMode, TrainingMode trainingMode) {
         Validate.notNull(languageMode, "languageMode must not be null");
         Validate.notNull(trainingMode, "trainingMode must not be null");
@@ -60,11 +62,15 @@ public class PalladianNerSettings implements Serializable {
         this.tagDates = tagDates;
     }
 
-    LanguageMode getLanguageMode() {
-        return languageMode;
+    public void setEqualizeTypeCounts(boolean equalizeTypeCounts) {
+        this.equalizeTypeCounts = equalizeTypeCounts;
     }
 
     // learning features
+
+    LanguageMode getLanguageMode() {
+        return languageMode;
+    }
 
     boolean isRemoveDates() {
         return languageMode == English;
@@ -108,6 +114,10 @@ public class PalladianNerSettings implements Serializable {
 
     boolean isTagDates() {
         return tagDates;
+    }
+
+    boolean isEqualizeTypeCounts() {
+        return equalizeTypeCounts;
     }
 
     @Override
