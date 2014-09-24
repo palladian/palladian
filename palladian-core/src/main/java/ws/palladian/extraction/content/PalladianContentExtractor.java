@@ -392,7 +392,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<Node> divs = XPathHelper
                 .getXhtmlNodes(
                         document,
-                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section)][@class='comment' or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
+                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section) or (self::xhtml:ol) or (self::xhtml:ul) or (self::xhtml:li)][@class='comment' or contains(@class,'comment ') or contains(@class,' comment') or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
+
         for (Node node : divs) {
             comments.add(HtmlHelper.documentToReadableText(node));
             node.getParentNode().removeChild(node);
