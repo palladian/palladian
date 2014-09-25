@@ -29,6 +29,9 @@ public class TimeIntervalParser {
 
         boolean parsed = false;
 
+        string = string.replace("\n", " ").replace("\t", " ");
+        string = StringHelper.removeDoubleWhitespaces(string);
+
         try {
             days = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([dD]ays?))", string));
             parsed = true;
