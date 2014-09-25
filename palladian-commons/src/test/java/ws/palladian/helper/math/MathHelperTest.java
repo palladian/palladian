@@ -189,6 +189,10 @@ public class MathHelperTest {
         assertEquals(3.125, MathHelper.parseStringNumber("3 1/8 bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1½ bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1 ½ bla"), 0.001);
+        assertEquals(100000, MathHelper.parseStringNumber("100,000"), 0.001);
+        assertEquals(1777, MathHelper.parseStringNumber("1,777"), 0.001);
+        assertEquals(17, MathHelper.parseStringNumber("17cm"), 0.001);
+        assertEquals(17, MathHelper.parseStringNumber("17ags"), 0.001);
     }
 
     @Test
