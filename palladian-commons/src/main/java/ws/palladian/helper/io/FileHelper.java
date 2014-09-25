@@ -308,7 +308,13 @@ public final class FileHelper {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
+            InputStream stream = new FileInputStream(file);
+
+            if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
+                stream = new GZIPInputStream(stream);
+            }
+
+            reader = new BufferedReader(new InputStreamReader(stream, encoding));
 
             String line = null;
             while ((line = reader.readLine()) != null) {
