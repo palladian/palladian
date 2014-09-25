@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -39,6 +40,7 @@ import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Tagger;
+import ws.palladian.core.Token;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -52,6 +54,7 @@ import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.RegExp;
@@ -206,14 +209,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     /**
      * Build a case dictionary.
      * 
-     * @param token The tokens to add.
+     * @param token The text from which to build the case dictionary.
      * @return The dictionary model with categories <code>A</code> and <code>a</code> for each token.
      */
-    private static DictionaryModel buildCaseDictionary(String trainingFilePath) {
+    private static DictionaryModel buildCaseDictionary(String text) {
         LOGGER.info("Building case dictionary");
-        List<String> tokens = Tokenizer.tokenize(FileFormatParser.getText(trainingFilePath, COLUMN));
+        Iterator<Token> tokens = new WordTokenizer().iterateTokens(text);
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
-        for (String token : tokens) {
+        while (tokens.hasNext()) {
+            String token = tokens.next().getValue();
             String trimmedToken = token.trim();
             if (trimmedToken.length() > 1) {
                 String caseSignature = StringHelper.getCaseSignature(trimmedToken);
@@ -366,9 +370,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @param additionalTrainingAnnotations Additional annotations that can be used for training.
      */
     private void trainEnglish(String trainingFilePath, List<Annotation> additionalTrainingAnnotations) {
-        Annotations<Annotation> fileAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
         String text = FileFormatParser.getText(trainingFilePath, COLUMN);
-
+        model.caseDictionary = buildCaseDictionary(text);
+        
+        Annotations<Annotation> fileAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
         Annotations<Annotation> annotations = new Annotations<Annotation>(fileAnnotations);
         if (additionalTrainingAnnotations.size() > 0) {
             annotations.addAll(additionalTrainingAnnotations);
@@ -390,8 +395,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                     annotations.size(), equalizedSampling.size());
             annotations = equalizedSampling;
         }
-
-        model.caseDictionary = buildCaseDictionary(trainingFilePath);
 
         // in complete training mode, the tagger is learned twice on the training data
         if (model.settings.isRetraining()) {
