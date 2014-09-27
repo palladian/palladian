@@ -29,8 +29,6 @@ public abstract class NamedEntityRecognizer implements Tagger {
 
     /** The logger for named entity recognizer classes. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
-    
-    public static final String PROVIDED_FEATURE = "ws.palladian.processing.entity.ner";
 
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
@@ -42,15 +40,11 @@ public abstract class NamedEntityRecognizer implements Tagger {
         StopWatch stopWatch = new StopWatch();
 
         List<? extends Annotation> annotations = getAnnotations(inputText);
-        String taggedText = tagText(inputText, annotations);
+        String taggedText = NerHelper.tag(inputText, annotations, taggingFormat);
 
         LOGGER.debug("tagged text in {}", stopWatch.getElapsedTimeString(false));
 
         return taggedText;
-    }
-
-    protected String tagText(String inputText, List<? extends Annotation> annotations) {
-        return NerHelper.tag(inputText, annotations, taggingFormat);
     }
 
     /**

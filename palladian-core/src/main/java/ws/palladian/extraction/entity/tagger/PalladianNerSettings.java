@@ -71,6 +71,10 @@ public class PalladianNerSettings implements Serializable {
     LanguageMode getLanguageMode() {
         return languageMode;
     }
+    
+    TrainingMode getTrainingMode() {
+        return trainingMode;
+    }
 
     boolean isRemoveDates() {
         return languageMode == English;
@@ -102,10 +106,6 @@ public class PalladianNerSettings implements Serializable {
 
     boolean isUnwrapEntitiesWithContext() {
         return languageMode == English;
-    }
-
-    boolean isRetraining() {
-        return trainingMode == Complete;
     }
 
     boolean isTagUrls() {

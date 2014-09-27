@@ -184,12 +184,6 @@ public final class WikimetaNer extends NamedEntityRecognizer {
         return items;
     }
 
-    /** Overridden, intended for unit-testing only. */
-    @Override
-    protected String tagText(String inputText, List<? extends Annotation> annotations) {
-        return super.tagText(inputText, annotations);
-    }
-
     @Override
     public String getName() {
         return "Wikimeta NER";

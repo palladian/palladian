@@ -127,10 +127,10 @@ public class PalladianNerIT {
         assertEquals(5886, caseDictionary.getNumUniqTerms());
         assertEquals(2, caseDictionary.getNumCategories());
         assertEquals(591, tagger.getModel().leftContexts.size());
-        assertEquals(173, tagger.getModel().removeAnnotations.size());
+        assertEquals(171, tagger.getModel().removeAnnotations.size());
         assertEquals(59051, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(98347, annotationDictionary.getNumUniqTerms());
+        assertEquals(98258, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // Palladian#f8c6aab on testing set

@@ -298,4 +298,13 @@ public final class NerHelper {
         return contexts;
     }
 
+    static String getCharacterContext(Annotation annotation, String text, int size) {
+        int offset = annotation.getStartPosition();
+        String entityName = annotation.getValue();
+        int length = entityName.length();
+        String leftContext = text.substring(Math.max(0, offset - size), offset).trim();
+        String rightContext = text.substring(offset + length, Math.min(text.length(), offset + length + size)).trim();
+        return leftContext + "__" + rightContext;
+    }
+
 }
