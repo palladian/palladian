@@ -65,7 +65,6 @@ import ws.palladian.helper.math.MathHelper;
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
- * @author Sandro Reichert
  */
 public final class FileHelper {
 
@@ -91,6 +90,9 @@ public final class FileHelper {
     /** Constant for general binary file extensions, including. */
     public static final List<String> BINARY_FILE_EXTENSIONS;
 
+    /** The Palladian-specific temporary directory. */
+    private static volatile File tempDirectory = null;
+
     static {
         List<String> binaryFileExtensions = new ArrayList<String>();
         binaryFileExtensions.add("pdf");
@@ -100,6 +102,7 @@ public final class FileHelper {
         binaryFileExtensions.add("zip");
         binaryFileExtensions.add("7z");
         binaryFileExtensions.add("rar");
+        binaryFileExtensions.add("tar");
         binaryFileExtensions.add("gz");
         binaryFileExtensions.add("exe");
         binaryFileExtensions.add("msi");
@@ -1751,6 +1754,145 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
+     * Splits a given text file into evenly sized (if possible) files each named with the original name + "_splitX".
+     * </p>
+     * 
+     * @param filePath The file to be split.
+     * @param numParts The number of evenly sized parts the file should be split into.
+     */
+    public static void splitAsciiFile(String filePath, int numParts) {
+
+        int totalLines = FileHelper.getNumberOfLines(filePath);
+
+        int linesPerSplit = (int)Math.ceil((totalLines / (double)numParts));
+
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        OutputStream out = null;
+
+        try {
+
+            out = new FileOutputStream(appendToFileName(filePath, "_split1"));
+            writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
+
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), DEFAULT_ENCODING));
+
+            String line = null;
+            int lineNumber = 1;
+            int i = 2;
+            while ((line = reader.readLine()) != null) {
+
+                if (lineNumber % linesPerSplit == 0) {
+                    if (i == numParts + 1) {
+                        break;
+                    }
+
+                    out = new FileOutputStream(appendToFileName(filePath, "_split" + i));
+                    writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
+                    i++;
+                }
+
+                writer.write(line + "\n");
+
+                lineNumber++;
+            }
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        } finally {
+            close(reader, writer, out);
+        }
+
+    }
+
+    /**
+     * <p>
+     * Shuffles the order of lines in a given file.
+     * </p>
+     * 
+     * @param filePath The path of the file which lines should be shuffled.
+     */
+    public static void shuffleLines(String filePath) {
+        List<String> lines = FileHelper.readFileToArray(filePath);
+        Collections.shuffle(lines);
+        FileHelper.writeToFile(filePath, lines);
+    }
+
+    /**
+     * <p>
+     * Get the Palladian-specific temporary directory. The temp directory is created in the VM's temp directory as
+     * specified in <code>java.io.tmpdir</code> as subdirectory with the name <code>palladian-[timestamp]</code>. This
+     * directory and all its contents are deleted upon VM termination. The temp directory should be used for storing all
+     * intermediate data.
+     * </p>
+     * 
+     * @return The {@link File} representing the temp directory.
+     */
+    public static File getTempDir() {
+        // Thread-safe
+        if (tempDirectory == null) {
+            synchronized (FileHelper.class) {
+                if (tempDirectory == null) {
+                    File baseDirectory = new File(System.getProperty("java.io.tmpdir"));
+                    String directoryName = "palladian-" + System.currentTimeMillis();
+                    File newTempDirectory = new File(baseDirectory, directoryName);
+                    if (!newTempDirectory.mkdir()) {
+                        throw new IllegalStateException("Could not create the temporary directory " + directoryName
+                                + " in " + baseDirectory.getPath());
+                    }
+                    tempDirectory = newTempDirectory;
+
+                    // clean up, when VM shuts down
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+                        @Override
+                        public void run() {
+                            boolean success = delete(tempDirectory.getPath(), true);
+                            if (!success) {
+                                LOGGER.error("Error while deleting temporary directory {}", tempDirectory);
+                            }
+                        }
+                    });
+
+                    // LOGGER.debug("Temp directory is {}", tempDirectory);
+                }
+            }
+        }
+        return tempDirectory;
+    }
+
+    /**
+     * <p>
+     * Traverse a directory, including its subdirectories and perform an {@link Action} to each file.
+     * </p>
+     * 
+     * @param path The starting path, not <code>null</code>.
+     * @param filter A {@link FileFilter} which determines which files to process, not <code>null</code>.
+     * @param action An {@link Action} to perform for the matching files, not <code>null</code>.
+     * @return The number of processed files.
+     */
+    public static int traverseFiles(File path, FileFilter filter, Action<? super File> action) {
+        Validate.notNull(path, "path must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        Validate.notNull(action, "action must not be null");
+        int counter = 0;
+        File[] files = path.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                traverseFiles(file, filter, action);
+            } else {
+                if (filter.accept(file)) {
+                    counter++;
+                    action.process(file);
+                }
+            }
+        }
+        return counter;
+    }
+
+    /**
      * The main method.
      * 
      * @param a The arguments.
@@ -1870,147 +2012,4 @@ public final class FileHelper {
                 "sampleTextForTagging_tagged"));
 
     }
-
-    /**
-     * <p>
-     * Splits a given text file into evenly sized (if possible) files each named with the original name + "_splitX".
-     * </p>
-     * 
-     * @param filePath The file to be split.
-     * @param numParts The number of evenly sized parts the file should be split into.
-     */
-    public static void splitAsciiFile(String filePath, int numParts) {
-
-        int totalLines = FileHelper.getNumberOfLines(filePath);
-
-        int linesPerSplit = (int)Math.ceil((totalLines / (double)numParts));
-
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        OutputStream out = null;
-
-        try {
-
-            out = new FileOutputStream(appendToFileName(filePath, "_split1"));
-            writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
-
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), DEFAULT_ENCODING));
-
-            String line = null;
-            int lineNumber = 1;
-            int i = 2;
-            while ((line = reader.readLine()) != null) {
-
-                if (lineNumber % linesPerSplit == 0) {
-                    if (i == numParts + 1) {
-                        break;
-                    }
-
-                    out = new FileOutputStream(appendToFileName(filePath, "_split" + i));
-                    writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
-                    i++;
-                }
-
-                writer.write(line + "\n");
-
-                lineNumber++;
-            }
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
-        } finally {
-            close(reader, writer, out);
-        }
-
-    }
-
-    /**
-     * <p>
-     * Shuffles the order of lines in a given file.
-     * </p>
-     * 
-     * @param filePath The path of the file which lines should be shuffled.
-     */
-    public static void shuffleLines(String filePath) {
-        List<String> lines = FileHelper.readFileToArray(filePath);
-        Collections.shuffle(lines);
-        FileHelper.writeToFile(filePath, lines);
-    }
-
-    /** The Palladian-specific temp. directory. */
-    private static volatile File tempDirectory = null;
-
-    /**
-     * <p>
-     * Get the Palladian-specific temporary directory. The temp directory is created in the VM's temp directory as
-     * specified in <code>java.io.tmpdir</code> as subdirectory with the name <code>palladian-[timestamp]</code>. This
-     * directory and all its contents are deleted upon VM termination. The temp directory should be used for storing all
-     * intermediate data.
-     * </p>
-     * 
-     * @return The {@link File} representing the temp directory.
-     */
-    public static File getTempDir() {
-        // Thread-safe
-        if (tempDirectory == null) {
-            synchronized (FileHelper.class) {
-                if (tempDirectory == null) {
-                    File baseDirectory = new File(System.getProperty("java.io.tmpdir"));
-                    String directoryName = "palladian-" + System.currentTimeMillis();
-                    File newTempDirectory = new File(baseDirectory, directoryName);
-                    if (!newTempDirectory.mkdir()) {
-                        throw new IllegalStateException("Could not create the temporary directory " + directoryName
-                                + " in " + baseDirectory.getPath());
-                    }
-                    tempDirectory = newTempDirectory;
-
-                    // clean up, when VM shuts down
-                    Runtime.getRuntime().addShutdownHook(new Thread() {
-                        @Override
-                        public void run() {
-                            boolean success = delete(tempDirectory.getPath(), true);
-                            if (!success) {
-                                LOGGER.error("Error while deleting temporary directory {}", tempDirectory);
-                            }
-                        }
-                    });
-
-                    // LOGGER.debug("Temp directory is {}", tempDirectory);
-                }
-            }
-        }
-        return tempDirectory;
-    }
-
-    /**
-     * <p>
-     * Traverse a directory, including its subdirectories and perform an {@link Action} to each file.
-     * </p>
-     * 
-     * @param path The starting path, not <code>null</code>.
-     * @param filter A {@link FileFilter} which determines which files to process, not <code>null</code>.
-     * @param action An {@link Action} to perform for the matching files, not <code>null</code>.
-     * @return The number of processed files.
-     */
-    public static int traverseFiles(File path, FileFilter filter, Action<? super File> action) {
-        Validate.notNull(path, "path must not be null");
-        Validate.notNull(filter, "filter must not be null");
-        Validate.notNull(action, "action must not be null");
-        int counter = 0;
-        File[] files = path.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                traverseFiles(file, filter, action);
-            } else {
-                if (filter.accept(file)) {
-                    counter++;
-                    action.process(file);
-                }
-            }
-        }
-        return counter;
-    }
-
 }
