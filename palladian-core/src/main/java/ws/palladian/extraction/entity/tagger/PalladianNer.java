@@ -6,10 +6,10 @@ import static ws.palladian.core.Token.STRING_CONVERTER;
 import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.LanguageIndependent;
+import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode.Complete;
 import static ws.palladian.helper.functional.Filters.not;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -118,36 +118,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     private static final FeatureSetting CONTEXT_FEATURE_SETTING = chars(5).create();
 
     private static final int WINDOW_SIZE = 40;
-
-    public static final class PalladianNerModel implements Serializable {
-        /** The serial version id. */
-        private static final long serialVersionUID = 2L;
-
-        /** This dictionary contains the entity terms as they are. */
-        DictionaryModel entityDictionary;
-        /** A list containing the order of likelihood of the concepts. */
-        List<String> conceptLikelihoodOrder;
-        /** This dictionary contains the n-grams of the entity terms, create by the text classifier. */
-        DictionaryModel annotationDictionary;
-        /** Context classifier for the left and right context around the annotations. */
-        DictionaryModel contextDictionary;
-        /** keep the case dictionary from the training data */
-        DictionaryModel caseDictionary;
-
-        Set<String> leftContexts;
-
-        Set<String> removeAnnotations;
-
-        PalladianNerSettings settings;
-
-        /**
-         * @return The tags which are supported by this model.
-         */
-        public Set<String> getTags() {
-            return entityDictionary.getCategories();
-        }
-
-    }
 
     private final static String NO_ENTITY = "###NO_ENTITY###";
 
@@ -379,9 +349,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      */
     private void trainEnglish(String trainingFilePath, List<Annotation> additionalTrainingAnnotations) {
         String text = FileFormatParser.getText(trainingFilePath, COLUMN);
-        model.caseDictionary = buildCaseDictionary(text);
-
         Annotations<Annotation> fileAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+
+        model.caseDictionary = buildCaseDictionary(text);
+        model.leftContexts = buildLeftContexts(text, fileAnnotations);
+        model.contextDictionary = buildContextDictionary(text, fileAnnotations);
+
         Annotations<Annotation> annotations = new Annotations<Annotation>(fileAnnotations);
         if (additionalTrainingAnnotations.size() > 0) {
             annotations.addAll(additionalTrainingAnnotations);
@@ -404,10 +377,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             annotations = equalizedSampling;
         }
 
+        model.annotationDictionary = buildAnnotationDictionary(annotations);
+
         // in complete training mode, the tagger is learned twice on the training data
-        if (model.settings.isRetraining()) {
+        if (model.settings.getTrainingMode() == Complete) {
             LOGGER.info("Start retraining (because of complete dataset, no sparse annotations)");
-            model.annotationDictionary = buildAnnotationDictionary(annotations);
             model.removeAnnotations = CollectionHelper.newHashSet();
             EvaluationResult evaluationResult = evaluate(trainingFilePath, COLUMN);
             Set<String> goldAnnotations = CollectionHelper.convertSet(fileAnnotations, STRING_CONVERTER);
@@ -422,11 +396,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 }
             }
             LOGGER.info("{} annotations need to be completely removed", model.removeAnnotations.size());
+            model.annotationDictionary = buildAnnotationDictionary(annotations);
         }
 
-        model.annotationDictionary = buildAnnotationDictionary(annotations);
-        model.leftContexts = buildLeftContexts(text, fileAnnotations);
-        model.contextDictionary = buildContextDictionary(text, fileAnnotations);
     }
 
     /**
@@ -494,7 +466,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 ClassifiedAnnotation result = applyContextAnalysis(annotation, text);
                 if (!result.sameTag(annotation)) {
                     LOGGER.debug("Changed {} from {} to {}, context: {}", annotation.getValue(), annotation.getTag(),
-                            result.getTag(), getContext(annotation, text, WINDOW_SIZE));
+                            result.getTag(), NerHelper.getCharacterContext(annotation, text, WINDOW_SIZE));
                     changed++;
                 }
                 switched.add(result);
@@ -750,21 +722,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         FeatureSetting featureSetting = model.contextDictionary.getFeatureSetting();
         Scorer scorer = new ExperimentalScorers.CategoryEqualizationScorer();
         PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
-        String context = getContext(annotation, text, WINDOW_SIZE);
+        String context = NerHelper.getCharacterContext(annotation, text, WINDOW_SIZE);
         if (context.trim().length() > 2) {
             CategoryEntries contextClassification = classifier.classify(context, model.contextDictionary);
             builder.add(contextClassification);
         }
         return new ClassifiedAnnotation(annotation, builder.create());
-    }
-
-    static String getContext(Annotation annotation, String text, int size) {
-        int offset = annotation.getStartPosition();
-        String entityName = annotation.getValue();
-        int length = entityName.length();
-        String leftContext = text.substring(Math.max(0, offset - size), offset).trim();
-        String rightContext = text.substring(offset + length, Math.min(text.length(), offset + length + size)).trim();
-        return leftContext + "__" + rightContext;
     }
 
     /**
@@ -857,7 +820,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation, Instance>() {
             @Override
             public Instance compute(Annotation input) {
-                return new InstanceBuilder().setText(getContext(input, text, WINDOW_SIZE)).create(input.getTag());
+                return new InstanceBuilder().setText(NerHelper.getCharacterContext(input, text, WINDOW_SIZE)).create(
+                        input.getTag());
             }
         });
         return contextClassifier.train(instances);
