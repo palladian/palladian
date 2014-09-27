@@ -207,23 +207,31 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     /**
-     * Build a case dictionary.
+     * Build a case dictionary. For the giving training text, the upper/lowercase statistics of all tokens within
+     * sentences (i.e. of all tokens not at sentence beginning) are analyzed.
      * 
-     * @param token The text from which to build the case dictionary.
+     * @param text The text from which to build the case dictionary.
      * @return The dictionary model with categories <code>A</code> and <code>a</code> for each token.
      */
-    private static DictionaryModel buildCaseDictionary(String text) {
+    static DictionaryModel buildCaseDictionary(String text) {
         LOGGER.info("Building case dictionary");
-        Iterator<Token> tokens = new WordTokenizer().iterateTokens(text);
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
+        Iterator<Token> tokens = new WordTokenizer().iterateTokens(text);
+        boolean skip = true; // skip the first, and tokens after a new sentence start
         while (tokens.hasNext()) {
             String token = tokens.next().getValue();
-            String trimmedToken = token.trim();
-            if (trimmedToken.length() > 1) {
-                String caseSignature = StringHelper.getCaseSignature(trimmedToken);
-                if (caseSignature.toLowerCase().startsWith("a")) {
-                    builder.addDocument(Collections.singleton(trimmedToken.toLowerCase()),
-                            caseSignature.substring(0, 1));
+            if (skip) {
+                skip = false;
+            } else if (token.matches("[.?!]")) {
+                skip = true;
+            } else {
+                String trimmedToken = token.trim();
+                if (trimmedToken.length() > 1) {
+                    String caseSignature = StringHelper.getCaseSignature(trimmedToken);
+                    if (caseSignature.toLowerCase().startsWith("a")) {
+                        builder.addDocument(Collections.singleton(trimmedToken.toLowerCase()),
+                                caseSignature.substring(0, 1));
+                    }
                 }
             }
         }
@@ -372,7 +380,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     private void trainEnglish(String trainingFilePath, List<Annotation> additionalTrainingAnnotations) {
         String text = FileFormatParser.getText(trainingFilePath, COLUMN);
         model.caseDictionary = buildCaseDictionary(text);
-        
+
         Annotations<Annotation> fileAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
         Annotations<Annotation> annotations = new Annotations<Annotation>(fileAnnotations);
         if (additionalTrainingAnnotations.size() > 0) {
@@ -427,7 +435,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @param entityCandidates The annotations to be classified.
      * @return Classified annotations.
      */
-    private Annotations<ClassifiedAnnotation> classifyCandidates(List<Annotation> entityCandidates) {
+    private Annotations<ClassifiedAnnotation> classifyCandidates(Collection<Annotation> entityCandidates) {
         PalladianTextClassifier classifier = new PalladianTextClassifier(model.annotationDictionary.getFeatureSetting());
         Annotations<ClassifiedAnnotation> annotations = new Annotations<ClassifiedAnnotation>();
         for (Annotation annotation : entityCandidates) {
@@ -537,7 +545,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             // use the the string tagger to tag entities in English mode
             tagger = StringTagger.INSTANCE;
         }
-        Annotations<Annotation> annotations = new Annotations<Annotation>(tagger.getAnnotations(inputText));
+        Set<Annotation> annotations = CollectionHelper.newHashSet(tagger.getAnnotations(inputText));
         preProcessAnnotations(annotations);
         Annotations<ClassifiedAnnotation> classifiedAnnotations = classifyCandidates(annotations);
         classifiedAnnotations = postProcessAnnotations(inputText, classifiedAnnotations);
@@ -551,8 +559,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     /**
      * Combine annotations that are right next to each other having the same tag.
      * 
-     * @param annotations
-     * @return
+     * @param annotations The annotations to combine.
+     * @return The combined annotations.
      */
     private static Annotations<ClassifiedAnnotation> combineAnnotations(Annotations<ClassifiedAnnotation> annotations) {
         Annotations<ClassifiedAnnotation> combinedAnnotations = new Annotations<ClassifiedAnnotation>();
@@ -584,7 +592,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         return combinedAnnotations;
     }
 
-    private void preProcessAnnotations(Annotations<Annotation> annotations) {
+    private void preProcessAnnotations(Set<Annotation> annotations) {
         LOGGER.debug("Start pre processing annotations");
         if (model.settings.isRemoveIncorrectlyTaggedInTraining()) {
             removeIncorrectlyTaggedInTraining(annotations);
@@ -592,23 +600,23 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         if (model.settings.isUnwrapEntities()) {
             unwrapEntities(annotations);
         }
-        if (model.settings.isRemoveSentenceStartErrorsCaseDictionary() && model.caseDictionary != null) {
-            removeSentenceStartErrors(annotations);
-        }
         if (model.settings.isUnwrapEntitiesWithContext() && model.leftContexts != null) {
             unwrapWithContext(annotations);
         }
         if (model.settings.isRemoveDateFragments()) {
             removeDateFragments(annotations);
         }
+        if (model.settings.isRemoveSentenceStartErrorsCaseDictionary() && model.caseDictionary != null) {
+            removeSentenceStartErrors(annotations);
+        }
         if (model.settings.isRemoveDates()) {
             removeDates(annotations);
         }
     }
 
-    private static void removeDateFragments(Annotations<Annotation> annotations) {
-        Annotations<Annotation> toAdd = new Annotations<Annotation>();
-        Annotations<Annotation> toRemove = new Annotations<Annotation>();
+    private static void removeDateFragments(Set<Annotation> annotations) {
+        Set<Annotation> toAdd = CollectionHelper.newHashSet();
+        Set<Annotation> toRemove = CollectionHelper.newHashSet();
         for (Annotation annotation : annotations) {
             Annotation result = removeDateFragment(annotation);
             if (result != null) {
@@ -621,7 +629,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         annotations.removeAll(toRemove);
     }
 
-    private static void removeDates(Annotations<Annotation> annotations) {
+    private static void removeDates(Set<Annotation> annotations) {
         int numRemoved = CollectionHelper.remove(annotations, new Filter<Annotation>() {
             @Override
             public boolean accept(Annotation annotation) {
@@ -631,9 +639,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         LOGGER.debug("Removed {} purely date annotations", numRemoved);
     }
 
-    private void unwrapWithContext(Annotations<Annotation> annotations) {
-        Annotations<Annotation> toAdd = new Annotations<Annotation>();
-        Annotations<Annotation> toRemove = new Annotations<Annotation>();
+    private void unwrapWithContext(Set<Annotation> annotations) {
+        Set<Annotation> toAdd = CollectionHelper.newHashSet();
+        Set<Annotation> toRemove = CollectionHelper.newHashSet();
         for (Annotation annotation : annotations) {
             String entity = annotation.getValue();
             // do not unwrap, in case we have the value in the entity dictionary
@@ -684,9 +692,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
      * sentence start but all single token words.
      * 
-     * @param annotations
+     * @param annotations The annotations.
      */
-    private void removeSentenceStartErrors(Annotations<Annotation> annotations) {
+    private void removeSentenceStartErrors(Set<Annotation> annotations) {
         int removed = CollectionHelper.remove(annotations, new Filter<Annotation>() {
             @Override
             public boolean accept(Annotation annotation) {
@@ -705,10 +713,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 return true;
             }
         });
-        LOGGER.debug("Removed {} words at beginning of sentence", removed);
+        LOGGER.debug("Removed {} words using case dictionary", removed);
     }
 
-    private void removeIncorrectlyTaggedInTraining(Annotations<Annotation> annotations) {
+    private void removeIncorrectlyTaggedInTraining(Set<Annotation> annotations) {
         int removed = CollectionHelper.remove(annotations, new Filter<Annotation>() {
             @Override
             public boolean accept(Annotation annotation) {
@@ -718,13 +726,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         LOGGER.debug("Removed {} incorrectly tagged entities in training data", removed);
     }
 
-    private void unwrapEntities(Annotations<Annotation> annotations) {
+    private void unwrapEntities(Set<Annotation> annotations) {
         Annotations<Annotation> toAdd = new Annotations<Annotation>();
         Annotations<Annotation> toRemove = new Annotations<Annotation>();
         for (Annotation annotation : annotations) {
             boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
             if (isAllUppercase) {
-                Annotations<Annotation> unwrapped = unwrapAnnotations(annotation, annotations);
+                Set<Annotation> unwrapped = unwrapAnnotations(annotation, annotations);
                 if (unwrapped.size() > 0) {
                     toAdd.addAll(unwrapped);
                     toRemove.add(annotation);
@@ -807,8 +815,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * Build a set with left contexts. These are tokens which appear to the left of an entity, e.g.
      * "President Barack Obama". From the available annotations we determine, whether "President" belongs to the entity,
      * or to the context. This information can be used later, to fix the boundaries of an annotation.
+     *
+     * @param text The text.
      * @param annotations The annotations.
-     * 
      * @return A set with tokens which appear more often in the context, than within an entity (e.g. "President").
      */
     private static Set<String> buildLeftContexts(String text, Annotations<Annotation> annotations) {
@@ -868,8 +877,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @param annotations The annotations we are searching for in this entity.
      * @return A set of annotations found in this annotation.
      */
-    private Annotations<Annotation> unwrapAnnotations(Annotation annotation, List<Annotation> annotations) {
-        Annotations<Annotation> unwrappedAnnotations = new Annotations<Annotation>();
+    private Set<Annotation> unwrapAnnotations(Annotation annotation, Set<Annotation> annotations) {
+        Set<Annotation> unwrappedAnnotations = CollectionHelper.newHashSet();
         for (Annotation currentAnnotation : annotations) {
             if (!currentAnnotation.equals(annotation)) {
                 String currentValue = currentAnnotation.getValue();
@@ -882,7 +891,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             String category = categoryEntries.getCategoryEntries().getMostLikelyCategory();
             unwrappedAnnotations.addAll(processUnwrap(annotation, term, category));
         }
-        unwrappedAnnotations.removeNested();
         if (LOGGER.isDebugEnabled() && unwrappedAnnotations.size() > 0) {
             StringBuilder parts = new StringBuilder();
             for (Annotation unwrappedAnnotation : unwrappedAnnotations) {

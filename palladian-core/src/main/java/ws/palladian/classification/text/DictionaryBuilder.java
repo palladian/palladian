@@ -56,7 +56,7 @@ public interface DictionaryBuilder extends Factory<DictionaryModel> {
      * @param strategy The pruning strategy, not <code>null</code>.
      * @return The builder instance.
      */
-    DictionaryBuilder setPruningStrategy(Filter<CategoryEntries> strategy);
+    DictionaryBuilder setPruningStrategy(Filter<? super CategoryEntries> strategy);
 
     /**
      * Adds the content of a given {@link DictionaryModel}.

@@ -61,7 +61,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         /** The number of terms stored in this dictionary. */
         private int numTerms;
         /** The pruning strategies to apply when creating the model. */
-        private Filter<CategoryEntries> pruningStrategy;
+        private Filter<? super CategoryEntries> pruningStrategy;
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -126,7 +126,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         }
 
         @Override
-        public DictionaryBuilder setPruningStrategy(Filter<CategoryEntries> strategy) {
+        public DictionaryBuilder setPruningStrategy(Filter<? super CategoryEntries> strategy) {
             Validate.notNull(strategy, "strategy must not be null");
             this.pruningStrategy = strategy;
             return this;
