@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
@@ -67,6 +69,26 @@ public final class PalladianNerModel implements Serializable {
             entityValuesCaseInsensitive = values;
         }
         return entityValuesCaseInsensitive.contains(value.toLowerCase());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder summary = new StringBuilder();
+        summary.append("PalladianNerModel [");
+        summary.append("Dictionary sizes: ");
+        summary.append("annotation:").append(annotationDictionary.getNumUniqTerms()).append(',');
+        summary.append("entity:").append(entityDictionary.getNumUniqTerms()).append(',');
+        summary.append("context:").append(contextDictionary.getNumUniqTerms()).append(',');
+        if (lowerCaseDictionary != null) {
+            summary.append("case:").append(lowerCaseDictionary.size()).append(',');
+        }
+        if (removeAnnotations != null) {
+            summary.append("remove:").append(removeAnnotations.size()).append(',');
+        }
+        summary.append("leftContexts:").append(leftContexts.size()).append(", ");
+        summary.append("Tags: ").append(StringUtils.join(getTags(), ','));
+        summary.append(']');
+        return summary.toString();
     }
 
 }

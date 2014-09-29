@@ -6,10 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.EXACT_MATCH;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.English;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Sparse;
 
 import java.io.File;
 import java.util.Set;
@@ -22,6 +18,7 @@ import org.junit.Test;
 
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.Builder;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.integrationtests.ITHelper;
@@ -57,7 +54,7 @@ public class PalladianNerIT {
         String testPath = config.getString("dataset.conll.test");
         ITHelper.assumeFile("CoNLL", trainPath, testPath);
 
-        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(LanguageIndependent, Complete);
+        PalladianNerTrainingSettings settings = PalladianNerTrainingSettings.Builder.languageIndependent().create();
         PalladianNer tagger = new PalladianNer(settings);
         String tudnerLiModel = new File(tempDirectory, "tudnerLI.model.gz").getPath();
         boolean traininSuccessful = tagger.train(trainPath, tudnerLiModel);
@@ -92,7 +89,7 @@ public class PalladianNerIT {
         String testPath = config.getString("dataset.conll.test");
         ITHelper.assumeFile("CoNLL", trainPath, testPath);
 
-        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(English, Complete);
+        PalladianNerTrainingSettings settings = PalladianNerTrainingSettings.Builder.english().create();
         PalladianNer tagger = new PalladianNer(settings);
         String tudnerEnModel = new File(tempDirectory, "tudnerEn.model.gz").getPath();
         boolean trainingSuccessful = tagger.train(trainPath, tudnerEnModel);
@@ -127,7 +124,7 @@ public class PalladianNerIT {
         String trainPath = config.getString("dataset.tudcs4.train");
         String testPath = config.getString("dataset.tudcs4.test");
         ITHelper.assumeFile("TUDCS4", trainPath, testPath);
-        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(English, Complete);
+        PalladianNerTrainingSettings settings = PalladianNerTrainingSettings.Builder.english().create();
         PalladianNer ner = new PalladianNer(settings);
         ner.train(new File(trainPath), new File(tempDirectory, "palladianNerTUDCS4.model.gz"));
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
@@ -144,7 +141,7 @@ public class PalladianNerIT {
         String trainPath = config.getString("dataset.tudcs4.train");
         String testPath = config.getString("dataset.tudcs4.test");
         ITHelper.assumeFile("TUDCS4", trainPath, testPath);
-        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(LanguageIndependent, Complete);
+        PalladianNerTrainingSettings settings = PalladianNerTrainingSettings.Builder.languageIndependent().create();
         PalladianNer ner = new PalladianNer(settings);
         ner.train(new File(trainPath), new File(tempDirectory, "palladianNerTUDCS4.model.gz"));
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
@@ -163,10 +160,12 @@ public class PalladianNerIT {
         String testPath = config.getString("dataset.conll.test");
         ITHelper.assumeFile("Wikipedia Entity", trainPath);
         ITHelper.assumeFile("CoNLL", testPath);
-        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(English, Sparse, true);
-        settings.setMinDictionaryCount(5);
+        Builder builder = PalladianNerTrainingSettings.Builder.english();
+        builder.sparse();
+        builder.minDictCount(5);
+        builder.equalizeTypeCounts();
         File trainingFile = new File(trainPath);
-        PalladianNer ner = new PalladianNer(settings);
+        PalladianNer ner = new PalladianNer(builder.create());
         ner.train(trainingFile, new File(tempDirectory, "palladianNerWikipedia.model.gz"));
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
         // System.out.println(result.getMUCResultsReadable());
@@ -174,7 +173,7 @@ public class PalladianNerIT {
         // precision MUC: 80.45%, recall MUC: 84.63%, F1 MUC: 82.49%
         // precision exact: 70.9%, recall exact: 74.58%, F1 exact: 72.69%
         ITHelper.assertMin("F1-MUC", 0.81, result.getF1(MUC));
-        ITHelper.assertMin("F1-Exact", 0.70, result.getF1(EXACT_MATCH));
+        ITHelper.assertMin("F1-Exact", 0.69, result.getF1(EXACT_MATCH));
     }
 
 }
