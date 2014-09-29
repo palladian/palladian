@@ -100,6 +100,10 @@ public class PalladianNerSettings implements Serializable {
         return true;
     }
 
+    public boolean isFixStartErrorsCaseDictionary() {
+        return true;
+    }
+
     boolean isUnwrapEntities() {
         return languageMode == English;
     }

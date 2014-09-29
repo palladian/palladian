@@ -352,6 +352,23 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         Annotations<Annotation> fileAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
         model.caseDictionary = buildCaseDictionary(text);
+
+        if (model.settings.isEqualizeTypeCounts()) {
+            // XXX also add to trainLanguageIndependent?
+            Bag<String> typeCounts = Bag.create(CollectionHelper.convert(fileAnnotations, TAG_CONVERTER));
+            int minCount = typeCounts.getMin().getValue();
+            Annotations<Annotation> equalizedSampling = new Annotations<Annotation>();
+            for (String type : typeCounts.uniqueItems()) {
+                Iterable<Annotation> currentType = CollectionHelper
+                        .filter(fileAnnotations, AnnotationFilters.tag(type));
+                Collection<Annotation> sampled = MathHelper.sample(currentType, minCount);
+                equalizedSampling.addAll(CollectionHelper.newHashSet(sampled));
+            }
+            LOGGER.info("Original distribution {}; reduced from {} to {} for equalization", typeCounts,
+                    fileAnnotations.size(), equalizedSampling.size());
+            fileAnnotations = equalizedSampling;
+        }
+
         model.leftContexts = buildLeftContexts(text, fileAnnotations);
         model.contextDictionary = buildContextDictionary(text, fileAnnotations);
 
@@ -362,21 +379,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         }
 
         model.entityDictionary = buildEntityDictionary(annotations);
-
-        if (model.settings.isEqualizeTypeCounts()) {
-            Bag<String> typeCounts = Bag.create(CollectionHelper.convert(annotations, TAG_CONVERTER));
-            int minCount = typeCounts.getMin().getValue();
-            Annotations<Annotation> equalizedSampling = new Annotations<Annotation>();
-            for (String type : typeCounts.uniqueItems()) {
-                Iterable<Annotation> currentType = CollectionHelper.filter(annotations, AnnotationFilters.tag(type));
-                Collection<Annotation> sampled = MathHelper.sample(currentType, minCount);
-                equalizedSampling.addAll(CollectionHelper.newHashSet(sampled));
-            }
-            LOGGER.info("Original distribution {}; reduced from {} to {} for equalization", typeCounts,
-                    annotations.size(), equalizedSampling.size());
-            annotations = equalizedSampling;
-        }
-
         model.annotationDictionary = buildAnnotationDictionary(annotations);
 
         // in complete training mode, the tagger is learned twice on the training data
@@ -581,9 +583,62 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         if (model.settings.isRemoveSentenceStartErrorsCaseDictionary() && model.caseDictionary != null) {
             removeSentenceStartErrors(annotations);
         }
+        if (model.settings.isFixStartErrorsCaseDictionary() && model.caseDictionary != null) {
+            fixStartErrorsWithCaseDictionary(annotations);
+        }
         if (model.settings.isRemoveDates()) {
             removeDates(annotations);
         }
+    }
+
+    private void fixStartErrorsWithCaseDictionary(Set<Annotation> annotations) {
+        Set<Annotation> toAdd = CollectionHelper.newHashSet();
+        Set<Annotation> toRemove = CollectionHelper.newHashSet();
+        for (Annotation annotation : annotations) {
+            String value = annotation.getValue();
+            String[] parts = value.split("\\s");
+            if (parts.length == 1) {
+                continue;
+            }
+            int offsetCut = 0;
+            String newValue = value;
+            for (String token : parts) {
+                boolean inDictionary = false;
+                for (DictionaryEntry entry : model.entityDictionary) {
+                    if (entry.getTerm().equalsIgnoreCase(newValue)) {
+                        inDictionary = true;
+                        break;
+                    }
+                }
+                if (inDictionary) {
+                    LOGGER.debug("'{}' is in entity dictionary, stop correcting", newValue);
+                    break;
+                }
+                double lowerCase = model.caseDictionary.getCategoryEntries(token.toLowerCase()).getProbability("a");
+                if (lowerCase <= 0.5) {
+                    LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}", new Object[] {value,
+                            newValue, lowerCase});
+                    break;
+                }
+                offsetCut += token.length() + 1;
+                if (offsetCut >= value.length()) {
+                    break;
+                }
+                newValue = value.substring(offsetCut);
+            }
+            if (offsetCut >= value.length()) {
+                LOGGER.info("Drop '{}' completely because of lc/uc ratio", value);
+                toRemove.add(annotation);
+            } else if (offsetCut > 0) { // annotation start was corrected
+                LOGGER.info("Correct '{}' to '{}' because of lc/uc ratios", value, newValue);
+                int newStart = annotation.getStartPosition() + offsetCut;
+                toRemove.add(annotation);
+                toAdd.add(new ImmutableAnnotation(newStart, newValue, annotation.getTag()));
+            }
+        }
+        LOGGER.info("Adding {}, removing {} through case dictionary unwrapping", toAdd.size(), toRemove.size());
+        annotations.removeAll(toRemove);
+        annotations.addAll(toAdd);
     }
 
     private static void removeDateFragments(Set<Annotation> annotations) {
@@ -699,8 +754,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private void unwrapEntities(Set<Annotation> annotations) {
-        Annotations<Annotation> toAdd = new Annotations<Annotation>();
-        Annotations<Annotation> toRemove = new Annotations<Annotation>();
+        Set<Annotation> toAdd = CollectionHelper.newHashSet();
+        Set<Annotation> toRemove = CollectionHelper.newHashSet();
         for (Annotation annotation : annotations) {
             boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
             if (isAllUppercase) {
@@ -771,6 +826,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         if (annotation.getValue().equals(newValue)) {
             return null;
         }
+        LOGGER.debug("Removed date fragment from '{}' gives '{}'", annotation.getValue(), newValue);
         return new ImmutableAnnotation(newOffset, newValue, annotation.getTag());
     }
 
