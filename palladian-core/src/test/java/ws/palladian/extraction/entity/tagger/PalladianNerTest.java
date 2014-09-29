@@ -3,8 +3,6 @@ package ws.palladian.extraction.entity.tagger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.English;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
 
 import java.util.List;
 import java.util.Set;
@@ -66,7 +64,7 @@ public class PalladianNerTest {
     @Test
     public void testBuildCaseDictionary() {
         String text = "Despite their shared upbringing and involvement in the Spanish Treason, the conspirators chose not to reveal the plot to him until 14 October 1605, shortly after his father died, and just weeks before the planned explosion. According to his confession, the meeting took place at the home of Tresham's brother-in-law, Lord Stourton, in Clerkenwell.";
-        PalladianNer ner = new PalladianNer(new PalladianNerTrainingSettings(English, Complete));
+        PalladianNer ner = new PalladianNer(PalladianNerTrainingSettings.Builder.english().create());
         Set<String> caseDictionary = ner.buildCaseDictionary(text);
         // CollectionHelper.print(caseDictionary);
         assertEquals(33, caseDictionary.size());

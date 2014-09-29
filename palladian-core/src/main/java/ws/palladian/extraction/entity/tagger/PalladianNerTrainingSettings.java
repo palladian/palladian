@@ -5,12 +5,61 @@ import static ws.palladian.classification.text.FeatureSettingBuilder.chars;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.helper.functional.Factory;
 
 /**
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class PalladianNerTrainingSettings {
+public final class PalladianNerTrainingSettings {
+
+    public static final class Builder implements Factory<PalladianNerTrainingSettings> {
+
+        private final LanguageMode languageMode;
+
+        private TrainingMode trainingMode = TrainingMode.Complete;
+
+        private boolean equalizeTypeCounts = false;
+
+        private int minDictionaryCount = 1;
+
+        public static Builder english() {
+            return new Builder(LanguageMode.English);
+        }
+
+        public static Builder languageIndependent() {
+            return new Builder(LanguageMode.LanguageIndependent);
+        }
+
+        private Builder(LanguageMode languageMode) {
+            this.languageMode = languageMode;
+        }
+
+        public Builder sparse() {
+            this.trainingMode = TrainingMode.Sparse;
+            return this;
+        }
+
+        public Builder equalizeTypeCounts() {
+            if (languageMode != LanguageMode.English) {
+                throw new UnsupportedOperationException("Sparse training is only supported for English language mode.");
+            }
+            this.equalizeTypeCounts = true;
+            return this;
+        }
+
+        public Builder minDictCount(int minDictionaryCount) {
+            Validate.isTrue(minDictionaryCount > 0, "minDictionaryCount must be greater zero");
+            this.minDictionaryCount = minDictionaryCount;
+            return this;
+        }
+
+        @Override
+        public PalladianNerTrainingSettings create() {
+            return new PalladianNerTrainingSettings(this);
+        }
+
+    }
 
     /**
      * <p>
@@ -44,18 +93,13 @@ public class PalladianNerTrainingSettings {
 
     private final boolean equalizeTypeCounts;
 
-    private int minDictionaryCount = 1;
+    private final int minDictionaryCount;
 
-    public PalladianNerTrainingSettings(LanguageMode languageMode, TrainingMode trainingMode) {
-        this(languageMode, trainingMode, false);
-    }
-
-    public PalladianNerTrainingSettings(LanguageMode languageMode, TrainingMode trainingMode, boolean equalizeTypeCounts) {
-        Validate.notNull(languageMode, "languageMode must not be null");
-        Validate.notNull(trainingMode, "trainingMode must not be null");
-        this.languageMode = languageMode;
-        this.trainingMode = trainingMode;
-        this.equalizeTypeCounts = equalizeTypeCounts;
+    private PalladianNerTrainingSettings(Builder builder) {
+        this.languageMode = builder.languageMode;
+        this.trainingMode = builder.trainingMode;
+        this.equalizeTypeCounts = builder.equalizeTypeCounts;
+        this.minDictionaryCount = builder.minDictionaryCount;
     }
 
     public TrainingMode getTrainingMode() {
@@ -74,9 +118,22 @@ public class PalladianNerTrainingSettings {
         return minDictionaryCount;
     }
 
-    public void setMinDictionaryCount(int minDictionaryCount) {
-        Validate.isTrue(minDictionaryCount > 0, "minDictionaryCount must be greater zero");
-        this.minDictionaryCount = minDictionaryCount;
+    @Override
+    public String toString() {
+        StringBuilder toStringBuilder = new StringBuilder();
+        toStringBuilder.append("PalladianNerTrainingSettings [");
+        toStringBuilder.append(trainingMode);
+        toStringBuilder.append(", ");
+        toStringBuilder.append(languageMode);
+        if (equalizeTypeCounts) {
+            toStringBuilder.append(", equalizeTypeCounts");
+        }
+        if (minDictionaryCount > 1) {
+            toStringBuilder.append(", minDictionaryCount=");
+            toStringBuilder.append(minDictionaryCount);
+        }
+        toStringBuilder.append("]");
+        return toStringBuilder.toString();
     }
 
 }
