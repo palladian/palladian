@@ -8,10 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -108,69 +106,6 @@ public final class ClassificationUtils {
      */
     @Deprecated
     public static List<Instance> readCsv(String filePath, final boolean readHeader, final String fieldSeparator) {
-//        if (!new File(filePath).canRead()) {
-//            throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
-//        }
-//
-//        final StopWatch stopWatch = new StopWatch();
-//        final List<Trainable> instances = CollectionHelper.newArrayList();
-//
-//        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
-//
-//            String[] headNames;
-//            int expectedColumns;
-//
-//            @Override
-//            public void performAction(String line, int lineNumber) {
-//                String[] parts = line.split(fieldSeparator);
-//
-//                if (parts.length < 2) {
-//                    throw new IllegalStateException("Separator '" + fieldSeparator
-//                            + "'was not found, lines cannot be split ('" + line + "').");
-//                }
-//
-//                if (lineNumber == 0) {
-//                    expectedColumns = parts.length;
-//                    if (readHeader) {
-//                        headNames = parts;
-//                        return;
-//                    }
-//                } else {
-//                    if (expectedColumns != parts.length) {
-//                        throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
-//                                + parts.length + ", but should be " + expectedColumns + ")");
-//                    }
-//                }
-//
-//                FeatureVector featureVector = new BasicFeatureVector();
-//
-//                for (int f = 0; f < parts.length - 1; f++) {
-//                    String name = headNames == null ? String.valueOf(f) : headNames[f];
-//                    String value = parts[f];
-//                    // FIXME make better.
-//                    if (value.equals("?")) {
-//                        // missing value, TODO maybe rethink what to do here and how
-//                        // to handle missing values in general.
-//                        continue;
-//                    }
-//                    try {
-//                        Double doubleValue = Double.valueOf(value);
-//                        featureVector.add(new NumericFeature(name, doubleValue));
-//                    } catch (NumberFormatException e) {
-//                        featureVector.add(new NominalFeature(name, value));
-//                    }
-//                }
-//                String targetClass = parts[parts.length - 1];
-//                instances.add(new Instance(targetClass, featureVector));
-//
-//                if (lineNumber % 10000 == 0) {
-//                    LOGGER.debug("Read {} lines", lineNumber);
-//                }
-//            }
-//        });
-//        LOGGER.info("Read {} instances from {} in {}", instances.size(), filePath, stopWatch);
-//        return instances;
-        
         return new CsvDatasetReader(new File(filePath),readHeader,fieldSeparator).readAll();
     }
 
@@ -259,40 +194,6 @@ public final class ClassificationUtils {
         } finally {
             FileHelper.close(writer);
         }
-    }
-
-    /**
-     * <p>
-     * Draws a fraction of the provided list by random.
-     * </p>
-     * 
-     * @param list The {@code List} to draw from.
-     * @param fraction The fraction to draw from the list.
-     * @return The random subset from {@code list}.
-     */
-    public static <T> List<T> drawRandomSubset(final List<T> list, final int fraction) {
-        Random rnd = new Random(System.currentTimeMillis());
-//        int m = (fraction * list.size()) / 100;
-//        for (int i = 0; i < list.size(); i++) {
-//            int pos = i + rnd.nextInt(list.size() - i);
-//            T tmp = list.get(pos);
-//            list.set(pos, list.get(i));
-//            list.set(i, tmp);
-//        }
-//        return list.subList(0, m);
-        
-        // http://stackoverflow.com/questions/136474/best-way-to-pick-a-random-subset-from-a-collection
-        
-        List<T> result = new ArrayList<T>(list);
-        int count = (fraction * list.size()) / 100;
-        
-        for (int n = 0; n < count; n++) {
-            int k = rnd.nextInt(result.size() - n) + n;
-            T tmp = result.get(n);
-            result.set(n, result.get(k));
-            result.set(k, tmp);
-        }
-        return new ArrayList<T>(result.subList(0, count));
     }
 
     /**
