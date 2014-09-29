@@ -30,10 +30,7 @@ public class PalladianNerTrainingSettings {
         Complete, Sparse
     }
 
-    /**
-     * Original setting was 4-8 grams, 5 grams basically gives the same result, however the model is significantly
-     * smaller.
-     */
+    /** Original was 4-8 grams, 5 grams basically gives same result, but the model is significantly smaller. */
     public static final FeatureSetting ANNOTATION_FEATURE_SETTING = chars(5).characterPadding().create();
 
     /** be careful with the n-gram sizes, they heavily influence the model size. */

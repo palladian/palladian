@@ -556,7 +556,7 @@ public final class StringHelper {
     }
 
     public static String removeWords(List<String> words, String searchString) {
-        Collections.sort(words, new StringLengthComparator());
+        Collections.sort(words, StringLengthComparator.INSTANCE);
         for (String word : words) {
             searchString = removeWord(word, searchString);
         }
@@ -2108,6 +2108,36 @@ public final class StringHelper {
         for (int i = 0; i <= matcher.groupCount(); i++) {
             System.out.println(i + ":" + matcher.group(i));
         }
+    }
+
+    /**
+     * <p>
+     * Get all sub-phrases of a string by combining all consecutive words (e.g. "quick brown fox" gives
+     * ["quick","quick brown","quick brown fox","brown","brown fox","fox"]).
+     * 
+     * @param string The string, not <code>null</code>.
+     * @return A list of sub-phrases (including the supplied phrase itself).
+     */
+    public static final List<String> getSubPhrases(String string) {
+        Validate.notNull(string, "string must not be null");
+        List<String> phrases = CollectionHelper.newArrayList();
+        String[] split = string.split("\\s");
+        for (int i = 0; i < split.length; i++) {
+            for (int j = i; j < split.length; j++) {
+                StringBuilder phrase = new StringBuilder();
+                for (int idx = i; idx <= j; idx++) {
+                    if (phrase.length() > 0) {
+                        phrase.append(' ');
+                    }
+                    phrase.append(split[idx]);
+                }
+                String subphrase = phrase.toString();
+                if (subphrase.length() > 0) {
+                    phrases.add(subphrase);
+                }
+            }
+        }
+        return phrases;
     }
 
     /**

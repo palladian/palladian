@@ -8,17 +8,22 @@ import java.util.Comparator;
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
-public class StringLengthComparator implements Comparator<String> {
+public final class StringLengthComparator implements Comparator<String> {
+
+    public static final StringLengthComparator INSTANCE = new StringLengthComparator();
+
+    /** @deprecated Use the singleton {@link #INSTANCE} instead. */
+    @Deprecated
+    public StringLengthComparator() {
+        // no op.
+    }
 
     @Override
-    public int compare(String o1, String o2) {
-        int n = o2.length() - o1.length();
-        if (n == 0) {
-            return o1.compareToIgnoreCase(o2);
-        }
-        return n;
+    public int compare(String s1, String s2) {
+        int n = s2.length() - s1.length();
+        return n != 0 ? n : s1.compareToIgnoreCase(s2);
     }
 
 }
