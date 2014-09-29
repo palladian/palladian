@@ -17,9 +17,9 @@ import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.dataset.DatasetProcessor;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
-import ws.palladian.extraction.entity.tagger.PalladianNerSettings;
-import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
-import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -77,11 +77,11 @@ public class Evaluator {
 
         // evaluate in both modes, English and language independent
         for (int i = 0; i < 2; i++) {
-            PalladianNerSettings.LanguageMode mode;
+            PalladianNerTrainingSettings.LanguageMode mode;
             if (i == 0) {
-                mode = PalladianNerSettings.LanguageMode.English;
+                mode = PalladianNerTrainingSettings.LanguageMode.English;
             } else {
-                mode = PalladianNerSettings.LanguageMode.LanguageIndependent;
+                mode = PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
             }
 
             LOGGER.info("start evaluating in " + mode + " mode");
@@ -96,7 +96,7 @@ public class Evaluator {
 
                 LOGGER.info("evaluating with " + j + " seed entities");
 
-                PalladianNerSettings settings = new PalladianNerSettings(mode, TrainingMode.Sparse);
+                PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(mode, TrainingMode.Sparse);
                 PalladianNer tagger = new PalladianNer(settings);
 
                 Annotations<Annotation> annotations = FileFormatParser
@@ -448,8 +448,8 @@ public class Evaluator {
         List<TrainableNamedEntityRecognizer> taggerList = new ArrayList<TrainableNamedEntityRecognizer>();
         // taggerList.add(new StanfordNER());
         // IllinoisLbjNer lbjNer = new IllinoisLbjNer();
-        taggerList.add(new PalladianNer(new PalladianNerSettings(LanguageMode.English, TrainingMode.Complete)));
-        taggerList.add(new PalladianNer(new PalladianNerSettings(LanguageMode.LanguageIndependent, TrainingMode.Complete)));
+        taggerList.add(new PalladianNer(new PalladianNerTrainingSettings(LanguageMode.English, TrainingMode.Complete)));
+        taggerList.add(new PalladianNer(new PalladianNerTrainingSettings(LanguageMode.LanguageIndependent, TrainingMode.Complete)));
         // lbjNer.setConllEvaluation(true); // you have to set conllEvaluation to true if used for conll
         // taggerList.add(lbjNer);
         // taggerList.add(new LingPipeNER());
@@ -496,8 +496,8 @@ public class Evaluator {
 
         // evaluate all tagger how they depend on the number of documents in the training set
         taggerList.clear();
-        taggerList.add(new PalladianNer(new PalladianNerSettings(LanguageMode.English, TrainingMode.Complete)));
-        taggerList.add(new PalladianNer(new PalladianNerSettings(LanguageMode.LanguageIndependent, TrainingMode.Complete)));
+        taggerList.add(new PalladianNer(new PalladianNerTrainingSettings(LanguageMode.English, TrainingMode.Complete)));
+        taggerList.add(new PalladianNer(new PalladianNerTrainingSettings(LanguageMode.LanguageIndependent, TrainingMode.Complete)));
         for (TrainableNamedEntityRecognizer tagger : taggerList) {
             // evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
             evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath,

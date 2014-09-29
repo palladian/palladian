@@ -6,10 +6,10 @@ import static org.junit.Assert.assertTrue;
 import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.EXACT_MATCH;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
-import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.English;
-import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.LanguageIndependent;
-import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode.Complete;
-import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode.Sparse;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.English;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Sparse;
 
 import java.io.File;
 
@@ -56,9 +56,7 @@ public class PalladianNerIT {
         String testPath = config.getString("dataset.conll.test");
         ITHelper.assumeFile("CoNLL", trainPath, testPath);
 
-        PalladianNerSettings settings = new PalladianNerSettings(LanguageIndependent, Complete);
-        settings.setTagUrls(false);
-        settings.setTagDates(false);
+        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(LanguageIndependent, Complete);
         PalladianNer tagger = new PalladianNer(settings);
         String tudnerLiModel = new File(tempDirectory, "tudnerLI.model.gz").getPath();
         boolean traininSuccessful = tagger.train(trainPath, tudnerLiModel);
@@ -112,10 +110,8 @@ public class PalladianNerIT {
         String testPath = config.getString("dataset.conll.test");
         ITHelper.assumeFile("CoNLL", trainPath, testPath);
 
-        PalladianNerSettings settings = new PalladianNerSettings(English, Complete);
+        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(English, Complete);
         PalladianNer tagger = new PalladianNer(settings);
-        settings.setTagUrls(false);
-        settings.setTagDates(false);
         String tudnerEnModel = new File(tempDirectory, "tudnerEn.model.gz").getPath();
         boolean trainingSuccessful = tagger.train(trainPath, tudnerEnModel);
         assertTrue(trainingSuccessful);
@@ -129,10 +125,10 @@ public class PalladianNerIT {
         assertEquals(5886, caseDictionary.getNumUniqTerms());
         assertEquals(2, caseDictionary.getNumCategories());
         assertEquals(591, tagger.getModel().leftContexts.size());
-        assertEquals(171, tagger.getModel().removeAnnotations.size());
+        assertEquals(165, tagger.getModel().removeAnnotations.size());
         assertEquals(59051, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(98258, annotationDictionary.getNumUniqTerms());
+        assertEquals(97511, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // Palladian#f8c6aab on testing set
@@ -169,9 +165,7 @@ public class PalladianNerIT {
         String trainPath = config.getString("dataset.tudcs4.train");
         String testPath = config.getString("dataset.tudcs4.test");
         ITHelper.assumeFile("TUDCS4", trainPath, testPath);
-        PalladianNerSettings settings = new PalladianNerSettings(English, Complete);
-        settings.setTagUrls(false);
-        settings.setTagDates(false);
+        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(English, Complete);
         PalladianNer ner = new PalladianNer(settings);
         ner.train(new File(trainPath), new File(tempDirectory, "palladianNerTUDCS4.model.gz"));
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
@@ -188,9 +182,7 @@ public class PalladianNerIT {
         String trainPath = config.getString("dataset.tudcs4.train");
         String testPath = config.getString("dataset.tudcs4.test");
         ITHelper.assumeFile("TUDCS4", trainPath, testPath);
-        PalladianNerSettings settings = new PalladianNerSettings(LanguageIndependent, Complete);
-        settings.setTagUrls(false);
-        settings.setTagDates(false);
+        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(LanguageIndependent, Complete);
         PalladianNer ner = new PalladianNer(settings);
         ner.train(new File(trainPath), new File(tempDirectory, "palladianNerTUDCS4.model.gz"));
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
@@ -209,18 +201,16 @@ public class PalladianNerIT {
         String testPath = config.getString("dataset.conll.test");
         ITHelper.assumeFile("Wikipedia NER, CoNLL", trainPath, testPath);
 
-        PalladianNerSettings settings = new PalladianNerSettings(English, Sparse);
-        settings.setTagUrls(false);
-        settings.setTagDates(false);
-        settings.setEqualizeTypeCounts(true);
+        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(English, Sparse, true);
+        settings.setMinDictionaryCount(5);
         File trainingFile = new File(trainPath);
         PalladianNer ner = new PalladianNer(settings);
         ner.train(trainingFile, new File("/Users/pk/Desktop/wikipedia_" + System.currentTimeMillis() + ".model.gz"));
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
         System.out.println(result.getMUCResultsReadable());
         System.out.println(result.getExactMatchResultsReadable());
-        // precision MUC: 80.22%, recall MUC: 84.35%, F1 MUC: 82.23%
-        // precision exact: 70.53%, recall exact: 74.16%, F1 exact: 72.3%
+        // precision MUC: 80.45%, recall MUC: 84.63%, F1 MUC: 82.49%
+        // precision exact: 70.9%, recall exact: 74.58%, F1 exact: 72.69%
         ITHelper.assertMin("F1-MUC", 0.82, result.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.72, result.getF1(EXACT_MATCH));
     }

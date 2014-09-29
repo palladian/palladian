@@ -11,8 +11,8 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode;
-import ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -24,9 +24,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 public class PalladianNerExperiments {
 
     public void trainTest() {
-        PalladianNerSettings settings = new PalladianNerSettings(LanguageMode.English, TrainingMode.Complete);
-        settings.setTagDates(false);
-        settings.setTagUrls(false);
+        PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(LanguageMode.English, TrainingMode.Complete);
         PalladianNer tagger = new PalladianNer(settings);
 
         // String trainingPath = "data/ner/conll/training.txt";
