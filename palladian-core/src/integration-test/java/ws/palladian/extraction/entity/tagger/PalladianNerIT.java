@@ -9,6 +9,7 @@ import static ws.palladian.extraction.entity.evaluation.EvaluationResult.Evaluat
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.English;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.LanguageMode.LanguageIndependent;
 import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode.Complete;
+import static ws.palladian.extraction.entity.tagger.PalladianNerSettings.TrainingMode.Sparse;
 
 import java.io.File;
 
@@ -20,6 +21,7 @@ import org.junit.Test;
 
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.integrationtests.ITHelper;
 
@@ -52,7 +54,7 @@ public class PalladianNerIT {
     public void test_PalladianNerLi_CoNLL() {
         String trainPath = config.getString("dataset.conll.train");
         String testPath = config.getString("dataset.conll.test");
-        ITHelper.assumeFile(trainPath, testPath);
+        ITHelper.assumeFile("CoNLL", trainPath, testPath);
 
         PalladianNerSettings settings = new PalladianNerSettings(LanguageIndependent, Complete);
         settings.setTagUrls(false);
@@ -108,7 +110,7 @@ public class PalladianNerIT {
     public void test_PalladianNerEnglish_CoNLL() {
         String trainPath = config.getString("dataset.conll.train");
         String testPath = config.getString("dataset.conll.test");
-        ITHelper.assumeFile(trainPath, testPath);
+        ITHelper.assumeFile("CoNLL", trainPath, testPath);
 
         PalladianNerSettings settings = new PalladianNerSettings(English, Complete);
         PalladianNer tagger = new PalladianNer(settings);
@@ -166,7 +168,7 @@ public class PalladianNerIT {
     public void test_PalladianNerEnglish_TUDCS4() {
         String trainPath = config.getString("dataset.tudcs4.train");
         String testPath = config.getString("dataset.tudcs4.test");
-        ITHelper.assumeFile(trainPath, testPath);
+        ITHelper.assumeFile("TUDCS4", trainPath, testPath);
         PalladianNerSettings settings = new PalladianNerSettings(English, Complete);
         settings.setTagUrls(false);
         settings.setTagDates(false);
@@ -185,7 +187,7 @@ public class PalladianNerIT {
     public void test_PalladianNerLanguageIndependent_TUDCS4() {
         String trainPath = config.getString("dataset.tudcs4.train");
         String testPath = config.getString("dataset.tudcs4.test");
-        ITHelper.assumeFile(trainPath, testPath);
+        ITHelper.assumeFile("TUDCS4", trainPath, testPath);
         PalladianNerSettings settings = new PalladianNerSettings(LanguageIndependent, Complete);
         settings.setTagUrls(false);
         settings.setTagDates(false);
@@ -198,6 +200,29 @@ public class PalladianNerIT {
         // System.out.println(result.getExactMatchResultsReadable());
         ITHelper.assertMin("F1-MUC", 0.26, result.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.16, result.getF1(EXACT_MATCH));
+    }
+
+    @Test
+    public void test_PalladianNerSparse_Wikipedia_CoNLL() {
+        ITHelper.assertMemory(1500, SizeUnit.MEGABYTES);
+        String trainPath = config.getString("dataset.wikipediaEntity.train");
+        String testPath = config.getString("dataset.conll.test");
+        ITHelper.assumeFile("Wikipedia NER, CoNLL", trainPath, testPath);
+
+        PalladianNerSettings settings = new PalladianNerSettings(English, Sparse);
+        settings.setTagUrls(false);
+        settings.setTagDates(false);
+        settings.setEqualizeTypeCounts(true);
+        File trainingFile = new File(trainPath);
+        PalladianNer ner = new PalladianNer(settings);
+        ner.train(trainingFile, new File("/Users/pk/Desktop/wikipedia_" + System.currentTimeMillis() + ".model.gz"));
+        EvaluationResult result = ner.evaluate(testPath, COLUMN);
+        System.out.println(result.getMUCResultsReadable());
+        System.out.println(result.getExactMatchResultsReadable());
+        // precision MUC: 80.22%, recall MUC: 84.35%, F1 MUC: 82.23%
+        // precision exact: 70.53%, recall exact: 74.16%, F1 exact: 72.3%
+        ITHelper.assertMin("F1-MUC", 0.82, result.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.72, result.getF1(EXACT_MATCH));
     }
 
 }
