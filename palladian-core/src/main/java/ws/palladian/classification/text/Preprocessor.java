@@ -61,7 +61,7 @@ public class Preprocessor implements Function<String, Iterator<String>> {
                 return !StringHelper.containsAny(value, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(value);
             }
         });
-        return CollectionHelper.convert(tokenIterator, Token.STRING_CONVERTER);
+        return CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
     }
 
 }

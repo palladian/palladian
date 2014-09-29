@@ -1,7 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
 import static ws.palladian.core.Annotation.TAG_CONVERTER;
-import static ws.palladian.core.Token.STRING_CONVERTER;
+import static ws.palladian.core.Token.VALUE_CONVERTER;
 import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
 import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
@@ -403,7 +403,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             LOGGER.info("Start retraining (because of complete dataset, no sparse annotations)");
             model.removeAnnotations = CollectionHelper.newHashSet();
             EvaluationResult evaluationResult = evaluate(trainingFilePath, COLUMN);
-            Set<String> goldAnnotations = CollectionHelper.convertSet(fileAnnotations, STRING_CONVERTER);
+            Set<String> goldAnnotations = CollectionHelper.convertSet(fileAnnotations, VALUE_CONVERTER);
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
             // be in ERROR1 set and NOT in the gold standard
             for (Annotation wrongAnnotation : evaluationResult.getAnnotations(ERROR1)) {
@@ -733,11 +733,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             @Override
             public boolean accept(Annotation annotation) {
                 if (annotation.getValue().indexOf(" ") == -1) {
-                    boolean lowerCase = model.lowerCaseDictionary.contains(annotation.getValue().toLowerCase());
-                    if (lowerCase) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Remove by case signature: {}", annotation.getValue());
-                        }
+                    if (model.lowerCaseDictionary.contains(annotation.getValue().toLowerCase())) {
+                        LOGGER.debug("Remove by case signature: {}", annotation.getValue());
                         return false;
                     }
                 }
@@ -923,7 +920,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             }
         }
         if (LOGGER.isDebugEnabled() && unwrappedAnnotations.size() > 0) {
-            List<String> unwrappedParts = CollectionHelper.convertList(unwrappedAnnotations, STRING_CONVERTER);
+            List<String> unwrappedParts = CollectionHelper.convertList(unwrappedAnnotations, VALUE_CONVERTER);
             LOGGER.debug("Unwrapped {} in {} parts: {}", annotationValue, unwrappedAnnotations.size(), unwrappedParts);
         }
         return unwrappedAnnotations;

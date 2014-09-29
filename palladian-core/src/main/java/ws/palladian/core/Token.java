@@ -5,7 +5,7 @@ import ws.palladian.helper.functional.Function;
 public interface Token extends Comparable<Token> {
 
     /** Function to convert a {@link Token} to its String value. */
-    Function<Token, String> STRING_CONVERTER = new Function<Token, String>() {
+    Function<Token, String> VALUE_CONVERTER = new Function<Token, String>() {
         @Override
         public String compute(Token input) {
             return input.getValue();
