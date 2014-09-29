@@ -1,4 +1,4 @@
-package ws.palladian.extraction.entity.tagger.helper;
+package ws.palladian.extraction.entity.tagger;
 
 import com.aliasi.chunk.BioTagChunkCodec;
 import com.aliasi.chunk.Chunking;
@@ -42,7 +42,7 @@ import com.aliasi.tag.Tagging;
  * 
  * </blockquote>
  */
-public class Conll2002ChunkTagParser extends StringParser<com.aliasi.corpus.ObjectHandler<Chunking>> {
+class Conll2002ChunkTagParser extends StringParser<com.aliasi.corpus.ObjectHandler<Chunking>> {
 
     static final String TOKEN_TAG_LINE_REGEX = "(\\S+)\\s(\\S+\\s)?(O|[B|I]-\\S+)"; // token ?posTag entityTag
     static final int TOKEN_GROUP = 1; // token
