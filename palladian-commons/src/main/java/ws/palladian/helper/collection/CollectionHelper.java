@@ -274,49 +274,57 @@ public final class CollectionHelper {
     }
 
     /**
-     * <p>
-     * Create a new {@link HashMap}. This method allows omitting the type parameter when creating the HashMap:
-     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newHashMap();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link HashMap}. This method allows omitting the type parameter when creating the
+     *             HashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newHashMap();</code>.
+     *             </p>
      * 
      * @return A new {@link HashMap}.
      */
+    @Deprecated
     public static <K, V> HashMap<K, V> newHashMap() {
         return new HashMap<K, V>();
     }
 
     /**
-     * <p>
-     * Create a new {@link TreeMap}. This method allows omitting the type parameter when creating the TreeMap:
-     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newTreeMap();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link TreeMap}. This method allows omitting the type parameter when creating the
+     *             TreeMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newTreeMap();</code>.
+     *             </p>
      * 
      * @return A new {@link TreeMap}.
      */
+    @Deprecated
     public static <K, V> TreeMap<K, V> newTreeMap() {
         return new TreeMap<K, V>();
     }
 
     /**
-     * <p>
-     * Create a new {@link LinkedHashMap}. This method allows omitting the type parameter when creating the
-     * LinkedHashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newLinkedHashMap();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link LinkedHashMap}. This method allows omitting the type parameter when creating the
+     *             LinkedHashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newLinkedHashMap();</code>.
+     *             </p>
      * 
      * @return A new {@link LinkedHashMap}.
      */
+    @Deprecated
     public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
         return new LinkedHashMap<K, V>();
     }
 
     /**
-     * <p>
-     * Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the ArrayList:
-     * <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the
+     *             ArrayList: <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
+     *             </p>
      * 
      * @return A new {@link ArrayList}.
      */
+    @Deprecated
     public static <E> ArrayList<E> newArrayList() {
         return new ArrayList<E>();
     }
@@ -352,49 +360,57 @@ public final class CollectionHelper {
     }
 
     /**
-     * <p>
-     * Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the LinkedList:
-     * <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the
+     *             LinkedList: <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
+     *             </p>
      * 
      * @return A new {@link LinkedList}.
      */
+    @Deprecated
     public static <E> LinkedList<E> newLinkedList() {
         return new LinkedList<E>();
     }
 
     /**
-     * <p>
-     * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
-     * <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link HashSet}. This method allows omitting the type parameter when creating the
+     *             HashSet: <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
+     *             </p>
      * 
      * @return A new {@link HashSet}.
      */
+    @Deprecated
     public static <E> HashSet<E> newHashSet() {
         return new HashSet<E>();
     }
 
     /**
-     * <p>
-     * Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the TreeSet:
-     * <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the
+     *             TreeSet: <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
+     *             </p>
      * 
      * @return A new {@link TreeSet}.
      */
+    @Deprecated
     public static <E> TreeSet<E> newTreeSet() {
         return new TreeSet<E>();
     }
 
     /**
-     * <p>
-     * Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
-     * LinkedHashSet: <code>Set&lt;String&gt; set = CollectionHelper.newLinkedHashSet();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
+     *             LinkedHashSet: <code>Set&lt;String&gt; set = CollectionHelper.newLinkedHashSet();</code>.
+     *             </p>
      * 
      * @return A new {@link LinkedHashSet}.
      */
+    @Deprecated
     public static <E> LinkedHashSet<E> newLinkedHashSet() {
         return new LinkedHashSet<E>();
     }
