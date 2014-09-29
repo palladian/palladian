@@ -25,8 +25,8 @@ public final class PalladianNerModel implements Serializable {
     /** Context classifier for the left and right context around the annotations. */
     DictionaryModel contextDictionary;
 
-    /** keep the case dictionary from the training data */
-    DictionaryModel caseDictionary;
+    /** A dictionary of tokens which frequently occur in lower case within the training data. */
+    Set<String> lowerCaseDictionary;
 
     Set<String> leftContexts;
 

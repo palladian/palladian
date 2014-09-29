@@ -3,11 +3,13 @@ package ws.palladian.classification.text;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -113,7 +115,10 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                         numRemoved++;
                     }
                 }
-                LOGGER.info("Removed {} terms with {}", numRemoved, pruningStrategy);
+                double percentageRemoved = 100. * numRemoved / numTerms;
+                NumberFormat format = NumberFormat.getInstance(Locale.US);
+                LOGGER.info("Removed {} % terms ({}) with {}", format.format(percentageRemoved), numRemoved,
+                        pruningStrategy);
                 numTerms -= numRemoved;
             }
             entryTrie.clean();

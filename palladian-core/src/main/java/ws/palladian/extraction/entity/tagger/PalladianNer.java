@@ -152,12 +152,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         LOGGER.info("Annotation dictionary size: {}", model.annotationDictionary.getNumUniqTerms());
         LOGGER.info("Entity dictionary size: {}", model.entityDictionary.getNumUniqTerms());
         LOGGER.info("Context dictionary size: {}", model.contextDictionary.getNumUniqTerms());
-        if (model.caseDictionary != null) {
-            LOGGER.info("Case dictionary size: {}", model.caseDictionary.getNumUniqTerms());
+        if (model.lowerCaseDictionary != null) {
+            LOGGER.info("Case dictionary size: {}", model.lowerCaseDictionary.size());
         }
         if (model.removeAnnotations != null) {
             LOGGER.info("Remove annotations: {}", model.removeAnnotations.size());
         }
+        LOGGER.info("Left contexts size: {}", model.leftContexts.size());
         LOGGER.info("Tags: {}", StringUtils.join(model.getTags(), ", "));
         try {
             FileHelper.serialize(model, modelFilePath);
@@ -174,7 +175,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @param text The text from which to build the case dictionary.
      * @return The dictionary model with categories <code>A</code> and <code>a</code> for each token.
      */
-    DictionaryModel buildCaseDictionary(String text) {
+    Set<String> buildCaseDictionary(String text) {
         LOGGER.info("Building case dictionary");
         DictionaryBuilder builder = createDictionaryBuilder();
         Iterator<Token> tokens = new WordTokenizer().iterateTokens(text);
@@ -196,7 +197,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 }
             }
         }
-        return builder.create();
+        DictionaryModel temp = builder.create();
+        Set<String> lowerCaseDictionary = CollectionHelper.newHashSet();
+        for (DictionaryEntry entry : temp) {
+            String token = entry.getTerm();
+            if (entry.getCategoryEntries().getProbability("a") > 0.5) {
+                lowerCaseDictionary.add(token);
+            }
+        }
+        return lowerCaseDictionary;
     }
 
     @Override
@@ -273,7 +282,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private DictionaryBuilder createDictionaryBuilder() {
-        return new DictionaryTrieModel.Builder().setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(trainingSettings.getMinDictionaryCount()));
+        DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
+        int minCount = trainingSettings.getMinDictionaryCount();
+        if (minCount > 1) {
+            builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(minCount));
+        }
+        return builder;
     }
 
     /**
@@ -353,7 +367,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         model = new PalladianNerModel();
         model.languageMode = LanguageMode.English;
         model.trainingMode = trainingSettings.getTrainingMode();
-        model.caseDictionary = buildCaseDictionary(text);
+        model.lowerCaseDictionary = buildCaseDictionary(text);
 
         if (trainingSettings.isEqualizeTypeCounts()) {
             // XXX also add to trainLanguageIndependent?
@@ -582,10 +596,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         if (model.getTaggingSettings().isRemoveDateFragments()) {
             removeDateFragments(annotations);
         }
-        if (model.getTaggingSettings().isRemoveSentenceStartErrorsCaseDictionary() && model.caseDictionary != null) {
+        if (model.getTaggingSettings().isRemoveSentenceStartErrorsCaseDictionary() && model.lowerCaseDictionary != null) {
             removeSentenceStartErrors(annotations);
         }
-        if (model.getTaggingSettings().isFixStartErrorsCaseDictionary() && model.caseDictionary != null) {
+        if (model.getTaggingSettings().isFixStartErrorsCaseDictionary() && model.lowerCaseDictionary != null) {
             fixStartErrorsWithCaseDictionary(annotations);
         }
         if (model.getTaggingSettings().isRemoveDates()) {
@@ -616,8 +630,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                     LOGGER.debug("'{}' is in entity dictionary, stop correcting", newValue);
                     break;
                 }
-                double lowerCase = model.caseDictionary.getCategoryEntries(token.toLowerCase()).getProbability("a");
-                if (lowerCase <= 0.5) {
+                boolean lowerCase = model.lowerCaseDictionary.contains(token.toLowerCase());
+                if (!lowerCase) {
                     LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}", new Object[] {value,
                             newValue, lowerCase});
                     break;
@@ -728,13 +742,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             @Override
             public boolean accept(Annotation annotation) {
                 if (annotation.getValue().indexOf(" ") == -1) {
-                    CategoryEntries ces = model.caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
-                    double lowerCase = ces.getProbability("a");
-                    if (lowerCase >= 0.5) {
+                    boolean lowerCase = model.lowerCaseDictionary.contains(annotation.getValue().toLowerCase());
+                    if (lowerCase) {
                         if (LOGGER.isDebugEnabled()) {
-                            NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
-                            LOGGER.debug("Remove by case signature: {} (ratio:{})", annotation.getValue(),
-                                    format.format(lowerCase));
+                            LOGGER.debug("Remove by case signature: {}", annotation.getValue());
                         }
                         return false;
                     }
@@ -841,7 +852,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @param annotations The annotations.
      * @return A set with tokens which appear more often in the context, than within an entity (e.g. "President").
      */
-    private static Set<String> buildLeftContexts(String text, Annotations<Annotation> annotations) {
+    private Set<String> buildLeftContexts(String text, Annotations<Annotation> annotations) {
         LOGGER.info("Building left contexts");
         Bag<String> leftContextCounts = Bag.create();
         Bag<String> insideAnnotationCounts = Bag.create();
@@ -858,15 +869,17 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             }
         }
         Set<String> leftContexts = CollectionHelper.newHashSet();
+        int minCount = trainingSettings.getMinDictionaryCount();
         for (Entry<String, Integer> entry : leftContextCounts.unique()) {
             String leftContext = entry.getKey();
             if (StringHelper.startsUppercase(leftContext)) {
                 int outside = entry.getValue();
                 int inside = insideAnnotationCounts.count(leftContext);
-                // FIXME also use minCount here?
-                double ratio = (double)inside / outside;
-                if (ratio < 1 && outside >= 2) {
-                    leftContexts.add(leftContext);
+                if (outside + inside >= minCount) {
+                    double ratio = (double)inside / outside;
+                    if (ratio < 1 && outside >= 2) {
+                        leftContexts.add(leftContext);
+                    }
                 }
             }
         }

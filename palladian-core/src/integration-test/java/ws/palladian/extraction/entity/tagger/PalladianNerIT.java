@@ -12,11 +12,13 @@ import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings
 import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Sparse;
 
 import java.io.File;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.classification.text.DictionaryModel;
@@ -63,16 +65,16 @@ public class PalladianNerIT {
         assertTrue(traininSuccessful);
 
         DictionaryModel entityDictionary = tagger.getModel().entityDictionary;
-        DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
         DictionaryModel contextClassifier = tagger.getModel().contextDictionary;
         DictionaryModel annotationDictionary = tagger.getModel().annotationDictionary;
+        Set<String> lowercaseDictionary = tagger.getModel().lowerCaseDictionary;
         assertEquals(2185, entityDictionary.getNumUniqTerms());
-        assertNull(caseDictionary);
+        assertNull(lowercaseDictionary);
         assertEquals(591, tagger.getModel().leftContexts.size());
         assertNull(tagger.getModel().removeAnnotations);
         assertEquals(59051, contextClassifier.getNumUniqTerms());
         assertEquals(4, contextClassifier.getNumCategories());
-        assertEquals(169598, annotationDictionary.getNumUniqTerms());
+        assertEquals(26575, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // Palladian#f8c6aab on testing set
@@ -81,27 +83,8 @@ public class PalladianNerIT {
         EvaluationResult er = tagger.evaluate(testPath, COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.6, er.getF1(MUC));
+        ITHelper.assertMin("F1-MUC", 0.61, er.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.44, er.getF1(EXACT_MATCH));
-
-        // tagger.loadModel(tudnerLiModel);
-        // List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, COLUMN));
-
-        // System.out.println(annotations.size());
-        // System.out.println(annotations.get(0));
-        // System.out.println(annotations.get(500));
-        // System.out.println(annotations.get(annotations.size() - 1));
-
-        // assertEquals(1709, annotations.size());
-        // assertEquals(9, annotations.get(0).getStartPosition());
-        // assertEquals(14, annotations.get(0).getValue().length());
-
-        // assertEquals(22830, annotations.get(500).getStartPosition());
-        // assertEquals(5, annotations.get(500).getValue().length());
-
-        // assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
-        // assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
-
     }
 
     @Test
@@ -117,18 +100,17 @@ public class PalladianNerIT {
         assertTrue(trainingSuccessful);
 
         DictionaryModel entityDictionary = tagger.getModel().entityDictionary;
-        DictionaryModel caseDictionary = tagger.getModel().caseDictionary;
         DictionaryModel contextDictionary = tagger.getModel().contextDictionary;
         DictionaryModel annotationDictionary = tagger.getModel().annotationDictionary;
+        Set<String> lowercaseDictionary = tagger.getModel().lowerCaseDictionary;
         assertEquals(2185, entityDictionary.getNumUniqTerms());
         assertEquals(4, entityDictionary.getNumCategories());
-        assertEquals(5886, caseDictionary.getNumUniqTerms());
-        assertEquals(2, caseDictionary.getNumCategories());
+        assertEquals(3435, lowercaseDictionary.size());
         assertEquals(591, tagger.getModel().leftContexts.size());
-        assertEquals(165, tagger.getModel().removeAnnotations.size());
+        assertEquals(179, tagger.getModel().removeAnnotations.size());
         assertEquals(59051, contextDictionary.getNumUniqTerms());
         assertEquals(4, contextDictionary.getNumCategories());
-        assertEquals(97511, annotationDictionary.getNumUniqTerms());
+        assertEquals(17276, annotationDictionary.getNumUniqTerms());
         assertEquals(5, annotationDictionary.getNumCategories());
 
         // Palladian#f8c6aab on testing set
@@ -137,27 +119,8 @@ public class PalladianNerIT {
         EvaluationResult er = tagger.evaluate(testPath, COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.84, er.getF1(MUC));
+        ITHelper.assertMin("F1-MUC", 0.83, er.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.74, er.getF1(EXACT_MATCH));
-
-        // tagger.loadModel(tudnerEnModel);
-        // List<ClassifiedAnnotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testPath, COLUMN));
-
-        // System.out.println(annotations.size());
-        // System.out.println(annotations.get(0));
-        // System.out.println(annotations.get(500));
-        // System.out.println(annotations.get(annotations.size() - 1));
-
-        // assertEquals(2189, annotations.size());
-        // assertEquals(9, annotations.get(0).getStartPosition());
-        // assertEquals(14, annotations.get(0).getValue().length());
-
-        // assertEquals(15229, annotations.get(500).getStartPosition());
-        // assertEquals(9, annotations.get(500).getValue().length());
-
-        // assertEquals(104279, annotations.get(annotations.size() - 1).getStartPosition());
-        // assertEquals(5, annotations.get(annotations.size() - 1).getValue().length());
-
     }
 
     @Test
@@ -195,11 +158,13 @@ public class PalladianNerIT {
     }
 
     @Test
+    /* @Ignore */
     public void test_PalladianNerSparse_Wikipedia_CoNLL() {
         ITHelper.assertMemory(1500, SizeUnit.MEGABYTES);
         String trainPath = config.getString("dataset.wikipediaEntity.train");
         String testPath = config.getString("dataset.conll.test");
-        ITHelper.assumeFile("Wikipedia NER, CoNLL", trainPath, testPath);
+        ITHelper.assumeFile("Wikipedia Entity", trainPath);
+        ITHelper.assumeFile("CoNLL", testPath);
 
         PalladianNerTrainingSettings settings = new PalladianNerTrainingSettings(English, Sparse, true);
         settings.setMinDictionaryCount(5);
@@ -211,8 +176,8 @@ public class PalladianNerIT {
         System.out.println(result.getExactMatchResultsReadable());
         // precision MUC: 80.45%, recall MUC: 84.63%, F1 MUC: 82.49%
         // precision exact: 70.9%, recall exact: 74.58%, F1 exact: 72.69%
-        ITHelper.assertMin("F1-MUC", 0.82, result.getF1(MUC));
-        ITHelper.assertMin("F1-Exact", 0.72, result.getF1(EXACT_MATCH));
+        ITHelper.assertMin("F1-MUC", 0.81, result.getF1(MUC));
+        ITHelper.assertMin("F1-Exact", 0.71, result.getF1(EXACT_MATCH));
     }
 
 }
