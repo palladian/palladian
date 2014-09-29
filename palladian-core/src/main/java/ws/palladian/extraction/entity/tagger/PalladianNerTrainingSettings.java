@@ -129,7 +129,7 @@ public final class PalladianNerTrainingSettings {
             toStringBuilder.append(", equalizeTypeCounts");
         }
         if (minDictionaryCount > 1) {
-            toStringBuilder.append(", minDictionaryCount=");
+            toStringBuilder.append(", minDictCount=");
             toStringBuilder.append(minDictionaryCount);
         }
         toStringBuilder.append("]");

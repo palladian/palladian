@@ -608,11 +608,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         if (taggingSettings.isRemoveDateFragments()) {
             removeDateFragments(annotations);
         }
-        if (taggingSettings.isRemoveSentenceStartErrorsCaseDictionary() && model.lowerCaseDictionary != null) {
-            removeSentenceStartErrors(annotations);
-        }
         if (taggingSettings.isFixStartErrorsCaseDictionary() && model.lowerCaseDictionary != null) {
             fixStartErrorsWithCaseDictionary(annotations);
+        }
+        if (taggingSettings.isRemoveSentenceStartErrorsCaseDictionary() && model.lowerCaseDictionary != null) {
+            removeSentenceStartErrors(annotations);
         }
         if (taggingSettings.isRemoveDates()) {
             removeDates(annotations);
@@ -653,7 +653,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 LOGGER.debug("Correct '{}' to '{}' because of lc/uc ratios", value, newValue);
                 int newStart = annotation.getStartPosition() + offsetCut;
                 toRemove.add(annotation);
-                toAdd.add(new ImmutableAnnotation(newStart, newValue, annotation.getTag()));
+                toAdd.add(new ImmutableAnnotation(newStart, newValue));
             }
         }
         LOGGER.debug("Adding {}, removing {} through case dictionary unwrapping", toAdd.size(), toRemove.size());
@@ -718,7 +718,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                     for (String part : parts) {
                         if (model.entityDictionaryContains(part)) {
                             int prefixStart = annotation.getStartPosition() + prefix.indexOf(part);
-                            toAdd.add(new ImmutableAnnotation(prefixStart, value));
+                            toAdd.add(new ImmutableAnnotation(prefixStart, part));
                             LOGGER.debug("Add from prefix {}", part);
                         }
                     }
@@ -921,12 +921,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             }
         }
         Set<Annotation> unwrappedAnnotations = CollectionHelper.newHashSet();
-        String annotationValue = annotation.getValue().toLowerCase();
+        String annotationValue = annotation.getValue();
         List<String> parts = StringHelper.getSubPhrases(annotationValue);
         for (String part : parts) {
             String partValue = part.toLowerCase();
             if (otherValues.contains(partValue) || model.entityDictionaryContains(partValue)) {
-                int startPosition = annotation.getStartPosition() + annotationValue.indexOf(part);
+                int startPosition = annotation.getStartPosition() + annotationValue.toLowerCase().indexOf(partValue);
                 unwrappedAnnotations.add(new ImmutableAnnotation(startPosition, part));
             }
         }
@@ -941,7 +941,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     public String getName() {
         return "Palladian NER";
     }
-    
+
     public PalladianNerTaggingSettings getTaggingSettings() {
         return taggingSettings;
     }
