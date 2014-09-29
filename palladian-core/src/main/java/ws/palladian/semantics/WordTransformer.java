@@ -64,7 +64,7 @@ public class WordTransformer {
 
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.keySet());
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.values());
-        Collections.sort(GERMAN_NOUNS, new StringLengthComparator());
+        Collections.sort(GERMAN_NOUNS, StringLengthComparator.INSTANCE);
 
         // German stemming exceptions
         try {

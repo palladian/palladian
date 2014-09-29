@@ -35,7 +35,7 @@ public class UnitNormalizer {
         for (UnitType unitType : UnitType.values()) {
             ALL_UNITS.addAll(unitType.getUnitNames());
         }
-        Collections.sort(ALL_UNITS, new StringLengthComparator());
+        Collections.sort(ALL_UNITS, StringLengthComparator.INSTANCE);
     }
 
     private static boolean isTimeUnit(String unit) {

@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Set;
 
 import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode;
+import ws.palladian.helper.collection.CollectionHelper;
 
 public final class PalladianNerModel implements Serializable {
 
@@ -36,6 +38,9 @@ public final class PalladianNerModel implements Serializable {
 
     TrainingMode trainingMode;
 
+    /** Cache for the case insensitive entity dictionary. */
+    transient Set<String> entityValuesCaseInsensitive = null;
+
     /**
      * @return The tags which are supported by this model.
      */
@@ -43,8 +48,25 @@ public final class PalladianNerModel implements Serializable {
         return entityDictionary.getCategories();
     }
 
-    PalladianNerTaggingSettings getTaggingSettings() {
+    public PalladianNerTaggingSettings getTaggingSettings() {
         return new PalladianNerTaggingSettings(languageMode, trainingMode);
+    }
+
+    /**
+     * Check (case insensitively), if the given value is contained within the entity dictionary.
+     * 
+     * @param value
+     * @return
+     */
+    public boolean entityDictionaryContains(String value) {
+        if (entityValuesCaseInsensitive == null) {
+            Set<String> values = CollectionHelper.newHashSet();
+            for (DictionaryEntry entry : entityDictionary) {
+                values.add(entry.getTerm().toLowerCase());
+            }
+            entityValuesCaseInsensitive = values;
+        }
+        return entityValuesCaseInsensitive.contains(value.toLowerCase());
     }
 
 }

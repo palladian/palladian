@@ -563,7 +563,7 @@ public enum UnitType {
                 }
             }
 
-            Collections.sort(unitType.sortedUnitNames, new StringLengthComparator());
+            Collections.sort(unitType.sortedUnitNames, StringLengthComparator.INSTANCE);
         }
 
     }

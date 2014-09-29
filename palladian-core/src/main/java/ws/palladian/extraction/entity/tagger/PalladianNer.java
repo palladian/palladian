@@ -103,6 +103,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * </ul>
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public class PalladianNer extends TrainableNamedEntityRecognizer implements ClassifyingTagger {
 
@@ -619,21 +620,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             int offsetCut = 0;
             String newValue = value;
             for (String token : parts) {
-                boolean inDictionary = false;
-                for (DictionaryEntry entry : model.entityDictionary) {
-                    if (entry.getTerm().equalsIgnoreCase(newValue)) {
-                        inDictionary = true;
-                        break;
-                    }
-                }
-                if (inDictionary) {
-                    LOGGER.debug("'{}' is in entity dictionary, stop correcting", newValue);
+                if (model.entityDictionaryContains(newValue)) {
+                    LOGGER.trace("'{}' is in entity dictionary, stop correcting", newValue);
                     break;
                 }
-                boolean lowerCase = model.lowerCaseDictionary.contains(token.toLowerCase());
-                if (!lowerCase) {
+                if (!model.lowerCaseDictionary.contains(token.toLowerCase())) {
                     LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}", new Object[] {value,
-                            newValue, lowerCase});
+                            newValue, model.lowerCaseDictionary.contains(token.toLowerCase())});
                     break;
                 }
                 offsetCut += token.length() + 1;
@@ -709,15 +702,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                     String value = annotation.getValue().substring(index + length);
                     toAdd.add(new ImmutableAnnotation(startPosition, value, annotation.getTag()));
                     // search for a known instance in the prefix by going through the entity dictionary
-                    for (DictionaryEntry entry : model.entityDictionary) {
-                        String term = entry.getTerm();
-                        int indexPrefix = annotation.getValue().substring(0, index + length).indexOf(term + " ");
-                        if (indexPrefix > -1 && term.length() > 2) {
-                            int prefixStart = annotation.getStartPosition() + indexPrefix;
-                            String tag = entry.getCategoryEntries().getMostLikelyCategory();
-                            toAdd.add(new ImmutableAnnotation(prefixStart, term, tag));
-                            LOGGER.debug("Add from prefix {}", term);
-                            break;
+                    String prefix = annotation.getValue().substring(0, index + length);
+                    List<String> parts = StringHelper.getSubPhrases(prefix);
+                    for (String part : parts) {
+                        if (model.entityDictionaryContains(part)) {
+                            int prefixStart = annotation.getStartPosition() + prefix.indexOf(part);
+                            toAdd.add(new ImmutableAnnotation(prefixStart, value));
+                            LOGGER.debug("Add from prefix {}", part);
                         }
                     }
                     toRemove.add(annotation);
@@ -915,57 +906,25 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @return A set of annotations found in this annotation.
      */
     private Set<Annotation> unwrapAnnotations(Annotation annotation, Set<Annotation> annotations) {
-        Set<Annotation> unwrappedAnnotations = CollectionHelper.newHashSet();
+        Set<String> otherValues = CollectionHelper.newHashSet();
         for (Annotation currentAnnotation : annotations) {
             if (!currentAnnotation.equals(annotation)) {
-                String currentValue = currentAnnotation.getValue();
-                String currentTag = currentAnnotation.getTag();
-                unwrappedAnnotations.addAll(processUnwrap(annotation, currentValue, currentTag));
+                otherValues.add(currentAnnotation.getValue().toLowerCase());
             }
         }
-        for (DictionaryEntry categoryEntries : model.entityDictionary) {
-            String term = categoryEntries.getTerm();
-            String category = categoryEntries.getCategoryEntries().getMostLikelyCategory();
-            unwrappedAnnotations.addAll(processUnwrap(annotation, term, category));
+        Set<Annotation> unwrappedAnnotations = CollectionHelper.newHashSet();
+        String annotationValue = annotation.getValue().toLowerCase();
+        List<String> parts = StringHelper.getSubPhrases(annotationValue);
+        for (String part : parts) {
+            String partValue = part.toLowerCase();
+            if (otherValues.contains(partValue) || model.entityDictionaryContains(partValue)) {
+                int startPosition = annotation.getStartPosition() + annotationValue.indexOf(part);
+                unwrappedAnnotations.add(new ImmutableAnnotation(startPosition, part));
+            }
         }
         if (LOGGER.isDebugEnabled() && unwrappedAnnotations.size() > 0) {
-            StringBuilder parts = new StringBuilder();
-            for (Annotation unwrappedAnnotation : unwrappedAnnotations) {
-                if (!unwrappedAnnotation.getValue().equalsIgnoreCase(annotation.getValue())) {
-                    if (parts.length() > 0) {
-                        parts.append(", ");
-                    }
-                    parts.append(unwrappedAnnotation.getValue());
-                }
-            }
-            if (parts.length() > 0) {
-                LOGGER.debug("Unwrapped {} in {} parts: {}", annotation.getValue(), unwrappedAnnotations.size(), parts);
-            }
-        }
-        return unwrappedAnnotations;
-    }
-
-    private static List<Annotation> processUnwrap(Annotation annotation, String value, String tag) {
-        int currentLength = value.length();
-        String entityName = annotation.getValue().toLowerCase();
-        int entityLength = entityName.length();
-        int entityStart = annotation.getStartPosition();
-        List<Annotation> unwrappedAnnotations = CollectionHelper.newArrayList();
-        if (entityName.equalsIgnoreCase(value)) {
-            unwrappedAnnotations.add(new ImmutableAnnotation(entityStart, value, tag));
-        } else if (currentLength < entityLength) {
-            int index = entityName.indexOf(" " + value.toLowerCase() + " ");
-            if (index > -1) {
-                unwrappedAnnotations.add(new ImmutableAnnotation(entityStart + index + 1, value, tag));
-            }
-            index = entityName.indexOf(value.toLowerCase() + " ");
-            if (index == 0) {
-                unwrappedAnnotations.add(new ImmutableAnnotation(entityStart + index, value, tag));
-            }
-            index = entityName.indexOf(" " + value.toLowerCase());
-            if (index == entityLength - currentLength - 1) {
-                unwrappedAnnotations.add(new ImmutableAnnotation(entityStart + index + 1, value, tag));
-            }
+            List<String> unwrappedParts = CollectionHelper.convertList(unwrappedAnnotations, STRING_CONVERTER);
+            LOGGER.debug("Unwrapped {} in {} parts: {}", annotationValue, unwrappedAnnotations.size(), unwrappedParts);
         }
         return unwrappedAnnotations;
     }

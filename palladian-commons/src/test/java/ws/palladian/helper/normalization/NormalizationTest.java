@@ -33,7 +33,7 @@ public class NormalizationTest {
     }
 
     private String getShortest(List<String> list) {
-        Collections.sort(list, new StringLengthComparator());
+        Collections.sort(list, StringLengthComparator.INSTANCE);
         return CollectionHelper.getLast(list);
     }
 
