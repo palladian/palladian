@@ -115,7 +115,7 @@ public class PalladianNerIT {
         EvaluationResult er = tagger.evaluate(testPath, COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        ITHelper.assertMin("F1-MUC", 0.83, er.getF1(MUC));
+        ITHelper.assertMin("F1-MUC", 0.84, er.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.74, er.getF1(EXACT_MATCH));
     }
 
