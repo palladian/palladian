@@ -31,10 +31,10 @@ public class PalladianNerTrainingSettings {
     }
 
     /**
-     * n-gram settings for the entity classifier should be tuned, they do not have a big influence on the size of the
-     * model (3-5 to 2-8 => 2MB).
+     * Original setting was 4-8 grams, 5 grams basically gives the same result, however the model is significantly
+     * smaller.
      */
-    public static final FeatureSetting ANNOTATION_FEATURE_SETTING = chars(4, 8).characterPadding().create();
+    public static final FeatureSetting ANNOTATION_FEATURE_SETTING = chars(5).characterPadding().create();
 
     /** be careful with the n-gram sizes, they heavily influence the model size. */
     public static final FeatureSetting CONTEXT_FEATURE_SETTING = chars(5).create();
@@ -47,7 +47,7 @@ public class PalladianNerTrainingSettings {
 
     private final boolean equalizeTypeCounts;
 
-    private int minDictionaryCount = 0;
+    private int minDictionaryCount = 1;
 
     public PalladianNerTrainingSettings(LanguageMode languageMode, TrainingMode trainingMode) {
         this(languageMode, trainingMode, false);
@@ -78,6 +78,7 @@ public class PalladianNerTrainingSettings {
     }
 
     public void setMinDictionaryCount(int minDictionaryCount) {
+        Validate.isTrue(minDictionaryCount > 0, "minDictionaryCount must be greater zero");
         this.minDictionaryCount = minDictionaryCount;
     }
 
