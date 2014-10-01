@@ -18,7 +18,7 @@ body of water;LOC;LANDMARK;
 book;MISC;;
 brand;ORG;;or MISC
 bridge;LOC;POI;
-broadcasting network;MISC;;
+broadcasting network;ORG;;was MISC
 building;LOC;POI;added LOC
 bus transit;;POI;
 canada electoral district;LOC;UNIT;
@@ -129,7 +129,7 @@ prison;LOC;POI;
 protected area;LOC;LANDMARK;
 province;LOC;UNIT;
 public transit;;POI;
-radio station;MISC;;
+radio station;ORG;;was MISC
 rail;;POI;
 rail service;MISC;POI;
 range;;LANDMARK;
@@ -162,7 +162,7 @@ sms station;;POI;
 software;MISC;;
 south african subplace;LOC;UNIT;
 south african town;LOC;CITY;
-sports league;MISC;;
+sports league;ORG;;
 sportsperson;PER;;
 sssi;;POI;
 stadium;LOC;POI;
@@ -222,3 +222,7 @@ grandslamtournaments;MISC;;e.g. Wimbledon
 basketball club;ORG;;e.g. Alba Berlin
 ship image;MISC;;
 weapon;MISC;;
+political party;ORG;;e.g. Palestine Liberation Organization
+organisation;ORG;;e.g. World Trade Organization
+nba team;ORG;;e.g. Los Angeles Lakers
+concentration camp;LOC;POI;e.g. Auschwitz
