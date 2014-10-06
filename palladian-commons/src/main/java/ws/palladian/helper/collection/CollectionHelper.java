@@ -23,6 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
+import ws.palladian.helper.math.MathHelper;
+
 /**
  * <p>
  * This class provides some helper methods for working with collections. <b>Important:</b> If you are looking for a
@@ -865,6 +867,10 @@ public final class CollectionHelper {
             distinct.addAll(collection);
         }
         return distinct;
+    }
+
+    public static <T> T getRandom(Collection<T> collection) {
+        return new ArrayList<T>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
     }
 
 }
