@@ -1,8 +1,14 @@
 package ws.palladian.retrieval;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -10,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.Callback;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
@@ -38,6 +46,8 @@ public class Crawler {
     /** Number of active threads. */
     private AtomicInteger threadCount = new AtomicInteger(0);
 
+    private ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
+
     // ///////////////////////////////////////////////////////
     // ////////////////// crawl settings ////////////////////
     // ///////////////////////////////////////////////////////
@@ -56,8 +66,8 @@ public class Crawler {
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
-    private Set<String> urlStack = null;
-    private final Set<String> visitedUrls = new HashSet<String>();
+    private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
+    private final Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
 
     /** All urls that have been visited or extracted. */
     private final Set<String> seenUrls = new HashSet<String>();
@@ -83,7 +93,7 @@ public class Crawler {
      */
     protected void crawl(String currentURL) {
 
-        LOGGER.debug("catch from stack: {}", currentURL);
+        LOGGER.info("catch from stack: {}", currentURL);
 
         // System.out.println("process "+currentURL+" \t stack size: "+urlStack.size()+" dump size: "+urlDump.size());
         Document document = documentRetriever.getWebDocument(currentURL);
@@ -126,60 +136,46 @@ public class Crawler {
     private void startCrawl() {
 
         // crawl
-        final ThreadGroup tg = new ThreadGroup("crawler threads");
+        final AtomicLong lastCrawlTime = new AtomicLong(System.currentTimeMillis());
+        long silentStopTime = TimeUnit.MINUTES.toMillis(10);
+        while ((stopCount == -1 || visitedUrls.size() < stopCount)
+                && ((System.currentTimeMillis() - lastCrawlTime.get()) < silentStopTime)) {
 
-        while (!urlStack.isEmpty() && (stopCount == -1 || visitedUrls.size() < stopCount)) {
+            try {
+                final String url = getUrlFromStack();
 
-            int maxThreadsNow = getMaxThreads();
-            if (urlStack.size() <= maxThreads) {
-                maxThreadsNow = 1;
-            }
-            while (getThreadCount() >= maxThreadsNow) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    LOGGER.warn(e.getMessage());
-                    return;
+                Thread ct = new Thread("CrawlThread-" + url) {
+                    @Override
+                    public void run() {
+                        crawl(url);
+                        lastCrawlTime.set(System.currentTimeMillis());
+                    }
+                };
+
+                if (!executor.isShutdown()) {
+                    executor.submit(ct);
                 }
+                ThreadHelper.deepSleep(1000);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
             }
 
-            final String url = getUrlFromStack();
-            Thread ct = new Thread("CrawlThread" + System.currentTimeMillis()) {
-                @Override
-                public void run() {
-                    crawl(url);
-                    threadCount.decrementAndGet();
-                }
-            };
-            ct.start();
-            threadCount.incrementAndGet();
-
-            // if stack is still empty, let all threads finish before checking
-            // in loop again
-            int wc = 0;
-            while (urlStack.isEmpty() && getThreadCount() > 0 && wc < 60) {
-                try {
-                    wc++;
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOGGER.warn(e.getMessage());
-                    return;
-                }
-            }
         }
 
         // wait for the threads to finish
-        int wc = 0;
-        while (getThreadCount() > 0 && wc < 180) {
-            try {
-                LOGGER.info("wait a second ({} more times, {} threads active)", 180 - wc, getThreadCount());
-                wc++;
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                LOGGER.warn(e.getMessage());
-                return;
+        executor.shutdown();
+
+        // wait until all threads are finish
+        LOGGER.info("waiting for all threads to finish...");
+        StopWatch sw = new StopWatch();
+        try {
+            while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                LOGGER.debug("wait crawling");
             }
+        } catch (InterruptedException e) {
+            LOGGER.error(e.getMessage(), e);
         }
+        LOGGER.info("...all threads finished in " + sw.getTotalElapsedTimeString());
 
         // LOGGER.info("-----------------------------------------------");
         // LOGGER.info("-----------------------------------------------");
@@ -203,7 +199,8 @@ public class Crawler {
      * @param outDomain Follow outbound links.
      */
     public void startCrawl(Set<String> urlStack, boolean inDomain, boolean outDomain) {
-        this.urlStack = urlStack;
+        this.urlStack.clear();
+        this.urlStack.addAll(urlStack);
         this.inDomain = inDomain;
         this.outDomain = outDomain;
         startCrawl();
@@ -217,22 +214,22 @@ public class Crawler {
      * @param outDomain Follow outbound links.
      */
     public void startCrawl(String startURL, boolean inDomain, boolean outDomain) {
-        urlStack = new HashSet<String>();
+        urlStack.clear();
         urlStack.add(startURL);
         this.inDomain = inDomain;
         this.outDomain = outDomain;
         startCrawl();
     }
 
-    private synchronized String getUrlFromStack() {
-        String url = urlStack.iterator().next();
-        removeUrlFromStack(url);
-        return url;
-    }
-
-    private synchronized void removeUrlFromStack(String url) {
-        urlStack.remove(url);
-        visitedUrls.add(url);
+    private String getUrlFromStack() throws InterruptedException {
+        Iterator<String> iterator = urlStack.iterator();
+        if (iterator.hasNext()) {
+            String url = iterator.next();
+            urlStack.remove(url);
+            visitedUrls.add(url);
+            return url;
+        }
+        return null;
     }
 
     public void setStopCount(int number) {
@@ -331,6 +328,7 @@ public class Crawler {
 
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
+        executor = Executors.newFixedThreadPool(maxThreads);
     }
 
     public int getThreadCount() {
