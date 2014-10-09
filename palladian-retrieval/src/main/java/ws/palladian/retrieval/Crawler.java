@@ -19,7 +19,6 @@ import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -62,7 +61,7 @@ public class Crawler {
     private final Set<Pattern> whiteListUrlRegexps = new HashSet<Pattern>();
 
     /** Regexps that must not be contained in the URLs or they won't be followed. */
-    private final Set<Pattern> blackListUrlRegexps = CollectionHelper.newHashSet();
+    private final Set<Pattern> blackListUrlRegexps = new HashSet<Pattern>();
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
@@ -74,6 +73,9 @@ public class Crawler {
 
     private final Set<String> urlRules = new HashSet<String>();
     private final Set<String> urlDump = new HashSet<String>();
+
+    /** If true, all query params in the URL ?= will be stripped. */
+    private boolean stripQueryParams = true;
 
     /** The callback that is called after the crawler finished crawling. */
     private Callback crawlerCallbackOnFinish = null;
@@ -263,7 +265,9 @@ public class Crawler {
     private String cleanUrl(String url) {
         url = UrlHelper.removeSessionId(url);
         url = UrlHelper.removeAnchors(url);
-        url = url.replaceAll("\\?.*", "");
+        if (isStripQueryParams()) {
+            url = url.replaceAll("\\?.*", "");
+        }
         return url;
     }
 
@@ -353,6 +357,14 @@ public class Crawler {
 
     public void setDocumentRetriever(DocumentRetriever documentRetriever) {
         this.documentRetriever = documentRetriever;
+    }
+
+    public boolean isStripQueryParams() {
+        return stripQueryParams;
+    }
+
+    public void setStripQueryParams(boolean stripQueryParams) {
+        this.stripQueryParams = stripQueryParams;
     }
 
     public static void main(String[] args) {
