@@ -22,12 +22,12 @@ public interface WebImage extends WebContent {
     int getWidth();
 
     /**
-     * @return The height of this image in pixels.
+     * @return The height of this image in pixels. A value of <code>-1</code> means, that no height is specified.
      */
     int getHeight();
 
     /**
-     * @return The total number of pixels in this image.
+     * @return The total number of pixels in this image. A value of <code>-1</code> means, that no width is specified.
      */
     int getSize();
 
