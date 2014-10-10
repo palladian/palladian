@@ -34,9 +34,11 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
@@ -403,6 +405,12 @@ public class HttpRetriever {
             case HEAD:
                 httpRequest = new HttpHead(createUrl(request));
                 break;
+            case DELETE:
+                httpRequest = new HttpDelete(createUrl(request));
+                break;
+            case PUT:
+                httpRequest = new HttpPut(createUrl(request));
+                break;
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
         }
@@ -452,12 +460,12 @@ public class HttpRetriever {
         }
 
         backend.getConnectionManager().getSchemeRegistry().register(httpsScheme);
-        
+
         // set the cookie store; this is scoped on *one* request and discarded after that;
         // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
         // "one request" actually means, that we have a e.g. a GET and receive several redirects,
-        // where cookies previously set cookies are necessary; this is not a typical case, 
-        // and if we should encounter any issues by this change, remove this code (and the modification 
+        // where cookies previously set cookies are necessary; this is not a typical case,
+        // and if we should encounter any issues by this change, remove this code (and the modification
         // in the constructor) again.
         backend.setCookieStore(new BasicCookieStore());
 
