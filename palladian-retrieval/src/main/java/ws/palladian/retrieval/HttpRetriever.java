@@ -409,10 +409,12 @@ public class HttpRetriever {
                 httpRequest = new HttpHead(url);
                 break;
             case DELETE:
-                httpRequest = new HttpDelete(createUrl(request));
+                url = createUrl(request);
+                httpRequest = new HttpDelete(url);
                 break;
             case PUT:
-                httpRequest = new HttpPut(createUrl(request));
+                url = createUrl(request);
+                httpRequest = new HttpPut(url);
                 break;
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
