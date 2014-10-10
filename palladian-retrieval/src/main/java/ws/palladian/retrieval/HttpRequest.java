@@ -5,15 +5,15 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
-
 import org.apache.http.HttpEntity;
+
 import ws.palladian.helper.collection.CollectionHelper;
 
 public final class HttpRequest {
 
     // XXX support further HTTP methods
     public enum HttpMethod {
-        GET, POST, HEAD
+        GET, POST, HEAD, PUT, DELETE
     }
 
     private final String url;
@@ -26,7 +26,7 @@ public final class HttpRequest {
     public HttpRequest(HttpMethod method, String url) {
         Validate.notNull(method, "method must not be null");
         Validate.notEmpty(url, "url must not be empty");
-        
+
         this.method = method;
         this.url = url;
         this.headers = CollectionHelper.newHashMap();
@@ -43,7 +43,7 @@ public final class HttpRequest {
         Validate.notEmpty(url, "url must not be empty");
         Validate.notNull(headers, "headers must not be null");
         Validate.notNull(parameters, "parameters must not be null");
-        
+
         this.url = url;
         this.method = method;
         this.headers = headers;
@@ -69,14 +69,14 @@ public final class HttpRequest {
     public void addHeader(String key, Object value) {
         Validate.notEmpty(key, "key must not be empty");
         Validate.notNull(value, "value must not be null");
-        
+
         headers.put(key, value.toString());
     }
 
     public void addParameter(String key, Object value) {
         Validate.notEmpty(key, "key must not be empty");
         Validate.notNull(value, "value must not be null");
-        
+
         parameters.put(key, value.toString());
     }
     

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -418,6 +419,15 @@ public final class StringHelper {
         return false;
     }
 
+    public static boolean containsWordCaseSensitive(Collection<String> words, String searchString) {
+        for (String word : words) {
+            if (containsWordCaseSensitive(word, searchString)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static String containsWhichWord(Collection<String> words, String searchString) {
         for (String word : words) {
             if (containsWord(word, searchString)) {
@@ -428,7 +438,7 @@ public final class StringHelper {
     }
 
     public static Set<String> containsWhichWords(Collection<String> words, String searchString) {
-        Set<String> containedWords = CollectionHelper.newHashSet();
+        Set<String> containedWords = new HashSet<String>();
 
         for (String word : words) {
             if (containsWord(word, searchString)) {
