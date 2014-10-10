@@ -27,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.functional.Function;
+import ws.palladian.helper.math.MathHelper;
 
 /**
  * <p>
@@ -264,7 +265,9 @@ public final class CollectionHelper {
      * </p>
      * 
      * @return A new {@link HashMap}.
+     * @deprecated Since Java 7, make use of the diamond operator.
      */
+    @Deprecated
     public static <K, V> HashMap<K, V> newHashMap() {
         return new HashMap<K, V>();
     }
@@ -276,7 +279,10 @@ public final class CollectionHelper {
      * </p>
      * 
      * @return A new {@link TreeMap}.
+     * @deprecated Since Java 7, make use of the diamond operator.
+
      */
+    @Deprecated
     public static <K, V> TreeMap<K, V> newTreeMap() {
         return new TreeMap<K, V>();
     }
@@ -288,7 +294,10 @@ public final class CollectionHelper {
      * </p>
      * 
      * @return A new {@link LinkedHashMap}.
+     * @deprecated Since Java 7, make use of the diamond operator.
+
      */
+    @Deprecated
     public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
         return new LinkedHashMap<K, V>();
     }
@@ -300,7 +309,10 @@ public final class CollectionHelper {
      * </p>
      * 
      * @return A new {@link ArrayList}.
+     * @deprecated Since Java 7, make use of the diamond operator.
+
      */
+    @Deprecated
     public static <E> ArrayList<E> newArrayList() {
         return new ArrayList<E>();
     }
@@ -356,9 +368,10 @@ public final class CollectionHelper {
      * Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the LinkedList:
      * <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
      * </p>
-     * 
      * @return A new {@link LinkedList}.
+     * @deprecated since Java 7
      */
+    @Deprecated
     public static <E> LinkedList<E> newLinkedList() {
         return new LinkedList<E>();
     }
@@ -370,7 +383,9 @@ public final class CollectionHelper {
      * </p>
      * 
      * @return A new {@link HashSet}.
+     * @deprecated since Java 7
      */
+    @Deprecated
     public static <E> HashSet<E> newHashSet() {
         return new HashSet<E>();
     }
@@ -426,7 +441,10 @@ public final class CollectionHelper {
      * </p>
      * 
      * @return A new {@link TreeSet}.
+     * @deprecated Since Java 7, make use of the diamond operator.
+
      */
+    @Deprecated
     public static <E> TreeSet<E> newTreeSet() {
         return new TreeSet<E>();
     }
@@ -438,7 +456,10 @@ public final class CollectionHelper {
      * </p>
      * 
      * @return A new {@link LinkedHashSet}.
+     * @deprecated Since Java 7, make use of the diamond operator.
+
      */
+    @Deprecated
     public static <E> LinkedHashSet<E> newLinkedHashSet() {
         return new LinkedHashSet<E>();
     }
@@ -1053,6 +1074,14 @@ public final class CollectionHelper {
                 throw new UnsupportedOperationException("Modifications are not allowed.");
             }
         };
+    }
+
+    /**
+     * @deprecated Use {@link MathHelper#randomEntry(Collection)} instead.
+     */
+    @Deprecated
+    public static <T> T getRandom(Collection<T> collection) {
+        return new ArrayList<T>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
     }
 
 }

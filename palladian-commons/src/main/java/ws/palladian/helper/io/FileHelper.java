@@ -69,7 +69,6 @@ import ws.palladian.helper.math.MathHelper;
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
- * @author Sandro Reichert
  */
 public final class FileHelper {
 
@@ -95,6 +94,9 @@ public final class FileHelper {
     /** Constant for general binary file extensions, including. */
     public static final List<String> BINARY_FILE_EXTENSIONS;
 
+    /** The Palladian-specific temporary directory. */
+    private static volatile File tempDirectory = null;
+
     static {
         List<String> binaryFileExtensions = new ArrayList<String>();
         binaryFileExtensions.add("pdf");
@@ -104,6 +106,7 @@ public final class FileHelper {
         binaryFileExtensions.add("zip");
         binaryFileExtensions.add("7z");
         binaryFileExtensions.add("rar");
+        binaryFileExtensions.add("tar");
         binaryFileExtensions.add("gz");
         binaryFileExtensions.add("exe");
         binaryFileExtensions.add("msi");
@@ -312,7 +315,13 @@ public final class FileHelper {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
+            InputStream stream = new FileInputStream(file);
+
+            if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
+                stream = new GZIPInputStream(stream);
+            }
+
+            reader = new BufferedReader(new InputStreamReader(stream, encoding));
 
             String line = null;
             while ((line = reader.readLine()) != null) {
@@ -1749,127 +1758,6 @@ public final class FileHelper {
     }
 
     /**
-     * The main method.
-     * 
-     * @param a The arguments.
-     */
-    public static void main(String[] a) {
-
-        String filePath = "/Users/pk/Uni/feeddataset/gathering_TUDCS5/finalQueries.txt";
-        List<String> tail = tail(filePath, 50000);
-        CollectionHelper.print(tail);
-
-        // List<String> list = readFileToArray(filePath, -1);
-        // CollectionHelper.print(list);
-        System.exit(0);
-
-        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
-        // File("/home/pk/Desktop/FeedDiscovery/2011-04-03_foundFeeds_philipp_PRISMA.txt"));
-        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
-        // File("/home/pk/Desktop/FeedDiscovery/2011-04-04_foundFeeds_philipp_newsseecr.txt"));
-        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
-        // File("/home/pk/Desktop/FeedDiscovery/2011-04-05_foundFeeds_philipp_newsseecr.txt"));
-        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
-        // File("/home/pk/Desktop/FeedDiscovery/2011-04-05_foundFeeds_philipp_PRISMA.txt"));
-        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
-        // File("/home/pk/Desktop/FeedDiscovery/201104051050foundFeeds_Klemens.txt"));
-        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
-        // File("/home/pk/Desktop/FeedDiscovery/foundFeeds_Sandro.txt"));
-
-        // System.out.println(FileHelper.getNumberOfLines("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"));
-
-        // FileHelper.removeDuplicateLines("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt",
-        // "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt");
-
-        // System.out.println(FileHelper.getNumberOfLines("/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt"));
-
-        // FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
-        // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
-
-        // //////////////////////// add license to every file //////////////////////////
-        // FileHelper.copyDirectory("src/tud", "data/temp/src/tud");
-        // StringBuilder sb = new StringBuilder();
-        // sb.append("/*\n");
-        // sb.append(" * Copyright 2010 TU Dresden\n");
-        // sb.append(" * Licensed under the Apache License, Version 2.0 (the \"License\"); you may not\n");
-        // sb.append(" * use this file except in compliance with the License. You may obtain a copy of\n");
-        // sb.append(" * the License at\n");
-        // sb.append(" *\n");
-        // sb.append(" *     http://www.apache.org/licenses/LICENSE-2.0\n");
-        // sb.append(" *\n");
-        // sb.append(" * Unless required by applicable law or agreed to in writing, software\n");
-        // sb.append(" * distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n");
-        // sb.append(" * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n");
-        // sb.append(" * See the License for the specific language governing permissions and\n");
-        // sb.append(" * limitations under the License.\n");
-        // sb.append(" */\n\n");
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/entity", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/page", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/page/test", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/qa", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/query", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/snippet", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/test", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/control", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/entity", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/fact", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/object", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/qa", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/qa/test", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/snippet", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/test", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/gui", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/helper", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/helper/test", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/knowledge", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/multimedia", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/multimedia/test", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/news", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/normalization", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/normalization/test", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/persistence", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/persistence/test", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/reporting", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/tagging", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/web", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/web/datasetcrawler", sb);
-        // FileHelper.addFileHeader("data/temp/src/tud/iir/web/test", sb);
-        // System.exit(0);
-        // ////////////////////////add license to every file //////////////////////////
-        writeToFile("temp/test.txt", Arrays.asList(new String[] {"one", "two", "three", "four"}));
-        System.exit(0);
-
-        FileHelper.move(new File("abc.txt"), "data");
-        System.exit(0);
-
-        FileHelper.gzip("abc -1 sdf sdjfosd fs- 12\\n-1\\abc", "test.txt.gz");
-
-        String unzippedText = FileHelper.ungzipFileToString("test.txt.gz");
-        System.out.println(unzippedText);
-
-        String zippedString = FileHelper.gzipString("abc -1 def");
-        System.out.println(zippedString);
-
-        FileHelper.ungzipFile("test.txt.gz", "unzipped.txt");
-
-        // System.out.println(FileHelper.unzipString(zippedString));
-
-        System.exit(0);
-
-        isFileName("asdsf sd fs. afjh jerk.");
-        isFileName("abc.com");
-        isFileName("all.html");
-        isFileName("ab.ai");
-        isFileName("  abasdf.mpeg2 ");
-
-        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"),
-                "sampleTextForTagging_tagged"));
-
-    }
-
-    /**
      * <p>
      * Splits a given text file into evenly sized (if possible) files each named with the original name + "_splitX".
      * </p>
@@ -1936,9 +1824,6 @@ public final class FileHelper {
         Collections.shuffle(lines);
         FileHelper.writeToFile(filePath, lines);
     }
-
-    /** The Palladian-specific temp. directory. */
-    private static volatile File tempDirectory = null;
 
     /**
      * <p>
@@ -2074,6 +1959,127 @@ public final class FileHelper {
      */
     public static List<File> getFiles(File path, Filter<? super File> fileFilter) {
         return getFiles(path, fileFilter, Filters.ALL);
+    }
+
+    /*
+     * The main method.
+     * 
+     * @param a The arguments.
+     */
+    public static void main(String[] a) {
+
+        String filePath = "/Users/pk/Uni/feeddataset/gathering_TUDCS5/finalQueries.txt";
+        List<String> tail = tail(filePath, 50000);
+        CollectionHelper.print(tail);
+
+        // List<String> list = readFileToArray(filePath, -1);
+        // CollectionHelper.print(list);
+        System.exit(0);
+
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/2011-04-03_foundFeeds_philipp_PRISMA.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/2011-04-04_foundFeeds_philipp_newsseecr.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/2011-04-05_foundFeeds_philipp_newsseecr.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/2011-04-05_foundFeeds_philipp_PRISMA.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/201104051050foundFeeds_Klemens.txt"));
+        // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
+        // File("/home/pk/Desktop/FeedDiscovery/foundFeeds_Sandro.txt"));
+
+        // System.out.println(FileHelper.getNumberOfLines("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"));
+
+        // FileHelper.removeDuplicateLines("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt",
+        // "/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt");
+
+        // System.out.println(FileHelper.getNumberOfLines("/home/pk/Desktop/FeedDiscovery/foundFeedsDeduplicated.txt"));
+
+        // FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
+        // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
+
+        // //////////////////////// add license to every file //////////////////////////
+        // FileHelper.copyDirectory("src/tud", "data/temp/src/tud");
+        // StringBuilder sb = new StringBuilder();
+        // sb.append("/*\n");
+        // sb.append(" * Copyright 2010 TU Dresden\n");
+        // sb.append(" * Licensed under the Apache License, Version 2.0 (the \"License\"); you may not\n");
+        // sb.append(" * use this file except in compliance with the License. You may obtain a copy of\n");
+        // sb.append(" * the License at\n");
+        // sb.append(" *\n");
+        // sb.append(" *     http://www.apache.org/licenses/LICENSE-2.0\n");
+        // sb.append(" *\n");
+        // sb.append(" * Unless required by applicable law or agreed to in writing, software\n");
+        // sb.append(" * distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n");
+        // sb.append(" * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n");
+        // sb.append(" * See the License for the specific language governing permissions and\n");
+        // sb.append(" * limitations under the License.\n");
+        // sb.append(" */\n\n");
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/entity", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/page", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/page/test", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/qa", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/query", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/snippet", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/classification/test", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/control", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/entity", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/fact", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/object", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/qa", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/qa/test", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/snippet", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/extraction/test", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/gui", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/helper", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/helper/test", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/knowledge", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/multimedia", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/multimedia/test", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/news", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/normalization", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/normalization/test", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/persistence", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/persistence/test", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/reporting", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/tagging", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/web", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/web/datasetcrawler", sb);
+        // FileHelper.addFileHeader("data/temp/src/tud/iir/web/test", sb);
+        // System.exit(0);
+        // ////////////////////////add license to every file //////////////////////////
+        writeToFile("temp/test.txt", Arrays.asList(new String[] {"one", "two", "three", "four"}));
+        System.exit(0);
+
+        FileHelper.move(new File("abc.txt"), "data");
+        System.exit(0);
+
+        FileHelper.gzip("abc -1 sdf sdjfosd fs- 12\\n-1\\abc", "test.txt.gz");
+
+        String unzippedText = FileHelper.ungzipFileToString("test.txt.gz");
+        System.out.println(unzippedText);
+
+        String zippedString = FileHelper.gzipString("abc -1 def");
+        System.out.println(zippedString);
+
+        FileHelper.ungzipFile("test.txt.gz", "unzipped.txt");
+
+        // System.out.println(FileHelper.unzipString(zippedString));
+
+        System.exit(0);
+
+        isFileName("asdsf sd fs. afjh jerk.");
+        isFileName("abc.com");
+        isFileName("all.html");
+        isFileName("ab.ai");
+        isFileName("  abasdf.mpeg2 ");
+
+        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"),
+                "sampleTextForTagging_tagged"));
+
     }
 
 }
