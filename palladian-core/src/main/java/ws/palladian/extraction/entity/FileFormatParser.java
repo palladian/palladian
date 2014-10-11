@@ -1,6 +1,14 @@
 package ws.palladian.extraction.entity;
 
+import static ws.palladian.helper.io.FileHelper.DEFAULT_ENCODING;
+
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +35,123 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 public final class FileFormatParser {
+
+    private static final class ColumnToXmlAction extends LineAction {
+        private final String columnSeparator;
+        private final Writer writer;
+        String currentTag = "o";
+        boolean previousLineBreak = true;
+        boolean atBeginning = true;
+
+        private ColumnToXmlAction(String columnSeparator, Writer writer) {
+            this.columnSeparator = columnSeparator;
+            this.writer = writer;
+        }
+
+        @Override
+        public void performAction(String line, int lineNumber) {
+            try {
+                String[] parts = line.split(columnSeparator);
+                // skip empty lines at the beginning of the file
+                if (parts.length < 2 && atBeginning) {
+                    atBeginning = false;
+                    return;
+                }
+                atBeginning = false;
+                // skip =-DOCSTART-
+                if (line.contains("=-DOCSTART-")) {
+                    return;
+                }
+                if (parts.length < 2) {
+                    // add breaks for empty lines
+                    if (line.length() == 0) {
+                        if (!currentTag.equalsIgnoreCase("o") && lineNumber > 1) {
+                            writer.write("</");
+                            writer.write(currentTag);
+                            writer.write(">");
+                            currentTag = "o";
+                        }
+                        writer.write("\n");
+                        previousLineBreak = true;
+                    }
+                    return;
+                }
+                boolean openTag = false;
+                String tag = parts[1];
+                String value = parts[0];
+                if (!currentTag.equalsIgnoreCase(tag)) {
+                    if (!currentTag.equalsIgnoreCase("o") && lineNumber > 1) {
+                        writer.write("</");
+                        writer.write(currentTag);
+                        writer.write(">");
+                    }
+                    if (!tag.equalsIgnoreCase("o")) {
+                        if (lineNumber > 1 && !previousLineBreak) {
+                            writer.write(" ");
+                        }
+                        writer.write("<");
+                        writer.write(tag);
+                        writer.write(">");
+                        openTag = true;
+                    }
+                }
+                currentTag = tag;
+                if (parts.length > 0 && value.length() > 0
+                        && (Character.isLetterOrDigit(value.charAt(0)) || StringHelper.isBracket(value.charAt(0)))
+                        && !openTag && lineNumber > 1 && !previousLineBreak) {
+                    writer.write(" ");
+                }
+                writer.write(value);
+                previousLineBreak = false;
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not write", e);
+            }
+        }
+    }
+
+    /**
+     * {@link LineAction} to convert from XML tagged format to column format.
+     * 
+     * @author pk
+     */
+    private static final class XmlToColumnAction extends LineAction {
+        private final String columnSeparator;
+        private final Writer writer;
+
+        /**
+         * Create a new {@link XmlToColumnAction}.
+         * 
+         * @param columnSeparator The column separator for the output format.
+         * @param writer The writer where the output is appended.
+         */
+        private XmlToColumnAction(String columnSeparator, Writer writer) {
+            this.columnSeparator = columnSeparator;
+            this.writer = writer;
+        }
+
+        @Override
+        public void performAction(String line, int lineNumber) {
+            try {
+                List<String> tokens = Tokenizer.tokenize(line);
+                String openTag = "O";
+                for (String token : tokens) {
+                    if (token.startsWith("</")) {
+                        openTag = "O";
+                    } else if (token.startsWith("<")) {
+                        openTag = StringHelper.getSubstringBetween(token, "<", ">");
+                    } else {
+                        writer.write(token);
+                        writer.write(columnSeparator);
+                        writer.write(openTag);
+                        writer.write('\n');
+                    }
+                }
+                writer.write('\n');
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not write", e);
+            }
+        }
+    }
 
     private FileFormatParser() {
         // no instances.
@@ -66,7 +191,8 @@ public final class FileFormatParser {
 
     private static String getTextFromXML(String inputFilePath) {
         String xmlText = FileHelper.tryReadFileToString(inputFilePath);
-        return HtmlHelper.stripHtmlTags(xmlText);
+        // return HtmlHelper.stripHtmlTags(xmlText);
+        return xmlText.replaceAll("</?\\w+>", "");
     }
 
     public static String getText(String inputFilePath, TaggingFormat format) {
@@ -74,7 +200,6 @@ public final class FileFormatParser {
             return getTextFromXML(inputFilePath);
         } else if (format.equals(TaggingFormat.COLUMN)) {
             String outputFilePath = getTempFile();
-            // String outputFilePath = FileHelper.appendToFileName(inputFilePath, "_temp");
             columnToXml(inputFilePath, outputFilePath, "\t");
             return getText(outputFilePath, TaggingFormat.XML);
         } else {
@@ -100,60 +225,15 @@ public final class FileFormatParser {
      * @param columnSeparator The separator for the columns.
      */
     public static void columnToXml(String inputFilePath, String outputFilePath, final String columnSeparator) {
-        final StringBuilder xml = new StringBuilder();
-        FileHelper.performActionOnEveryLine(inputFilePath, new LineAction() {
-            String currentTag = "o";
-            boolean previousLineBreak = true;
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-                String[] parts = line.split(columnSeparator);
-                // skip empty lines at the beginning of the file
-                if (parts.length < 2 && xml.length() == 0) {
-                    return;
-                }
-                // skip =-DOCSTART-
-                if (line.contains("=-DOCSTART-")) {
-                    return;
-                }
-                if (parts.length < 2) {
-                    // add breaks for empty lines
-                    if (line.length() == 0) {
-                        if (!currentTag.equalsIgnoreCase("o") && lineNumber > 1) {
-                            xml.append("</").append(currentTag).append(">");
-                            currentTag = "o";
-                        }
-                        xml.append("\n");
-                        previousLineBreak = true;
-                    }
-                    return;
-                }
-                boolean openTag = false;
-                String tag = parts[1];
-                String value = parts[0];
-                if (!currentTag.equalsIgnoreCase(tag)) {
-                    if (!currentTag.equalsIgnoreCase("o") && lineNumber > 1) {
-                        xml.append("</").append(currentTag).append(">");
-                    }
-                    if (!tag.equalsIgnoreCase("o")) {
-                        if (lineNumber > 1 && !previousLineBreak) {
-                            xml.append(" ");
-                        }
-                        xml.append("<").append(tag).append(">");
-                        openTag = true;
-                    }
-                }
-                currentTag = tag;
-                if (parts.length > 0 && value.length() > 0
-                        && (Character.isLetterOrDigit(value.charAt(0)) || StringHelper.isBracket(value.charAt(0)))
-                        && !openTag && lineNumber > 1 && !previousLineBreak) {
-                    xml.append(" ");
-                }
-                xml.append(value);
-                previousLineBreak = false;
-            }
-        });
-        FileHelper.writeToFile(outputFilePath, xml);
+        Writer writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFilePath), DEFAULT_ENCODING));
+            FileHelper.performActionOnEveryLine(inputFilePath, new ColumnToXmlAction(columnSeparator, writer));
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not write", e);
+        } finally {
+            FileHelper.close(writer);
+        }
     }
 
     /**
@@ -296,29 +376,31 @@ public final class FileFormatParser {
     }
 
     public static void xmlToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
-        String xmlText = FileHelper.tryReadFileToString(inputFilePath);
-        String columnFile = xmlToColumnText(xmlText, columnSeparator);
-        FileHelper.writeToFile(outputFilePath, columnFile);
+        Validate.notEmpty(inputFilePath, "inputFilePath must not be empty");
+        Validate.notEmpty(outputFilePath, "outputFilePath must not be empty");
+        Validate.notEmpty(columnSeparator, "columnSeparator must not be empty");
+        Writer writer = null;
+        try {
+            // writer = new FileWriter(new File(outputFilePath));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFilePath), DEFAULT_ENCODING));
+            FileHelper.performActionOnEveryLine(inputFilePath, new XmlToColumnAction(columnSeparator, writer));
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not write", e);
+        } finally {
+            FileHelper.close(writer);
+        }
     }
 
     public static String xmlToColumnText(String xmlText, String columnSeparator) {
-        StringBuilder columnText = new StringBuilder();
+        Validate.notNull(xmlText, "xmlText must not be null");
+        Validate.notEmpty(columnSeparator, "columnSeparator must not be empty");
+        StringWriter stringWriter = new StringWriter();
+        LineAction action = new XmlToColumnAction(columnSeparator, stringWriter);
         String[] lines = xmlText.split("\n");
-        for (String line : lines) {
-            List<String> tokens = Tokenizer.tokenize(line);
-            String openTag = "O";
-            for (String token : tokens) {
-                if (token.startsWith("</")) {
-                    openTag = "O";
-                } else if (token.startsWith("<")) {
-                    openTag = StringHelper.getSubstringBetween(token, "<", ">");
-                } else {
-                    columnText.append(token).append(columnSeparator).append(openTag).append("\n");
-                }
-            }
-            columnText.append("\n");
+        for (int i = 0; i < lines.length; i++) {
+            action.performAction(lines[i], i);
         }
-        return columnText.toString();
+        return stringWriter.toString();
     }
 
     public static void slashToXml(String slashFilePath, String xmlFilePath) {
@@ -546,7 +628,6 @@ public final class FileFormatParser {
     }
 
     public static void main(String[] args) {
-
         // FileFormatParser.xmlToColumn("data/datasets/ner/taggedTextTraining.xml",
         // "data/datasets/ner/taggedTextTrainingColumn.tsv", "\t");
         // FileFormatParser.columnToXML("data/datasets/ner/taggedTextTesting.xml",
