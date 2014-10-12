@@ -192,7 +192,7 @@ public final class FileFormatParser {
     private static String getTextFromXML(String inputFilePath) {
         String xmlText = FileHelper.tryReadFileToString(inputFilePath);
         // return HtmlHelper.stripHtmlTags(xmlText);
-        return xmlText.replaceAll("</?\\w+>", "");
+        return xmlText.replaceAll("</?[^>]+>", "");
     }
 
     public static String getText(String inputFilePath, TaggingFormat format) {
