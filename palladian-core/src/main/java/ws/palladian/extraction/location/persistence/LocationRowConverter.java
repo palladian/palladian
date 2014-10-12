@@ -28,16 +28,11 @@ public final class LocationRowConverter implements RowConverter<Location> {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationRowConverter.class);
 
-    /** Instance, which converts alternative names. */
-    public static final LocationRowConverter FULL = new LocationRowConverter(true);
+    /** Singleton instance. */
+    public static final LocationRowConverter INSTANCE = new LocationRowConverter();
 
-    /** Instance, which does not convert alternative names (for simple queries). */
-    public static final LocationRowConverter SIMPLE = new LocationRowConverter(false);
-
-    private final boolean alternativeNames;
-
-    private LocationRowConverter(boolean alternativeNames) {
-        this.alternativeNames = alternativeNames;
+    private LocationRowConverter() {
+        // use the singelton
     }
 
     @Override
@@ -47,20 +42,18 @@ public final class LocationRowConverter implements RowConverter<Location> {
         builder.setType(LocationType.map(resultSet.getString("type")));
         builder.setPrimaryName(resultSet.getString("name"));
 
-        if (alternativeNames) {
-            String alternativesString = resultSet.getString("alternatives");
-            if (alternativesString != null) {
-                for (String nameLanguageString : alternativesString.split(",")) {
-                    String[] parts = nameLanguageString.split("#");
-                    if (parts.length == 0 || StringUtils.isBlank(parts[0]) || parts[0].equals("alternativeName")) {
-                        continue;
-                    }
-                    Language language = null;
-                    if (parts.length > 1) {
-                        language = Language.getByIso6391(parts[1]);
-                    }
-                    builder.addAlternativeName(parts[0], language);
+        String alternativesString = resultSet.getString("alternatives");
+        if (alternativesString != null) {
+            for (String nameLanguageString : alternativesString.split(",")) {
+                String[] parts = nameLanguageString.split("#");
+                if (parts.length == 0 || StringUtils.isBlank(parts[0]) || parts[0].equals("alternativeName")) {
+                    continue;
                 }
+                Language language = null;
+                if (parts.length > 1) {
+                    language = Language.getByIso6391(parts[1]);
+                }
+                builder.addAlternativeName(parts[0], language);
             }
         }
 
