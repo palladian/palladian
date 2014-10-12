@@ -139,7 +139,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 String query = resultSet.getString("query");
-                result.add(query, LocationRowConverter.FULL.convert(resultSet));
+                result.add(query, LocationRowConverter.INSTANCE.convert(resultSet));
             }
         }, GET_LOCATIONS_UNIVERSAL, names, languageList, latitude, longitude, distance);
         return result;
@@ -162,7 +162,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
         // all used combinations will get and stay cached eventually.
 
         String prepStmt = String.format(GET_LOCATIONS_BY_ID, createMask(locationIds.size()));
-        List<Location> locations = runQuery(LocationRowConverter.FULL, prepStmt, locationIds);
+        List<Location> locations = runQuery(LocationRowConverter.INSTANCE, prepStmt, locationIds);
 
         // sort the returned list, so that we have the order of the given locations IDs
         Collections.sort(locations, new Comparator<Location>() {
@@ -269,7 +269,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
      */
     @Override
     public ResultIterator<Location> getLocations() {
-        return runQueryWithIterator(LocationRowConverter.FULL, GET_ALL_LOCATIONS);
+        return runQueryWithIterator(LocationRowConverter.INSTANCE, GET_ALL_LOCATIONS);
     }
 
     @Override
