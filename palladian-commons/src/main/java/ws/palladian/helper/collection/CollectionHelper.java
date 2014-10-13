@@ -238,6 +238,9 @@ public final class CollectionHelper {
      * @return
      */
     public static String getPrint(Iterable<?> iterable) {
+        if (iterable == null) {
+            return null;
+        }
         StringBuilder print = new StringBuilder();
         int count = 0;
         for (Object entry : iterable) {

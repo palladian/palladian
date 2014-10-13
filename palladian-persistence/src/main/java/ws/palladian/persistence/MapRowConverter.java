@@ -11,6 +11,9 @@ import java.util.Map;
  * Convert all columns of a given result set to strings and return them in a key-value map.
  * </p>
  * 
+ * FIXME unlike the AllColumnRowConverter, this class seems to incorrectly interpret mysql data types, e.g. Integer
+ * becomes Long.
+ * 
  * @author David Urbansky
  * @author Philipp Katz
  */

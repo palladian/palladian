@@ -63,6 +63,9 @@ public class Crawler {
     /** Regexps that must not be contained in the URLs or they won't be followed. */
     private final Set<Pattern> blackListUrlRegexps = new HashSet<Pattern>();
 
+    /** Remove those parts from every retrieved URL. */
+    private final Set<Pattern> urlModificationRegexps = new HashSet<Pattern>();
+
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
     private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
@@ -223,7 +226,7 @@ public class Crawler {
         startCrawl();
     }
 
-    private String getUrlFromStack() throws InterruptedException {
+    private synchronized String getUrlFromStack() {
         Iterator<String> iterator = urlStack.iterator();
         if (iterator.hasNext()) {
             String url = iterator.next();
@@ -252,6 +255,16 @@ public class Crawler {
         }
     }
 
+    public Set<Pattern> getUrlModificationRegexps() {
+        return urlModificationRegexps;
+    }
+
+    public void addUrlModificationRegexps(Set<String> urlModificationRegexps) {
+        for (String string : urlModificationRegexps) {
+            this.urlModificationRegexps.add(Pattern.compile(string));
+        }
+    }
+
     public void addUrlRule(String rule) {
         urlRules.add(rule);
     }
@@ -267,6 +280,9 @@ public class Crawler {
         url = UrlHelper.removeAnchors(url);
         if (isStripQueryParams()) {
             url = url.replaceAll("\\?.*", "");
+        }
+        for (Pattern pattern : urlModificationRegexps) {
+            url = pattern.matcher(url).replaceAll("");
         }
         return url;
     }
