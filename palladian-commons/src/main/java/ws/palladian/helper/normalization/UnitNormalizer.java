@@ -232,6 +232,15 @@ public class UnitNormalizer {
         return null;
     }
 
+    /**
+     * <p>
+     * Find the multiplier to normalize values with the given unit. For example, "kg" gets a multiplier of 1,000 as we
+     * normalize to grams.
+     * </p>
+     * 
+     * @param unit The unit string, e.g. "kg".
+     * @return The multiplier.
+     */
     public static double unitLookup(String unit) {
 
         unit = unit.toLowerCase().trim();
