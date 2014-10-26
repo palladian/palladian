@@ -308,9 +308,10 @@ public final class FileHelper {
 
         StringBuilder contents = new StringBuilder();
         BufferedReader reader = null;
+        InputStream stream = null;
 
         try {
-            InputStream stream = new FileInputStream(file);
+            stream = new FileInputStream(file);
 
             if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
                 stream = new GZIPInputStream(stream);
@@ -324,7 +325,7 @@ public final class FileHelper {
             }
 
         } finally {
-            close(reader);
+            close(stream,reader);
         }
 
         return contents.toString();
@@ -1348,6 +1349,8 @@ public final class FileHelper {
      */
     public static boolean gzip(CharSequence text, String filenameOutput) {
 
+        boolean success = true;
+
         OutputStream os = null;
         GZIPOutputStream stream = null;
         try {
@@ -1360,12 +1363,12 @@ public final class FileHelper {
 
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-            return false;
+            success = false;
         } finally {
             close(os, stream);
         }
 
-        return true;
+        return success;
     }
 
     /**
