@@ -87,6 +87,11 @@
 		</dependency>
 		<!--<dependency><groupId>tud.iir.external</groupId><artifactId>juliener</artifactId></dependency>-->
 		<!--<dependency><groupId>edu.smu.tspell</groupId><artifactId>jaws-bin</artifactId><version>1.2</version></dependency>-->
+		<dependency>
+			<groupId>quickml</groupId>
+			<artifactId>quickml</artifactId>
+			<version>0.4.6.5</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -106,6 +111,12 @@
 		<repository>
 			<id>aksw</id>
 			<url>http://maven.aksw.org/archiva/repository/internal</url>
+		</repository>
+		<repository>
+			<!-- QuickMl -->
+			<id>sanity-maven-repo</id>
+			<name>Sanity's Maven repository on GitHub</name>
+			<url>http://sanity.github.com/maven-repo/repository/</url>
 		</repository>
 	</repositories>
 </project>
