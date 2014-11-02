@@ -34,7 +34,7 @@
 		</plugins>
 	</build>
 	<properties>
-		<lucene-version>4.2.1</lucene-version>
+		<lucene-version>4.7.0</lucene-version>
 	</properties>
 	<reporting>
 		<plugins>
