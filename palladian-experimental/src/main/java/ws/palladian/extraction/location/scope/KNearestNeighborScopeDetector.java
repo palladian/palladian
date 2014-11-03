@@ -210,7 +210,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
     public GeoCoordinate getScope(String text) {
         try {
             Query query = queryCreator.createQuery(text, reader, analyzer);
-            LOGGER.debug("{} = {}", query.getClass().getSimpleName(), query);
+            LOGGER.trace("{} = {}", query.getClass().getSimpleName(), query);
             TopDocs searchResult = searcher.search(query, k);
             if (searchResult.totalHits == 0) {
                 return null;
@@ -227,7 +227,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
                     // multiply the score, so that we add n items to the list
                     // from which we determine the center
                     int factor = Math.round(10 * scoreDoc.score / maxScore);
-                    LOGGER.debug("{} : {} (n={})", coordinate, scoreDoc.score / maxScore, factor);
+                    LOGGER.trace("{} : {} (n={})", coordinate, scoreDoc.score / maxScore, factor);
                     coordinates.addAll(Collections.nCopies(factor, coordinate));
                 } catch (IllegalArgumentException e) {
                     // weird shit
@@ -238,7 +238,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             }
             StopWatch stopWatch = new StopWatch();
             GeoCoordinate center = GeoUtils.getCenterOfMinimumDistance(coordinates);
-            LOGGER.debug("calculation for {} took {}", coordinates.size(), stopWatch);
+            LOGGER.trace("calculation for {} took {}", coordinates.size(), stopWatch);
             return center;
         } catch (IOException e) {
             throw new IllegalStateException(e);
