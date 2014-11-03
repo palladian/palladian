@@ -55,7 +55,7 @@ public class DictionaryScopeDetectorIT {
         DictionaryScopeModel model = learner.train(trainingSet);
         ScopeDetector scopeDetector = new DictionaryScopeDetector(model, scorer);
         Stats stats = ScopeDetectorEvaluator.evaluateScopeDetection(scopeDetector, validationSet, false);
-        // printStats(stats);
+        // ScopeDetectorEvaluator.printStats(stats);
         ITHelper.assertMax("meanError", 1027, stats.getMean()); // 1026.048326852913
         ITHelper.assertMax("medianError", 199, stats.getMedian()); // 198.47593580609546
         ITHelper.assertMin("probability1km", 0, stats.getCumulativeProbability(1)); // 7.394626571358146E-4
@@ -71,7 +71,7 @@ public class DictionaryScopeDetectorIT {
         DictionaryScopeModel model = learner.train(trainingSet);
         ScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(model, scorer, coarseGridSize);
         Stats stats = ScopeDetectorEvaluator.evaluateScopeDetection(scopeDetector, validationSet, false);
-        // printStats(stats);
+        // ScopeDetectorEvaluator.printStats(stats);
         ITHelper.assertMax("meanError", 930, stats.getMean()); // 929.5262702219871
         ITHelper.assertMax("medianError", 57, stats.getMedian()); // 56.23283449739908
         ITHelper.assertMin("probability1km", 0, stats.getCumulativeProbability(1)); // 0.009120039438008381
@@ -79,16 +79,6 @@ public class DictionaryScopeDetectorIT {
         ITHelper.assertMin("probability100km", 0.60, stats.getCumulativeProbability(100)); // 0.6006901651466601
         ITHelper.assertMin("probability1000km", 0.87, stats.getCumulativeProbability(1000)); // 0.8715799852107469
 
-    }
-
-    @SuppressWarnings("unused")
-    private static void printStats(Stats stats) {
-        System.out.println(stats.getMean());
-        System.out.println(stats.getMedian());
-        System.out.println(stats.getCumulativeProbability(1));
-        System.out.println(stats.getCumulativeProbability(10));
-        System.out.println(stats.getCumulativeProbability(100));
-        System.out.println(stats.getCumulativeProbability(1000));
     }
 
 }

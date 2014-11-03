@@ -74,6 +74,21 @@ public class ScopeDetectorEvaluator {
     }
 
     /**
+     * Prints out relevant prediction/error statistics.
+     * 
+     * @param stats The statistics, not <code>null</code>.
+     */
+    public static void printStats(Stats stats) {
+        Validate.notNull(stats, "stats must not be null");
+        System.out.println("Mean:" + stats.getMean());
+        System.out.println("Median:" + stats.getMedian());
+        System.out.println("below1km" + stats.getCumulativeProbability(1));
+        System.out.println("below10km" + stats.getCumulativeProbability(10));
+        System.out.println("below100km" + stats.getCumulativeProbability(100));
+        System.out.println("below1000km" + stats.getCumulativeProbability(1000));
+    }
+
+    /**
      * Write CSV header if necessary.
      */
     private static void writeHeader() {
