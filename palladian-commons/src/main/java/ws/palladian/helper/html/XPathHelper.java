@@ -244,6 +244,29 @@ public final class XPathHelper {
 
     /**
      * <p>
+     * Get the text content of a child node with the given XPath expression.
+     * </p>
+     *
+     * @param node The node whose children are considered, not <code>null</code>.
+     * @param xPath The XPath expression addressing the node with the sought text content, not <code>null</code> or
+     *            empty.
+     * @return The Node's text content, or an empty {@link String} if node does not exist.
+     */
+    public static String getXhtmlNodeTextContent(Node node, String xPath) {
+        Validate.notNull(node, "node must not be null.");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
+
+        String textContent = "";
+        Node textNode = getXhtmlNode(node, xPath);
+        if (textNode != null) {
+            textContent = textNode.getTextContent();
+        }
+
+        return textContent;
+    }
+
+    /**
+     * <p>
      * Get the XPath that points to the parent element of the given XPath. For example: <code>/DIV/P/A</code> =>
      * <code>/DIV/P</code>.
      * </p>
