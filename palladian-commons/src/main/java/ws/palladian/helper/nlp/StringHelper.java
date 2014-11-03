@@ -695,39 +695,6 @@ public final class StringHelper {
         return string.trim();
     }
 
-    //    /**
-    //     * Escape for regular expression.
-    //     *
-    //     * @param inputString the input string
-    //     * @return the string
-    //     * @deprecated Use {@link Pattern#quote(String)} instead.
-    //     */
-    //    @Deprecated
-    //    public static String escapeForRegularExpression(String inputString) {
-    //        String string = inputString;
-    //        try {
-    //            string = string.replace("\\", "\\\\");
-    //            string = string.replace("(", "\\(");
-    //            string = string.replace(")", "\\)");
-    //            string = string.replace("[", "\\[");
-    //            string = string.replace("]", "\\]");
-    //            string = string.replace("{", "\\{");
-    //            string = string.replace("}", "\\}");
-    //            string = string.replace("|", "\\|");
-    //            string = string.replace("+", "\\+");
-    //            string = string.replace("*", "\\*");
-    //            string = string.replace("$", "\\$");
-    //            string = string.replace("^", "\\^");
-    //            string = string.replace(".", "\\.");
-    //            string = string.replace("?", "\\?");
-    //            string = string.replace("-", "\\-");
-    //            string = string.replaceAll("\\n", "\\\\n");
-    //        } catch (Exception e) {
-    //            LOGGER.error("{}, {}", string, e.getMessage());
-    //        }
-    //        return string;
-    //    }
-
     /**
      * Checks whether character is a bracket.
      * 
@@ -758,7 +725,7 @@ public final class StringHelper {
      */
     public static boolean isNumber(String string) {
 
-        if (string.length() == 0) {
+        if (string == null || string.isEmpty()) {
             return false;
         }
 

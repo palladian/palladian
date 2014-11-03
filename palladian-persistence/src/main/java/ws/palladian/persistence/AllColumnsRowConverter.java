@@ -12,7 +12,7 @@ import java.util.Map;
  * </p>
  * 
  * @author David Urbansky
- * @deprecated Use {@link MapRowConverter}.
+ * @deprecated Use {@link MapRowConverter}. // FIXME see fixme in MapRowConverter
  */
 @Deprecated
 public final class AllColumnsRowConverter {

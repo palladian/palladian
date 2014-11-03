@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.pos.AbstractPosTagger;
@@ -29,6 +32,9 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 public class WordTransformer {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WordTransformer.class);
 
     /** The Constant IRREGULAR_NOUNS <singular, plural>. */
     private static final Map<String, String> IRREGULAR_NOUNS = new HashMap<String, String>();
@@ -52,6 +58,10 @@ public class WordTransformer {
             List<String> list = FileHelper.readFileToArray(inputStream);
             for (String string : list) {
                 String[] parts = string.split("\t");
+                if (parts.length < 4) {
+                    LOGGER.warn("incorrect singular plural in line -------------> " + string);
+                    continue;
+                }
                 if (parts[1].isEmpty()) {
                     continue;
                 }

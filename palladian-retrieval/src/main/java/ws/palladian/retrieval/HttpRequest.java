@@ -11,7 +11,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 public final class HttpRequest {
 
-    // XXX support further HTTP methods
     public enum HttpMethod {
         GET, POST, HEAD, PUT, DELETE
     }
