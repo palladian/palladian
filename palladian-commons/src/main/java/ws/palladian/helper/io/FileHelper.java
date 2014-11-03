@@ -20,7 +20,6 @@ import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URL;
@@ -313,9 +312,10 @@ public final class FileHelper {
 
         StringBuilder contents = new StringBuilder();
         BufferedReader reader = null;
+        InputStream stream = null;
 
         try {
-            InputStream stream = new FileInputStream(file);
+            stream = new FileInputStream(file);
 
             if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
                 stream = new GZIPInputStream(stream);
@@ -329,7 +329,7 @@ public final class FileHelper {
             }
 
         } finally {
-            close(reader);
+            close(stream,reader);
         }
 
         return contents.toString();
@@ -1353,24 +1353,26 @@ public final class FileHelper {
      */
     public static boolean gzip(CharSequence text, String filenameOutput) {
 
-        GZIPOutputStream zipout = null;
-        try {
-            zipout = new GZIPOutputStream(new FileOutputStream(filenameOutput));
+        boolean success = true;
 
-            StringReader in = new StringReader(text.toString());
-            int c = 0;
-            while ((c = in.read()) != -1) {
-                zipout.write((byte)c);
-            }
+        OutputStream os = null;
+        GZIPOutputStream stream = null;
+        try {
+
+            os = new FileOutputStream(filenameOutput);
+            stream = new GZIPOutputStream(os);
+            stream.write(text.toString().getBytes(DEFAULT_ENCODING));
+            stream.finish();
+            stream.close();
 
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-            return false;
+            success = false;
         } finally {
-            close(zipout);
+            close(os, stream);
         }
 
-        return true;
+        return success;
     }
 
     /**
