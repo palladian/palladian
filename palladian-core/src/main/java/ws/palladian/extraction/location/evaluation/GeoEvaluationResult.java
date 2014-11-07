@@ -14,7 +14,6 @@ import java.util.Set;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.processing.features.Annotation;

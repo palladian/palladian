@@ -4,21 +4,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
-import org.json.JSONException;
 import org.junit.Test;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.parser.json.JsonException;
 
 public class UnlockTextMockExtractorTest {
 
     @Test
-    public void testParse() throws FileNotFoundException, JSONException {
+    public void testParse() throws JsonException, IOException {
         File jsonFile = ResourceHelper.getResourceFile("/apiResponse/unlockTextApiResponse.json");
         File txtFile = ResourceHelper.getResourceFile("/testText.txt");
         String jsonString = FileHelper.readFileToString(jsonFile);

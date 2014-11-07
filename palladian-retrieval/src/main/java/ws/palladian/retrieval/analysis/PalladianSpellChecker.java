@@ -39,7 +39,13 @@ public class PalladianSpellChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianSpellChecker.class);
     private static final Pattern SPLIT = Pattern.compile("\\s");
 
-    private final Trie words = new Trie();
+    /** Do not correct words that contain any of these characters. */
+    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/") + "]");
+
+    private Trie words = new Trie();
+
+    public PalladianSpellChecker() {
+    }
 
     public PalladianSpellChecker(String file) {
 
@@ -47,7 +53,7 @@ public class PalladianSpellChecker {
 
         // read the input file and create a P(w) model by counting the word occurrences
         final Set<String> uniqueWords = new HashSet<String>();
-        final Pattern p = Pattern.compile("[\\wöäüß]+");
+        final Pattern p = Pattern.compile("[\\wöäüß-]+");
         LineAction lineAction = new LineAction() {
 
             @Override
@@ -131,8 +137,23 @@ public class PalladianSpellChecker {
 
         String[] textWords = SPLIT.split(text);
         for (String word : textWords) {
+            if (word.length() < 2 || StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).length() > 0) {
+                correctedText.append(word).append(" ");
+                continue;
+            }
+            char startOfWord = word.charAt(0);
+            char endOfWord = word.charAt(word.length() - 1);
             word = StringHelper.trim(word);
-            correctedText.append(correctWord(word)).append(" ");
+            int type = Character.getType(startOfWord);
+            if (type == Character.OTHER_PUNCTUATION) {
+                correctedText.append(startOfWord);
+            }
+            correctedText.append(correctWord(word));
+            type = Character.getType(endOfWord);
+            if (type == Character.OTHER_PUNCTUATION) {
+                correctedText.append(endOfWord);
+            }
+            correctedText.append(" ");
         }
 
         return correctedText.toString().trim();
@@ -148,7 +169,19 @@ public class PalladianSpellChecker {
      */
     public String correctWord(String word) {
 
-        boolean uppercase = StringHelper.startsUppercase(word);
+        int uppercaseCount = StringHelper.countUppercaseLetters(word);
+
+        // don't correct words with uppercase letters in the middle
+        if (uppercaseCount > 1) {
+            return word;
+        }
+
+        // don't correct words with apostrophe
+        if (word.contains("'")) {
+            return word;
+        }
+
+        boolean uppercase = uppercaseCount == 1;
         word = word.toLowerCase();
 
         // correct words don't need to be corrected
@@ -190,6 +223,14 @@ public class PalladianSpellChecker {
         }
 
         return corrected;
+    }
+
+    public Trie getWords() {
+        return words;
+    }
+
+    public void setWords(Trie words) {
+        this.words = words;
     }
 
     public static void main(String[] args) throws IOException {

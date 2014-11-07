@@ -18,7 +18,7 @@ import java.util.List;
 public interface TagFilter {
     /**
      * <p>
-     * Filters the provided tag accoring to this {@link TagFilter}s rules.
+     * Filters the provided tag according to this {@link TagFilter}'s rules.
      * </p>
      * 
      * @param tag The tag to filter.

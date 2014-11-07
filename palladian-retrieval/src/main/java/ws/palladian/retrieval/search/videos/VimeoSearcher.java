@@ -28,6 +28,7 @@ import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.RateLimitedException;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -141,7 +142,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
                         + " (request: " + request + "): " + e.getMessage(), e);
             }
-            logRateLimits(httpResult);
+            checkRateLimits(httpResult);
             try {
                 JsonObject json = new JsonObject(httpResult.getStringContent());
                 availableResults = json.queryLong("/videos/total");
@@ -158,11 +159,16 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
         return new SearchResults<WebVideo>(webResults, availableResults);
     }
 
-    private static void logRateLimits(HttpResult httpResult) {
+    private static void checkRateLimits(HttpResult httpResult) throws RateLimitedException {
+        // http://developer.vimeo.com/guidelines/rate-limiting
         int rateLimit = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Limit"));
         int rateLimitRemaining = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Remaining"));
         int rateLimitReset = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Reset"));
         LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
+        if (rateLimitRemaining == 0) {
+            int timeUntilReset = rateLimitReset - (int)(System.currentTimeMillis() / 1000);
+            throw new RateLimitedException("Rate limit exceeded, rate limit is " + rateLimit, timeUntilReset );
+        }
     }
 
     public static List<WebVideo> parseVideoResult(JsonObject json) throws JsonException {
@@ -170,14 +176,23 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
         JsonArray jsonVideos = json.queryJsonArray("videos/video");
         for (int i = 0; i < jsonVideos.size(); i++) {
             JsonObject jsonVideo = jsonVideos.getJsonObject(i);
+            String uploadDateString = jsonVideo.getString("upload_date");
+            String id = jsonVideo.getString("id");
             BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
             builder.setTitle(jsonVideo.getString("title"));
             builder.setSummary(jsonVideo.getString("description"));
-            String uploadDateString = jsonVideo.getString("upload_date");
             builder.setPublished(parseDate(uploadDateString));
-            String id = jsonVideo.getString("id");
             builder.setUrl(String.format("https://vimeo.com/%s", id));
             builder.setDuration(jsonVideo.getLong("duration"));
+            if (jsonVideo.get("tags") != null) {
+                JsonArray tagArray = jsonVideo.queryJsonArray("/tags/tag");
+                for (int j = 0; j < tagArray.size(); j++) {
+                    String normalizedTag = tagArray.getJsonObject(j).getString("normalized");
+                    builder.addTag(normalizedTag);
+                }
+            }
+            builder.setSource(SEARCHER_NAME);
+            builder.setIdentifier(jsonVideo.getString("id"));
             result.add(builder.create());
         }
         return result;

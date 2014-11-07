@@ -3,8 +3,8 @@ package ws.palladian.extraction.content;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -24,6 +24,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
@@ -50,7 +51,7 @@ import ws.palladian.retrieval.resources.WebImage;
 public class PalladianContentExtractor extends WebPageContentExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReadabilityContentExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianContentExtractor.class);
 
     private static final List<String> MAIN_NODE_HINTS = new ArrayList<String>();
 
@@ -59,6 +60,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     /** The detected main content node. */
     private Node resultNode;
+
+    /**
+     * The main content node but less strict, it might contain some clutter but also more images (used to find the main
+     * image).
+     */
+    private Node outerResultNode;
 
     /** All sentences in the main content. */
     private List<String> sentences = new ArrayList<String>();
@@ -84,13 +91,15 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     private static final int DEFAULT_IMAGE_CONTAINER_SIZE = 500;
 
-    private List<WebImage> imageURLs;
+    private List<WebImage> imageUrls;
 
     static {
         MAIN_NODE_HINTS.add("articleText");
         MAIN_NODE_HINTS.add("article_body");
         MAIN_NODE_HINTS.add("article-body");
         MAIN_NODE_HINTS.add("articleBody");
+        // TODO next hint "hfeed" not tested properly with evaluation dataset!
+        MAIN_NODE_HINTS.add("hfeed");
         // TODO more fine tuning possible here:
         // MAIN_NODE_HINTS.add("story_body");
         // MAIN_NODE_HINTS.add("single_post_content");
@@ -108,14 +117,16 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // MAIN_NODE_HINTS.add("article");
         // MAIN_NODE_HINTS.add("content");
         // MAIN_NODE_HINTS.add("post");
+        MAIN_NODE_HINTS.add("st_text_c");
     }
 
     @Override
     public PalladianContentExtractor setDocument(Document document) throws PageContentExtractorException {
         this.document = document;
-        imageURLs = null;
+        imageUrls = null;
 
         resultNode = null;
+        outerResultNode = null;
         sentences = new ArrayList<String>();
         comments = new ArrayList<String>();
         mainContentHtml = "";
@@ -199,6 +210,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
             textNodeCount = countDirectTextNodes();
             LOGGER.debug("direct text nodes: " + textNodeCount);
+
+            outerResultNode = resultNode;
         }
 
         fullTextContent = HtmlHelper.documentToText(document);
@@ -222,7 +235,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        LinkedHashMap<String, Integer> xpmap = xpathset.getXPathMap();
+        Map<String, Integer> xpmap = xpathset.getXPathMap();
         String highestCountXPath = xpathset.getHighestCountXPath();
         int highestCount = xpathset.getCountOfXPath(highestCountXPath);
 
@@ -379,7 +392,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<Node> divs = XPathHelper
                 .getXhtmlNodes(
                         document,
-                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section)][@class='comment' or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
+                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section) or (self::xhtml:ol) or (self::xhtml:ul) or (self::xhtml:li)][@class='comment' or contains(@class,'comment ') or contains(@class,' comment') or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
+
         for (Node node : divs) {
             comments.add(HtmlHelper.documentToReadableText(node));
             node.getParentNode().removeChild(node);
@@ -455,19 +469,22 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public List<WebImage> getImages() {
+        if (outerResultNode != null) {
+            return getImages(outerResultNode);
+        }
         return getImages(resultNode);
     }
 
     public List<WebImage> getImages(Node imageParentNode) {
 
-        if (imageURLs != null) {
-            return imageURLs;
+        if (imageUrls != null) {
+            return imageUrls;
         }
 
-        imageURLs = new ArrayList<WebImage>();
+        imageUrls = new ArrayList<WebImage>();
 
-        if (resultNode == null) {
-            return imageURLs;
+        if (imageParentNode == null) {
+            return imageUrls;
         }
 
         // we need to query the result document with an xpath but the name space check has to be done on the original
@@ -492,6 +509,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
                 }
                 builder.setImageUrl(imageUrl);
+                builder.setFileType(FileHelper.getFileType(imageUrl));
 
                 if (nnm.getNamedItem("alt") != null) {
                     builder.setSummary(nnm.getNamedItem("alt").getTextContent());
@@ -508,7 +526,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     builder.setHeight(getImageSize(h));
                 }
                 
-                imageURLs.add(builder.create());
+                imageUrls.add(builder.create());
 
             } catch (NumberFormatException e) {
                 LOGGER.debug(e.getMessage());
@@ -517,7 +535,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        return imageURLs;
+        return imageUrls;
     }
 
     private int getImageSize(String attributeText) throws NumberFormatException {
@@ -621,7 +639,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        imageURLs = temp;
+        imageUrls = temp;
 
     }
 
@@ -727,7 +745,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("http://www.seobythesea.com/2012/11/not-all-anchor-text-is-equal-other-co-citation-observations/");
         // pe.setDocument("http://arstechnica.com/tech-policy/2012/11/ca-measure-would-ban-anonymous-online-speech-for-sex-offenders/");
         // pe.setDocument("http://www.usatoday.com/story/opinion/2012/10/31/mitt-romney-jeep-chrysler-uaw/1672501/");
-        pe.setDocument("http://www.washingtonpost.com/politics/decision2012/after-grueling-campaign-polls-open-for-election-day-2012/2012/11/06/d1c24c98-2802-11e2-b4e0-346287b7e56c_story.html");
+        // pe.setDocument("http://www.washingtonpost.com/politics/decision2012/after-grueling-campaign-polls-open-for-election-day-2012/2012/11/06/d1c24c98-2802-11e2-b4e0-346287b7e56c_story.html");
         // pe.setDocument("http://mobile.smashingmagazine.com/2012/11/07/succeed-with-your-app/");
         // pe.setDocument("http://www.bbc.com/travel/feature/20121108-irelands-outlying-islands");
         // pe.setDocument("http://www.huffingtonpost.com/2012/11/22/black-friday-creep-retail-workers_n_2167066.html");
@@ -747,6 +765,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\771.html"); // ???
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\652.html");
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\640.html");
+        // pe.setDocument("http://www.upi.com/Top_News/US/2013/12/31/Man-faces-kidnapping-other-charges-in-trip-to-Las-Vegas-to-marry/UPI-67931388527587/");
+        pe.setDocument("http://www.voanews.com/content/russia-urges-nations-to-take-active-role-in-the-middle-east-93610219/169955.html");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title: " + pe.getResultTitle());

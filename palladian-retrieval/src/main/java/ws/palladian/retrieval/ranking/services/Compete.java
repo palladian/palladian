@@ -7,15 +7,15 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -96,18 +96,18 @@ public final class Compete extends BaseRankingService implements RankingService 
                 + "&latest=1";
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
-            JSONObject jsonObject = new JSONObject(httpResult.getStringContent());
+            JsonObject jsonObject = new JsonObject(httpResult.getStringContent());
             String status = jsonObject.getString("status");
             if ("OK".equals(status)) {
-                JSONArray metric = jsonObject.getJSONObject("data").getJSONObject("trends").getJSONArray(metricCode);
-                result = (float) metric.getJSONObject(0).getInt("value");
+                JsonArray metric = jsonObject.getJsonObject("data").getJsonObject("trends").getJsonArray(metricCode);
+                result = (float) metric.getJsonObject(0).getInt("value");
                 LOGGER.debug("metric=" + metricCode + " value=" + result);
             } else {
                 LOGGER.warn("error: status = " + status);
             }
         } catch (HttpException e) {
             throw new RankingServiceException(e);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new RankingServiceException(e);
         }
 

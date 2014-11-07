@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -55,7 +55,7 @@ public final class LinkedInShares extends BaseRankingService implements RankingS
             String response = httpResult.getStringContent();
 
             if (response != null) {
-                JSONObject jsonObject = new JSONObject(response);
+                JsonObject jsonObject = new JsonObject(response);
 
                 shares = jsonObject.getInt("count");
 

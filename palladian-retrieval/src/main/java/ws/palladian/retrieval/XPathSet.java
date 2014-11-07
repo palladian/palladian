@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -24,13 +25,13 @@ public class XPathSet {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(XPathSet.class);
 
-    private LinkedHashMap<String, Integer> xPathMap = null;
+    private Map<String, Integer> xPathMap = null;
 
     public XPathSet() {
         xPathMap = new LinkedHashMap<String, Integer>();
     }
 
-    public LinkedHashMap<String, Integer> getXPathMap() {
+    public Map<String, Integer> getXPathMap() {
         return xPathMap;
     }
 
@@ -69,7 +70,7 @@ public class XPathSet {
     }
 
     public String getHighestCountXPath(int minCount) {
-        xPathMap = CollectionHelper.sortByValue(xPathMap, CollectionHelper.DESCENDING);
+        xPathMap = CollectionHelper.sortByValue(xPathMap, Order.DESCENDING);
 
         // Iterator<Map.Entry<String, Integer>> it = xPathMap.entrySet().iterator();
         // while (it.hasNext()) {
@@ -108,7 +109,7 @@ public class XPathSet {
     public String getLongestHighCountXPath(Document document) {
         String longestHighCountXPath = "";
 
-        xPathMap = CollectionHelper.sortByValue(xPathMap, CollectionHelper.DESCENDING);
+        xPathMap = CollectionHelper.sortByValue(xPathMap, Order.DESCENDING);
 
         Iterator<Map.Entry<String, Integer>> it = xPathMap.entrySet().iterator();
         String highestHitCountXPath = "";

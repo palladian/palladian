@@ -15,13 +15,16 @@ import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Learner;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
+import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnClassifier;
+import ws.palladian.classification.numeric.KnnLearner;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.extraction.token.BaseTokenizer;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.collection.ConstantFactory;
@@ -68,7 +71,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
     public UniversalClassifier(EnumSet<ClassifierSetting> settings, FeatureSetting featureSetting) {
         textClassifier = new PalladianTextClassifier(featureSetting);
         this.featureSetting = featureSetting;
-        numericClassifier = new KnnClassifier();
+        numericClassifier = new KnnClassifier(3);
         nominalClassifier = new NaiveBayesClassifier();
         this.settings = settings;
     }
@@ -205,7 +208,6 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
         KnnModel numericModel = null;
         DictionaryModel textModel = null;
 
-
         // train the text classifier
         if (settings.contains(ClassifierSetting.TEXT)) {
             LOGGER.debug("training text classifier");
@@ -221,13 +223,13 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
         // train the numeric classifier
         if (settings.contains(ClassifierSetting.NUMERIC)) {
             LOGGER.debug("training numeric classifier");
-            numericModel = numericClassifier.train(trainables);
+            numericModel = new KnnLearner(new NoNormalizer()).train(trainables);
         }
 
         // train the nominal classifier
         if (settings.contains(ClassifierSetting.NOMINAL)) {
             LOGGER.debug("training nominal classifier");
-            nominalModel = nominalClassifier.train(trainables);
+            nominalModel = new NaiveBayesLearner().train(trainables);
         }
 
         UniversalClassifierModel model = new UniversalClassifierModel(nominalModel, numericModel, textModel);

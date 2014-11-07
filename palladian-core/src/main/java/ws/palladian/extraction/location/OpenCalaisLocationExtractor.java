@@ -1,13 +1,9 @@
 package ws.palladian.extraction.location;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +18,9 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -86,16 +85,12 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
                 HttpResult httpResult = getHttpResult(textChunk.toString());
                 response = httpResult.getStringContent();
 
-                JSONObject json = new JSONObject(response);
+                JsonObject json = new JsonObject(response);
 
-                @SuppressWarnings("unchecked")
-                Iterator<String> it = json.keys();
+                for (String key : json.keySet()) {
 
-                while (it.hasNext()) {
-                    String key = it.next();
-
-                    JSONObject obj = json.getJSONObject(key);
-                    if (obj.has("_typeGroup") && obj.getString("_typeGroup").equalsIgnoreCase("entities")) {
+                    JsonObject obj = json.getJsonObject(key);
+                    if (obj.get("_typeGroup") != null && obj.getString("_typeGroup").equalsIgnoreCase("entities")) {
 
                         String entityName = obj.getString("name");
                         String entityTag = obj.getString("_type");
@@ -109,26 +104,26 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
                         int id = 0;
                         String name = entityName;
                         GeoCoordinate coordinate = null;
-                        if (obj.has("resolutions")) {
-                            JSONArray resolutions = obj.getJSONArray("resolutions");
-                            if (resolutions.length() > 0) {
-                                JSONObject firstResolution = resolutions.getJSONObject(0);
-                                Double latitude = firstResolution.optDouble("latitude");
-                                Double longitude = firstResolution.optDouble("longitude");
+                        if (obj.get("resolutions") != null) {
+                            JsonArray resolutions = obj.getJsonArray("resolutions");
+                            if (resolutions.size() > 0) {
+                                JsonObject firstResolution = resolutions.getJsonObject(0);
+                                Double latitude = firstResolution.tryGetDouble("latitude");
+                                Double longitude = firstResolution.tryGetDouble("longitude");
                                 if (latitude != null && longitude != null) {
                                     coordinate = new ImmutableGeoCoordinate(latitude, longitude);
                                 }
-                                String idString = firstResolution.optString("id");
+                                String idString = firstResolution.tryGetString("id");
                                 id = idString != null ? idString.hashCode() : 0;
-                                name = firstResolution.optString("name");
+                                name = firstResolution.tryGetString("name");
                             }
                         }
 
-                        if (obj.has("instances")) {
-                            JSONArray instances = obj.getJSONArray("instances");
+                        if (obj.get("instances") != null) {
+                            JsonArray instances = obj.getJsonArray("instances");
 
-                            for (int i = 0; i < instances.length(); i++) {
-                                JSONObject instance = instances.getJSONObject(i);
+                            for (int i = 0; i < instances.size(); i++) {
+                                JsonObject instance = instances.getJsonObject(i);
 
                                 // take only instances that are as long as the entity name, this way we discard
                                 // co-reference resolution instances
@@ -146,7 +141,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
 
             } catch (HttpException e) {
                 LOGGER.error("Error performing HTTP POST: {}", e.getMessage());
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 LOGGER.error("Could not parse the JSON response: {}, exception: {}",
                         new Object[] {response, e.getMessage(), e});
             }

@@ -63,7 +63,6 @@ public class ExtractedDateImpl implements ExtractedDate {
      * @param date The date with the properties to copy. Not <code>null</code>.
      */
     protected ExtractedDateImpl(ExtractedDate date) {
-        super();
         Validate.notNull(date, "date must not be null");
         this.dateString = date.getDateString();
         this.format = date.getFormat();
@@ -97,25 +96,16 @@ public class ExtractedDateImpl implements ExtractedDate {
         this.format = parseLogic.format.getFormat();
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getNormalizedDateString()
-     */
     @Override
     public String getNormalizedDateString() {
         return getNormalizedDateString(true);
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getNormalizedDate()
-     */
     @Override
     public Date getNormalizedDate() {
         return new Date(getLongDate());
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getLongDate()
-     */
     @Override
     public long getLongDate() {
         int year = this.year == -1 ? 0 : this.year;
@@ -131,9 +121,6 @@ public class ExtractedDateImpl implements ExtractedDate {
         return cal.getTimeInMillis();
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getNormalizedDateString(boolean)
-     */
     @Override
     public String getNormalizedDateString(boolean time) {
         StringBuilder normalizedDate = new StringBuilder();
@@ -183,25 +170,16 @@ public class ExtractedDateImpl implements ExtractedDate {
         return numberString;
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getDateString()
-     */
     @Override
     public String getDateString() {
         return dateString;
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getFormat()
-     */
     @Override
     public String getFormat() {
         return format;
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#get(int)
-     */
     @Override
     public int get(int field) {
         int value = -1;
@@ -228,52 +206,17 @@ public class ExtractedDateImpl implements ExtractedDate {
         return value;
     }
     
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getTimeZone()
-     */
     @Override
     public String getTimeZone() {
         return timeZone;
     }
 
-//    /* (non-Javadoc)
-//     * @see ws.palladian.helper.date.IExtractedDate#set(int, int)
-//     */
-//    @Override
-//    public void set(int field, int value) {
-//        switch (field) {
-//            case YEAR:
-//                year = value;
-//                break;
-//            case MONTH:
-//                month = value;
-//                break;
-//            case DAY:
-//                day = value;
-//                break;
-//            case HOUR:
-//                hour = value;
-//                break;
-//            case MINUTE:
-//                minute = value;
-//                break;
-//            case SECOND:
-//                second = value;
-//                break;
-//        }
-//    }
-
-    /**
-     * String with date properties.<br>
-     * Rate, found date string, normalized date, format and technique as string.
-     */
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getClass().getSimpleName());
         stringBuilder.append(" [normalizedDate=").append(getNormalizedDateString());
         stringBuilder.append(", format=").append(format);
-//        stringBuilder.append(", rate=").append(rate);
         if (timeZone != null) {
             stringBuilder.append(", timeZone=").append(timeZone);
         }
@@ -281,9 +224,6 @@ public class ExtractedDateImpl implements ExtractedDate {
         return stringBuilder.toString();
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getExactness()
-     */
     @Override
     public DateExactness getExactness() {
         DateExactness exactness = DateExactness.UNSET;
@@ -308,9 +248,6 @@ public class ExtractedDateImpl implements ExtractedDate {
         return exactness;
     }
 
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.date.IExtractedDate#getDifference(ws.palladian.helper.date.ExtractedDate, java.util.concurrent.TimeUnit)
-     */
     @Override
     public double getDifference(ExtractedDate date, TimeUnit unit) {
         Validate.notNull(unit, "unit must not be null");

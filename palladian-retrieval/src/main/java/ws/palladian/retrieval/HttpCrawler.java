@@ -15,6 +15,8 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
+import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -90,13 +92,6 @@ public class HttpCrawler {
 
     private static final int NUM_THREADS = 10;
 
-    public static final Filter<String> ACCEPT_ALL_FILTER = new Filter<String>() {
-        @Override
-        public boolean accept(String item) {
-            return true;
-        }
-    };
-
     private final Queue<String> urlQueue;
 
     private final Set<String> checkedUrls;
@@ -112,17 +107,17 @@ public class HttpCrawler {
     private final RequestThrottle throttle;
 
     public HttpCrawler(Filter<String> urlFilter, CrawlAction action) {
-        this(urlFilter, action, -1, TimeUnit.SECONDS);
+        this(urlFilter, action, NoThrottle.INSTANCE, TimeUnit.SECONDS);
     }
 
-    public HttpCrawler(Filter<String> urlFilter, CrawlAction action, long pauseInterval, TimeUnit unit) {
+    public HttpCrawler(Filter<String> urlFilter, CrawlAction action, RequestThrottle throttle, TimeUnit unit) {
         urlQueue = new ConcurrentLinkedQueue<String>();
         checkedUrls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         htmlParser = ParserFactory.createHtmlParser();
         this.urlFilter = urlFilter;
         this.action = action;
-        throttle = new RequestThrottle(pauseInterval, unit);
+        this.throttle = throttle;
     }
 
     public boolean add(String url) {
@@ -156,21 +151,16 @@ public class HttpCrawler {
         Filter<String> urlFilter = new Filter<String>() {
             @Override
             public boolean accept(String item) {
-                // return item.startsWith("http://geizhals.de/?cat=monlcd19wide&pg=");
-                return item.startsWith("http://thepioneerwoman.com/cooking/");
+                return item.startsWith("http://www.breakingnews.com/topic/");
             }
         };
         HttpCrawler crawler = new HttpCrawler(urlFilter, new CrawlAction() {
             @Override
             public void pageCrawled(HttpResult result) {
                 System.out.println("Fetched " + result.getUrl());
-                // save the result to disk:
-                // String filePath = "/path/" + result.getUrl().hashCode();
-                // HttpHelper.saveToFile(result, filePath, true);
             }
-        }, 10, TimeUnit.SECONDS);
-        // crawler.add("http://geizhals.de/?cat=monlcd19wide");
-        crawler.add("http://thepioneerwoman.com/cooking/");
+        }, new FixedIntervalRequestThrottle(10), TimeUnit.SECONDS);
+        crawler.add("http://www.breakingnews.com");
         crawler.start();
     }
 

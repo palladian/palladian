@@ -55,7 +55,7 @@ public final class NerHelper {
         // transform to XML
         String alignFilePath = alignFile.getPath();
         FileFormatParser.columnToXml(alignFilePath, alignFilePath, "\t");
-        String alignedContent = FileHelper.readFileToString(alignFilePath);
+        String alignedContent = FileHelper.tryReadFileToString(alignFilePath);
 
         alignContentText(alignedContent, correctContent);
         FileHelper.writeToFile(alignFilePath, alignedContent);

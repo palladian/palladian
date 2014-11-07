@@ -1,21 +1,25 @@
 package ws.palladian.helper.collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+
+import ws.palladian.helper.collection.CollectionHelper.Order;
 
 /**
  * 
@@ -23,7 +27,28 @@ import org.junit.Test;
  */
 public class CollectionHelperTest {
 
-    @SuppressWarnings("deprecation")
+    private static class NameObject {
+        private String name;
+        private int age;
+
+        public NameObject(String name) {
+            this.name = name;
+        }
+
+        public NameObject(int age) {
+            this.age = age;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+    }
+
     @Test
     public void testSortyMapByValue() {
         Map<Integer, Integer> map = new HashMap<Integer, Integer>();
@@ -32,7 +57,7 @@ public class CollectionHelperTest {
         map.put(2, 4);
         map.put(5, 1);
         map.put(4, 2);
-        LinkedHashMap<Integer, Integer> mapSortedByValue = CollectionHelper.sortByValue(map);
+        Map<Integer, Integer> mapSortedByValue = CollectionHelper.sortByValue(map);
         Iterator<Entry<Integer, Integer>> iterator = mapSortedByValue.entrySet().iterator();
         assertEquals((Integer)1, iterator.next().getValue());
         assertEquals((Integer)2, iterator.next().getValue());
@@ -40,8 +65,7 @@ public class CollectionHelperTest {
         assertEquals((Integer)2, iterator.next().getKey());
         assertEquals((Integer)1, iterator.next().getKey());
 
-        LinkedHashMap<Integer, Integer> mapSortedByValueDescending = CollectionHelper.sortByValue(map,
-                CollectionHelper.DESCENDING);
+        Map<Integer, Integer> mapSortedByValueDescending = CollectionHelper.sortByValue(map, Order.DESCENDING);
         iterator = mapSortedByValueDescending.entrySet().iterator();
         assertEquals((Integer)5, iterator.next().getValue());
         assertEquals((Integer)4, iterator.next().getValue());
@@ -131,9 +155,10 @@ public class CollectionHelperTest {
         // CollectionHelper.print(hashMap);
         // CollectionHelper.print(CollectionHelper.sortByStringKeyLength(hashMap, false));
 
-        assertEquals("CCC", CollectionHelper.sortByStringKeyLength(hashMap, false).entrySet().iterator().next()
+        assertEquals("CCC", CollectionHelper.sortByStringKeyLength(hashMap, Order.DESCENDING).entrySet().iterator()
+                .next().getKey());
+        assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, Order.ASCENDING).entrySet().iterator().next()
                 .getKey());
-        assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, true).entrySet().iterator().next().getKey());
 
     }
 
@@ -144,6 +169,17 @@ public class CollectionHelperTest {
         assertEquals("a", CollectionHelper.getFirst(items));
         assertEquals("a,b", StringUtils.join(CollectionHelper.getFirst(items, 2), ","));
         assertEquals("a,b,c", StringUtils.join(CollectionHelper.getFirst(items, 4), ","));
+    }
+
+    @Test
+    public void testGetSublist() {
+        List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c"));
+
+        assertEquals(1, CollectionHelper.getSublist(items, 1, 1).size());
+        assertEquals(3, CollectionHelper.getSublist(items, 0, 3).size());
+        assertEquals(0, CollectionHelper.getSublist(items, 3, 0).size());
+        assertEquals(0, CollectionHelper.getSublist(items, 10, 13).size());
+        assertEquals(3, CollectionHelper.getSublist(items, 0, 54).size());
     }
 
     @Test
@@ -174,27 +210,33 @@ public class CollectionHelperTest {
         assertTrue(groupedResult.get(5).containsAll(Arrays.asList("three")));
     }
 
-    private class NameObject {
-        private String name;
-        private int age;
-
-        public NameObject(String name) {
-            super();
-            this.name = name;
+    @Test
+    public void testLimitIterable() {
+        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        Iterator<Integer> iterator = CollectionHelper.limit(list, 5).iterator();
+        int count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count++;
         }
+        assertEquals(5, count);
 
-        public NameObject(int age) {
-            super();
-            this.age = age;
+        iterator = CollectionHelper.limit(list, 15).iterator();
+        count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count++;
         }
+        assertEquals(10, count);
 
-        public String getName() {
-            return name;
-        }
+        iterator = CollectionHelper.limit(Collections.<Integer> emptyList().iterator(), 0);
+        assertFalse(iterator.hasNext());
+    }
 
-        public int getAge() {
-            return age;
-        }
-
+    @Test
+    public void testDistinct() {
+        @SuppressWarnings("unchecked")
+        Set<String> values = CollectionHelper.distinct(Arrays.asList("a", "b", "c"), Arrays.asList("b", "c", "d"));
+        assertEquals(4, values.size());
     }
 }

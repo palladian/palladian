@@ -28,17 +28,26 @@ public final class CoordinateTagger implements Tagger {
     /** The name of the tag to be assigned. */
     public static final String TAG_NAME = "geoCoordinate";
 
-    private static final String LEFT = "(?<=^|\\s)";
-    private static final String RIGHT = "\\b";
+    private static final String LEFT = "(?<!\\w)";
+    private static final String RIGHT = "(?!\\w)";
     private static final String DEG = "([-+]?\\d{1,3}\\.\\d{1,10})([NSWE])?";
     private static final String SEP = "(?:,\\s?|\\s)";
 
     /** Only degrees, as real number. */
+    // XXX this also picks up combinations such as "121.4, 21.4"; consider making this more strict, when we should get
+    // too many false positives
     private static final Pattern PATTERN_DEG = Pattern.compile(LEFT + "(" + DEG + ")" + SEP + "(" + DEG + ")" + RIGHT);
 
     /** DMS scheme, and/or combination with degrees. */
     private static final Pattern PATTERN_DMS = Pattern.compile(LEFT + "(" + GeoUtils.DMS + ")" + SEP + "("
             + GeoUtils.DMS + ")" + RIGHT);
+
+    /** The singleton instance of this class. */
+    public static final CoordinateTagger INSTANCE = new CoordinateTagger();
+
+    private CoordinateTagger() {
+        // singleton
+    }
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
@@ -48,9 +57,11 @@ public final class CoordinateTagger implements Tagger {
             try {
                 double lat = Double.valueOf(matcher.group(2));
                 double lng = Double.valueOf(matcher.group(5));
-                int sgnLat = "S".equals(matcher.group(3)) ? -1 : 1;
-                int sgnLng = "W".equals(matcher.group(6)) ? -1 : 1;
-                annotations.add(createAnnotation(matcher.start(), matcher.group(), sgnLat * lat, sgnLng * lng));
+                lat = "S".equals(matcher.group(3)) ? -lat : lat;
+                lng = "W".equals(matcher.group(6)) ? -lng : lng;
+                if (GeoUtils.validCoordinateRange(lat, lng)) {
+                    annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
+                }
             } catch (NumberFormatException e) {
                 LOGGER.debug("NumberFormatException while parsing " + matcher.group() + ": " + e.getMessage());
             }
@@ -61,7 +72,9 @@ public final class CoordinateTagger implements Tagger {
             try {
                 double lat = GeoUtils.parseDms(matcher.group(1));
                 double lng = GeoUtils.parseDms(matcher.group(6));
-                annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
+                if (GeoUtils.validCoordinateRange(lat, lng)) {
+                    annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
+                }
             } catch (NumberFormatException e) {
                 LOGGER.debug("NumberFormatException while parsing " + matcher.group() + ": " + e.getMessage());
             }
@@ -72,7 +85,7 @@ public final class CoordinateTagger implements Tagger {
     private static final LocationAnnotation createAnnotation(int start, String value, double latitude, double longitude) {
         GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
         Location location = new ImmutableLocation(0, value, LocationType.UNDETERMINED, coordinate, null);
-        return new LocationAnnotation(start, value, location);
+        return new LocationAnnotation(start, value, location, 1.0);
     }
 
 }

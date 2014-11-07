@@ -1,7 +1,9 @@
 package ws.palladian.retrieval.feeds.evaluation.datasetPostprocessing.feedSizeCalculator;
 
 import java.util.Timer;
+import java.util.TimerTask;
 
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +41,10 @@ public class FeedSizeCalculator {
         checkScheduler = new Timer();
     }
 
-    @SuppressWarnings("deprecation")
     public void restoreFeedSizes() {
-
-        final FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
-        FeedReader feedChecker = new FeedReader(feedStore);
-        FeedSizeCalculationScheduler csvToDbScheduler = new FeedSizeCalculationScheduler(feedChecker);
+        Configuration config = ConfigHolder.getInstance().getConfig();
+        FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class, config);
+        TimerTask csvToDbScheduler = new FeedSizeCalculationScheduler(feedStore, FeedReader.DEFAULT_NUM_THREADS);
         checkScheduler.schedule(csvToDbScheduler, 0, wakeUpInterval);
     }
 

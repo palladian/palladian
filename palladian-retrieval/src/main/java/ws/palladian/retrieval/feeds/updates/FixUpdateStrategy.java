@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
@@ -17,7 +16,7 @@ import ws.palladian.retrieval.feeds.FeedUpdateMode;
  * @author Sandro Reichert
  * 
  */
-public class FixUpdateStrategy extends UpdateStrategy {
+public class FixUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private final static Logger LOGGER = LoggerFactory.getLogger(FixUpdateStrategy.class);
@@ -26,15 +25,15 @@ public class FixUpdateStrategy extends UpdateStrategy {
      * The check interval in minutes.
      */
     private final int checkInterval;
-
+    
     /**
      * Create strategy and set a fixed check interval in minutes larger than zero.
      * 
      * @param checkInterval Fixed check interval in minutes. Value has to be larger than zero.
      * @throws IllegalArgumentException In case the value is smaller or equal to zero.
      */
-    public FixUpdateStrategy(int checkInterval) {
-        super();
+    public FixUpdateStrategy(int lowestInterval, int highestInterval, int checkInterval) {
+        super(lowestInterval, highestInterval);
         if (checkInterval <= 0) {
             throw new IllegalArgumentException("A fixed check interval smaller or equal to zero is not supported.");
         }
@@ -54,36 +53,29 @@ public class FixUpdateStrategy extends UpdateStrategy {
     public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
         // default value
-        int fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
+        int fixedMinCheckInterval = DEFAULT_CHECK_TIME;
 
         // set fix interval, independent of feed, e.g. fix60 (fix1h)
-        if (getCheckInterval() > 0) {
-            fixedMinCheckInterval = getCheckInterval();
+        if (checkInterval > 0) {
+            fixedMinCheckInterval = checkInterval;
         } else {
-            LOGGER.error("Fix interval has not been initialized, using defaul value " + FeedReader.DEFAULT_CHECK_TIME);
+            LOGGER.error("Fix interval has not been initialized, using defaul value " + DEFAULT_CHECK_TIME);
         }
 
         // set the (new) check interval to feed
         if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
-            feed.setUpdateInterval(getAllowedUpdateInterval(fixedMinCheckInterval));
+            feed.setUpdateInterval(getAllowedInterval(fixedMinCheckInterval));
         }
     }
 
     @Override
     public String getName() {
-            return "fix" + getCheckInterval();
+        return "fix" + checkInterval;
     }
 
     @Override
     public boolean hasExplicitTrainingMode() {
         return false;
-    }
-
-    /**
-     * @return The strategy's fixed check interval in minutes, larger than zero.
-     */
-    public int getCheckInterval() {
-        return checkInterval;
     }
 
 }

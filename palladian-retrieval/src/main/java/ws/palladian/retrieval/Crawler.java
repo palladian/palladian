@@ -1,20 +1,32 @@
 package ws.palladian.retrieval;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.Callback;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ThreadHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 
 /**
+ * <p>
  * A simple web crawler which can crawl web pages within a domain or crawl cross domain.
+ * </p>
  * 
  * @author David Urbansky
  * 
@@ -31,7 +43,9 @@ public class Crawler {
     private int maxThreads = 10;
 
     /** Number of active threads. */
-    private int threadCount = 0;
+    private AtomicInteger threadCount = new AtomicInteger(0);
+
+    private ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
 
     // ///////////////////////////////////////////////////////
     // ////////////////// crawl settings ////////////////////
@@ -43,25 +57,38 @@ public class Crawler {
     /** Whether to crawl outside of current domain. */
     private boolean outDomain = true;
 
-    /** Only follow domains that have one or more of these strings in their URL. */
-    private final Set<String> onlyFollow = new HashSet<String>();
+    /** Only follow domains that have one or more of these regexps in their URL. */
+    private final Set<Pattern> whiteListUrlRegexps = new HashSet<Pattern>();
+
+    /** Regexps that must not be contained in the URLs or they won't be followed. */
+    private final Set<Pattern> blackListUrlRegexps = new HashSet<Pattern>();
+
+    /** Remove those parts from every retrieved URL. */
+    private final Set<Pattern> urlModificationRegexps = new HashSet<Pattern>();
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
-    private Set<String> urlStack = null;
-    private final Set<String> visitedURLs = new HashSet<String>();
+    private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
+    private final Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
 
     /** All urls that have been visited or extracted. */
-    private final Set<String> seenURLs = new HashSet<String>();
+    private final Set<String> seenUrls = new HashSet<String>();
 
     private final Set<String> urlRules = new HashSet<String>();
     private final Set<String> urlDump = new HashSet<String>();
+
+    /** If true, all query params in the URL ?= will be stripped. */
+    private boolean stripQueryParams = true;
 
     /** The callback that is called after the crawler finished crawling. */
     private Callback crawlerCallbackOnFinish = null;
 
     public Crawler() {
         documentRetriever = new DocumentRetriever();
+    }
+
+    public Crawler(DocumentRetriever documentRetriever) {
+        this.documentRetriever = documentRetriever;
     }
 
     /**
@@ -77,10 +104,13 @@ public class Crawler {
         Document document = documentRetriever.getWebDocument(currentURL);
 
         Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain);
-        LOGGER.info("\n\nretrieved {} links from {} || stack size: {} dump size: {}, visited: {}",
-                new Object[] {links.size(), currentURL, urlStack.size(), urlDump.size(), visitedURLs.size()});
 
-        addURLsToStack(links, currentURL);
+        if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
+            LOGGER.info("retrieved {} links from {} || stack size: {} dump size: {}, visited: {}",
+                    new Object[] {links.size(), currentURL, urlStack.size(), urlDump.size(), visitedUrls.size()});
+        }
+
+        addUrlsToStack(links, currentURL);
     }
 
     /**
@@ -97,65 +127,60 @@ public class Crawler {
     }
 
     /**
+     * <p>
+     * Stop the crawler.
+     * </p>
+     */
+    public void stopCrawl() {
+        setStopCount(0);
+    }
+
+    /**
      * Start the crawling process.
      */
     private void startCrawl() {
 
-        // do the crawling
-        final ThreadGroup tg = new ThreadGroup("crawler threads");
+        // crawl
+        final AtomicLong lastCrawlTime = new AtomicLong(System.currentTimeMillis());
+        long silentStopTime = TimeUnit.MINUTES.toMillis(10);
+        while ((stopCount == -1 || visitedUrls.size() < stopCount)
+                && ((System.currentTimeMillis() - lastCrawlTime.get()) < silentStopTime)) {
 
-        while (!urlStack.isEmpty() && (stopCount == -1 || visitedURLs.size() < stopCount)) {
+            try {
+                final String url = getUrlFromStack();
 
-            int maxThreadsNow = getMaxThreads();
-            if (urlStack.size() <= maxThreads) {
-                maxThreadsNow = 1;
-            }
-            while (getThreadCount() >= maxThreadsNow) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    LOGGER.warn(e.getMessage());
-                    return;
+                Thread ct = new Thread("CrawlThread-" + url) {
+                    @Override
+                    public void run() {
+                        crawl(url);
+                        lastCrawlTime.set(System.currentTimeMillis());
+                    }
+                };
+
+                if (!executor.isShutdown()) {
+                    executor.submit(ct);
                 }
+                ThreadHelper.deepSleep(1000);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
             }
 
-            final String url = getURLFromStack();
-            Thread ct = new Thread("CrawlThread" + System.currentTimeMillis()) {
-                @Override
-                public void run() {
-                    crawl(url);
-                    decreaseThreadCount();
-                }
-            };
-            ct.start();
-            increaseThreadCount();
-
-            // if stack is still empty, let all threads finish before checking
-            // in loop again
-            int wc = 0;
-            while (urlStack.isEmpty() && getThreadCount() > 0 && wc < 60) {
-                try {
-                    wc++;
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    LOGGER.warn(e.getMessage());
-                    return;
-                }
-            }
         }
 
         // wait for the threads to finish
-        int wc = 0;
-        while (getThreadCount() > 0 && wc < 180) {
-            try {
-                LOGGER.info("wait a second ({} more times)", 180 - wc);
-                wc++;
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                LOGGER.warn(e.getMessage());
-                return;
+        executor.shutdown();
+
+        // wait until all threads are finish
+        LOGGER.info("waiting for all threads to finish...");
+        StopWatch sw = new StopWatch();
+        try {
+            while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                LOGGER.debug("wait crawling");
             }
+        } catch (InterruptedException e) {
+            LOGGER.error(e.getMessage(), e);
         }
+        LOGGER.info("...all threads finished in " + sw.getTotalElapsedTimeString());
 
         // LOGGER.info("-----------------------------------------------");
         // LOGGER.info("-----------------------------------------------");
@@ -179,7 +204,8 @@ public class Crawler {
      * @param outDomain Follow outbound links.
      */
     public void startCrawl(Set<String> urlStack, boolean inDomain, boolean outDomain) {
-        this.urlStack = urlStack;
+        this.urlStack.clear();
+        this.urlStack.addAll(urlStack);
         this.inDomain = inDomain;
         this.outDomain = outDomain;
         startCrawl();
@@ -193,56 +219,97 @@ public class Crawler {
      * @param outDomain Follow outbound links.
      */
     public void startCrawl(String startURL, boolean inDomain, boolean outDomain) {
-        urlStack = new HashSet<String>();
+        urlStack.clear();
         urlStack.add(startURL);
         this.inDomain = inDomain;
         this.outDomain = outDomain;
         startCrawl();
     }
 
-    private synchronized String getURLFromStack() {
-        String url = urlStack.iterator().next();
-        removeURLFromStack(url);
-        return url;
-    }
-
-    private synchronized void removeURLFromStack(String url) {
-        urlStack.remove(url);
-        visitedURLs.add(url);
+    private synchronized String getUrlFromStack() {
+        Iterator<String> iterator = urlStack.iterator();
+        if (iterator.hasNext()) {
+            String url = iterator.next();
+            urlStack.remove(url);
+            visitedUrls.add(url);
+            return url;
+        }
+        return null;
     }
 
     public void setStopCount(int number) {
         this.stopCount = number;
     }
 
-    public void addOnlyFollow(String follow) {
-        onlyFollow.add(follow);
+    public void addWhiteListRegexp(String regexp) {
+        whiteListUrlRegexps.add(Pattern.compile(regexp));
     }
 
-    public void addURLRule(String rule) {
-        urlRules.add(rule);
+    public void addBlackListRegexp(String regexp) {
+        blackListUrlRegexps.add(Pattern.compile(regexp));
     }
 
-    private synchronized void addURLsToStack(Set<String> urls, String sourceURL) {
-        for (String url : urls) {
-            addURLToStack(url, sourceURL);
+    public void addBlackListRegexps(Set<String> blackListRegexps) {
+        for (String string : blackListRegexps) {
+            addBlackListRegexp(string);
         }
     }
 
-    private synchronized void addURLToStack(String url, String sourceURL) {
+    public Set<Pattern> getUrlModificationRegexps() {
+        return urlModificationRegexps;
+    }
+
+    public void addUrlModificationRegexps(Set<String> urlModificationRegexps) {
+        for (String string : urlModificationRegexps) {
+            this.urlModificationRegexps.add(Pattern.compile(string));
+        }
+    }
+
+    public void addUrlRule(String rule) {
+        urlRules.add(rule);
+    }
+
+    private synchronized void addUrlsToStack(Set<String> urls, String sourceURL) {
+        for (String url : urls) {
+            addUrlToStack(url, sourceURL);
+        }
+    }
+
+    private String cleanUrl(String url) {
+        url = UrlHelper.removeSessionId(url);
+        url = UrlHelper.removeAnchors(url);
+        if (isStripQueryParams()) {
+            url = url.replaceAll("\\?.*", "");
+        }
+        for (Pattern pattern : urlModificationRegexps) {
+            url = pattern.matcher(url).replaceAll("");
+        }
+        return url;
+    }
+
+    private synchronized void addUrlToStack(String url, String sourceUrl) {
+
+        url = cleanUrl(url);
 
         // check URL first
-        if (url != null && url.length() < 400 && !visitedURLs.contains(url)) {
+        if (url != null && url.length() < 400 && !visitedUrls.contains(url)) {
 
             boolean follow = true;
 
-            if (onlyFollow.size() > 0) {
+            // check whether the url should be followed
+            if (!whiteListUrlRegexps.isEmpty()) {
                 follow = false;
-                Iterator<String> followIterator = onlyFollow.iterator();
-                while (followIterator.hasNext()) {
-                    String followString = followIterator.next();
-                    if (url.indexOf(followString) > -1) {
+                for (Pattern regexp : whiteListUrlRegexps) {
+                    if (regexp.matcher(url).find()) {
                         follow = true;
+                        break;
+                    }
+                }
+            }
+            if (!blackListUrlRegexps.isEmpty()) {
+                for (Pattern regexp : blackListUrlRegexps) {
+                    if (regexp.matcher(url).find()) {
+                        follow = false;
                         break;
                     }
                 }
@@ -250,23 +317,21 @@ public class Crawler {
 
             if (follow) {
                 urlStack.add(url);
-            } else if (!seenURLs.contains(url)) {
-                sourceURL = sourceURL.replace("/", " ").trim();
-                if (checkURLRules(sourceURL)) {
-                    urlDump.add(url + " " + sourceURL);
+            } else if (!seenUrls.contains(url)) {
+                sourceUrl = sourceUrl.replace("/", " ").trim();
+                if (checkUrlRules(sourceUrl)) {
+                    urlDump.add(url + " " + sourceUrl);
                 }
             }
 
-            seenURLs.add(url);
+            seenUrls.add(url);
         }
     }
 
-    private boolean checkURLRules(String url) {
+    private boolean checkUrlRules(String url) {
         boolean valid = false;
 
-        Iterator<String> urlRulesIterator = urlRules.iterator();
-        while (urlRulesIterator.hasNext()) {
-            String rule = urlRulesIterator.next();
+        for (String rule : urlRules) {
             url = url.replace("/", " ");
             if (url.indexOf(rule) > 0) {
                 valid = true;
@@ -283,18 +348,11 @@ public class Crawler {
 
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
+        executor = Executors.newFixedThreadPool(maxThreads);
     }
 
     public int getThreadCount() {
-        return threadCount;
-    }
-
-    public void increaseThreadCount() {
-        this.threadCount++;
-    }
-
-    public void decreaseThreadCount() {
-        this.threadCount--;
+        return threadCount.get();
     }
 
     public Callback getCrawlerCallbackOnFinish() {
@@ -315,6 +373,14 @@ public class Crawler {
 
     public void setDocumentRetriever(DocumentRetriever documentRetriever) {
         this.documentRetriever = documentRetriever;
+    }
+
+    public boolean isStripQueryParams() {
+        return stripQueryParams;
+    }
+
+    public void setStripQueryParams(boolean stripQueryParams) {
+        this.stripQueryParams = stripQueryParams;
     }
 
     public static void main(String[] args) {

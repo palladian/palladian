@@ -28,7 +28,7 @@ public interface BatchDataProvider {
      * </p>
      * 
      * @param number Number in the data, starting with 0.
-     * @param generatedId The generated ID for the inserted item.
+     * @param generatedId The generated ID for the inserted item, <code>-1</code>, in case no ID was generated.
      */
     void insertedItem(int number, int generatedId);
 

@@ -3,15 +3,18 @@ package ws.palladian.extraction.pos;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -30,12 +33,15 @@ public class WebKnoxPosTagger extends BasePosTagger {
     private static final String TAGGER_NAME = "WebKnox POS Tagger";
 
     private final String apiKey;
+    
+    private final HttpRetriever retriever;
 
     public WebKnoxPosTagger(String appId, String apiKey) {
         if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalArgumentException("The required API key is missing.");
         }
         this.apiKey = apiKey;
+        this.retriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
     public WebKnoxPosTagger(Configuration configuration) {
@@ -54,16 +60,16 @@ public class WebKnoxPosTagger extends BasePosTagger {
             text.append(annotation.getValue()).append(" ");
         }
 
-        DocumentRetriever retriever = new DocumentRetriever();
-        String url = "http://webknox.com/api/text/posTags?text=";
-        url += UrlHelper.encodeParameter(text.toString().trim());
-        url += "&apiKey=" + apiKey;
-        JSONObject result = retriever.getJSONObject(url);
 
         String taggedText = "";
         try {
+            String url = String.format("http://webknox.com/api/text/posTags?text=%s&apiKey=%s",UrlHelper.encodeParameter(text.toString().trim()),apiKey);  
+            HttpResult httpResult = retriever.httpGet(url);
+            JsonObject result = new JsonObject(httpResult.getStringContent());
             taggedText = result.getString("taggedText");
-        } catch (JSONException e) {
+        } catch (JsonException e) {
+            LOGGER.error(e.getMessage());
+        } catch (HttpException e) {
             LOGGER.error(e.getMessage());
         }
 

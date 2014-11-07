@@ -1,12 +1,12 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -261,7 +261,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         this.patternProbabilityMatrix = null;
         this.removeAnnotations = null;
 
-        PalladianNer n = (PalladianNer)FileHelper.deserialize(configModelFilePath);
+        PalladianNer n;
+        try {
+            n = (PalladianNer)FileHelper.deserialize(configModelFilePath);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error while loading model from \"" + configModelFilePath + "\".", e);
+        }
 
         // assign all properties from the loaded model to the current instance
         this.entityDictionary = n.entityDictionary;
@@ -313,7 +318,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         if (!modelFilePath.endsWith(getModelFileEnding())) {
             modelFilePath = modelFilePath + "." + getModelFileEnding();
         }
-        FileHelper.serialize(this, modelFilePath);
+        try {
+            FileHelper.serialize(this, modelFilePath);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error while serializing to \"" + modelFilePath + "\".", e);
+        }
 
         LOGGER.info("dictionary size: " + annotationModel.getNumTerms());
 
@@ -911,7 +920,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
 
         stopWatch.start();
-        LinkedHashMap<String, Integer> sortedMap = leftContextMap.getSortedMapDescending();
+        Map<String, Integer> sortedMap = leftContextMap.getSortedMapDescending();
 
         for (ContextAnnotation annotation : annotations) {
 
@@ -1112,7 +1121,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
         Map<String, Double> probabilityMap = new HashMap<String, Double>();
 
         // initialize all entity types with one
-        for (String string : patternProbabilityMatrix.getKeysX()) {
+        for (String string : patternProbabilityMatrix.getColumnKeys()) {
             probabilityMap.put(string, 0.0);
         }
 
@@ -1130,7 +1139,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
             CountMap<String> matchingPatternMap = CountMap.create();
 
             int sumOfMatchingPatterns = 0;
-            for (String string : patternProbabilityMatrix.getKeysX()) {
+            for (String string : patternProbabilityMatrix.getColumnKeys()) {
 
                 Integer matches = patternProbabilityMatrix.get(string, contextPattern);
                 if (matches == null) {
@@ -1146,7 +1155,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
                 continue;
             }
 
-            for (String string : patternProbabilityMatrix.getKeysX()) {
+            for (String string : patternProbabilityMatrix.getColumnKeys()) {
                 Double probability = probabilityMap.get(string);
                 probability += matchingPatternMap.getCount(string) / (double)sumOfMatchingPatterns;
                 probabilityMap.put(string, probability);
@@ -1157,13 +1166,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
         double sum = 0;
 
-        for (String string : patternProbabilityMatrix.getKeysX()) {
+        for (String string : patternProbabilityMatrix.getColumnKeys()) {
             sum += probabilityMap.get(string);
         }
         if (sum == 0) {
             sum = 1;
         }
-        for (String string : patternProbabilityMatrix.getKeysX()) {
+        for (String string : patternProbabilityMatrix.getColumnKeys()) {
             ce.set(string, probabilityMap.get(string) / sum);
         }
 
@@ -1317,7 +1326,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
             int tagCount = tagCounts.getCount(entry.getKey());
             CountMap<String> patterns = contextMap.get(entry.getKey());
-            LinkedHashMap<String, Integer> sortedMap = patterns.getSortedMap();
+            Map<String, Integer> sortedMap = patterns.getSortedMap();
 
             csv.append(entry.getKey()).append("###").append(tagCount).append("\n");
 

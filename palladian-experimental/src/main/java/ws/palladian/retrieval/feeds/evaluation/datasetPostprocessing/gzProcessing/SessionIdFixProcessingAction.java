@@ -39,16 +39,17 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
     }
 
     @Override
-    public boolean performAction(Feed feed, HttpResult httpResult) {
-
-        boolean success = true;
+    public void onModified(Feed feed, HttpResult httpResult) {
 
         List<FeedItem> newFeedEntries = feed.getNewItems();
 
         // get the path of the feed's folder and csv file
         String csvFilePath = DatasetCreator.getCSVFilePath(feed.getId(), DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
         // LOGGER.debug("saving feed to: " + filePath);
-        success = DatasetCreator.createDirectoriesAndCSV(feed);
+        boolean success = DatasetCreator.createDirectoriesAndCSV(feed);
+        if (!success) {
+            throw new IllegalStateException("Error while creating directories");
+        }
 
         List<String> newEntriesToWrite = new ArrayList<String>();
         int newItems = newFeedEntries.size();
@@ -84,18 +85,13 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
             boolean fileWritten = FileHelper.appendFile(csvFilePath, newEntryBuilder);
 
             if (!fileWritten) {
-                success = false;
+                throw new IllegalStateException("Error while writing file");
             }
         }
 
-        boolean metadata = processPollMetadata(feed, httpResult, newItems);
-        if (!metadata) {
-            success = false;
-        }
+        processPollMetadata(feed, httpResult, newItems);
 
         LOGGER.debug("added " + newItems + " new posts to file " + csvFilePath + " (feed: " + feed.getId() + ")");
-
-        return success;
     }
 
     private static String buildCsvLine(FeedItem item) {
@@ -143,27 +139,24 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
      * Write poll meta information to db.
      */
     @Override
-    public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
-
-        return processPollMetadata(feed, httpResult, null);
+    public void onUnmodified(Feed feed, HttpResult httpResult) {
+        processPollMetadata(feed, httpResult, null);
     }
 
     /**
      * Write poll meta information to db.
      */
     @Override
-    public boolean performActionOnError(Feed feed, HttpResult httpResult) {
-
-        return processPollMetadata(feed, httpResult, null);
+    public void onError(Feed feed, HttpResult httpResult) {
+        processPollMetadata(feed, httpResult, null);
     }
 
     /**
      * Nothing to do, should never be called!
      */
     @Override
-    public boolean performActionOnException(Feed feed, HttpResult httpResult) {
+    public void onException(Feed feed, HttpResult httpResult) {
         LOGGER.error("performActionOnException is not implemented!");
-        return false;
     }
 
 
@@ -175,15 +168,14 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
      * @param newItems
      * @return
      */
-    private boolean processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
+    private void processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
 
         long correctedTime = (long) ((Math.ceil(feed.getLastPollTime().getTime() / 1000)) * 1000);
 
         PollMetaInformation pollMetaInfo = feedStore.getFeedPoll(feed.getId(), new Timestamp(correctedTime));
         if (pollMetaInfo == null) {
-            LOGGER.error("Could not load PollMetaInformation from DB for feed id " + feed.getId()
+            throw new IllegalStateException("Could not load PollMetaInformation from DB for feed id " + feed.getId()
                     + " and pollTimestamp " + new Date(correctedTime) + ". PollMetaInformations has not been updated!");
-            return false;
         }
         pollMetaInfo.setFeedID(feed.getId());
         pollMetaInfo.setHttpETag(httpResult.getHeaderString("ETag"));
@@ -195,7 +187,10 @@ class SessionIdFixProcessingAction extends DefaultFeedProcessingAction {
         pollMetaInfo.setWindowSize(feed.getWindowSize());
         pollMetaInfo.setHttpStatusCode(httpResult.getStatusCode());
 
-        return feedStore.updateFeedPoll(pollMetaInfo);
+        boolean success =  feedStore.updateFeedPoll(pollMetaInfo);
+        if (!success) {
+            throw new IllegalStateException("Error while updating feed poll in DB");
+        }
     }
 
 }

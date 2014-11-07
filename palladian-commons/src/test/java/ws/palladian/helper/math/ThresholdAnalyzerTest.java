@@ -54,6 +54,8 @@ public class ThresholdAnalyzerTest {
 
         assertEquals((2 * 8. / 11 * 8. / 9) / (8. / 11 + 8. / 9), stats.getF1(0.548), DELTA);
 
+        assertEquals(.8, stats.getMaxF1(), DELTA);
+
     }
 
 }

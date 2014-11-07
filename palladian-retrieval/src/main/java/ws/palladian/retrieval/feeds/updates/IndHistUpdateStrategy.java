@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds.updates;
 
+import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -8,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
@@ -24,7 +24,7 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * @author Sandro Reichert
  * 
  */
-public class IndHistUpdateStrategy extends UpdateStrategy {
+public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(IndHistUpdateStrategy.class);
@@ -43,7 +43,7 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
      * The threshold theta. If the algorithms estimates that this many new entries are pending, the next poll is
      * scheduled.
      */
-    private double thresholdTheta;
+    protected final double thresholdTheta;
 
     /**
      * @param thresholdTheta The threshold theta to be used. Usually, 0 <= theta < 1.
@@ -53,8 +53,8 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
      *            http://doi.acm.org/10.1145/1138394.1138399
      * @param feedDb The db to load the model from.
      */
-    public IndHistUpdateStrategy(double thresholdTheta, FeedDatabase feedDb) {
-        super();
+    public IndHistUpdateStrategy(int lowestInterval, int highestInterval, double thresholdTheta, FeedDatabase feedDb) {
+        super(lowestInterval, highestInterval);
         this.thresholdTheta = thresholdTheta;
         this.feedDb = feedDb;
     }
@@ -88,10 +88,10 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
         if (feed.getLastPollTime() == null) {
             LOGGER.error("Feed id " + feed.getId()
                     + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
-            feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
+            feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME));
 
         } else {
-            int checkInterval = FeedReader.DEFAULT_CHECK_TIME;
+            int checkInterval = DEFAULT_CHECK_TIME;
 
             // The trained model for the current feed
             double[] hourlyRates = getModelFromFeed(feed);
@@ -99,28 +99,31 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
 
             // empty feeds
             if (dailyRate == 0.0) {
-                feed.setUpdateInterval(getAllowedUpdateInterval(checkInterval));
+                feed.setUpdateInterval(getAllowedInterval(checkInterval));
 
             } else {
+                
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(feed.getLastPollTime());
 
                 // normal case
-                int pollHourOfDay = feed.getLastPollTime().getHours();
+                int pollHourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
                 int simulatedHour = pollHourOfDay;
                 double pendingItems = 0.0;
                 checkInterval = 0;
 
                 // ---- Do we need to perform the next poll in the same hour the current poll has been done?
                 // number of seconds already passed in the current hour
-                int currentSeconds = feed.getLastPollTime().getMinutes() * 60 + feed.getLastPollTime().getSeconds();
+                int currentSeconds = calendar.get(Calendar.MINUTE) * 60 + calendar.get(Calendar.SECOND);
                 int remainingSeconds = 3600 - currentSeconds;
                 // number of new elements
                 double remainingHourPendingItems = hourlyRates[simulatedHour] * remainingSeconds / 3600;
 
                 // we expect more new items in the current hour than our threshold, so we only have a look at this
                 // hour
-                if (remainingHourPendingItems >= getThresholdTheta()) {
+                if (remainingHourPendingItems >= thresholdTheta) {
 
-                    checkInterval += (60 * getThresholdTheta() / hourlyRates[simulatedHour]);
+                    checkInterval += (60 * thresholdTheta / hourlyRates[simulatedHour]);
 
                 } else {
                     // add remaining part of current hour
@@ -131,8 +134,8 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
                     // loop complete days if possible. stop looping if we would exceed the threshold in this hour or
                     // if we reach the checkInterval's upper bound (getHighestUpdateInterval() == -1 in case there
                     // is no upper bound)
-                    while (pendingItems + dailyRate < getThresholdTheta()
-                            && (checkInterval + 1440 < getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
+                    while (pendingItems + dailyRate < thresholdTheta
+                            && (checkInterval + 1440 < getHighestInterval() || getHighestInterval() == -1)) {
                         pendingItems += dailyRate;
                         checkInterval += 1440;
                     }
@@ -140,19 +143,19 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
                     // loop over hours, add full hours only. stop looping if we would exceed the threshold in this
                     // hour or if we reach the checkInterval's upper bound (getHighestUpdateInterval() == -1 in case
                     // there is no upper bound)
-                    while (pendingItems + hourlyRates[simulatedHour] < getThresholdTheta()
-                            && (checkInterval + 60 < getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
+                    while (pendingItems + hourlyRates[simulatedHour] < thresholdTheta
+                            && (checkInterval + 60 < getHighestInterval() || getHighestInterval() == -1)) {
                         pendingItems += hourlyRates[simulatedHour];
                         simulatedHour = (simulatedHour + 1) % 24;
                         checkInterval += 60;
                     }
 
                     // add part of last hour
-                    checkInterval += (60 * (getThresholdTheta() - pendingItems) / hourlyRates[simulatedHour]);
+                    checkInterval += (60 * (thresholdTheta - pendingItems) / hourlyRates[simulatedHour]);
                 }
 
                 // finally, set the feed's interval
-                feed.setUpdateInterval(getAllowedUpdateInterval(checkInterval));
+                feed.setUpdateInterval(getAllowedInterval(checkInterval));
             }
         }
     }
@@ -248,21 +251,12 @@ public class IndHistUpdateStrategy extends UpdateStrategy {
     }
 
     /**
-     * The threshold theta currently used.
-     * 
-     * @return The threshold theta currently used.
-     */
-    public double getThresholdTheta() {
-        return thresholdTheta;
-    }
-
-    /**
      * Returns the update strategy's name "IndHist", followed by an underscore and the used threshold theta, e.g.
      * "IndHist_0.4"
      */
     @Override
     public String getName() {
-        return "IndHist_" + getThresholdTheta();
+        return "IndHist_" + thresholdTheta;
 
     }
 

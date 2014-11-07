@@ -4,13 +4,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -29,14 +34,22 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.conn.params.ConnRouteParams;
-import org.apache.http.impl.client.*;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.DecompressingHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -90,13 +103,13 @@ public class HttpRetriever {
     private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
     /** The default timeout for a connection to be established, in milliseconds. */
-    public static final long DEFAULT_CONNECTION_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
+    public static final int DEFAULT_CONNECTION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
 
     /** The default timeout for a connection to be established when checking for redirects, in milliseconds. */
-    public static final long DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = TimeUnit.SECONDS.toMillis(1);
+    public static final int DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = (int) TimeUnit.SECONDS.toMillis(1);
 
     /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
-    public static final long DEFAULT_SOCKET_TIMEOUT = TimeUnit.SECONDS.toMillis(180);
+    public static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(180);
 
     /** The maximum number of redirected URLs to check. */
     public static final int MAX_REDIRECTS = 10;
@@ -105,7 +118,7 @@ public class HttpRetriever {
      * The default timeout which specifies the maximum interval for new packets to wait when checking for redirects, in
      * milliseconds.
      */
-    public static final long DEFAULT_SOCKET_TIMEOUT_REDIRECTS = TimeUnit.SECONDS.toMillis(1);
+    public static final int DEFAULT_SOCKET_TIMEOUT_REDIRECTS = (int) TimeUnit.SECONDS.toMillis(1);
 
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 1;
@@ -136,10 +149,10 @@ public class HttpRetriever {
     private static long sessionDownloadedBytes = 0;
 
     /** The timeout for connections when checking for redirects. */
-    private long connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
+    private int connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
 
     /** The socket timeout when checking for redirects. */
-    private long socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
+    private int socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
     /** Number of retries for one request, if error occurs. */
     private int numRetries = DEFAULT_NUM_RETRIES;
@@ -158,6 +171,14 @@ public class HttpRetriever {
     /** Hook for http* methods. */
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
+    /** Any of these status codes will cause a removal of the used proxy. */
+    private Set<Integer> proxyRemoveStatusCodes = CollectionHelper.newHashSet();
+
+    /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
+    private ProxyRemoverCallback proxyRemoveCallback = null;
+
+    private static final Scheme httpsScheme;
+
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
@@ -165,6 +186,16 @@ public class HttpRetriever {
     static {
         setNumConnections(DEFAULT_NUM_CONNECTIONS);
         setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, null, null);
+            SSLSocketFactory sf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            httpsScheme = new Scheme("https", 443, sf);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        } catch (KeyManagementException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /**
@@ -193,23 +224,23 @@ public class HttpRetriever {
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
-        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
+        // httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
     }
 
-
-     /**
-       * <p>
-       * Add a cookie to the header.
-       * </p>
-       *
-       * @param key The name of the cookie.
-       * @param value The value of the cookie.
-      *
-      */
+    /**
+     * <p>
+     * Add a cookie to the header.
+     * </p>
+     * 
+     * @param key The name of the cookie.
+     * @param value The value of the cookie.
+     * 
+     */
     public void addCookie(String key, String value) {
         cookieStore.put(key, value);
     }
-
 
     // ////////////////////////////////////////////////////////////////
     // HTTP methods
@@ -351,19 +382,34 @@ public class HttpRetriever {
                 break;
             case POST:
                 HttpPost httpPost = new HttpPost(request.getUrl());
-                List<NameValuePair> postParams = CollectionHelper.newArrayList();
-                for (Entry<String, String> param : request.getParameters().entrySet()) {
-                    postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                HttpEntity entity;
+
+                if(request.getHttpEntity() != null){
+                    entity = request.getHttpEntity();
+                }else{
+                    List<NameValuePair> postParams = CollectionHelper.newArrayList();
+                    for (Entry<String, String> param : request.getParameters().entrySet()) {
+                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                    }
+                    try {
+                        entity = new UrlEncodedFormEntity(postParams);
+                    } catch (UnsupportedEncodingException e) {
+                        throw new IllegalStateException(e);
+                    }
                 }
-                try {
-                    httpPost.setEntity(new UrlEncodedFormEntity(postParams));
-                } catch (UnsupportedEncodingException e) {
-                    throw new IllegalStateException(e);
-                }
+
+                httpPost.setEntity(entity);
+
                 httpRequest = httpPost;
                 break;
             case HEAD:
                 httpRequest = new HttpHead(createUrl(request));
+                break;
+            case DELETE:
+                httpRequest = new HttpDelete(createUrl(request));
+                break;
+            case PUT:
+                httpRequest = new HttpPut(createUrl(request));
                 break;
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
@@ -412,6 +458,16 @@ public class HttpRetriever {
             Credentials credentials = new UsernamePasswordCredentials(username, password);
             backend.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
         }
+
+        backend.getConnectionManager().getSchemeRegistry().register(httpsScheme);
+
+        // set the cookie store; this is scoped on *one* request and discarded after that;
+        // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
+        // "one request" actually means, that we have a e.g. a GET and receive several redirects,
+        // where cookies previously set cookies are necessary; this is not a typical case,
+        // and if we should encounter any issues by this change, remove this code (and the modification
+        // in the constructor) again.
+        backend.setCookieStore(new BasicCookieStore());
 
         return backend;
 
@@ -473,16 +529,16 @@ public class HttpRetriever {
 
         AbstractHttpClient backend = createHttpClient();
 
-        setProxy(url, request, backend);
+        Proxy proxyUsed = setProxy(url, request, backend);
 
         try {
 
             HttpContext context = new BasicHttpContext();
             StringBuilder cookieText = new StringBuilder();
-            for (Entry<String, String> cookie: cookieStore.entrySet()) {
+            for (Entry<String, String> cookie : cookieStore.entrySet()) {
                 cookieText.append(cookie.getKey()).append("=").append(cookie.getValue()).append(";");
             }
-            if(!cookieStore.isEmpty()){
+            if (!cookieStore.isEmpty()) {
                 request.addHeader("Cookie", cookieText.toString());
             }
 
@@ -524,9 +580,19 @@ public class HttpRetriever {
 
             addDownload(receivedBytes);
 
+            if (proxyRemoveStatusCodes.contains(statusCode)
+                    || proxyRemoveCallback != null && proxyRemoveCallback.shouldRemove(result)) {
+                proxyProvider.removeProxy(proxyUsed, statusCode);
+                throw new HttpException("invalid result, remove proxy: " + proxyUsed + ", URL: " + url);
+            } else {
+                proxyProvider.promoteProxy(proxyUsed);
+            }
+
         } catch (IllegalStateException e) {
+            proxyProvider.removeProxy(proxyUsed, e);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } catch (IOException e) {
+            proxyProvider.removeProxy(proxyUsed, e);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } finally {
             FileHelper.close(in);
@@ -536,13 +602,13 @@ public class HttpRetriever {
         return result;
     }
 
-    private void setProxy(String url, HttpUriRequest request, AbstractHttpClient backend) throws HttpException {
+    private Proxy setProxy(String url, HttpUriRequest request, AbstractHttpClient backend) throws HttpException {
         Proxy proxy = proxyProvider.getProxy(url);
         if (proxy == null) {
-            return;
+            return null;
         }
         HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
-        backend.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxyHost);
+        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
 
         // set proxy authentication if available
         if (StringUtils.isNotEmpty(proxy.getUsername())) {
@@ -554,6 +620,8 @@ public class HttpRetriever {
             String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
             request.setHeader("Proxy-Authorization", "Basic " + encoded);
         }
+
+        return proxy;
     }
 
     /**
@@ -582,17 +650,18 @@ public class HttpRetriever {
         params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
         HttpProtocolParams.setUserAgent(httpParams, REDIRECT_USER_AGENT);
 
-        HttpConnectionParams.setSoTimeout(params, (int)socketTimeoutRedirects);
-        HttpConnectionParams.setConnectionTimeout(params, (int)connectionTimeoutRedirects);
+        HttpConnectionParams.setSoTimeout(params, socketTimeoutRedirects);
+        HttpConnectionParams.setConnectionTimeout(params, connectionTimeoutRedirects);
 
         DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, params);
         DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
         for (;;) {
             HttpHead headRequest;
+            Proxy proxy = null;
             try {
                 headRequest = new HttpHead(url);
-                setProxy(url, headRequest, backend);
+                proxy = setProxy(url, headRequest, backend);
             } catch (IllegalArgumentException e) {
                 throw new HttpException("Invalid URL: \"" + url + "\"");
             }
@@ -626,13 +695,16 @@ public class HttpRetriever {
                 } else {
                     break; // done.
                 }
+                proxyProvider.promoteProxy(proxy);
             } catch (ClientProtocolException e) {
                 throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
             } catch (IOException e) {
+                proxyProvider.removeProxy(proxy);
                 throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
             } finally {
                 headRequest.abort();
             }
+
         }
         // client.getConnectionManager().shutdown();
         return ret;
@@ -692,6 +764,9 @@ public class HttpRetriever {
         boolean result = false;
         try {
             HttpResult httpResult = httpGet(url, requestHeaders);
+            if (httpResult.getStatusCode() != 200) {
+                throw new HttpException("status code != 200 for " + url);
+            }
             result = HttpHelper.saveToFile(httpResult, filePath, includeHttpResponseHeaders);
         } catch (HttpException e) {
             LOGGER.error("Error while downloading {}", url, e);
@@ -704,8 +779,8 @@ public class HttpRetriever {
     // Configuration options
     // ////////////////////////////////////////////////////////////////
 
-    public void setConnectionTimeout(long connectionTimeout) {
-        HttpConnectionParams.setConnectionTimeout(httpParams, (int)connectionTimeout);
+    public void setConnectionTimeout(int connectionTimeout) {
+        HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout);
     }
 
     /**
@@ -716,8 +791,8 @@ public class HttpRetriever {
      * 
      * @param socketTimeout timeout The new socket timeout time in milliseconds
      */
-    public void setSocketTimeout(long socketTimeout) {
-        HttpConnectionParams.setSoTimeout(httpParams, (int)socketTimeout);
+    public void setSocketTimeout(int socketTimeout) {
+        HttpConnectionParams.setSoTimeout(httpParams, socketTimeout);
     }
 
     public void setNumRetries(int numRetries) {
@@ -790,12 +865,32 @@ public class HttpRetriever {
         this.proxyProvider = proxyProvider;
     }
 
-    public void setConnectionTimeoutRedirects(long connectionTimeoutRedirects) {
+    public ProxyProvider getProxyProvider() {
+        return proxyProvider;
+    }
+
+    public void setConnectionTimeoutRedirects(int connectionTimeoutRedirects) {
         this.connectionTimeoutRedirects = connectionTimeoutRedirects;
     }
 
-    public void setSocketTimeoutRedirects(long socketTimeoutRedirects) {
+    public void setSocketTimeoutRedirects(int socketTimeoutRedirects) {
         this.socketTimeoutRedirects = socketTimeoutRedirects;
+    }
+
+    public Set<Integer> getProxyRemoveStatusCodes() {
+        return proxyRemoveStatusCodes;
+    }
+
+    public void setProxyRemoveStatusCodes(Set<Integer> proxyRemoveStatusCodes) {
+        this.proxyRemoveStatusCodes = proxyRemoveStatusCodes;
+    }
+
+    public ProxyRemoverCallback getProxyRemoveCallback() {
+        return proxyRemoveCallback;
+    }
+
+    public void setProxyRemoveCallback(ProxyRemoverCallback proxyRemoveCallback) {
+        this.proxyRemoveCallback = proxyRemoveCallback;
     }
 
 }

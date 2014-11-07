@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.ImmutableAnnotation;
 
@@ -15,31 +16,57 @@ import ws.palladian.processing.features.ImmutableAnnotation;
 public class LocationAnnotation extends ImmutableAnnotation {
 
     private final Location location;
-    
-    public LocationAnnotation(int startPosition, String value, Location location) {
+
+    private final double trust;
+
+    public LocationAnnotation(int startPosition, String value, Location location, double trust) {
         super(startPosition, value, location.getType().toString());
         this.location = location;
+        this.trust = trust;
+    }
+
+    public LocationAnnotation(int startPosition, String value, Location location) {
+        this(startPosition, value, location, -1);
+    }
+
+    public LocationAnnotation(Annotation annotation, Location location, double trust) {
+        this(annotation.getStartPosition(), annotation.getValue(), location, trust);
     }
 
     public LocationAnnotation(Annotation annotation, Location location) {
-        this(annotation.getStartPosition(), annotation.getValue(), location);
+        this(annotation, location, -1);
     }
 
+    /**
+     * @return The {@link Location} assigned to this annotation.
+     */
     public Location getLocation() {
         return location;
+    }
+
+    /**
+     * @return A trust value, indicating how sure the location extractor was about the assigned location for this
+     *         annotation. A value of <code>-1</code> indicates, that no trust value was assigned.
+     */
+    public double getTrust() {
+        return trust;
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("LocationAnnotation [startPosition=");
+        builder.append("LocationAnnotation [span=");
         builder.append(getStartPosition());
-        builder.append(", endPosition=");
+        builder.append("-");
         builder.append(getEndPosition());
         builder.append(", value=");
         builder.append(getValue());
         builder.append(", location=");
         builder.append(location);
+        if (trust >= 0) {
+            builder.append(", trust=");
+            builder.append(MathHelper.round(trust, 2));
+        }
         builder.append("]");
         return builder.toString();
     }

@@ -36,7 +36,7 @@ public interface CategoryEntries extends Iterable<String> {
      * Check whether a category is present.
      * </p>
      * 
-     * @return True if the category is present, false otherwise.
+     * @return <code>true</code> if the category is present, <code>false</code> otherwise.
      */
     boolean contains(String category);
 

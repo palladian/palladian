@@ -11,12 +11,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.ImmutableGeoCoordinate;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -33,6 +35,7 @@ import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.Facet;
 import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.RateLimitedException;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -87,6 +90,12 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
     private static final String REQUEST_DATE_PATTERN = "yyyy-MM-dd";
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+
+    /**
+     * Identifier for the raw JSON representation of a Tweet, which can be retrieved via
+     * {@link WebContent#getAdditionalData()}.
+     */
+    public static final String DATA_ROW_JSON = "twitter.tweet.raw.json";
 
     private final OAuthParams oAuthParams;
 
@@ -146,7 +155,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      *         both parameters was <code>null</code>.
      */
     private String createTweetUrl(String userId, String statusId) {
-        if (userId == null | statusId == null) {
+        if (userId == null || statusId == null) {
             return null;
         }
         return String.format("http://twitter.com/%s/status/%s", userId, statusId);
@@ -168,8 +177,22 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         TOTAL_REQUEST_COUNT.incrementAndGet();
 
         int statusCode = httpResult.getStatusCode();
-        if (statusCode == 420) {
-            throw new SearcherException("Twitter is currently blocked due to rate limit");
+        String resetHeader = httpResult.getHeaderString("X-Rate-Limit-Reset");
+        String remainingHeader = httpResult.getHeaderString("X-Rate-Limit-Remaining");
+        LOGGER.debug("X-Rate-Limit-Reset = {}; X-Rate-Limit-Remaining = {}", resetHeader, remainingHeader);
+
+        if (statusCode == 429) { // changed to v1.1 without verifying; see
+                                 // https://dev.twitter.com/docs/rate-limiting/1.1
+            Integer timeUntilReset = null;
+            if (resetHeader != null) {
+                try {
+                    int now = (int)(System.currentTimeMillis() / 1000);
+                    timeUntilReset = Integer.valueOf(resetHeader) - now;
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+            throw new RateLimitedException("Twitter is currently blocked due to rate limit", timeUntilReset);
         }
         if (statusCode >= 400) {
             String content = httpResult.getStringContent();
@@ -186,7 +209,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      * @param query The actual query.
      * @return The authenticated {@link HttpRequest} for accessing the API.
      */
-    private HttpRequest buildRequest(MultifacetQuery query) {
+    private HttpRequest buildRequest(MultifacetQuery query, String maxId) {
         HttpRequest request;
         if (query.getId() != null && query.getId().length() > 0) {
             // query for ID
@@ -198,7 +221,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
             if (query.getText() != null) {
                 request.addParameter("q", query.getText());
             }
-            request.addParameter("count", query.getResultCount());
+            request.addParameter("count", Math.min(100, query.getResultCount()));
             if (query.getLanguage() != null) {
                 request.addParameter("lang", query.getLanguage().getIso6391());
             }
@@ -219,6 +242,9 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
                 String untilString = new SimpleDateFormat(REQUEST_DATE_PATTERN).format(query.getEndDate());
                 request.addParameter("until", untilString);
             }
+            if (StringUtils.isNotBlank(maxId)) {
+                request.addParameter("max_id", maxId);
+            }
         }
         HttpRequest signedRequest = OAuthUtil.createSignedRequest(request, oAuthParams);
         LOGGER.debug("Request: {}", request);
@@ -231,43 +257,45 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
     }
 
     @Override
-    public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
+    public SearchResults<WebContent> search(MultifacetQuery query) throws RateLimitedException, SearcherException {
 
         List<WebContent> webResults = new ArrayList<WebContent>();
-
-        // XXX v1.1 currently does not support paging, so 100 results is maximum;
-        // leave code here for now, maybe this will be improved in the future
-        // https://dev.twitter.com/discussions/11016
-        if (query.getResultCount() > 100) {
-            LOGGER.warn("Currently, at most 100 results per query are supported by the Twitter API.");
-        }
-
         String responseString = null;
+        String maxId = null;
 
         try {
 
-            HttpRequest request = buildRequest(query);
-            HttpResult httpResult = performHttpRequest(request);
+            for (; webResults.size() < query.getResultCount();) {
+                HttpRequest request = buildRequest(query, maxId);
+                HttpResult httpResult = performHttpRequest(request);
 
-            responseString = httpResult.getStringContent();
-            LOGGER.debug("Response for {}: {}", request, responseString);
-
-            if (query.getId() != null && query.getId().length() > 0) {
-                // retrieve single result (ID query)
-                JsonObject result = new JsonObject(responseString);
-                webResults.add(parseSingleEntry(result));
-            } else {
+                responseString = httpResult.getStringContent();
+                LOGGER.trace("Response for {}: {}", request, responseString);
                 JsonObject jsonObject = new JsonObject(responseString);
-                JsonArray jsonResults = jsonObject.getJsonArray("statuses");
-                int numResults = jsonResults.size();
 
-                for (int i = 0; i < numResults; i++) {
-                    JsonObject jsonResult = jsonResults.getJsonObject(i);
-                    WebContent result = parseSingleEntry(jsonResult);
-                    webResults.add(result);
-                    if (webResults.size() >= query.getResultCount()) {
-                        break;
+                String nextResults = jsonObject.tryQueryString("/search_metadata/next_results");
+                if (nextResults != null) {
+                    maxId = StringHelper.getSubstringBetween(nextResults, "max_id=", "&");
+                }
+
+                if (query.getId() != null && query.getId().length() > 0) {
+                    // retrieve single result (ID query)
+                    webResults.add(parseSingleEntry(jsonObject));
+                } else {
+                    JsonArray jsonResults = jsonObject.getJsonArray("statuses");
+                    int numResults = jsonResults.size();
+
+                    for (int i = 0; i < numResults; i++) {
+                        JsonObject jsonResult = jsonResults.getJsonObject(i);
+                        WebContent result = parseSingleEntry(jsonResult);
+                        webResults.add(result);
+                        if (webResults.size() >= query.getResultCount()) {
+                            break;
+                        }
                     }
+                }
+                if (nextResults == null) {
+                    break;
                 }
             }
         } catch (HttpException e) {
@@ -286,6 +314,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         BasicWebContent.Builder builder = new BasicWebContent.Builder();
         builder.setTitle(StringEscapeUtils.unescapeHtml4(jsonResult.getString("text")));
         builder.setPublished(parseDate(jsonResult.getString("created_at")));
+        builder.setIdentifier(jsonResult.getString("id_str"));
 
         JsonObject jsonUser = jsonResult.getJsonObject("user");
         builder.setUrl(createTweetUrl(jsonUser.getString("screen_name"), jsonResult.getString("id_str")));
@@ -302,6 +331,13 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
                 builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
             }
         }
+        JsonArray hashTagsArray = jsonResult.queryJsonArray("/entities/hashtags");
+        for (int i = 0; i < hashTagsArray.size(); i++) {
+            JsonObject hashTagObject = hashTagsArray.getJsonObject(i);
+            builder.addTag(hashTagObject.getString("text"));
+        }
+        builder.setSource(SEARCHER_NAME);
+        builder.setAdditionalData(DATA_ROW_JSON, jsonResult);
 
         WebContent result = builder.create();
         return result;

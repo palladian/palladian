@@ -23,7 +23,10 @@ public interface GeoCoordinate {
     /**
      * <p>
      * Get the distance in kilometers between this and the given {@link GeoCoordinate} on the earth (assuming an earth
-     * radius of {@link GeoUtils#EARTH_RADIUS_KM}).
+     * radius of {@link GeoUtils#EARTH_RADIUS_KM}). <b>Implemenation hint:</b> Calculations using the Haversine formula are usually
+     * expensive. In case, this method is run in a busy loop, consider using
+     * {@link GeoUtils#approximateDistance(GeoCoordinate, GeoCoordinate)} which sacrifices accuracy, but which is
+     * magnitudes faster.
      * </p>
      * 
      * @param other The other location, not <code>null</code>.
@@ -51,5 +54,17 @@ public interface GeoCoordinate {
      *         [south, west, north, east].
      */
     double[] getBoundingBox(double distance);
+    
+    /**
+     * <p>
+     * Get a new point form this {@link GeoCoordinate} with the specified distance and bearing.
+     * </p>
+     * 
+     * @param distance The distance from this coordinate in kilometers, greater/equal zero.
+     * @param bearing The bearing (angle) in degrees, which determines in which direction to move. A bearing of 0°
+     *            denotes the direction north, 90° east, and so on.
+     * @return A new {@link GeoCoordinate} with the specified distance and bearing.
+     */
+    GeoCoordinate getCoordinate(double distance, double bearing);
 
 }

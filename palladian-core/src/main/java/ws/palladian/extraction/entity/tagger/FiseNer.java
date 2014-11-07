@@ -1,10 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.Iterator;
 import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
@@ -16,6 +12,8 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -63,7 +61,7 @@ public class FiseNer extends NamedEntityRecognizer {
                 annotations.addAll(annotationsChunk);
             } catch (HttpException e) {
                 throw new IllegalStateException("Error while performing HTTP request: " + e.getMessage(), e);
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new IllegalStateException("Error while parsing the result JSON: " + e.getMessage()
                         + ", JSON content was: " + httpResult.getStringContent(), e);
             }
@@ -73,17 +71,15 @@ public class FiseNer extends NamedEntityRecognizer {
     }
 
     /** package-private for unit-testing. */
-    static List<Annotation> parseJson(String text, String json) throws JSONException {
+    static List<Annotation> parseJson(String text, String json) throws JsonException {
         Annotations<Annotation> annotations = new Annotations<Annotation>();
-        JSONObject jsonObject = new JSONObject(json);
+        JsonObject jsonObject = new JsonObject(json);
 
-        @SuppressWarnings("unchecked")
-        Iterator<String> entryIterator = jsonObject.keys();
 
-        while (entryIterator.hasNext()) {
-            JSONObject current = jsonObject.getJSONObject(entryIterator.next());
+        for (String key : jsonObject.keySet()) {
+            JsonObject current = jsonObject.getJsonObject(key);
 
-            if (!current.has("http://purl.org/dc/terms/type")) {
+            if (current.get("http://purl.org/dc/terms/type") == null) {
                 continue;
             }
 
@@ -117,8 +113,8 @@ public class FiseNer extends NamedEntityRecognizer {
         return annotations;
     }
 
-    private static String getValue(JSONObject json, String key) throws JSONException {
-        return json.getJSONArray(key).getJSONObject(0).getString("value");
+    private static String getValue(JsonObject json, String key) throws JsonException {
+        return json.getJsonArray(key).getJsonObject(0).getString("value");
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {

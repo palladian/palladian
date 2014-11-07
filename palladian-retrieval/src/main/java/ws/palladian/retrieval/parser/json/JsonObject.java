@@ -338,7 +338,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @throws JsonException
      */
     public String getString(String key) throws JsonException {
-        return JsonUtil.parseString(this.get(key));
+        if (containsKey(key)) {
+            return JsonUtil.parseString(this.get(key));
+        } else {
+            throw new JsonException("No key: " + key);
+        }
     }
 
     public String tryGetString(String key) {
@@ -470,9 +474,25 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
         return JsonUtil.parseBoolean(query(jPath));
     }
 
+    public Boolean tryQueryBoolean(String jPath) {
+        try {
+            return queryBoolean(jPath);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @Override
     public double queryDouble(String jPath) throws JsonException {
         return JsonUtil.parseDouble(query(jPath));
+    }
+
+    public Double tryQueryDouble(String jPath) {
+        try {
+            return queryDouble(jPath);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -480,9 +500,25 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
         return JsonUtil.parseInt(query(jPath));
     }
 
+    public Integer tryQueryInt(String jPath) {
+        try {
+            return queryInt(jPath);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @Override
     public JsonArray queryJsonArray(String jPath) throws JsonException {
         return JsonUtil.parseJSONArray(query(jPath));
+    }
+
+    public JsonArray tryQueryJsonArray(String jPath) {
+        try {
+            return queryJsonArray(jPath);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -490,14 +526,38 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
         return JsonUtil.parseJSONObject(query(jPath));
     }
 
+    public JsonObject tryQueryJsonObject(String jPath) {
+        try {
+            return queryJsonObject(jPath);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @Override
     public long queryLong(String jPath) throws JsonException {
         return JsonUtil.parseLong(query(jPath));
     }
 
+    public Long tryQueryLong(String jPath) {
+        try {
+            return queryLong(jPath);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @Override
     public String queryString(String jPath) throws JsonException {
         return JsonUtil.parseString(query(jPath));
+    }
+
+    public String tryQueryString(String jPath) {
+        try {
+            return queryString(jPath);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

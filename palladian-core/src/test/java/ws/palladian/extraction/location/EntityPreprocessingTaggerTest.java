@@ -2,7 +2,7 @@ package ws.palladian.extraction.location;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -15,7 +15,7 @@ import ws.palladian.processing.features.Annotation;
 public class EntityPreprocessingTaggerTest {
 
     @Test
-    public void testEntityPreprocessor() throws FileNotFoundException {
+    public void testEntityPreprocessor() throws IOException {
         String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("testText.txt"));
         EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
         List<Annotation> annotations = tagger.getAnnotations(text);

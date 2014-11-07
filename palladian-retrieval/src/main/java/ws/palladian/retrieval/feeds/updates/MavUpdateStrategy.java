@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
@@ -20,10 +19,14 @@ import ws.palladian.retrieval.feeds.FeedUpdateMode;
  * @author David Urbansky
  * 
  */
-public class MavUpdateStrategy extends UpdateStrategy {
+public class MavUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MavUpdateStrategy.class);
+
+    public MavUpdateStrategy(int lowestInterval, int highestInterval) {
+        super(lowestInterval, highestInterval);
+    }
 
     /**
      * <p>
@@ -108,7 +111,7 @@ public class MavUpdateStrategy extends UpdateStrategy {
                 double averagePostGap = fps.getAveragePostGap();
                 if (averagePostGap == 0D) {
                     // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
-                    minCheckInterval = getHighestUpdateInterval();
+                    minCheckInterval = getHighestInterval();
                 } else {
                     // ignore negative delays caused by items with pubdates in the future
                     if (fps.getDelayToNewestPost() > 0) {
@@ -238,17 +241,17 @@ public class MavUpdateStrategy extends UpdateStrategy {
         // /////////////////////
 
         if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
-            feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
+            feed.setUpdateInterval(getAllowedInterval(minCheckInterval));
         } else {
-            feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
+            feed.setUpdateInterval(getAllowedInterval(maxCheckInterval));
         }
 
         // in case only one entry has been found use default check time
         if (entries.size() <= 1) {
             if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
-                feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME / 2));
+                feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME / 2));
             } else {
-                feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
+                feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME));
             }
         }
     }

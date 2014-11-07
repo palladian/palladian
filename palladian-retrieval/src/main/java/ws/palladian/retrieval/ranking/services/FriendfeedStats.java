@@ -6,15 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -73,24 +73,24 @@ public final class FriendfeedStats extends BaseRankingService implements Ranking
         try {
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + encUrl);
-            JSONObject json = new JSONObject(httpResult.getStringContent());
-            JSONArray entries = json.getJSONArray("entries");
+            JsonObject json = new JsonObject(httpResult.getStringContent());
+            JsonArray entries = json.getJsonArray("entries");
             float posts = 0;
             float likes = 0;
             float comments = 0;
-            for (int i = 0; i < entries.length(); i++) {
-                JSONObject post = entries.getJSONObject(i);
-                if (post.getJSONObject("service").getString("id").equals("internal")) {
+            for (int i = 0; i < entries.size(); i++) {
+                JsonObject post = entries.getJsonObject(i);
+                if (post.getJsonObject("service").getString("id").equals("internal")) {
                     posts++;
-                    likes += post.getJSONArray("likes").length();
-                    comments += post.getJSONArray("comments").length();
+                    likes += post.getJsonArray("likes").size();
+                    comments += post.getJsonArray("comments").size();
                 }
             }
             results.put(POSTS, posts);
             results.put(LIKES, likes);
             results.put(COMMENTS, comments);
             LOGGER.trace("FriendFeed stats for " + url + " : " + results);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             LOGGER.error("JSONException " + e.getMessage());
             checkBlocked();
         } catch (HttpException e) {
@@ -105,15 +105,15 @@ public final class FriendfeedStats extends BaseRankingService implements Ranking
         boolean error = false;
         try {
             HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.encodeParameter("http://www.google.com/"));
-            JSONObject json = new JSONObject(httpResult.getStringContent());
+            JsonObject json = new JsonObject(httpResult.getStringContent());
             if (json != null) {
-                if (json.has("errorCode")) {
+                if (json.get("errorCode") != null) {
                     if (json.get("errorCode").equals("limit-exceeded")) {
                         error = true;
                     }
                 }
             }
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             LOGGER.error("JSONException " + e.getMessage());
         } catch (HttpException e) {
             LOGGER.error("HttpException " + e.getMessage());

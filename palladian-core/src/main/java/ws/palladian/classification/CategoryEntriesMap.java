@@ -11,6 +11,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.math.MathHelper;
 
 /**
@@ -20,7 +21,9 @@ import ws.palladian.helper.math.MathHelper;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @deprecated Use the {@link CategoryEntriesBuilder} instead.
  */
+@Deprecated
 public final class CategoryEntriesMap implements CategoryEntries {
 
     private Map<String, Double> entryMap;
@@ -132,7 +135,7 @@ public final class CategoryEntriesMap implements CategoryEntries {
      */
     public void add(String categoryName, double score) {
         Validate.notNull(categoryName, "categoryName must not be null");
-        Validate.isTrue(score >= 0, "probability must be higher/equal zero");
+        Validate.isTrue(score >= 0, "probability must be higher/equal zero, but was %s", score);
 
         Double existingScore = entryMap.get(categoryName);
         if (existingScore == null) {
@@ -230,7 +233,7 @@ public final class CategoryEntriesMap implements CategoryEntries {
     }
 
     public void sort() {
-        entryMap = CollectionHelper.sortByValue(entryMap, false);
+        entryMap = CollectionHelper.sortByValue(entryMap, Order.DESCENDING);
     }
 
     @Override

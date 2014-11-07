@@ -1,6 +1,3 @@
-/**
- * Created on: 09.06.2012 19:47:11
- */
 package ws.palladian.extraction.pos;
 
 import java.io.File;
@@ -31,7 +28,7 @@ import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
- * Tests the correct working of the LinPipe POS Tagger implementation in Palladian.
+ * Tests the correct working of the LingPipe POS Tagger implementation in Palladian.
  * </p>
  * 
  * @author Klemens Muthmann

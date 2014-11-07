@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
@@ -41,18 +40,14 @@ public class FeedSizeCalculationScheduler extends TimerTask {
      */
     private transient final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
 
-    /**
-     * The collection of all the feeds this scheduler should create update
-     * threads for.
-     */
-    private transient final FeedReader feedReader;
-
     private boolean firstRun = true;
 
     private final HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
 
     /** Count the number of processed feeds per scheduler iteration. */
     private int processedCounter = 0;
+    
+    private final FeedDatabase feedDatabase;
 
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
@@ -61,10 +56,9 @@ public class FeedSizeCalculationScheduler extends TimerTask {
      *            The feed reader containing settings and providing the
      *            collection of feeds to check.
      */
-    public FeedSizeCalculationScheduler(final FeedReader feedReader) {
-        super();
-        threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
-        this.feedReader = feedReader;
+    public FeedSizeCalculationScheduler(FeedDatabase feedDatabase, int numThreads) {
+        threadPool = Executors.newFixedThreadPool(numThreads);
+        this.feedDatabase = feedDatabase;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
     }
 
@@ -79,13 +73,13 @@ public class FeedSizeCalculationScheduler extends TimerTask {
         StringBuilder scheduledFeedIDs = new StringBuilder();
 
         // schedule all feeds only once
-        for (Feed feed : feedReader.getFeeds()) {
+        for (Feed feed : feedDatabase.getFeeds()) {
             if (firstRun) {
 
                 // FIXME: remove dbug filter
                 // if (feed.getId() == 1074) {
                     scheduledTasks.put(feed.getId(),
-                            threadPool.submit(new FeedSizeCalculationTask(feed, (FeedDatabase) feedReader.getFeedStore())));
+                            threadPool.submit(new FeedSizeCalculationTask(feed, feedDatabase)));
                     newlyScheduledFeedsCount++;
                 // }
 

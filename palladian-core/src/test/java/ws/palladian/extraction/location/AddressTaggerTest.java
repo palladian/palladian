@@ -83,9 +83,13 @@ public class AddressTaggerTest {
                 .getAnnotations("Board and commission members will have an orientation and training session at 6:30 p.m. Monday, March 30 in Talla 2 at the Dublin Community Recreation Center, 5600 Post Road, Chinnici-Zuercher said.");
         assertEquals("5600", locationAnnotations.get(0).getValue());
         assertEquals("Post Road", locationAnnotations.get(1).getValue());
-        
+
         locationAnnotations = addressTagger.getAnnotations("Mayor Norm Coleman of St. Paul");
-        // FIXME
+        assertEquals(0, locationAnnotations.size());
+
+        locationAnnotations = addressTagger
+                .getAnnotations("The 21.5-inch iMacs came with a 3.06GHz Intel Core 2 Duo processor, 4GB of RAM, 1920 x 1080 resolution, and a SuperDrive.");
+        assertEquals(0, locationAnnotations.size());
     }
 
 }

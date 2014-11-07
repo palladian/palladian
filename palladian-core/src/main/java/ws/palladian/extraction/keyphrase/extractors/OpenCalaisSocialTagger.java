@@ -1,24 +1,22 @@
 package ws.palladian.extraction.keyphrase.extractors;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * Keyword extraction based on OpenCalais' <a href=
@@ -61,27 +59,20 @@ public final class OpenCalaisSocialTagger extends KeyphraseExtractor {
 
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
-        Map<String, String> header = new HashMap<String, String>();
-
-        // set mandatory parameters
-        header.put("x-calais-licenseID", apiKey);
-
-        // set input content type
-        header.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-
-        // set response/output format
-        header.put("Accept", "application/json");
+        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://api.opencalais.com/tag/rs/enrich");
+        request.addHeader("x-calais-licenseID", apiKey);
+        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.addHeader("Accept", "application/json");
 
         // create the content of the request
-        Map<String, String> content = new HashMap<String, String>();
         String paramsXML = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:enableMetadataType=\"SocialTags\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\"></c:userDirectives></c:params>";
-        content.put("content", inputText);
-        content.put("paramsXML", paramsXML);
+        request.addParameter("content", inputText);
+        request.addParameter("paramsXML", paramsXML);
 
         String response = null;
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         try {
-            HttpResult postResult = retriever.httpPost("http://api.opencalais.com/tag/rs/enrich", header, content);
+            HttpResult postResult = retriever.execute(request);
             response = new String(postResult.getContent());
         } catch (HttpException e) {
             LOGGER.error("HttpException while accessing OpenCalais API", e);
@@ -89,20 +80,17 @@ public final class OpenCalaisSocialTagger extends KeyphraseExtractor {
 
         if (response != null) {
             try {
-                JSONObject json = new JSONObject(response);
-                @SuppressWarnings("unchecked")
-                Iterator<String> keys = json.keys();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    JSONObject jsonObj = json.getJSONObject(key);
-                    if (jsonObj.has("_typeGroup") && jsonObj.get("_typeGroup").equals("socialTag")) {
+                JsonObject json = new JsonObject(response);
+                for (String key : json.keySet()) {
+                    JsonObject jsonObj = json.getJsonObject(key);
+                    if (jsonObj.get("_typeGroup") != null && jsonObj.get("_typeGroup").equals("socialTag")) {
                         String name = jsonObj.getString("name");
                         int importance = jsonObj.getInt("importance");
                         LOGGER.debug(name + " " + importance);
                         keyphrases.add(new Keyphrase(name, importance));
                     }
                 }
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 LOGGER.error("JSONException while parsing the response", e);
             }
         }
@@ -121,12 +109,10 @@ public final class OpenCalaisSocialTagger extends KeyphraseExtractor {
     }
 
     public static void main(String[] args) {
-        @SuppressWarnings("deprecation")
-        OpenCalaisSocialTagger extractor = new OpenCalaisSocialTagger(ConfigHolder.getInstance().getConfig()
-                .getString("api.opencalais.key"));
+        OpenCalaisSocialTagger extractor = new OpenCalaisSocialTagger("");
         extractor.setKeyphraseCount(5);
-        List<Keyphrase> keywords = extractor
-                .extract("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.");
+        String text = "The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.";
+        List<Keyphrase> keywords = extractor.extract(text);
         CollectionHelper.print(keywords);
     }
 

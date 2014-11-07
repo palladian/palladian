@@ -25,6 +25,7 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -254,19 +255,23 @@ public final class PageAnalyzer {
         // find the xpath with index that belongs to the group of a highest count xpath
         String mutualXPath = "";
         xPathIterator = xPathSet.iterator();
+        int maxMatches = 0;
         while (xPathIterator.hasNext()) {
             String currentXPath = xPathIterator.next();
             boolean match = true;
             String[] xPathElements = removeXPathIndices(currentXPath).split("/");
+            int matches = 0;
+
             for (int i = 0; i < Math.min(xPathElements.length, highestCountXPathElements.length); i++) {
                 if (!xPathElements[i].equals(highestCountXPathElements[i])) {
                     match = false;
                     break;
                 }
+                matches++;
             }
-            if (match) {
+            if (match && matches > maxMatches) {
+                maxMatches = matches;
                 mutualXPath = currentXPath;
-                break;
             }
         }
 
@@ -638,7 +643,7 @@ public final class PageAnalyzer {
     }
 
     /**
-     * Find the last box section ("p", "div", "td" or "th") of the given xPath. This is helpful as a certain term might
+     * Find the last box section ("p", "div", "hX", "td" or "th") of the given xPath. This is helpful as a certain term might
      * be in a too deep structure and searched
      * elements are around it. e.g. /table/tr/td/div[4]/span/b/a => /table/tr/td/div[4]
      * 
@@ -654,7 +659,14 @@ public final class PageAnalyzer {
             if (nodes[i].toLowerCase().indexOf("p") == 0 || nodes[i].toLowerCase().indexOf("xhtml:p") == 0
                     || nodes[i].toLowerCase().indexOf("div") == 0 || nodes[i].toLowerCase().indexOf("xhtml:div") == 0
                     || nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0
-                    || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0) {
+                    || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0
+                    || nodes[i].toLowerCase().indexOf("li") == 0 || nodes[i].toLowerCase().indexOf("xhtml:li") == 0
+                    || nodes[i].toLowerCase().indexOf("h1") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h1") == 0
+                    || nodes[i].toLowerCase().indexOf("h2") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h2") == 0
+                    || nodes[i].toLowerCase().indexOf("h3") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h3") == 0
+                    || nodes[i].toLowerCase().indexOf("h4") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h4") == 0
+                    || nodes[i].toLowerCase().indexOf("h5") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h5") == 0
+                    || nodes[i].toLowerCase().indexOf("h6") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h6") == 0) {
                 index = i + 1;
                 break;
             }
@@ -892,7 +904,7 @@ public final class PageAnalyzer {
 
         String t = getParentNode(getTableCellPath(tableTDXPath));
         List<Node> nodeList = XPathHelper.getXhtmlNodes(document, t);
-        LinkedHashMap<Integer, Integer> tdCountMap = new LinkedHashMap<Integer, Integer>();
+        Map<Integer, Integer> tdCountMap = new LinkedHashMap<Integer, Integer>();
 
         for (int i = 0; i < nodeList.size(); i++) {
             Node trNode = nodeList.get(i);
@@ -927,7 +939,7 @@ public final class PageAnalyzer {
             return 0;
         }
 
-        tdCountMap = CollectionHelper.sortByValue(tdCountMap, CollectionHelper.DESCENDING);
+        tdCountMap = CollectionHelper.sortByValue(tdCountMap, Order.DESCENDING);
         numberOfColumns = tdCountMap.entrySet().iterator().next().getKey();
 
         // rowspan might have led to zero columns
@@ -1163,7 +1175,7 @@ public final class PageAnalyzer {
         // remove anchors from url
         url = UrlHelper.removeAnchors(url);
 
-        LinkedHashMap<String, Double> similarityMap = new LinkedHashMap<String, Double>();
+        Map<String, Double> similarityMap = new LinkedHashMap<String, Double>();
 
         // PageAnalyzer.printDOM(document.getLastChild(), " ");
         // Crawler c = new Crawler();
@@ -1229,7 +1241,7 @@ public final class PageAnalyzer {
 
         // return url with highest similarity or an empty string if nothing has
         // been found
-        similarityMap = CollectionHelper.sortByValue(similarityMap, CollectionHelper.DESCENDING);
+        similarityMap = CollectionHelper.sortByValue(similarityMap, Order.DESCENDING);
 
         if (similarityMap.entrySet().size() > 0) {
             try {

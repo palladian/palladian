@@ -3,8 +3,6 @@ package ws.palladian.classification.language;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Validate;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +14,8 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -126,8 +126,8 @@ public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
             throw new IllegalStateException("HTTP error while trying to obtain access token: " + e, e);
         }
         try {
-            return new JSONObject(result.getStringContent()).getString("access_token");
-        } catch (JSONException e) {
+            return new JsonObject(result.getStringContent()).getString("access_token");
+        } catch (JsonException e) {
             throw new IllegalStateException("JSON parse error while trying to obtain access token: " + e
                     + ", JSON was: '" + result.getStringContent() + "'", e);
         }

@@ -6,15 +6,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
-import ws.palladian.classification.utils.MinMaxNormalization;
+import ws.palladian.classification.utils.Normalization;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.ImmutableNumericVector;
+import ws.palladian.helper.math.NumericVector;
 import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.FeatureVector;
 import ws.palladian.processing.features.NumericFeature;
 
@@ -24,35 +24,21 @@ import ws.palladian.processing.features.NumericFeature;
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  */
 public final class KnnModel implements Model {
 
-    /**
-     * <p>
-     * Used for serializing objects of this class. Should only change if the attribute set of the class changes.
-     * </p>
-     */
+    /** Used for serializing objects of this class. Should only change if the attribute set of the class changes. */
     private static final long serialVersionUID = -6528509220813706056L;
-    /**
-     * <p>
-     * Training examples which are used for classification.
-     * </p>
-     */
+
+    /** Training examples which are used for classification. */
     private List<TrainingExample> trainingExamples;
 
     /**
-     * <p>
-     * Whether this is a normalized {@code KnnModel} or not.
-     * </p>
-     */
-    private boolean isNormalized;
-    /**
-     * <p>
      * An object carrying the information to normalize {@link FeatureVector}s based on the normalized
      * {@link #trainingExamples}.
-     * </p>
      */
-    private MinMaxNormalization normalizationInformation;
+    private Normalization normalization;
 
     /**
      * <p>
@@ -61,24 +47,17 @@ public final class KnnModel implements Model {
      * 
      * @param trainingInstances The {@link Instance}s this model is based on.
      */
-    public KnnModel(Iterable<? extends Trainable> trainingInstances) {
-        this.trainingExamples = initTrainingInstances(trainingInstances);
-        this.isNormalized = false;
+    KnnModel(Iterable<? extends Trainable> trainingInstances, Normalization normalization) {
+        this.trainingExamples = initTrainingInstances(trainingInstances, normalization);
+        this.normalization = normalization;
     }
 
-    private List<TrainingExample> initTrainingInstances(Iterable<? extends Trainable> instances) {
+    private List<TrainingExample> initTrainingInstances(Iterable<? extends Trainable> instances,
+            Normalization normalization) {
         List<TrainingExample> ret = new ArrayList<TrainingExample>();
         for (Trainable instance : instances) {
-            TrainingExample trainingInstance = new TrainingExample();
-
-            trainingInstance.targetClass = instance.getTargetClass();
-            trainingInstance.features = new HashMap<String, Double>();
-            Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
-            for (NumericFeature feature : numericFeatures) {
-                trainingInstance.features.put(feature.getName(), feature.getValue());
-            }
-
-            ret.add(trainingInstance);
+            normalization.normalize(instance);
+            ret.add(new TrainingExample(instance));
         }
         return ret;
     }
@@ -87,60 +66,8 @@ public final class KnnModel implements Model {
      * @return The training instances underlying this {@link KnnModel}. They are used by the {@code KnnClassifier} to
      *         make a classification decision.
      */
-    public List<Trainable> getTrainingExamples() {
-        return convertTrainingInstances(trainingExamples);
-    }
-
-    private List<Trainable> convertTrainingInstances(List<TrainingExample> instances) {
-        List<Trainable> nominalInstances = new ArrayList<Trainable>(instances.size());
-
-        for (TrainingExample instance : trainingExamples) {
-            FeatureVector featureVector = new BasicFeatureVector();
-            for (Entry<String, Double> feature : instance.features.entrySet()) {
-                featureVector.add(new NumericFeature(feature.getKey(), feature.getValue()));
-            }
-            Instance nominalInstance = new Instance(instance.targetClass, featureVector);
-            nominalInstances.add(nominalInstance);
-        }
-
-        return nominalInstances;
-    }
-
-    /**
-     * <p>
-     * Min max normalizes all {@link Instance}s of this model.
-     * </p>
-     */
-    public void normalize() {
-        List<Trainable> nominalInstances = convertTrainingInstances(trainingExamples);
-        normalizationInformation = new MinMaxNormalization(nominalInstances);
-        normalizationInformation.normalize(nominalInstances);
-        trainingExamples = initTrainingInstances(nominalInstances);
-        isNormalized = true;
-    }
-
-    /**
-     * <p>
-     * Normalizes a {@link FeatureVector} based on the {@link Instance} within this model. A call to this method makes
-     * only sense if the model was previously normalized using {@link #normalize()}. Otherwise it throws an
-     * {@code IllegalStateException}.
-     * </p>
-     * 
-     * @param vector The {@link FeatureVector} to normalize.
-     */
-    public void normalize(FeatureVector vector) {
-        if (!isNormalized) {
-            throw new IllegalStateException(
-                    "Tried calling normalize for an unnormalized model. Please normalize this model before you try this again.");
-        }
-        normalizationInformation.normalize(vector);
-    }
-
-    /**
-     * @return {@code true} if this model is normalized; {@code false} otherwise.
-     */
-    public boolean isNormalized() {
-        return isNormalized;
+    public List<TrainingExample> getTrainingExamples() {
+        return trainingExamples;
     }
 
     @Override
@@ -148,7 +75,7 @@ public final class KnnModel implements Model {
         StringBuilder toStringBuilder = new StringBuilder();
         toStringBuilder.append("KnnModel [");
         toStringBuilder.append("# trainingInstances=").append(trainingExamples.size());
-        toStringBuilder.append(", isNormalized=").append(isNormalized);
+        toStringBuilder.append(" normalization=").append(normalization);
         toStringBuilder.append("]");
         return toStringBuilder.toString();
     }
@@ -161,11 +88,33 @@ public final class KnnModel implements Model {
         }
         return categories;
     }
-    
+
+    public Normalization getNormalization() {
+        return normalization;
+    }
+
 }
 
 class TrainingExample implements Serializable {
     private static final long serialVersionUID = 6007693177447711704L;
-    String targetClass;
-    Map<String, Double> features;
+    final String targetClass;
+    final Map<String, Double> features;
+
+    public TrainingExample(Trainable instance) {
+        targetClass = instance.getTargetClass();
+        features = new HashMap<String, Double>();
+        Collection<NumericFeature> numericFeatures = instance.getFeatureVector().getAll(NumericFeature.class);
+        for (NumericFeature feature : numericFeatures) {
+            features.put(feature.getName(), feature.getValue());
+        }
+    }
+    
+    public NumericVector<String> getVector() {
+        return new ImmutableNumericVector<String>(features);
+    }
+
+    @Override
+    public String toString() {
+        return targetClass + ":" + features;
+    }
 }

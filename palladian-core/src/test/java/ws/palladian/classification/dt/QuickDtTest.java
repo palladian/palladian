@@ -1,16 +1,22 @@
 package ws.palladian.classification.dt;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.junit.Test;
 
-import quickdt.TreeBuilder;
 import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.InstanceBuilder;
+import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.FeatureVector;
 
 public class QuickDtTest {
@@ -51,7 +57,7 @@ public class QuickDtTest {
         instances.add(new InstanceBuilder().set("height", 49.).set("weight", 144.).set("gender", "female").create("underweight"));
         instances.add(new InstanceBuilder().set("height", 83.).set("weight", 223.).set("gender", "male").create("healthy"));
 
-        QuickDtLearner learner = new QuickDtLearner(new TreeBuilder());
+        QuickDtLearner learner = QuickDtLearner.tree();
         QuickDtModel model = learner.train(instances);
 
         FeatureVector featureVector = new InstanceBuilder().set("height", 62.).set("weight", 201.).set("gender", "female").create();
@@ -62,6 +68,27 @@ public class QuickDtTest {
         assertEquals(0.4, prediction.getProbability("healthy"), 0);
         assertEquals(0.4, prediction.getProbability("underweight"), 0);
         assertEquals(0.2, prediction.getProbability("overweight"), 0);
+    }
+
+    @Test
+    public void testWithAdultIncomeData() throws FileNotFoundException {
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/adultData.txt"), false).readAll();
+        ConfusionMatrix confusionMatrix = evaluate(QuickDtLearner.randomForest(), new QuickDtClassifier(), instances);
+        double accuracy = confusionMatrix.getAccuracy();
+        assertGreater(0.75, accuracy);
+    }
+
+    private void assertGreater(double expected, double actual) {
+        assertTrue("value should be > " + expected + ", but was " + actual, actual > expected);
+    }
+
+    @Test
+    public void testWithDiabetesData() throws FileNotFoundException {
+        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false)
+                .readAll();
+        ConfusionMatrix confusionMatrix = evaluate(QuickDtLearner.randomForest(), new QuickDtClassifier(), instances);
+        double accuracy = confusionMatrix.getAccuracy();
+        assertGreater(0.72, accuracy);
     }
 
 }

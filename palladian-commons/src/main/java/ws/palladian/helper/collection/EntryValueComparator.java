@@ -5,6 +5,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import ws.palladian.helper.collection.CollectionHelper.Order;
+
 /**
  * <p>
  * Compare {@link Entry}s or {@link Pair}s by their values. Use the static factory methods {@link #ascending()} or
@@ -15,42 +17,19 @@ import org.apache.commons.lang3.tuple.Pair;
  * 
  * @author Philipp Katz
  * 
- * @param <K> Entry key.
  * @param <V> Entry value (must implement {@link Comparable}).
  */
-public final class EntryValueComparator<K, V extends Comparable<V>> implements Comparator<Entry<K, V>> {
+public final class EntryValueComparator<V extends Comparable<V>> implements Comparator<Entry<?, V>> {
 
-    private final boolean ascending;
+    private final Order order;
 
-    /**
-     * <p>
-     * Create an {@link EntryValueComparator} for sorting in an ascending way.
-     * </p>
-     * 
-     * @return The comparator.
-     */
-    public static <K, V extends Comparable<V>> EntryValueComparator<K, V> ascending() {
-        return new EntryValueComparator<K, V>(true);
-    }
-
-    /**
-     * <p>
-     * Create an {@link EntryValueComparator} for sorting in a descending way.
-     * </p>
-     * 
-     * @return The comparator.
-     */
-    public static <K, V extends Comparable<V>> EntryValueComparator<K, V> descending() {
-        return new EntryValueComparator<K, V>(false);
-    }
-
-    private EntryValueComparator(boolean ascending) {
-        this.ascending = ascending;
+    public EntryValueComparator(Order order) {
+        this.order = order;
     }
 
     @Override
-    public int compare(Entry<K, V> e1, Entry<K, V> e2) {
-        return (ascending ? 1 : -1) * e1.getValue().compareTo(e2.getValue());
+    public int compare(Entry<?, V> e1, Entry<?, V> e2) {
+        return (order == Order.ASCENDING ? 1 : -1) * e1.getValue().compareTo(e2.getValue());
     }
 
 }

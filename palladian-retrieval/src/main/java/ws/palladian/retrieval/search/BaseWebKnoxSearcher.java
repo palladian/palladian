@@ -6,9 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +14,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 
@@ -86,16 +86,16 @@ public abstract class BaseWebKnoxSearcher<R extends WebContent> extends Abstract
             TOTAL_REQUEST_COUNT.incrementAndGet();
 
             String jsonString = httpResult.getStringContent();
-            JSONObject jsonObject = new JSONObject(jsonString);
+            JsonObject jsonObject = new JsonObject(jsonString);
 
-            if (!jsonObject.has("results")) {
+            if (jsonObject.get("results") == null) {
                 return webResults;
             }
 
-            JSONArray jsonResults = jsonObject.getJSONArray("results");
+            JsonArray jsonResults = jsonObject.getJsonArray("results");
 
-            for (int j = 0; j < jsonResults.length(); j++) {
-                JSONObject currentResult = jsonResults.getJSONObject(j);
+            for (int j = 0; j < jsonResults.size(); j++) {
+                JsonObject currentResult = jsonResults.getJsonObject(j);
                 R webResult = parseResult(currentResult);
                 webResults.add(webResult);
 
@@ -107,7 +107,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebContent> extends Abstract
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
                     + e.getMessage(), e);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
                     + getName() + ": " + e.getMessage(), e);
         }
@@ -126,7 +126,7 @@ public abstract class BaseWebKnoxSearcher<R extends WebContent> extends Abstract
      * @return
      * @throws JSONException
      */
-    protected abstract R parseResult(JSONObject currentResult) throws JSONException;
+    protected abstract R parseResult(JsonObject currentResult) throws JsonException;
 
     /**
      * <p>

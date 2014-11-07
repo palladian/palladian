@@ -50,7 +50,7 @@ public class PatternAnalyzer {
         String p = "(" + w + "\\s" + w + "\\s" + w + ")\\s\\<TYPE\\>.*?\\</TYPE\\>\\s(" + w + "\\s" + w + "\\s" + w
                 + ")";
 
-        String xml = FileHelper.readFileToString(filePath);
+        String xml = FileHelper.tryReadFileToString(filePath);
 
         StringBuilder tsv = new StringBuilder();
         for (String type : types) {

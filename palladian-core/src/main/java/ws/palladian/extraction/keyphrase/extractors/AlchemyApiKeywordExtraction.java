@@ -1,24 +1,23 @@
 package ws.palladian.extraction.keyphrase.extractors;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.keyphrase.Keyphrase;
 import ws.palladian.extraction.keyphrase.KeyphraseExtractor;
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -74,27 +73,26 @@ public final class AlchemyApiKeywordExtraction extends KeyphraseExtractor {
 
         List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
-        Map<String, String> headers = new HashMap<String, String>();
+        HttpRequest request = new HttpRequest(HttpMethod.POST,
+                "http://access.alchemyapi.com/calls/text/TextGetRankedKeywords");
 
         // set input content type
-        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
         // set response/output format
-        headers.put("Accept", "application/json");
+        request.addHeader("Accept", "application/json");
 
         // create the content of the request
-        Map<String, String> content = new HashMap<String, String>();
-        content.put("text", inputText);
-        content.put("apikey", apiKey);
-        content.put("outputMode", "json");
-        content.put("maxRetrieve", String.valueOf(getKeyphraseCount()));
-        content.put("keywordExtractMode", strictExtractMode ? "strict" : "normal");
+        request.addParameter("text", inputText);
+        request.addParameter("apikey", apiKey);
+        request.addParameter("outputMode", "json");
+        request.addParameter("maxRetrieve", String.valueOf(getKeyphraseCount()));
+        request.addParameter("keywordExtractMode", strictExtractMode ? "strict" : "normal");
 
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         String response = null;
         try {
-            HttpResult postResult = retriever.httpPost("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords",
-                    headers, content);
+            HttpResult postResult = retriever.execute(request);
             response = new String(postResult.getContent());
         } catch (HttpException e) {
             LOGGER.error("HttpException while accessing Alchemy API", e);
@@ -105,11 +103,11 @@ public final class AlchemyApiKeywordExtraction extends KeyphraseExtractor {
             // parse the JSON response
             try {
 
-                JSONObject json = new JSONObject(response);
+                JsonObject json = new JsonObject(response);
 
-                JSONArray jsonKeywords = json.getJSONArray("keywords");
-                for (int i = 0; i < jsonKeywords.length(); i++) {
-                    JSONObject jsonObject = jsonKeywords.getJSONObject(i);
+                JsonArray jsonKeywords = json.getJsonArray("keywords");
+                for (int i = 0; i < jsonKeywords.size(); i++) {
+                    JsonObject jsonObject = jsonKeywords.getJsonObject(i);
 
                     String text = jsonObject.getString("text");
                     double relevance = jsonObject.getDouble("relevance");
@@ -119,7 +117,7 @@ public final class AlchemyApiKeywordExtraction extends KeyphraseExtractor {
 
                 }
 
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 LOGGER.error("JSONException while parsing the response", e);
             }
         }
@@ -139,10 +137,9 @@ public final class AlchemyApiKeywordExtraction extends KeyphraseExtractor {
     }
 
     public static void main(String[] args) {
-        @SuppressWarnings("deprecation")
-        AlchemyApiKeywordExtraction extractor = new AlchemyApiKeywordExtraction(ConfigHolder.getInstance().getConfig().getString("api.alchemy.key"));
-        List<Keyphrase> keywords = extractor
-                .extract("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.");
+        AlchemyApiKeywordExtraction extractor = new AlchemyApiKeywordExtraction("");
+        String text = "The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.";
+        List<Keyphrase> keywords = extractor.extract(text);
         CollectionHelper.print(keywords);
     }
 

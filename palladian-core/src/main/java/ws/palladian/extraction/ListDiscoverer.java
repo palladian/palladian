@@ -16,6 +16,7 @@ import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -122,9 +123,9 @@ public class ListDiscoverer {
                 }
             }
 
-            LinkedHashMap<String, Integer> xPathMap = paginationPaths.getXPathMap();
+            Map<String, Integer> xPathMap = paginationPaths.getXPathMap();
             if (xPathMap.entrySet().size() > 0) {
-                LinkedHashMap<String, Double> xPathsBySimilarity = new LinkedHashMap<String, Double>();
+                Map<String, Double> xPathsBySimilarity = new LinkedHashMap<String, Double>();
                 // QGramsDistance stringDistanceMetric = new QGramsDistance();
                 StringSimilarity stringDistanceMetric = new JaroWinklerSimilarity();
                 Iterator<Map.Entry<String, Integer>> xPathMapIterator = xPathMap.entrySet().iterator();
@@ -179,7 +180,7 @@ public class ListDiscoverer {
                         xPathsBySimilarity.put(entry.getKey(), averageLinkSimilarity);
                     }
                 }
-                xPathsBySimilarity = CollectionHelper.sortByValue(xPathsBySimilarity, CollectionHelper.DESCENDING);
+                xPathsBySimilarity = CollectionHelper.sortByValue(xPathsBySimilarity, Order.DESCENDING);
 
                 if (!xPathsBySimilarity.isEmpty()) {
                     paginationXPath = xPathsBySimilarity.entrySet().iterator().next().getKey();
@@ -303,7 +304,7 @@ public class ListDiscoverer {
             return;
         }
 
-        int mostLikelyLength = (Integer)countMap.getSortedMapDescending().entrySet().iterator().next().getKey();
+        int mostLikelyLength = countMap.getSortedMapDescending().entrySet().iterator().next().getKey();
 
         Set<String> filteredUrls = new HashSet<String>();
 
@@ -451,7 +452,7 @@ public class ListDiscoverer {
         }
 
         XPathSet siblingXPathSet = getXPathSet(siblingDocument);
-        LinkedHashMap<String, Integer> siblingXPathSetMap = siblingXPathSet.getXPathMap();
+        Map<String, Integer> siblingXPathSetMap = siblingXPathSet.getXPathMap();
 
         int samePathContent = 0;
         Iterator<Map.Entry<String, Integer>> xPathSetIterator = xPathSet.getXPathMap().entrySet().iterator();
@@ -604,7 +605,7 @@ public class ListDiscoverer {
         int numericEntries = 0;
         int completelyCapitalized = 0;
         int totalWordLength = 0;
-        int missingEntries = 0;
+        // int missingEntries = 0;
 
         Set<String> duplicateCountSet = new HashSet<String>();
         Set<String> duplicateWordCountSet = new HashSet<String>();
@@ -636,7 +637,7 @@ public class ListDiscoverer {
             }
 
             if (entry.length() == 0) {
-                missingEntries++;
+                // missingEntries++;
             } else if (!duplicateCountSet.add(entry)) {
                 duplicateCount++;
                 if (duplicateWordCountSet.add(entry)) {

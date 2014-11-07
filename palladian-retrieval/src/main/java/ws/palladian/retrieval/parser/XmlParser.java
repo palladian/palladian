@@ -11,7 +11,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.sun.syndication.io.XmlReader;
+import com.rometools.rome.io.XmlReader;
 
 /**
  * <p>

@@ -29,7 +29,7 @@ public class TermCorpusBuilderTest {
     @Test
     public void testTermCorpusBuilder() throws DocumentUnprocessableException {
         ProcessingPipeline pipeline = new ProcessingPipeline();
-        TermCorpus termCorpus = new TermCorpus();
+        MapTermCorpus termCorpus = new MapTermCorpus();
 
         pipeline.connectToPreviousProcessor(new LowerCaser());
         pipeline.connectToPreviousProcessor(new RegExTokenizer());

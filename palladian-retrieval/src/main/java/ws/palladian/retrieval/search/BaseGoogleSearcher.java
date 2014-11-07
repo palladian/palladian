@@ -2,11 +2,9 @@ package ws.palladian.retrieval.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +14,11 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
+import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 
@@ -26,7 +29,8 @@ import ws.palladian.retrieval.resources.WebContent;
  * result to the desired type ({@link BasicWebContent} or subclasses).
  * </p>
  * 
- * @see http://code.google.com/intl/de/apis/websearch/docs/reference.html
+ * @see <a href="http://code.google.com/intl/de/apis/websearch/docs/reference.html">Google Web Search API</a>
+ * @deprecated The Google search API is officially deprecated.
  * @author Philipp Katz
  */
 public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractSearcher<R> {
@@ -35,7 +39,9 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseGoogleSearcher.class);
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
-    
+
+    private static final RequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1, TimeUnit.SECONDS);
+
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
@@ -50,11 +56,13 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
 
             int offset = i * 8;
             String responseString = getResponseData(query, language, offset);
+            THROTTLE.hold();
 
             try {
 
-                JSONObject jsonObject = new JSONObject(responseString);
-                JSONObject responseData = jsonObject.getJSONObject("responseData");
+                JsonObject jsonObject = new JsonObject(responseString);
+                checkResponse(jsonObject);
+                JsonObject responseData = jsonObject.getJsonObject("responseData");
 
                 TOTAL_REQUEST_COUNT.incrementAndGet();
 
@@ -66,16 +74,16 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
                     }
                 }
 
-                JSONArray results = responseData.getJSONArray("results");
-                for (int j = 0; j < results.length(); j++) {
-                    JSONObject resultJson = results.getJSONObject(j);
+                JsonArray results = responseData.getJsonArray("results");
+                for (int j = 0; j < results.size(); j++) {
+                    JsonObject resultJson = results.getJsonObject(j);
                     R webResult = parseResult(resultJson);
                     webResults.add(webResult);
                     if (webResults.size() >= resultCount) {
                         break;
                     }
                 }
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
                         + "\" with " + getName() + ": " + e.getMessage() + ", JSON was: \"" + responseString + "\"", e);
             }
@@ -83,6 +91,24 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
 
         LOGGER.debug("google requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
+    }
+
+    private void checkResponse(JsonObject jsonObject) throws SearcherException, JsonException {
+        if (jsonObject == null) {
+            throw new SearcherException("Unexcpected JSON result format.");
+        }
+        if (jsonObject.get("responseData") == null) {
+            String responseDetails = jsonObject.getString("responseDetails");
+            int responseStatus = jsonObject.getInt("responseStatus");
+            if (responseStatus != 200) {
+                throw new SearcherException(
+                        "Response from Google: \""
+                                + responseDetails
+                                + "\" ("
+                                + responseStatus
+                                + "). Note: Google search API is deprecated. Number of requests per day is heavily limited. Consider using a different searcher.");
+            }
+        }
     }
 
     /**
@@ -145,13 +171,13 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
      * @return
      * @throws JSONException
      */
-    private int getAvailablePages(JSONObject responseData) throws JSONException {
+    private int getAvailablePages(JsonObject responseData) throws JsonException {
         int availablePages = -1;
-        if (responseData.has("cursor")) {
-            JSONObject cursor = responseData.getJSONObject("cursor");
-            if (cursor.has("pages")) {
-                JSONArray pages = cursor.getJSONArray("pages");
-                availablePages = pages.length();
+        if (responseData.get("cursor") != null) {
+            JsonObject cursor = responseData.getJsonObject("cursor");
+            if (cursor.get("pages") != null) {
+                JsonArray pages = cursor.getJsonArray("pages");
+                availablePages = pages.size();
             }
         }
         return availablePages;
@@ -164,21 +190,21 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
      * @return
      * @throws JSONException
      */
-    protected abstract R parseResult(JSONObject resultData) throws JSONException;
+    protected abstract R parseResult(JsonObject resultData) throws JsonException;
 
     @Override
     public long getTotalResultCount(String query, Language language) throws SearcherException {
         long hitCount = 0;
         String responseData = getResponseData(query, null, 0);
         try {
-            JSONObject responseJson = new JSONObject(responseData);
-            if (responseJson.has("cursor")) {
-                JSONObject cursor = responseJson.getJSONObject("cursor");
-                if (cursor.has("estimatedResultCount")) {
+            JsonObject responseJson = new JsonObject(responseData);
+            if (responseJson.get("cursor") != null) {
+                JsonObject cursor = responseJson.getJsonObject("cursor");
+                if (cursor.get("estimatedResultCount") != null) {
                     hitCount = cursor.getLong("estimatedResultCount");
                 }
             }
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
                     + "\" with " + getName() + ": " + e.getMessage() + ", JSON was: \"" + responseData + "\"", e);
         }
@@ -193,4 +219,10 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
     public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
     }
+    
+    @Override
+    public boolean isDeprecated() {
+        return true;
+    }
+
 }

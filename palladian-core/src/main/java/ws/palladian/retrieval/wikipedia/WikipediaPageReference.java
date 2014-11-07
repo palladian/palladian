@@ -1,6 +1,9 @@
 package ws.palladian.retrieval.wikipedia;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.retrieval.resources.WebContent;
@@ -17,6 +20,8 @@ public class WikipediaPageReference implements WebContent {
 
     /** The id of the main namespace with articles. Other namespaces contain meta pages, like discussions etc. */
     public static final int MAIN_NAMESPACE = 0;
+    
+    private static final String SOURCE_NAME = "MediaWiki";
 
     private final int pageId;
     private final int namespaceId;
@@ -27,13 +32,23 @@ public class WikipediaPageReference implements WebContent {
         this.namespaceId = namespaceId;
         this.title = title;
     }
-
-    /**
-     * @return The unique page ID in the wiki.
-     */
-    public int getPageId() {
+    
+    @Override
+    public int getId() {
         return pageId;
     }
+    
+    @Override
+    public String getIdentifier() {
+        return String.valueOf(pageId);
+    }
+
+//    /**
+//     * @return The unique page ID in the wiki.
+//     */
+//    public int getPageId() {
+//        return pageId;
+//    }
 
     /**
      * @return The namespace ID, in which this page resides.
@@ -87,6 +102,21 @@ public class WikipediaPageReference implements WebContent {
     @Override
     public GeoCoordinate getCoordinate() {
         return null;
+    }
+
+    @Override
+    public Set<String> getTags() {
+        return Collections.emptySet();
+    }
+    
+    @Override
+    public String getSource() {
+        return SOURCE_NAME;
+    }
+
+    @Override
+    public Map<String, Object> getAdditionalData() {
+        return Collections.emptyMap();
     }
 
 }

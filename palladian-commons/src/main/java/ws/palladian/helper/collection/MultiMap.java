@@ -52,5 +52,15 @@ public interface MultiMap<K, V> extends Map<K, Collection<V>> {
      * @return Collection with all values.
      */
     Collection<V> allValues();
+    
+    /**
+     * <p>
+     * Get the first value for the given key.
+     * </p>
+     * 
+     * @param key The key for which to retrieve the first value.
+     * @return The first value for the given key, or <code>null</code> if no values exist.
+     */
+    V getFirst(K key);
 
 }

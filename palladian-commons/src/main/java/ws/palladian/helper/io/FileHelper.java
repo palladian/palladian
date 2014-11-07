@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -23,13 +24,13 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -64,7 +65,6 @@ import ws.palladian.helper.math.MathHelper;
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
- * @author Sandro Reichert
  */
 public final class FileHelper {
 
@@ -78,7 +78,7 @@ public final class FileHelper {
     public static final String NEWLINE_CHARACTER = "\n";
 
     /** Constant for image file extensions. */
-    public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif");
+    public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif", "svg");
 
     /** Constant for video file extensions. */
     public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov",
@@ -90,6 +90,9 @@ public final class FileHelper {
     /** Constant for general binary file extensions, including. */
     public static final List<String> BINARY_FILE_EXTENSIONS;
 
+    /** The Palladian-specific temporary directory. */
+    private static volatile File tempDirectory = null;
+
     static {
         List<String> binaryFileExtensions = new ArrayList<String>();
         binaryFileExtensions.add("pdf");
@@ -97,6 +100,10 @@ public final class FileHelper {
         binaryFileExtensions.add("ppt");
         binaryFileExtensions.add("xls");
         binaryFileExtensions.add("zip");
+        binaryFileExtensions.add("7z");
+        binaryFileExtensions.add("rar");
+        binaryFileExtensions.add("tar");
+        binaryFileExtensions.add("gz");
         binaryFileExtensions.add("exe");
         binaryFileExtensions.add("msi");
         binaryFileExtensions.add("swf");
@@ -124,12 +131,8 @@ public final class FileHelper {
      * @return true, if is file name
      */
     public static boolean isFileName(String name) {
-        name = name.trim();
-
         Pattern pattern = Pattern.compile("\\.[A-Za-z0-9]{2,5}$", Pattern.CASE_INSENSITIVE);
-        Matcher m = pattern.matcher(name);
-
-        return m.find();
+        return pattern.matcher(name.trim()).find();
     }
 
     /**
@@ -242,52 +245,85 @@ public final class FileHelper {
         return fileType;
     }
 
+    public static String tryReadFileToString(String path) {
+        try {
+            return readFileToString(new File(path));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String tryReadFileToString(File file) {
+        try {
+            return readFileToString(file);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String tryReadFileToString(String path, String encoding) {
+        return tryReadFileToString(new File(path), encoding);
+    }
+
+    public static String tryReadFileToString(File file, String encoding) {
+        try {
+            return readFileToString(file, encoding);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /**
+     * <p>
      * Read file to string.
+     * </p>
      * 
      * @param path The path to the file that should be read.
      * @return The string content of the file.
+     * @throws IOException
      */
-    public static String readFileToString(String path) {
+    public static String readFileToString(String path) throws IOException {
         return readFileToString(new File(path));
     }
 
-    public static String readFileToString(String path, String encoding) {
+    public static String readFileToString(String path, String encoding) throws IOException {
         return readFileToString(new File(path), encoding);
     }
 
     public static String readFileToString(InputStream is) {
         return StringUtils.join(readFileToArray(is), "\n");
     }
+
     /**
      * Read file to string.
      * 
      * @param file The file that should be read.
      * @return The string content of the file.
+     * @throws IOException
      */
-    // TODO throw exception if file cannot be accessed.
-    public static String readFileToString(File file) {
+    public static String readFileToString(File file) throws IOException {
         return readFileToString(file, DEFAULT_ENCODING);
     }
 
-    // FIXME return null on error
-    public static String readFileToString(File file, String encoding) {
+    public static String readFileToString(File file, String encoding) throws IOException {
 
         StringBuilder contents = new StringBuilder();
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
+            InputStream stream = new FileInputStream(file);
+
+            if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
+                stream = new GZIPInputStream(stream);
+            }
+
+            reader = new BufferedReader(new InputStreamReader(stream, encoding));
 
             String line = null;
             while ((line = reader.readLine()) != null) {
                 contents.append(line).append(NEWLINE_CHARACTER);
             }
 
-        } catch (FileNotFoundException e) {
-            LOGGER.error(file + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(file + ", " + e.getMessage());
         } finally {
             close(reader);
         }
@@ -588,6 +624,7 @@ public final class FileHelper {
         Writer writer = null;
 
         try {
+            CollectionHelper.removeNulls(lines);
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), DEFAULT_ENCODING));
             for (Object line : lines) {
                 writer.write(line.toString());
@@ -650,22 +687,22 @@ public final class FileHelper {
         return writeToFile(filePath, string, DEFAULT_ENCODING);
     }
 
-    public static void writeToFile(InputStream inputStream, String fileTargetLocation) {
+    public static void writeToFile(String filePath, InputStream inputStream) {
 
         OutputStream out = null;
         try {
-            out = new FileOutputStream(new File(fileTargetLocation));
+            out = new FileOutputStream(new File(filePath));
             int read = 0;
             byte[] bytes = new byte[1024];
 
-            out = new FileOutputStream(new File(fileTargetLocation));
+            out = new FileOutputStream(new File(filePath));
             while ((read = inputStream.read(bytes)) != -1) {
                 out.write(bytes, 0, read);
             }
             out.flush();
             out.close();
         } catch (IOException e) {
-            LOGGER.error(e.getMessage() + " : " + fileTargetLocation, e);
+            LOGGER.error(e.getMessage() + " : " + filePath, e);
         } finally {
             close(out, inputStream);
         }
@@ -804,142 +841,89 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
      * Deserialize a serialized object. If the filepath ends with "gz" it is automatically decompressed. This generic
      * method does the cast for you, just deserialize to the appropriate type, like
      * <tt>Foo foo = FileHelper.deserialize("foo.ser");</tt>.
+     * </p>
      * 
-     * @param <T> Type of the objects.
-     * @param filePath The file path of the serialized object.
+     * @param <T> Type of the object to deserialize.
+     * @param filePath The path to the file with the serialized object, not <code>null</code> or empty.
      * @return The deserialized object.
+     * @throws IOException In case of any I/O error.
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Serializable> T deserialize(String filePath) {
-
-        if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            return (T)deserializeCompressed(filePath);
-        }
-
+    public static <T extends Serializable> T deserialize(String filePath) throws IOException {
+        Validate.notEmpty(filePath, "filePath must not be empty");
         ObjectInputStream in = null;
-        T obj = null;
 
         try {
-            in = new ObjectInputStream(new FileInputStream(filePath));
-            obj = (T)in.readObject();
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
+            InputStream stream;
+            if (filePath.startsWith("http://")) {
+                stream = new URL(filePath).openStream();
+            } else {
+                stream = new FileInputStream(filePath);
+            }
+            if (getFileType(filePath).equalsIgnoreCase("gz")) {
+                stream = new GZIPInputStream(stream);
+            }
+            in = new ObjectInputStream(stream);
+            return (T)in.readObject();
         } catch (ClassNotFoundException e) {
-            LOGGER.error(e.getMessage());
+            throw new IllegalStateException(e);
         } finally {
             close(in);
         }
-
-        return obj;
     }
 
-    /**
-     * Deserialize a serialized object and compressed object.
-     * 
-     * @param <T> type of the objects.
-     * @param filePath The file path of the serialized object.
-     * @return The deserialized object.
-     */
-    @SuppressWarnings("unchecked")
-    private static <T extends Serializable> T deserializeCompressed(String filePath) {
-
-        ObjectInputStream ois = null;
-        T obj = null;
-
+    public static <T extends Serializable> T tryDeserialize(String filePath) {
         try {
-            ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filePath)));
-            obj = (T)ois.readObject();
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage() + ", file path:" + filePath);
+            return FileHelper.<T> deserialize(filePath);
         } catch (IOException e) {
-            LOGGER.error(e.getMessage() + ", file path:" + filePath);
-        } catch (ClassNotFoundException e) {
-            LOGGER.error(e.getMessage() + ", file path:" + filePath);
-        } finally {
-            close(ois);
+            return null;
         }
-
-        return obj;
     }
 
     /**
-     * Serialize a serializable object. If the path ends with ".gz" it is automatically saved using gzip compression.
+     * <p>
+     * Serialize a serializable object. If the given path ends with <code>.gz</code> it is automatically saved using
+     * GZIP compression.
+     * </p>
      * 
-     * @param obj The obj to serialize.
-     * @param filePath The file path where the object should be serialized to.
+     * @param object The {@link Serializable} object to serialize, not <code>null</code>.
+     * @param filePath The file path where the object should be serialized to, not <code>null</code> or empty. In case,
+     *            the directories do not exist, they are created automatically.
+     * @throws IOException In case of any I/O error.
      */
-    public static boolean serialize(Serializable obj, String filePath) {
-
-        boolean success = true;
-
-        if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            return serializeCompress(obj, filePath);
-        }
-
+    public static void serialize(Serializable object, String filePath) throws IOException {
+        Validate.notNull(object, "object must not be null");
+        Validate.notEmpty(filePath, "filePath must not be empty");
         ObjectOutputStream out = null;
         try {
-
             File outputFile = new File(FileHelper.getFilePath(filePath));
             if (!outputFile.exists()) {
                 outputFile.mkdirs();
             }
-
-            out = new ObjectOutputStream(new FileOutputStream(filePath));
-            out.writeObject(obj);
-        } catch (IOException e) {
-            LOGGER.error("could not serialize object, " + e.getMessage() + ", " + e.getCause());
-            success = false;
-        } catch (OutOfMemoryError e) {
-            LOGGER.error("could not serialize object, " + e.getMessage() + ", exiting now!");
-            success = false;
-        } catch (Exception e) {
-            LOGGER.error("could not serialize object, " + e.getMessage());
-            success = false;
+            OutputStream fileOutputStream = new FileOutputStream(filePath);
+            if (getFileType(filePath).equalsIgnoreCase("gz")) {
+                fileOutputStream = new GZIPOutputStream(fileOutputStream);
+            }
+            out = new ObjectOutputStream(fileOutputStream);
+            out.writeObject(object);
         } finally {
             close(out);
         }
-
-        return success;
     }
 
-    /**
-     * Serialize a serializable object and use compression.
-     * 
-     * @param obj The obj to serialize and compress.
-     * @param filePath The file path where the object should be serialized to.
-     */
-    private static boolean serializeCompress(Serializable obj, String filePath) {
-        boolean success = true;
-
-        ObjectOutputStream out = null;
+    public static boolean trySerialize(Serializable object, String filePath) {
         try {
-
-            File outputFile = new File(FileHelper.getFilePath(filePath));
-            if (!outputFile.exists()) {
-                outputFile.mkdirs();
-            }
-
-            out = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filePath)));
-            out.writeObject(obj);
+            serialize(object, filePath);
+            return true;
         } catch (IOException e) {
-            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage(), e);
-            success = false;
-        } catch (OutOfMemoryError e) {
-            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage() + ", exiting now!");
-            success = false;
-        } catch (Exception e) {
-            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage());
-            success = false;
-        } finally {
-            close(out);
+            // ignore.
         }
 
-        return success;
+        return false;
     }
 
     /**
@@ -954,9 +938,7 @@ public final class FileHelper {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
-        String newPath = fullPath.replaceAll(Pattern.quote(oldName) + "\\.", newName + ".");
-
-        return newPath;
+        return fullPath.replaceAll(Pattern.quote(oldName) + "\\.", newName + ".");
     }
 
     /**
@@ -1276,8 +1258,32 @@ public final class FileHelper {
         return getNumberOfLines(file.getPath());
     }
 
+    private static void addDirectorToZip(ZipOutputStream zout, File dir, String relativePath) {
+        File[] files = dir.listFiles();
+
+        LOGGER.debug("adding directory: " + dir.getName());
+
+        for (int i = 0; i < files.length; i++) {
+
+            // if the file is directory, use recursion
+            if (files[i].isDirectory()) {
+                addDirectorToZip(zout, files[i], files[i].getName() + "/");
+                continue;
+            }
+
+            try {
+                addFileToZip(zout, files[i], relativePath);
+            } catch (IOException ioe) {
+                LOGGER.error("error creating the zip, " + ioe);
+            }
+
+        }
+    }
+
     /**
-     * Zip a number of file to one file.
+     * <p>
+     * Zip a number of files to one file. The list of files may contain directories as well.
+     * </p>
      * 
      * @param files The files to zip.
      * @param targetFilename The name of the target zip file.
@@ -1288,39 +1294,54 @@ public final class FileHelper {
         ZipOutputStream zout = null;
 
         try {
-            byte[] buffer = new byte[1024];
 
             fout = new FileOutputStream(targetFilename);
             zout = new ZipOutputStream(fout);
 
             for (File sourceFile : files) {
 
-                LOGGER.debug("adding " + sourceFile + " to zip");
-
-                FileInputStream fin = new FileInputStream(sourceFile);
-
-                // add the zip entry
-                zout.putNextEntry(new ZipEntry(sourceFile.getPath()));
-
-                // now we write the file
-                int length;
-                while ((length = fin.read(buffer)) > 0) {
-                    zout.write(buffer, 0, length);
+                // if the file is directory, use recursion
+                if (sourceFile.isDirectory()) {
+                    addDirectorToZip(zout, sourceFile, sourceFile.getName() + "/");
+                    continue;
                 }
 
-                zout.closeEntry();
-                fin.close();
+                addFileToZip(zout, sourceFile, "");
+
             }
 
         } catch (IOException ioe) {
             LOGGER.error("error creating the zip, " + ioe);
         } finally {
-            close(fout, zout);
+            close(zout, fout);
         }
     }
 
+    private static void addFileToZip(ZipOutputStream zout, File sourceFile, String relativePath) throws IOException {
+        LOGGER.debug("adding " + sourceFile + " to zip");
+
+        byte[] buffer = new byte[1024];
+
+        FileInputStream fin = new FileInputStream(sourceFile);
+
+        // add the zip entry
+        zout.putNextEntry(new ZipEntry(relativePath + sourceFile.getName()));
+
+        // now we write the file
+        int length;
+        while ((length = fin.read(buffer)) > 0) {
+            zout.write(buffer, 0, length);
+        }
+
+        zout.closeEntry();
+        fin.close();
+    }
+
+
     /**
+     * <p>
      * Zip some text and save to a file. http://www.java2s.com/Tutorial/Java/0180__File/ZipafilewithGZIPOutputStream.htm
+     * </p>
      * 
      * @param text The text to be zipped.
      * @param filenameOutput The name of the zipped file.
@@ -1550,10 +1571,7 @@ public final class FileHelper {
      *         <code>null</code>.
      */
     public static boolean fileExists(String filePath) {
-        if (filePath == null) {
-            return false;
-        }
-        return new File(filePath).isFile();
+        return filePath != null ? new File(filePath).isFile() : false;
     }
 
     /**
@@ -1566,10 +1584,7 @@ public final class FileHelper {
      *         was <code>null</code>.
      */
     public static boolean directoryExists(String directoryPath) {
-        if (directoryPath == null) {
-            return false;
-        }
-        return new File(directoryPath).isDirectory();
+        return directoryPath != null ? new File(directoryPath).isDirectory() : false;
     }
 
     /**
@@ -1739,6 +1754,145 @@ public final class FileHelper {
     }
 
     /**
+     * <p>
+     * Splits a given text file into evenly sized (if possible) files each named with the original name + "_splitX".
+     * </p>
+     * 
+     * @param filePath The file to be split.
+     * @param numParts The number of evenly sized parts the file should be split into.
+     */
+    public static void splitAsciiFile(String filePath, int numParts) {
+
+        int totalLines = FileHelper.getNumberOfLines(filePath);
+
+        int linesPerSplit = (int)Math.ceil((totalLines / (double)numParts));
+
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+        OutputStream out = null;
+
+        try {
+
+            out = new FileOutputStream(appendToFileName(filePath, "_split1"));
+            writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
+
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), DEFAULT_ENCODING));
+
+            String line = null;
+            int lineNumber = 1;
+            int i = 2;
+            while ((line = reader.readLine()) != null) {
+
+                if (lineNumber % linesPerSplit == 0) {
+                    if (i == numParts + 1) {
+                        break;
+                    }
+
+                    out = new FileOutputStream(appendToFileName(filePath, "_split" + i));
+                    writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
+                    i++;
+                }
+
+                writer.write(line + "\n");
+
+                lineNumber++;
+            }
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        } finally {
+            close(reader, writer, out);
+        }
+
+    }
+
+    /**
+     * <p>
+     * Shuffles the order of lines in a given file.
+     * </p>
+     * 
+     * @param filePath The path of the file which lines should be shuffled.
+     */
+    public static void shuffleLines(String filePath) {
+        List<String> lines = FileHelper.readFileToArray(filePath);
+        Collections.shuffle(lines);
+        FileHelper.writeToFile(filePath, lines);
+    }
+
+    /**
+     * <p>
+     * Get the Palladian-specific temporary directory. The temp directory is created in the VM's temp directory as
+     * specified in <code>java.io.tmpdir</code> as subdirectory with the name <code>palladian-[timestamp]</code>. This
+     * directory and all its contents are deleted upon VM termination. The temp directory should be used for storing all
+     * intermediate data.
+     * </p>
+     * 
+     * @return The {@link File} representing the temp directory.
+     */
+    public static File getTempDir() {
+        // Thread-safe
+        if (tempDirectory == null) {
+            synchronized (FileHelper.class) {
+                if (tempDirectory == null) {
+                    File baseDirectory = new File(System.getProperty("java.io.tmpdir"));
+                    String directoryName = "palladian-" + System.currentTimeMillis();
+                    File newTempDirectory = new File(baseDirectory, directoryName);
+                    if (!newTempDirectory.mkdir()) {
+                        throw new IllegalStateException("Could not create the temporary directory " + directoryName
+                                + " in " + baseDirectory.getPath());
+                    }
+                    tempDirectory = newTempDirectory;
+
+                    // clean up, when VM shuts down
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+                        @Override
+                        public void run() {
+                            boolean success = delete(tempDirectory.getPath(), true);
+                            if (!success) {
+                                LOGGER.error("Error while deleting temporary directory {}", tempDirectory);
+                            }
+                        }
+                    });
+
+                    // LOGGER.debug("Temp directory is {}", tempDirectory);
+                }
+            }
+        }
+        return tempDirectory;
+    }
+
+    /**
+     * <p>
+     * Traverse a directory, including its subdirectories and perform an {@link Action} to each file.
+     * </p>
+     * 
+     * @param path The starting path, not <code>null</code>.
+     * @param filter A {@link FileFilter} which determines which files to process, not <code>null</code>.
+     * @param action An {@link Action} to perform for the matching files, not <code>null</code>.
+     * @return The number of processed files.
+     */
+    public static int traverseFiles(File path, FileFilter filter, Action<? super File> action) {
+        Validate.notNull(path, "path must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        Validate.notNull(action, "action must not be null");
+        int counter = 0;
+        File[] files = path.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                traverseFiles(file, filter, action);
+            } else {
+                if (filter.accept(file)) {
+                    counter++;
+                    action.process(file);
+                }
+            }
+        }
+        return counter;
+    }
+
+    /**
      * The main method.
      * 
      * @param a The arguments.
@@ -1858,118 +2012,4 @@ public final class FileHelper {
                 "sampleTextForTagging_tagged"));
 
     }
-
-    /**
-     * <p>
-     * Splits a given text file into evenly sized (if possible) files each named with the original name + "_splitX".
-     * </p>
-     * 
-     * @param filePath The file to be split.
-     * @param numParts The number of evenly sized parts the file should be split into.
-     */
-    public static void splitAsciiFile(String filePath, int numParts) {
-
-        int totalLines = FileHelper.getNumberOfLines(filePath);
-
-        int linesPerSplit = (int)Math.ceil((totalLines / (double)numParts));
-
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        OutputStream out = null;
-
-        try {
-
-            out = new FileOutputStream(appendToFileName(filePath, "_split1"));
-            writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
-
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), DEFAULT_ENCODING));
-
-            String line = null;
-            int lineNumber = 1;
-            int i = 2;
-            while ((line = reader.readLine()) != null) {
-
-                if (lineNumber % linesPerSplit == 0) {
-                    if (i == numParts + 1) {
-                        break;
-                    }
-
-                    out = new FileOutputStream(appendToFileName(filePath, "_split" + i));
-                    writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
-                    i++;
-                }
-
-                writer.write(line + "\n");
-
-                lineNumber++;
-            }
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
-        } finally {
-            close(reader, writer, out);
-        }
-
-    }
-
-    /**
-     * <p>
-     * Shuffles the order of lines in a given file.
-     * </p>
-     * 
-     * @param filePath The path of the file which lines should be shuffled.
-     */
-    public static void shuffleLines(String filePath) {
-        List<String> lines = FileHelper.readFileToArray(filePath);
-        Collections.shuffle(lines);
-        FileHelper.writeToFile(filePath, lines);
-    }
-
-    /** The Palladian-specific temp. directory. */
-    private static volatile File tempDirectory = null;
-
-    /**
-     * <p>
-     * Get the Palladian-specific temporary directory. The temp directory is created in the VM's temp directory as
-     * specified in <code>java.io.tmpdir</code> as subdirectory with the name <code>palladian-[timestamp]</code>. This
-     * directory and all its contents are deleted upon VM termination. The temp directory should be used for storing all
-     * intermediate data.
-     * </p>
-     * 
-     * @return The {@link File} representing the temp directory.
-     */
-    public static File getTempDir() {
-        // Thread-safe
-        if (tempDirectory == null) {
-            synchronized (FileHelper.class) {
-                if (tempDirectory == null) {
-                    File baseDirectory = new File(System.getProperty("java.io.tmpdir"));
-                    String directoryName = "palladian-" + System.currentTimeMillis();
-                    File newTempDirectory = new File(baseDirectory, directoryName);
-                    if (!newTempDirectory.mkdir()) {
-                        throw new IllegalStateException("Could not create the temporary directory " + directoryName
-                                + " in " + baseDirectory.getPath());
-                    }
-                    tempDirectory = newTempDirectory;
-
-                    // clean up, when VM shuts down
-                    Runtime.getRuntime().addShutdownHook(new Thread() {
-                        @Override
-                        public void run() {
-                            boolean success = delete(tempDirectory.getPath(), true);
-                            if (!success) {
-                                LOGGER.error("Error while deleting temporary directory {}", tempDirectory);
-                            }
-                        }
-                    });
-
-                    // LOGGER.debug("Temp directory is {}", tempDirectory);
-                }
-            }
-        }
-        return tempDirectory;
-    }
-
 }

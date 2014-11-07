@@ -27,10 +27,14 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
  * @author David Urbansky
  * 
  */
-public class PostRateUpdateStrategy extends UpdateStrategy {
+public class PostRateUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MavUpdateStrategy.class);
+
+    public PostRateUpdateStrategy(int lowestInterval, int highestInterval) {
+        super(lowestInterval, highestInterval);
+    }
 
     /**
      * <p>
@@ -160,9 +164,9 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
         }
 
         if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
-            feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
+            feed.setUpdateInterval(getAllowedInterval(minCheckInterval));
         } else {
-            feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
+            feed.setUpdateInterval(getAllowedInterval(maxCheckInterval));
         }
     }
 

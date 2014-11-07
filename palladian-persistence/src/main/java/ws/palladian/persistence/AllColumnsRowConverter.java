@@ -12,7 +12,9 @@ import java.util.Map;
  * </p>
  * 
  * @author David Urbansky
+ * @deprecated Use {@link MapRowConverter}. // FIXME see fixme in MapRowConverter
  */
+@Deprecated
 public final class AllColumnsRowConverter {
 
     private AllColumnsRowConverter() {
@@ -21,7 +23,7 @@ public final class AllColumnsRowConverter {
 
     /**
      * <p>
-     * A {@link RowConverter} for {@link Map<String,Object>} types.
+     * A {@link RowConverter} for {@link Map} types.
      * </p>
      */
     public final static RowConverter<Map<String, Object>> MAP = new RowConverter<Map<String, Object>>() {
@@ -45,6 +47,8 @@ public final class AllColumnsRowConverter {
                     map.put(columnName, resultSet.getInt(i));
                 } else if (columnType == Types.BIGINT) {
                     map.put(columnName, resultSet.getLong(i));
+                } else if (columnType == Types.FLOAT) {
+                    map.put(columnName, resultSet.getDouble(i));
                 } else if (columnType == Types.DOUBLE) {
                     map.put(columnName, resultSet.getDouble(i));
                 } else if (columnType == Types.BOOLEAN) {

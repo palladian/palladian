@@ -1,5 +1,6 @@
 package ws.palladian.extraction.feature;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,12 +41,12 @@ public class InformativenessAssigner {
         return SingletonHolder.instance;
     }
 
-    public void loadFrequencyMap() {
+    public void loadFrequencyMap() throws IOException {
         tokenFrequencies = FileHelper.deserialize("data/temp/tokenFrequencyMap.gz");
         normalizeFrequencyMap();
     }
 
-    public void saveFrequencyMap() {
+    public void saveFrequencyMap() throws IOException {
         FileHelper.serialize(tokenFrequencies, "data/temp/tokenFrequencyMap.gz");
     }
 
@@ -69,7 +70,7 @@ public class InformativenessAssigner {
         }
     }
 
-    public void initTokenFrequencyMap() {
+    public void initTokenFrequencyMap() throws IOException {
 
         CountMap<String> tokenFrequencyMap = CountMap.create();
 
@@ -238,8 +239,9 @@ public class InformativenessAssigner {
 
     /**
      * @param args
+     * @throws IOException 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         StopWatch sw = new StopWatch();
 

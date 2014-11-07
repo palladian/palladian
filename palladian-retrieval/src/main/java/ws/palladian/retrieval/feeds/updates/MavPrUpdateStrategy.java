@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedReader;
 
 /**
  * <p>
@@ -15,7 +14,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
  * @author David Urbansky
  * 
  */
-public class MavPrUpdateStrategy extends UpdateStrategy {
+public class MavPrUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The prediction for the next item of the post rate strategy. */
     private int prCheckIntervalPrediction;
@@ -26,14 +25,18 @@ public class MavPrUpdateStrategy extends UpdateStrategy {
     /** Whether or not to use the post rate. */
     private boolean usePostRate = false;
 
+    public MavPrUpdateStrategy(int lowestInterval, int highestInterval) {
+        super(lowestInterval, highestInterval);
+    }
+
     @Override
     public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
         // determine winner of last prediction
         double diffPR = feed.getBenchmarkLastLookupTime() + prCheckIntervalPrediction * TimeUnit.MINUTES.toMillis(1)
-        - fps.getTimeNewestPost();
+                - fps.getTimeNewestPost();
         double diffMAV = feed.getBenchmarkLastLookupTime() + mavCheckIntervalPrediction * TimeUnit.MINUTES.toMillis(1)
-        - fps.getTimeNewestPost();
+                - fps.getTimeNewestPost();
 
         if (feed.hasNewItem()) {
             if (Math.abs(diffPR) < Math.abs(diffMAV)) {
@@ -43,25 +46,25 @@ public class MavPrUpdateStrategy extends UpdateStrategy {
             }
         }
 
-        int mavInterval = FeedReader.DEFAULT_CHECK_TIME;
-        UpdateStrategy mav = new MavUpdateStrategy();
+        int mavInterval = DEFAULT_CHECK_TIME;
+        UpdateStrategy mav = new MavUpdateStrategy(getLowestInterval(), getHighestInterval());
         mav.update(feed, fps, trainingMode);
         mavInterval = feed.getUpdateInterval();
         mavCheckIntervalPrediction = feed.getUpdateInterval();
 
-        int prInterval = FeedReader.DEFAULT_CHECK_TIME;
-        UpdateStrategy pr = new PostRateUpdateStrategy();
+        int prInterval = DEFAULT_CHECK_TIME;
+        UpdateStrategy pr = new PostRateUpdateStrategy(getLowestInterval(), getHighestInterval());
         pr.update(feed, fps, trainingMode);
         prInterval = feed.getUpdateInterval();
         prCheckIntervalPrediction = feed.getUpdateInterval();
 
         if (usePostRate) {
             pr.update(feed, fps, trainingMode);
-            feed.setUpdateInterval(getAllowedUpdateInterval(mavInterval));
+            feed.setUpdateInterval(getAllowedInterval(mavInterval));
 
         } else {
             mav.update(feed, fps, trainingMode);
-            feed.setUpdateInterval(getAllowedUpdateInterval(prInterval));
+            feed.setUpdateInterval(getAllowedInterval(prInterval));
         }
 
     }

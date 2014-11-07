@@ -64,7 +64,7 @@ public final class WekaModel implements Model {
         Set<String> categories = CollectionHelper.newHashSet();
         while (values.hasMoreElements()) {
             String category = (String) values.nextElement();
-            if (category.equals(WekaPredictor.DUMMY_CLASS)) {
+            if (category.equals(WekaLearner.DUMMY_CLASS)) {
                 continue; // ignore this dummy class, see comment at constant.
             }
             categories.add(category);

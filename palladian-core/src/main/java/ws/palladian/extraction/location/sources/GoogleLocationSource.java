@@ -151,6 +151,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
         throw new UnsupportedOperationException("Not supported by Google.");
     }
 
+    @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         String url = String.format("http://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&sensor=true",
                 coordinate.getLatitude(), coordinate.getLongitude());

@@ -1,0 +1,96 @@
+{{Use dmy dates|date=May 2013}}
+{{Use British English|date=May 2013}}
+{{Infobox GB station
+ | symbol = rail
+ | name = Luton Airport Parkway
+ | image_name =Luton_Airport_Parkway_railway_station_nameboard.jpg
+ | manager = [[First Capital Connect]]
+ | locale = [[Luton]]
+ | borough = [[Luton]]
+ | usage0405 = 1.887
+ | usage0506 = {{increase}} 2.157
+ | usage0607 = {{increase}} 2.365
+ | usage0708 = {{increase}} 2.628
+ | usage0809 = {{decrease}} 2.589
+ | usage0910 = {{decrease}} 2.339
+ | usage1011 = {{decrease}} 2.312
+ | usage1112 = {{increase}} 2.430
+ | usage1213 = 
+ | platforms = 4
+ | code = LTN
+ | start = November 1999
+ | gridref = TL105205
+}}
+{| {{Railway line header}}
+{{Luton railways}}
+[[File:Luton AP Concourse.jpg|thumb|right|Intermediate-level concourse adjacent to Platform 4]]
+
+'''Luton Airport Parkway railway station''' is the railway station for [[London Luton Airport]] in [[Bedfordshire]], [[England]]. The station is situated approximately {{convert|1|mi}} west of the airport, to which it is linked by a frequent shuttle bus service.<ref name="new ltn shuttle buses">{{cite web| url=http://www.lutononsunday.com/lutononsunday%2Dnews/DisplayArticle.asp?ID=250004| author=Luton on Sunday| date=20 January 2008| title=Airport shuttle bus will charge in future| accessdate=20 January 2008}}</ref>
+
+The station is located on the [[Midland Main Line]] and is served by [[First Capital Connect|First Capital Connect (FCC)]] and [[East Midlands Trains]] trains. From the station, services are available north to [[Bedford]], [[Wellingborough]], [[Kettering]], [[Leicester]], [[Loughborough]], [[Derby]] and [[Nottingham]]. Passengers can also travel south to [[St Albans]], [[London]], [[Wimbledon, London|Wimbledon]], [[Sutton railway station (London)|Sutton]], [[London Gatwick Airport]] and [[Brighton]].
+
+== History ==
+The station was opened in 1999, specifically to serve [[Luton Airport]]. Initially it was linked to the airport by free shuttle buses operated by [[National Car Parks]] on behalf of the airport's owners. In January 2008 the free shuttle bus service was replaced by a more frequent, but chargeable, service provided by [[First Capital Connect]].<ref name="new ltn shuttle buses"/>
+
+In November 2008, the station became the first on the [[Thameslink]] route to have its platforms extended in order to accommodate twelve-coach trains as part of the [[Thameslink Programme]].<ref>{{cite web|url=http://www.networkrail.co.uk/aspx/1326.aspx|title=Thameslink Programme|publisher=Network Rail|accessdate=2008-12-18}}</ref> In April 2013, a new northern entrance was opened on Kimpton Road, Luton.
+
+== Services ==
+=== Rail services ===
+The typical off-peak service from this station is as follows:
+
+*4 trains per hour (tph) to [[Brighton railway station|Brighton]] via London and [[Gatwick Airport railway station|Gatwick Airport]] ([[First Capital Connect]])
+*2 tph to [[Sutton railway station (London)|Sutton]] via London and [[Wimbledon station|Wimbledon]] ([[First Capital Connect]])
+*1 tph to [[London St Pancras|London St Pancras International]] only ([[East Midlands Trains]])
+*2 tph to [[Luton railway station|Luton]] only ([[First Capital Connect]])
+*4 tph to Luton and [[Bedford railway station|Bedford]] (all stations) ([[First Capital Connect]])
+*1 tph to [[Nottingham railway station|Nottingham]] via [[Leicester railway station|Leicester]] (fast to Bedford) ([[East Midlands Trains]])
+
+Other [[East Midlands Trains]] services, from {{stnlnk|Leeds}}, {{stnlnk|Sheffield}} and {{stnlnk|Derby}}, run through at high speed, but do not stop. Interchange with these services can be made at Leicester and St Pancras.
+
+=== Shuttle service to Luton Airport ===
+The station is connected to [[Luton Airport]] by a shuttle bus which takes 10 minutes for the journey. Services run every 10 minutes during the day and connect with all trains calling at the station overnight. The service is provided by [[First Capital Connect]], and through booking to the airport is available from all [[National Rail]] stations. Passengers without through tickets must pay an additional fare to use the buses.<ref name="new ltn shuttle buses"/><ref>{{cite web | url = http://www.london-luton.co.uk/en/faq/14/64/how-often-does-the-shuttle-bus-run-between-london-luton-airport-and-luton-airport-parkway-rail-station.html | title = How often does the shuttle bus run between London Luton Airport and Luton Airport Parkway Rail Station? | publisher = London Luton Airport | accessdate = 2013-08-09}}</ref>
+
+== Station facilities ==
+
+*Four platforms
+*Four waiting rooms
+*Newsagent/Cafe
+*Telephones
+*ATM
+*Ticket barriers
+*[[Shere FASTticket|FastTicket machine]]
+*Toilets
+*Multistorey car park
+*Free 20 minute wait car park
+*The station has a [[PlusBus]] scheme where train and bus tickets can be bought together for a cheaper price. It is in the same town as [[Luton railway station|Luton]] and [[Leagrave railway station|Leagrave]] stations.
+
+== Service patterns ==
+{{rail start}}
+{{s-rail-national|next=Bedford|previous=St Pancras International|toc=East Midlands Trains|route=Midland Main Line}}
+{{s-rail-national|next=Luton|previous=Harpenden|toc=First Capital Connect|route=Thameslink}}
+{{s-rail-national|previous=Harpenden|next=Luton|toc=First Capital Connect|route=Bedford-Sevenoaks}}
+{{end}}
+
+== References ==
+
+{{reflist}}
+
+== External links ==
+{{commons category|Luton Airport Parkway railway station}}
+{{stn art lrnk|LTN|LU20ZZ}}
+
+{{UK Airport stations}}
+{{Railway stations in Bedfordshire}}
+{{TSGN and SE Stations|CityMetro=y|CityFlyer=y|Ashford=y|SE None=y|SN None=y}}
+
+{{coord|51.873|N|0.396|W|type:railwaystation_region:GB_scale:10000|display=title}}
+
+[[Category:Railway stations in Bedfordshire]]
+[[Category:Buildings and structures in Luton]]
+[[Category:Railway stations opened by Railtrack]]
+[[Category:Railway stations opened in 1999]]
+[[Category:Railway stations served by East Midlands Trains]]
+[[Category:Railway stations served by First Capital Connect]]
+[[Category:DfT Category D stations]]
+[[Category:Railway stations serving London airports]]
+[[Category:Transport in Luton/Dunstable Urban Area]]

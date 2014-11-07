@@ -7,12 +7,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -54,12 +52,12 @@ public final class Webutation extends BaseRankingService implements RankingServi
 
         try {
             DocumentRetriever dretriever = new DocumentRetriever(retriever);
-            Document document = dretriever.getWebDocument(requestUrl);
-            Node scoreNode = XPathHelper.getXhtmlNode(document, "//div[@id='badge']//span");
+            JsonObject json = dretriever.getJsonObject(requestUrl);
+            String value = json.tryQueryString("query/rating/value");
 
-            if (scoreNode != null) {
+            if (!value.isEmpty()) {
                 try {
-                    webutation = Integer.valueOf(scoreNode.getTextContent()) / 100;
+                    webutation = Double.valueOf(value) / 100;
                     LOGGER.trace("Webutation for " + url + " : " + webutation);
                 } catch (Exception e) {
                 }
@@ -81,7 +79,7 @@ public final class Webutation extends BaseRankingService implements RankingServi
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        return "http://www.webutation.net/go/review/" + UrlHelper.getDomain(url, false);
+        return "http://api.webutation.net/?ver=1.1&type=json&q=" + UrlHelper.getDomain(url, false);
     }
 
     @Override

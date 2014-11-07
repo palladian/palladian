@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.2.1</version>
+		<version>0.2.2</version>
 	</parent>
 	<artifactId>palladian-external-code</artifactId>
 	<name>Palladian: External Code</name>
@@ -222,6 +222,7 @@
 		<dependency>
 			<groupId>de.l3s.boilerpipe</groupId>
 			<artifactId>boilerpipe</artifactId>
+			<version>1.2.0</version>			
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
@@ -243,14 +244,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
-		<repository>
-			<id>releases</id>
-			<url>http://effingo.de/nexus/content/groups/public</url>
-		</repository>
-		<repository>
-			<id>snapshots</id>
-			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
-		</repository>
 		<repository>
   			<id>jlangdetect-googlecode</id>
   			<name>JLangDetect Maven repository</name>

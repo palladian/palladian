@@ -52,13 +52,10 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
 
     /**
      * <p>
-     * Override, if this searcher supports getting the total number of available results.
+     * Override in subclasses, if this searcher supports getting the total number of available results. In case this
+     * method is not overridden, a {@link SearcherException} will be thrown, stating that this functionality is not
+     * supported.
      * </p>
-     * 
-     * @param query
-     * @param language
-     * @return
-     * @throws SearcherException In case the search fails.
      */
     @Override
     public long getTotalResultCount(String query, Language language) throws SearcherException {
@@ -71,12 +68,24 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
      */
     @Override
     public SearchResults<R> search(MultifacetQuery query) throws SearcherException {
-        return new SearchResults<R>(search(query.getText(), query.getResultCount(), query.getLanguage()));
+        String queryText = query.getText();
+        if (queryText == null || queryText.isEmpty()) {
+            throw new SearcherException("For this searcher, the query must provide text.");
+        }
+        return new SearchResults<R>(search(queryText, query.getResultCount(), query.getLanguage()));
     }
 
     @Override
     public String toString() {
         return getName();
+    }
+    
+    /**
+     * Override, in case this searcher is deprecated.
+     */
+    @Override
+    public boolean isDeprecated() {
+        return false;
     }
 
 }

@@ -9,8 +9,14 @@ package ws.palladian.persistence;
  */
 public interface Query {
 
+    /**
+     * @return The SQL query. The query may contain SQL place holders.
+     */
     String getSql();
 
+    /**
+     * @return Arguments for all place holders in the query. In case, no place holders are set, return an empty array.
+     */
     Object[] getArgs();
 
 }

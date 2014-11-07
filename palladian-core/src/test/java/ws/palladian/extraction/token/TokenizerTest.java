@@ -6,9 +6,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.processing.TextDocument;
 import ws.palladian.processing.features.PositionAnnotation;
@@ -39,6 +41,7 @@ public class TokenizerTest {
         assertEquals(2, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 4).size());
         assertEquals(1, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 5).size());
         assertEquals(0, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 6).size());
+        assertEquals(4, Tokenizer.calculateWordNGrams("all the lilacs\n\n\nin   ohio", 2).size());
     }
 
     /**
@@ -102,11 +105,11 @@ public class TokenizerTest {
                 "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"),
                 "Although, many of them (30.2%) are good");
-//        assertEquals(Tokenizer.getSentence(
-//                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
-//                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
-//        assertEquals(Tokenizer.getSentence(
-//                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
+        //        assertEquals(Tokenizer.getSentence(
+        //                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
+        //                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
+        //        assertEquals(Tokenizer.getSentence(
+        //                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
         // "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 10),
                 "Although, many of them (30.2%) are good.");
@@ -132,6 +135,11 @@ public class TokenizerTest {
         // http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html
         String inputText = "";
         List<String> sentences;
+
+        inputText = "A 7.2 magnitude earthquake struck in the central Philippines Tuesday morning, killing at least four people and damaging buildings.";
+        sentences = Tokenizer.getSentences(inputText);
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
 
         inputText = "\"Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.\"";
         sentences = Tokenizer.getSentences(inputText);
@@ -303,6 +311,12 @@ public class TokenizerTest {
         sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
+        
+        // XXX
+        // inputText = "Former National Security Agency chief Michael V. Hayden learned a lesson about eavesdropping";
+        // sentences = Tokenizer.getSentences(inputText);
+        // CollectionHelper.print(sentences);
+        // assertEquals(1, sentences.size());
     }
 
     @Test

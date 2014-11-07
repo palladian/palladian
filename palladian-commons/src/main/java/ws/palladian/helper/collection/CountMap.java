@@ -4,12 +4,13 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.collection.CollectionHelper.Order;
 
 /**
  * <p>
@@ -30,14 +31,12 @@ public class CountMap<T> implements Collection<T>, Serializable {
 
     private final Map<T, Integer> map = CollectionHelper.newHashMap();
 
-    @SuppressWarnings("deprecation")
-    public LinkedHashMap<T, Integer> getSortedMap() {
+    public Map<T, Integer> getSortedMap() {
         return CollectionHelper.sortByValue(map);
     }
 
-    @SuppressWarnings("deprecation")
-    public LinkedHashMap<T, Integer> getSortedMapDescending() {
-        return CollectionHelper.sortByValue(map, false);
+    public Map<T, Integer> getSortedMapDescending() {
+        return CollectionHelper.sortByValue(map, Order.DESCENDING);
     }
 
     /**
@@ -238,6 +237,19 @@ public class CountMap<T> implements Collection<T>, Serializable {
         return validCountSet;
     }
 
+    public T getLowest() {
+        int lowest = Integer.MAX_VALUE;
+        T result = null;
+        for (T item : uniqueItems()) {
+            int current = getCount(item);
+            if (current < lowest) {
+                result = item;
+                lowest = current;
+            }
+        }
+        return result;
+    }
+
     public T getHighest() {
         int highest = 0;
         T result = null;
@@ -252,7 +264,7 @@ public class CountMap<T> implements Collection<T>, Serializable {
     }
 
     public CountMap<T> getHighest(int num) {
-        LinkedHashMap<T, Integer> descendingItems = getSortedMapDescending();
+        Map<T, Integer> descendingItems = getSortedMapDescending();
         CountMap<T> result = CountMap.create();
         for (Entry<T, Integer> entry : descendingItems.entrySet()) {
             result.add(entry.getKey(), entry.getValue());
@@ -295,12 +307,12 @@ public class CountMap<T> implements Collection<T>, Serializable {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return map.entrySet().removeAll(c);
+        return map.keySet().removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return map.entrySet().retainAll(c);
+        return map.keySet().retainAll(c);
     }
 
     @Override
@@ -310,12 +322,12 @@ public class CountMap<T> implements Collection<T>, Serializable {
 
     @Override
     public Object[] toArray() {
-        return map.entrySet().toArray();
+        return map.keySet().toArray();
     }
 
     @Override
     public <A> A[] toArray(A[] a) {
-        return map.entrySet().toArray(a);
+        return map.keySet().toArray(a);
     }
 
     public Set<Entry<T, Integer>> entrySet() {

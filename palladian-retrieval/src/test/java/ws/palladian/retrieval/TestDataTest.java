@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.ResourceHelper;
 
-import com.sun.syndication.io.XmlReader;
+import com.rometools.rome.io.XmlReader;
 
 public class TestDataTest {
 

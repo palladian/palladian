@@ -39,7 +39,7 @@ public class DatasetProcessor {
         List<String> splitFiles = new ArrayList<String>();
 
         String filename = FileHelper.getFileName(datasetPath);
-        String content = FileHelper.readFileToString(datasetPath);
+        String content = FileHelper.tryReadFileToString(datasetPath);
 
         String[] documents = content.split(documentSeparator);
 
@@ -87,7 +87,7 @@ public class DatasetProcessor {
         StopWatch sw = new StopWatch();
 
         String filename = FileHelper.getFileName(datasetPath);
-        String content = FileHelper.readFileToString(datasetPath);
+        String content = FileHelper.tryReadFileToString(datasetPath);
 
         String[] documents = content.split(documentSeparator);
 
@@ -138,7 +138,7 @@ public class DatasetProcessor {
 
         StopWatch sw = new StopWatch();
 
-        String content = FileHelper.readFileToString(datasetPath);
+        String content = FileHelper.tryReadFileToString(datasetPath);
         String[] documents = content.split("=-DOCSTART-");
 
         String columnFilePath = FileHelper.getFilePath(datasetPath) + "columnInput.txt";
@@ -184,7 +184,7 @@ public class DatasetProcessor {
             FileHelper.writeToFile(outputPath, newDataset);
             FileFormatParser.xmlToColumn(outputPath, outputPath, "\t");
 
-            String columnContent = FileHelper.readFileToString(outputPath);
+            String columnContent = FileHelper.tryReadFileToString(outputPath);
             columnContent = columnContent.replaceAll("=-\tO\nDOCSTART\tO\n-\tO", "=-DOCSTART-\tO");
             FileHelper.writeToFile(outputPath, columnContent);
 

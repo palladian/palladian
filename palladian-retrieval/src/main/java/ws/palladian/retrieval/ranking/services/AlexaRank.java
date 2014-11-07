@@ -26,6 +26,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * </p>
  * 
  * @author Philipp Katz
+ * @author David Urbansky
  * @see http://www.alexa.com/help/traffic-learn-more
  */
 public final class AlexaRank extends BaseRankingService implements RankingService {
@@ -33,11 +34,20 @@ public final class AlexaRank extends BaseRankingService implements RankingServic
     /** The id of this service. */
     private static final String SERVICE_ID = "alexa";
 
+    /** The estimated constant of rank x traffic. */
+    private static final Long RANK_TRAFFIC_CONSTANT = 476408394L;
+
+    /** Page views per visitor. */
+    private static final Double PAGE_VIEWS_PER_VISITOR = 2.2;
+
     /** The ranking value types of this service. */
     public static final RankingType POPULARITY_RANK = new RankingType("alexa_rank", "Alexa Rank", "");
+    public static final RankingType DAILY_VISITORS = new RankingType("alexa_daily_visitors", "Daily Visitors", "");
+    public static final RankingType DAILY_PAGE_VIEWS = new RankingType("alexa_daily_page_views", "Daily Page Views", "");
 
     /** All available ranking types by AlexaRank. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POPULARITY_RANK);
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POPULARITY_RANK, DAILY_VISITORS,
+            DAILY_PAGE_VIEWS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
@@ -53,9 +63,15 @@ public final class AlexaRank extends BaseRankingService implements RankingServic
             Node popularityNode = XPathHelper.getNode(doc, "/ALEXA/SD/POPULARITY/@TEXT");
             if (popularityNode != null) {
                 String popularity = popularityNode.getNodeValue();
-                results.put(POPULARITY_RANK, Float.valueOf(popularity));
+                Float rank = Float.valueOf(popularity);
+                results.put(POPULARITY_RANK, rank);
+                float visitors = (float)Math.floor(RANK_TRAFFIC_CONSTANT / rank);
+                results.put(DAILY_VISITORS, visitors);
+                results.put(DAILY_PAGE_VIEWS, (float)(Math.floor(PAGE_VIEWS_PER_VISITOR * visitors)));
             } else {
                 results.put(POPULARITY_RANK, 0f);
+                results.put(DAILY_VISITORS, 0f);
+                results.put(DAILY_PAGE_VIEWS, 0f);
             }
         } catch (HttpException e) {
             throw new RankingServiceException(e);
@@ -74,6 +90,17 @@ public final class AlexaRank extends BaseRankingService implements RankingServic
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
+    }
+
+    public static void main(String[] a) throws RankingServiceException {
+        AlexaRank ar = new AlexaRank();
+        Ranking ranking = null;
+
+        ranking = ar.getRanking("http://palladian.ws");
+        System.out.println(ranking);
+        System.out.println(ranking.getValues().get(AlexaRank.POPULARITY_RANK) + " rank");
+        System.out.println(ranking.getValues().get(AlexaRank.DAILY_VISITORS) + " daily visitors");
+        System.out.println(ranking.getValues().get(AlexaRank.DAILY_PAGE_VIEWS) + " daily page views");
     }
 
 }

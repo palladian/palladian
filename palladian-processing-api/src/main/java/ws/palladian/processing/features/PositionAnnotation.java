@@ -37,7 +37,8 @@ public class PositionAnnotation extends ImmutableAnnotation implements Classifia
     }
 
     private static String createIdentifier(String value, int startPosition) {
-        return String.format("%s:%s", value, startPosition);
+        // return String.format("%s:%s", value, startPosition);
+        return new StringBuilder().append(value).append(':').append(startPosition).toString();
     }
 
     @Override

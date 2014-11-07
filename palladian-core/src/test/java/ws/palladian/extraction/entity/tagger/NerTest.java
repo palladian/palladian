@@ -1,6 +1,9 @@
 package ws.palladian.extraction.entity.tagger;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -236,8 +239,8 @@ public class NerTest {
         EvaluationResult er = tagger.evaluate(testFile, TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-        assertTrue(er.getF1(EvaluationMode.MUC) > 0.57);
-        assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.49);
+        assertThat(er.getF1(EvaluationMode.MUC), is(greaterThan(0.56)));
+        assertThat(er.getF1(EvaluationMode.EXACT_MATCH), is(greaterThan(0.46)));
 
         List<Annotation> annotations = tagger.getAnnotations(FileFormatParser.getText(testFile, TaggingFormat.COLUMN));
 

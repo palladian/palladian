@@ -137,7 +137,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
     
     protected EvaluationFeedDatabase(DataSource dataSource) {
         super(dataSource);
-        feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
+        feeds = runQuery(FeedRowConverter.INSTANCE, GET_FEEDS_WITH_TIMESTAMPS);
         initializeNewestItemHashes();
     }
 
@@ -173,7 +173,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      * modified, e.g., by {@link EvaluationFeedDatabase#copySimulatedSingleDelays(String, String, String)}.
      */
     public void reloadFeedsFromDB() {
-        feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
+        feeds = runQuery(FeedRowConverter.INSTANCE, GET_FEEDS_WITH_TIMESTAMPS);
     }
 
     /**
@@ -1386,7 +1386,7 @@ public class EvaluationFeedDatabase extends FeedDatabase {
      */
     public boolean resetTableFeeds() {
         boolean success = runUpdate(RESET_TABLE_FEEDS) != -1 ? true : false;
-        feeds = runQuery(new FeedRowConverter(), GET_FEEDS_WITH_TIMESTAMPS);
+        feeds = runQuery(FeedRowConverter.INSTANCE, GET_FEEDS_WITH_TIMESTAMPS);
         return success;
     }
 

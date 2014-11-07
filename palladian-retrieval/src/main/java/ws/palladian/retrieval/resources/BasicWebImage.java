@@ -28,7 +28,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         protected int width;
         protected int height;
         protected License license = License.UNKNOWN;
-        protected String licenseLink = "";
+        protected String licenseLink;
         protected ImageType imageType = ImageType.UNKNOWN;
         protected String fileType;
 
@@ -40,19 +40,22 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         public Builder setThumbnailUrl(String thumbnailUrl) {
             this.thumbnailUrl = thumbnailUrl;
             return this;
-
         }
 
         public Builder setWidth(int width) {
             this.width = width;
             return this;
-
         }
 
         public Builder setHeight(int height) {
             this.height = height;
             return this;
-
+        }
+        
+        public Builder setSize(int width, int height) {
+            this.width = width;
+            this.height = height;
+            return this;
         }
 
         public Builder setLicense(License license) {
@@ -70,7 +73,6 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         public Builder setImageUrl(String imageUrl) {
             this.imageUrl = imageUrl;
             return this;
-
         }
 
         public Builder setFileType(String fileType) {
@@ -179,32 +181,67 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("BasicWebImage [imageUrl=");
-        builder.append(imageUrl);
-        builder.append(", thumbnailUrl=");
-        builder.append(thumbnailUrl);
-        builder.append(", width=");
-        builder.append(width);
-        builder.append(", height=");
-        builder.append(height);
-        builder.append(", license=");
-        builder.append(license);
-        builder.append(", licenseLink=");
-        builder.append(licenseLink);
-        builder.append(", imageType=");
-        builder.append(imageType);
-        builder.append(", fileType=");
-        builder.append(fileType);
-        builder.append(", getUrl()=");
-        builder.append(getUrl());
-        builder.append(", getTitle()=");
-        builder.append(getTitle());
-        builder.append(", getSummary()=");
-        builder.append(getSummary());
-        builder.append(", getPublished()=");
-        builder.append(getPublished());
-        builder.append(", getCoordinate()=");
-        builder.append(getCoordinate());
+        builder.append("WebImage [");
+        if (imageUrl != null) {
+            builder.append("imageUrl=");
+            builder.append(imageUrl);
+        }
+        if (thumbnailUrl != null) {
+            builder.append(", thumbnailUrl=");
+            builder.append(thumbnailUrl);
+        }
+        if (width != -1) {
+            builder.append(", width=");
+            builder.append(width);
+        }
+        if (height != -1) {
+            builder.append(", height=");
+            builder.append(height);
+        }
+        if (license != null && license != License.UNKNOWN) {
+            builder.append(", license=");
+            builder.append(license);
+        }
+        if (licenseLink != null) {
+            builder.append(", licenseLink=");
+            builder.append(licenseLink);
+        }
+        if (imageType != null && imageType != ImageType.UNKNOWN) {
+            builder.append(", imageType=");
+            builder.append(imageType);
+        }
+        if (fileType != null) {
+            builder.append(", fileType=");
+            builder.append(fileType);
+        }
+        if (getUrl() != null) {
+            builder.append(", url=");
+            builder.append(getUrl());
+        }
+        if (getTitle() != null) {
+            builder.append(", title=");
+            builder.append(getTitle());
+        }
+        if (getSummary() != null) {
+            builder.append(", summary=");
+            builder.append(getSummary());
+        }
+        if (getPublished() != null) {
+            builder.append(", published=");
+            builder.append(getPublished());
+        }
+        if (getCoordinate() != null) {
+            builder.append(", coordinate=");
+            builder.append(getCoordinate());
+        }
+        if (getTags() != null && getTags().size() > 0) {
+            builder.append(", tags=");
+            builder.append(getTags());
+        }
+        if (getIdentifier() != null) {
+            builder.append(", identifier=");
+            builder.append(getIdentifier());
+        }
         builder.append("]");
         return builder.toString();
     }

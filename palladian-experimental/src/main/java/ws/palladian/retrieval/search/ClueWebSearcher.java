@@ -3,8 +3,11 @@ package ws.palladian.retrieval.search;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
@@ -63,39 +66,60 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
             this.content = content;
             this.score = score;
         }
+        
+        @Override
+        public int getId() {
+            return -1;
+        }
 
-		@Override
-		public String getUrl() {
-			return null;
-		}
+        @Override
+        public String getUrl() {
+            return null;
+        }
 
-		@Override
-		public String getTitle() {
-			return null;
-		}
+        @Override
+        public String getTitle() {
+            return null;
+        }
 
-		@Override
-		public String getSummary() {
-			return content;
-		}
+        @Override
+        public String getSummary() {
+            return content;
+        }
 
-		@Override
-		public Date getPublished() {
-			return null;
-		}
-		
-		public String getId() {
-			return id;
-		}
-		
-		public float getScore() {
-			return score;
-		}
+        @Override
+        public Date getPublished() {
+            return null;
+        }
 
-		@Override
-		public GeoCoordinate getCoordinate() {
-			return null;
-		}
+        public float getScore() {
+            return score;
+        }
+
+        @Override
+        public GeoCoordinate getCoordinate() {
+            return null;
+        }
+
+        @Override
+        public String getIdentifier() {
+            return id;
+        }
+
+        @Override
+        public Set<String> getTags() {
+            return Collections.emptySet();
+        }
+        
+        @Override
+        public String getSource() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public Map<String, Object> getAdditionalData() {
+            return Collections.emptyMap();
+        }
 
     }
 
@@ -186,52 +210,5 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
     public void close() throws IOException {
         directory.close();
     }
-
-    public static void main(String[] args) throws SearcherException {
-        ClueWebSearcher searcher = new ClueWebSearcher(new File("/Volumes/SAMSUNG/ClueWeb09"));
-        // List<ClueWebResult> result = searcher.search("Philipp", 10);
-        // CollectionHelper.print(result);
-
-        System.out.println(searcher.getTotalResultCount("\"Zentralfriedhof\""));
-        System.out.println(searcher.getTotalResultCount("Plants"));
-        System.out.println(searcher.getTotalResultCount("Thomas"));
-        System.out.println(searcher.getTotalResultCount("League"));
-        System.out.println(searcher.getTotalResultCount("Lee"));
-        System.out.println(searcher.getTotalResultCount("Supa"));
-        System.out.println(searcher.getTotalResultCount("Randall"));
-        System.out.println(searcher.getTotalResultCount("Martha"));
-        System.out.println(searcher.getTotalResultCount("Barlow"));
-        System.out.println(searcher.getTotalResultCount("Linda"));
-        System.out.println(searcher.getTotalResultCount("Sullivan"));
-        System.out.println(searcher.getTotalResultCount("Bush"));
-        System.out.println(searcher.getTotalResultCount("Turner"));
-        System.out.println(searcher.getTotalResultCount("George"));
-        System.out.println(searcher.getTotalResultCount("\"San Francisco\""));
-        System.out.println(searcher.getTotalResultCount("Cannes"));
-        System.out.println(searcher.getTotalResultCount("Manchester"));
-        System.out.println(searcher.getTotalResultCount("Hawaii"));
-        System.out.println(searcher.getTotalResultCount("Glashütte"));
-        System.out.println(searcher.getTotalResultCount("Nelson"));
-        System.out.println(searcher.getTotalResultCount("Raby"));
-        System.out.println(searcher.getTotalResultCount("Ragland"));
-        System.out.println(searcher.getTotalResultCount("Stuttgart"));
-        System.out.println(searcher.getTotalResultCount("Colombo"));
-        System.out.println(searcher.getTotalResultCount("Georgia"));
-        System.out.println(searcher.getTotalResultCount("Denton"));
-        System.out.println(searcher.getTotalResultCount("Vaduz"));
-        System.out.println(searcher.getTotalResultCount("\"New York\""));
-        System.out.println(searcher.getTotalResultCount("\"United States\""));
-        System.out.println(searcher.getTotalResultCount("Baden-Württemberg"));
-        System.out.println(searcher.getTotalResultCount("Sadovyy"));
-        System.out.println(searcher.getTotalResultCount("Flein"));
-        System.out.println(searcher.getTotalResultCount("Heilbronn"));
-        System.out.println(searcher.getTotalResultCount("Bol’sheust’ikinskoye"));
-        System.out.println(searcher.getTotalResultCount("Neckarsulm"));
-        System.out.println(searcher.getTotalResultCount("Europe"));
-        System.out.println(searcher.getTotalResultCount("Hannover"));
-        System.out.println(searcher.getTotalResultCount("Alabama"));
-
-    }
-
 
 }

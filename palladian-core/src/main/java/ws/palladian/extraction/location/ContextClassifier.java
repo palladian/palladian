@@ -250,7 +250,7 @@ public class ContextClassifier {
 
     public static void main(String[] args) {
         String text = FileHelper
-                .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation/text_44148889.txt");
+                .tryReadFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation/text_44148889.txt");
         // String text = FileHelper.readFileToString("src/test/resources/Dresden.wikipedia");
         // text = WikipediaUtil.stripMediaWikiMarkup(text);
         // String text = "ruler of Saxony Frederick Augustus I became King";
@@ -263,12 +263,12 @@ public class ContextClassifier {
         // classifier.filter(annotations, text);
         List<ClassifiedAnnotation> classification = classifier.classify(annotations, text);
         CollectionHelper.print(classification);
-//        for (Annotated annotation : annotations) {
-//            CategoryEntries result = classifier.classify(text, annotation);
-//            // CategoryEntries result = classifier.classify(text, annotation);
-//            if (result.getProbability("PER") == 1) {
-//                System.out.println(annotation.getValue() + " : " + result);
-//            }
-//        }
+        //        for (Annotated annotation : annotations) {
+        //            CategoryEntries result = classifier.classify(text, annotation);
+        //            // CategoryEntries result = classifier.classify(text, annotation);
+        //            if (result.getProbability("PER") == 1) {
+        //                System.out.println(annotation.getValue() + " : " + result);
+        //            }
+        //        }
     }
 }

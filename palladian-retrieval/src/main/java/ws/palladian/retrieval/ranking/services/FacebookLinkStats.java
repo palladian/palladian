@@ -8,9 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +17,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -76,14 +76,14 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
         try {
 
             String encUrl = UrlHelper.encodeParameter(url);
-            JSONObject json = null;
+            JsonObject json = null;
             String requestUrl = FQL_QUERY + "url='" + encUrl + "'";
             try {
                 HttpResult httpResult = retriever.httpGet(requestUrl);
 
-                JSONArray jsonArray = new JSONArray(httpResult.getStringContent());
-                if (jsonArray.length() == 1) {
-                    json = jsonArray.getJSONObject(0);
+                JsonArray jsonArray = new JsonArray(httpResult.getStringContent());
+                if (jsonArray.size() == 1) {
+                    json = jsonArray.getJsonObject(0);
                 }
             } catch (HttpException e) {
                 LOGGER.error("HttpException for {}", requestUrl, e);
@@ -100,7 +100,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 LOGGER.trace("Facebook link stats for " + url + "could not be fetched");
                 checkBlocked();
             }
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             checkBlocked();
             throw new RankingServiceException("JSONException (URL: " + url + ") " + e.getMessage(), e);
         }
@@ -133,11 +133,11 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
 
             HttpResult response = retriever.execute(postRequest);
             String content = response.getStringContent();
-            JSONArray json = null;
+            JsonArray json = null;
             if (content.length() > 0) {
                 try {
-                    json = new JSONArray(content);
-                } catch (JSONException e) {
+                    json = new JsonArray(content);
+                } catch (JsonException e) {
                     LOGGER.error("JSONException: " + e.getMessage());
                 }
             }
@@ -151,9 +151,9 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 float commentCount = -1;
 
                 for (int i = 0; i < urls.size(); i++) {
-                    likeCount = json.getJSONObject(i).getInt("like_count");
-                    shareCount = json.getJSONObject(i).getInt("share_count");
-                    commentCount = json.getJSONObject(i).getInt("comment_count");
+                    likeCount = json.getJsonObject(i).getInt("like_count");
+                    shareCount = json.getJsonObject(i).getInt("share_count");
+                    commentCount = json.getJsonObject(i).getInt("comment_count");
                     Map<RankingType, Float> result = new HashMap<RankingType, Float>();
                     result.put(LIKES, likeCount);
                     result.put(SHARES, shareCount);
@@ -172,7 +172,7 @@ public final class FacebookLinkStats extends BaseRankingService implements Ranki
                 LOGGER.trace("Facebook link stats for " + urls + "could not be fetched");
                 checkBlocked();
             }
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {

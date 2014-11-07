@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,7 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DefaultMultiMap<K, V> implements MultiMap<K, V> {
+import org.apache.commons.lang3.Validate;
+
+/**
+ * <p>
+ * {@link MultiMap} implementation. It provides two default implementations, one using a {@link List} to store values,
+ * one using a {@link Set} to store values; see the two static factory methods. If you need a different {@link Collection} type to store values, use the constructor and provide a {@link Factory} to create the desired collection.
+ * </p>
+ * 
+ * @author pk
+ * 
+ * @param <K> Type of key.
+ * @param <V> Type of values.
+ */
+public class DefaultMultiMap<K, V> extends AbstractMap<K,Collection<V>> implements MultiMap<K, V> {
 
     private final Map<K, Collection<V>> map;
     private final Factory<Collection<V>> collectionFactory;
@@ -45,142 +59,89 @@ public class DefaultMultiMap<K, V> implements MultiMap<K, V> {
         });
     }
 
+    /**
+     * <p>
+     * Create a new {@link MultiMap} with a {@link Factory} which takes care of creating the value {@link Collection}s.
+     * Usually you either want a {@link Set} or {@link List}, then use the static methods for instantiation instead of
+     * the constructor.
+     * </p>
+     * 
+     * @param collectionFactory The factory which creates the {@link Collection}s for the key, not <code>null</code>.
+     */
     public DefaultMultiMap(Factory<Collection<V>> collectionFactory) {
+        Validate.notNull(collectionFactory, "collectionFactory must not be null");
         this.map = new HashMap<K, Collection<V>>();
         this.collectionFactory = collectionFactory;
     }
 
-    // java.Util.Map API
+    // java.util.Map API
 
-    /**
-     * 
-     * @see java.util.Map#clear()
-     */
     @Override
     public void clear() {
         map.clear();
     }
 
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#containsKey(java.lang.Object)
-     */
     @Override
     public boolean containsKey(Object key) {
         return map.containsKey(key);
     }
 
-    /**
-     * @param value
-     * @return
-     * @see java.util.Map#containsValue(java.lang.Object)
-     */
     @Override
     public boolean containsValue(Object value) {
         return map.containsValue(value);
     }
 
-    /**
-     * @return
-     * @see java.util.Map#entrySet()
-     */
     @Override
     public Set<Entry<K, Collection<V>>> entrySet() {
         return map.entrySet();
     }
 
-    /**
-     * @param o
-     * @return
-     * @see java.util.Map#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object o) {
         return map.equals(o);
     }
 
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#get(java.lang.Object)
-     */
     @Override
     public Collection<V> get(Object key) {
         Collection<V> value = map.get(key);
         return value != null ? value : Collections.<V> emptySet();
     }
 
-    /**
-     * @return
-     * @see java.util.Map#hashCode()
-     */
     @Override
     public int hashCode() {
         return map.hashCode();
     }
 
-    /**
-     * @return
-     * @see java.util.Map#isEmpty()
-     */
     @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
-    /**
-     * @return
-     * @see java.util.Map#keySet()
-     */
     @Override
     public Set<K> keySet() {
         return map.keySet();
     }
 
-    /**
-     * @param key
-     * @param value
-     * @return
-     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
-     */
     @Override
     public Collection<V> put(K key, Collection<V> value) {
         return map.put(key, value);
     }
 
-    /**
-     * @param m
-     * @see java.util.Map#putAll(java.util.Map)
-     */
     @Override
     public void putAll(Map<? extends K, ? extends Collection<V>> m) {
         map.putAll(m);
     }
 
-    /**
-     * @param key
-     * @return
-     * @see java.util.Map#remove(java.lang.Object)
-     */
     @Override
     public Collection<V> remove(Object key) {
         return map.remove(key);
     }
 
-    /**
-     * @return
-     * @see java.util.Map#size()
-     */
     @Override
     public int size() {
         return map.size();
     }
 
-    /**
-     * @return
-     * @see java.util.Map#values()
-     */
     @Override
     public Collection<Collection<V>> values() {
         return map.values();
@@ -224,20 +185,10 @@ public class DefaultMultiMap<K, V> implements MultiMap<K, V> {
         return values;
     }
 
-    /**
-     * <p>
-     * Get the first value for the given key.
-     * </p>
-     * 
-     * @param key The key for which to retrieve the first value.
-     * @return The first value for the given key, or <code>null</code> if no values exist.
-     */
+    @Override
     public V getFirst(K key) {
         Collection<V> values = get(key);
-        if (values == null) {
-            return null;
-        }
-        return CollectionHelper.getFirst(values);
+        return values != null ? CollectionHelper.getFirst(values) : null; 
     }
 
 }

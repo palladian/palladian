@@ -11,7 +11,6 @@ import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -53,7 +52,7 @@ final class DatasetCheck {
         if (datasetFiles.length == 0) {
             throw new IllegalStateException("No text files found in '" + datasetDirectory + "'");
         }
-        
+
         // keep tag -> values
         Map<String, CountMap<String>> assignedTagCounts = LazyMap.create(new Factory<CountMap<String>>() {
             @Override
@@ -63,11 +62,12 @@ final class DatasetCheck {
         });
 
         int tokenCount = 0;
+        int scopedDocCount = 0;
 
         for (File file : datasetFiles) {
             String filePath = file.getAbsolutePath();
             String fileName = file.getName();
-            String stringContent = FileHelper.readFileToString(filePath);
+            String stringContent = FileHelper.tryReadFileToString(filePath);
             Matcher matcher = TAG_REGEX.matcher(stringContent);
 
             // keep value -> assigned tags
@@ -88,6 +88,7 @@ final class DatasetCheck {
                 String openingTag = matcher.group(1);
                 if (openingTag.contains("role=\"main\"")) {
                     openingTag = openingTag.substring(0, openingTag.indexOf("role=\"main\"")).trim();
+                    scopedDocCount++;
                 }
                 String content = matcher.group(2);
                 String closingSlash = matcher.group(3);
@@ -107,12 +108,12 @@ final class DatasetCheck {
                 if (!allowedTags.contains(openingTag)) {
                     System.out.println("[error] unknown tag " + openingTag + " in " + fileName);
                 }
-                
+
                 // check if text in between is rather long
                 if (content.length() > 50) {
                     System.out.println("[warn] " + content + " seems rather long for an annotation in " + fileName);
                 }
-                
+
                 // annotation value should not start/end with punctuation
                 if (StringHelper.isPunctuation(content.charAt(0))) {
                     System.out.println("[warn] '" + content + "' starts with punctuation in " + fileName);
@@ -120,7 +121,7 @@ final class DatasetCheck {
                 if (StringHelper.isPunctuation(content.charAt(content.length() - 1))) {
                     System.out.println("[warn] '" + content + "' ends with punctuation in " + fileName);
                 }
-                
+
                 // annotation value should not start/end with white space
                 if (Character.isWhitespace(content.charAt(0))) {
                     System.out.println("[warn] '" + content + "' starts with white space in " + fileName);
@@ -164,7 +165,7 @@ final class DatasetCheck {
             }
 
         }
-        
+
         System.out.println('\n');
         System.out.println("Assigned tags:");
         int totalTags = 0;
@@ -182,6 +183,8 @@ final class DatasetCheck {
         System.out.println("# tokens: " + tokenCount);
         System.out.println();
         System.out.println("# texts: " + datasetFiles.length);
+        System.out.println();
+        System.out.println("# text with role=\"main\": " + scopedDocCount);
     }
 
     /**
@@ -191,13 +194,13 @@ final class DatasetCheck {
      */
     static void getNonDisambiguatedStatistics(File datasetPath) {
         File coordinatesFile = new File(datasetPath, "coordinates.csv");
-        Map<String, Map<Integer, GeoCoordinate>> coordinates = LocationExtractorUtils.readCoordinates(coordinatesFile);
+        Map<String, Map<Integer, GeoCoordinate>> coordinates = TudLoc2013DatasetIterable.readCoordinates(coordinatesFile);
         CountMap<String> totalTypeCounts = CountMap.create();
         CountMap<String> disambiguatedTypeCounts = CountMap.create();
 
         File[] files = FileHelper.getFiles(datasetPath.getPath(), "text");
         for (File file : files) {
-            String inputText = FileHelper.readFileToString(file);
+            String inputText = FileHelper.tryReadFileToString(file);
             inputText = inputText.replace(" role=\"main\"", "");
             Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(inputText);
             for (ContextAnnotation annotation : annotations) {
@@ -223,7 +226,7 @@ final class DatasetCheck {
 
 
     public static void main(String[] args) {
-        File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2");
+        File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/0-all");
         // getNonDisambiguatedStatistics(datasetPath);
         performCheck(datasetPath);
     }

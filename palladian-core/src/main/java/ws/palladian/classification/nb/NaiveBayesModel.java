@@ -53,17 +53,6 @@ public final class NaiveBayesModel implements Model {
 
     /**
      * <p>
-     * Get the unique names of all categories.
-     * </p>
-     * 
-     * @return {@link Set} with category names.
-     */
-    public Set<String> getCategoryNames() {
-        return categories.uniqueItems();
-    }
-
-    /**
-     * <p>
      * Get the prior for the specified category.
      * </p>
      * 

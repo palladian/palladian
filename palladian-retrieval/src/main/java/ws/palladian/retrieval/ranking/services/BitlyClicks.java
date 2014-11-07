@@ -12,15 +12,15 @@ import java.util.Map.Entry;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
@@ -115,10 +115,10 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://api.bit.ly/v3/lookup?login=" + getLogin() + "&apiKey="
                     + getApiKey() + "&url=" + encUrl);
-            JSONObject json = new JSONObject(httpResult.getStringContent());
+            JsonObject json = new JsonObject(httpResult.getStringContent());
             if (checkJsonResponse(json)) {
-                JSONObject lookup = json.getJSONObject("data").getJSONArray("lookup").getJSONObject(0);
-                if (lookup.has("global_hash")) {
+                JsonObject lookup = json.getJsonObject("data").getJsonArray("lookup").getJsonObject(0);
+                if (lookup.get("global_hash") != null) {
                     hash = lookup.getString("global_hash");
                     LOGGER.trace("Bit.ly hash for url " + url + " : " + hash);
                 }
@@ -127,9 +127,9 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                 if (hash != null) {
                     HttpResult httpResult2 = retriever.httpGet("http://api.bit.ly/v3/clicks?login=" + getLogin()
                             + "&apiKey=" + getApiKey() + "&hash=" + hash);
-                    json = new JSONObject(httpResult2.getStringContent());
+                    json = new JsonObject(httpResult2.getStringContent());
                     if (checkJsonResponse(json)) {
-                        float result = json.getJSONObject("data").getJSONArray("clicks").getJSONObject(0)
+                        float result = json.getJsonObject("data").getJsonArray("clicks").getJsonObject(0)
                                 .getInt("global_clicks");
                         results.put(CLICKS, result);
                         LOGGER.trace("Bit.ly clicks for " + url + " : " + result);
@@ -146,7 +146,7 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                 checkBlocked();
             }
 
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             checkBlocked();
             throw new RankingServiceException(e);
         } catch (HttpException e) {
@@ -184,12 +184,12 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                         + "&mode=batch" + encUrls;
 
                 HttpResult httpResult = retriever.httpGet(urlString);
-                JSONObject json = new JSONObject(httpResult.getStringContent());
+                JsonObject json = new JsonObject(httpResult.getStringContent());
                 if (checkJsonResponse(json)) {
-                    JSONArray lookups = json.getJSONObject("data").getJSONArray("lookup");
-                    for (int i = 0; i < lookups.length(); i++) {
-                        JSONObject lookup = lookups.getJSONObject(i);
-                        if (lookup.has("global_hash")) {
+                    JsonArray lookups = json.getJsonObject("data").getJsonArray("lookup");
+                    for (int i = 0; i < lookups.size(); i++) {
+                        JsonObject lookup = lookups.getJsonObject(i);
+                        if (lookup.get("global_hash") != null) {
                             hashes.put(lookup.getString("url"), lookup.getString("global_hash"));
                             LOGGER.trace("Bit.ly hash for url " + lookup.getString("url") + " : "
                                     + lookup.getString("global_hash"));
@@ -211,16 +211,16 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                         urlString = "http://api.bit.ly/v3/clicks?login=" + getLogin() + "&apiKey=" + getApiKey()
                                 + "&mode=batch" + hashList;
                         HttpResult httpResult2 = retriever.httpGet(urlString);
-                        json = new JSONObject(httpResult2.getStringContent());
+                        json = new JsonObject(httpResult2.getStringContent());
 
                         if (checkJsonResponse(json)) {
-                            JSONArray clicks = json.getJSONObject("data").getJSONArray("clicks");
+                            JsonArray clicks = json.getJsonObject("data").getJsonArray("clicks");
                             float count = -1;
                             // iterate through all click results
-                            for (int i = 0; i < clicks.length(); i++) {
-                                JSONObject click = clicks.getJSONObject(i);
+                            for (int i = 0; i < clicks.size(); i++) {
+                                JsonObject click = clicks.getJsonObject(i);
                                 Map<RankingType, Float> result = new HashMap<RankingType, Float>();
-                                if (click.has("global_clicks")) {
+                                if (click.get("global_clicks") != null) {
                                     count = click.getInt("global_clicks");
                                     result.put(CLICKS, count);
                                     // find url for the current hash and add ranking
@@ -261,7 +261,7 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
                     checkBlocked();
                 }
 
-            } catch (JSONException e) {
+            } catch (JsonException e) {
                 checkBlocked();
                 throw new RankingServiceException(e);
             } catch (HttpException e) {
@@ -275,9 +275,9 @@ public final class BitlyClicks extends BaseRankingService implements RankingServ
 
     }
 
-    private boolean checkJsonResponse(JSONObject json) {
+    private boolean checkJsonResponse(JsonObject json) {
         if (json != null) {
-            if (json.has("data")) {
+            if (json.get("data") != null) {
                 return true;
             }
         }

@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -21,17 +22,16 @@ import ws.palladian.classification.CategoryEntriesMap;
 import ws.palladian.classification.Classifier;
 import ws.palladian.classification.Instance;
 import ws.palladian.classification.Model;
-import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.math.ImmutableNumericVector;
+import ws.palladian.helper.math.NumericVector;
 import ws.palladian.processing.Classifiable;
 import ws.palladian.processing.Trainable;
 import ws.palladian.processing.features.BasicFeatureVector;
 import ws.palladian.processing.features.Feature;
 import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
 import ws.palladian.processing.features.NumericFeature;
 
 /**
@@ -62,7 +62,9 @@ public final class ClassificationUtils {
      * 
      * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
      *            path.
+     * @deprecated Use dedicated {@link CsvDatasetReader}.
      */
+    @Deprecated
     public static List<Trainable> readCsv(String filePath) {
         return readCsv(filePath, true, DEFAULT_SEPARATOR);
     }
@@ -77,15 +79,17 @@ public final class ClassificationUtils {
      *            path.
      * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
      *            (column names are generated automatically).
+     * @deprecated Use dedicated {@link CsvDatasetReader}.
      */
+    @Deprecated
     public static List<Trainable> readCsv(String filePath, boolean readHeader) {
         return readCsv(filePath, readHeader, DEFAULT_SEPARATOR);
     }
 
     /**
      * <p>
-     * Create instances from a file. The instances must be given in a CSV file in the following format: feature1 ..
-     * featureN NominalClass. Each line is one training instance.
+     * Create instances from a file. The instances must be given in a CSV file in the following format:
+     * <code>feature1 .. featureN NominalClass</code>. Each line is one training instance.
      * </p>
      * <p>
      * Each field must be separated by {@code fieldSeparator} and each line must end with a line break.
@@ -96,70 +100,74 @@ public final class ClassificationUtils {
      * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
      *            (column names are generated automatically).
      * @param fieldSeparator The separator {@code String} for individual fields.
+     * @deprecated Use dedicated {@link CsvDatasetReader}.
      */
+    @Deprecated
     public static List<Trainable> readCsv(String filePath, final boolean readHeader, final String fieldSeparator) {
-        if (!new File(filePath).canRead()) {
-            throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
-        }
-
-        final StopWatch stopWatch = new StopWatch();
-        final List<Trainable> instances = CollectionHelper.newArrayList();
-
-        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
-
-            String[] headNames;
-            int expectedColumns;
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-                String[] parts = line.split(fieldSeparator);
-
-                if (parts.length < 2) {
-                    throw new IllegalStateException("Separator '" + fieldSeparator
-                            + "'was not found, lines cannot be split ('" + line + "').");
-                }
-
-                if (lineNumber == 0) {
-                    expectedColumns = parts.length;
-                    if (readHeader) {
-                        headNames = parts;
-                        return;
-                    }
-                } else {
-                    if (expectedColumns != parts.length) {
-                        throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
-                                + parts.length + ", but should be " + expectedColumns + ")");
-                    }
-                }
-
-                FeatureVector featureVector = new BasicFeatureVector();
-
-                for (int f = 0; f < parts.length - 1; f++) {
-                    String name = headNames == null ? String.valueOf(f) : headNames[f];
-                    String value = parts[f];
-                    // FIXME make better.
-                    if (value.equals("?")) {
-                        // missing value, TODO maybe rethink what to do here and how
-                        // to handle missing values in general.
-                        continue;
-                    }
-                    try {
-                        Double doubleValue = Double.valueOf(value);
-                        featureVector.add(new NumericFeature(name, doubleValue));
-                    } catch (NumberFormatException e) {
-                        featureVector.add(new NominalFeature(name, value));
-                    }
-                }
-                String targetClass = parts[parts.length - 1];
-                instances.add(new Instance(targetClass, featureVector));
-
-                if (lineNumber % 10000 == 0) {
-                    LOGGER.debug("Read {} lines", lineNumber);
-                }
-            }
-        });
-        LOGGER.info("Read {} instances from {} in {}", instances.size(), filePath, stopWatch);
-        return instances;
+//        if (!new File(filePath).canRead()) {
+//            throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
+//        }
+//
+//        final StopWatch stopWatch = new StopWatch();
+//        final List<Trainable> instances = CollectionHelper.newArrayList();
+//
+//        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+//
+//            String[] headNames;
+//            int expectedColumns;
+//
+//            @Override
+//            public void performAction(String line, int lineNumber) {
+//                String[] parts = line.split(fieldSeparator);
+//
+//                if (parts.length < 2) {
+//                    throw new IllegalStateException("Separator '" + fieldSeparator
+//                            + "'was not found, lines cannot be split ('" + line + "').");
+//                }
+//
+//                if (lineNumber == 0) {
+//                    expectedColumns = parts.length;
+//                    if (readHeader) {
+//                        headNames = parts;
+//                        return;
+//                    }
+//                } else {
+//                    if (expectedColumns != parts.length) {
+//                        throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
+//                                + parts.length + ", but should be " + expectedColumns + ")");
+//                    }
+//                }
+//
+//                FeatureVector featureVector = new BasicFeatureVector();
+//
+//                for (int f = 0; f < parts.length - 1; f++) {
+//                    String name = headNames == null ? String.valueOf(f) : headNames[f];
+//                    String value = parts[f];
+//                    // FIXME make better.
+//                    if (value.equals("?")) {
+//                        // missing value, TODO maybe rethink what to do here and how
+//                        // to handle missing values in general.
+//                        continue;
+//                    }
+//                    try {
+//                        Double doubleValue = Double.valueOf(value);
+//                        featureVector.add(new NumericFeature(name, doubleValue));
+//                    } catch (NumberFormatException e) {
+//                        featureVector.add(new NominalFeature(name, value));
+//                    }
+//                }
+//                String targetClass = parts[parts.length - 1];
+//                instances.add(new Instance(targetClass, featureVector));
+//
+//                if (lineNumber % 10000 == 0) {
+//                    LOGGER.debug("Read {} lines", lineNumber);
+//                }
+//            }
+//        });
+//        LOGGER.info("Read {} instances from {} in {}", instances.size(), filePath, stopWatch);
+//        return instances;
+        
+        return new CsvDatasetReader(new File(filePath),readHeader,fieldSeparator).readAll();
     }
 
     /**
@@ -168,11 +176,11 @@ public final class ClassificationUtils {
      * provide a target class), the target class is appended as last column after the features in the CSV.
      * </p>
      * 
-     * @param trainData The instances to write, not <code>null</code>.
+     * @param data The instances to write, not <code>null</code>.
      * @param filePath The path specifying the CSV file, not <code>null</code>.
      */
-    public static void writeCsv(Iterable<? extends Classifiable> trainData, File outputFile) {
-        Validate.notNull(trainData, "trainData must not be null");
+    public static void writeCsv(Iterable<? extends Classifiable> data, File outputFile) {
+        Validate.notNull(data, "trainData must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
 
         Writer writer = null;
@@ -183,30 +191,64 @@ public final class ClassificationUtils {
             boolean writeHeader = true;
             int count = 0;
             int featureCount = 0;
-            for (Classifiable trainable : trainData) {
-                if (writeHeader) {
-                    for (Feature<?> feature : trainable.getFeatureVector()) {
-                        writer.write(feature.getName());
-                        writer.write(DEFAULT_SEPARATOR);
-                        featureCount++;
-                    }
-                    if (trainable instanceof Trainable) {
-                        writer.write("targetClass");
-                    }
-                    writer.write(FileHelper.NEWLINE_CHARACTER);
-                    writeHeader = false;
-                }
-                for (Feature<?> feature : trainable.getFeatureVector()) {
-                    writer.write(feature.getValue().toString());
-                    writer.write(DEFAULT_SEPARATOR);
-                }
-                if (trainable instanceof Trainable) {
-                    writer.write(((Trainable)trainable).getTargetClass());
-                }
-                writer.write(FileHelper.NEWLINE_CHARACTER);
+            for (Classifiable trainable : data) {
+                featureCount = writeLine(trainable, writer, writeHeader);
+                writeHeader = false;
                 count++;
             }
-            LOGGER.info("Wrote {} train instances with {} features.", count, featureCount);
+            LOGGER.info("Wrote {} train instances with {} features to {}.", count, featureCount, outputFile);
+        } catch (IOException e) {
+            throw new IllegalStateException("Encountered " + e + " while writing to '" + outputFile + "'", e);
+        } finally {
+            FileHelper.close(writer);
+        }
+    }
+
+    private static int writeLine(Classifiable trainable, Writer writer, boolean writeHeader) throws IOException {
+        if (writeHeader) {
+            for (Feature<?> feature : trainable.getFeatureVector()) {
+                writer.write(feature.getName());
+                writer.write(DEFAULT_SEPARATOR);
+            }
+            if (trainable instanceof Trainable) {
+                writer.write("targetClass");
+            }
+            writer.write(FileHelper.NEWLINE_CHARACTER);
+        }
+        int featureCount = 0;
+        for (Feature<?> feature : trainable.getFeatureVector()) {
+            writer.write(feature.getValue().toString());
+            writer.write(DEFAULT_SEPARATOR);
+            featureCount++;
+        }
+        if (trainable instanceof Trainable) {
+            writer.write(((Trainable)trainable).getTargetClass());
+        }
+        writer.write(FileHelper.NEWLINE_CHARACTER);
+        return featureCount;
+    }
+
+    /**
+     * <p>
+     * Append a {@link Classifiable} to a CSV file. In case, the file did not exist already, the header is written. In
+     * case the file already exists, only the data is written. Does <b>not</b> check, whether the given data conforms to
+     * existing CSV structure (number of columns, types, ...).
+     * </p>
+     * 
+     * @param data The data to append to the file, not <code>null</code>.
+     * @param outputFile The output file to which to append, or which to create in case it does not exist. Not
+     *            <code>null</code>.
+     */
+    public static void appendCsv(Classifiable data, File outputFile) {
+        Validate.notNull(data, "data must not be null");
+        Validate.notNull(outputFile, "outputFile must not be null");
+
+        Writer writer = null;
+        boolean writeHeader = !outputFile.exists();
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile, true),
+                    FileHelper.DEFAULT_ENCODING));
+            writeLine(data, writer, writeHeader);
         } catch (IOException e) {
             throw new IllegalStateException("Encountered " + e + " while writing to '" + outputFile + "'", e);
         } finally {
@@ -250,15 +292,15 @@ public final class ClassificationUtils {
 
     /**
      * <p>
-     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accepted features
-     * is returned.
+     * Filter features by names, as specified by the filter. A new {@link FeatureVector} containing the accepted
+     * features is returned.
      * </p>
      * 
      * @param classifiable The {@link Classifiable} to filter, not <code>null</code>.
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return The FeatureVector without the features filtered out by the nameFilter.
      */
-    public static FeatureVector filterFeatures(Classifiable classifiable, Filter<String> nameFilter) {
+    public static FeatureVector filterFeatures(Classifiable classifiable, Filter<? super String> nameFilter) {
         Validate.notNull(classifiable, "classifiable must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
         FeatureVector newFeatureVector = new BasicFeatureVector();
@@ -279,14 +321,31 @@ public final class ClassificationUtils {
      * @param instances The instances to process, not <code>null</code>.
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link FeatureVector}.
+     * @see #filterFeaturesIterable(Iterable, Filter) which does the same on an iterable, without loading the whole
+     *      dataset in memory.
      */
-    public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances, Filter<String> nameFilter) {
+    public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances,
+            Filter<? super String> nameFilter) {
         List<Trainable> result = CollectionHelper.newArrayList();
         for (Trainable instance : instances) {
             FeatureVector featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
             result.add(new Instance(instance.getTargetClass(), featureVector));
         }
         return result;
+    }
+
+    /**
+     * <p>
+     * Apply a filter on the features in a dataset.
+     * </p>
+     * 
+     * @param dataset The dataset to filter, not <code>null</code>.
+     * @param nameFilter The filter specifying which features to ignore, not <code>null</code>.
+     * @return A new {@link Iterable} providing the filtered feature set.
+     */
+    public static Iterable<Trainable> filterFeaturesIterable(Iterable<? extends Trainable> dataset,
+            Filter<? super String> nameFilter) {
+        return new DatasetFeatureFilter(dataset, nameFilter);
     }
 
     /**
@@ -308,6 +367,7 @@ public final class ClassificationUtils {
         return featureNames;
     }
 
+    // XXX nice would be to have this code as Classifier taking multiple models
     public static <M extends Model, T extends Classifiable> CategoryEntries classifyWithMultipleModels(
             Classifier<M> classifier, T classifiable, M... models) {
 
@@ -319,6 +379,24 @@ public final class ClassificationUtils {
         }
 
         return mergedCategoryEntries;
+    }
+
+    /**
+     * <p>
+     * Get a {@link NumericFeature} with all numeric values from the given {@link Classifiable}. Note: This is just a
+     * crutch and should be better integrated with the existing {@link FeatureVector}.
+     * </p>
+     * 
+     * @param classifiable The classifiable, not <code>null</code>.
+     * @return A {@link NumericVector} with all numeric features from the {@link Classifiable}'s {@link FeatureVector}.
+     */
+    public static NumericVector<String> getNumericVector(Classifiable classifiable) {
+        Validate.notNull(classifiable, "classifiable must not be null");
+        Map<String, Double> values = CollectionHelper.newHashMap();
+        for (NumericFeature numericFeature : classifiable.getFeatureVector().getAll(NumericFeature.class)) {
+            values.put(numericFeature.getName(), numericFeature.getValue());
+        }
+        return new ImmutableNumericVector<String>(values);
     }
 
 }

@@ -9,7 +9,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.processing.features.Annotation;
 import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureProvider;
 import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
@@ -23,7 +22,7 @@ import ws.palladian.processing.features.ImmutableAnnotation;
  * @version 2.0
  * @since 0.1.7
  */
-public final class RegExTokenizer extends BaseTokenizer implements FeatureProvider {
+public final class RegExTokenizer extends BaseTokenizer {
 
     /**
      * <p>
@@ -31,8 +30,6 @@ public final class RegExTokenizer extends BaseTokenizer implements FeatureProvid
      * </p>
      */
     private final Pattern pattern;
-
-    private final String featureName;
 
     /**
      * <p>
@@ -55,11 +52,10 @@ public final class RegExTokenizer extends BaseTokenizer implements FeatureProvid
      * @param pattern The pattern that needs to match for a token to be extracted as a new {@code Annotation}.
      */
     public RegExTokenizer(String featureName, Pattern pattern) {
-        Validate.notNull(featureName, "featureName must not be null");
+        super(featureName);
         Validate.notNull(pattern, "pattern must not be null");
 
         this.pattern = pattern;
-        this.featureName = featureName;
     }
 
     /**
@@ -81,14 +77,8 @@ public final class RegExTokenizer extends BaseTokenizer implements FeatureProvid
         Matcher matcher = pattern.matcher(text);
         List<Annotation> annotations = CollectionHelper.newArrayList();
         while (matcher.find()) {
-            annotations.add(new ImmutableAnnotation(matcher.start(), matcher.group(), PROVIDED_FEATURE));
+            annotations.add(new ImmutableAnnotation(matcher.start(), matcher.group(), getCreatedFeatureName()));
         }
         return annotations;
     }
-
-    @Override
-    public String getCreatedFeatureName() {
-        return featureName;
-    }
-
 }

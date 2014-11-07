@@ -74,7 +74,7 @@ public class BasicFeatureVector implements FeatureVector {
 
     @Override
     public void add(Feature<?> feature) {
-        if (features.get(feature.getName()) != null && !showedWarning) {
+        if (features.get(feature.getName()) != null && !showedWarning && LOGGER.isDebugEnabled()) {
             // create the warning with stack trace, so that we can fix those issues better
             StringBuilder loggerBuilder = new StringBuilder();
             loggerBuilder.append("Please use a ListFeature to add multiple features with the same name.\n");
@@ -84,7 +84,7 @@ public class BasicFeatureVector implements FeatureVector {
             for (int i = 2; i < stackTrace.length; i++) {
                 loggerBuilder.append('\t').append(stackTrace[i]).append('\n');
             }
-            LOGGER.warn(loggerBuilder.toString());
+            LOGGER.debug(loggerBuilder.toString());
             showedWarning = true;
         }
         features.put(feature.getName(), feature);
@@ -108,11 +108,12 @@ public class BasicFeatureVector implements FeatureVector {
 
     @Override
     public Feature<?> get(String name) {
-        Feature<?> ret = features.get(name);
-        if (ret == null) {
-            LOGGER.warn("Unable to find feature with name " + name);
-        }
-        return ret;
+//        Feature<?> ret = features.get(name);
+//        if (ret == null) {
+//            LOGGER.warn("Unable to find feature with name " + name);
+//        }
+//        return ret;
+        return features.get(name);
     }
 
     @Override

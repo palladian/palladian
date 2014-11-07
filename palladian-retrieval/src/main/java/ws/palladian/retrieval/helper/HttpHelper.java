@@ -270,6 +270,7 @@ public final class HttpHelper {
         return statusCode;
     }
 
+    @SuppressWarnings("deprecation")
     public static void main(String[] args) {
 
         // DateUtils.parseDate fails here since it is not RFC 1123, RFC 1036 or ANSI C asctime()

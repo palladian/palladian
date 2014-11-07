@@ -7,9 +7,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +17,9 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -97,64 +97,64 @@ public class YahooLocationExtractor extends LocationExtractor {
         }
         try {
             return parseJson(inputText, postResult.getStringContent());
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new IllegalStateException("Error parsing the JSON: '" + postResult.getStringContent() + "'.", e);
         }
     }
 
-    static List<LocationAnnotation> parseJson(String text, String response) throws JSONException {
+    static List<LocationAnnotation> parseJson(String text, String response) throws JsonException {
 
-        JSONObject jsonResults = new JSONObject(response).getJSONObject("query").getJSONObject("results");
-        if (jsonResults.isNull("matches")) {
+        JsonObject jsonResults = new JsonObject(response).getJsonObject("query").getJsonObject("results");
+        if (jsonResults.get("matches") == null) {
             return Collections.emptyList();
         }
-        JSONObject jsonObject = jsonResults.getJSONObject("matches");
+        JsonObject jsonObject = jsonResults.getJsonObject("matches");
 
         // for sorting the annotations, as the web service does not return them in order
-        SortedMap<Integer, JSONObject> tempReferences = new TreeMap<Integer, JSONObject>();
-        Map<Integer, JSONObject> woeidDataMap = CollectionHelper.newHashMap();
+        SortedMap<Integer, JsonObject> tempReferences = new TreeMap<Integer, JsonObject>();
+        Map<Integer, JsonObject> woeidDataMap = CollectionHelper.newHashMap();
 
         // first collect all matches; they are either in an Object or in an Array
-        List<JSONObject> tempMatches = CollectionHelper.newArrayList();
-        if (jsonObject.get("match") instanceof JSONArray) {
-            JSONArray jsonMatches = jsonObject.getJSONArray("match");
-            for (int i = 0; i < jsonMatches.length(); i++) {
-                tempMatches.add(jsonMatches.getJSONObject(i));
+        List<JsonObject> tempMatches = CollectionHelper.newArrayList();
+        if (jsonObject.get("match") instanceof JsonArray) {
+            JsonArray jsonMatches = jsonObject.getJsonArray("match");
+            for (int i = 0; i < jsonMatches.size(); i++) {
+                tempMatches.add(jsonMatches.getJsonObject(i));
             }
         } else {
-            tempMatches.add(jsonObject.getJSONObject("match"));
+            tempMatches.add(jsonObject.getJsonObject("match"));
 
         }
 
-        for (JSONObject match : tempMatches) {
-            JSONObject place = match.getJSONObject("place");
+        for (JsonObject match : tempMatches) {
+            JsonObject place = match.getJsonObject("place");
             woeidDataMap.put(place.getInt("woeId"), place);
 
             // sometimes its an array, sometimes an object...
-            if (match.get("reference") instanceof JSONArray) {
-                JSONArray referencesJson = match.getJSONArray("reference");
-                for (int j = 0; j < referencesJson.length(); j++) {
-                    JSONObject reference = referencesJson.getJSONObject(j);
+            if (match.get("reference") instanceof JsonArray) {
+                JsonArray referencesJson = match.getJsonArray("reference");
+                for (int j = 0; j < referencesJson.size(); j++) {
+                    JsonObject reference = referencesJson.getJsonObject(j);
                     tempReferences.put(reference.getInt("start"), reference);
                 }
             } else {
-                JSONObject reference = match.getJSONObject("reference");
+                JsonObject reference = match.getJsonObject("reference");
                 tempReferences.put(reference.getInt("start"), reference);
             }
         }
 
         List<LocationAnnotation> result = CollectionHelper.newArrayList();
-        for (JSONObject referenceJson : tempReferences.values()) {
+        for (JsonObject referenceJson : tempReferences.values()) {
 
             int woeId = referenceJson.getInt("woeIds"); // XXX there might acutally be multiple IDs
 
-            JSONObject placeJson = woeidDataMap.get(woeId);
+            JsonObject placeJson = woeidDataMap.get(woeId);
 
             int startOffset = referenceJson.getInt("start");
             int endOffset = referenceJson.getInt("end");
 
             String type = placeJson.getString("type");
-            JSONObject jsonCentroid = placeJson.getJSONObject("centroid");
+            JsonObject jsonCentroid = placeJson.getJsonObject("centroid");
             double lng = jsonCentroid.getDouble("longitude");
             double lat = jsonCentroid.getDouble("latitude");
             GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lng);

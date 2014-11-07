@@ -2,6 +2,8 @@ package ws.palladian.extraction.entity;
 
 import java.util.regex.Pattern;
 
+import ws.palladian.helper.nlp.StringHelper;
+
 /**
  * <p>
  * Tag possible named entities in an English text.
@@ -87,11 +89,13 @@ public final class StringTagger extends RegExTagger {
     }
 
     private static String tagString(String s, String regexp) {
-        return s.replaceAll(regexp, CANDIDATE_TAG_WRAP);
+        // XXX StringHelper#replaceProtectedSpace is also in ContextTagger; can we not unify those two classes?
+        return StringHelper.replaceProtectedSpace(s).replaceAll(regexp, CANDIDATE_TAG_WRAP);
     }
 
     private static String tagString(String s) {
-        return PATTERN.matcher(s).replaceAll(CANDIDATE_TAG_WRAP);
+        // XXX StringHelper#replaceProtectedSpace is also in ContextTagger; can we not unify those two classes?
+        return PATTERN.matcher(StringHelper.replaceProtectedSpace(s)).replaceAll(CANDIDATE_TAG_WRAP);
     }
 
     public static Annotations<ContextAnnotation> getTaggedEntities(String text, String regexp) {

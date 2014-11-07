@@ -1,7 +1,9 @@
 package ws.palladian.semantics;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +14,7 @@ import ws.palladian.extraction.feature.StemmerAnnotator;
 import ws.palladian.extraction.pos.BasePosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -33,13 +36,54 @@ public class WordTransformer {
     /** The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>. */
     private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<String, EnglishVerb>();
 
-    private static final StemmerAnnotator GERMAN_STEMMER = new StemmerAnnotator(Language.GERMAN);
-    private static final StemmerAnnotator ENGLISH_STEMMER = new StemmerAnnotator(Language.ENGLISH);
+    /** The German singular plural map for nouns. */
+    private static final Map<String, String> GERMAN_SINGULAR_PLURAL = new HashMap<String, String>();
+    private static final List<String> GERMAN_NOUNS = new ArrayList<String>();
+
+    /** Exceptions for German stemming. */
+    private static final Map<String, String> GERMAN_STEMMING_EXCEPTIONS = CollectionHelper.newHashMap();
 
     static {
 
-        // irregular verbs
+        // German nouns
         InputStream inputStream = null;
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/germanSingularPluralNouns.tsv");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split("\t");
+                if (parts[1].isEmpty()) {
+                    continue;
+                }
+                GERMAN_SINGULAR_PLURAL.put(parts[1].toLowerCase(), parts[3].toLowerCase());
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
+        GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.keySet());
+        GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.values());
+        Collections.sort(GERMAN_NOUNS, new StringLengthComparator());
+
+        // German stemming exceptions
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/germanStemmingExceptions.tsv");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split("\t");
+                if (parts[1].isEmpty()) {
+                    continue;
+                }
+                GERMAN_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
+        // irregular verbs
+        inputStream = null;
         try {
             inputStream = WordTransformer.class.getResourceAsStream("/irregularEnglishVerbs.csv");
             List<String> list = FileHelper.readFileToArray(inputStream);
@@ -56,108 +100,19 @@ public class WordTransformer {
         }
 
         // irregular nouns
-        IRREGULAR_NOUNS.put("addendum", "addenda");
-        IRREGULAR_NOUNS.put("alga", "algae");
-        IRREGULAR_NOUNS.put("alumna", "alumnae");
-        IRREGULAR_NOUNS.put("alumnus", "alumni");
-        IRREGULAR_NOUNS.put("analysis", "analyses");
-        IRREGULAR_NOUNS.put("antennas", "antenna");
-        IRREGULAR_NOUNS.put("apparatus", "apparatuses");
-        IRREGULAR_NOUNS.put("appendix", "appendices");
-        IRREGULAR_NOUNS.put("archive", "archives"); // would be converted to singular "archife"
-        IRREGULAR_NOUNS.put("automaton", "automata");
-        IRREGULAR_NOUNS.put("axis", "axes");
-        IRREGULAR_NOUNS.put("bacillus", "bacilli");
-        IRREGULAR_NOUNS.put("bacterium", "bacteria");
-        IRREGULAR_NOUNS.put("basis", "bases");
-        IRREGULAR_NOUNS.put("beau", "beaux");
-        IRREGULAR_NOUNS.put("bison", "bison");
-        IRREGULAR_NOUNS.put("calf", "calves");
-        IRREGULAR_NOUNS.put("child", "children");
-        IRREGULAR_NOUNS.put("corps", "corps");
-        IRREGULAR_NOUNS.put("crisis", "crises");
-        IRREGULAR_NOUNS.put("criterion", "criteria");
-        IRREGULAR_NOUNS.put("curriculum", "curricula");
-        IRREGULAR_NOUNS.put("datum", "data");
-        IRREGULAR_NOUNS.put("deer", "deer");
-        IRREGULAR_NOUNS.put("die", "dice");
-        IRREGULAR_NOUNS.put("diagnosis", "diagnoses");
-        IRREGULAR_NOUNS.put("echo", "echoes");
-        IRREGULAR_NOUNS.put("elf", "elves");
-        IRREGULAR_NOUNS.put("ellipsis", "ellipses");
-        IRREGULAR_NOUNS.put("embargo", "embargoes");
-        IRREGULAR_NOUNS.put("emphasis", "emphases");
-        IRREGULAR_NOUNS.put("erratum", "errata");
-        IRREGULAR_NOUNS.put("fireman", "firemen");
-        IRREGULAR_NOUNS.put("fish", "fish");
-        IRREGULAR_NOUNS.put("foot", "feet");
-        IRREGULAR_NOUNS.put("fungus", "fungi");
-        IRREGULAR_NOUNS.put("genus", "genera");
-        IRREGULAR_NOUNS.put("goose", "geese");
-        IRREGULAR_NOUNS.put("half", "halves");
-        IRREGULAR_NOUNS.put("hero", "heroes");
-        IRREGULAR_NOUNS.put("hippopotamus", "hippopotami");
-        IRREGULAR_NOUNS.put("hypothesis", "hypotheses");
-        IRREGULAR_NOUNS.put("index", "indices");
-        IRREGULAR_NOUNS.put("information", "information");
-        IRREGULAR_NOUNS.put("knife", "knives");
-        IRREGULAR_NOUNS.put("leaf", "leaves");
-        IRREGULAR_NOUNS.put("life", "lives");
-        IRREGULAR_NOUNS.put("loaf", "loaves");
-        IRREGULAR_NOUNS.put("louse", "lice");
-        IRREGULAR_NOUNS.put("man", "men");
-        IRREGULAR_NOUNS.put("matrix", "matrices");
-        IRREGULAR_NOUNS.put("means", "means");
-        IRREGULAR_NOUNS.put("medium", "media");
-        IRREGULAR_NOUNS.put("memorandum", "memoranda");
-        IRREGULAR_NOUNS.put("millennium", "milennia");
-        IRREGULAR_NOUNS.put("moose", "moose");
-        IRREGULAR_NOUNS.put("mosquito", "mosquitoes");
-        IRREGULAR_NOUNS.put("mouse", "mice");
-        IRREGULAR_NOUNS.put("movie", "movies");
-        IRREGULAR_NOUNS.put("neurosis", "neuroses");
-        IRREGULAR_NOUNS.put("news", "news");
-        IRREGULAR_NOUNS.put("nucleus", "nuclei");
-        IRREGULAR_NOUNS.put("oasis", "oases");
-        IRREGULAR_NOUNS.put("ovum", "ova");
-        IRREGULAR_NOUNS.put("ox", "oxen");
-        IRREGULAR_NOUNS.put("paralysis", "paralyses");
-        IRREGULAR_NOUNS.put("parenthesis", "parentheses");
-        IRREGULAR_NOUNS.put("person", "people");
-        IRREGULAR_NOUNS.put("phenomenon", "phenomena");
-        IRREGULAR_NOUNS.put("pike", "pike");
-        IRREGULAR_NOUNS.put("potato", "potatoes");
-        IRREGULAR_NOUNS.put("radius", "radiuses");
-        IRREGULAR_NOUNS.put("salmon", "salmon");
-        IRREGULAR_NOUNS.put("scissors", "scissors");
-        IRREGULAR_NOUNS.put("series", "series");
-        IRREGULAR_NOUNS.put("service", "services"); // would be converted to singular "servix"
-        IRREGULAR_NOUNS.put("sheep", "sheep");
-        IRREGULAR_NOUNS.put("shelf", "shelves");
-        IRREGULAR_NOUNS.put("shrimp", "shrimp");
-        IRREGULAR_NOUNS.put("species", "species");
-        IRREGULAR_NOUNS.put("status", "status");
-        IRREGULAR_NOUNS.put("stimulus", "stimuli");
-        IRREGULAR_NOUNS.put("stratum", "strata");
-        IRREGULAR_NOUNS.put("swine", "swine");
-        IRREGULAR_NOUNS.put("syllabus", "syllabuses");
-        IRREGULAR_NOUNS.put("symposium", "symposia");
-        IRREGULAR_NOUNS.put("synthesis", "syntheses");
-        IRREGULAR_NOUNS.put("synopsis", "synopses");
-        IRREGULAR_NOUNS.put("tableau", "tableaux");
-        IRREGULAR_NOUNS.put("thesis", "theses");
-        IRREGULAR_NOUNS.put("thief", "thieves");
-        IRREGULAR_NOUNS.put("tomato", "tomatoes");
-        IRREGULAR_NOUNS.put("tooth", "teeth");
-        IRREGULAR_NOUNS.put("torpedo", "torpedoes");
-        IRREGULAR_NOUNS.put("trout", "trout");
-        IRREGULAR_NOUNS.put("vertebra", "vertebrae");
-        IRREGULAR_NOUNS.put("vertex", "vertices");
-        IRREGULAR_NOUNS.put("veto", "vetoes");
-        IRREGULAR_NOUNS.put("vita", "vitae");
-        IRREGULAR_NOUNS.put("wife", "wives");
-        IRREGULAR_NOUNS.put("wolf", "wolves");
-        IRREGULAR_NOUNS.put("woman", "women");
+        inputStream = null;
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/irregularEnglishNouns.txt");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split(" ");
+                IRREGULAR_NOUNS.put(parts[1], parts[0]);
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
     }
 
     /**
@@ -183,9 +138,7 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToSingularEnglish(pluralForm);
         } else if (language.equals(Language.GERMAN)) {
-            // return wordToSingularGerman(pluralForm);
-            // TODO
-            throw new IllegalStateException("nix gut (needs to be restructured because of model paths).");
+            return wordToSingularGerman(pluralForm);
         }
 
         throw new IllegalArgumentException("Language must be 'en' or 'de'.");
@@ -264,28 +217,35 @@ public class WordTransformer {
         return plural;
     }
 
-    // /**
-    // * <p>
-    // * Transform a German plural word to its singular form using the wiktionary DB.
-    // * </p>
-    // *
-    // * @param pluralForm The plural form of the word.
-    // * @return The singular form of the word.
-    // */
-    // public static String wordToSingularGerman(String pluralForm) {
-    //
-    // PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-    // String path = config.getString("models.root") + config.getString("models.palladian.language.wiktionary_de");
-    //
-    // WordDB wordDB = new WordDB(path);
-    // Word word = wordDB.getWord(pluralForm);
-    //
-    // if (word != null) {
-    // return word.getWord();
-    // }
-    //
-    // return pluralForm;
-    // }
+    /**
+     * <p>
+     * Transform a German plural word to its singular form using the file.
+     * </p>
+     * 
+     * @param pluralForm The plural form of the word.
+     * @return The singular form of the word.
+     */
+    public static String wordToSingularGerman(String pluralForm) {
+
+        String singular = CollectionHelper.getKeyByValue(GERMAN_SINGULAR_PLURAL, pluralForm.toLowerCase());
+        if (singular != null) {
+            return StringHelper.upperCaseFirstLetter(singular);
+        } else {
+
+            // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldketten" ->
+            // "Gold" "Ketten" -> "Kette" => "Goldkette"
+            String lowerCasePlural = pluralForm.toLowerCase();
+
+            for (String word2 : GERMAN_NOUNS) {
+                if (lowerCasePlural.endsWith(word2) && word2.length() < lowerCasePlural.length()) {
+                    String singular2 = wordToSingularGerman(word2);
+                    return pluralForm.replace(word2, singular2.toLowerCase());
+                }
+            }
+        }
+
+        return pluralForm;
+    }
 
     /**
      * <p>
@@ -305,8 +265,7 @@ public class WordTransformer {
         if (language.equals(Language.ENGLISH)) {
             return wordToPluralEnglish(singular);
         } else if (language.equals(Language.GERMAN)) {
-            // return wordToPluralGerman(singular); XXX
-            throw new IllegalArgumentException("Language must be 'en'.");
+            return wordToPluralGerman(singular);
         }
 
         throw new IllegalArgumentException("Language must be 'en'.");
@@ -407,33 +366,31 @@ public class WordTransformer {
      * @see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
      * @return The plural form of the word.
      */
-    // public static String wordToPluralGerman(String singular) {
-    //
-    // if (singular == null) {
-    // return "";
-    // }
-    // String singularLc = singular.toLowerCase();
-    //
-    // String plural = "";
-    //
-    // // no ending but umlauts
-    // if (singularLc.endsWith("er") || singularLc.endsWith("en") || singularLc.endsWith("el")
-    // || singularLc.endsWith("chen") || singularLc.endsWith("lein")) {
-    // plural = singular.replace("o", "ö");
-    // plural = plural.replace("a", "ä");
-    // plural = plural.replace("u", "ü");
-    // } else
-    //
-    // // add "n" ending and umlauts
-    // if (singularLc.endsWith("e")) {
-    // plural = singular.replace("o", "ö");
-    // plural = plural.replace("a", "ä");
-    // plural = plural.replace("u", "ü");
-    // plural += "n";
-    // }
-    //
-    // return plural;
-    // }
+    public static String wordToPluralGerman(String singular) {
+
+        if (singular == null) {
+            return "";
+        }
+
+        String plural = GERMAN_SINGULAR_PLURAL.get(singular.toLowerCase());
+        if (plural != null) {
+            return StringHelper.upperCaseFirstLetter(plural);
+        } else {
+
+            // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldkette" ->
+            // "Gold" "Kette" -> "Ketten" => "Goldketten"
+            String lowerCaseSingular = singular.toLowerCase();
+
+            for (String word2 : GERMAN_NOUNS) {
+                if (lowerCaseSingular.endsWith(word2) && word2.length() < lowerCaseSingular.length()) {
+                    String singular2 = wordToPluralGerman(word2);
+                    return singular.replace(word2, singular2.toLowerCase());
+                }
+            }
+        }
+
+        return singular;
+    }
 
     public static String stemGermanWords(String words) {
         return stemWords(words, Language.GERMAN);
@@ -460,11 +417,17 @@ public class WordTransformer {
     }
 
     public static String stemGermanWord(String word) {
-        return GERMAN_STEMMER.stem(word);
+        // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
+        String exception = GERMAN_STEMMING_EXCEPTIONS.get(word.toLowerCase());
+        if (exception != null) {
+            return StringHelper.alignCasing(exception, word);
+        }
+        return new StemmerAnnotator(Language.GERMAN).stem(word);
     }
 
     public static String stemEnglishWord(String word) {
-        return ENGLISH_STEMMER.stem(word);
+        // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
+        return new StemmerAnnotator(Language.ENGLISH).stem(word);
     }
 
     /**
@@ -659,8 +622,11 @@ public class WordTransformer {
 
     public static void main(String[] args) {
 
+        System.out.println(WordTransformer.stemGermanWord("Strassen"));
+        System.out.println(WordTransformer.stemGermanWord("straße"));
         // System.out.println(WordTransformer.stemEnglishWord("bleed"));
-        System.out.println(WordTransformer.getThirdPersonSingular("cross"));
+        // System.out.println(WordTransformer.getThirdPersonSingular("cross"));
+        // System.out.println(WordTransformer.wordToSingularGerman("arasdften"));
         System.exit(0);
 
         // 335ms

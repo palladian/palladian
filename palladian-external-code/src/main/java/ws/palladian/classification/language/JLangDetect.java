@@ -1,6 +1,7 @@
 package ws.palladian.classification.language;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -36,10 +37,10 @@ public class JLangDetect implements LanguageClassifier {
 
     /** The confidence threshold for a language. This is the minimal percentage of n-grams which have to match. */
     private static final float THRESHOLD = 0.0f;
-    
+
     /** The wrapped language detector. */
     private final LangDetector langDetector;
-    
+
     /**
      * <p>
      * Instantiate a new {@link JLangDetect} using the supplied implementation of {@link LangDetector}.
@@ -66,10 +67,14 @@ public class JLangDetect implements LanguageClassifier {
         if (!modelPath.isDirectory()) {
             throw new IllegalStateException("The path " + modelPath + " does not point to a directory.");
         }
-        this.langDetector = loadTreeFiles(modelPath);
+        try {
+            this.langDetector = loadTreeFiles(modelPath);
+        } catch (IOException e) {
+            throw new IllegalStateException("Error while loading tree files from " + modelPath + ".");
+        }
     }
 
-    private final LangDetector loadTreeFiles(File modelPath) {
+    private final LangDetector loadTreeFiles(File modelPath) throws IOException {
         LangDetector result = new LangDetector();
         File[] files = FileHelper.getFiles(modelPath.getPath(), "_tree.bin");
         for (File file : files) {
@@ -87,8 +92,9 @@ public class JLangDetect implements LanguageClassifier {
      * 
      * @param dataset The dataset to train on.
      * @param modelPath The path to the directory where the trained models are stored, not <code>null</code>.
+     * @throws IOException In case of an I/O error when writing the model.
      */
-    public static void train(Dataset dataset, File modelPath) {
+    public static void train(Dataset dataset, File modelPath) throws IOException {
 
         if (!modelPath.exists()) {
             boolean directoryCreated = modelPath.mkdirs();
@@ -119,7 +125,7 @@ public class JLangDetect implements LanguageClassifier {
             String[] parts = line.split(" ");
             String language = parts[1];
             String link = parts[0];
-            String text = FileHelper.readFileToString(dataset.getRootPath() + link);
+            String text = FileHelper.tryReadFileToString(dataset.getRootPath() + link);
             treeBuilders.get(language).learn(text);
         }
 
@@ -156,7 +162,7 @@ public class JLangDetect implements LanguageClassifier {
         return "JLangDetect";
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Dataset dataset = new Dataset();
         dataset.setPath("/Users/pk/Dropbox/Uni/Datasets/Wikipedia76Languages/languageDocumentIndex.txt");
         dataset.setFirstFieldLink(true);

@@ -2,7 +2,15 @@ package ws.palladian.helper.normalization;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.javatuples.Pair;
 import org.junit.Test;
+
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.StringLengthComparator;
+import ws.palladian.helper.constants.UnitType;
 
 /**
  * Test cases for the normalization.
@@ -10,6 +18,24 @@ import org.junit.Test;
  * @author David Urbansky
  */
 public class NormalizationTest {
+
+    @Test
+    public void testSmartNormalization() {
+
+        Pair<Double, List<String>> transformed = null;
+
+        transformed = UnitNormalizer.smartTransform(0.5, UnitType.LENGTH);
+        assertEquals("5.0mm", transformed.getValue0() + getShortest(transformed.getValue1()));
+
+        transformed = UnitNormalizer.smartTransform(5000000., UnitType.WEIGHT);
+        assertEquals("5.0ton", transformed.getValue0() + getShortest(transformed.getValue1()));
+
+    }
+
+    private String getShortest(List<String> list) {
+        Collections.sort(list, new StringLengthComparator());
+        return CollectionHelper.getLast(list);
+    }
 
     @Test
     public void testNormalizeNumber() {
@@ -27,8 +53,20 @@ public class NormalizationTest {
     }
 
     @Test
+    public void testGetUnitType() {
+
+        assertEquals(UnitType.WEIGHT, UnitNormalizer.getUnitType("g"));
+        assertEquals(UnitType.VOLUME, UnitNormalizer.getUnitType("tablespoon"));
+
+    }
+
+    @Test
     public void testDetectUnit() {
-        
+
+        assertEquals("ghz", UnitNormalizer.detectUnit("8 in ghz"));
+        assertEquals("hz", UnitNormalizer.detectUnit("8 hz"));
+        assertEquals("mhz", UnitNormalizer.detectUnit("mhz"));
+        assertEquals("cm", UnitNormalizer.detectUnit("2cm- up to 8"));
         assertEquals("kilobytes", UnitNormalizer.detectUnit("how much are 100 kilobytes"));
         assertEquals("kilometers", UnitNormalizer.detectUnit("kilometers"));
         assertEquals("miles", UnitNormalizer.detectUnit("1.5miles"));
@@ -39,6 +77,13 @@ public class NormalizationTest {
     @Test
     public void testGetNormalizedNumber() {
 
+        assertEquals(8.89, UnitNormalizer.getNormalizedNumber("3.5\""), 0.1);
+        assertEquals(20.0, UnitNormalizer.getNormalizedNumber("2cl"), 2);
+        assertEquals(1600000000.0, UnitNormalizer.getNormalizedNumber(1.6, " GHz, 1024MB RAM"), 2);
+        assertEquals(14.785, UnitNormalizer.getNormalizedNumber(0.5, "fluid ounce"), 0.1);
+        assertEquals(UnitNormalizer.getNormalizedNumber(1, "measure"), 44.3603, 0.1);
+        assertEquals(UnitNormalizer.getNormalizedNumber(2.5, "shots"), 110.9, 0.1);
+
         assertEquals(214, UnitNormalizer.getNormalizedNumber("214 pixel [1]"), 1);
         assertEquals(214, UnitNormalizer.getNormalizedNumber("214pixel [1]"), 1);
 
@@ -47,13 +92,13 @@ public class NormalizationTest {
         assertEquals(UnitNormalizer.getNormalizedNumber(13, " per thousand asdf asdfisdf "), 1.3, 1);
         assertEquals(UnitNormalizer.getNormalizedNumber(13, " per thousand. asdf asdfisdf "), 1.3, 1);
         assertEquals(UnitNormalizer.getNormalizedNumber(13, " per 1000 asdf asdfisdf "), 1.3, 1);
-        assertEquals(UnitNormalizer.getNormalizedNumber(1.6, " GHz, 1024MB RAM"), 1600000000.0, 2);
         // TODO?
         // assertEquals(UnitNormalizer.getNormalizedNumber(80,"'GB'))"),85899345920.0);
         assertEquals(UnitNormalizer.getNormalizedNumber(2, " hr. 32 min."), 9120.0, 0);
         // assertEquals(UnitNormalizer.getNormalizedNumber(13.3, "\" adf fs"), 33.782);
         assertEquals(UnitNormalizer.getNormalizedNumber(6, "' 2''"), 187.96, 2);
         assertEquals(UnitNormalizer.getNormalizedNumber(6, "'2\""), 187.96, 2);
+        assertEquals(UnitNormalizer.getNormalizedNumber(7.5, "\""), 18.75, 2);
         assertEquals(UnitNormalizer.getNormalizedNumber(5, "hours 4 minutes 6seconds"), 18246.0, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(6, " h 30 min"), 23400.0, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(5, "ft 9 inches"), 175.26, 2);
@@ -73,8 +118,9 @@ public class NormalizationTest {
         assertEquals(UnitNormalizer.getNormalizedNumber(5, "ft 9 in 20sdf"), 175.26, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(1, "m20s 23sdf sdf a__:"), 80.0, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(1, ":20 23sdf sdf a__:"), 80.0, 0);
-        assertEquals(UnitNormalizer.getNormalizedNumber(3800, "thousand square miles"), 9841954818000.0, 0);
+        // assertEquals(UnitNormalizer.getNormalizedNumber(3800, "thousand square miles"), 9841954818000.0, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(46, "% (2008)"), 0.46, 0);
+
     }
 
     @Test
@@ -102,6 +148,5 @@ public class NormalizationTest {
         assertEquals(UnitNormalizer.unitsSameType("minute", "mb"), false);
         assertEquals(UnitNormalizer.isBigger("minute", "second"), true);
     }
-
 
 }

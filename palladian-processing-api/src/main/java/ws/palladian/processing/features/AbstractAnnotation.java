@@ -80,9 +80,11 @@ public abstract class AbstractAnnotation implements Annotation {
         StringBuilder builder = new StringBuilder();
         builder.append("Annotation [value=");
         builder.append(getValue());
-        builder.append(", startPosition=");
+        builder.append(", tag=");
+        builder.append(getTag());
+        builder.append(", span=");
         builder.append(getStartPosition());
-        builder.append(", endPosition=");
+        builder.append("-");
         builder.append(getEndPosition());
         builder.append("]");
         return builder.toString();

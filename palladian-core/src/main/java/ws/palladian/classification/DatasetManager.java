@@ -642,10 +642,15 @@ public final class DatasetManager {
      */
     public static void main(String[] args) throws IOException {
 
-        Dataset dataset = new Dataset();
-        dataset.setPath("data/temp/trainCollection.csv");
-        dataset.setSeparationString("<###>");
-        splitForCrossValidation(dataset, 3, 10);
+        // Dataset dataset = new Dataset();
+        // dataset.setPath("data/temp/trainCollection.csv");
+        // dataset.setSeparationString("<###>");
+        // splitForCrossValidation(dataset, 3, 10);
+
+        createBalancedIndex(
+                "H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt",
+                " ");
+
         System.exit(0);
 
         String corpusRootFolderPath = "data/datasets/ner/www_test2/";

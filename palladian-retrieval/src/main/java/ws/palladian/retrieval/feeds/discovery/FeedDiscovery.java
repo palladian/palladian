@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -32,7 +33,6 @@ import ws.palladian.retrieval.feeds.discovery.DiscoveredFeed.Type;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
-import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 
@@ -51,7 +51,9 @@ import ws.palladian.retrieval.search.SearcherException;
  * @author David Urbansky
  * 
  * @see <a href="http://tools.ietf.org/id/draft-snell-atompub-autodiscovery-00.txt">Atom Feed Autodiscovery</a>
- * @see <a href="http://web.archive.org/web/20110608053313/http://diveintomark.org/archives/2003/12/19/atom-autodiscovery">Notes on Atom autodiscovery</a>
+ * @see <a
+ *      href="http://web.archive.org/web/20110608053313/http://diveintomark.org/archives/2003/12/19/atom-autodiscovery">Notes
+ *      on Atom autodiscovery</a>
  */
 public final class FeedDiscovery {
 
@@ -65,24 +67,22 @@ public final class FeedDiscovery {
             + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "
             + "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]";
 
-    private static final int DEFAULT_NUM_THREADS = 10;
-
     /** DocumentRetriever for downloading pages. */
-    private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+    private static final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
     /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
-    private Searcher<WebContent> webSearcher = null;
+    private final Searcher<?> searcher;
 
     /** The parser used for parsing HTML pages. */
-    private final DocumentParser parser = ParserFactory.createHtmlParser();
+    private static final DocumentParser parser = ParserFactory.createHtmlParser();
 
-    private int numThreads = DEFAULT_NUM_THREADS;
+    private final int numThreads;
 
     /** Store all urls for which we will do the autodiscovery. */
     private final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>();
 
     /** The path of the file where the discovered feeds should be written to. */
-    private String resultFilePath = null;
+    private final File resultFilePath;
 
     /** Store a collection of all queries that are used to retrieve urlQueue from a search engine. */
     private final BlockingQueue<String> queryQueue = new LinkedBlockingQueue<String>();
@@ -100,13 +100,29 @@ public final class FeedDiscovery {
     private StopWatch stopWatch;
 
     /** Number of search engine results to retrieve for each query. */
-    private int numResults = 10;
+    private final int numResults;
 
     /** Whether to output full CSVs with feeds' meta data, instead of only URLs. */
-    private boolean csvOutput = false;
+    private final boolean csvOutput;
 
-    public FeedDiscovery() {
-
+    /**
+     * @param searcher The searcher to use, not <code>null</code>.
+     * @param resultFilePath The path for the result file. If file already exists, new entries will be appended. The
+     *            result file will be written continuously. If <code>null</code>, no result file will be written.
+     * @param numThreads The maximum number of concurrent autodiscovery requests.
+     * @param numResults The number of results to retrieve for each query.
+     * @param csvOutput <code>true</code> to output full CSVs with additional information, like feed title, type, page
+     *            link, <code>false</code> to only write feed URL.
+     */
+    public FeedDiscovery(Searcher<?> searcher, File resultFilePath, int numThreads, int numResults, boolean csvOutput) {
+        Validate.notNull(searcher, "webSearcher must not be null");
+        Validate.isTrue(numThreads > 0, "numThreads must be greater zero");
+        Validate.isTrue(numResults > 0, "numResults must be greater zero");
+        this.searcher = searcher;
+        this.resultFilePath = resultFilePath;
+        this.numThreads = numThreads;
+        this.numResults = numResults;
+        this.csvOutput = csvOutput;
     }
 
     /**
@@ -119,22 +135,15 @@ public final class FeedDiscovery {
      * @return
      */
     private Set<String> searchSites(String query, int totalResults) {
-
-        if (webSearcher == null) {
-            throw new IllegalStateException("No WebSearcher defined.");
-        }
-
         Set<String> sites = new HashSet<String>();
         try {
-            List<String> resultUrls = webSearcher.searchUrls(query, totalResults, Language.ENGLISH);
+            List<String> resultUrls = searcher.searchUrls(query, totalResults, Language.ENGLISH);
             for (String resultUrl : resultUrls) {
                 sites.add(UrlHelper.getDomain(resultUrl));
             }
         } catch (SearcherException e) {
-            LOGGER.error("Searcher Exception: " + e.getMessage());
+            LOGGER.error("Searcher Exception: {}", e.getMessage());
         }
-
-
         return sites;
     }
 
@@ -147,7 +156,7 @@ public final class FeedDiscovery {
      * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if page could not
      *         be parsed.
      */
-    public List<DiscoveredFeed> discoverFeeds(String pageUrl) {
+    public static List<DiscoveredFeed> discoverFeeds(String pageUrl) {
 
         List<DiscoveredFeed> result = null;
         Document document = null;
@@ -159,7 +168,7 @@ public final class FeedDiscovery {
 
         } catch (Throwable t) {
             // NekoHTML produces various types of Exceptions, just catch them all here and log them.
-            LOGGER.error("error retrieving " + pageUrl + " : " + t.toString() + " ; " + t.getMessage());
+            LOGGER.error("Error retrieving {} : {} ; {}", pageUrl, t.toString(), t.getMessage());
         }
 
         if (document != null) {
@@ -179,13 +188,13 @@ public final class FeedDiscovery {
      * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if the document could
      *         not be parsed.
      */
-    public List<DiscoveredFeed> discoverFeeds(File file) {
+    public static List<DiscoveredFeed> discoverFeeds(File file) {
         List<DiscoveredFeed> result = null;
         try {
             Document document = parser.parse(file);
             result = discoverFeeds(document);
         } catch (ParserException e) {
-            LOGGER.error("error parsing file " + file, e);
+            LOGGER.error("Error parsing file {}", file, e);
         }
         return result;
     }
@@ -269,7 +278,7 @@ public final class FeedDiscovery {
 
         }
 
-        LOGGER.debug(result.size() + " feeds for " + pageUrl);
+        LOGGER.debug("{} feeds for {}", result.size(), pageUrl);
         return result;
 
     }
@@ -283,9 +292,9 @@ public final class FeedDiscovery {
 
         stopWatch = new StopWatch();
 
-        LOGGER.info("start finding feeds with " + queryQueue.size() + " queries and " + numResults
-                + " results per query = max. " + numResults * queryQueue.size()
-                + " URLs to check for feeds; number of threads = " + numThreads);
+        LOGGER.info(
+                "Start finding feeds with {} queries and {} results per query = max. {} URLs to check for feeds; number of threads = {}",
+                queryQueue.size(), numResults, numResults * queryQueue.size(), numThreads);
 
         // prevent running through the discovery step when no search results are available yet.
         final Object lock = new Object();
@@ -309,12 +318,11 @@ public final class FeedDiscovery {
                     currentQuery++;
                     float percentage = (float)100 * currentQuery / totalQueries;
                     float querySpeed = TimeUnit.MINUTES.toMillis(currentQuery / stopWatch.getElapsedTime());
-                    LOGGER.info("queried " + currentQuery + "/" + totalQueries + ": '" + query + "'; # results: "
-                            + foundSites.size() + "; progress: " + percentage + "%" + "; query speed: " + querySpeed
-                            + " queries/min");
+                    LOGGER.info("Queried {}/{}: '{}'; # results: {}; progress: {}%; query speed: {} queries/min",
+                            currentQuery, totalQueries, query, foundSites.size(), percentage, querySpeed);
 
                 }
-                LOGGER.info("finished queries in " + stopWatch.getElapsedTimeString());
+                LOGGER.info("Finished queries in {}", stopWatch.getElapsedTimeString());
                 synchronized (lock) {
                     lock.notify();
                 }
@@ -367,11 +375,11 @@ public final class FeedDiscovery {
                                 float elapsedMinutes = (float)stopWatch.getElapsedTime() / TimeUnit.MINUTES.toMillis(1);
                                 float pageThroughput = pageCounter.get() / elapsedMinutes;
                                 float feedThroughput = feedCounter.get() / elapsedMinutes;
-                                LOGGER.info("# checked pages: " + pageCounter.intValue() + "; # discovered feeds: "
-                                        + feedCounter.intValue() + "; # errors: " + errorCounter.intValue()
-                                        + "; elapsed time: " + stopWatch.getElapsedTimeString() + "; throughput: "
-                                        + pageThroughput + " pages/min" + "; discovery speed: " + feedThroughput
-                                        + " feeds/min" + "; url queue size: " + urlQueue.size());
+                                LOGGER.info(
+                                        "# checked pages: {}; # discovered feeds: {}; # errors: {}; elapsed time: {}; throughput: {} pages/min; discovery speed: {} feeds/min; url queue size: {}",
+                                        pageCounter.intValue(), feedCounter.intValue(), errorCounter.intValue(),
+                                        stopWatch.getElapsedTimeString(), pageThroughput, feedThroughput,
+                                        urlQueue.size());
                             }
 
                         } catch (Throwable t) {
@@ -398,26 +406,10 @@ public final class FeedDiscovery {
     private synchronized void writeDiscoveredFeeds(List<DiscoveredFeed> discoveredFeeds) {
         if (discoveredFeeds != null) {
             for (DiscoveredFeed feed : discoveredFeeds) {
-                String writeLine = isCsvOutput() ? feed.toCsv() : feed.getFeedLink();
-                FileHelper.appendFile(getResultFilePath(), writeLine + "\n");
+                String writeLine = csvOutput ? feed.toCsv() : feed.getFeedLink();
+                FileHelper.appendFile(resultFilePath.getPath(), writeLine + "\n");
             }
         }
-    }
-
-    /**
-     * <p>
-     * Specify the path for the result file. If file already exists, new entries will be appended. The result file will
-     * be written continuously. If <code>null</code>, no result file will be written.
-     * </p>
-     * 
-     * @param resultFilePath
-     */
-    public void setResultFilePath(String resultFilePath) {
-        this.resultFilePath = resultFilePath;
-    }
-
-    public String getResultFilePath() {
-        return resultFilePath;
     }
 
     /**
@@ -452,49 +444,6 @@ public final class FeedDiscovery {
     public void addQueries(String filePath) {
         List<String> queries = FileHelper.readFileToArray(filePath);
         addQueries(queries);
-    }
-
-    /**
-     * <p>
-     * Set max number of concurrent autodiscovery requests.
-     * </p>
-     * 
-     * @param maxThreads
-     */
-    public void setNumThreads(int numThreads) {
-        this.numThreads = numThreads;
-    }
-
-    /**
-     * <p>
-     * Set number of results to retrieve for each query.
-     * </p>
-     * 
-     * @param numResults The number of results for one query.
-     */
-    public void setNumResults(int numResults) {
-        this.numResults = numResults;
-    }
-
-    /**
-     * <p>
-     * Set the search engine to use. See {@link WebSearcherManager} for available constants.
-     * </p>
-     * 
-     * @param webSearcher
-     */
-    public void setSearchEngine(Searcher<WebContent> webSearcher) {
-        LOGGER.trace("using " + webSearcher.getName());
-        this.webSearcher = webSearcher;
-    }
-
-//    public void setSearchEngine(String webSearcherName) {
-//        Configuration config = ConfigHolder.getInstance().getConfig();
-//        setSearchEngine(SearcherFactory.createWebSearcher(webSearcherName, config));
-//    }
-
-    public Searcher<WebContent> getSearchEngine() {
-        return webSearcher;
     }
 
     /**
@@ -553,113 +502,5 @@ public final class FeedDiscovery {
         queryQueue.addAll(combinedQueries);
 
     }
-
-    /**
-     * <p>
-     * Set to <code>true</code> to write a full CSV file with additional information, like feed title, type, page link.
-     * If <code>false</code> only the feed's URL will be written.
-     * </p>
-     * 
-     * @param csvOutput
-     */
-    public void setCsvOutput(boolean csvOutput) {
-        this.csvOutput = csvOutput;
-    }
-
-    public boolean isCsvOutput() {
-        return csvOutput;
-    }
-
-//    @SuppressWarnings("static-access")
-//    public static void main(String[] args) {
-//
-//        FeedDiscovery discovery = new FeedDiscovery();
-//
-//        CommandLineParser parser = new BasicParser();
-//
-//        Options options = new Options();
-//        options.addOption(OptionBuilder.withLongOpt("numResults").withDescription("maximum results per query").hasArg()
-//                .withArgName("nn").withType(Number.class).create());
-//        options.addOption(OptionBuilder.withLongOpt("threads")
-//                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn")
-//                .withType(Number.class).create());
-//        options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription("output file for results").hasArg()
-//                .withArgName("filename").create());
-//        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg()
-//                .withArgName("query1[,query2,...]").create());
-//        options.addOption(OptionBuilder.withLongOpt("queryFile")
-//                .withDescription("runs the specified queries from the file (one query per line)").hasArg()
-//                .withArgName("filename").create());
-//        options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
-//                .withArgName("url").create());
-//        options.addOption(OptionBuilder.withLongOpt("combineQueries")
-//                .withDescription("combine single queries to create more mixed queries").hasArg().withArgName("nn")
-//                .withType(Number.class).create());
-//        options.addOption(OptionBuilder.withLongOpt("searchEngine")
-//                .withDescription("fully qualified class name of the search engine to use").hasArg().withArgName("n")
-//                .create());
-//        options.addOption(OptionBuilder.withLongOpt("csvOutput")
-//                .withDescription("write full output with additional data as CSV file instead of only URLs").create());
-//
-//        try {
-//
-//            if (args.length < 1) {
-//                // no options supplied, go to catch clause, print help.
-//                throw new ParseException(null);
-//            }
-//
-//            CommandLine cmd = parser.parse(options, args);
-//
-//            if (cmd.hasOption("numResults")) {
-//                discovery.setNumResults(((Number)cmd.getParsedOptionValue("numResults")).intValue());
-//            }
-//            if (cmd.hasOption("threads")) {
-//                discovery.setNumThreads(((Number)cmd.getParsedOptionValue("threads")).intValue());
-//            }
-//            if (cmd.hasOption("outputFile")) {
-//                discovery.setResultFilePath(cmd.getOptionValue("outputFile"));
-//            }
-//            if (cmd.hasOption("query")) {
-//
-//                List<String> queries = Arrays.asList(cmd.getOptionValue("query").replace("+", " ").split(","));
-//                discovery.addQueries(queries);
-//
-//            }
-//            if (cmd.hasOption("queryFile")) {
-//                discovery.addQueries(cmd.getOptionValue("queryFile"));
-//            }
-//            if (cmd.hasOption("combineQueries")) {
-//                int targetCount = ((Number)cmd.getParsedOptionValue("combineQueries")).intValue();
-//                discovery.combineQueries(targetCount);
-//            }
-//            if (cmd.hasOption("searchEngine")) {
-//                String searchEngine = cmd.getOptionValue("searchEngine");
-//                discovery.setSearchEngine(searchEngine);
-//            }
-//            if (cmd.hasOption("csvOutput")) {
-//                discovery.setCsvOutput(true);
-//            }
-//
-//            discovery.findFeeds();
-//
-//            if (cmd.hasOption("check")) {
-//                List<DiscoveredFeed> feeds = discovery.discoverFeeds(cmd.getOptionValue("check"));
-//                if (feeds.size() > 0) {
-//                    CollectionHelper.print(feeds);
-//                } else {
-//                    LOGGER.info("no feeds found");
-//                }
-//            }
-//
-//            // done, exit.
-//            return;
-//
-//        } catch (ParseException e) {
-//            // print usage help
-//            HelpFormatter formatter = new HelpFormatter();
-//            formatter.printHelp("FeedDiscovery [options]", options);
-//        }
-//
-//    }
 
 }

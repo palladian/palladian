@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds.updates;
 
+import java.util.Calendar;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedReader;
 
 /**
  * An implementation of the update strategy described in [LIHZ08]
@@ -18,31 +18,25 @@ import ws.palladian.retrieval.feeds.FeedReader;
  * @author Sandro Reichert
  * 
  */
-public class LIHZUpdateStrategy extends UpdateStrategy {
+public class LIHZUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(IndHistUpdateStrategy.class);
 
-    /**
-     * Identifier to be used to store the trained model as additional date with the feed.
-     */
+    /** Identifier to be used to store the trained model as additional date with the feed. */
     private static final String MODEL_IDENTIFIER = "LIHZ08Model";
 
-    /**
-     * The threshold theta.
-     */
-    private double thresholdTheta;
-
-    /**
-     * defined by paper authors
-     */
+    /** defined by paper authors */
     private static final double LIHZ_ALPHA = 0.9;
+
+    /** The threshold theta. */
+    private final double thresholdTheta;
 
     /**
      * @param thresholdTheta The threshold theta to be used.
      */
-    public LIHZUpdateStrategy(double thresholdTheta) {
-        super();
+    public LIHZUpdateStrategy(int lowestInterval, int highestInterval, double thresholdTheta) {
+        super(lowestInterval, highestInterval);
         this.thresholdTheta = thresholdTheta;
     }
 
@@ -51,12 +45,15 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
         if (feed.getLastPollTime() == null) {
             LOGGER.error("Feed id " + feed.getId()
                     + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
-            feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
+            feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME));
 
         } else {
 
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(feed.getLastPollTime());
+
             int[][] dailyRates = getModelFromFeed(feed);
-            int dayOfWeek = feed.getLastPollTime().getDay();
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
             // process current day, update model in case of new items
             if (feed.hasNewItem()) {
@@ -77,13 +74,13 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
 
                 // empty feeds
                 if (dailyRates[7][0] == 0.0) {
-                    checkInterval = FeedReader.DEFAULT_CHECK_TIME;
+                    checkInterval = DEFAULT_CHECK_TIME;
 
                     // setting an interval other than 1 day is not provided by the feeds model so we increase the
                     // dailyRates at the first poll of the next day to make sure there cant be any item found at this
                     // day anymore.
                     // if you find this comment when debugging, behaviour for empty feeds must be changed.
-                    if (feed.getLastPollTime().getHours() < checkInterval / FeedReader.DEFAULT_CHECK_TIME) {
+                    if (calendar.get(Calendar.HOUR_OF_DAY) < checkInterval / DEFAULT_CHECK_TIME) {
                         int yesterday = (dayOfWeek + 6) % 7;
                         dailyRates[yesterday][1]++;
                         dailyRates[7][1]++;
@@ -96,7 +93,7 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
 
                     // done at least once, loop as many days as required to reach the threshold
                     while (cumProb < thresholdTheta
-                            && (checkInterval + 1440 <= getHighestUpdateInterval() || getHighestUpdateInterval() == -1)) {
+                            && (checkInterval + 1440 <= getHighestInterval() || getHighestInterval() == -1)) {
                         // increase for last iteration
                         dailyRates[simulatedDayOfWeek][1]++;
                         dailyRates[7][1]++;
@@ -110,7 +107,7 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
                 }
             }
             feed.addAdditionalData(MODEL_IDENTIFIER, dailyRates);
-            feed.setUpdateInterval(getAllowedUpdateInterval(checkInterval));
+            feed.setUpdateInterval(getAllowedInterval(checkInterval));
         }
     }
 
@@ -120,9 +117,8 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
      * @return
      */
     private double getProbability(int[][] dailyRates, int simulatedDayOfWeek) {
-        double cumProb = LIHZ_ALPHA 
-                * (double) dailyRates[simulatedDayOfWeek][0] / (double) dailyRates[simulatedDayOfWeek][1] 
-                + (1 - LIHZ_ALPHA) * dailyRates[7][0] / (double) dailyRates[7][1];
+        double cumProb = LIHZ_ALPHA * dailyRates[simulatedDayOfWeek][0] / dailyRates[simulatedDayOfWeek][1]
+                + (1 - LIHZ_ALPHA) * dailyRates[7][0] / dailyRates[7][1];
         return cumProb;
     }
 
@@ -148,12 +144,11 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
             }
             return dailyRates;
         }
-        return (int[][]) feed.getAdditionalData().get(MODEL_IDENTIFIER);
+        return (int[][])feed.getAdditionalData().get(MODEL_IDENTIFIER);
     }
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
         return "LIHZ_" + thresholdTheta;
     }
 
@@ -162,7 +157,6 @@ public class LIHZUpdateStrategy extends UpdateStrategy {
      */
     @Override
     public boolean hasExplicitTrainingMode() {
-        // TODO Auto-generated method stub
         return true;
     }
 

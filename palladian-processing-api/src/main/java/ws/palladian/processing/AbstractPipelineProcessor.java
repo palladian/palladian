@@ -154,12 +154,6 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
         fireOutputPorts();
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
     private void fireOutputPorts() {
         for (OutputPort outputPort : outputPorts) {
             if (outputPort.hasDocument()) {
@@ -209,6 +203,12 @@ public abstract class AbstractPipelineProcessor implements PipelineProcessor {
      */
     protected final void setOutput(PipelineDocument<?> document) {
         getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).put(document);
+    }
+
+    public void process(PipelineDocument<?> document) {
+        getInputPort(DEFAULT_INPUT_PORT_IDENTIFIER).put(document);
+        process();
+        getOutputPort(DEFAULT_OUTPUT_PORT_IDENTIFIER).poll();
     }
 
 }

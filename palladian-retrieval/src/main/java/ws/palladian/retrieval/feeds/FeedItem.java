@@ -1,7 +1,9 @@
 package ws.palladian.retrieval.feeds;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.retrieval.resources.WebContent;
@@ -16,6 +18,8 @@ import ws.palladian.retrieval.resources.WebContent;
  * @author Sandro Reichert
  */
 public class FeedItem implements WebContent {
+    
+    private static final String SOURCE_NAME = "Feed";
 
     private int id = -1;
 
@@ -64,6 +68,7 @@ public class FeedItem implements WebContent {
      */
     private Date correctedPublishedDate = null;
 
+    @Override
     public int getId() {
         return id;
     }
@@ -97,11 +102,12 @@ public class FeedItem implements WebContent {
         this.link = link;
     }
 
-    public String getRawId() {
+    @Override
+    public String getIdentifier() {
         return rawId;
     }
 
-    public void setRawId(String rawId) {
+    public void setIdentifier(String rawId) {
         this.rawId = rawId;
     }
 
@@ -232,6 +238,7 @@ public class FeedItem implements WebContent {
         this.additionalData = additionalData;
     }
 
+    @Override
     public Map<String, Object> getAdditionalData() {
         return additionalData;
     }
@@ -277,6 +284,16 @@ public class FeedItem implements WebContent {
     @Override
     public GeoCoordinate getCoordinate() {
     	return null;
+    }
+    
+    @Override
+    public Set<String> getTags() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public String getSource() {
+        return SOURCE_NAME;
     }
 
 }

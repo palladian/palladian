@@ -1,137 +1,87 @@
 package ws.palladian.helper.math;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.lang.Validate;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.FixedSizeQueue;
-import ws.palladian.helper.collection.Function;
-
 /**
  * <p>
- * Keep mathematical stats such as mean and standard deviation for a series of numbers.
+ * Mathematical statistics about a series of numbers.
  * </p>
  * 
- * @author Philipp Katz
+ * @author pk
+ * 
  */
-public class Stats {
-
-    private final List<Number> values;
-
-    public Stats() {
-        this.values = CollectionHelper.newArrayList();
-    }
-
-    public Stats(Collection<? extends Number> values) {
-        this();
-        Validate.notNull(values, "values must not be null");
-        this.values.addAll(values);
-    }
+public interface Stats {
 
     /**
      * <p>
-     * Crate a new {@link Stats} object with the specified size as window, where only the last n items will be kept.
-     * This way, a moving average can be calculated conveniently.
+     * Add a value to this {@link Stats} collection.
      * </p>
      * 
-     * @param size The size of the window, greater zero.
+     * @param value The {@link Number} to add, not <code>null</code>.
+     * @return This instance, to allow fluent method chaining.
      */
-    public Stats(int size) {
-        Validate.isTrue(size > 0);
-        this.values = FixedSizeQueue.create(size);
-    }
+    Stats add(Number value);
 
-    public void add(Number value) {
-        Validate.notNull(value, "value must not be null");
-        values.add(value.doubleValue());
-    }
+    /**
+     * <p>
+     * Add multiple values to this {@link Stats} collection.
+     * </p>
+     * 
+     * @param values The {@link Number}s to add, not <code>null</code>.
+     * @return This instance, to allow fluent method chaining.
+     */
+    Stats add(Number... values);
 
-    public double getMean() {
-        return getSum() / getCount();
-    }
+    /**
+     * @return The mean of the provided numbers, or {@link Double#NaN} in case no numbers were provided.
+     */
+    double getMean();
 
-    public double getStandardDeviation() {
-        if (values.isEmpty()) {
-            return 0.;
-        }
-        double mean = getMean();
-        double standardDeviation = 0;
-        for (Number value : values) {
-            standardDeviation += Math.pow(value.doubleValue() - mean, 2);
-        }
-        standardDeviation /= values.size() - 1;
-        standardDeviation = Math.sqrt(standardDeviation);
-        return standardDeviation;
-    }
+    /**
+     * @return The standard deviation of the provided numbers, or {@link Double#NaN} in case no numbers were provided.
+     */
+    double getStandardDeviation();
 
-    public double getMedian() {
-        if (values.isEmpty()) {
-            return Double.NaN;
-        }
-        List<Double> temp = getDoubleValues();
-        Collections.sort(temp);
-        int numValues = temp.size();
-        if (numValues % 2 == 0) {
-            return 0.5 * (temp.get(numValues / 2) + temp.get(numValues / 2 - 1));
-        } else {
-            return temp.get(numValues / 2);
-        }
-    }
+    /**
+     * @return The median of the provided numbers, or {@link Double#NaN} in case no numbers were provided.
+     */
+    double getMedian();
 
-    private List<Double> getDoubleValues() {
-        return CollectionHelper.convertList(values, new Function<Number, Double>() {
-            @Override
-            public Double compute(Number input) {
-                return input.doubleValue();
-            }
-        });
-    }
+    /**
+     * @return The number of values present in this {@link Stats} collection.
+     */
+    int getCount();
 
-    public int getCount() {
-        return values.size();
-    }
+    /**
+     * @return The minimum value in this {@link Stats} collection, or {@link Double#NaN} in case no numbers were
+     *         provided.
+     */
+    double getMin();
 
-    public double getMin() {
-        Double min = Collections.min(getDoubleValues());
-        return min != null ? min : Double.NaN;
-    }
+    /**
+     * @return The maximum value in this {@link Stats} collection, or {@link Double#NaN} in case no numbers were
+     *         provided.
+     */
+    double getMax();
 
-    public double getMax() {
-        Double max = Collections.max(getDoubleValues());
-        return max != null ? max : Double.NaN;
-    }
+    /**
+     * @return Get the range for the given values in this {@link Stats} collection, i.e. the difference between the
+     *         maximum and the minimum value, or {@link Double#NaN} in case no numbers were provided.
+     */
+    double getRange();
 
-    public double getSum() {
-        double sum = 0;
-        for (Number value : values) {
-            sum += value.doubleValue();
-        }
-        return sum;
-    }
+    /**
+     * @return The sum of all values in this {@link Stats} collection. 0 in case the collection is empty.
+     */
+    double getSum();
 
     /**
      * @return Assuming that the given values were errors, return the mean squared error.
      */
-    public double getMse() {
-        if (values.isEmpty()) {
-            return Double.NaN;
-        }
-        double mse = 0;
-        for (Number value : values) {
-            mse += Math.pow(value.doubleValue(), 2);
-        }
-        return mse / values.size();
-    }
+    double getMse();
 
     /**
      * @return Assuming that the given values were errors, return the root mean squared error.
      */
-    public double getRmse() {
-        return Math.sqrt(getMse());
-    }
+    double getRmse();
 
     /**
      * <p>
@@ -142,42 +92,6 @@ public class Stats {
      * @param t The parameter t.
      * @return The probability for being less/equal t.
      */
-    public double getCumulativeProbability(double t) {
-        if (values.isEmpty()) {
-            return Double.NaN;
-        }
-        int count = 0;
-        for (Number value : values) {
-            if (value.doubleValue() <= t) {
-                count++;
-            }
-        }
-        return (double)count / getCount();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Stats [mean=");
-        builder.append(getMean());
-        builder.append(", standardDeviation=");
-        builder.append(getStandardDeviation());
-        builder.append(", median=");
-        builder.append(getMedian());
-        builder.append(", count=");
-        builder.append(getCount());
-        builder.append(", min=");
-        builder.append(getMin());
-        builder.append(", max=");
-        builder.append(getMax());
-        builder.append(", sum=");
-        builder.append(getSum());
-        builder.append(", MSE=");
-        builder.append(getMse());
-        builder.append(", RMSE=");
-        builder.append(getRmse());
-        builder.append("]");
-        return builder.toString();
-    }
+    double getCumulativeProbability(double t);
 
 }

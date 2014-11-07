@@ -9,6 +9,12 @@ import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
 
 public class FeedPollRowConverter implements RowConverter<PollMetaInformation> {
 
+    public static final FeedPollRowConverter INSTANCE = new FeedPollRowConverter();
+
+    private FeedPollRowConverter() {
+        // singleton
+    }
+
     @Override
     public PollMetaInformation convert(ResultSet resultSet) throws SQLException {
 

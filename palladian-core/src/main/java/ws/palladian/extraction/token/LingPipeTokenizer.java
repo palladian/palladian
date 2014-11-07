@@ -34,7 +34,7 @@ public final class LingPipeTokenizer extends BaseTokenizer {
         List<Annotation> annotations = CollectionHelper.newArrayList();
         while (nextToken != null) {
             int startPosition = tokenizer.lastTokenStartPosition();
-            annotations.add(new ImmutableAnnotation(startPosition, nextToken, PROVIDED_FEATURE));
+            annotations.add(new ImmutableAnnotation(startPosition, nextToken, getCreatedFeatureName()));
             nextToken = tokenizer.nextToken();
         }
         return annotations;

@@ -71,12 +71,12 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
         } catch (DocumentUnprocessableException e) {
             throw new IllegalArgumentException(e);
         }
-        List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().get(ListFeature.class,
-                BaseTokenizer.PROVIDED_FEATURE);
+        @SuppressWarnings("unchecked")
+        List<PositionAnnotation> annotationFeatureList = document.getFeatureVector().get(
+                ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         List<Annotation> ret = CollectionHelper.newArrayList();
         for (PositionAnnotation annotation : annotationFeatureList) {
-            NominalFeature tagFeature = annotation.getFeatureVector()
-                    .get(NominalFeature.class, PROVIDED_FEATURE);
+            NominalFeature tagFeature = annotation.getFeatureVector().get(NominalFeature.class, PROVIDED_FEATURE);
             String tag = tagFeature.getValue();
             ret.add(new ImmutableAnnotation(annotation.getStartPosition(), annotation.getValue(), tag));
         }
@@ -108,8 +108,7 @@ public abstract class BasePosTagger extends TextDocumentPipelineProcessor implem
 
     @Override
     public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        List<PositionAnnotation> annotationFeature = document.get(ListFeature.class,
-                BaseTokenizer.PROVIDED_FEATURE);
+        List<PositionAnnotation> annotationFeature = document.get(ListFeature.class, BaseTokenizer.PROVIDED_FEATURE);
         tag(annotationFeature);
     }
 

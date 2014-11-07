@@ -4,9 +4,6 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +17,9 @@ import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -64,10 +64,10 @@ public class WebKnoxNer extends NamedEntityRecognizer {
         }
 
         try {
-            JSONArray result = new JSONArray(content);
-            for (int i = 0; i < result.length(); i++) {
-                JSONObject currentItem = result.getJSONObject(i);
-                if (currentItem.has("entity")) {
+            JsonArray result = new JsonArray(content);
+            for (int i = 0; i < result.size(); i++) {
+                JsonObject currentItem = result.getJsonObject(i);
+                if (currentItem.get("entity") != null) {
                     int offset = currentItem.getInt("offset");
                     String entity = currentItem.getString("entity");
                     String type = currentItem.getString("type");
@@ -102,7 +102,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
                      */
                 }
             }
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new IllegalStateException("JSON parse error while processing response '" + content + "': "
                     + e.getMessage(), e);
         }

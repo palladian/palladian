@@ -11,7 +11,6 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedReader;
 
 /**
  * <p>
@@ -22,7 +21,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
  * @author Sandro Reichert
  * 
  */
-public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
+public class MAVSynchronizationUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MAVSynchronizationUpdateStrategy.class);
@@ -42,8 +41,8 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
     /**
      * Create MAVSync strategy ignoring RSS ttl element.
      */
-    public MAVSynchronizationUpdateStrategy() {
-        this(0);
+    public MAVSynchronizationUpdateStrategy(int lowestInterval, int highestInterval) {
+        this(lowestInterval, highestInterval, 0);
     }
 
     /**
@@ -58,8 +57,8 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
      * 
      * @param rssTTLmode see text.
      */
-    public MAVSynchronizationUpdateStrategy(int rssTTLmode) {
-        super();
+    public MAVSynchronizationUpdateStrategy(int lowestInterval, int highestInterval, int rssTTLmode) {
+        super(lowestInterval, highestInterval);
         if (rssTTLmode < 0 || rssTTLmode > 2) {
             throw new IllegalArgumentException("Wrong usage of rssTTLmode! Value " + rssTTLmode + " not supported.");
         }
@@ -83,7 +82,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
         }
 
         // set default value to be used if we can't compute an interval from feed (e.g. feed has no items)
-        int checkIntervalMinutes = FeedReader.DEFAULT_CHECK_TIME;
+        int checkIntervalMinutes = DEFAULT_CHECK_TIME;
 
         List<FeedItem> entries = feed.getItems();
 
@@ -111,7 +110,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
                 .toMillis(1));
 
         // If checkInterval is within bounds, we can use it, otherwise we use alternative calculation
-        if (checkIntervalMinutes == getAllowedUpdateInterval(checkIntervalMinutes)) {
+        if (checkIntervalMinutes == getAllowedInterval(checkIntervalMinutes)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Feedid " + feed.getId() + " could do synchronization step at poll " + feed.getChecks()
                         + 1);
@@ -119,7 +118,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
         }
         // ------- second, use last window and last poll time to get interval and next poll time -------
         else {
-            checkIntervalMinutes = FeedReader.DEFAULT_CHECK_TIME;
+            checkIntervalMinutes = DEFAULT_CHECK_TIME;
             intervalStopTime = feed.getLastPollTime();
             intervalLengthMillisecond = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
             if (entries.size() >= 1 && intervalLengthMillisecond > 0) {
@@ -156,7 +155,7 @@ public class MAVSynchronizationUpdateStrategy extends UpdateStrategy {
             }
         }
 
-        feed.setUpdateInterval(getAllowedUpdateInterval(checkIntervalMinutes));
+        feed.setUpdateInterval(getAllowedInterval(checkIntervalMinutes));
 
     }
 

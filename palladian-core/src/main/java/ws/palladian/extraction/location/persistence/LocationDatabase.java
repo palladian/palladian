@@ -48,7 +48,7 @@ import ws.palladian.persistence.helper.SqlHelper;
  * @author Philipp Katz
  * @author David Urbansky
  */
-public final class LocationDatabase extends DatabaseManager implements LocationStore {
+public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
@@ -256,7 +256,7 @@ public final class LocationDatabase extends DatabaseManager implements LocationS
      * @param hierarchyPath The hierarchy path.
      * @return List with IDs, in reverse order. Empty {@link List}, if hierarchy path was <code>null</code> or empty.
      */
-    private static final List<Integer> splitHierarchyPath(String hierarchyPath) {
+    protected static final List<Integer> splitHierarchyPath(String hierarchyPath) {
         if (hierarchyPath == null) {
             return Collections.emptyList();
         }

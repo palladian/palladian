@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -56,7 +58,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
 
     private StringHelper() {
-
+        // utility class.
     }
 
     /**
@@ -377,50 +379,55 @@ public final class StringHelper {
      * @return True if the string contains a proper noun, else false.
      */
     public static boolean containsProperNoun(String searchString) {
-        Matcher m = PATTERN_STRING.matcher(searchString);
-        return m.find();
+        return PATTERN_STRING.matcher(searchString).find();
     }
 
     public static boolean containsWordRegExp(Collection<String> words, String searchString) {
-
-        boolean contained = false;
-
         for (String word : words) {
-            contained = containsWordRegExp(word, searchString);
-            if (contained) {
-                break;
+            if (containsWordRegExp(word, searchString)) {
+                return true;
             }
         }
-
-        return contained;
+        return false;
     }
 
     public static boolean containsWord(Collection<String> words, String searchString) {
-
-        boolean contained = false;
-
         for (String word : words) {
-            contained = containsWord(word, searchString);
-            if (contained) {
-                break;
+            if (containsWord(word, searchString)) {
+                return true;
             }
         }
+        return false;
+    }
 
-        return contained;
+    public static boolean containsWordCaseSensitive(Collection<String> words, String searchString) {
+        for (String word : words) {
+            if (containsWordCaseSensitive(word, searchString)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String containsWhichWord(Collection<String> words, String searchString) {
+        for (String word : words) {
+            if (containsWord(word, searchString)) {
+                return word;
+            }
+        }
+        return null;
+    }
 
-        String contained = null;
+    public static Set<String> containsWhichWords(Collection<String> words, String searchString) {
+        Set<String> containedWords = new HashSet<String>();
 
         for (String word : words) {
             if (containsWord(word, searchString)) {
-                contained = word;
-                break;
+                containedWords.add(word);
             }
         }
 
-        return contained;
+        return containedWords;
     }
 
     /**
@@ -440,15 +447,13 @@ public final class StringHelper {
 
         word = Pattern.quote(word);
 
-        Pattern pat = null;
         try {
-            pat = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            Pattern pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            return pattern.matcher(searchString).find();
         } catch (PatternSyntaxException e) {
             LOGGER.error("PatternSyntaxException for {} with regExp {}", new Object[] {searchString, regexp, e});
             return false;
         }
-        Matcher m = pat.matcher(searchString);
-        return m.find();
     }
 
     /**
@@ -477,7 +482,7 @@ public final class StringHelper {
             char prevChar = searchString.charAt(index - 1);
             // leftBorder = isPunctuation(prevChar) || Character.isSpaceChar(prevChar) || prevChar == '-' || prevChar ==
             // '(';
-            leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar));
+            leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar) || prevChar == '-');
         }
         boolean rightBorder;
         if (index + word.length() == searchString.length()) {
@@ -486,7 +491,11 @@ public final class StringHelper {
             char nextChar = searchString.charAt(index + word.length());
             // rightBorder = isPunctuation(nextChar) || Character.isSpaceChar(nextChar) || nextChar == '-' || nextChar
             // == ')';
-            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
+            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || nextChar == '-');
+        }
+
+        if (leftBorder && rightBorder) {
+            return true;
         }
 
         return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(Pattern.quote(word), ""), leftBorder
@@ -544,8 +553,28 @@ public final class StringHelper {
         }
         return searchString;
     }
+
     public static String removeWord(String word, String searchString) {
         return PATTERN_LIMITED_WHITESPACES.matcher(replaceWord(word, "", searchString)).replaceAll(" ");
+    }
+
+    public static String removeStemmedWord(String word, String searchString) {
+        return PATTERN_LIMITED_WHITESPACES.matcher(replaceStemmedWord(word, "", searchString)).replaceAll(" ");
+    }
+
+    public static String replaceStemmedWord(String word, String replacement, String searchString) {
+
+        if (word == null || word.isEmpty()) {
+            return searchString;
+        }
+
+        // reconstruct the full word
+        List<String> fullWords = getRegexpMatches(word + "[A-Za-z]{0,5}", searchString);
+        for (String fullWord : fullWords) {
+            searchString = replaceWord(fullWord, replacement, searchString);
+        }
+
+        return searchString;
     }
 
     public static String replaceWord(String word, String replacement, String searchString) {
@@ -603,8 +632,7 @@ public final class StringHelper {
      * @return True if the string contains a numeric value, else false.
      */
     public static boolean containsNumber(String searchString) {
-        Matcher matcher = PATTERN_NUMBER.matcher(searchString);
-        return matcher.find();
+        return PATTERN_NUMBER.matcher(searchString).find();
     }
 
     /**
@@ -648,38 +676,38 @@ public final class StringHelper {
         return string.trim();
     }
 
-    /**
-     * Escape for regular expression.
-     * 
-     * @param inputString the input string
-     * @return the string
-     * @deprecated Use {@link Pattern#quote(String)} instead.
-     */
-    @Deprecated
-    public static String escapeForRegularExpression(String inputString) {
-        String string = inputString;
-        try {
-            string = string.replace("\\", "\\\\");
-            string = string.replace("(", "\\(");
-            string = string.replace(")", "\\)");
-            string = string.replace("[", "\\[");
-            string = string.replace("]", "\\]");
-            string = string.replace("{", "\\{");
-            string = string.replace("}", "\\}");
-            string = string.replace("|", "\\|");
-            string = string.replace("+", "\\+");
-            string = string.replace("*", "\\*");
-            string = string.replace("$", "\\$");
-            string = string.replace("^", "\\^");
-            string = string.replace(".", "\\.");
-            string = string.replace("?", "\\?");
-            string = string.replace("-", "\\-");
-            string = string.replaceAll("\\n", "\\\\n");
-        } catch (Exception e) {
-            LOGGER.error("{}, {}", string, e.getMessage());
-        }
-        return string;
-    }
+    //    /**
+    //     * Escape for regular expression.
+    //     *
+    //     * @param inputString the input string
+    //     * @return the string
+    //     * @deprecated Use {@link Pattern#quote(String)} instead.
+    //     */
+    //    @Deprecated
+    //    public static String escapeForRegularExpression(String inputString) {
+    //        String string = inputString;
+    //        try {
+    //            string = string.replace("\\", "\\\\");
+    //            string = string.replace("(", "\\(");
+    //            string = string.replace(")", "\\)");
+    //            string = string.replace("[", "\\[");
+    //            string = string.replace("]", "\\]");
+    //            string = string.replace("{", "\\{");
+    //            string = string.replace("}", "\\}");
+    //            string = string.replace("|", "\\|");
+    //            string = string.replace("+", "\\+");
+    //            string = string.replace("*", "\\*");
+    //            string = string.replace("$", "\\$");
+    //            string = string.replace("^", "\\^");
+    //            string = string.replace(".", "\\.");
+    //            string = string.replace("?", "\\?");
+    //            string = string.replace("-", "\\-");
+    //            string = string.replaceAll("\\n", "\\\\n");
+    //        } catch (Exception e) {
+    //            LOGGER.error("{}, {}", string, e.getMessage());
+    //        }
+    //        return string;
+    //    }
 
     /**
      * Checks whether character is a bracket.
@@ -747,7 +775,7 @@ public final class StringHelper {
     }
 
     public static boolean isNumberOrNumberWord(String string) {
-        if (string.length() == 0) {
+        if (string == null || string.isEmpty()) {
             return false;
         }
 
@@ -832,16 +860,15 @@ public final class StringHelper {
             return false;
         }
 
-        boolean isCompletelyUppercase = true;
         for (int i = 0, l = string.length(); i < l; ++i) {
             Character ch = string.charAt(i);
             if (Character.getType(ch) != Character.UPPERCASE_LETTER
                     && Character.getType(ch) != Character.INITIAL_QUOTE_PUNCTUATION
                     && Character.getType(ch) != Character.FINAL_QUOTE_PUNCTUATION && ch != ' ') {
-                isCompletelyUppercase = false;
+                return false;
             }
         }
-        return isCompletelyUppercase;
+        return true;
     }
 
     /**
@@ -919,6 +946,26 @@ public final class StringHelper {
             }
         }
         return capitalizedWordCount;
+    }
+
+    /**
+     * <p>
+     * Align casings of words, e.g. "dog","Dogge" => "Dog".
+     * </p>
+     * <p>
+     * This method is useful for handling stemming and other word transformations.
+     * </p>
+     * 
+     * @param toAlign The word that needs to get the same casing as the targetCasing.
+     * @param targetCasing The word which casing should be induced into the toAlign word.
+     * @return The toAlign word with the casing of the targetCasing word.
+     */
+    public static String alignCasing(String toAlign, String targetCasing) {
+        if (startsUppercase(targetCasing)) {
+            return upperCaseFirstLetter(toAlign);
+        } else {
+            return lowerCaseFirstLetter(toAlign);
+        }
     }
 
     /**
@@ -1293,11 +1340,7 @@ public final class StringHelper {
      * @return The reversed string.
      */
     public static String reverseString(String string) {
-        StringBuilder reversedString = new StringBuilder();
-        for (int i = string.length() - 1; i >= 0; i--) {
-            reversedString.append(string.charAt(i));
-        }
-        return reversedString.toString();
+        return new StringBuilder(string).reverse().toString();
     }
 
     /**
@@ -1659,6 +1702,9 @@ public final class StringHelper {
      */
     public static Integer numberWordToNumber(String numberWord) {
         numberWord = numberWord.toLowerCase().trim();
+        if (numberWord.equals("zero")) {
+            return 0;
+        }
         if (numberWord.equals("one")) {
             return 1;
         }
@@ -1699,6 +1745,32 @@ public final class StringHelper {
         return null;
     }
 
+    public static String numberWordsToNumbers(String text) {
+        text = StringHelper.replaceWord("zero", "0", text);
+        text = StringHelper.replaceWord("one", "1", text);
+        text = StringHelper.replaceWord("two", "2", text);
+        text = StringHelper.replaceWord("three", "3", text);
+        text = StringHelper.replaceWord("four", "4", text);
+        text = StringHelper.replaceWord("five", "5", text);
+        text = StringHelper.replaceWord("six", "6", text);
+        text = StringHelper.replaceWord("seven", "7", text);
+        text = StringHelper.replaceWord("eight", "8", text);
+        text = StringHelper.replaceWord("nine", "9", text);
+        text = StringHelper.replaceWord("ten", "10", text);
+        text = StringHelper.replaceWord("eleven", "11", text);
+        text = StringHelper.replaceWord("twelve", "12", text);
+        text = StringHelper.replaceWord("twenty", "20", text);
+        text = StringHelper.replaceWord("thirty", "30", text);
+        text = StringHelper.replaceWord("forty", "40", text);
+        text = StringHelper.replaceWord("fifty", "50", text);
+        text = StringHelper.replaceWord("sixty", "60", text);
+        text = StringHelper.replaceWord("seventy", "70", text);
+        text = StringHelper.replaceWord("eighty", "80", text);
+        text = StringHelper.replaceWord("ninety", "90", text);
+        text = StringHelper.replaceWord("one hundred", "100", text);
+        return text;
+    }
+
     public static String getRegexpMatch(String regexp, String text) {
         return getRegexpMatch(regexp, text, false, false);
     }
@@ -1725,25 +1797,15 @@ public final class StringHelper {
         }
 
         Matcher matcher = pattern.matcher(text);
-        if (matcher.find()) {
-            return matcher.group();
-        }
-
-        return "";
+        return matcher.find() ? matcher.group() : "";
     }
 
     public static String getRegexpMatch(Pattern regexpPattern, String text) {
-
         if (text == null) {
             return "";
         }
-
-        Matcher m = regexpPattern.matcher(text);
-        if (m.find()) {
-            return m.group();
-        }
-
-        return "";
+        Matcher matcher = regexpPattern.matcher(text);
+        return matcher.find() ? matcher.group() : "";
     }
 
     /**
@@ -1756,13 +1818,11 @@ public final class StringHelper {
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(Pattern pattern, String text) {
-
-        List<String> matches = new ArrayList<String>();
-
         if (text == null) {
-            return matches;
+            return Collections.emptyList();
         }
 
+        List<String> matches = new ArrayList<String>();
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
             matches.add(matcher.group());
@@ -1785,8 +1845,11 @@ public final class StringHelper {
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(String regexp, String text) {
-        Pattern pattern = Pattern.compile(regexp);
-        return getRegexpMatches(pattern, text);
+        return getRegexpMatches(Pattern.compile(regexp), text);
+    }
+
+    public static List<String> getRegexpMatches(String regexp, String text, int patternArguments) {
+        return getRegexpMatches(Pattern.compile(regexp, patternArguments), text);
     }
 
     /**
@@ -1848,11 +1911,12 @@ public final class StringHelper {
      * @see <a href="http://en.wikipedia.org/wiki/Newline">Wikipedia: Newline</a>
      */
     public static String removeLineBreaks(String string) {
-        if (string != null) {
-            string = string.replace("\r\n", " ");
-            string = string.replace('\n', ' ');
-            string = string.replace('\r', ' ');
+        if (string == null) {
+            return null;
         }
+        string = string.replace("\r\n", " ");
+        string = string.replace('\n', ' ');
+        string = string.replace('\r', ' ');
         return string;
     }
 
@@ -1862,13 +1926,11 @@ public final class StringHelper {
      * to be inserted in (older) MySQL databases, as four byte characters cause trouble.
      * </p>
      * 
-     * @deprecated Does this use anybody or was that Sandro's?
      * @param string The string from which to remove four byte characters.
      * @return The string with four byte characters removed, or <code>null</code> if input was <code>null</code>.
      * @see <a href="http://mzsanford.com/blog/mysql-and-unicode">MySQL and Unicode</a>
      * @see <a href="http://stackoverflow.com/a/3220210/388827>Code snippet on Stack Overflow</a>
      */
-    @Deprecated
     public static String removeFourByteChars(String string) {
         if (string == null) {
             return null;
@@ -1927,6 +1989,21 @@ public final class StringHelper {
             }
         }
         return false;
+    }
+
+    /**
+     * <p>
+     * Check if the given String contains any (i.e. at least one) of the given {@link CharSequence}s.
+     * </p>
+     * 
+     * @param string The string to check, not <code>null</code>
+     * @param values The values to check whether they appear within the given string, not <code>null</code>.
+     * @return <code>true</code> if at least on of the given values appears in the string.
+     */
+    public static boolean containsAny(String string, CharSequence... values) {
+        Validate.notNull(string, "string must not be null");
+        Validate.notNull(values, "values must not be null");
+        return containsAny(string, Arrays.asList(values));
     }
 
     /**

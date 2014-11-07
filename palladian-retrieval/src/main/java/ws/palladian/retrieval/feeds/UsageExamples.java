@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.feeds;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -26,14 +27,10 @@ import ws.palladian.retrieval.search.web.GoogleSearcher;
 public class UsageExamples {
 
     public static void main(String[] args) throws FeedParserException {
-
         // search feeds for "Porsche 911"
-        String discoveredFeedsFile = "data/foundFeeds.txt";
-        FeedDiscovery feedDiscovery = new FeedDiscovery();
-        feedDiscovery.setSearchEngine(new GoogleSearcher());
-        feedDiscovery.setResultFilePath(discoveredFeedsFile);
+        File discoveredFeedsFile = new File("data/foundFeeds.txt");
+        FeedDiscovery feedDiscovery = new FeedDiscovery(new GoogleSearcher(), discoveredFeedsFile, 10, 100, false);
         feedDiscovery.addQuery("Porsche 911");
-        feedDiscovery.setNumResults(100);
         feedDiscovery.findFeeds();
 
         // download a feed
@@ -47,22 +44,20 @@ public class UsageExamples {
         final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, config);
 
         // add some feed URLs to the database
-        FeedImporter feedImporter = new FeedImporter(feedStore);
-        feedImporter.addFeedsFromFile(discoveredFeedsFile);
+        FeedImporter feedImporter = new FeedImporter(feedStore, true, true);
+        feedImporter.addFeedsFromFile(discoveredFeedsFile.getPath(), 10);
 
         // specify what to do, when feed contains new items; here we simply add them to the database
         FeedProcessingAction feedProcessingAction = new DefaultFeedProcessingAction() {
             @Override
-            public boolean performAction(Feed feed, HttpResult httpResult) {
-                List<FeedItem> items = feed.getItems();
+            public void onModified(Feed feed, HttpResult httpResult) {
+                List<FeedItem> items = feed.getNewItems();
                 feedStore.addFeedItems(items);
-                return true;
             }
         };
         // start reading feeds
-        FeedReader feedReader = new FeedReader(feedStore);
-        feedReader.setFeedProcessingAction(feedProcessingAction);
-        feedReader.startContinuousReading();
+        FeedReader feedReader = new FeedReader(feedStore, feedProcessingAction);
+        feedReader.start();
 
     }
 

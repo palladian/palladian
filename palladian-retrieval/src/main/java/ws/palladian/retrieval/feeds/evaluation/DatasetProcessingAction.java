@@ -32,17 +32,18 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
     }
 
     @Override
-    public boolean performAction(Feed feed, HttpResult httpResult) {
-
-        boolean success = true;
-
+    public void onModified(Feed feed, HttpResult httpResult) {
+        
         List<FeedItem> newFeedEntries = feed.getNewItems();
 
         // get the path of the feed's folder and csv file
         String folderPath = DatasetCreator.getFolderPath(feed.getId());
         String csvFilePath = DatasetCreator.getCSVFilePath(feed.getId(), DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
         // LOGGER.debug("saving feed to: " + filePath);
-        success = DatasetCreator.createDirectoriesAndCSV(feed);
+        boolean createdDirectories = DatasetCreator.createDirectoriesAndCSV(feed);
+        if (!createdDirectories) {
+            throw new IllegalStateException("Error while creating directories");
+        }
 
         List<String> newEntriesToWrite = new ArrayList<String>();
         int newItems = newFeedEntries.size();
@@ -84,7 +85,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
             boolean fileWritten = FileHelper.appendFile(csvFilePath, newEntryBuilder);
 
             if (!gzWritten || !fileWritten) {
-                success = false;
+                throw new IllegalStateException("Error while writing gz or file.");
             }
 
             // there is sometimes a weird behavior of some feeds that suddenly seem to change their window size to zero.
@@ -93,14 +94,9 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
             // success = writeGZ(httpResult, folderPath, pollTimestamp, "_debug");
         }
 
-        boolean metadata = processPollMetadata(feed, httpResult, newItems);
-        if (!metadata) {
-            success = false;
-        }
+        processPollMetadata(feed, httpResult, newItems);
 
         LOGGER.debug("added " + newItems + " new posts to file " + csvFilePath + " (feed: " + feed.getId() + ")");
-
-        return success;
     }
 
     private static String buildCsvLine(FeedItem item) {
@@ -148,17 +144,16 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
      * Write poll meta information to db.
      */
     @Override
-    public boolean performActionOnUnmodifiedFeed(Feed feed, HttpResult httpResult) {
-
-        return processPollMetadata(feed, httpResult, null);
+    public void onUnmodified(Feed feed, HttpResult httpResult) {
+        processPollMetadata(feed, httpResult, null);
     }
 
     /**
      * Write poll meta information to db.
      */
     @Override
-    public boolean performActionOnError(Feed feed, HttpResult httpResult) {
-        return processPollMetadata(feed, httpResult, null);
+    public void onError(Feed feed, HttpResult httpResult) {
+        processPollMetadata(feed, httpResult, null);
     }
 
     /**
@@ -167,7 +162,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
      * filename.
      */
     @Override
-    public boolean performActionOnException(Feed feed, HttpResult httpResult) {
+    public void onException(Feed feed, HttpResult httpResult) {
 
         long pollTimestamp = feed.getLastPollTime().getTime();
         boolean folderCreated = DatasetCreator.createDirectoriesAndCSV(feed);
@@ -175,12 +170,12 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         if (folderCreated) {
             String folderPath = DatasetCreator.getFolderPath(feed.getId());
             gzWritten = writeGZ(httpResult, folderPath, pollTimestamp, "_unparsable");
-
+        }
+        if (!gzWritten) {
+            throw new IllegalStateException("Error while writing GZ file");
         }
 
-        boolean metadata = processPollMetadata(feed, httpResult, null);
-
-        return (gzWritten && metadata);
+        processPollMetadata(feed, httpResult, null);
     }
 
     /**
@@ -210,9 +205,8 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
      * @param feed
      * @param httpResult
      * @param newItems
-     * @return
      */
-    private boolean processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
+    private void processPollMetadata(Feed feed, HttpResult httpResult, Integer newItems) {
 
         PollMetaInformation pollMetaInfo = new PollMetaInformation();
 
@@ -227,7 +221,10 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         pollMetaInfo.setWindowSize(feed.getWindowSize());
         pollMetaInfo.setHttpStatusCode(httpResult.getStatusCode());
 
-        return feedStore.addFeedPoll(pollMetaInfo);
+        boolean success = feedStore.addFeedPoll(pollMetaInfo);
+        if (!success) {
+            throw new IllegalStateException("Error while adding feed poll");
+        }
     }
 
 

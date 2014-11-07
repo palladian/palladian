@@ -81,14 +81,14 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
             for (Location location : candidates) {
                 double score = scoredLocations.get(location.getId());
-                if (score > highestScore) {
+                if (selectedLocation == null || score > highestScore) {
                     highestScore = score;
                     selectedLocation = location;
                 }
             }
 
             if (selectedLocation != null && highestScore >= probabilityThreshold) {
-                result.add(new LocationAnnotation(annotation, selectedLocation));
+                result.add(new LocationAnnotation(annotation, selectedLocation, highestScore));
                 Object[] logArgs = new Object[] {annotation.getValue(), highestScore, selectedLocation};
                 LOGGER.debug("[+] '{}' was classified as location with {}: {}", logArgs);
             } else {

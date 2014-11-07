@@ -10,10 +10,10 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.io.FileHelper;
 
 /**
+ * <p>
  * The Cache can be used to store data objects such as model files. These files do not have to be re-read from hard disk
  * every time they are needed.
- * 
- * TODO this class should use weak references.
+ * </p>
  * 
  * @author David Urbansky
  */
@@ -81,9 +81,13 @@ public class Cache {
 
         if (object == null) {
             StopWatch stopWatch = new StopWatch();
-            object = FileHelper.deserialize(file.getPath());
-            putDataObject(identifier, object);
-            LOGGER.info("file {} loaded into cache in {}", file, stopWatch.getElapsedTimeString());
+            object = FileHelper.tryDeserialize(file.getPath());
+            if (object != null) {
+                putDataObject(identifier, object);
+                LOGGER.info("File {} loaded into cache in {}", file, stopWatch.getElapsedTimeString());
+            } else {
+                LOGGER.error("File {} could not be deserialized", file);
+            }
         }
 
         return object;

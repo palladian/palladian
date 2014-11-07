@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -46,7 +47,7 @@ public class DateHelper {
         // LocalizeHelper.setLocaleEnglish(); // removed 2013-09-19
         // LocalizeHelper.setUTC();
 
-        DateFormat dfm = new SimpleDateFormat(format);
+        DateFormat dfm = new SimpleDateFormat(format, Locale.ENGLISH);
         String dateTime = dfm.format(new Date(timestamp));
 
         // LocalizeHelper.restoreLocale(); // removed 2013-09-19

@@ -31,7 +31,7 @@ public final class Instance implements Trainable {
      * </p>
      * 
      * @param targetClass The target class this {@code Instance} belongs to.
-     * @param featureVector The {@link FeatureVector} used by a processing classifier to train new {@link Model}.
+     * @param classifiable The {@link Classifiable} providing the {@link FeatureVector}.
      */
     public Instance(String targetClass, Classifiable classifiable) {
         Validate.notNull(targetClass, "targetClass must not be null");
@@ -46,7 +46,7 @@ public final class Instance implements Trainable {
      * </p>
      * 
      * @param targetClass The target class this {@code Instance} belongs to.
-     * @param featureVector The {@link FeatureVector} used by a processing classifier to train new {@link Model}.
+     * @param classifiable The {@link Classifiable} providing the {@link FeatureVector}.
      */
     public Instance(boolean targetClass, Classifiable classifiable) {
         Validate.notNull(classifiable, "classifiable must not be null");
@@ -109,11 +109,10 @@ public final class Instance implements Trainable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("TrainableWrap [classifiable=");
+        builder.append("Instance ");
         builder.append(classifiable);
-        builder.append(", targetClass=");
+        builder.append(": ");
         builder.append(targetClass);
-        builder.append("]");
         return builder.toString();
     }
 }

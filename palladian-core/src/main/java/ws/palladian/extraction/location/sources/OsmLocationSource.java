@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +25,9 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * <p>
@@ -112,11 +112,11 @@ public class OsmLocationSource extends SingleQueryLocationSource {
             LOGGER.debug("Requesting from {}", queryUrl);
             HttpResult result = retriever.httpGet(queryUrl);
             String content = new String(result.getContent(), Charset.forName("UTF-8"));
-            JSONObject jsonObject = new JSONObject(content);
-            JSONArray elementsJson = jsonObject.getJSONArray("elements");
+            JsonObject jsonObject = new JsonObject(content);
+            JsonArray elementsJson = jsonObject.getJsonArray("elements");
             List<Location> locations = CollectionHelper.newArrayList();
-            for (int i = 0; i < elementsJson.length(); i++) {
-                JSONObject jsonElement = elementsJson.getJSONObject(i);
+            for (int i = 0; i < elementsJson.size(); i++) {
+                JsonObject jsonElement = elementsJson.getJsonObject(i);
                 double lat = jsonElement.getDouble("lat");
                 double lon = jsonElement.getDouble("lon");
                 long id = jsonElement.getLong("id");
@@ -125,11 +125,11 @@ public class OsmLocationSource extends SingleQueryLocationSource {
                 if (id != hack) {
                     LOGGER.warn("attn: ID {} was shortened to {}", id, hack);
                 }
-                JSONObject jsonTags = jsonElement.getJSONObject("tags");
+                JsonObject jsonTags = jsonElement.getJsonObject("tags");
                 String name = jsonTags.getString("name");
                 Set<AlternativeName> altNames = parseAlternativeNames(jsonTags);
                 Long population = null;
-                if (jsonTags.has("population")) {
+                if (jsonTags.get("population") != null) {
                     population = jsonTags.getLong("population");
                 }
                 String placeType = jsonTags.getString("place");
@@ -140,17 +140,14 @@ public class OsmLocationSource extends SingleQueryLocationSource {
             return locations;
         } catch (HttpException e) {
             throw new IllegalStateException(e);
-        } catch (JSONException e) {
+        } catch (JsonException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private Set<AlternativeName> parseAlternativeNames(JSONObject jsonTags) throws JSONException {
+    private Set<AlternativeName> parseAlternativeNames(JsonObject jsonTags) throws JsonException {
         Set<AlternativeName> altNames = CollectionHelper.newHashSet();
-        @SuppressWarnings("unchecked")
-        Iterator<String> keys = jsonTags.keys();
-        while (keys.hasNext()) {
-            String key = keys.next();
+        for (String key : jsonTags.keySet()) {
             if (key.startsWith("name:")) {
                 String languageCode = key.substring(key.indexOf(':') + 1);
                 Language language = Language.getByIso6391(languageCode);

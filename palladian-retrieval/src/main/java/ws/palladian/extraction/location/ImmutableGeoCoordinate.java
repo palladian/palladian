@@ -18,8 +18,7 @@ public final class ImmutableGeoCoordinate extends AbstractGeoCoordinate {
      * @throws IllegalArgumentException in case latitude/longitude are out of given range.
      */
     public ImmutableGeoCoordinate(double lat, double lng) {
-        Validate.inclusiveBetween(-90., 90., lat);
-        Validate.inclusiveBetween(-180., 180., lng);
+        Validate.isTrue(GeoUtils.validCoordinateRange(lat, lng), "latitude/longitude out of range.");
         this.lat = lat;
         this.lng = lng;
     }

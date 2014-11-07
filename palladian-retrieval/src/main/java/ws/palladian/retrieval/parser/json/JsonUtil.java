@@ -38,19 +38,27 @@ class JsonUtil {
     }
 
     public static JsonArray parseJSONArray(Object object) throws JsonException {
-        try {
-            return object instanceof JsonArray ? (JsonArray)object : null;
-        } catch (Exception e) {
-            throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
+        if (object == null || object instanceof JsonArray) {
+            return (JsonArray)object;
         }
+        throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
+//        try {
+//            return object instanceof JsonArray ? (JsonArray)object : null;
+//        } catch (Exception e) {
+//            throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
+//        }
     }
 
     public static JsonObject parseJSONObject(Object object) throws JsonException {
-        try {
-            return object instanceof JsonObject ? (JsonObject)object : null;
-        } catch (Exception e) {
-            throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
+        if (object == null || object instanceof JsonObject) {
+            return (JsonObject)object;
         }
+        throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
+//        try {
+//            return object instanceof JsonObject ? (JsonObject)object : null;
+//        } catch (Exception e) {
+//            throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
+//        }
     }
 
     public static Long parseLong(Object object) throws JsonException {
@@ -62,11 +70,19 @@ class JsonUtil {
     }
 
     public static String parseString(Object object) throws JsonException {
-        try {
-            return object instanceof String ? (String)object : null;
-        } catch (Exception e) {
+        if (object instanceof JsonObject || object instanceof JsonArray) {
             throw new JsonException("Could not parse \"" + object + "\" to string.");
         }
+        if (object == null) {
+            return null;
+        }
+        return object.toString();
+//        try {
+//            return object instanceof String ? (String)object : null;
+//        } catch (Exception e) {
+//            throw new JsonException("Could not parse \"" + object + "\" to string.");
+//      
+//        }
     }
 
     /**
@@ -100,7 +116,6 @@ class JsonUtil {
      * @return A simple JSON value.
      */
     static Object stringToValue(String string) {
-        Double d;
         if (string.equals("")) {
             return string;
         }
@@ -123,7 +138,7 @@ class JsonUtil {
         if (b >= '0' && b <= '9' || b == '-') {
             try {
                 if (string.indexOf('.') > -1 || string.indexOf('e') > -1 || string.indexOf('E') > -1) {
-                    d = Double.valueOf(string);
+                    Double d = Double.valueOf(string);
                     if (!d.isInfinite() && !d.isNaN()) {
                         return d;
                     }

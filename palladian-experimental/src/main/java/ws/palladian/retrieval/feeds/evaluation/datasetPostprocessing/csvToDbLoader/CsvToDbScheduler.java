@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
@@ -32,18 +31,12 @@ public class CsvToDbScheduler extends TimerTask {
      * The thread pool managing threads that read feeds from the feed sources
      * provided by {@link #collectionOfFeeds}.
      */
-    private transient final ExecutorService threadPool;
+    private final ExecutorService threadPool;
 
     /**
      * Tasks currently scheduled but not yet checked.
      */
-    private transient final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
-
-    /**
-     * The collection of all the feeds this scheduler should create update
-     * threads for.
-     */
-    private transient final FeedReader feedReader;
+    private final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
 
     private boolean firstRun = true;
 
@@ -52,6 +45,8 @@ public class CsvToDbScheduler extends TimerTask {
     /** Count the number of processed feeds per scheduler iteration. */
     private int processedCounter = 0;
 
+    private final EvaluationFeedDatabase feedDatabase;
+
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
      * 
@@ -59,11 +54,10 @@ public class CsvToDbScheduler extends TimerTask {
      *            The feed reader containing settings and providing the
      *            collection of feeds to check.
      */
-    public CsvToDbScheduler(final FeedReader feedReader) {
-        super();
-        threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
-        this.feedReader = feedReader;
+    public CsvToDbScheduler(EvaluationFeedDatabase feedDatabase, int numThreads) {
+        threadPool = Executors.newFixedThreadPool(numThreads);
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
+        this.feedDatabase = feedDatabase;
     }
 
     /*
@@ -77,10 +71,10 @@ public class CsvToDbScheduler extends TimerTask {
         StringBuilder scheduledFeedIDs = new StringBuilder();
 
         // schedule all feeds only once
-        for (Feed feed : feedReader.getFeeds()) {
+        for (Feed feed : feedDatabase.getFeeds()) {
             if (firstRun) {
                 scheduledTasks.put(feed.getId(),
-                        threadPool.submit(new CsvToDbTask(feed, (EvaluationFeedDatabase) feedReader.getFeedStore())));
+                        threadPool.submit(new CsvToDbTask(feed, feedDatabase)));
                 newlyScheduledFeedsCount++;
             } else {
                 removeFeedTaskIfDone(feed.getId());

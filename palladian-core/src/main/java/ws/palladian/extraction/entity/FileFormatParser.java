@@ -66,7 +66,7 @@ public final class FileFormatParser {
     }
 
     private static String getTextFromXML(String inputFilePath) {
-        String xmlText = FileHelper.readFileToString(inputFilePath);
+        String xmlText = FileHelper.tryReadFileToString(inputFilePath);
         return HtmlHelper.stripHtmlTags(xmlText);
     }
 
@@ -395,7 +395,7 @@ public final class FileFormatParser {
         // columnFile.append("\n");
         // }
 
-        String xmlText = FileHelper.readFileToString(inputFilePath);
+        String xmlText = FileHelper.tryReadFileToString(inputFilePath);
         String columnFile = xmlToColumnText(xmlText, columnSeparator);
 
         // CollectionHelper.print(tokens);
@@ -435,7 +435,7 @@ public final class FileFormatParser {
 
         StringBuilder columnString = new StringBuilder();
 
-        String inputString = FileHelper.readFileToString(slashFilePath);
+        String inputString = FileHelper.tryReadFileToString(slashFilePath);
 
         Pattern pattern = Pattern.compile("(.+?)/([A-Z0-9_]{1,100}?)\\s", Pattern.DOTALL);
 
@@ -480,7 +480,7 @@ public final class FileFormatParser {
     }
 
     public static void bracketToXml(String inputFilePath, String outputFilePath) {
-        String inputText = FileHelper.readFileToString(inputFilePath);
+        String inputText = FileHelper.tryReadFileToString(inputFilePath);
         String outputText = bracketToXmlText(inputText);
         FileHelper.writeToFile(outputFilePath, outputText);
     }
@@ -513,27 +513,27 @@ public final class FileFormatParser {
     }
 
     public static void columnTrainingToTest(String inputFilePath, String outputFilePath, String columnSeparator) {
-        String inputFile = FileHelper.readFileToString(inputFilePath);
+        String inputFile = FileHelper.tryReadFileToString(inputFilePath);
         inputFile = inputFile.replaceAll(columnSeparator, columnSeparator + columnSeparator);
         FileHelper.writeToFile(outputFilePath, inputFile);
     }
 
     public static void removeWhiteSpaceInFirstColumn(String inputFilePath, String outputFilePath, String replacement) {
-        String inputFile = FileHelper.readFileToString(inputFilePath);
+        String inputFile = FileHelper.tryReadFileToString(inputFilePath);
         // inputFile = inputFile.replaceAll("(?<=.+) (?=.+)", replacement);
         inputFile = inputFile.replace(" ", replacement);
         FileHelper.writeToFile(outputFilePath, inputFile);
     }
 
     public static void tsvToSsv(String inputFilePath, String outputFilePath) {
-        String inputFile = FileHelper.readFileToString(inputFilePath);
+        String inputFile = FileHelper.tryReadFileToString(inputFilePath);
         inputFile = inputFile.replaceAll("\\t", " ");
         FileHelper.writeToFile(outputFilePath, inputFile);
     }
 
     public static void textToColumn(String inputFilePath, String outputFilePath, String separator) {
 
-        String inputFile = FileHelper.readFileToString(inputFilePath);
+        String inputFile = FileHelper.tryReadFileToString(inputFilePath);
         List<String> tokens = Tokenizer.tokenize(inputFile);
 
         StringBuilder columnFile = new StringBuilder();
@@ -645,7 +645,7 @@ public final class FileFormatParser {
     }
 
     public static Annotations<ContextAnnotation> getAnnotationsFromXmlFile(String taggedTextFilePath) {
-        String taggedText = FileHelper.readFileToString(taggedTextFilePath);
+        String taggedText = FileHelper.tryReadFileToString(taggedTextFilePath);
 
         // throw out special characters that might disturb tokenization such as "'" or "=".
         // taggedText = taggedText.replace("'", "").replace("=", "");

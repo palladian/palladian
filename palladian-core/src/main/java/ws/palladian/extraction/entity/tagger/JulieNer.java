@@ -71,7 +71,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
         // alignContent(
         // new File("data/temp/t.TXT"),
         // "Jan Sergi Barjuan 40-1 Rafael Alkorta 33-1 Albert Ferrer 40-1 Chendo Porlan 33-1 Miguel Nadal 40-1 Laurent Blanc=-DOCSTART- SOCCER");
-        
+
         configFileContent += "pos_feat_enabled = false" + "\n";
         configFileContent += "pos_feat_unit = pos" + "\n";
         configFileContent += "pos_feat_position = 1" + "\n";
@@ -140,7 +140,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
         FileHelper.writeToFile("data/temp/julieInputText.txt", inputText);
         FileFormatParser.textToColumn("data/temp/julieInputText.txt", "data/temp/julieInputTextColumn.txt", " ");
         FileFormatParser.columnToSlash("data/temp/julieInputTextColumn.txt", "data/temp/julieTrainingSlash.txt", " ",
-        "|");
+                "|");
 
         File testDataFile = new File("data/temp/julieTrainingSlash.txt");
 
@@ -172,7 +172,8 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
         }
         // List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile(outFile.getPath());
-        String alignedContent = NerHelper.alignContentText(FileHelper.readFileToString(outFile.getPath()), inputText);
+        String alignedContent = NerHelper
+                .alignContentText(FileHelper.tryReadFileToString(outFile.getPath()), inputText);
         Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromXmlText(alignedContent);
         annotations.removeNested();
         annotations.sort();
@@ -218,7 +219,7 @@ public class JulieNer extends TrainableNamedEntityRecognizer {
         FileFormatParser.columnToSlash(tempFilePath, tempFilePath, "\t", "|");
 
         // put sentences on lines splitting on " .|O "
-        String[] taggedSentences = FileHelper.readFileToString(tempFilePath).split(" \\.\\|O ");
+        String[] taggedSentences = FileHelper.tryReadFileToString(tempFilePath).split(" \\.\\|O ");
         FileWriter fw;
         try {
             fw = new FileWriter(tempFilePath);

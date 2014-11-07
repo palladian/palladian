@@ -75,6 +75,10 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> results = CollectionHelper.newArrayList();
 
+        if (language == null) {
+            language = DEFAULT_SEARCHER_LANGUAGE;
+        }
+
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(100, resultCount);
         int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);

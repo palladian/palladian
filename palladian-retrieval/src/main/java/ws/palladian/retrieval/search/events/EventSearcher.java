@@ -8,8 +8,14 @@ import ws.palladian.retrieval.search.SearcherException;
 
 public abstract class EventSearcher {
 
+    public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
+            EventType eventType) throws SearcherException {
+        return search(keywords, location, radius, startDate, endDate, eventType, Integer.MAX_VALUE);
+    }
+
     public abstract List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType) throws SearcherException;
+            EventType eventType, int maxResults) throws SearcherException;
+
 
     public abstract String getName();
 

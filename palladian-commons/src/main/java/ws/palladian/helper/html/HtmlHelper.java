@@ -68,11 +68,13 @@ public final class HtmlHelper {
     /** "Junk" elements which do not contain relevant content. */
     private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
 
-    private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("\\<br\\s?\\/?\\>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("\\<(br|li)\\s?\\/?\\>",
+            Pattern.CASE_INSENSITIVE);
     private static final Pattern HTML_TO_READABLE_TEXT2 = Pattern.compile("\\<\\/p\\>", Pattern.CASE_INSENSITIVE);
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
     private static final Pattern STRIP_ALL_TAGS = Pattern
-            .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
+    // .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
+            .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<[^<]*?>", Pattern.DOTALL
                     | Pattern.CASE_INSENSITIVE);
 
     /** Thread local caching of TransformerFactories which are not thread-safe, but expensive to create. */
@@ -396,9 +398,9 @@ public final class HtmlHelper {
 
     public static String htmlToReadableText(String htmlString) {
         htmlString = HTML_TO_READABLE_TEXT.matcher(htmlString).replaceAll("\n");
-        htmlString = HTML_TO_READABLE_TEXT2.matcher(htmlString).replaceAll("\n");
+        htmlString = HTML_TO_READABLE_TEXT2.matcher(htmlString).replaceAll("\n\n");
         htmlString = stripHtmlTags(htmlString);
-        return htmlString;
+        return htmlString.trim();
     }
 
     /**
@@ -804,12 +806,12 @@ public final class HtmlHelper {
             // currentLink = makeFullURL(url, currentLink);
             currentLink = UrlHelper.makeFullUrl(url, baseHref, currentLink);
 
-            if (currentLink.length() == 0) {
+            if (currentLink.isEmpty()) {
                 continue;
             }
 
             String currentDomain = UrlHelper.getDomain(currentLink, false);
-            currentDomain = currentDomain.replaceFirst("[a-zA-Z-_]+\\.(?=[a-z]+\\.)", "");
+            // currentDomain = currentDomain.replaceFirst("[a-zA-Z-_]+\\.(?=[a-z]+\\.)", "");
 
             boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
 

@@ -5,12 +5,16 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.SearcherException;
 
 public class GoogleScraperSearcherTest {
 
@@ -28,6 +32,17 @@ public class GoogleScraperSearcherTest {
         document = ParserFactory.createHtmlParser().parse(file);
         webResults = GoogleScraperSearcher.parseHtml(document);
         assertEquals(10, webResults.size());
+    }
+
+    @Ignore
+    @Test
+    public void testSearch() throws SearcherException {
+
+        GoogleScraperSearcher googleScraperSearcher = new GoogleScraperSearcher();
+        List<WebContent> results = googleScraperSearcher.search("Käsebretter sind", 10, Language.GERMAN);
+
+        CollectionHelper.print(results);
+
     }
 
 }

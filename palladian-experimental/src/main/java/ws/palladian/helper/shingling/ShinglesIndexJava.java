@@ -1,5 +1,6 @@
 package ws.palladian.helper.shingling;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,7 +81,11 @@ public class ShinglesIndexJava extends ShinglesIndexBaseImpl {
     public void openIndex() {
 
         if (FileHelper.fileExists(getIndexFileName())) {
-            data = FileHelper.deserialize(getIndexFileName());
+            try {
+                data = FileHelper.deserialize(getIndexFileName());
+            } catch (IOException e) {
+                data = new ShinglesIndexJavaData();
+            }
         } else {
             data = new ShinglesIndexJavaData();
         }
@@ -89,9 +94,11 @@ public class ShinglesIndexJava extends ShinglesIndexBaseImpl {
 
     @Override
     public void saveIndex() {
-
-        FileHelper.serialize(data, getIndexFileName());
-
+        try {
+            FileHelper.serialize(data, getIndexFileName());
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override

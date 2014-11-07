@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -16,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * <p>
@@ -29,27 +29,8 @@ import ws.palladian.helper.collection.CountMap;
  */
 class SchedulerTask extends TimerTask {
 
-    /**
-     * The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>.
-     */
+    /** The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerTask.class);
-
-    /**
-     * The collection of all the feeds this scheduler should create update
-     * threads for.
-     */
-    private transient final FeedReader feedReader;
-
-    /**
-     * The thread pool managing threads that read feeds from the feed sources
-     * provided by {@link #collectionOfFeeds}.
-     */
-    private transient final ExecutorService threadPool;
-
-    /**
-     * Tasks currently scheduled but not yet checked.
-     */
-    private transient final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
 
     /**
      * The number of times a feed that has never been checked successfully is put into the queue regardless of its
@@ -75,32 +56,41 @@ class SchedulerTask extends TimerTask {
      */
     private static final long MAXIMUM_AVERAGE_PROCESSING_TIME_MS = TimeUnit.MINUTES.toMillis(10);
 
+    /** The store providing persistence for the feeds. */
+    private final FeedStore store;
 
-    // //////////// Monitoring constants \\\\\\\\\\\\\\\\\
+    /** The actions to perform when processing a feed (and various other cases). */
+    private final FeedProcessingAction action;
 
+    /** The strategy to determine a feed's update behaviour. */
+    private final UpdateStrategy updateStrategy;
 
-    private Long lastWakeUpTime = null;
+    /** The thread pool managing threads that read feeds from the feed sources provided by {@link #collectionOfFeeds}. */
+    private final ExecutorService threadPool;
 
-    // XXX do we still need this? The content is never read.
-    private final CountMap<FeedTaskResult> feedResults = CountMap.create();
+    /** Tasks currently scheduled but not yet checked. */
+    private final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
+
+    private final Long lastWakeUpTime = null;
 
     /**
+     * <p>
      * Creates a new {@code SchedulerTask} for a feed reader.
+     * </p>
      * 
-     * @param feedReader
-     *            The feed reader containing settings and providing the
-     *            collection of feeds to check.
+     * @param threadPoolSize Maximum number of {@link FeedTask}s to schedule.
+     * @param store The store with the feeds.
+     * @param action The action to perform for each read feed.
+     * @param updateStrategy The strategy to use for determining update behavior.
      */
-    public SchedulerTask(final FeedReader feedReader) {
-        threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
-        this.feedReader = feedReader;
-        scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
+    public SchedulerTask(int threadPoolSize, FeedStore store, FeedProcessingAction action, UpdateStrategy updateStrategy) {
+        this.threadPool = Executors.newFixedThreadPool(threadPoolSize);
+        this.scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
+        this.store = store;
+        this.action = action;
+        this.updateStrategy = updateStrategy;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.util.TimerTask#run()
-     */
     @Override
     public void run() {
         LOGGER.debug("wake up to check feeds");
@@ -112,7 +102,8 @@ class SchedulerTask extends TimerTask {
             removeFeedTaskIfDone(feed.getId());
             if (needsLookup(feed)) {
                 if (!scheduledTasks.containsKey(feed.getId())) {
-                    scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedReader)));
+                    scheduledTasks.put(feed.getId(),
+                            threadPool.submit(new FeedTask(feed, store, action, updateStrategy)));
                 }
             }
         }
@@ -132,11 +123,11 @@ class SchedulerTask extends TimerTask {
     private Collection<Feed> getFeeds() {
         if (lastWakeUpTime == null) {
             List<Feed> feedList = new ArrayList<Feed>();
-            feedList.addAll(feedReader.getFeeds());
+            feedList.addAll(store.getFeeds());
             Collections.shuffle(feedList);
             return feedList;
         } else {
-            return feedReader.getFeeds();
+            return store.getFeeds();
         }
     }
 
@@ -148,22 +139,25 @@ class SchedulerTask extends TimerTask {
      *            The feed to check.
      * @return {@code true} if this feeds check interval is over and {@code false} otherwise.
      */
-    private Boolean needsLookup(final Feed feed) {
+    private boolean needsLookup(Feed feed) {
         final long now = System.currentTimeMillis();
-        LOGGER.trace("Checking if feed with id: "
-                + feed.getId()
-                + " needs lookup!\n FeedChecks: "
-                + feed.getChecks()
-                + "\nLastPollTime: "
-                + feed.getLastPollTime()
-                + "\nNow: "
-                + now
-                + "\nUpdateInterval: "
-                + TimeUnit.MINUTES.toMillis(feed.getUpdateInterval())
-                + (feed.getLastPollTime() != null ? "\nnow - lastPollTime: " + (now - feed.getLastPollTime().getTime())
-                        + "\nUpdate Interval Exceeded "
-                        + (now - feed.getLastPollTime().getTime() > TimeUnit.MINUTES.toMillis(feed.getUpdateInterval()))
-                        : ""));
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Checking if feed with id: "
+                    + feed.getId()
+                    + " needs lookup!\n FeedChecks: "
+                    + feed.getChecks()
+                    + "\nLastPollTime: "
+                    + feed.getLastPollTime()
+                    + "\nNow: "
+                    + now
+                    + "\nUpdateInterval: "
+                    + TimeUnit.MINUTES.toMillis(feed.getUpdateInterval())
+                    + (feed.getLastPollTime() != null ? "\nnow - lastPollTime: "
+                            + (now - feed.getLastPollTime().getTime())
+                            + "\nUpdate Interval Exceeded "
+                            + (now - feed.getLastPollTime().getTime() > TimeUnit.MINUTES.toMillis(feed
+                                    .getUpdateInterval())) : ""));
+        }
 
         // check whether the feed needs to be blocked
         if (!feed.isBlocked()) {
@@ -173,34 +167,34 @@ class SchedulerTask extends TimerTask {
                         + ") takes on average too long to process and is therefore blocked (never scheduled again)!"
                         + " Average processing time was " + feed.getAverageProcessingTime() + " milliseconds.");
                 feed.setBlocked(true);
-                feedReader.updateFeed(feed);
+                store.updateFeed(feed);
             } else if (feed.getChecks() < feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO) {
                 LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unreachable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unreachableCount = " + feed.getUnreachableCount());
                 feed.setBlocked(true);
-                feedReader.updateFeed(feed);
+                store.updateFeed(feed);
             } else if (feed.getChecks() < feed.getUnparsableCount() / CHECKS_TO_UNPARSABLE_RATIO) {
                 LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unparsable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unparsableCount = " + feed.getUnparsableCount());
                 feed.setBlocked(true);
-                feedReader.updateFeed(feed);
+                store.updateFeed(feed);
             }
         }
 
         boolean isBlocked = feed.isBlocked();
-        boolean immediateRetry = (feed.getChecks() == 0) && (feed.getUnreachableCount() <= MAX_IMMEDIATE_RETRIES)
-                && (feed.getUnparsableCount() <= MAX_IMMEDIATE_RETRIES);
-        boolean notYetPolled = (feed.getLastPollTime() == null);
+        boolean immediateRetry = feed.getChecks() == 0 && feed.getUnreachableCount() <= MAX_IMMEDIATE_RETRIES
+                && feed.getUnparsableCount() <= MAX_IMMEDIATE_RETRIES;
+        boolean notYetPolled = feed.getLastPollTime() == null;
         boolean regularSchedule = !notYetPolled
-                && (now - feed.getLastPollTime().getTime() > TimeUnit.MINUTES.toMillis(feed.getUpdateInterval()));
+                && now - feed.getLastPollTime().getTime() > TimeUnit.MINUTES.toMillis(feed.getUpdateInterval());
 
-        Boolean ret = !isBlocked && (immediateRetry || notYetPolled || regularSchedule);
+        boolean ret = !isBlocked && (immediateRetry || notYetPolled || regularSchedule);
         if (ret == true) {
-            LOGGER.trace("Feed with id: " + feed.getId() + " need lookup.");
+            LOGGER.trace("Feed with id: {} needs lookup.", feed.getId());
         } else {
-            LOGGER.trace("Feed with id: " + feed.getId() + " needs no lookup.");
+            LOGGER.trace("Feed with id: {} needs no lookup.", feed.getId());
         }
         return ret;
     }
@@ -210,17 +204,10 @@ class SchedulerTask extends TimerTask {
      * 
      * @param feedId The feed to check and remove if the {@link FeedTask} is done.
      */
-    private void removeFeedTaskIfDone(final Integer feedId) {
+    private void removeFeedTaskIfDone(int feedId) {
         final Future<FeedTaskResult> future = scheduledTasks.get(feedId);
         if (future != null && future.isDone()) {
             scheduledTasks.remove(feedId);
-            try {
-                feedResults.add(future.get());
-            } catch (InterruptedException e) {
-                LOGGER.error("Encountered InterruptedException");
-            } catch (ExecutionException e) {
-                LOGGER.error("Encountered ExecutionException", e);
-            }
         }
     }
 

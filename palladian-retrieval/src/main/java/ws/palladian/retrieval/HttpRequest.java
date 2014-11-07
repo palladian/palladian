@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.http.HttpEntity;
 
 import ws.palladian.helper.collection.CollectionHelper;
 
@@ -11,22 +12,28 @@ public final class HttpRequest {
 
     // XXX support further HTTP methods
     public enum HttpMethod {
-        GET, POST, HEAD
+        GET, POST, HEAD, PUT, DELETE
     }
 
     private final String url;
     private final HttpMethod method;
     private final Map<String, String> headers;
     private final Map<String, String> parameters;
+    private HttpEntity httpEntity = null;
 
     public HttpRequest(HttpMethod method, String url) {
         Validate.notNull(method, "method must not be null");
         Validate.notEmpty(url, "url must not be empty");
-        
+
         this.method = method;
         this.url = url;
         this.headers = CollectionHelper.newHashMap();
         this.parameters = CollectionHelper.newHashMap();
+    }
+
+    public HttpRequest(HttpMethod method, String url, HttpEntity httpEntity) {
+        this(method, url);
+        this.httpEntity = httpEntity;
     }
 
     public HttpRequest(HttpMethod method, String url, Map<String, String> headers, Map<String, String> parameters) {
@@ -34,7 +41,7 @@ public final class HttpRequest {
         Validate.notEmpty(url, "url must not be empty");
         Validate.notNull(headers, "headers must not be null");
         Validate.notNull(parameters, "parameters must not be null");
-        
+
         this.url = url;
         this.method = method;
         this.headers = headers;
@@ -60,15 +67,23 @@ public final class HttpRequest {
     public void addHeader(String key, Object value) {
         Validate.notEmpty(key, "key must not be empty");
         Validate.notNull(value, "value must not be null");
-        
+
         headers.put(key, value.toString());
     }
 
     public void addParameter(String key, Object value) {
         Validate.notEmpty(key, "key must not be empty");
         Validate.notNull(value, "value must not be null");
-        
+
         parameters.put(key, value.toString());
+    }
+
+    public HttpEntity getHttpEntity() {
+        return httpEntity;
+    }
+
+    public void setHttpEntity(HttpEntity httpEntity) {
+        this.httpEntity = httpEntity;
     }
 
     @Override

@@ -14,14 +14,8 @@ public class FeedParserException extends ParserException {
         super(string);
     }
 
-    /**
-     * @param message
-     * @param cause
-     */
     public FeedParserException(String message, Throwable cause) {
         super(message, cause);
     }
-    
-    
 
 }

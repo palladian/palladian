@@ -96,6 +96,26 @@ public class ThresholdAnalyzer {
 
     /**
      * <p>
+     * Get the maximum achieved F1 value for the whole threshold interval.
+     * </p>
+     * 
+     * @return The maximum F1 value.
+     */
+    public double getMaxF1() {
+        double maxF1 = 0;
+        for (int i = 0; i <= numBins; i++) {
+            double threshold = (double)i / numBins;
+            double f1 = getF1(threshold);
+            if (Double.isNaN(f1)) {
+                continue;
+            }
+            maxF1 = Math.max(maxF1, f1);
+        }
+        return maxF1;
+    }
+
+    /**
+     * <p>
      * Add a record (e.g. a document) for analysis. A record consists of the actual class (i.e. <code>relevant</code> or
      * <code>notRelevant</code> ) and a confidence value determined e.g. by a classifier, which denotes the certainty of
      * the classifier that the made decision for being <code>relevant</code> is correct.
@@ -157,6 +177,7 @@ public class ThresholdAnalyzer {
             sb.append(format.format(rc)).append('\t');
             sb.append(format.format(f1)).append('\n');
         }
+        sb.append('\n').append("Maximum f1: ").append(getMaxF1());
         return sb.toString();
     }
 

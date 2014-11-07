@@ -33,7 +33,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 public final class DateParser {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DateParser.class);
 
@@ -132,34 +132,34 @@ public final class DateParser {
      *         matched by the given {@link DateFormat}.
      */
     public static ExtractedDate findDate(String text, DateFormat format) {
-//        text = StringHelper.removeDoubleWhitespaces(text);
-//        ExtractedDate result = null;
-//        Matcher matcher = format.getPattern().matcher(text);
-//        if (matcher.find()) {
-//            // Determine, if the found potential date string is directly surrounded by digits.
-//            // In this case, we skip the pattern and advance to the next one.
-//            boolean digitNeighbor = false;
-//            int start = matcher.start();
-//            if (start > 0) {
-//                digitNeighbor = Character.isDigit(text.charAt(start - 1));
-//            }
-//            int end = matcher.end();
-//            // if last character is "/" no check for number is needed.
-//            if (end < text.length() && text.charAt(end - 1) != '/') {
-//                digitNeighbor = Character.isDigit(text.charAt(end));
-//            }
-//            if (!digitNeighbor) {
-//                result = parseDate(matcher.group(), format);
-//            }
-//        }
-//        return result;
+        //        text = StringHelper.removeDoubleWhitespaces(text);
+        //        ExtractedDate result = null;
+        //        Matcher matcher = format.getPattern().matcher(text);
+        //        if (matcher.find()) {
+        //            // Determine, if the found potential date string is directly surrounded by digits.
+        //            // In this case, we skip the pattern and advance to the next one.
+        //            boolean digitNeighbor = false;
+        //            int start = matcher.start();
+        //            if (start > 0) {
+        //                digitNeighbor = Character.isDigit(text.charAt(start - 1));
+        //            }
+        //            int end = matcher.end();
+        //            // if last character is "/" no check for number is needed.
+        //            if (end < text.length() && text.charAt(end - 1) != '/') {
+        //                digitNeighbor = Character.isDigit(text.charAt(end));
+        //            }
+        //            if (!digitNeighbor) {
+        //                result = parseDate(matcher.group(), format);
+        //            }
+        //        }
+        //        return result;
         List<ExtractedDate> extractedDates = findDates(text, format);
         if (extractedDates.isEmpty()) {
             return null;
         }
         return extractedDates.get(0);
     }
-    
+
     /**
      * <p>
      * Find all dates in a text by trying to match all {@link DateFormat}s as defined in {@link RegExp#ALL_DATE_FORMATS}
@@ -214,10 +214,17 @@ public final class DateParser {
         List<ExtractedDate> result = new ArrayList<ExtractedDate>();
         Matcher matcher = format.getPattern().matcher(text);
         while (matcher.find()) {
-            // Determine, if the found potential date string is directly surrounded by digits.
+
+            // Determine, if the found potential date string is directly surrounded by digits or periods.
             // In this case, we skip the pattern and advance to the next one.
             boolean digitNeighbor = false;
             int start = matcher.start();
+
+            // dates must not start with a period, usually longer patterns will match if it really is a date
+            if (start > 0 && text.charAt(start - 1) == '.') {
+                continue;
+            }
+
             if (start > 0) {
                 digitNeighbor = Character.isDigit(text.charAt(start - 1));
             }

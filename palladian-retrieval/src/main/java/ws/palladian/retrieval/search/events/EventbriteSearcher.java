@@ -81,7 +81,7 @@ public class EventbriteSearcher extends EventSearcher {
 
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType) throws SearcherException {
+            EventType eventType, int maxResults) throws SearcherException {
         List<Event> events = CollectionHelper.newArrayList();
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
@@ -140,6 +140,10 @@ public class EventbriteSearcher extends EventSearcher {
             } catch (JsonException e) {
                 throw new SearcherException(e.getMessage());
             }
+
+            if (events.size() >= maxResults) {
+                break;
+            }
         }
 
         return events;
@@ -192,7 +196,7 @@ public class EventbriteSearcher extends EventSearcher {
         EventbriteSearcher searcher = new EventbriteSearcher("GET YOUR OWN");
         Date startDate = new Date();
         Date endDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
-        List<Event> results = searcher.search(null, "Chicago", 10, startDate, endDate, EventType.EVENT);
+        List<Event> results = searcher.search(null, "Chicago", 10, startDate, endDate, EventType.EVENT, 100);
         CollectionHelper.print(results);
     }
 

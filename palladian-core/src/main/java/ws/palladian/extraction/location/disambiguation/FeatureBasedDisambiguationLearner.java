@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.disambiguation;
 import static ws.palladian.extraction.location.PalladianLocationExtractor.LONG_ANNOTATION_SPLIT;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -24,10 +25,10 @@ import ws.palladian.extraction.location.EntityPreprocessingTagger;
 import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationDocument;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.evaluation.LocationDocument;
+import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CompositeIterator;
@@ -72,8 +73,8 @@ public class FeatureBasedDisambiguationLearner {
         this.locationSource = locationSource;
     }
 
-    public void learn(File datasetDirectory) {
-        learn(LocationExtractorUtils.iterateDataset(datasetDirectory));
+    public void learn(File datasetDirectory) throws IOException {
+        learn(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
     }
 
     /**
@@ -82,17 +83,18 @@ public class FeatureBasedDisambiguationLearner {
      * </p>
      * 
      * @param datasetDirectories The directories to the training data sets, not <code>null</code>.
+     * @throws IOException 
      */
-    public void learn(File... datasetDirectories) {
+    public void learn(File... datasetDirectories) throws IOException {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
         List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
         for (File datasetDirectory : datasetDirectories) {
-            datasetIterators.add(LocationExtractorUtils.iterateDataset(datasetDirectory));
+            datasetIterators.add(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
         }
         learn(new CompositeIterator<LocationDocument>(datasetIterators));
     }
 
-    public void learn(Iterator<LocationDocument> trainDocuments) {
+    public void learn(Iterator<LocationDocument> trainDocuments) throws IOException {
         Set<Trainable> trainingData = createTrainingData(trainDocuments);
         String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
         ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
@@ -153,7 +155,7 @@ public class FeatureBasedDisambiguationLearner {
         return result;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource);
         File datasetTud = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");

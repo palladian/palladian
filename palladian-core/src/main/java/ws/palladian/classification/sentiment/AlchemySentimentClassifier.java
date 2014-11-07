@@ -1,10 +1,11 @@
 package ws.palladian.classification.sentiment;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.CategoryEntriesBuilder;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -16,7 +17,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 public class AlchemySentimentClassifier {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(AlchemySentimentClassifier.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlchemySentimentClassifier.class);
 
     private static final String API_URL = "http://access.alchemyapi.com/calls/text/TextGetTextSentiment?apikey=%s&outputMode=json";
 
@@ -29,7 +30,7 @@ public class AlchemySentimentClassifier {
     }
 
     public CategoryEntries classify(String text) throws HttpException, JsonException {
-        CategoryEntriesMap categoryEntries = new CategoryEntriesMap();
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, String.format(API_URL, apiKey));
         request.addParameter("text", text.trim());
@@ -50,14 +51,14 @@ public class AlchemySentimentClassifier {
                     score = 1 - score;
                 }
             }
-            categoryEntries.set(category, score);
+            builder.set(category, score);
 
         } else {
             LOGGER.error(json.getString("statusInfo"));
-            categoryEntries.set("neutral", 0.);
+            builder.set("neutral", 0.);
         }
 
-        return categoryEntries;
+        return builder.create();
     }
 
     public static void main(String[] args) throws HttpException, JsonException {

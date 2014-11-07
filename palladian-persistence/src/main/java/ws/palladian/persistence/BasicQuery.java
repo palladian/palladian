@@ -1,5 +1,6 @@
 package ws.palladian.persistence;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class BasicQuery implements Query {
@@ -25,6 +26,11 @@ public class BasicQuery implements Query {
     @Override
     public Object[] getArgs() {
         return args;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Query [sql='%s', args=%s]", sql, Arrays.toString(args));
     }
 
 }

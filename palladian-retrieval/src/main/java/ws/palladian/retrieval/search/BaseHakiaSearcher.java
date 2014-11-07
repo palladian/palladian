@@ -201,5 +201,10 @@ public abstract class BaseHakiaSearcher extends AbstractSearcher<WebContent> {
     public static int getRequestCount() {
         return TOTAL_REQUEST_COUNT.get();
     }
+    
+    @Override
+    public boolean isDeprecated() {
+        return true;
+    }
 
 }

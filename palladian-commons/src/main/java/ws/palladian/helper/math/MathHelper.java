@@ -1,9 +1,7 @@
 package ws.palladian.helper.math;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,7 +13,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,11 +80,14 @@ public final class MathHelper {
      * Calculate the Jaccard similarity between two sets. <code>J(A, B) = |A intersection B| / |A union B|</code>.
      * </p>
      * 
-     * @param setA The first set.
-     * @param setB The second set.
+     * @param setA The first set, not <code>null</code>.
+     * @param setB The second set, not <code>null</code>.
      * @return The Jaccard similarity in the range [0, 1].
      */
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
+        Validate.notNull(setA, "setA must not be null");
+        Validate.notNull(setB, "setB must not be null");
+
         Set<T> intersection = CollectionHelper.newHashSet();
         intersection.addAll(setA);
         intersection.retainAll(setB);
@@ -107,12 +107,17 @@ public final class MathHelper {
      * <p>
      * Calculate the overlap coefficient between two sets.
      * <code>Overlap(A, B) = |A intersection B| / min(|A|, |B|)</code>.
+     * </p>
      * 
      * @param setA The first set.
      * @param setB The second set.
      * @return The overlap coefficient in the range [0, 1].
      */
     public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
+        if (setA.size() == 0 || setB.size() == 0) {
+            return 0;
+        }
+
         Set<T> intersection = CollectionHelper.newHashSet();
         intersection.addAll(setA);
         intersection.retainAll(setB);
@@ -244,165 +249,6 @@ public final class MathHelper {
 
     /**
      * <p>
-     * Calculate the <a href="http://en.wikipedia.org/wiki/Median">median</a> for a list of double values. The values do
-     * not have to be in sorted order in advance.
-     * </p>
-     * 
-     * @param values The values for which to get the median.
-     * @return The median.
-     * @deprecated Use {@link Stats} instead.
-     */
-    @Deprecated
-    public static double getMedian(double[] values) {
-        int numValues = values.length;
-        Arrays.sort(values);
-        if (numValues % 2 == 0) {
-            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
-        } else {
-            return values[numValues / 2];
-        }
-    }
-
-    /** @deprecated Use {@link Stats} instead. */
-    @Deprecated
-    public static double getMedian(long[] values) {
-        int numValues = values.length;
-        Arrays.sort(values);
-        if (numValues % 2 == 0) {
-            return 0.5 * (values[numValues / 2] + values[numValues / 2 - 1]);
-        } else {
-            return values[numValues / 2];
-        }
-    }
-
-    /** @deprecated Use {@link Stats} instead. */
-    @Deprecated
-    public static double getAverage(double[] values) {
-        double sum = 0;
-        for (double value : values) {
-            sum += value;
-        }
-        return sum / values.length;
-    }
-
-    /** @deprecated Use {@link Stats} instead. */
-    @Deprecated
-    public static double getAverage(long[] values) {
-        double sum = 0;
-        for (long value : values) {
-            sum += value;
-        }
-        return sum / values.length;
-    }
-
-    public static long getMedianDifference(long[] sortedList) {
-        long[] distances = getDistances(sortedList);
-        return (long)getMedian(distances);
-    }
-
-    /**
-     * <p>
-     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-     * </p>
-     * 
-     * @param values The values for which to get the standard deviation.
-     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
-     *            <code>false</code> the <i>standard deviation of the sample</i>.
-     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-     * @deprecated Use {@link Stats} instead.
-     */
-    @Deprecated
-    public static double getStandardDeviation(double[] values, boolean biasCorrection) {
-        if (values.length == 0) {
-            return Double.NaN;
-        }
-        if (values.length == 1) {
-            return 0;
-        }
-        double mean = getAverage(values);
-        double deviationSum = 0;
-        for (double value : values) {
-            deviationSum += Math.pow(value - mean, 2);
-        }
-        if (biasCorrection) {
-            return Math.sqrt(deviationSum / (values.length - 1));
-        } else {
-            return Math.sqrt(deviationSum / values.length);
-        }
-    }
-
-    /**
-     * <p>
-     * Calculate the sample <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-     * </p>
-     * 
-     * @param values The values for which to get the standard deviation.
-     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-     * @deprecated Use {@link Stats} instead.
-     */
-    @Deprecated
-    public static double getStandardDeviation(double[] values) {
-        return getStandardDeviation(values, true);
-    }
-
-    /**
-     * <p>
-     * Calculate the <a href="http://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a>.
-     * </p>
-     * 
-     * @param values The values for which to get the standard deviation.
-     * @param biasCorrection If <code>true</code>, the <i>sample standard deviation</i> is calculated, if
-     *            <code>false</code> the <i>standard deviation of the sample</i>.
-     * @return The standard deviation, 0 for lists with cardinality of 1, NaN for empty lists.
-     * @deprecated Use {@link Stats} instead.
-     */
-    @Deprecated
-    public static double getStandardDeviation(long[] values, boolean biasCorrection) {
-        if (values.length == 0) {
-            return Double.NaN;
-        }
-        if (values.length == 1) {
-            return 0;
-        }
-        double mean = getAverage(values);
-        double deviationSum = 0;
-        for (Long value : values) {
-            deviationSum += Math.pow(value - mean, 2);
-        }
-        if (biasCorrection) {
-            return Math.sqrt(deviationSum / values.length - 1);
-        } else {
-            return Math.sqrt(deviationSum / values.length);
-        }
-    }
-
-    /** @deprecated Use {@link Stats} instead. */
-    @Deprecated
-    public static double getStandardDeviation(long[] values) {
-        return getStandardDeviation(values, true);
-    }
-
-    /**
-     * <p>
-     * Get the largest gap in a {@link Collection} of {@link Number}s. E.g. for a Collection of [2,3,7,10] the value 4
-     * is returned.
-     * </p>
-     * 
-     * @param values The Collection of Numbers, not <code>null</code>.
-     * @return The largest distance between subsequent Numbers, or -1 when an empty collection or a collection of size 1
-     *         was supplied.
-     */
-    public static long getLongestGap(long[] values) {
-        long longestGap = -1;
-        if (values.length > 1) {
-            long[] distances = getDistances(values);
-            longestGap = Collections.max(Arrays.asList(ArrayUtils.toObject(distances)));
-        }
-        return longestGap;
-    }
-
-    /**
-     * <p>
      * Check whether two numeric intervals overlap.
      * </p>
      * 
@@ -416,40 +262,40 @@ public final class MathHelper {
         return Math.max(start1, start2) < Math.min(end1, end2);
     }
 
-    public static double computeRootMeanSquareError(String inputFile, final String columnSeparator) {
-        // array with correct and predicted values
-        final List<double[]> values = new ArrayList<double[]>();
+    // public static double computeRootMeanSquareError(String inputFile, final String columnSeparator) {
+    // // array with correct and predicted values
+    // final List<double[]> values = new ArrayList<double[]>();
+    //
+    // LineAction la = new LineAction() {
+    // @Override
+    // public void performAction(String line, int lineNumber) {
+    // String[] parts = line.split(columnSeparator);
+    //
+    // double[] pair = new double[2];
+    // pair[0] = Double.valueOf(parts[0]);
+    // pair[1] = Double.valueOf(parts[1]);
+    //
+    // values.add(pair);
+    // }
+    // };
+    //
+    // FileHelper.performActionOnEveryLine(inputFile, la);
+    //
+    // return computeRootMeanSquareError(values);
+    // }
 
-        LineAction la = new LineAction() {
-            @Override
-            public void performAction(String line, int lineNumber) {
-                String[] parts = line.split(columnSeparator);
-
-                double[] pair = new double[2];
-                pair[0] = Double.valueOf(parts[0]);
-                pair[1] = Double.valueOf(parts[1]);
-
-                values.add(pair);
-            }
-        };
-
-        FileHelper.performActionOnEveryLine(inputFile, la);
-
-        return computeRootMeanSquareError(values);
-    }
-
-    /**
-     * @deprecated Use the {@link Stats} instead.
-     */
-    @Deprecated
-    public static double computeRootMeanSquareError(List<double[]> values) {
-        double sum = 0.0;
-        for (double[] d : values) {
-            sum += Math.pow(d[0] - d[1], 2);
-        }
-
-        return Math.sqrt(sum / values.size());
-    }
+    // /**
+    // * @deprecated Use the {@link Stats} instead.
+    // */
+    // @Deprecated
+    // public static double computeRootMeanSquareError(List<double[]> values) {
+    // double sum = 0.0;
+    // for (double[] d : values) {
+    // sum += Math.pow(d[0] - d[1], 2);
+    // }
+    //
+    // return Math.sqrt(sum / values.size());
+    // }
 
     /**
      * Calculate similarity of two lists of the same size.
@@ -474,7 +320,7 @@ public final class MathHelper {
         int summedRealDistance = 0;
         int summedRealSquaredDistance = 0;
         int position1 = 0;
-        List<double[]> positionValues = new ArrayList<double[]>();
+        Stats stats = new SlimStats();
 
         for (String entry1 : list1) {
 
@@ -487,7 +333,7 @@ public final class MathHelper {
                     double[] values = new double[2];
                     values[0] = position1;
                     values[1] = position2;
-                    positionValues.add(values);
+                    stats.add(Math.abs(position1 - position2));
                     break;
                 }
                 position2++;
@@ -498,7 +344,7 @@ public final class MathHelper {
 
         double similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
         double squaredShiftSimilarity = 1 - (double)summedRealSquaredDistance / (double)summedMaxSquaredDistance;
-        double rootMeanSquareError = computeRootMeanSquareError(positionValues);
+        double rootMeanSquareError = stats.getRmse();
 
         return new ListSimilarity(similarity, squaredShiftSimilarity, rootMeanSquareError);
     }
@@ -583,7 +429,7 @@ public final class MathHelper {
     public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
 
         if (collection.size() < sampleSize) {
-            LOGGER.warn(
+            LOGGER.debug(
                     "tried to sample from a collection that was smaller than the sample size (Collection: {}, sample size: {}",
                     collection.size(), sampleSize);
             return collection;
@@ -786,84 +632,6 @@ public final class MathHelper {
 
     /**
      * <p>
-     * Compute distances between subsequent {@link Longs}s in a {@link Collection}. E.g. for a Collection of [2,3,7,10]
-     * a result of [1,4,3] is returned.
-     * </p>
-     * 
-     * @param values The Collection of Numbers, not <code>null</code>.
-     * @return The distances between the subsequent Numbers in the Collection, or empty array for empty input array or
-     *         arrays of size 1.
-     */
-    public static long[] getDistances(long[] values) {
-        Validate.notNull(values, "values must not be null");
-
-        if (values.length < 1) {
-            return new long[0];
-        }
-
-        long[] ret = new long[values.length - 1];
-        for (int i = 1; i < values.length; i++) {
-            ret[i - 1] = values[i] - values[i - 1];
-        }
-        return ret;
-    }
-
-//    /**
-//     * <p>
-//     * Computes the distance between two coordinates (given in latitude and longitude) in kilometers.
-//     * </p>
-//     * 
-//     * @param lat1 The latitude of the first place.
-//     * @param lng1 The longitude of the first place.
-//     * @param lat2 The latitude of the second place.
-//     * @param lng2 The longitude of the second place.
-//     * @return The distance between the points in kilometers.
-//     * @deprecated Use <code>GeoUtils#getDistance</code> in palladian-core package
-//     */
-//    @Deprecated
-//    public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
-//        double earthRadius = 6371;
-//        return 2
-//                * earthRadius
-//                * Math.asin(Math.sqrt(Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
-//                        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-//                        * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2)));
-//    }
-
-    // public static double computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2) {
-    // double earthRadius = 6371;
-    // double lat1Rad = Math.toRadians(lat1);
-    // double lat2Rad = Math.toRadians(lat2);
-    // double dLat = Math.toRadians(lat2 - lat1);
-    // double dLng = Math.toRadians(lng2 - lng1);
-    // double sindLat = Math.sin(dLat / 2);
-    // double sindLng = Math.sin(dLng / 2);
-    // double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
-    // double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    // double distance = earthRadius * c;
-    //
-    // return distance;
-    // }
-    //
-    // public static double _computeDistanceBetweenWorldCoordinates(double lat1, double lng1, double lat2, double lng2)
-    // {
-    // double earthRadius = 6371;
-    // double lat1Rad = Math.toRadians(lat1);
-    // double lat2Rad = Math.toRadians(lat2);
-    // double lng1Rad = Math.toRadians(lng1);
-    // double lng2Rad = Math.toRadians(lng2);
-    // // double dLat = Math.toRadians(lat2 - lat1);
-    // // double dLng = Math.toRadians(lng2 - lng1);
-    //
-    // double distance = Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad)
-    // * Math.cos(lng2Rad - lng1Rad))
-    // * earthRadius;
-    //
-    // return distance;
-    // }
-
-    /**
-     * <p>
      * Compute the Pearson's correlation coefficient between to variables.
      * </p>
      * 
@@ -906,11 +674,20 @@ public final class MathHelper {
      * Try to translate a number into a fraction, e.g. 0.333 = 1/3.
      * </p>
      * 
-     * @parameter number A number between 0 and 1.
+     * @parameter number A number.
      * @return The fraction of the number if it was possible to transform, otherwise the number as a string.
      */
     public static String numberToFraction(Double number) {
         String fraction = "";
+
+        String sign = "";
+        if (number < 0) {
+            sign = "-";
+        }
+        number = Math.abs(number);
+
+        int fullPart = (int)Math.floor(number);
+        number = number - fullPart;
 
         double minMargin = 1;
         for (Entry<Double, String> fractionEntry : FRACTION_MAP.entrySet()) {
@@ -932,9 +709,15 @@ public final class MathHelper {
 
         if (fraction.isEmpty() || number > 1 || number < 0) {
             fraction = String.valueOf(number);
+        } else if (fullPart > 0) {
+            if (!fraction.equalsIgnoreCase("0")) {
+                fraction = fullPart + " " + fraction;
+            } else {
+                fraction = fullPart + "";
+            }
         }
 
-        return fraction;
+        return sign + fraction;
     }
 
     /**
@@ -1105,22 +888,35 @@ public final class MathHelper {
 
         // parse the rest
         stringNumber = stringNumber.replaceAll("[^0-9.]", "");
+        stringNumber = stringNumber.replaceAll("\\.(?!\\d)", "");
+        stringNumber = stringNumber.replaceAll("(?<!\\d)\\.", "");
         stringNumber = stringNumber.trim();
         if (!stringNumber.isEmpty()) {
-            value += Double.parseDouble(stringNumber);
+            try {
+                value += Double.parseDouble(stringNumber);
+            } catch (Exception e) {
+            }
         }
 
         return value;
     }
 
-    public static int getOrderOfMagnitude(long number) {
-        int orderOfMagnitude = 0;
-        long temp = number;
-        while (temp >= 10) {
-            temp /= 10;
-            orderOfMagnitude++;
+    /**
+     * <p>
+     * Calculate the <a href="http://en.wikipedia.org/wiki/Order_of_magnitude">order of magnitude</a> for a given
+     * number. E.g. <code>orderOfMagnitude(100) = 2</code>.
+     * </p>
+     * 
+     * @param number The number.
+     * @return The order of magnitude for the given number.
+     */
+    public static int getOrderOfMagnitude(double number) {
+        if (number == 0) {
+            // this version works fine for me, but don't know, if this is mathematically correct, see:
+            // http://www.mathworks.com/matlabcentral/fileexchange/28559-order-of-magnitude-of-number
+            return 0;
         }
-        return orderOfMagnitude;
+        return (int)Math.floor(Math.log10(number));
     }
 
 }

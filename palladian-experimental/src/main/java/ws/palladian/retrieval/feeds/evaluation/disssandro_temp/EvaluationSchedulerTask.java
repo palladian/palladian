@@ -23,6 +23,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
  * <p>
@@ -45,18 +46,18 @@ public class EvaluationSchedulerTask extends TimerTask {
      * The collection of all the feeds this scheduler should create update
      * threads for.
      */
-    private transient final FeedReader feedReader;
+    private final FeedReader feedReader;
 
     /**
      * The thread pool managing threads that read feeds from the feed sources
      * provided by {@link #collectionOfFeeds}.
      */
-    private transient final ExecutorService threadPool;
+    private final ExecutorService threadPool;
 
     /**
      * Tasks currently scheduled but not yet checked.
      */
-    private transient final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
+    private final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
 
     /**
      * If wake up interval exceeds this time, do some warning.
@@ -75,6 +76,10 @@ public class EvaluationSchedulerTask extends TimerTask {
     private Long lastWakeUpTime = null;
 
     private final HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
+
+    private final EvaluationFeedDatabase database;
+
+    private final UpdateStrategy updateStrategy;
 
     /** Number of Feeds that are expected to be processed per minute */
     private static int HIGH_LOAD_THROUGHPUT = 0;
@@ -104,12 +109,12 @@ public class EvaluationSchedulerTask extends TimerTask {
      *            The feed reader containing settings and providing the
      *            collection of feeds to check.
      */
-    public EvaluationSchedulerTask(final FeedReader feedReader) {
-        super();
-        threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
+    public EvaluationSchedulerTask(FeedReader feedReader, EvaluationFeedDatabase database, UpdateStrategy updateStrategy) {
+        threadPool = Executors.newFixedThreadPool(FeedReader.DEFAULT_NUM_THREADS);
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
-
+        this.database = database;
+        this.updateStrategy = updateStrategy;
 
         // configure monitoring and logging
         Configuration config = ConfigHolder.getInstance().getConfig();
@@ -124,7 +129,7 @@ public class EvaluationSchedulerTask extends TimerTask {
 
         // on average, one thread has 5 minutes to process a feed. This is very long but in some algorithms we simulate
         // more than 10k polls
-        HIGH_LOAD_THROUGHPUT = (int)(0.2 * feedReader.getThreadPoolSize() * (feedReader.getWakeUpInterval() / TimeUnit.MINUTES
+        HIGH_LOAD_THROUGHPUT = (int)(0.2 * FeedReader.DEFAULT_NUM_THREADS * (FeedReader.DEFAULT_WAKEUP_INTERVAL / TimeUnit.MINUTES
                 .toMillis(1)));
     }
 
@@ -146,7 +151,7 @@ public class EvaluationSchedulerTask extends TimerTask {
 
             // schedule only once
             if (lastWakeUpTime == null) {
-                scheduledTasks.put(feed.getId(), threadPool.submit(new EvaluationFeedTask(feed, feedReader)));
+                scheduledTasks.put(feed.getId(), threadPool.submit(new EvaluationFeedTask(feed, updateStrategy, database)));
                 newlyScheduledFeedsCount++;
 
                 if (LOGGER.isDebugEnabled()) {
@@ -246,10 +251,10 @@ public class EvaluationSchedulerTask extends TimerTask {
 
         if (scheduledTasks.isEmpty()){
             // important! empty queue!!
-            ((EvaluationFeedDatabase) feedReader.getFeedStore()).processBatchInsertQueue();
+            database.processBatchInsertQueue();
 
             LOGGER.info("All EvaluationFeedTasks done.");
-            feedReader.stopContinuousReading();
+            feedReader.start();
         }
     }
 
@@ -260,7 +265,7 @@ public class EvaluationSchedulerTask extends TimerTask {
      * @return
      */
     private Collection<Feed> getFeeds() {
-        return ((EvaluationFeedDatabase) feedReader.getFeedStore()).getFeedsWithTimestamps();
+        return database.getFeedsWithTimestamps();
     }
 
     /**

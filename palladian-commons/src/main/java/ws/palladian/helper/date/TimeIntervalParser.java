@@ -29,6 +29,9 @@ public class TimeIntervalParser {
 
         boolean parsed = false;
 
+        string = string.replace("\n", " ").replace("\t", " ");
+        string = StringHelper.removeDoubleWhitespaces(string);
+
         try {
             days = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([dD]ays?))", string));
             parsed = true;
@@ -42,7 +45,7 @@ public class TimeIntervalParser {
         }
 
         try {
-            minutes = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([mM]inutes?|mins?))", string));
+            minutes = Integer.valueOf(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([mM]inutes?|[Mm]ins?))", string));
             parsed = true;
         } catch (Exception e) {
         }
@@ -59,18 +62,6 @@ public class TimeIntervalParser {
         }
 
         return seconds;
-    }
-
-    /**
-     * <p>
-     * </p>
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        System.out.println(TimeIntervalParser.parse("the movie lasted 2 hours and 5 minutes"));
-        System.out.println(TimeIntervalParser.parse("4 hrs 20 mins"));
-        System.out.println(TimeIntervalParser.parse("1 day 23 mins"));
     }
 
 }

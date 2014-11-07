@@ -34,7 +34,7 @@ public final class NominalClassifierModel implements Model {
 
     @Override
     public Set<String> getCategories() {
-        return cooccurrenceMatrix.getKeysX();
+        return cooccurrenceMatrix.getColumnKeys();
     }
 
 }

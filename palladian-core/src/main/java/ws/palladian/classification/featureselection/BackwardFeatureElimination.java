@@ -68,6 +68,38 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
         }
     };
 
+    /**
+     * <p>
+     * A scorer using F1 measure for the specified class name.
+     * </p>
+     * 
+     * @author pk
+     */
+    public static final class FMeasureScorer implements Function<ConfusionMatrix, Double> {
+
+        private final String className;
+
+        /**
+         * @param className The name of the class for which to calculate F1 measure, not <code>null</code> or empty.
+         */
+        public FMeasureScorer(String className) {
+            Validate.notEmpty(className, "className must not be empty");
+            this.className = className;
+        }
+
+        @Override
+        public Double compute(ConfusionMatrix input) {
+            double value = input.getF(1., className);
+            return Double.isNaN(value) ? 0 : value;
+        }
+
+        @Override
+        public String toString() {
+            return "FMeasureScorer [class=" + className + "]";
+        }
+
+    }
+
     private final class TestRun implements Callable<TestRunResult> {
 
         private final Collection<? extends Trainable> trainData;
@@ -117,6 +149,21 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
             this.eliminatedFeature = eliminatedFeature;
         }
     }
+    
+    /**
+     * <p>
+     * Create a new {@link BackwardFeatureElimination} with the given learner and classifier. The scoring can be
+     * parameterized through the {@link Function} argument; it must return a ranking value which is used to for deciding
+     * which feature to eliminate.
+     * </p>
+     * 
+     * @param learner The learner, not <code>null</code>.
+     * @param classifier The classifier, not <code>null</code>.
+     * @param scorer The function for determining the score, not <code>null</code>.
+     */
+    public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier, Function<ConfusionMatrix, Double> scorer) {
+        this(ConstantFactory.create(learner), ConstantFactory.create(classifier), scorer, 1);
+    }
 
     /**
      * <p>
@@ -127,7 +174,7 @@ public final class BackwardFeatureElimination<M extends Model> implements Featur
      * @param classifier The classifier, not <code>null</code>.
      */
     public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier) {
-        this(ConstantFactory.create(learner), ConstantFactory.create(classifier), ACCURACY_SCORER, 1);
+        this(learner, classifier, ACCURACY_SCORER);
     }
 
     /**

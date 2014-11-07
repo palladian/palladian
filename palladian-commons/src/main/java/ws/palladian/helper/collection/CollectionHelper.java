@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -21,6 +22,8 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
+
+import ws.palladian.helper.math.MathHelper;
 
 /**
  * <p>
@@ -34,8 +37,59 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public final class CollectionHelper {
 
-    public static final boolean ASCENDING = true;
-    public static final boolean DESCENDING = false;
+    /**
+     * <p>
+     * Indicate sorting order.
+     * </p>
+     */
+    public enum Order {
+        ASCENDING, DESCENDING
+    }
+
+    /**
+     * <p>
+     * Iterator, which stops after the specified limit.
+     * </p>
+     * 
+     * @author pk
+     * 
+     * @param <T>
+     */
+    private static final class LimitIterator<T> implements Iterator<T> {
+
+        final Iterator<T> iterator;
+        final int limit;
+        int counter = 0;
+
+        LimitIterator(Iterator<T> iterator, int limit) {
+            this.iterator = iterator;
+            this.limit = limit;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (counter >= limit) {
+                return false;
+            }
+            return iterator.hasNext();
+        }
+
+        @Override
+        public T next() {
+            if (counter >= limit) {
+                throw new NoSuchElementException();
+            }
+            T temp = iterator.next();
+            counter++;
+            return temp;
+        }
+
+        @Override
+        public void remove() {
+            iterator.remove();
+        }
+
+    }
 
     private CollectionHelper() {
         // prevent instantiation.
@@ -54,14 +108,10 @@ public final class CollectionHelper {
      *         XXX {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
      *         {@link Pair}s, sorted as required.
      */
-    public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map, final boolean ascending) {
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map, final Order order) {
 
         LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-        if (ascending) {
-            Collections.sort(list, EntryValueComparator.<K, V> ascending());
-        } else {
-            Collections.sort(list, EntryValueComparator.<K, V> descending());
-        }
+        Collections.sort(list, new EntryValueComparator<V>(order));
 
         LinkedHashMap<K, V> result = new LinkedHashMap<K, V>();
         for (Entry<K, V> entry : list) {
@@ -80,12 +130,9 @@ public final class CollectionHelper {
      * @param <V> Type of the values.
      * @param map The {@link Map} to sort.
      * @return A sorted map, in ascending order.
-     * @deprecated {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
-     *             {@link Pair}s, sorted as required.
      */
-    @Deprecated
-    public static <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map) {
-        return sortByValue(map, CollectionHelper.ASCENDING);
+    public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map) {
+        return sortByValue(map, Order.ASCENDING);
     }
 
     /**
@@ -103,7 +150,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <V extends Comparable<V>> LinkedHashMap<String, V> sortByStringKeyLength(Map<String, V> map,
-            final boolean ascending) {
+            final Order order) {
 
         LinkedList<Map.Entry<String, V>> list = new LinkedList<Map.Entry<String, V>>(map.entrySet());
 
@@ -111,7 +158,7 @@ public final class CollectionHelper {
             @Override
             public int compare(Map.Entry<String, V> o1, Map.Entry<String, V> o2) {
                 int ret = new Integer(o1.getKey().length()).compareTo(o2.getKey().length());
-                return ascending ? ret : -ret;
+                return order == Order.ASCENDING ? ret : -ret;
             }
         };
         Collections.sort(list, comparator);
@@ -191,6 +238,9 @@ public final class CollectionHelper {
      * @return
      */
     public static String getPrint(Iterable<?> iterable) {
+        if (iterable == null) {
+            return null;
+        }
         StringBuilder print = new StringBuilder();
         int count = 0;
         for (Object entry : iterable) {
@@ -229,49 +279,57 @@ public final class CollectionHelper {
     }
 
     /**
-     * <p>
-     * Create a new {@link HashMap}. This method allows omitting the type parameter when creating the HashMap:
-     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newHashMap();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link HashMap}. This method allows omitting the type parameter when creating the
+     *             HashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newHashMap();</code>.
+     *             </p>
      * 
      * @return A new {@link HashMap}.
      */
+    @Deprecated
     public static <K, V> HashMap<K, V> newHashMap() {
         return new HashMap<K, V>();
     }
 
     /**
-     * <p>
-     * Create a new {@link TreeMap}. This method allows omitting the type parameter when creating the TreeMap:
-     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newTreeMap();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link TreeMap}. This method allows omitting the type parameter when creating the
+     *             TreeMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newTreeMap();</code>.
+     *             </p>
      * 
      * @return A new {@link TreeMap}.
      */
+    @Deprecated
     public static <K, V> TreeMap<K, V> newTreeMap() {
         return new TreeMap<K, V>();
     }
 
     /**
-     * <p>
-     * Create a new {@link LinkedHashMap}. This method allows omitting the type parameter when creating the
-     * LinkedHashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newLinkedHashMap();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link LinkedHashMap}. This method allows omitting the type parameter when creating the
+     *             LinkedHashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newLinkedHashMap();</code>.
+     *             </p>
      * 
      * @return A new {@link LinkedHashMap}.
      */
+    @Deprecated
     public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
         return new LinkedHashMap<K, V>();
     }
 
     /**
-     * <p>
-     * Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the ArrayList:
-     * <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the
+     *             ArrayList: <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
+     *             </p>
      * 
      * @return A new {@link ArrayList}.
      */
+    @Deprecated
     public static <E> ArrayList<E> newArrayList() {
         return new ArrayList<E>();
     }
@@ -284,59 +342,80 @@ public final class CollectionHelper {
      * @param iterable The {@link Iterable} providing the content for the {@link List}.
      * @return The {@link List} with items from the {@link Iterable}.
      */
-    public static <E> List<E> newArrayList(Iterable<E> iterable) {
+    public static <E> List<E> newArrayList(Iterable<? extends E> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
+        return newArrayList(iterable.iterator());
+    }
+
+    /**
+     * <p>
+     * Create a new {@link ArrayList} and fill it with the content of the given {@link Iterator}.
+     * </p>
+     * 
+     * @param iterator The {@link Iterator} providing the content for the {@link List}, not <code>null</code>.
+     * @return The {@link List} with items from the {@link Iterator}.
+     */
+    public static <E> List<E> newArrayList(Iterator<? extends E> iterator) {
+        Validate.notNull(iterator, "iterator must not be null");
         List<E> list = new ArrayList<E>();
-        for (E item : iterable) {
-            list.add(item);
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
         }
         return list;
     }
 
     /**
-     * <p>
-     * Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the LinkedList:
-     * <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the
+     *             LinkedList: <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
+     *             </p>
      * 
      * @return A new {@link LinkedList}.
      */
+    @Deprecated
     public static <E> LinkedList<E> newLinkedList() {
         return new LinkedList<E>();
     }
 
     /**
-     * <p>
-     * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
-     * <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link HashSet}. This method allows omitting the type parameter when creating the
+     *             HashSet: <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
+     *             </p>
      * 
      * @return A new {@link HashSet}.
      */
+    @Deprecated
     public static <E> HashSet<E> newHashSet() {
         return new HashSet<E>();
     }
 
     /**
-     * <p>
-     * Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the TreeSet:
-     * <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the
+     *             TreeSet: <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
+     *             </p>
      * 
      * @return A new {@link TreeSet}.
      */
+    @Deprecated
     public static <E> TreeSet<E> newTreeSet() {
         return new TreeSet<E>();
     }
 
     /**
-     * <p>
-     * Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
-     * LinkedHashSet: <code>Set&lt;String&gt; set = CollectionHelper.newLinkedHashSet();</code>.
-     * </p>
+     * @deprecated since Java 8
+     *             <p>
+     *             Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
+     *             LinkedHashSet: <code>Set&lt;String&gt; set = CollectionHelper.newLinkedHashSet();</code>.
+     *             </p>
      * 
      * @return A new {@link LinkedHashSet}.
      */
+    @Deprecated
     public static <E> LinkedHashSet<E> newLinkedHashSet() {
         return new LinkedHashSet<E>();
     }
@@ -479,7 +558,7 @@ public final class CollectionHelper {
      * 
      * @param list The Iterable from which to get the element, not <code>null</code>.
      * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
-     * @return The first element, or <code>null</code> if the iterable was empty.
+     * @return The first X elements, or an empty list if the iterable was empty.
      */
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
         List<T> result = CollectionHelper.newArrayList();
@@ -490,6 +569,23 @@ public final class CollectionHelper {
             }
         }
         return result;
+    }
+
+    /**
+     * <p>
+     * Get a sublist of elements of a {@link List}.
+     * </p>
+     * 
+     * @param list The list from which to get the element, not <code>null</code>.
+     * @param offset The number of elements to skip.
+     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @return The sublist.
+     */
+    public static <T> List<T> getSublist(List<T> list, int offset, int num) {
+        Validate.notNull(list);
+        int o = Math.min(list.size(), offset);
+        int n = Math.min(num, list.size() - o);
+        return list.subList(o, o + n);
     }
 
     /**
@@ -607,14 +703,70 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Create a wrapper for a given {@link Iterator} which converts the iterator's items using a provided
+     * {@link Function}.
+     * </p>
+     * 
+     * @param iterator The iterator to wrap, not <code>null</code>.
+     * @param function The {@link Function} which performs the conversion, not <code>null</code>.
+     * @return An iterator wrapping the given iterator.
+     */
+    public static <I, O> Iterator<O> convert(final Iterator<I> iterator, final Function<? super I, O> function) {
+        Validate.notNull(iterator, "iterator must not be null");
+        Validate.notNull(function, "function must not be null");
+        return new Iterator<O>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public O next() {
+                return function.compute(iterator.next());
+            }
+
+            @Override
+            public void remove() {
+                iterator.remove();
+            }
+        };
+    }
+
+    /**
+     * <p>
+     * Create a wrapper for a given {@link Iterable} which converts the iterable's items using a provided
+     * {@link Function}.
+     * </p>
+     * 
+     * @param iterator The iterator to wrap, not <code>null</code>.
+     * @param function The {@link Function} which performs the conversion, not <code>null</code>.
+     * @return An iterable wrapping the given iterable.
+     */
+    public static <I, O> Iterable<O> convert(final Iterable<I> iterable, final Function<? super I, O> function) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(function, "function must not be null");
+        return new Iterable<O>() {
+            @Override
+            public Iterator<O> iterator() {
+                return convert(iterable.iterator(), function);
+            }
+        };
+    }
+
+    /**
+     * <p>
      * Join elements of a collection in a readable form.
      * </p>
      * 
      * @param entries The entries that should be joined.
      * @return The joined string.
      */
-    public static String joinReadable(Collection<String> entries) {
-        String joinedText = StringUtils.join(entries, ", ");
+    public static String joinReadable(Collection<?> entries) {
+        return joinReadable(entries, entries.size());
+    }
+
+    public static String joinReadable(Collection<?> entries, int numEntries) {
+        String joinedText = StringUtils.join(entries.toArray(), ", ", 0, Math.min(entries.size(), numEntries));
         int lastIndex = joinedText.lastIndexOf(",");
         if (lastIndex > -1) {
             String joinedTextNew = joinedText.substring(0, lastIndex);
@@ -664,6 +816,64 @@ public final class CollectionHelper {
             }
         }
         return null;
+    }
+
+    /**
+     * <p>
+     * Limit the specified {@link Iterable} to the specified size, i.e. effectively get the first specified elements,
+     * then stop.
+     * </p>
+     * 
+     * @param iterable The iterable, not <code>null</code>.
+     * @param limit The number of elements which can be retrieved from the given iterable, greater/equal zero.
+     * @return An iterable which limits to the specified number of items, in case it contains more.
+     */
+    public static <T> Iterable<T> limit(final Iterable<T> iterable, final int limit) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
+        return new Iterable<T>() {
+            @Override
+            public Iterator<T> iterator() {
+                return limit(iterable.iterator(), limit);
+            }
+        };
+    }
+
+    /**
+     * <p>
+     * Limit the specified {@link Iterator} to the specified size, i.e. effectively get the first specified elements,
+     * then stop.
+     * </p>
+     * 
+     * @param iterator The iterator, not <code>null</code>.
+     * @param limit The number of elements which can be retrieved from the given iterator, greater/equal zero.
+     * @return An iterator which limits to the specified number of items, in case it contains more.
+     */
+    public static <T> Iterator<T> limit(Iterator<T> iterator, int limit) {
+        Validate.notNull(iterator, "iterator must not be null");
+        Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
+        return new LimitIterator<T>(iterator, limit);
+    }
+
+    /**
+     * <p>
+     * Get a set with distinct values from all given collections.
+     * </p>
+     * 
+     * @param collections The collections, not <code>null</code>.
+     * @return A {@link Set} with distinct values from the given collections.
+     */
+    public static <T> Set<T> distinct(Collection<T>... collections) {
+        Validate.notNull(collections, "collections must not be null");
+        Set<T> distinct = newHashSet();
+        for (Collection<T> collection : collections) {
+            distinct.addAll(collection);
+        }
+        return distinct;
+    }
+
+    public static <T> T getRandom(Collection<T> collection) {
+        return new ArrayList<T>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
     }
 
 }
