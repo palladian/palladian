@@ -230,12 +230,12 @@
 	<distributionManagement>
 		<repository>
 			<id>releases</id>
-			<url>http://www.effingo.de/nexus/content/repositories/releases/</url>
+			<url>http://141.76.40.80/nexus/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>Effingo Internal Snapshots</name>
-			<url>http://www.effingo.de/nexus/content/repositories/snapshots</url>
+			<url>http://141.76.40.80/nexus/content/repositories/snapshots</url>
 			<uniqueVersion>false</uniqueVersion>
 		</snapshotRepository>
 	</distributionManagement>
