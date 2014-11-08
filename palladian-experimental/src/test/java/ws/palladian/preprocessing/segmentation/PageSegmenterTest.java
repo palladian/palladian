@@ -62,9 +62,9 @@ public class PageSegmenterTest {
         assertEquals(125, seg.getSpecificSegments(0.0, 0.6).size());
         assertEquals(211, seg.getSpecificSegments(0.95, 1.0).size());
 
-        assertEquals(75, seg.makeMutual(seg.getSpecificSegments(Segment.Color.RED), 1).size());
-        assertEquals(32, seg.makeMutual(seg.getSpecificSegments(Segment.Color.YELLOW), 1).size());
-        assertEquals(150, seg.makeMutual(seg.getSpecificSegments(0.7, 0.8), 1).size());
+        assertEquals(2, seg.makeMutual(seg.getSpecificSegments(Segment.Color.RED), 1).size()); // was 75
+        assertEquals(2, seg.makeMutual(seg.getSpecificSegments(Segment.Color.YELLOW), 1).size()); // was 32
+        assertEquals(12, seg.makeMutual(seg.getSpecificSegments(0.7, 0.8), 1).size()); // was 150
 
     }
 
