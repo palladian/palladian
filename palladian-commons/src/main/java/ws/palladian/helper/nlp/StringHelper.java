@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
@@ -120,6 +121,24 @@ public final class StringHelper {
             return null;
         }
         return string.substring(0, Math.min(string.length(), maxLength));
+    }
+
+    /**
+     * Shorten a string to a given length if necessary and add ellipsis.
+     * 
+     * @param string The string to shorten.
+     * @param maxLength The maximum length.
+     * @return The original string if it was shorter than the max. length, or a shortened string with appended "...", or
+     *         <code>null</code> in case the given string was null.
+     */
+    public static String shortenEllipsis(String string, int maxLength) {
+        if (string == null) {
+            return null;
+        }
+        if (string.length() <= maxLength) {
+            return string;
+        }
+        return string.substring(0, maxLength).concat(" ...");
     }
 
     /**
@@ -547,7 +566,7 @@ public final class StringHelper {
     }
 
     public static String removeWords(List<String> words, String searchString) {
-        Collections.sort(words, new StringLengthComparator());
+        Collections.sort(words, StringLengthComparator.INSTANCE);
         for (String word : words) {
             searchString = removeWord(word, searchString);
         }
@@ -788,7 +807,7 @@ public final class StringHelper {
         try {
 
             if (m.find()) {
-                double number = Double.valueOf(StringNormalizer.normalizeNumber(m.group()));
+                double number = Double.parseDouble(StringNormalizer.normalizeNumber(m.group()));
                 double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
                         string.substring(m.end(), string.length()));
                 if (number != convertedNumber) {
@@ -1531,7 +1550,12 @@ public final class StringHelper {
         if (text == null || search == null || text.isEmpty() || search.isEmpty()) {
             return 0;
         }
-        return (text.length() - text.replace(search, "").length()) / search.length();
+        // return (text.length() - text.replace(search, "").length()) / search.length();
+        int count = 0;
+        for (int i = text.indexOf(search); i != -1; i = text.indexOf(search, i + search.length())) {
+            count++;
+        }
+        return count;
     }
 
     /**
@@ -1836,14 +1860,45 @@ public final class StringHelper {
      * @return The case signature.
      */
     public static String getCaseSignature(String string) {
-        String caseSignature = string;
+//        String caseSignature = string;
+//
+//        caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
+//        caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
+//        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
+//        caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
+//
+//        return caseSignature;
+        
+        CharStack charStack = new CharStack();
+        for (int i = 0; i < string.length(); i++) {
+            char signature = getCharSignature(string.charAt(i));
+            if (i == 0 || signature != getCharSignature(charStack.peek())) {
+                charStack.push(signature);
+            }
+        }
+        return charStack.toString();
+    }
 
-        caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
-        caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
-        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
-        caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
-
-        return caseSignature;
+    /**
+     * <p>
+     * Get a char signature for the given character. Uppercase letters are mapped to 'A', lowercase letters to 'a',
+     * digits to '0', spaces to ' ', and special characters to '-'.
+     * 
+     * @param ch The char.
+     * @return The case signature [Aa0 -] representing the given char.
+     */
+    private static final char getCharSignature(char ch) {
+        if (Character.isUpperCase(ch)) {
+            return 'A';
+        } else if (Character.isLowerCase(ch)) {
+            return 'a';
+        } else if (Character.isDigit(ch)) {
+            return '0';
+        } else if (Character.isWhitespace(ch)) {
+            return ' ';
+        } else {
+            return '-';
+        }
     }
 
     /**
@@ -2020,7 +2075,7 @@ public final class StringHelper {
 
     /**
      * <p>
-     * Print all groups in a {@link Matcher}; useful for debugging.
+     * Print all groups in a {@link Matcher}; useful for debugging. Note: Invoke {@link Matcher#find()} in advance.
      * </p>
      * 
      * @param matcher The matcher, not <code>null</code>.
@@ -2030,6 +2085,36 @@ public final class StringHelper {
         for (int i = 0; i <= matcher.groupCount(); i++) {
             System.out.println(i + ":" + matcher.group(i));
         }
+    }
+
+    /**
+     * <p>
+     * Get all sub-phrases of a string by combining all consecutive words (e.g. "quick brown fox" gives
+     * ["quick","quick brown","quick brown fox","brown","brown fox","fox"]).
+     * 
+     * @param string The string, not <code>null</code>.
+     * @return A list of sub-phrases (including the supplied phrase itself).
+     */
+    public static final List<String> getSubPhrases(String string) {
+        Validate.notNull(string, "string must not be null");
+        List<String> phrases = CollectionHelper.newArrayList();
+        String[] split = string.split("\\s");
+        for (int i = 0; i < split.length; i++) {
+            for (int j = i; j < split.length; j++) {
+                StringBuilder phrase = new StringBuilder();
+                for (int idx = i; idx <= j; idx++) {
+                    if (phrase.length() > 0) {
+                        phrase.append(' ');
+                    }
+                    phrase.append(split[idx]);
+                }
+                String subphrase = phrase.toString();
+                if (subphrase.length() > 0) {
+                    phrases.add(subphrase);
+                }
+            }
+        }
+        return phrases;
     }
 
     /**

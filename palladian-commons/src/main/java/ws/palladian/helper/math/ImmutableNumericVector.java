@@ -2,6 +2,7 @@ package ws.palladian.helper.math;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -9,6 +10,8 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.EntryConverter;
+import ws.palladian.helper.collection.Vector;
 
 /**
  * <p>
@@ -19,9 +22,15 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @param <K>
  */
-public final class ImmutableNumericVector<K> implements NumericVector<K> {
+public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
 
     private final Map<K, Double> valueMap;
+
+    /** Cache the norm of this vector, lazy initialized. */
+    private Double norm;
+
+    /** Cache the sum of this vector, lazy initialized. */
+    private Double sum;
 
     /**
      * @return An empty {@link ImmutableNumericVector}.
@@ -43,6 +52,21 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
         this.valueMap = new HashMap<K, Double>(valueMap);
     }
 
+    /**
+     * <p>
+     * Create a new {@link ImmutableNumericVector} by copying the given {@link Vector}.
+     * </p>
+     * 
+     * @param vector The vector with the values, not <code>null</code>.
+     */
+    public ImmutableNumericVector(Vector<K, Double> vector) {
+        Validate.notNull(vector, "vector must not be null");
+        valueMap = new HashMap<K, Double>();
+        for (VectorEntry<K, Double> entry : vector) {
+            valueMap.put(entry.key(), entry.value());
+        }
+    }
+
     @Override
     public Double get(K k) {
         Validate.notNull(k, "k must not be null");
@@ -51,82 +75,56 @@ public final class ImmutableNumericVector<K> implements NumericVector<K> {
     }
 
     @Override
-    public NumericVector<K> add(NumericVector<K> other) {
-        Validate.notNull(other, "other must not be null");
-        Map<K, Double> addedVector = new HashMap<K, Double>(valueMap);
-        for (K key : other.keys()) {
-            Double value = other.get(key);
-            if (addedVector.containsKey(key)) {
-                value += addedVector.get(key);
-            }
-            addedVector.put(key, value);
-        }
-        return new ImmutableNumericVector<K>(addedVector);
-    }
-
-    @Override
-    public double norm() {
-        double norm = 0;
-        for (Double value : valueMap.values()) {
-            norm += value * value;
-        }
-        return Math.sqrt(norm);
-    }
-
-    @Override
-    public double sum() {
-        double sum = 0;
-        for (Double value : valueMap.values()) {
-            sum += value;
-        }
-        return sum;
-    }
-
-    @Override
-    public double dot(NumericVector<K> other) {
-        Validate.notNull(other, "other must not be null");
-        double dotProduct = 0;
-        for (Entry<K, Double> entry : valueMap.entrySet()) {
-            Double otherValue = other.get(entry.getKey());
-            if (otherValue != null) {
-                dotProduct += entry.getValue() * otherValue;
-            }
-        }
-        return dotProduct;
-    }
-
-    @Override
-    public double cosine(NumericVector<K> other) {
-        Validate.notNull(other, "other must not be null");
-        double dotProduct = dot(other);
-        return dotProduct != 0 ? dotProduct / (norm() * other.norm()) : 0;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public double euclidean(NumericVector<K> other) {
-        Validate.notNull(other, "other must not be null");
-        double distance = 0;
-        for (K key : CollectionHelper.distinct(keys(), other.keys())) {
-            double value = get(key) - other.get(key);
-            distance += value * value;
-        }
-        return Math.sqrt(distance);
-    }
-
-    @Override
     public Set<K> keys() {
         return Collections.unmodifiableSet(valueMap.keySet());
     }
 
     @Override
-    public int size() {
-        return valueMap.size();
+    public String toString() {
+        return "Vector " + valueMap;
     }
 
     @Override
-    public String toString() {
-        return "Vector " + valueMap;
+    public Iterator<VectorEntry<K, Double>> iterator() {
+        Set<Entry<K, Double>> entries = Collections.unmodifiableSet(valueMap.entrySet());
+        return CollectionHelper.convert(entries.iterator(), new EntryConverter<K, Double>());
+    }
+
+    // these values can be cached, as this class is immutable
+
+    @Override
+    public double norm() {
+        if (norm == null) {
+            norm = super.norm();
+        }
+        return norm;
+    }
+
+    @Override
+    public double sum() {
+        if (sum == null) {
+            sum = super.sum();
+        }
+        return sum;
+    }
+
+    // hashCode + equals
+
+    @Override
+    public int hashCode() {
+        return valueMap.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ImmutableNumericVector<?> other = (ImmutableNumericVector<?>)obj;
+        return valueMap.equals(other.valueMap);
     }
 
 }

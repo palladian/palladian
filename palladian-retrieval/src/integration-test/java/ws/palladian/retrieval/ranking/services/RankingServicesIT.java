@@ -57,11 +57,14 @@ public class RankingServicesIT {
         rankers.add(new Object[] {new GooglePlusLikes()});
         rankers.add(new Object[] {new LinkedInShares()});
         rankers.add(new Object[] {new MajesticSeo(configuration)});
+        rankers.add(new Object[] {new OpenLinkProfiler()});
         rankers.add(new Object[] {new PinterestPins()});
         rankers.add(new Object[] {new PlurkPosts(configuration)});
         rankers.add(new Object[] {new RedditStats()});
         rankers.add(new Object[] {new SemRush()});
+        rankers.add(new Object[] {new SharedCount()});
         rankers.add(new Object[] {new SharethisStats(configuration)});
+        rankers.add(new Object[] {new SistrixVisibilityIndex()});
         rankers.add(new Object[] {new StumbleUponViews()});
         rankers.add(new Object[] {new TwitterTweets()});
         rankers.add(new Object[] {new WebOfTrust()});

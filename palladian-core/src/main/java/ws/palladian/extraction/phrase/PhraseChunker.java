@@ -2,7 +2,7 @@ package ws.palladian.extraction.phrase;
 
 import java.util.List;
 
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.core.Annotation;
 
 /**
  * @author Martin Wunderwald

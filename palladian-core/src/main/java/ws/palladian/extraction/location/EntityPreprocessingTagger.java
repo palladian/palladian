@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import static ws.palladian.extraction.entity.StringTagger.CANDIDATE_TAG;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -9,22 +11,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.entity.ContextAnnotation;
-import ws.palladian.extraction.entity.ContextTagger;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.Tagger;
 import ws.palladian.extraction.entity.StringTagger;
-import ws.palladian.extraction.entity.WindowSizeContextTagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.Tagger;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 
 /**
  * <p>
- * This {@link Tagger} executes several filtering/preprocessing steps for removing undesired entity candidates.
+ * This {@link Tagger} builds on Palladian's {@link StringTagger}, but executes several filtering/preprocessing steps
+ * for removing undesired entity candidates. On the other hand it splits up long candidates in additional smaller units.
+ * Focus of this process is on high recall of potential entities.
  * </p>
  * 
  * @author Philipp Katz
@@ -34,44 +35,31 @@ public class EntityPreprocessingTagger implements Tagger {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityPreprocessingTagger.class);
 
-    /** The threshold total:uppercase, above which tokens are considered being lowercase. */
-    private static final double LOWERCASE_THRESHOLD = 1.75;
-
-    /** Length of the context. */
-    private static final int CONTEXT_LENGTH = 5;
-
-    public static final String SPLIT_ANNOTATION_TAG = "PARTIAL_CANDIDATE";
-
     /** The base tagger, which delivers the annotations. */
-    private final ContextTagger tagger;
+    private static final Tagger TAGGER = StringTagger.INSTANCE;
 
     /** The case dictionary which contains the lowercase ratio for tokens. */
     private final Map<String, Double> caseDictionary;
 
-    private final int longAnnotationSplit;
+    private final double lowercaseThreshold;
 
-    public EntityPreprocessingTagger() {
-        this(0);
-    }
+    private final int longAnnotationSplit;
 
     /**
      * <p>
      * Create a new {@link EntityPreprocessingTagger}.
      * </p>
      * 
+     * @param caseDictionaryStream Input stream for the case dictionary file.
+     * @param lowercaseThreshold The minimum threshold total/uppercase.
      * @param longAnnotationSplit Annotations exceeding this amount of tokens, are <i>additionally</i> split up. This
      *            means, for long annotations, additional sub-annotations are created using the case dictionary. Set to
      *            zero to disable spitting.
      */
-    public EntityPreprocessingTagger(int longAnnotationSplit) {
-        tagger = new WindowSizeContextTagger(StringTagger.PATTERN, StringTagger.CANDIDATE_TAG, CONTEXT_LENGTH);
-        InputStream inputStream = null;
-        try {
-            inputStream = EntityPreprocessingTagger.class.getResourceAsStream("/caseDictionary.csv");
-            caseDictionary = loadCaseDictionary(inputStream);
-        } finally {
-            FileHelper.close(inputStream);
-        }
+    public EntityPreprocessingTagger(InputStream caseDictionaryStream, double lowercaseThreshold,
+            int longAnnotationSplit) {
+        this.caseDictionary = loadCaseDictionary(caseDictionaryStream, lowercaseThreshold);
+        this.lowercaseThreshold = lowercaseThreshold;
         this.longAnnotationSplit = longAnnotationSplit;
     }
 
@@ -81,14 +69,16 @@ public class EntityPreprocessingTagger implements Tagger {
      * @param inputStream
      * @return
      */
-    private static final Map<String, Double> loadCaseDictionary(InputStream inputStream) {
+    private static final Map<String, Double> loadCaseDictionary(InputStream inputStream, final double lowercaseThreshold) {
         final Map<String, Double> result = CollectionHelper.newHashMap();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split("\t");
-                Double ratio = Double.valueOf(parts[1]) / Double.valueOf(parts[2]);
-                result.put(parts[0], ratio);
+                Double ratio = Double.parseDouble(parts[1]) / Double.parseDouble(parts[2]);
+                if (ratio >= lowercaseThreshold) {
+                    result.put(parts[0], ratio);
+                }
             }
         });
         return result;
@@ -96,18 +86,26 @@ public class EntityPreprocessingTagger implements Tagger {
 
     @Override
     public List<Annotation> getAnnotations(String text) {
-        List<ContextAnnotation> annotations = tagger.getAnnotations(text);
+        List<? extends Annotation> annotations = TAGGER.getAnnotations(text);
         List<Annotation> fixedAnnotations = CollectionHelper.newArrayList();
 
-        Set<String> inSentence = getInSentenceCandidates(annotations);
+        Set<String> inSentence = getInSentenceCandidates(text, annotations);
+        inSentence = CollectionHelper.filterSet(inSentence, new Filter<String>() {
+            @Override
+            public boolean accept(String item) {
+                return getLowercaseRatio(item) <= lowercaseThreshold;
+            }
+        });
+        if (inSentence.isEmpty()) { // do not try to fix any phrases, if we do not have any sentences at all (#294)
+            fixedAnnotations.addAll(annotations);
+            return fixedAnnotations;
+        }
 
-        // XXX consider also removing within-sentence annotations by case dictionary?
-
-        for (ContextAnnotation annotation : annotations) {
+        for (Annotation annotation : annotations) {
             String value = annotation.getValue();
             // only annotations at sentence start are processed, but if the annotation also occurs within a sentence, no
             // processing is required
-            if (isWithinSentence(annotation)) {
+            if (isWithinSentence(text, annotation)) {
                 fixedAnnotations.add(annotation);
                 continue;
             }
@@ -119,7 +117,7 @@ public class EntityPreprocessingTagger implements Tagger {
             String[] parts = value.split("\\s");
             if (parts.length == 1) { // filtering of single token annotations
                 double lcRatio = getLowercaseRatio(value);
-                if (lcRatio > LOWERCASE_THRESHOLD) {
+                if (lcRatio > lowercaseThreshold) {
                     LOGGER.debug("Drop '{}' because of lc/uc ratio of {}", value, lcRatio);
                     continue;
                 }
@@ -130,7 +128,7 @@ public class EntityPreprocessingTagger implements Tagger {
                 String newValue = value;
                 for (String token : parts) {
                     double lcRatio = getLowercaseRatio(token);
-                    if (lcRatio <= LOWERCASE_THRESHOLD) {
+                    if (lcRatio <= lowercaseThreshold) {
                         LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}", new Object[] {value,
                                 newValue, lcRatio});
                         break;
@@ -157,7 +155,7 @@ public class EntityPreprocessingTagger implements Tagger {
             }
             fixedAnnotations.add(annotation);
         }
-        LOGGER.debug("Reduced from {} to {} with with case dictionary", annotations.size(), fixedAnnotations.size());
+        LOGGER.debug("Reduced from {} to {} with case dictionary", annotations.size(), fixedAnnotations.size());
 
         if (longAnnotationSplit > 0) {
             List<Annotation> additionalAnnotations = getLongAnnotationSplit(fixedAnnotations, longAnnotationSplit);
@@ -184,33 +182,35 @@ public class EntityPreprocessingTagger implements Tagger {
                 List<String> cumulatedTokens = CollectionHelper.newArrayList();
                 for (String token : parts) {
                     double lcRatio = getLowercaseRatio(token);
-                    if (lcRatio < LOWERCASE_THRESHOLD) {
+                    if (lcRatio < lowercaseThreshold) {
                         cumulatedTokens.add(token);
                     } else if (cumulatedTokens.size() > 0) {
                         String value = StringUtils.join(cumulatedTokens, " ");
                         if (value.length() > 1) {
                             int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
-                            splitAnnotations.add(new ImmutableAnnotation(startPosition, value, SPLIT_ANNOTATION_TAG));
+                            splitAnnotations.add(new ImmutableAnnotation(startPosition, value, CANDIDATE_TAG));
                         }
                         cumulatedTokens.clear();
                     }
                 }
                 if (cumulatedTokens.size() > 0) {
                     String value = StringUtils.join(cumulatedTokens, " ");
-                    if (value.length() > 1) {
+                    if (!value.equals(annotation.getValue()) && value.length() > 1) {
                         int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(value);
-                        splitAnnotations.add(new ImmutableAnnotation(startPosition, value, SPLIT_ANNOTATION_TAG));
+                        splitAnnotations.add(new ImmutableAnnotation(startPosition, value, CANDIDATE_TAG));
                     }
                 }
             }
             // add additional splits for annotations with hyphens
+            // add additional splits for annotations with &
             String temp = StringHelper.normalizeQuotes(annotation.getValue());
-            if (temp.contains("-")) {
-                String[] hyphenParts = temp.split("-");
+            if (temp.contains("-") || temp.contains("&")) {
+                String[] hyphenParts = temp.split("[-&]");
                 for (String part : hyphenParts) {
-                    if (StringHelper.startsUppercase(part)) {
-                        int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(part);
-                        splitAnnotations.add(new ImmutableAnnotation(startPosition, part, SPLIT_ANNOTATION_TAG));
+                    String trimmedPart = part.trim();
+                    if (StringHelper.startsUppercase(trimmedPart)) {
+                        int startPosition = annotation.getStartPosition() + annotation.getValue().indexOf(trimmedPart);
+                        splitAnnotations.add(new ImmutableAnnotation(startPosition, trimmedPart, CANDIDATE_TAG));
                     }
                 }
             }
@@ -225,12 +225,12 @@ public class EntityPreprocessingTagger implements Tagger {
      * @param annotations
      * @return
      */
-    private static Set<String> getInSentenceCandidates(List<ContextAnnotation> annotations) {
+    private static Set<String> getInSentenceCandidates(String text, List<? extends Annotation> annotations) {
         Set<String> inSentence = CollectionHelper.newHashSet();
-        for (ContextAnnotation annotation : annotations) {
-            if (isWithinSentence(annotation)) {
+        for (Annotation annotation : annotations) {
+            if (isWithinSentence(text, annotation)) {
                 String value = annotation.getValue();
-                LOGGER.trace("Add '{}' to in-sentence candidates ({})", value, annotation.getLeftContext());
+                LOGGER.trace("Add '{}' to in-sentence candidates", value);
                 inSentence.add(value);
             }
         }
@@ -243,8 +243,9 @@ public class EntityPreprocessingTagger implements Tagger {
      * @param annotation
      * @return
      */
-    private static boolean isWithinSentence(ContextAnnotation annotation) {
-        return annotation.getLeftContext().matches(".*[A-Za-z0-9,]+\\s");
+    private static boolean isWithinSentence(String text, Annotation annotation) {
+        int start = annotation.getStartPosition();
+        return text.substring(Math.max(0, start - 10), start).matches(".*[A-Za-z0-9,]+\\s");
     }
 
     /**
@@ -259,8 +260,8 @@ public class EntityPreprocessingTagger implements Tagger {
     }
 
     // XXX experimental
-    public String correctCapitalization(String sentence) {
-        String[] split = sentence.split("\\s");
+    public String correctCapitalization(String value) {
+        String[] split = value.split("\\s");
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < split.length; i++) {
             String part = split[i];
@@ -272,19 +273,12 @@ public class EntityPreprocessingTagger implements Tagger {
             if (i == split.length - 1 && part.endsWith(".")) {
                 temp = part.substring(0, part.length() - 1);
             }
-            if (i > 0 && getLowercaseRatio(temp) > LOWERCASE_THRESHOLD) {
+            if (getLowercaseRatio(temp) > lowercaseThreshold) {
                 part = part.toLowerCase();
             }
             result.append(part);
         }
         return result.toString();
-    }
-
-    public static void main(String[] args) {
-        EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
-        List<Annotation> annotations = tagger.getAnnotations(HtmlHelper.stripHtmlTags(FileHelper
-                .tryReadFileToString("/Users/pk/Desktop/LocationLab/TUD-Loc-2013_V1/text27.txt")));
-        CollectionHelper.print(annotations);
     }
 
 }

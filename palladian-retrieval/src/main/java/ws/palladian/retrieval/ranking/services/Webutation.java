@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * @see http://www.webutation.net
  */
-public final class Webutation extends BaseRankingService implements RankingService {
+public final class Webutation extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Webutation.class);
@@ -41,10 +39,9 @@ public final class Webutation extends BaseRankingService implements RankingServi
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         double webutation = 0.;
@@ -57,7 +54,7 @@ public final class Webutation extends BaseRankingService implements RankingServi
 
             if (!value.isEmpty()) {
                 try {
-                    webutation = Double.valueOf(value) / 100;
+                    webutation = Double.parseDouble(value) / 100;
                     LOGGER.trace("Webutation for " + url + " : " + webutation);
                 } catch (Exception e) {
                 }
@@ -66,8 +63,7 @@ public final class Webutation extends BaseRankingService implements RankingServi
             throw new RankingServiceException(e.getMessage());
         }
 
-        results.put(WEBUTATION, (float)webutation);
-        return ranking;
+        return builder.add(WEBUTATION, (float)webutation).create();
     }
 
     /**

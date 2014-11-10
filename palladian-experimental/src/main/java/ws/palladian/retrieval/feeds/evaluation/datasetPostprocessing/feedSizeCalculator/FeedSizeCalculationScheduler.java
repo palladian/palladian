@@ -8,13 +8,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.collections15.bag.HashBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
  * Scheduler to process all feeds in db once in a {@link FeedSizeCalculationTask}. Use to restore feedSizes in database
@@ -42,12 +42,12 @@ public class FeedSizeCalculationScheduler extends TimerTask {
 
     private boolean firstRun = true;
 
-    private final HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
+    private final Bag<FeedTaskResult> feedResults = Bag.create();
 
     /** Count the number of processed feeds per scheduler iteration. */
     private int processedCounter = 0;
     
-    private final FeedDatabase feedDatabase;
+    private final EvaluationFeedDatabase feedDatabase;
 
     /**
      * Creates a new {@code SchedulerTask} for a feed reader.
@@ -56,7 +56,7 @@ public class FeedSizeCalculationScheduler extends TimerTask {
      *            The feed reader containing settings and providing the
      *            collection of feeds to check.
      */
-    public FeedSizeCalculationScheduler(FeedDatabase feedDatabase, int numThreads) {
+    public FeedSizeCalculationScheduler(EvaluationFeedDatabase feedDatabase, int numThreads) {
         threadPool = Executors.newFixedThreadPool(numThreads);
         this.feedDatabase = feedDatabase;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
@@ -92,12 +92,12 @@ public class FeedSizeCalculationScheduler extends TimerTask {
             firstRun = false;
         }
 
-        int success = feedResults.getCount(FeedTaskResult.SUCCESS);
-        int misses = feedResults.getCount(FeedTaskResult.MISS);
-        int unreachable = feedResults.getCount(FeedTaskResult.UNREACHABLE);
-        int unparsable = feedResults.getCount(FeedTaskResult.UNPARSABLE);
-        int slow = feedResults.getCount(FeedTaskResult.EXECUTION_TIME_WARNING);
-        int errors = feedResults.getCount(FeedTaskResult.ERROR);
+        int success = feedResults.count(FeedTaskResult.SUCCESS);
+        int misses = feedResults.count(FeedTaskResult.MISS);
+        int unreachable = feedResults.count(FeedTaskResult.UNREACHABLE);
+        int unparsable = feedResults.count(FeedTaskResult.UNPARSABLE);
+        int slow = feedResults.count(FeedTaskResult.EXECUTION_TIME_WARNING);
+        int errors = feedResults.count(FeedTaskResult.ERROR);
 
         String logMsg = String.format("Newly scheduled: %6d, queue size: %6d, processed: %4d, "
                 + "success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, ",

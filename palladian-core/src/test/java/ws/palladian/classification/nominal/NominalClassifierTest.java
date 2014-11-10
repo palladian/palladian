@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.InstanceBuilder;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class NominalClassifierTest {

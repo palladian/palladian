@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.helper.NoThrottle;
@@ -26,52 +28,63 @@ import ws.palladian.retrieval.parser.ParserFactory;
  */
 public class HttpCrawler {
 
-    public static interface CrawlAction {
+    public static final class NoRetryPolicy implements RetryPolicy {
+        public static final RetryPolicy INSTANCE = new NoRetryPolicy();
 
-        void pageCrawled(HttpResult result);
+        @Override
+        public boolean shouldRetry(int attempt, HttpResult result) {
+            return false;
+        }
+    }
 
+    public static interface RetryPolicy {
+        /**
+         * Decide, whether to retry after an unsuccessful attempt (i.e. HTTP error code).
+         * 
+         * @param attempt The attempt (starting with one).
+         * @param result The {@link HttpResult}.
+         * @return <code>true</code> to perform a further attempt, <code>false</code> to give up.
+         */
+        boolean shouldRetry(int attempt, HttpResult result);
     }
 
     private final class RetrievalTask implements Runnable {
 
-        private final Queue<String> urlQueue;
-
-        public RetrievalTask(Queue<String> urlQueue) {
-            this.urlQueue = urlQueue;
-        }
-
         @Override
         public void run() {
             for (;;) {
-                String url = urlQueue.poll();
-                if (url == null) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        // ignore.
-                    }
-                    continue;
-                }
-                throttle.hold();
+                String url = takeNextUrl();
                 LOGGER.debug("Fetching {}", url);
-                try {
-                    HttpResult result = httpRetriever.httpGet(url);
-                    action.pageCrawled(result);
-                    // extract new links
-                    Document document = htmlParser.parse(result);
-                    Set<String> links = HtmlHelper.getLinks(document, true, true);
-                    int retrievedLinks = links.size();
-                    CollectionHelper.remove(links, urlFilter);
-                    int addedLinks = add(links);
-                    LOGGER.debug("Extracted {} new, filtered {}, added {} URLs from {}", new Object[] {retrievedLinks,
-                            links.size(), addedLinks, url});
-                } catch (Throwable t) {
-                    LOGGER.error("Encountered {} for {}", t.getMessage(), url);
-                } finally {
-                    checkedUrls.add(url);
+                for (int attempt = 1;; attempt++) {
+                    try {
+                        throttle.hold();
+                        HttpResult result = httpRetriever.httpGet(url);
+                        if (result.errorStatus()) {
+                            if (retryPolicy.shouldRetry(attempt, result)) {
+                                LOGGER.info("Attempt {} for {}", attempt, url);
+                                continue;
+                            }
+                            LOGGER.info("Giving up for {}", url);
+                            break; // policy say: no more retries
+                        } else {
+                            action.process(result);
+                            // extract new links
+                            Document document = htmlParser.parse(result);
+                            Set<String> links = HtmlHelper.getLinks(document, true, true);
+                            int retrievedLinks = links.size();
+                            CollectionHelper.remove(links, urlFilter);
+                            int addedLinks = add(links);
+                            LOGGER.debug("Extracted {} new, filtered {}, added {} URLs from {}", new Object[] {
+                                    retrievedLinks, links.size(), addedLinks, url});
+                            break;
+                        }
+                    } catch (Throwable t) {
+                        LOGGER.error("Encountered {} for {}", t.getMessage(), url);
+                    }
                 }
             }
         }
+
     }
 
     private final class MonitoringTask implements Runnable {
@@ -102,15 +115,22 @@ public class HttpCrawler {
 
     private final Filter<String> urlFilter;
 
-    private final CrawlAction action;
+    private final Consumer<HttpResult> action;
 
     private final RequestThrottle throttle;
 
-    public HttpCrawler(Filter<String> urlFilter, CrawlAction action) {
-        this(urlFilter, action, NoThrottle.INSTANCE, TimeUnit.SECONDS);
+    private final RetryPolicy retryPolicy;
+
+    public HttpCrawler(Filter<String> urlFilter, Consumer<HttpResult> action) {
+        this(urlFilter, action, NoThrottle.INSTANCE);
     }
 
-    public HttpCrawler(Filter<String> urlFilter, CrawlAction action, RequestThrottle throttle, TimeUnit unit) {
+    public HttpCrawler(Filter<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle) {
+        this(urlFilter, action, throttle, NoRetryPolicy.INSTANCE);
+    }
+
+    public HttpCrawler(Filter<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle,
+            RetryPolicy retryPolicy) {
         urlQueue = new ConcurrentLinkedQueue<String>();
         checkedUrls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
@@ -118,6 +138,7 @@ public class HttpCrawler {
         this.urlFilter = urlFilter;
         this.action = action;
         this.throttle = throttle;
+        this.retryPolicy = retryPolicy;
     }
 
     public boolean add(String url) {
@@ -140,26 +161,36 @@ public class HttpCrawler {
         return added;
     }
 
+    private String takeNextUrl() {
+        for (;;) {
+            String url = urlQueue.poll();
+            if (url != null) {
+                checkedUrls.add(url);
+                return url;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // ignore.
+            }
+        }
+    }
+
     public void start() {
         for (int i = 0; i < NUM_THREADS; i++) {
-            new Thread(new RetrievalTask(urlQueue)).start();
+            new Thread(new RetrievalTask()).start();
         }
         new Thread(new MonitoringTask()).start();
     }
 
     public static void main(String[] args) {
-        Filter<String> urlFilter = new Filter<String>() {
+        Filter<String> urlFilter = Filters.regex("http://www.breakingnews.com/topic/.*");
+        HttpCrawler crawler = new HttpCrawler(urlFilter, new Consumer<HttpResult>() {
             @Override
-            public boolean accept(String item) {
-                return item.startsWith("http://www.breakingnews.com/topic/");
-            }
-        };
-        HttpCrawler crawler = new HttpCrawler(urlFilter, new CrawlAction() {
-            @Override
-            public void pageCrawled(HttpResult result) {
+            public void process(HttpResult result) {
                 System.out.println("Fetched " + result.getUrl());
             }
-        }, new FixedIntervalRequestThrottle(10), TimeUnit.SECONDS);
+        }, new FixedIntervalRequestThrottle(100, TimeUnit.MILLISECONDS));
         crawler.add("http://www.breakingnews.com");
         crawler.start();
     }

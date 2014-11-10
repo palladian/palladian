@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 
 /**
  * <p>
@@ -26,7 +26,7 @@ public class CoOccurrenceStatistics {
     /**
      * The number of co-occurrences for each searcher used. The key is the name of the searcher.
      */
-    private final CountMap<String> coOccurrences;
+    private final Bag<String> coOccurrences;
     
     /** The actual sources of the co-occurrence. */
     private Map<String, Collection<String>> coOccurrenceSources;
@@ -34,7 +34,7 @@ public class CoOccurrenceStatistics {
     public CoOccurrenceStatistics(String term1, String term2) {
         this.term1 = term1;
         this.term2 = term2;
-        coOccurrences = CountMap.create();
+        coOccurrences = Bag.create();
         coOccurrenceSources = CollectionHelper.newHashMap();
     }
 
@@ -50,7 +50,7 @@ public class CoOccurrenceStatistics {
         return term2;
     }
 
-    public CountMap<String> getCoOccurrences() {
+    public Bag<String> getCoOccurrences() {
         return coOccurrences;
     }
 
@@ -67,7 +67,7 @@ public class CoOccurrenceStatistics {
     }
 
     public int getTotalCoOccurrenceCount() {
-        return coOccurrences.totalSize();
+        return coOccurrences.size();
     }
 
     @Override

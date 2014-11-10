@@ -1,35 +1,17 @@
 package ws.palladian.extraction.token;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
-
-import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.DateAndTimeTagger;
-import ws.palladian.extraction.entity.SmileyTagger;
-import ws.palladian.extraction.entity.UrlTagger;
+import ws.palladian.core.Token;
+import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -49,27 +31,6 @@ public final class Tokenizer {
     public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs| eg|e\\.g|ca|etc| sq| ft)((\\.|\\?|\\!)(’|”|\")+(?=\\s+[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
     public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|engl|evtl|etc| sog| ident|bzw|i\\.d\\.R|o\\.k|zzgl|bspw|bsp|m\\.E|bezügl|bzgl|inkl|exkl|ggf|z\\.\\s?[bB]| max| min|u\\.s\\.w|u\\.a|d\\.h)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)| B\\.|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
 
-    private static final Pattern SENTENCE_SPLIT_PATTERN_EN = Pattern.compile(SENTENCE_SPLIT_REGEX_EN);
-    private static final Pattern SENTENCE_SPLIT_PATTERN_DE = Pattern.compile(SENTENCE_SPLIT_REGEX_DE);
-
-    /** The compiled pattern used for tokenization, using {@link Tokenizer#TOKEN_SPLIT_REGEX}. */
-    public static final Pattern SPLIT_PATTERN = Pattern.compile(TOKEN_SPLIT_REGEX, Pattern.DOTALL
-            | Pattern.CASE_INSENSITIVE);
-
-    private static final DateFormat[] ALL_DATES_WITH_DOTS = new DateFormat[] {RegExp.DATE_EU_D_MM,
-            RegExp.DATE_EU_D_MM_Y, RegExp.DATE_EU_D_MM_Y_T, RegExp.DATE_EU_D_MMMM, RegExp.DATE_EU_D_MMMM_Y,
-            RegExp.DATE_EU_D_MMMM_Y_T, RegExp.DATE_EU_MM_Y, RegExp.DATE_USA_MMMM_D_Y, RegExp.DATE_USA_MMMM_D_Y_SEP,
-            RegExp.DATE_USA_MMMM_D_Y_T, RegExp.DATE_USA_MMMM_D, RegExp.DATE_EUSA_MMMM_Y, RegExp.DATE_EUSA_YYYY_MMM_D};
-
-    private static final UrlTagger URL_TAGGER = new UrlTagger();
-    private static final DateAndTimeTagger DATE_TIME_TAGGER = new DateAndTimeTagger(ALL_DATES_WITH_DOTS);
-    private static final SmileyTagger SMILEY_TAGGER = new SmileyTagger();
-
-    /**
-     * <p>
-     * Constructor is private since this a static utility class.
-     * </p>
-     */
     private Tokenizer() {
         // prevent instantiation.
     }
@@ -83,89 +44,8 @@ public final class Tokenizer {
      * @return A list of tokens.
      */
     public static List<String> tokenize(String inputString) {
-
-        List<String> tokens = new ArrayList<String>();
-
-        Matcher matcher = SPLIT_PATTERN.matcher(inputString);
-        while (matcher.find()) {
-            tokens.add(matcher.group(0));
-        }
-
-        return tokens;
-    }
-
-    /**
-     * <p>
-     * Calculate all spans for a given string.
-     * </p>
-     * <p>
-     * For example, the string "a b c" will return 7 spans (2^3=8 but all empty is not allowed, hence 7):
-     * 
-     * <pre>
-     * a b c
-     * a b
-     * a c
-     * b c
-     * c
-     * b
-     * a
-     * </pre>
-     * 
-     * </p>
-     * 
-     * @param string A tokenized string to get the spans for.
-     * @param lengthThreshold The maximum length for extracted spans. For the above example set this to 3 to get all
-     *            spans or to a smaller value to get only spans of that length or smaller. If the value is larger than
-     *            the amount of tokens in {@code string} all spans are returned, if it is smaller than 1 all patterns of
-     *            length 1 will be returned nevertheless.
-     * @return A collection of spans.
-     */
-    public static Collection<List<String>> getAllSpans(String[] tokens, Integer lengthThreshold) {
-
-        // create bitvector (all bit combinations other than all zeros)
-        int bits = tokens.length;
-        List<List<String>> spans = new ArrayList<List<String>>();
-
-        int max = (int)Math.pow(2, bits);
-        for (long i = 1; i < max; i++) {
-            List<String> span = new LinkedList<String>();
-            if (extractSpanRecursive(i, tokens, span, 0, Math.max(lengthThreshold - 1, 0))) {
-                spans.add(span);
-            }
-        }
-
-        return spans;
-    }
-
-    /**
-     * <p>
-     * Recursive extraction function for text spans.
-     * </p>
-     * 
-     * @param bitPattern The pattern describing the indices in the list of {@code tokens} to include in the resulting
-     *            span.
-     * @param tokens The list of tokens to construct spans from.
-     * @param span The result span will be constructed into this list.
-     * @param currentIndex The current index in the list of tokens. For this call the algorithm needs to decide whether
-     *            to include the token at that position in the span or not based on whether the value in
-     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
-     * @param maxSpanLength The maximum length for extracted spans. All spans beyond that length will cause the function
-     *            to abort processing and return {@code false}.
-     * @return {@code true} if the extracted span is smaller or equal to {@code maxSpanLength}; {@code false} otherwise.
-     */
-    private static Boolean extractSpanRecursive(Long bitPattern, String[] tokens, List<String> span,
-            Integer currentIndex, Integer maxSpanLength) {
-        if (bitPattern % 2 != 0) {
-            span.add(tokens[currentIndex]);
-        }
-        Long nextBitPattern = bitPattern / 2;
-        if (nextBitPattern < 1) {
-            return true;
-        } else if (span.size() > maxSpanLength) {
-            return false;
-        } else {
-            return extractSpanRecursive(nextBitPattern, tokens, span, ++currentIndex, maxSpanLength);
-        }
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(inputString);
+        return CollectionHelper.newArrayList(CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER));
     }
 
     /**
@@ -179,24 +59,8 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateCharNGrams(String string, int n) {
-        Set<String> nGrams = new HashSet<String>();
-
-        int sl = string.length();
-        if (sl < n) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= sl - n; i++) {
-
-            StringBuilder nGram = new StringBuilder();
-            for (int j = i; j < i + n; j++) {
-                nGram.append(string.charAt(j));
-            }
-            nGrams.add(nGram.toString());
-
-        }
-
-        return nGrams;
+        Iterator<Token> nGramIterator = new CharacterNGramTokenizer(n, n).iterateTokens(string);
+        return CollectionHelper.newHashSet(CollectionHelper.convert(nGramIterator, Token.VALUE_CONVERTER));
     }
 
     /**
@@ -210,25 +74,7 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateWordNGrams(String string, int n) {
-        Set<String> nGrams = new HashSet<String>();
-
-        String[] words = string.split("\\s+");
-
-        if (words.length < n) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= words.length - n; i++) {
-
-            StringBuilder nGram = new StringBuilder();
-            for (int j = i; j < i + n; j++) {
-                nGram.append(words[j]).append(" ");
-            }
-            nGrams.add(nGram.toString().trim());
-
-        }
-
-        return nGrams;
+        return calculateAllWordNGrams(string, n, n);
     }
 
     /**
@@ -246,44 +92,9 @@ public final class Tokenizer {
      * @return A list of n-grams.
      */
     public static List<String> calculateWordNGramsAsList(String string, int n) {
-        List<String> nGrams = new ArrayList<String>();
-
-        String[] words = string.split("\\s+");
-        words = filterEmptyWords(words);
-
-        if (words.length < n) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= words.length - n; i++) {
-
-            StringBuilder nGram = new StringBuilder();
-            for (int j = i; j < i + n; j++) {
-                nGram.append(words[j]).append(" ");
-            }
-            nGrams.add(nGram.toString().trim());
-
-        }
-
-        return nGrams;
-    }
-
-    /**
-     * <p>
-     * Filters empty {@link String}s for N-Gram creation. Empty string may occur if the input {@link String} contains
-     * control characters.
-     * </p>
-     * 
-     * @param words The words to check.
-     */
-    private static String[] filterEmptyWords(String[] words) {
-        List<String> ret = new ArrayList<String>();
-        for (String word : words) {
-            if (!word.trim().isEmpty()) {
-                ret.add(word);
-            }
-        }
-        return ret.toArray(new String[ret.size()]);
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(string);
+        tokenIterator = new NGramWrapperIterator(tokenIterator, n, n);
+        return CollectionHelper.newArrayList(CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER));
     }
 
     /**
@@ -298,12 +109,8 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllCharNGrams(String string, int n1, int n2) {
-        Set<String> nGrams = new HashSet<String>();
-        for (int n = n1; n <= n2; n++) {
-            nGrams.addAll(calculateCharNGrams(string, n));
-        }
-
-        return nGrams;
+        Iterator<Token> tokenIterator = new CharacterNGramTokenizer(n1, n2).iterateTokens(string);
+        return CollectionHelper.newHashSet(CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER));
     }
 
     /**
@@ -318,62 +125,9 @@ public final class Tokenizer {
      * @return A set of n-grams.
      */
     public static Set<String> calculateAllWordNGrams(String string, int n1, int n2) {
-        Set<String> nGrams = new HashSet<String>();
-        for (int n = n1; n <= n2; n++) {
-            nGrams.addAll(calculateWordNGrams(string, n));
-        }
-
-        return nGrams;
-    }
-
-    /**
-     * <p>
-     * Calculates all n-grams for n ranging from {@code minSize} included up to {@code maxSize} included over a list of
-     * tokens.
-     * </p>
-     * 
-     * @param token The tokens to n-grammize.
-     * @param minSize The lower bound for the size of the extracted n-grams.
-     * @param maxSize The upper bound for the size of the extracted n-grams.
-     * @return A {@code List} of n-grams wich are represented as a {@code List} of tokens each.
-     */
-    public static List<List<String>> calculateAllNGrams(String[] token, Integer minSize, Integer maxSize) {
-        List<List<String>> ret = new ArrayList<List<String>>();
-
-        for (int n = minSize; n <= maxSize; n++) {
-            ret.addAll(calculateNGrams(token, n));
-        }
-
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Calculates n-grams of a certain size for an array of token.
-     * </p>
-     * 
-     * @param token The token to n-grammize.
-     * @param size The size of the desired n-grams.
-     * @return A {@code List} of n-grams which are represented as a {@code List} of tokens each.
-     */
-    public static List<List<String>> calculateNGrams(String[] token, Integer size) {
-        List<List<String>> nGrams = new ArrayList<List<String>>();
-
-        if (token.length < size) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= token.length - size; i++) {
-
-            List<String> nGram = new ArrayList<String>(size);
-            for (int j = i; j < i + size; j++) {
-                nGram.add(token[j]);
-            }
-            nGrams.add(nGram);
-
-        }
-
-        return nGrams;
+        Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(string);
+        tokenIterator = new NGramWrapperIterator(tokenIterator, n1, n2);
+        return CollectionHelper.newHashSet(CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER));
     }
 
     public static String getSentence(String string, int position) {
@@ -389,7 +143,7 @@ public final class Tokenizer {
      * @param position The position in the sentence.
      * @return The whole sentence.
      */
-    public static String getSentence(String string, int position, Language language) {
+    private static String getSentence(String string, int position, Language language) {
         if (position < 0) {
             return string;
         }
@@ -411,14 +165,6 @@ public final class Tokenizer {
         return getSentences(inputText, onlyRealSentences, Language.ENGLISH);
     }
 
-    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Language language) {
-        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
-        if (language == Language.GERMAN) {
-            pattern = SENTENCE_SPLIT_PATTERN_DE;
-        }
-        return getSentences(inputText, onlyRealSentences, pattern);
-    }
-
     /**
      * <p>
      * Get a list of sentences of an input text. Also see <a
@@ -429,66 +175,16 @@ public final class Tokenizer {
      * @param inputText An input text.
      * @param onlyRealSentences If true, only sentences that end with a sentence delimiter are considered (headlines in
      *            texts will likely be discarded)
-     * @param The pattern to use for sentence splitting.
+     * @param language The language to use for sentence splitting.
      * @return A list with sentences.
      */
-    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Pattern pattern) {
-
-        // recognize URLs so we don't break them
-        List<Annotation> taggedUrls = URL_TAGGER.getAnnotations(inputText);
-        int uCount = 1;
-        Map<String, String> urlMapping = new HashMap<String, String>();
-        for (Annotation annotation : taggedUrls) {
-            String replacement = "URL" + uCount;
-            inputText = inputText.replace(annotation.getValue(), replacement);
-            urlMapping.put(replacement, annotation.getValue());
-            uCount++;
-        }
-
-        // recognize dates so we don't break them
-        List<Annotation> taggedDates = DATE_TIME_TAGGER.getAnnotations(inputText);
-        int dCount = 1;
-        Map<String, String> dateMapping = new HashMap<String, String>();
-        for (Annotation annotation : taggedDates) {
-            String replacement = "DATE" + dCount;
-            inputText = inputText.replace(annotation.getValue(), replacement);
-            dateMapping.put(replacement, annotation.getValue());
-            dCount++;
-        }
-
-        // recognize smileys so we don't break them
-        List<Annotation> taggedSmileys = SMILEY_TAGGER.getAnnotations(inputText);
-        int sCount = 1;
-        Map<String, String> smileyMapping = new HashMap<String, String>();
-        for (Annotation annotation : taggedSmileys) {
-            String replacement = "SMILEY" + sCount;
-            inputText = inputText.replace(annotation.getValue(), replacement);
-            smileyMapping.put(replacement, annotation.getValue());
-            sCount++;
-        }
-
-        List<String> sentences = new ArrayList<String>();
-
-        // pattern to find the end of a sentence
-        Matcher matcher = pattern.matcher(inputText);
-        int lastIndex = 0;
-
-        while (matcher.find()) {
-            sentences.add(inputText.substring(lastIndex, matcher.end()).trim());
-            lastIndex = matcher.end();
-        }
-
-        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
-        // character, just add the last fragment
-        if (lastIndex < inputText.length()) {
-            sentences.add(inputText.substring(lastIndex).trim());
-        }
-
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences, Language language) {
+        List<Token> annotations = CollectionHelper.newArrayList(new PalladianSentenceDetector(language).iterateTokens(inputText));
+        List<String> sentences = CollectionHelper.convertList(annotations, Token.VALUE_CONVERTER);
         // TODO Since requirements might differ slightly from application to application, this filtering should be
         // carried out by each calling application itself.
         if (onlyRealSentences) {
-
-            List<String> realSentences = new ArrayList<String>();
+            List<String> realSentences = CollectionHelper.newArrayList();
             for (String sentence : sentences) {
                 String[] parts = sentence.split("\n");
                 sentence = parts[parts.length - 1];
@@ -505,273 +201,9 @@ public final class Tokenizer {
                     }
                 }
             }
-
             sentences = realSentences;
         }
-
-        // replace URLs back
-        List<String> sentencesReplacedUrls = new ArrayList<String>();
-        for (String sentence : sentences) {
-            for (Entry<String, String> entry : urlMapping.entrySet()) {
-                sentence = sentence.replace(entry.getKey(), entry.getValue());
-            }
-            sentencesReplacedUrls.add(sentence);
-        }
-
-        // replace dates back
-        List<String> sentencesReplacedDates = new ArrayList<String>();
-        for (String sentence : sentencesReplacedUrls) {
-            for (Entry<String, String> entry : dateMapping.entrySet()) {
-                sentence = sentence.replace(entry.getKey(), entry.getValue());
-            }
-            if (!sentence.isEmpty()) {
-                sentencesReplacedDates.add(sentence);
-            }
-        }
-
-        // replace smileys back
-        List<String> sentencesReplacedSmileys = new ArrayList<String>();
-        for (String sentence : sentencesReplacedDates) {
-            for (Entry<String, String> entry : smileyMapping.entrySet()) {
-                sentence = sentence.replace(entry.getKey(), entry.getValue());
-            }
-            if (!sentence.isEmpty()) {
-                sentencesReplacedSmileys.add(sentence);
-            }
-        }
-
-        return sentencesReplacedSmileys;
-    }
-
-    /**
-     * <p>
-     * Replaces all of the provided {@link Annotations} with mask in the {@code document}. The masking annotations are
-     * added to the {@code annotationsForMaskedText} while the text containing the masks is created based on
-     * {@code maskedText} and is returned.
-     * </p>
-     * 
-     * @param document The {@link TextDocument} containing the original text.
-     * @param annotations The {@link Annotations} to search for in the text.
-     * @param maskedText The text to add the masks to.
-     * @param mask The mask to add. This should be something that will never occur within the text itself.
-     * @return The {@code maskedText} with the additional masks added during this run of the method.
-     */
-    private static String maskAnnotations(TextDocument document, List<Annotation> annotations, String mask,
-            List<PositionAnnotation> annotationsForMaskedText, String maskedText) {
-        List<PositionAnnotation> tags = convert(document, annotations);
-        for (PositionAnnotation annotation : tags) {
-            // This check is necessary to handle nested masks. Such masks are not replaced in the text and should not be
-            // added to the list of masks.
-            if (maskedText.contains(annotation.getValue())) {
-                maskedText = StringUtils.replaceOnce(maskedText, annotation.getValue(), mask);
-                annotationsForMaskedText.add(annotation);
-            }
-        }
-
-        return maskedText;
-    }
-
-    /**
-     * <p>
-     * Splits the text of {@code inputDocument} into sentences.
-     * </p>
-     * 
-     * @param inputDocument The {@link TextDocument} to split into sentences.
-     * @param featureName The name of the created {@link PositionAnnotation}s.
-     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
-     */
-    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName) {
-        return getSentences(inputDocument, featureName, Language.ENGLISH);
-    }
-
-    /**
-     * <p>
-     * Splits the text of {@code inputDocument} into sentences. The text should be in the language provided as parameter
-     * {@code language}.
-     * </p>
-     * 
-     * @param inputDocument The {@link TextDocument} to split into sentences.
-     * @param featureName The name of the created {@link PositionAnnotation}s.
-     * @param language The language of the text to split into sentences.
-     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
-     */
-    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, String featureName,
-            Language language) {
-        Pattern pattern = SENTENCE_SPLIT_PATTERN_EN;
-        if (language == Language.GERMAN) {
-            pattern = SENTENCE_SPLIT_PATTERN_DE;
-        }
-        return getSentences(inputDocument, pattern, featureName);
-    }
-
-    // TODO Add recognition of Java Stack Traces as they occur quite often in technical texts and are recognized as a
-    // mixture of URLs and several sentence at the moment.
-    /**
-     * <p>
-     * Splits the text of {@code inputDocument} into sentences using the provided regular expression.
-     * </p>
-     * 
-     * @param inputDocument The {@link TextDocument} to split into sentences.
-     * @param pattern The {@link Pattern} to use to split sentences.
-     * @param featureName The name of the created {@link PositionAnnotation}s.
-     * @return A {@link List} of {@link PositionAnnotation}s marking the sentences the text was split into.
-     */
-    public static List<PositionAnnotation> getSentences(TextDocument inputDocument, Pattern pattern, String featureName) {
-        String inputText = inputDocument.getContent();
-        String mask = "PALLADIANMASK";
-        List<PositionAnnotation> masks = new ArrayList<PositionAnnotation>();
-        String maskedText = inputDocument.getContent();
-
-        // recognize URLs so we don't break them
-        List<Annotation> taggedUrlsAnnotations = URL_TAGGER.getAnnotations(inputText);
-        maskedText = maskAnnotations(inputDocument, taggedUrlsAnnotations, mask, masks, maskedText);
-
-        // recognize dates so we don't break them
-        List<Annotation> taggedDates = DATE_TIME_TAGGER.getAnnotations(inputText);
-        maskedText = maskAnnotations(inputDocument, taggedDates, mask, masks, maskedText);
-
-        // recognize smileys so we don't break them
-        List<Annotation> taggedSmileys = SMILEY_TAGGER.getAnnotations(inputText);
-        maskedText = maskAnnotations(inputDocument, taggedSmileys, mask, masks, maskedText);
-
-        List<PositionAnnotation> sentences = new ArrayList<PositionAnnotation>();
-
-        // pattern to find the end of a sentence
-        Matcher matcher = pattern.matcher(maskedText);
-        int lastIndex = 0;
-
-        while (matcher.find()) {
-            int endPosition = matcher.end();
-
-            String untrimmedValue = maskedText.substring(lastIndex, endPosition);
-            String leftTrimmedValue = StringHelper.ltrim(untrimmedValue);
-            Integer leftOffset = untrimmedValue.length() - leftTrimmedValue.length();
-            String value = StringHelper.rtrim(leftTrimmedValue);
-
-            int leftIndex = lastIndex + leftOffset;
-            // int rightIndex = leftIndex + value.length();
-            PositionAnnotation sentence = new PositionAnnotation(value, leftIndex);
-            sentences.add(sentence);
-            lastIndex = endPosition;
-        }
-
-        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctuation
-        // character, just add the last fragment
-        if (lastIndex < maskedText.length()) {
-            // the following code is necessary to know how many characters are trimmed from the left and from the right
-            // of the remaining content.
-            String untrimmedValue = maskedText.substring(lastIndex);
-            String leftTrimmedValue = StringHelper.ltrim(untrimmedValue);
-            Integer leftOffset = untrimmedValue.length() - leftTrimmedValue.length();
-            String value = StringHelper.rtrim(leftTrimmedValue);
-            // Since there often is a line break at the end of a file this should not be added here.
-            if (!value.isEmpty()) {
-                int leftIndex = lastIndex + leftOffset;
-                // int rightIndex = leftIndex + value.length();
-                PositionAnnotation lastSentenceAnnotation = new PositionAnnotation(value, leftIndex);
-                sentences.add(lastSentenceAnnotation);
-            }
-        }
-
-        // replace masks back
-        Collections.sort(masks, new Comparator<PositionAnnotation>() {
-
-            @Override
-            public int compare(PositionAnnotation o1, PositionAnnotation o2) {
-                return Integer.valueOf(o1.getStartPosition()).compareTo(o2.getStartPosition());
-            }
-        });
-        return recalculatePositions(inputDocument, maskedText, masks, sentences, featureName);
-    }
-
-    /**
-     * <p>
-     * Remapps the start and end position of all sentences from a masked text to the true text of the
-     * {@code inputDocument}.
-     * </p>
-     * 
-     * @param inputDocument The {@link TextDocument} containing the original text.
-     * @param maskedText The text where dates, urls and smileys are masked so they do not break sentence splitting.
-     * @param maskAnnotations A list of masked {@link PositionAnnotation}s that must be sorted by start position.
-     * @param sentences The extracted sentences on {@code maskedText}, which should be remapped to the text of the
-     *            {@code inputDocument}.
-     * @param featureName The name of the created {@link PositionAnnotation}s.
-     */
-    private static List<PositionAnnotation> recalculatePositions(TextDocument inputDocument, String maskedText,
-            List<PositionAnnotation> maskAnnotations, List<PositionAnnotation> sentences, String featureName) {
-        List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
-
-        int lastOriginalEndPosition = 0;
-        int lastEndPosition = 0;
-        String mask = "PALLADIANMASK";
-        Pattern maskPattern = Pattern.compile(mask);
-        int maskLength = mask.length();
-        int maskAnnotationIndex = 0;
-        for (PositionAnnotation sentence : sentences) {
-            // The space between this and the last sentence is this sentences start position in the transformed text -
-            // the last sentences end position in the transformed text.
-            int spaceBetweenSentences = sentence.getStartPosition() - lastEndPosition;
-            // The start position of this sentence in the original text is the end position of the last sentence in the
-            // original text + the space between both sentences.
-            int originalStartPosition = lastOriginalEndPosition + spaceBetweenSentences;
-            // The current offset, which needs to be added to all numbers in the transformed sentence to get their
-            // original value is the start position in the original text - the sentences start position in the
-            // transformed text.
-            int currentOffset = originalStartPosition - sentence.getStartPosition();
-            // The temporal end position of this sentence in the original text is calculated by adding the offset to the
-            // end position in the transformed text. This is of course only true if their are no PALLADIANMASK elements
-            // in the text. Those are added below.
-            int originalEndPosition = sentence.getEndPosition() + currentOffset;
-
-            // Search sentences for PALLADIANMASK
-            Matcher maskMatcher = maskPattern.matcher(sentence.getValue());
-            while (maskMatcher.find()) {
-                PositionAnnotation maskAnnotation = maskAnnotations.get(maskAnnotationIndex);
-                originalEndPosition += maskAnnotation.getValue().length() - maskLength;
-                maskAnnotationIndex++;
-                // handle contained masks by jumping over them
-                // while (maskAnnotationIndex < maskAnnotations.size()
-                // && maskAnnotations.get(maskAnnotationIndex).getEndPosition() <= maskAnnotation.getEndPosition()) {
-                // maskAnnotationIndex++;
-                // }
-            }
-
-            String transformedValue = String.valueOf(inputDocument.getContent().subSequence(originalStartPosition,
-                    originalEndPosition));
-            PositionAnnotation transformedSentence = new PositionAnnotation(transformedValue, originalStartPosition);
-            ret.add(transformedSentence);
-            lastOriginalEndPosition = originalEndPosition;
-            lastEndPosition = sentence.getEndPosition();
-        }
-
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Converts NER {@link Annotations} to a {@link List} of pipeline {@link PositionAnnotation}s, referencing the
-     * provided document.
-     * </p>
-     * 
-     * @param annotations The {@link Annotations} to convert.
-     * @return A list of {@link PositionAnnotation}s representing the provided {@link Annotations} on the provided
-     *         {@link TextDocument}.
-     */
-    private static List<PositionAnnotation> convert(TextDocument document, List<Annotation> annotations) {
-        List<PositionAnnotation> ret = new ArrayList<PositionAnnotation>();
-
-        for (Annotation annotation : annotations) {
-            String value = annotation.getValue();
-            int startPosition = annotation.getStartPosition();
-            // int endPosition = annotation.getStartPosition() + annotation.getValue().length();
-            // PositionAnnotation positionAnnotation = new PositionAnnotation("sentence", startPosition, endPosition,
-            // value);
-            PositionAnnotation positionAnnotation = new PositionAnnotation(value, startPosition);
-
-            ret.add(positionAnnotation);
-        }
-
-        return ret;
+        return sentences;
     }
 
     /**

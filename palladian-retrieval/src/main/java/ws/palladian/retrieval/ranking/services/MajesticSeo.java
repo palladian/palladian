@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -30,7 +28,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.majesticseo.com/api_domainstats.php
  * @author Philipp Katz
  */
-public final class MajesticSeo extends BaseRankingService implements RankingService {
+public final class MajesticSeo extends AbstractRankingService implements RankingService {
 
     /** {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.majestic.key";
@@ -74,9 +72,7 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         String encUrl = UrlHelper.encodeParameter(url);
         String requestUrl = "http://api.majesticseo.com/getdomainstats.php?apikey=" + apiKey
@@ -88,16 +84,16 @@ public final class MajesticSeo extends BaseRankingService implements RankingServ
             Node refDomainsNode = XPathHelper.getNode(doc, "/Results/Result/@StatsRefDomains");
             if (refDomainsNode != null) {
                 String refDomains = refDomainsNode.getNodeValue();
-                results.put(REFERRING_DOMAINS, Float.valueOf(refDomains));
+                builder.add(REFERRING_DOMAINS, Integer.parseInt(refDomains));
             } else {
-                results.put(REFERRING_DOMAINS, 0f);
+                builder.add(REFERRING_DOMAINS, 0);
             }
         } catch (HttpException e) {
             throw new RankingServiceException(e);
         } catch (ParserException e) {
             throw new RankingServiceException(e);
         }
-        return ranking;
+        return builder.create();
     }
 
     @Override

@@ -44,6 +44,16 @@ public interface Stats {
      * @return The median of the provided numbers, or {@link Double#NaN} in case no numbers were provided.
      */
     double getMedian();
+    
+    /**
+     * <p>
+     * Get the p-th percentile.
+     * </p>
+     * 
+     * @param p in range [0,100]
+     * @return The p-th percentile.
+     */
+    double getPercentile(int p);
 
     /**
      * @return The number of values present in this {@link Stats} collection.

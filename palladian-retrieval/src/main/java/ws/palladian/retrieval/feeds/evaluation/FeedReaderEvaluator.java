@@ -10,13 +10,15 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
 /**
@@ -180,12 +182,14 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSample;
 
-        UpdateStrategy[] strategies = {new FixUpdateStrategy(-1, -1, 60), new FixUpdateStrategy(-1, -1, 1440),
-                new FixLearnedUpdateStrategy(-1, -1, 0), new MavUpdateStrategy(-1, -1),
-                new PostRateUpdateStrategy(-1, -1)};
+        UpdateStrategy[] strategies = {new FixUpdateStrategy(-1, -1, 60, FeedUpdateMode.MIN_DELAY),
+                new FixUpdateStrategy(-1, -1, 1440, FeedUpdateMode.MIN_DELAY),
+                new FixLearnedUpdateStrategy(-1, -1, 0, FeedUpdateMode.MIN_DELAY),
+                new MavUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY),
+                new PostRateUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY)};
 
-        Integer[] policies = { BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE };
-        Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
+        Integer[] policies = {BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE};
+        Integer[] modes = {BENCHMARK_POLL, BENCHMARK_TIME};
 
         for (UpdateStrategy strategy : strategies) {
 
@@ -203,7 +207,11 @@ public class FeedReaderEvaluator {
                     setBenchmarkMode(mode);
 
                     FeedStore store = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
-                    FeedReader fc = new FeedReader(store, new DefaultFeedProcessingAction(), strategy);
+                    FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+                    settingsBuilder.setStore(store);
+                    settingsBuilder.setAction(new DefaultFeedProcessingAction());
+                    settingsBuilder.setUpdateStrategy(strategy);
+                    FeedReader fc = new FeedReader(settingsBuilder.create());
 
                     LOGGER.info("start evaluation for strategy " + strategy.getName() + ", policy "
                             + policy + ", and mode " + mode);
@@ -226,7 +234,7 @@ public class FeedReaderEvaluator {
         // if -1 => fixed learned
         int checkInterval = 60;
 
-        AbstractUpdateStrategy updateStrategy = new FixUpdateStrategy(-1, -1, checkInterval);
+        AbstractUpdateStrategy updateStrategy = new FixUpdateStrategy(-1, -1, checkInterval, FeedUpdateMode.MIN_DELAY);
 
         // updateStrategy = new MavUpdateStrategy();
         // updateStrategy = new PostRateUpdateStrategy();
@@ -235,7 +243,11 @@ public class FeedReaderEvaluator {
         FeedReaderEvaluator.benchmarkSamplePercentage = 100; // use just a percentage of
 
         FeedStore store = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
-        FeedReader feedReader = new FeedReader(store, new DefaultFeedProcessingAction(), updateStrategy);
+        FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+        settingsBuilder.setStore(store);
+        settingsBuilder.setAction(new DefaultFeedProcessingAction());
+        settingsBuilder.setUpdateStrategy(updateStrategy);
+        FeedReader feedReader = new FeedReader(settingsBuilder.create());
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
         setBenchmarkMode(BENCHMARK_POLL);

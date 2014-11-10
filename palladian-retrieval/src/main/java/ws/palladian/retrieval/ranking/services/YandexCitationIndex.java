@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +24,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class YandexCitationIndex extends BaseRankingService implements RankingService {
+public final class YandexCitationIndex extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YandexCitationIndex.class);
@@ -48,10 +46,9 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         Integer citationIndex = null;
@@ -59,37 +56,36 @@ public final class YandexCitationIndex extends BaseRankingService implements Ran
             String requestUrl = buildRequestUrl(url);
             HttpResult httpResult = retriever.httpGet(requestUrl);
             String response = httpResult.getStringContent();
-
             if (response != null) {
                 citationIndex = 0;
-
                 String leftBorder = UrlHelper.getDomain(url).replace("http://", "").replace("www.", "")
                         + "/\" target=\"_blank\">";
                 String citationIndexString = StringHelper.getSubstringBetween(response, leftBorder, "</td>\n</tr>");
-
                 if (citationIndexString.isEmpty()) {
                     // result stays 0 if response empty -> url not found
                     citationIndexString = StringHelper.getSubstringBetween(response, "b-cy_error-cy\">", "</p>");
-                    citationIndexString = StringHelper.trim(citationIndexString.replaceAll(".*? — ", ""));
+                    citationIndexString = StringHelper.trim(citationIndexString.replaceAll(".*? — ?", ""));
+                    citationIndexString = StringHelper
+                            .replaceProtectedSpace(citationIndexString.replaceAll("<a.*", ""));
+                    citationIndexString = citationIndexString.trim();
                 } else {
                     citationIndexString = StringHelper.getSubstringBetween(citationIndexString, "<td>", null);
                 }
-
-                citationIndex = Integer.valueOf(citationIndexString);
-
+                citationIndex = Integer.parseInt(citationIndexString);
                 LOGGER.trace("Yandex Citation Index for " + url + " : " + citationIndex);
             }
-
         } catch (Exception e) {
             checkBlocked();
             throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
-        results.put(CITATIONINDEX, (float) citationIndex);
-        return ranking;
+        return builder.add(CITATIONINDEX, citationIndex).create();
     }
 
     /**
-     * <p>Build the request URL -> only the domain part of the URL is taken into account.</p>
+     * <p>
+     * Build the request URL -> only the domain part of the URL is taken into account.
+     * </p>
+     * 
      * @param url The URL to search for.
      * @return The request URL.
      */

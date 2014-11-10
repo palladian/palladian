@@ -1,51 +1,41 @@
-/**
- * Created on: 05.02.2013 15:59:33
- */
 package ws.palladian.classification.featureselection;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.classification.discretization.Discretization;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.value.Value;
+import ws.palladian.helper.NoProgress;
+import ws.palladian.helper.ProgressReporter;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.ListFeature;
+import ws.palladian.helper.collection.CountMatrix;
+import ws.palladian.helper.collection.CountMatrix.IntegerMatrixVector;
+import ws.palladian.helper.collection.Vector.VectorEntry;
+import ws.palladian.helper.math.NumericMatrix;
 
 /**
  * <p>
  * An implementation of the chi squared feature selection method. This method calculates the probability that the null
- * hypothesis is wrong for the correlation between a feature and a target class.
- * </p>
- * <p>
- * Further details are available for example in C. D. Manning, P. Raghavan, and H. Schütze, An introduction to
- * information retrieval, no. c. New York: Cambridge University Press, 2009, Page 275.
+ * hypothesis is wrong for the correlation between a feature and a target class. Further details are available for
+ * example in C. D. Manning, P. Raghavan, and H. Schütze, An introduction to information retrieval, no. c. New York:
+ * Cambridge University Press, 2009, Page 275.
  * </p>
  * 
  * @author Klemens Muthmann
- * @version 1.0
- * @since 0.2.0
  */
 public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
 
-    /**
-     * <p>
-     * The logger for objects of this class. Configure it using <tt>/src/main/resources/log4j.properties</tt>
-     * </p>
-     */
+    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ChiSquaredFeatureRanker.class);
 
-    /**
-     * <p>
-     * A strategy describing how feature rankings for different classes are merged.
-     * </p>
-     */
+    /** A strategy describing how feature rankings for different classes are merged. */
     private final SelectedFeatureMergingStrategy mergingStrategy;
 
     /**
@@ -53,11 +43,10 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * Creates a new completely initialized {@link FeatureRanker}.
      * </p>
      * 
-     * @param mergingStrategy
-     *            A strategy describing how feature rankings for different
-     *            classes are merged.
+     * @param mergingStrategy A strategy describing how feature rankings for different classes are merged.
      */
     public ChiSquaredFeatureRanker(SelectedFeatureMergingStrategy mergingStrategy) {
+        Validate.notNull(mergingStrategy, "mergingStrategy must not be null");
         this.mergingStrategy = mergingStrategy;
     }
 
@@ -67,155 +56,71 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * doing. Otherwise use the {@link FeatureRanker} interface.
      * </p>
      * 
-     * @param featureName
-     *            The name of or path to the features to calculate the chi
-     *            squared values for.
-     * @param featureType
-     *            The implementation class of the features at the provided path.
-     *            this is necessary to get the correct features from the
-     *            provided instances' {@link FeatureVector}.
-     * @param dataset
-     *            The dataset to use to calculate chi squared values for. The
-     *            instances should actually contain the feature provided by {@code featurePath} and it needs to be of
-     *            the correct type
-     *            (i.e. {@code featureType}).
-     * @return A mapping with the first key being a feature mapped to a map
-     *         where the key is a target class from the {@code instances} and
-     *         the value is the chi squared score for the feature with that
-     *         class.
+     * @param dataset The dataset for which to calculate chi squared values, not <code>null</code>.
+     * @param progress A {@link ProgressReporter}, or <code>null</code> in case no progress should be reported.
+     * @return Matrix with the chi squared values. Each row in the matrix represents a feature, each column a class.
      */
-    public Map<String, Map<String, Double>> calculateChiSquareValues(final Collection<? extends Trainable> dataset) {
-        Map<Feature<?>, Map<String, Long>> termClassCorrelationMatrix = CollectionHelper.newHashMap();
-        Map<String, Long> classCounts = CollectionHelper.newHashMap();
-        Map<String, Map<String, Double>> ret = CollectionHelper.newHashMap();
+    public static NumericMatrix<String> calculateChiSquareValues(Iterable<? extends Instance> dataset,
+            ProgressReporter progress) {
+        Validate.notNull(dataset, "dataset must not be null");
 
-        ProgressMonitor countMonitor = new ProgressMonitor(dataset.size(), 1.0, "Counting cooccurrences.");
-        for (Trainable instance : dataset) {
-            Set<Feature<?>> features = convertToSet(instance.getFeatureVector());
-            features.addAll(discretize(features, dataset));
-            LOGGER.trace(features.toString());
-            for (Feature<?> value : features) {
-                addCooccurence(value, instance.getTargetClass(), termClassCorrelationMatrix);
-            }
-            Long count = classCounts.get(instance.getTargetClass());
-            if (count == null) {
-                count = 0L;
-            }
-            classCounts.put(instance.getTargetClass(), ++count);
-            LOGGER.info(countMonitor.incrementAndGetProgress());
+        if (progress == null) {
+            progress = NoProgress.INSTANCE;
         }
 
-        ProgressMonitor chiSquaredMonitor = new ProgressMonitor(termClassCorrelationMatrix.size(), 1.0, "Calculating chi² values.");
-        for (Map.Entry<Feature<?>, Map<String, Long>> termOccurence : termClassCorrelationMatrix.entrySet()) {
-            // The following variables are uppercase because that is the way
-            // they are used in the literature.
-            int N = dataset.size();
-            for (Map.Entry<String, Long> currentClassCount : classCounts.entrySet()) {
-                String className = currentClassCount.getKey();
-                Long classCount = currentClassCount.getValue();
-                Long termClassCoocurrence = termOccurence.getValue().get(className);
-                if (termClassCoocurrence == null) {
-                    termClassCoocurrence = 0L;
-                }
-                // LOGGER.trace("Calculating Chi² for feature {} in class {}.", termOccurence.getKey(), className);
-                long N_11 = termClassCoocurrence;
-                long N_10 = sumOfRowExceptOne(termOccurence.getKey(), className, termClassCorrelationMatrix);
-                long N_01 = classCount - termClassCoocurrence;
-                long N_00 = N - (N_10 + N_01 + N_11);
-                // LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
+        progress.startTask("Calculating chi² ranking", -1);
 
-                double numerator = Double.valueOf(N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
-                long denominatorInt = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
-                double denominator = Double.valueOf(denominatorInt);
+        int N = CollectionHelper.count(dataset.iterator());
+        ProgressReporter cooccurrenceProgress = progress.createSubProgress(0.5);
+        cooccurrenceProgress.startTask("Counting cooccurrences.", N);
+        CountMatrix<String> termCategoryCorrelations = CountMatrix.create();
+        Bag<String> categoryCounts = Bag.create();
+
+        Discretization discretization = new Discretization(dataset, NoProgress.INSTANCE);
+        Iterable<Instance> discretizedDataset = discretization.discretize(dataset);
+
+        for (Instance instance : discretizedDataset) {
+            FeatureVector featureVector = instance.getVector();
+            String category = instance.getCategory();
+            for (VectorEntry<String, Value> feature : featureVector) {
+                String featureValueIdentifier = feature.key() + "###" + feature.value().toString();
+                termCategoryCorrelations.add(category, featureValueIdentifier);
+            }
+            categoryCounts.add(category);
+            cooccurrenceProgress.increment();
+        }
+
+        ProgressReporter chiSquareProgress = progress.createSubProgress(0.5);
+        chiSquareProgress.startTask("Calculating chi² values.", termCategoryCorrelations.rowCount());
+        NumericMatrix<String> result = new NumericMatrix<String>();
+        for (IntegerMatrixVector<String> termOccurence : termCategoryCorrelations.rows()) {
+            String featureName = termOccurence.key();
+            IntegerMatrixVector<String> categoryCorrelations = termCategoryCorrelations.getRow(featureName);
+            for (Entry<String, Integer> categoryCountEntry : categoryCounts.unique()) {
+                String categoryName = categoryCountEntry.getKey();
+                Integer categoryCount = categoryCountEntry.getValue();
+                LOGGER.trace("Calculating Chi² for feature {} in class {}.", featureName, categoryName);
+                int N_10 = categoryCorrelations.getSum() - categoryCorrelations.get(categoryName);
+                int N_11 = termOccurence.get(categoryName);
+                int N_01 = categoryCount - N_11;
+                int N_00 = N - (N_10 + N_01 + N_11);
+                LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
+                double numerator = (N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
+                int denominator = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
                 double chiSquare = numerator / denominator;
-
-                // LOGGER.trace("Chi² value is {}", chiSquare);
-                Map<String, Double> chiSquaresForCurrentTerm = ret.get(termOccurence.getKey());
-                if (chiSquaresForCurrentTerm == null) {
-                    chiSquaresForCurrentTerm = new HashMap<String, Double>();
-                }
-                chiSquaresForCurrentTerm.put(className, chiSquare);
-                ret.put(termOccurence.getKey().getName(), chiSquaresForCurrentTerm);
+                LOGGER.trace("Chi² value is {}", chiSquare);
+                result.set(categoryName, featureName, chiSquare);
             }
-            LOGGER.info(chiSquaredMonitor.incrementAndGetProgress());
+            chiSquareProgress.increment();
         }
-
-        return ret;
-    }
-
-    private Set<Feature<?>> convertToSet(Iterable<Feature<?>> featureVector) {
-        Set<Feature<?>> ret = CollectionHelper.newHashSet();
-        for (Feature<?> feature : featureVector) {
-            if (feature instanceof ListFeature) {
-                ListFeature<Feature<?>> listFeature = (ListFeature<Feature<?>>)feature;
-                for (Feature<?> listFeatureElement : listFeature) {
-                    ret.add(listFeatureElement);
-                }
-            } else {
-                ret.add(feature);
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Sums up a row of a matrix leaving one column out. This is required to calculate N01 and N10 for Chi² test. N01 is
-     * the amount of documents of a class without a certain term, while N10 is the amount of documents with a certain
-     * term but not of the specified class.
-     * </p>
-     * 
-     * @param rowValue
-     *            The value of the row to create the sum for.
-     * @param exception
-     *            The column to leave out of the summation.
-     * @param correlationMatrix
-     *            A matrix where cells are the counts of how often a the row
-     *            value and the column value occur together.
-     * @return The sum of the class occurrence without the term.
-     */
-    private static long sumOfRowExceptOne(Feature<?> rowValue, String exception,
-            Map<Feature<?>, Map<String, Long>> correlationMatrix) {
-        Map<String, Long> occurencesOfClass = correlationMatrix.get(rowValue);
-        // add up all occurrences of the current class
-        long ret = 0;
-        for (Map.Entry<String, Long> occurence : occurencesOfClass.entrySet()) {
-            if (!occurence.getKey().equals(exception)) {
-                ret += occurence.getValue();
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Increases the coocurrence of the row value and the column value in the provided correlation matrix by one.
-     * </p>
-     * 
-     * @param row The value of the row of the matrix.
-     * @param column The value of the column of the matrix.
-     * @param correlationMatrix The correlation matrix to add the correlation to.
-     */
-    private static void addCooccurence(Feature<?> row, String column,
-            Map<Feature<?>, Map<String, Long>> correlationMatrix) {
-
-        Map<String, Long> correlations = correlationMatrix.get(row);
-        if (correlations == null) {
-            correlations = new HashMap<String, Long>();
-        }
-        Long occurenceCount = correlations.get(column);
-        if (occurenceCount == null) {
-            occurenceCount = 0L;
-        }
-        occurenceCount++;
-        correlations.put(column, occurenceCount);
-        correlationMatrix.put(row, correlations);
-
+        return result;
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Trainable> dataset) {
-        Map<String, Map<String, Double>> scoredFeatures = calculateChiSquareValues(dataset);
-        return mergingStrategy.merge(dataset, scoredFeatures);
+    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
+        Validate.notNull(dataset, "dataset must not be null");
+        NumericMatrix<String> chiSquareMatrix = calculateChiSquareValues(dataset, progress);
+        return mergingStrategy.merge(chiSquareMatrix);
     }
+
 }

@@ -1,5 +1,6 @@
 package ws.palladian.retrieval;
 
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public final class HttpRequest {
     private final HttpMethod method;
     private final Map<String, String> headers;
     private final Map<String, String> parameters;
+    private Charset charset;
     private HttpEntity httpEntity = null;
 
     public HttpRequest(HttpMethod method, String url) {
@@ -75,6 +77,14 @@ public final class HttpRequest {
         Validate.notNull(value, "value must not be null");
 
         parameters.put(key, value.toString());
+    }
+    
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
+    
+    public Charset getCharset() {
+        return charset;
     }
 
     public HttpEntity getHttpEntity() {

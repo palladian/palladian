@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,6 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -43,6 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Collector;
+import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.math.MathHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -1867,34 +1871,99 @@ public final class FileHelper {
 
     /**
      * <p>
-     * Traverse a directory, including its subdirectories and perform an {@link Action} to each file.
-     * </p>
+     * Get a file object which points to a (non existent) temporary file within the temp directory.
+     * 
+     * @return A file in the temp directory, which will be deleted upon VM termination.
+     * @see #getTempDir()
+     */
+    public static File getTempFile() {
+        for (;;) {
+            String fileName = UUID.randomUUID().toString();
+            File tempFile = new File(getTempDir(), fileName);
+            if (tempFile.exists()) { // should never happen, as UUIDs are unique, but never say never
+                continue;
+            }
+            return tempFile;
+        }
+    }
+
+    /**
+     * <p>
+     * Traverse a directory, and (optionally) its subdirectories and process each item using a {@link Consumer}.
      * 
      * @param path The starting path, not <code>null</code>.
-     * @param filter A {@link FileFilter} which determines which files to process, not <code>null</code>.
-     * @param action An {@link Action} to perform for the matching files, not <code>null</code>.
+     * @param fileFilter A filter which determines which files to process, not <code>null</code>.
+     * @param directoryFilter A filter which determines which directories to follow, not <code>null</code>.
+     * @param consumer A consumer to process the matching items, not <code>null</code>.
      * @return The number of processed files.
      */
-    public static int traverseFiles(File path, FileFilter filter, Action<? super File> action) {
+    public static int traverseFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter,
+            Consumer<? super File> consumer) {
         Validate.notNull(path, "path must not be null");
-        Validate.notNull(filter, "filter must not be null");
-        Validate.notNull(action, "action must not be null");
+        Validate.notNull(fileFilter, "fileFilter must not be null");
+        Validate.notNull(directoryFilter, "directoryFilter must not be null");
+        Validate.notNull(consumer, "consumer must not be null");
         int counter = 0;
         File[] files = path.listFiles();
+        if (files == null) {
+            throw new IllegalArgumentException("Given path '" + path + "' does not point to a directory.");
+        }
         for (File file : files) {
-            if (file.isDirectory()) {
-                traverseFiles(file, filter, action);
-            } else {
-                if (filter.accept(file)) {
-                    counter++;
-                    action.process(file);
-                }
+            if (file.isDirectory() && directoryFilter.accept(file)) {
+                traverseFiles(file, fileFilter, directoryFilter, consumer);
+            }
+            if (fileFilter.accept(file)) {
+                counter++;
+                consumer.process(file);
             }
         }
         return counter;
     }
 
     /**
+     * <p>
+     * Traverse a directory, including its subdirectories and process each file using a {@link Consumer}.
+     * 
+     * @param path The starting path, not <code>null</code>.
+     * @param fileFilter A filter which determines which files to process, not <code>null</code>.
+     * @param consumer A consumer to process the matching files, not <code>null</code>.
+     * @return The number of processed files.
+     */
+    public static int traverseFiles(File path, Filter<? super File> fileFilter, Consumer<? super File> consumer) {
+        return traverseFiles(path, fileFilter, Filters.ALL, consumer);
+    }
+
+    /**
+     * <p>
+     * Get the files in a given directory, and (optionally) its subdirectories.
+     * 
+     * @param path The starting path, not <code>null</code>.
+     * @param fileFilter A filter which determines which files to get, not <code>null</code>.
+     * @param directoryFilter A filter which determines which directories to follow, not <code>null</code>.
+     * @return A list with matched files, or an empty list, never <code>null</code>.
+     */
+    public static List<File> getFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter) {
+        Validate.notNull(path, "path must not be null");
+        Validate.notNull(fileFilter, "fileFilter must not be null");
+        Validate.notNull(directoryFilter, "directoryFilter must not be null");
+        List<File> files = CollectionHelper.newArrayList();
+        traverseFiles(path, fileFilter, directoryFilter, new Collector<File>(files));
+        return files;
+    }
+
+    /**
+     * <p>
+     * Get the files in a given directory, including its subdirectories.
+     * 
+     * @param path The starting path, not <code>null</code>.
+     * @param fileFilter A filter which determines which files to get, not <code>null</code>.
+     * @return A list with matched files, or an empty list, never <code>null</code>.
+     */
+    public static List<File> getFiles(File path, Filter<? super File> fileFilter) {
+        return getFiles(path, fileFilter, Filters.ALL);
+    }
+
+    /*
      * The main method.
      * 
      * @param a The arguments.
@@ -2014,4 +2083,5 @@ public final class FileHelper {
                 "sampleTextForTagging_tagged"));
 
     }
+
 }

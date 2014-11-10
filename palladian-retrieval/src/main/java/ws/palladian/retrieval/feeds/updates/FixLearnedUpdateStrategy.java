@@ -4,12 +4,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
-import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
  * <p>
@@ -34,19 +35,24 @@ public class FixLearnedUpdateStrategy extends AbstractUpdateStrategy {
      * interval.
      */
     private final int fixLearnedMode;
-    
+
+    private final FeedUpdateMode updateMode;
+
     /**
      * @param fixLearnedMode the fixLearnedMode to use; The update strategy has two different modes. 0: Mode window
      *            (default). We use the first window and calculate the fix interval from it. 1: Mode Poll, additionally,
      *            we use the timestamp of the first poll to calculate the interval.
      */
-    public FixLearnedUpdateStrategy(int lowestInterval, int highestInterval, int fixLearnedMode) {
+    public FixLearnedUpdateStrategy(int lowestInterval, int highestInterval, int fixLearnedMode,
+            FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval);
         if (fixLearnedMode < 0 || fixLearnedMode > 1) {
             throw new IllegalArgumentException("Unsupported mode \"" + fixLearnedMode
                     + "\". Use 0 for mode window or 1 for mode poll");
         }
+        Validate.notNull(updateMode, "updateMode must not be null");
         this.fixLearnedMode = fixLearnedMode;
+        this.updateMode = updateMode;
     }
 
     /**
@@ -73,26 +79,20 @@ public class FixLearnedUpdateStrategy extends AbstractUpdateStrategy {
             List<FeedItem> entries = feed.getItems();
 
             // use first window only
+            Date intervalStartTime = feed.getOldestFeedEntryCurrentWindow();
             if (fixLearnedMode == 0) {
-                Date intervalStartTime = feed.getOldestFeedEntryCurrentWindow();
                 Date intervalStopTime = feed.getLastFeedEntry();
-
                 long intervalLength = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
-
                 if (entries.size() >= 2 && intervalLength > 0) {
-                    fixedCheckInterval = (int) (intervalLength / ((entries.size() - 1) * TimeUnit.MINUTES.toMillis(1)));
+                    fixedCheckInterval = (int)(intervalLength / ((entries.size() - 1) * TimeUnit.MINUTES.toMillis(1)));
                 }
-
             }
             // use first window and first poll time
             else if (fixLearnedMode == 1) {
-                Date intervalStartTime = feed.getOldestFeedEntryCurrentWindow();
                 Date intervalStopTime = feed.getLastPollTime();
-
                 long intervalLength = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
-                
                 if (entries.size() >= 1 && intervalLength > 0) {
-                    fixedCheckInterval = (int) (intervalLength / (entries.size() * TimeUnit.MINUTES.toMillis(1)));
+                    fixedCheckInterval = (int)(intervalLength / (entries.size() * TimeUnit.MINUTES.toMillis(1)));
                 }
             }
         }
@@ -102,12 +102,10 @@ public class FixLearnedUpdateStrategy extends AbstractUpdateStrategy {
         }
 
         // set the (new) check interval to feed
-        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
+        if (updateMode == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedInterval(fixedCheckInterval));
         }
     }
-
-
 
     @Override
     public String getName() {

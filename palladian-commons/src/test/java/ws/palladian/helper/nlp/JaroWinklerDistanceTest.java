@@ -7,7 +7,7 @@ import org.junit.Test;
 
 public class JaroWinklerDistanceTest {
     
-    private final StringSimilarity stringSim = new JaroWinklerSimilarity();
+    private final StringMetric stringSim = new JaroWinklerSimilarity();
 
     @Test
     public void testJaroWinkler() {

@@ -20,9 +20,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper.Order;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Function;
 
 /**
- * 
  * @author Philipp Katz
  */
 public class CollectionHelperTest {
@@ -138,8 +139,8 @@ public class CollectionHelperTest {
     @Test
     public void removeNulls() {
         List<Integer> list = new ArrayList<Integer>(Arrays.asList(null, 1, 2, 3, 4, null));
-        boolean removed = CollectionHelper.removeNulls(list);
-        assertTrue(removed);
+        int removed = CollectionHelper.removeNulls(list);
+        assertEquals(2, removed);
         assertEquals(4, list.size());
     }
 
@@ -185,13 +186,13 @@ public class CollectionHelperTest {
     @Test
     public void testRemove() {
         List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
-        boolean filtered = CollectionHelper.remove(items, new Filter<String>() {
+        int filtered = CollectionHelper.remove(items, new Filter<String>() {
             @Override
             public boolean accept(String item) {
                 return item.equals("a") || item.equals("b");
             }
         });
-        assertTrue(filtered);
+        assertEquals(3, filtered);
         assertEquals(4, items.size());
     }
 
@@ -239,4 +240,28 @@ public class CollectionHelperTest {
         Set<String> values = CollectionHelper.distinct(Arrays.asList("a", "b", "c"), Arrays.asList("b", "c", "d"));
         assertEquals(4, values.size());
     }
+
+    @Test
+    public void testNewHashSet() {
+        HashSet<Integer> set = CollectionHelper.newHashSet(1, 2, 3, 2, 1);
+        assertEquals(3, set.size());
+        assertTrue(set.containsAll(Arrays.asList(1, 2, 3)));
+    }
+
+    @Test
+    public void testNewArrayList() {
+        ArrayList<Integer> list = CollectionHelper.newArrayList(1, 2, 3, 2, 1);
+        assertEquals(5, list.size());
+        assertTrue(list.equals(Arrays.asList(1, 2, 3, 2, 1)));
+    }
+
+    @Test
+    public void testIntersect() {
+        Set<Integer> set1 = CollectionHelper.newHashSet(1, 2, 3, 4, 5);
+        Set<Integer> set2 = CollectionHelper.newHashSet(3, 4, 5, 6, 7);
+        Set<Integer> intersection = CollectionHelper.intersect(set1, set2);
+        assertEquals(3, intersection.size());
+        assertTrue(intersection.containsAll(Arrays.asList(3, 4, 5)));
+    }
+
 }

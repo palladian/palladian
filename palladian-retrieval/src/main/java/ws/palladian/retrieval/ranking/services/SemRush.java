@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -23,7 +21,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class SemRush extends BaseRankingService implements RankingService {
+public final class SemRush extends AbstractRankingService implements RankingService {
 
     /** The id of this service. */
     private static final String SERVICE_ID = "semrush";
@@ -39,9 +37,8 @@ public final class SemRush extends BaseRankingService implements RankingService 
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-
-        String requestUrl = buildRequestUrl(url);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
+        String requestUrl = "http://publicapi.bl.semrush.com/?url=" + UrlHelper.encodeParameter(url);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);
@@ -50,28 +47,15 @@ public final class SemRush extends BaseRankingService implements RankingService 
         }
         String text = httpResult.getStringContent();
         try {
-            long backlinksDomain = Long.valueOf(StringHelper.getSubstringBetween(text, "<links_domain>",
+            long backlinksDomain = Long.parseLong(StringHelper.getSubstringBetween(text, "<links_domain>",
                     "</links_domain>"));
-            long backlinksPage = Long.valueOf(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
-            results.put(BACKLINKS_DOMAIN, (float)backlinksDomain);
-            results.put(BACKLINKS_PAGE, (float)backlinksPage);
+            long backlinksPage = Long.parseLong(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
+            builder.add(BACKLINKS_DOMAIN, backlinksDomain);
+            builder.add(BACKLINKS_PAGE, backlinksPage);
         } catch (Exception e) {
             throw new RankingServiceException("Error while parsing the response (\"" + text + "\")", e);
         }
-
-        return new Ranking(this, url, results);
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://publicapi.bl.semrush.com/?url=" + UrlHelper.encodeParameter(url);
+        return builder.create();
     }
 
     @Override

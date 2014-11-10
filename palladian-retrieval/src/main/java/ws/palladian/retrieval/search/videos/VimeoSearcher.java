@@ -161,9 +161,9 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     private static void checkRateLimits(HttpResult httpResult) throws RateLimitedException {
         // http://developer.vimeo.com/guidelines/rate-limiting
-        int rateLimit = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Limit"));
-        int rateLimitRemaining = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Remaining"));
-        int rateLimitReset = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Reset"));
+        int rateLimit = Integer.parseInt(httpResult.getHeaderString("X-RateLimit-Limit"));
+        int rateLimitRemaining = Integer.parseInt(httpResult.getHeaderString("X-RateLimit-Remaining"));
+        int rateLimitReset = Integer.parseInt(httpResult.getHeaderString("X-RateLimit-Reset"));
         LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
         if (rateLimitRemaining == 0) {
             int timeUntilReset = rateLimitReset - (int)(System.currentTimeMillis() / 1000);
@@ -183,7 +183,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
             builder.setSummary(jsonVideo.getString("description"));
             builder.setPublished(parseDate(uploadDateString));
             builder.setUrl(String.format("https://vimeo.com/%s", id));
-            builder.setDuration(jsonVideo.getLong("duration"));
+            builder.setDuration(jsonVideo.getInt("duration"));
             if (jsonVideo.get("tags") != null) {
                 JsonArray tagArray = jsonVideo.queryJsonArray("/tags/tag");
                 for (int j = 0; j < tagArray.size(); j++) {

@@ -13,8 +13,10 @@ import ws.palladian.helper.math.MathHelper;
  * </p>
  * 
  * @author David Urbansky
+ * @deprecated Use {@link TokenSimilarity} instead.
  */
-public class JaccardSimilarity implements StringSimilarity {
+@Deprecated
+public class JaccardSimilarity extends AbstractStringMetric {
 
     @Override
     public double getSimilarity(String s1, String s2) {

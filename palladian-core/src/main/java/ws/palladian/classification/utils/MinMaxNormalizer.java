@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.Stats;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -44,27 +43,19 @@ public class MinMaxNormalizer extends AbstractStatsNormalizer {
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * @see
-         * ws.palladian.classification.utils.Normalization#normalize(ws.palladian.processing.features.NumericFeature)
-         */
         @Override
-        public NumericFeature normalize(NumericFeature numericFeature) {
-            Validate.notNull(numericFeature, "numericFeature must not be null");
-            String featureName = numericFeature.getName();
-            double featureValue = numericFeature.getValue();
+        public double normalize(String name, double value) {
+            Validate.notNull(name, "name must not be null");
 
-            Double min = minValues.get(featureName);
-            Double max = maxValues.get(featureName);
+            Double min = minValues.get(name);
+            Double max = maxValues.get(name);
             if (min == null || max == null) {
-                LOGGER.debug("No normalization information for \"{}\".", featureName);
-                return numericFeature;
+                LOGGER.debug("No normalization information for \"{}\".", name);
+                return value;
             }
 
             double diff = max - min;
-            double normalizedValue = diff != 0 ? (featureValue - min) / diff : featureValue - min;
-            return new NumericFeature(featureName, normalizedValue);
+            return diff != 0 ? (value - min) / diff : value - min;
         }
 
         @Override

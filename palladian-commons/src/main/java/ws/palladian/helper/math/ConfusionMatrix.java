@@ -26,7 +26,7 @@ public class ConfusionMatrix {
      * </p>
      */
     public ConfusionMatrix() {
-        this.confusionMatrix = CountMatrix.create();
+        confusionMatrix = CountMatrix.create();
     }
 
     /**
@@ -237,12 +237,11 @@ public class ConfusionMatrix {
     public double getF(double alpha, String category) {
         double precision = getPrecision(category);
         double recall = getRecall(category);
-        if (Double.isNaN(precision)||Double.isNaN(recall)){
+        if (Double.isNaN(precision)) {
             return Double.NaN;
         }
         double alphaSquare = alpha * alpha;
-        
-        return (1. + alphaSquare) * ((precision * recall) / (alphaSquare * precision + recall));
+        return (1. + alphaSquare) * (precision * recall / (alphaSquare * precision + recall));
     }
 
     /**
@@ -512,10 +511,10 @@ public class ConfusionMatrix {
 
     @Override
     public String toString() {
-        StringBuilder out = new StringBuilder("Confusion Matrix:\n");
+        StringBuilder out = new StringBuilder("Confusion Matrix:\n\n");
         List<String> possibleClasses = new ArrayList<String>(getCategories());
         StringBuilder headerBuilder = new StringBuilder();
-        Integer maxClassNameLength = 0;
+        int  maxClassNameLength = 0;
         for (String clazz : possibleClasses) {
             headerBuilder.append(clazz).append(" ");
             maxClassNameLength = clazz.length() > maxClassNameLength ? clazz.length() : maxClassNameLength;
@@ -532,7 +531,7 @@ public class ConfusionMatrix {
             for (String predictedClazz : possibleClasses) {
                 Integer value = confusionMatrix.get(predictedClazz, clazz);
                 value = value == null ? 0 : value;
-                Integer valueSize = value.toString().length();
+                int valueSize = value.toString().length();
                 int remainingLength = predictedClazz.length() - valueSize + 1;
                 int spacesInFrontOfValue = Math.max((int)Math.ceil((double)remainingLength / 2), 0);
                 out.append(CharBuffer.allocate(spacesInFrontOfValue).toString().replace('\0', ' '));
@@ -543,14 +542,12 @@ public class ConfusionMatrix {
             out.append("\n");
         }
 
-        out.append("\n\n\n");
-
         out.append("\n");
         out.append(classNameLengthSpace).append("  ").append("prior  precision recall f1-measure accuracy\n");
 
         for (String clazz : possibleClasses) {
             out.append(clazz).append(": ");
-            Integer missingSpaces = maxClassNameLength - clazz.length();
+            int  missingSpaces = maxClassNameLength - clazz.length();
             if (missingSpaces > 0) {
                 out.append(CharBuffer.allocate(missingSpaces).toString().replace('\0', ' '));
             }
@@ -574,16 +571,7 @@ public class ConfusionMatrix {
             out.append("\n");
         }
 
-        // out.append("Category\tPrior\tPrecision\tRecall\tF1\n");
-        // for (String category : getCategories()) {
-        // out.append(category).append('\t');
-        // out.append(MathHelper.round(getPrior(category), 4)).append('\t');
-        // out.append(MathHelper.round(getPrecision(category), 4)).append('\t');
-        // out.append(MathHelper.round(getRecall(category), 4)).append('\t');
-        // out.append(MathHelper.round(getF(category, 0.5), 4)).append('\n');
-        // }
-
-        out.append("\n\n\n");
+        out.append("\n");
         out.append("Average Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append('\n');
         out.append("Average Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append('\n');
         out.append("Average F1:\t").append(MathHelper.round(getAverageF(0.5, true), 4)).append('\n');
@@ -594,7 +582,6 @@ public class ConfusionMatrix {
         out.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
         out.append("# Documents:\t").append(getTotalDocuments()).append('\n');
         out.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
-        out.append("Accuracy:\t").append(getAccuracy()).append('\n');
 
         return out.toString();
 

@@ -12,16 +12,12 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.Instance;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringPool;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVector;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -33,9 +29,9 @@ import ws.palladian.processing.features.NumericFeature;
  * 
  * @author pk
  */
-public class CsvDatasetReader implements Iterable<Trainable> {
+public class CsvDatasetReader implements Iterable<Instance> {
 
-    private static final class CsvDatasetIterator implements CloseableIterator<Trainable> {
+    private static final class CsvDatasetIterator implements CloseableIterator<Instance> {
         final String fieldSeparator;
         final boolean readHeader;
         String line;
@@ -83,7 +79,7 @@ public class CsvDatasetReader implements Iterable<Trainable> {
                 String[] parts = line.split(fieldSeparator);
                 if (parts.length < 2) {
                     throw new IllegalStateException("Separator '" + fieldSeparator
-                            + "'was not found, lines cannot be split ('" + line + "').");
+                            + "' was not found, lines cannot be split ('" + line + "').");
                 }
                 if (lineNumber == 0) {
                     expectedColumns = parts.length;
@@ -107,7 +103,7 @@ public class CsvDatasetReader implements Iterable<Trainable> {
         }
 
         @Override
-        public Trainable next() {
+        public Instance next() {
             if (closed) {
                 throw new IllegalStateException("Already closed.");
             }
@@ -116,30 +112,27 @@ public class CsvDatasetReader implements Iterable<Trainable> {
             }
             String[] parts = line.split(fieldSeparator);
             line = null;
-            FeatureVector featureVector = new BasicFeatureVector();
+            InstanceBuilder builder = new InstanceBuilder();
             for (int f = 0; f < parts.length - 1; f++) {
                 String name = headNames == null ? String.valueOf(f) : headNames[f];
                 String value = parts[f];
-                // FIXME make better.
                 if (value.equals("?")) {
-                    // missing value, TODO maybe rethink what to do here and how
-                    // to handle missing values in general.
+                    builder.setNull(name);
                     continue;
                 }
-                try {
-                    Double doubleValue = Double.valueOf(value);
-                    featureVector.add(new NumericFeature(name, doubleValue));
+                try { // XXX make better.
+                    double doubleValue = Double.parseDouble(value);
+                    builder.set(name, doubleValue);
                 } catch (NumberFormatException e) {
                     String stringValue = stringPool.get(value);
-                    featureVector.add(new NominalFeature(name, stringValue));
+                    builder.set(name, stringValue);
                 }
             }
             String targetClass = stringPool.get(parts[parts.length - 1]);
-            Trainable instance = new Instance(targetClass, featureVector);
             if (lineNumber % 100000 == 0) {
                 LOGGER.debug("Read {} lines", lineNumber);
             }
-            return instance;
+            return builder.create(targetClass);
         }
 
         @Override
@@ -210,7 +203,7 @@ public class CsvDatasetReader implements Iterable<Trainable> {
     }
 
     @Override
-    public CloseableIterator<Trainable> iterator() {
+    public CloseableIterator<Instance> iterator() {
         return new CsvDatasetIterator(filePath, readHeader, fieldSeparator);
     }
 
@@ -222,8 +215,8 @@ public class CsvDatasetReader implements Iterable<Trainable> {
      * 
      * @return List with instances from the dataset.
      */
-    public List<Trainable> readAll() {
-        CloseableIterator<Trainable> iterator = iterator();
+    public List<Instance> readAll() {
+        CloseableIterator<Instance> iterator = iterator();
         try {
             return CollectionHelper.newArrayList(iterator);
         } finally {

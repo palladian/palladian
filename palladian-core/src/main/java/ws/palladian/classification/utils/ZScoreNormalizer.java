@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.Stats;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -24,7 +23,7 @@ import ws.palladian.processing.features.NumericFeature;
 public final class ZScoreNormalizer extends AbstractStatsNormalizer {
 
     private static final class ZScoreNormalization extends AbstractNormalization {
-        
+
         /** The logger for this class. */
         private static final Logger LOGGER = LoggerFactory.getLogger(ZScoreNormalizer.ZScoreNormalization.class);
 
@@ -42,20 +41,19 @@ public final class ZScoreNormalizer extends AbstractStatsNormalizer {
         }
 
         @Override
-        public NumericFeature normalize(NumericFeature numericFeature) {
-            String featureName = numericFeature.getName();
-            Double standardDeviation = standardDeviations.get(featureName);
-            Double mean = means.get(featureName);
+        public double normalize(String name, double value) {
+            Double standardDeviation = standardDeviations.get(name);
+            Double mean = means.get(name);
             if (standardDeviation == null || mean == null) {
                 // throw new IllegalArgumentException("No normalization information for \"" + featureName + "\".");
-                LOGGER.warn("No normalization information for \"{}\".", featureName);
-                return numericFeature;
+                LOGGER.warn("No normalization information for \"{}\".", name);
+                return value;
             }
-            double normalizedValue = numericFeature.getValue() - mean;
+            double normalizedValue = value - mean;
             if (standardDeviation != 0) {
                 normalizedValue /= standardDeviation;
             }
-            return new NumericFeature(featureName, normalizedValue);
+            return normalizedValue;
         }
 
         @Override

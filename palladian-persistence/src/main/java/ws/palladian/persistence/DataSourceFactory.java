@@ -4,7 +4,7 @@ import javax.sql.DataSource;
 
 /**
  * <p>
- * Factory producing a {@link DataSourceFactory}.
+ * Factory producing a {@link DataSource}.
  * </p>
  * 
  * @author Philipp Katz
@@ -18,10 +18,10 @@ public interface DataSourceFactory {
      * 
      * @param jdbcUrl The URL to create the JDBC connection, for example
      *            "jdbc:mysql://localhost:3306/tudiirdb?useServerPrepStmts=false&cachePrepStmts=false"
-     * @param username The username to the given database.
+     * @param username The username for accessing the given database.
      * @param password The password belonging to the username.
      * @return The {@link DataSource} for the parameters.
      */
-    public abstract DataSource createDataSource(String jdbcUrl, String username, String password);
+    DataSource createDataSource(String jdbcUrl, String username, String password);
 
 }

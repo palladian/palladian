@@ -18,11 +18,11 @@ import org.apache.commons.lang3.Validate;
  */
 public abstract class CollectionBatchDataProvider<T> implements BatchDataProvider {
 
-    private final Iterator<T> iterator;
+    private final Iterator<? extends T> iterator;
 
     private final int count;
 
-    public CollectionBatchDataProvider(Collection<T> collection) {
+    public CollectionBatchDataProvider(Collection<? extends T> collection) {
         Validate.notNull(collection, "collection must not be null");
         this.iterator = collection.iterator();
         this.count = collection.size();
@@ -30,14 +30,27 @@ public abstract class CollectionBatchDataProvider<T> implements BatchDataProvide
 
     @Override
     public final List<? extends Object> getData(int number) {
-        return getData(iterator.next());
+        return getData(iterator.next(), number);
     }
 
     /**
-     * @param nextItem the item in the {@link Collection} which to convert.
+     * @param next The item in the {@link Collection} which to convert.
+     * @param number The running index, starting with 0.
      * @return List with parameters for the SQL statement, not <code>null</code>.
      */
-    public abstract List<? extends Object> getData(T nextItem);
+    public List<? extends Object> getData(T next, int number) {
+        return getData(next);
+    }
+
+    /**
+     * @param next the item in the {@link Collection} which to convert.
+     * @return List with parameters for the SQL statement, not <code>null</code>.
+     * @deprecated Implement {@link #getData(Object, int)} instead.
+     */
+    @Deprecated
+    public List<? extends Object> getData(T next) {
+        throw new IllegalStateException("One of #getData(Object,int) or #getData(Object) must be overridden.");
+    }
 
     /**
      * Override in case, you need to retrieve the generated IDs.

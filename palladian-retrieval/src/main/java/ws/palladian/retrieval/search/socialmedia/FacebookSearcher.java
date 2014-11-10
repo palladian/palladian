@@ -211,7 +211,7 @@ public final class FacebookSearcher extends AbstractSearcher<WebContent> {
 //            requestUrl.append("&offset=").append(page * 100);
 //        }
         requestUrl.append("&access_token=").append(UrlHelper.encodeParameter(accessToken));
-        System.out.println(requestUrl);
+//        System.out.println(requestUrl);
         return requestUrl.toString();
     }
 

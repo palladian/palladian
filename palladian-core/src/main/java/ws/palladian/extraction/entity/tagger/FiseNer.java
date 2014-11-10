@@ -2,10 +2,13 @@ package ws.palladian.extraction.entity.tagger;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -28,6 +31,9 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @author Philipp Katz
  */
 public class FiseNer extends NamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(FiseNer.class);
 
     /** The name of this {@link NamedEntityRecognizer}. */
     private static final String NER_NAME = "FISE NER";
@@ -75,7 +81,6 @@ public class FiseNer extends NamedEntityRecognizer {
         Annotations<Annotation> annotations = new Annotations<Annotation>();
         JsonObject jsonObject = new JsonObject(json);
 
-
         for (String key : jsonObject.keySet()) {
             JsonObject current = jsonObject.getJsonObject(key);
 
@@ -110,6 +115,7 @@ public class FiseNer extends NamedEntityRecognizer {
                 annotations.add(new ImmutableAnnotation(offset, entityName, type));
             }
         }
+        annotations.removeNested();
         return annotations;
     }
 

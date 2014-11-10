@@ -13,15 +13,15 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.feature.StemmerAnnotator;
-import ws.palladian.extraction.pos.BasePosTagger;
+import ws.palladian.core.Annotation;
+import ws.palladian.extraction.feature.Stemmer;
+import ws.palladian.extraction.pos.AbstractPosTagger;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -74,7 +74,7 @@ public class WordTransformer {
 
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.keySet());
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.values());
-        Collections.sort(GERMAN_NOUNS, new StringLengthComparator());
+        Collections.sort(GERMAN_NOUNS, StringLengthComparator.INSTANCE);
 
         // German stemming exceptions
         try {
@@ -427,17 +427,17 @@ public class WordTransformer {
     }
 
     public static String stemGermanWord(String word) {
-        // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
+        // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
         String exception = GERMAN_STEMMING_EXCEPTIONS.get(word.toLowerCase());
         if (exception != null) {
             return StringHelper.alignCasing(exception, word);
         }
-        return new StemmerAnnotator(Language.GERMAN).stem(word);
+        return new Stemmer(Language.GERMAN).stem(word);
     }
 
     public static String stemEnglishWord(String word) {
-        // NOTE: initializing and object is better than to keep one instance as it blocks otherwise
-        return new StemmerAnnotator(Language.ENGLISH).stem(word);
+        // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
+        return new Stemmer(Language.ENGLISH).stem(word);
     }
 
     /**
@@ -581,7 +581,7 @@ public class WordTransformer {
      * @param string The English sentence.
      * @return The detected English tense.
      */
-    public static EnglishTense getTense(String string, BasePosTagger posTagger) {
+    public static EnglishTense getTense(String string, AbstractPosTagger posTagger) {
         return getTense(string, posTagger.getAnnotations(string));
     }
 

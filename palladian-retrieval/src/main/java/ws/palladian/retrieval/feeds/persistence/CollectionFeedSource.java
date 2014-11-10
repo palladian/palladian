@@ -85,23 +85,23 @@ public class CollectionFeedSource implements FeedStore {
         return ret;
     }
 
-    @Override
-    public boolean addFeedItem(FeedItem feedItem) {
-        // TODO Auto-generated method stub
-        return true;
-    }
+//    @Override
+//    public boolean addFeedItem(FeedItem feedItem) {
+//        // TODO Auto-generated method stub
+//        return true;
+//    }
 
-    @Override
-    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+//    @Override
+//    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
-    @Override
-    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+//    @Override
+//    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
     @Override
     public int addFeedItems(List<FeedItem> items) {
@@ -127,19 +127,19 @@ public class CollectionFeedSource implements FeedStore {
         return true;
     }
 
-    @Override
-    public boolean deleteFeedByUrl(String feedUrl) {
-        boolean removed = false;
-        Collection<Feed> temp = new ArrayList<Feed>(feeds.size());
-        for (Feed feed : feeds) {
-            if (feed.getFeedUrl().equals(feedUrl)) {
-                removed = true;
-                continue;
-            }
-            temp.add(feed);
-        }
-        feeds = temp;
-        return removed;
-    }
+//    @Override
+//    public boolean deleteFeedByUrl(String feedUrl) {
+//        boolean removed = false;
+//        Collection<Feed> temp = new ArrayList<Feed>(feeds.size());
+//        for (Feed feed : feeds) {
+//            if (feed.getFeedUrl().equals(feedUrl)) {
+//                removed = true;
+//                continue;
+//            }
+//            temp.add(feed);
+//        }
+//        feeds = temp;
+//        return removed;
+//    }
 
 }
