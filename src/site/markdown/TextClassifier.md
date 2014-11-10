@@ -45,7 +45,7 @@ As an example, consider the text `"the quick brown fox"`:
 
 * The set of word-based 2-grams would contain the following entries: `{"the quick", "quick brown", "brown fox"}`. 
 * The set of character-5-grams consists of the following entries: `{"the q", "he qu", "e qui", " quic", "quick", …}`.
-* It is possible, to combine *n*-grams of different lengths. For example, the set of character-4-6-grams contains the union of the sets of 4-, 5-, and 6-grams.
+* It is possible to combine *n*-grams of different lengths. For example, the set of character-4-6-grams contains the union of the sets of 4-, 5-, and 6-grams.
 
 The configuration for the feature extraction is stored in a `FeatureSetting` instance, which is created using the `FeatureSettingBuilder`:
 
@@ -56,12 +56,12 @@ FeatureSetting charSetting = FeatureSettingBuilder.chars(4, 6).create();
 FeatureSetting wordSetting = FeatureSettingBuilder.words(1, 2).create();
 ```
 
-The are several more options available for fine-tuning the feature extraction. Please refer to `FeatureSettingBuilder`'s Javadoc for more detailed information.
+There are several more options available for fine-tuning the feature extraction. Please refer to `FeatureSettingBuilder`'s Javadoc for more detailed information.
 
 Classifier
 ----------
 
-The text classifier calculates the probabilities for each learned category for the input document. Palladian's text classifier was developed completely from scratch and does not rely on external libraries. In the following paragraph, the classifier is explained in more detail.
+The `PalladianTextClassifier` calculates the probabilities for each learned category for the input document. Palladian's text classifier was developed completely from scratch and does not rely on external libraries. In the following sections, the classifier is explained in more detail.
 
 At the training stage, a dictionary is built by counting co-occurrences of an *n*-gram and a category. This dictionary serves as model for the classification. An example dictionary might look as shown in the following table, where each column is a category (*finance*, *travel*, and *science*) and each row is a 1-gram. In each cell, we have the co-occurrence count of a 1-gram and a category. In the example, the 1-gram *money* is more likely to be in the category *finance* than *science*, while the 1-gram *beach* is most likely to appear in the category *travel*.
 
@@ -73,7 +73,7 @@ At the training stage, a dictionary is built by counting co-occurrences of an *n
 
 To classify a new document, we look up the counts of each of its *n*-grams in the dictionary and calculate the probabilities for each category. We employ a <a href="http://en.wikipedia.org/wiki/Naive_Bayes_classifier">Naïve-Bayes</a>-like method, which is turbocharged using <a href="http://en.wikipedia.org/wiki/Tf–idf">TF-IDF</a> weighting and complement class scoring as described in <a href="http://people.csail.mit.edu/jrennie/papers/icml03-nb.pdf">Tackling the Poor Assumptions of Naive Bayes Text Classifiers</a> (Jason D. M. Rennie; Lawrence Shih; Jaime Teevan; David R. Karger; 2003).
 
-Dictionaries are stored using a <a href="http://en.wikipedia.org/wiki/Trie">Trie</a> data structure, which provides efficient storage as well as fast access during classification. For more information, refer to the Javadoc of `DictionaryTrieModel`.
+Dictionaries are stored using a <a href="http://en.wikipedia.org/wiki/Trie">trie</a> data structure, which provides efficient storage as well as fast access during classification. For more information, refer to the Javadoc of `DictionaryTrieModel`.
 
 Scorer
 ------
@@ -81,12 +81,27 @@ Scorer
 Pruning
 -------
 
+Depending on the amount of training data and the feature settings, dictionaries can get quite large in size. To reduce space consumption of such models, different pruning strategies can be used, which remove potentially less relevant *n*-grams. A simple and efficient strategy is to remove such *n*-grams which occurred rarely during training, because one can assume, that those will not occur frequently during classification, making them less useful than more frequent *n*-grams. While pruning can significantly reduce the size of a dictionary, it usually comes with a sacrifice concerning classification accuracy. Read the <a href="#optimization">next section</a>, how you can evaluate the impact off different pruning strategies.
+
+The class `PruningStrategies` provides different ready to use methods for pruning. When instantiating a `PalladianTextClassifier`, you can explicity specify a `DictionaryBuilder` which can be setup with a pruning strategy like so:
+
+```java
+DictionaryBuilder builder = new DictionaryTrieModel.Builder();
+// remove entries from final dictionary, which occurred less than five times
+builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(5));
+PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, builder);
+```
+
+You may also create your own pruning strategies by providing an implementation for `Filter<CategoryEntries>`.
+
+
 Optimization
 ------------
+<a name="optimization"></a>
 
 In order to find out which classifier configuration works best, you can evaluate different setups. The `FeatureSettingOptimizer` provides the method `evaluateFeatureSettings` to run an extensive evaluation with different settings on given sets of training and validation data.
 
-The evaluation method produces a CSV file which holds the results for a combination feature settings, pruning strategies and scorers. The performance is measures in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall and F1</a>, separately for each category and as an average over all categories.
+The evaluation method produces a CSV file which holds the results for a combination feature settings, pruning strategies and scorers. The performance is measures in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall</a>, <a href="http://en.wikipedia.org/wiki/F1_score">F1</a>, and <a href="http://en.wikipedia.org/wiki/Accuracy_and_precision">accuracy</a>, separately for each category and as an average over all categories.
 
 Best Practices
 --------------

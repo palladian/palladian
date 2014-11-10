@@ -166,9 +166,10 @@ public final class FeatureSettingOptimizer {
                     if (!headerWritten) {
                         StringBuilder header = new StringBuilder("featureSetting;scorer;avgPr;avgRc;avgF1;accuracy;");
                         for (String categoryName : categoryNames) {
-                            header.append("pr-").append(categoryName).append(";");
-                            header.append("rc-").append(categoryName).append(";");
-                            header.append("f1-").append(categoryName).append(";");
+                            header.append("pr-").append(categoryName).append(';');
+                            header.append("rc-").append(categoryName).append(';');
+                            header.append("f1-").append(categoryName).append(';');
+                            header.append("acc-").append(categoryName).append(';');
                         }
                         header.append("modelSize\n");
                         FileHelper.appendFile(resultCsv.getPath(), header);
@@ -188,6 +189,7 @@ public final class FeatureSettingOptimizer {
                         resultLine.append(Double.isNaN(pr) ? StringUtils.EMPTY : pr).append(';');
                         resultLine.append(confusionMatrix.getRecall(categoryName)).append(';');
                         resultLine.append(Double.isNaN(f1) ? StringUtils.EMPTY : f1).append(';');
+                        resultLine.append(confusionMatrix.getAccuracy(categoryName)).append(';');
                     }
                     resultLine.append(model.getNumUniqTerms()).append('\n');
                     FileHelper.appendFile(resultCsv.getPath(), resultLine);
