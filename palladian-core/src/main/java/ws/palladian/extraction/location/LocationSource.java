@@ -1,11 +1,13 @@
 package ws.palladian.extraction.location;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
@@ -83,5 +85,21 @@ public interface LocationSource {
      *         distance (closest first), or an empty list, if no locations are found, never <code>null</code>.
      */
     List<Location> getLocations(GeoCoordinate coordinate, double distance);
+
+    /**
+     * <p>
+     * Get an {@link Iterator} over all locations within this location source.
+     * </p>
+     * 
+     * @return An iterator over all locations within this location source.
+     * @throws UnsupportedOperationException In case iterating is not supported (e.g. in Web APIs).
+     */
+    Iterator<Location> getLocations();
+
+    /**
+     * @return The number of locations in this location source.
+     * @throws UnsupportedOperationException In case this information is not provided (e.g. in Web APIs).
+     */
+    int size();
 
 }

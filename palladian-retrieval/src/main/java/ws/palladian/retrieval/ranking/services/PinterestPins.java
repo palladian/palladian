@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class PinterestPins extends BaseRankingService implements RankingService {
+public final class PinterestPins extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PinterestPins.class);
@@ -48,10 +46,9 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         Integer pins = 0;
@@ -63,17 +60,13 @@ public final class PinterestPins extends BaseRankingService implements RankingSe
 
             if (response != null) {
                 JsonObject jsonObject = new JsonObject(response);
-
                 pins = jsonObject.getInt("Pinterest");
-
                 LOGGER.trace("Pinterest Pins for " + url + " : " + pins);
             }
         } catch (Exception e) {
             throw new RankingServiceException(e);
         }
-
-        results.put(PINS, (float)pins);
-        return ranking;
+        return builder.add(PINS, pins).create();
     }
 
     /**

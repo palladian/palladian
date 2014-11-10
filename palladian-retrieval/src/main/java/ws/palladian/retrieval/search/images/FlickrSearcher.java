@@ -17,12 +17,11 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.InverseFilter;
-import ws.palladian.helper.collection.RegexFilter;
+import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -56,7 +55,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlickrSearcher.class);
 
     /** The name of this searcher. */
-    private static final String SEARCHER_NAME = "Flickr";
+    public static final String SEARCHER_NAME = "Flickr";
 
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
@@ -143,6 +142,31 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         }
     }
 
+    public static enum OrderBy implements Facet {
+
+        DATE_POSTED_ASC("date-posted-asc"), //
+        DATE_POSTED_DESC("date-posted-desc"), //
+        DATE_TAKEN_ASC("date-taken-asc"), //
+        DATE_TAKEN_DESC("date-taken-desc"), //
+        INTERESTINGNESS_DESC("interestingness-desc"), //
+        INTERESTINGNESS_ASC("interestingness-asc"), //
+        RELEVANCE("relevance"); //
+
+        private static final String ORDER_BY_IDENTIFIER = "flickr.order";
+
+        private final String orderByValue;
+
+        OrderBy(String orderByValue) {
+            this.orderByValue = orderByValue;
+        }
+
+        @Override
+        public String getIdentifier() {
+            return ORDER_BY_IDENTIFIER;
+        }
+
+    }
+
     /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.flickr.key";
 
@@ -204,7 +228,10 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
                         + e.getMessage() + ", request URL was \"" + requestUrl + "\"", e);
             }
-            // TODO implement checking for error codes.
+            if (httpResult.errorStatus()) {
+                throw new SearcherException("Encountered HTTP error status: " + httpResult.getStatusCode() + " ("
+                        + httpResult.getStringContent() + ").");
+            }
             String jsonString = httpResult.getStringContent();
 
             try {
@@ -281,7 +308,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             }
         }
         // remove "vision:" tags; http://stackoverflow.com/questions/21287302/flickr-api-what-are-the-vision-tags
-        CollectionHelper.remove(tags, InverseFilter.create(new RegexFilter("vision:.*")));
+        CollectionHelper.remove(tags, Filters.not(Filters.regex("vision:.*")));
         return tags;
     }
 
@@ -336,7 +363,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      */
     private String buildRequestUrl(MultifacetQuery query, int perPage, int page) {
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("http://api.flickr.com/services/rest/");
+        urlBuilder.append("https://api.flickr.com/services/rest/");
         urlBuilder.append("?api_key=").append(apiKey);
         if (StringUtils.isNotBlank(query.getId())) {
             urlBuilder.append("&method=flickr.photos.getInfo");
@@ -368,6 +395,11 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                     urlBuilder.append("&license=").append(licensesFacet.getLicensesString());
                 }
             }
+            facet = query.getFacet(OrderBy.ORDER_BY_IDENTIFIER);
+            if (facet != null) {
+                OrderBy orderByFacet = (OrderBy)facet;
+                urlBuilder.append("&sort=").append(orderByFacet.orderByValue);
+            }
             urlBuilder.append("&per_page=").append(perPage);
             urlBuilder.append("&page=").append(page);
             urlBuilder.append("&extras=description,license,date_taken,geo,tags,o_dims,");
@@ -383,11 +415,11 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      * Transforms the given parts back to an image URL.
      * </p>
      * 
-     * @param farmId
-     * @param serverId
-     * @param id
-     * @param secret
-     * @return
+     * @param farmId The farm ID, not <code>null</code> or empty.
+     * @param serverId The server ID, not <code>null</code> or empty.
+     * @param id The image ID, not <code>null</code> or empty.
+     * @param secret The secret, not <code>null</code> or empty.
+     * @return A URL pointing to the image.
      * @see <a href="http://www.flickr.com/services/api/misc.urls.html">URLs</a>
      */
     private String buildImageUrl(String farmId, String serverId, String id, String secret) {
@@ -399,9 +431,9 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      * Transforms the given parts to a page URL which gives details about the image.
      * </p>
      * 
-     * @param id
-     * @param userId
-     * @return
+     * @param id The image ID, not <code>null</code> or empty.
+     * @param userId The user ID, not <code>null</code> or empty.
+     * @return A URL pointing to the page with the image.
      */
     private String buildPageUrl(String id, String userId) {
         return String.format("http://www.flickr.com/photos/%s/%s", userId, id);

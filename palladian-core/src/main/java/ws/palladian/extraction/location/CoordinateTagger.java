@@ -7,8 +7,11 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.Tagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.Tagger;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
 /**
  * <p>
@@ -34,8 +37,6 @@ public final class CoordinateTagger implements Tagger {
     private static final String SEP = "(?:,\\s?|\\s)";
 
     /** Only degrees, as real number. */
-    // XXX this also picks up combinations such as "121.4, 21.4"; consider making this more strict, when we should get
-    // too many false positives
     private static final Pattern PATTERN_DEG = Pattern.compile(LEFT + "(" + DEG + ")" + SEP + "(" + DEG + ")" + RIGHT);
 
     /** DMS scheme, and/or combination with degrees. */
@@ -55,11 +56,11 @@ public final class CoordinateTagger implements Tagger {
         Matcher matcher = PATTERN_DEG.matcher(text);
         while (matcher.find()) {
             try {
-                double lat = Double.valueOf(matcher.group(2));
-                double lng = Double.valueOf(matcher.group(5));
+                double lat = Double.parseDouble(matcher.group(2));
+                double lng = Double.parseDouble(matcher.group(5));
                 lat = "S".equals(matcher.group(3)) ? -lat : lat;
                 lng = "W".equals(matcher.group(6)) ? -lng : lng;
-                if (GeoUtils.validCoordinateRange(lat, lng)) {
+                if (GeoUtils.isValidCoordinateRange(lat, lng)) {
                     annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
                 }
             } catch (NumberFormatException e) {
@@ -72,7 +73,7 @@ public final class CoordinateTagger implements Tagger {
             try {
                 double lat = GeoUtils.parseDms(matcher.group(1));
                 double lng = GeoUtils.parseDms(matcher.group(6));
-                if (GeoUtils.validCoordinateRange(lat, lng)) {
+                if (GeoUtils.isValidCoordinateRange(lat, lng)) {
                     annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
                 }
             } catch (NumberFormatException e) {

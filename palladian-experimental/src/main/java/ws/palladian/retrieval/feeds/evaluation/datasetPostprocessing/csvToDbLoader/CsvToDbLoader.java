@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
@@ -43,7 +43,7 @@ public class CsvToDbLoader {
         Configuration config = ConfigHolder.getInstance().getConfig();
         EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, config);
 
-        CsvToDbScheduler csvToDbScheduler = new CsvToDbScheduler(feedStore, FeedReader.DEFAULT_NUM_THREADS);
+        CsvToDbScheduler csvToDbScheduler = new CsvToDbScheduler(feedStore, FeedReaderSettings.DEFAULT_NUM_THREADS);
         checkScheduler.schedule(csvToDbScheduler, 0, wakeUpInterval);
     }
 

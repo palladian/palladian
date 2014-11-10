@@ -6,12 +6,12 @@ import java.util.List;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateImpl;
+import ws.palladian.helper.functional.Filter;
 
 /**
  * Helper functions for arrays consisting extracted dates or subclasses.
@@ -132,44 +132,6 @@ public final class DateExtractionHelper {
         }
         return result;
     }
-
-//    /**
-//     * Returns a hashmap of date are equal to given date.<br>
-//     * Date comparison stops at stopFlag.
-//     * 
-//     * @param <T>
-//     * @param date
-//     * @param dates
-//     * @return
-//     */
-//    public static <T extends ExtractedDate> List<T> getSameDatesMap(ExtractedDate date, List<T> dates,
-//            DateExactness compareDepth) {
-//        DateComparator dc = new DateComparator(compareDepth);
-//        List<T> result = CollectionHelper.newArrayList();
-//        for (T currentDate : dates) {
-//            if (dc.compare(date, currentDate) == 0) {
-//                result.add(currentDate);
-//            }
-//        }
-//        return result;
-//    }
-
-//    /**
-//     * <p>
-//     * Check if any of the {@link RatedDate}s has a rate higher than zero.
-//     * </p>
-//     * 
-//     * @param dates The dates to check.
-//     * @return <code>true</code> if at least one of the dates has a rate higher than zero, <code>false</code> otherwise.
-//     */
-//    public static boolean isAllZero(List<? extends RatedDate<?>> dates) {
-//        for (RatedDate<?> date : dates) {
-//            if (date.getRate() > 0) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
 
     public static <D extends ExtractedDate> List<D> filterExactest(List<D> dates) {
         DateExactness highestExactness = DateExactness.UNSET;

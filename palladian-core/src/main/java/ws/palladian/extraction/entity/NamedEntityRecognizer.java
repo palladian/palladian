@@ -9,20 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.evaluation.Dataset;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.Tagger;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.entity.tagger.NerHelper;
-import ws.palladian.extraction.feature.TextDocumentPipelineProcessor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.DocumentUnprocessableException;
-import ws.palladian.processing.Tagger;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ListFeature;
-import ws.palladian.processing.features.PositionAnnotation;
-import ws.palladian.processing.features.PositionAnnotationFactory;
 
 /**
  * <p>
@@ -31,12 +25,10 @@ import ws.palladian.processing.features.PositionAnnotationFactory;
  * 
  * @author David Urbansky
  */
-public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcessor implements Tagger {
+public abstract class NamedEntityRecognizer implements Tagger {
 
     /** The logger for named entity recognizer classes. */
-    protected static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
-    
-    public static final String PROVIDED_FEATURE = "ws.palladian.processing.entity.ner";
+    private static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
 
     /** The format in which the text should be tagged. */
     private TaggingFormat taggingFormat = TaggingFormat.XML;
@@ -48,15 +40,11 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
         StopWatch stopWatch = new StopWatch();
 
         List<? extends Annotation> annotations = getAnnotations(inputText);
-        String taggedText = tagText(inputText, annotations);
+        String taggedText = NerHelper.tag(inputText, annotations, taggingFormat);
 
         LOGGER.debug("tagged text in {}", stopWatch.getElapsedTimeString(false));
 
         return taggedText;
-    }
-
-    protected String tagText(String inputText, List<? extends Annotation> annotations) {
-        return NerHelper.tag(inputText, annotations, taggingFormat);
     }
 
     /**
@@ -91,7 +79,7 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format, Set<String> ignore) {
 
         // get the correct annotations from the testing file
-        Annotations<ContextAnnotation> goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
+        Annotations<Annotation> goldStandard = FileFormatParser.getAnnotations(testingFilePath, format);
         goldStandard.sort();
         // goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
 
@@ -193,23 +181,6 @@ public abstract class NamedEntityRecognizer extends TextDocumentPipelineProcesso
 
         // FileHelper.writeToFile(evaluationFile, evaluationDetails);
         return evaluationResult;
-    }
-    
-    @Override
-    public void processDocument(TextDocument document) throws DocumentUnprocessableException {
-        String content = document.getContent();
-        // TODO merge annotation classes
-        List<? extends Annotation> annotations = getAnnotations(content);
-
-        PositionAnnotationFactory annotationFactory = new PositionAnnotationFactory(document);
-        ListFeature<PositionAnnotation> processedAnnotations = new ListFeature<PositionAnnotation>(PROVIDED_FEATURE);
-        for (Annotation nerAnnotation : annotations) {
-            PositionAnnotation procAnnotation = annotationFactory.create(nerAnnotation.getStartPosition(),
-                    nerAnnotation.getEndPosition());
-            processedAnnotations.add(procAnnotation);
-
-        }
-        document.add(processedAnnotations);
     }
 
     public abstract String getName();

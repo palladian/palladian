@@ -31,7 +31,7 @@ public class PlaceholderQueryTest {
 
     @Test
     public void testPlaceholderQueryArguments() {
-        Query args = query.newArgs().set("value3", 3).set("value1", 1).set("Value2", 2).create();
+        Query args = query.newArgs().set("value3", 3).set("@value1", 1).set("Value2", 2).create();
         assertEquals(4, args.getArgs().length);
         assertEquals(Arrays.asList(1, 2, 3, 2), Arrays.asList(args.getArgs()));
     }

@@ -2,8 +2,10 @@ package ws.palladian.helper.math;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +36,15 @@ public final class MathHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
+    
+    public static final Random RANDOM = new Random();
 
     private static final Map<Double, String> FRACTION_MAP;
+    
+    private static final Map<Double, Double> LOC_Z_MAPPING;
+    
+    /** The supported confidence levels. */
+    public static final Collection<Double> CONFIDENCE_LEVELS;
 
     static {
         FRACTION_MAP = new HashMap<Double, String>();
@@ -69,6 +79,18 @@ public final class MathHelper {
         FRACTION_MAP.put(0.3, "3/10");
         FRACTION_MAP.put(0.7, "7/10");
         FRACTION_MAP.put(0.9, "9/10");
+        
+        Map<Double, Double> locZMapping = CollectionHelper.newLinkedHashMap();
+        locZMapping.put(0.75, 1.151);
+        locZMapping.put(0.85, 1.139);
+        locZMapping.put(0.90, 1.645);
+        locZMapping.put(0.95, 1.96);
+        locZMapping.put(0.975, 2.243);
+        locZMapping.put(0.985, 2.43);
+        locZMapping.put(0.99, 2.577);
+        locZMapping.put(0.999, 3.3);
+        LOC_Z_MAPPING = Collections.unmodifiableMap(locZMapping);
+        CONFIDENCE_LEVELS = Collections.unmodifiableSet(locZMapping.keySet());
     }
 
     private MathHelper() {
@@ -83,24 +105,28 @@ public final class MathHelper {
      * @param setA The first set, not <code>null</code>.
      * @param setB The second set, not <code>null</code>.
      * @return The Jaccard similarity in the range [0, 1].
+     * @deprecated Use {@link SetSimilarities#JACCARD}.
      */
+    @Deprecated
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
-        Validate.notNull(setA, "setA must not be null");
-        Validate.notNull(setB, "setB must not be null");
-
-        Set<T> intersection = CollectionHelper.newHashSet();
-        intersection.addAll(setA);
-        intersection.retainAll(setB);
-
-        if (intersection.size() == 0) {
-            return 0;
-        }
-
-        Set<T> union = CollectionHelper.newHashSet();
-        union.addAll(setA);
-        union.addAll(setB);
-
-        return (double)intersection.size() / union.size();
+//        Validate.notNull(setA, "setA must not be null");
+//        Validate.notNull(setB, "setB must not be null");
+//
+//        Set<T> intersection = CollectionHelper.newHashSet();
+//        intersection.addAll(setA);
+//        intersection.retainAll(setB);
+//
+//        if (intersection.size() == 0) {
+//            return 0;
+//        }
+//
+//        Set<T> union = CollectionHelper.newHashSet();
+//        union.addAll(setA);
+//        union.addAll(setB);
+//
+//        return (double)intersection.size() / union.size();
+        
+        return SetSimilarities.JACCARD.getSimilarity(setA, setB);
     }
 
     /**
@@ -112,19 +138,25 @@ public final class MathHelper {
      * @param setA The first set.
      * @param setB The second set.
      * @return The overlap coefficient in the range [0, 1].
+     * @deprecated Use {@link SetSimilarities#OVERLAP}.
      */
+    @Deprecated
     public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
-        if (setA.size() == 0 || setB.size() == 0) {
-            return 0;
-        }
-
-        Set<T> intersection = CollectionHelper.newHashSet();
-        intersection.addAll(setA);
-        intersection.retainAll(setB);
-
-        return (double)intersection.size() / Math.min(setA.size(), setB.size());
+//        if (setA.size() == 0 || setB.size() == 0) {
+//            return 0;
+//        }
+//
+//        Set<T> intersection = CollectionHelper.newHashSet();
+//        intersection.addAll(setA);
+//        intersection.retainAll(setB);
+//
+//        return (double)intersection.size() / Math.min(setA.size(), setB.size());
+        
+        return SetSimilarities.OVERLAP.getSimilarity(setA, setB);
     }
 
+    /** @deprecated Use {@link NumericVector} instead. */
+    @Deprecated
     public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
 
         double dotProduct = computeDotProduct(vector1, vector2);
@@ -134,6 +166,8 @@ public final class MathHelper {
         return dotProduct / (magnitude1 * magnitude2);
     }
 
+    /** @deprecated Use {@link NumericVector} instead. */
+    @Deprecated
     public static double computeDotProduct(Double[] vector1, Double[] vector2) {
         double dotProduct = 0.0;
 
@@ -144,6 +178,8 @@ public final class MathHelper {
         return dotProduct;
     }
 
+    /** @deprecated Use {@link NumericVector} instead. */
+    @Deprecated
     public static double computeMagnitude(Double[] vector) {
         double magnitude = 0.0;
 
@@ -156,31 +192,26 @@ public final class MathHelper {
 
     /**
      * <p>
-     * Calculate the confidence interval with a given confidence level and mean.
+     * Calculate the confidence interval with a given confidence level and mean. For more information see here: <a
+     * href="http://www.bioconsulting.com/calculation_of_the_confidence_interval.htm">Calculation Of The Confidence
+     * Interval</a>.
      * </p>
      * 
-     * <p>
-     * See here: http://www.bioconsulting.com/calculation_of_the_confidence_interval.htm
-     * </p>
-     * 
-     * @param samples The number of samples used.
-     * @param confidenceLevel Must be one of the following: 0.75, 0.85, 0.90, 0.95, 0.99.
-     * @param mean The mean, if unknown, assume worst case with mean = 0.5.
+     * @param samples The number of samples used, greater zero.
+     * @param confidenceLevel The level of confidence. Must be one of the values in {@link #CONFIDENCE_LEVELS}.
+     * @param mean The mean, in range [0,1]. If unknown, assume worst case with mean = 0.5.
      * 
      * @return The calculated confidence interval.
      */
-    public static double computeConfidenceInterval(int samples, double confidenceLevel, double mean) {
-
-        Map<Double, Double> zValues = new HashMap<Double, Double>();
-        zValues.put(0.75, 1.151);
-        zValues.put(0.85, 1.139);
-        zValues.put(0.90, 1.645);
-        zValues.put(0.95, 1.96);
-        zValues.put(0.99, 2.577);
-
-        double chosenZ = zValues.get(confidenceLevel);
-
-        return Math.sqrt(chosenZ * chosenZ * mean * (1 - mean) / (samples - 1.0));
+    public static double computeConfidenceInterval(long samples, double confidenceLevel, double mean) {
+        Validate.isTrue(samples > 0, "samples must be greater zero");
+        Validate.isTrue(0 <= mean && mean <= 1, "mean must be in range [0,1]");
+        Double z = LOC_Z_MAPPING.get(confidenceLevel);
+        if (z == null) {
+            throw new IllegalArgumentException("confidence level must be one of: {"
+                    + StringUtils.join(CONFIDENCE_LEVELS, ", ") + "}, but was " + confidenceLevel);
+        }
+        return z * Math.sqrt(mean * (1 - mean) / samples);
     }
 
     public static double round(double number, int digits) {
@@ -409,7 +440,8 @@ public final class MathHelper {
      * @return A random entry from the collection.
      */
     public static <T> T randomEntry(Collection<T> collection) {
-        Collection<T> randomSample = randomSample(collection, 1);
+//        Collection<T> randomSample = randomSample(collection, 1);
+        Collection<T> randomSample = sample(collection, 1);
         if (!randomSample.isEmpty()) {
             return randomSample.iterator().next();
         }
@@ -417,49 +449,98 @@ public final class MathHelper {
         return null;
     }
 
+//    /**
+//     * <p>
+//     * Create a random sample from a given collection.
+//     * </p>
+//     * 
+//     * @param collection The collection from we want to sample from.
+//     * @param sampleSize The size of the sample.
+//     * @return A collection with samples from the collection.
+//     */
+//    public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
+//
+//        if (collection.size() < sampleSize) {
+//            LOGGER.debug(
+//                    "tried to sample from a collection that was smaller than the sample size (Collection: {}, sample size: {}",
+//                    collection.size(), sampleSize);
+//            return collection;
+//        } else if (collection.size() == sampleSize) {
+//            return collection;
+//        }
+//
+//        Set<Integer> randomNumbers = MathHelper.createRandomNumbers(sampleSize, 0, collection.size());
+//
+//        Set<Integer> indicesUsed = new HashSet<Integer>();
+//        Set<T> sampledCollection = new HashSet<T>();
+//
+//        for (int randomIndex : randomNumbers) {
+//
+//            int currentIndex = 0;
+//            for (T o : collection) {
+//
+//                if (currentIndex < randomIndex) {
+//                    currentIndex++;
+//                    continue;
+//                }
+//
+//                sampledCollection.add(o);
+//                indicesUsed.add(randomIndex);
+//                break;
+//            }
+//
+//        }
+//
+//        return sampledCollection;
+//    }
+    
     /**
      * <p>
-     * Create a random sample from a given collection.
-     * </p>
+     * Create a random sampling of the given size using a <a
+     * href="http://en.wikipedia.org/wiki/Reservoir_sampling">Reservoir Sampling</a> algorithm. The input data can be
+     * supplied as iterable, thus does not have to fit in memory. Only the created random sample is kept in memory.
      * 
-     * @param collection The collection from we want to sample from.
-     * @param sampleSize The size of the sample.
-     * @return A collection with samples from the collection.
+     * @param input The iterable providing the input data, not <code>null</code>.
+     * @param k The size of the sampling.
+     * @return A {@link Collection} with the random sample of size k (or smaller, in case the input data did not provide
+     *         enough samples).
      */
-    public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
+    public static <T> Collection<T> sample(Iterable<T> input, int k) {
+        return sample(input.iterator(), k);
+    }
 
-        if (collection.size() < sampleSize) {
-            LOGGER.debug(
-                    "tried to sample from a collection that was smaller than the sample size (Collection: {}, sample size: {}",
-                    collection.size(), sampleSize);
-            return collection;
-        } else if (collection.size() == sampleSize) {
-            return collection;
-        }
-
-        Set<Integer> randomNumbers = MathHelper.createRandomNumbers(sampleSize, 0, collection.size());
-
-        Set<Integer> indicesUsed = new HashSet<Integer>();
-        Set<T> sampledCollection = new HashSet<T>();
-
-        for (int randomIndex : randomNumbers) {
-
-            int currentIndex = 0;
-            for (T o : collection) {
-
-                if (currentIndex < randomIndex) {
-                    currentIndex++;
-                    continue;
-                }
-
-                sampledCollection.add(o);
-                indicesUsed.add(randomIndex);
+    /**
+     * <p>
+     * Create a random sampling of the given size using a <a
+     * href="http://en.wikipedia.org/wiki/Reservoir_sampling">Reservoir Sampling</a> algorithm. The input data can be
+     * supplied as iterator, thus does not have to fit in memory. Only the created random sample is kept in memory.
+     * 
+     * @param input The iterator providing the input data, not <code>null</code>.
+     * @param k The size of the sampling.
+     * @return A {@link Collection} with the random sample of size k (or smaller, in case the input data did not provide
+     *         enough samples).
+     */
+    public static <T> Collection<T> sample(Iterator<T> input, int k) {
+        Validate.notNull(input, "input must not be null");
+        Validate.isTrue(k >= 0, "k must be greater/equal zero");
+        List<T> sample = new ArrayList<T>(k);
+        for (int i = 0; i < k; i++) {
+            if (input.hasNext()) {
+                sample.add(input.next());
+            } else {
                 break;
             }
-
         }
 
-        return sampledCollection;
+        int i = k + 1;
+        while (input.hasNext()) {
+            T item = input.next();
+            int j = RANDOM.nextInt(i++) + 1;
+            if (j < k) {
+                sample.set(j, item);
+            }
+        }
+        return sample;
     }
 
     /**
@@ -470,25 +551,9 @@ public final class MathHelper {
      * @param numbers Number of numbers to generate.
      * @param min The minimum number.
      * @param max The maximum number.
-     * @param seed The seed to create the random numbers. The same seed leads to the same number sequence.
      * @return A set of random numbers between min and max.
      */
     public static Set<Integer> createRandomNumbers(int numbers, int min, int max) {
-        return createRandomNumbers(numbers, min, max, null);
-    }
-
-    /**
-     * <p>
-     * Create numbers random numbers between [min,max).
-     * </p>
-     * 
-     * @param numbers Number of numbers to generate.
-     * @param min The minimum number.
-     * @param max The maximum number.
-     * @param seed The seed to create the random numbers. The same seed leads to the same number sequence.
-     * @return A set of random numbers between min and max.
-     */
-    public static Set<Integer> createRandomNumbers(int numbers, int min, int max, Long seed) {
         Set<Integer> randomNumbers = new HashSet<Integer>();
 
         if (max - min < numbers) {
@@ -496,12 +561,8 @@ public final class MathHelper {
                     max);
             return randomNumbers;
         }
-        Random random = new Random();
-        if (seed != null) {
-            random.setSeed(seed);
-        }
         while (randomNumbers.size() < numbers) {
-            double nd = random.nextDouble();
+            double nd = RANDOM.nextDouble();
             int randomNumber = (int)(nd * max + min);
             randomNumbers.add(randomNumber);
         }
@@ -520,7 +581,7 @@ public final class MathHelper {
      */
     public static int getRandomIntBetween(int low, int high) {
         int hl = high - low;
-        return (int)Math.round(Math.random() * hl + low);
+        return (int)Math.round(RANDOM.nextDouble() * hl + low);
     }
 
     /**
@@ -659,9 +720,9 @@ public final class MathHelper {
         double denominatorY = 0.;
 
         for (int i = 0; i < x.size(); i++) {
-            nominator += ((x.get(i) - avgX) * (y.get(i) - avgY));
-            denominatorX += Math.pow((x.get(i) - avgX), 2);
-            denominatorY += Math.pow((y.get(i) - avgY), 2);
+            nominator += (x.get(i) - avgX) * (y.get(i) - avgY);
+            denominatorX += Math.pow(x.get(i) - avgX, 2);
+            denominatorY += Math.pow(y.get(i) - avgY, 2);
         }
 
         double denominator = Math.sqrt(denominatorX * denominatorY);
@@ -678,12 +739,9 @@ public final class MathHelper {
      * @return The fraction of the number if it was possible to transform, otherwise the number as a string.
      */
     public static String numberToFraction(Double number) {
-        String fraction = "";
+        String fraction = StringUtils.EMPTY;
 
-        String sign = "";
-        if (number < 0) {
-            sign = "-";
-        }
+        String sign = number >= 0 ? StringUtils.EMPTY : "-";
         number = Math.abs(number);
 
         int fullPart = (int)Math.floor(number);
@@ -713,7 +771,7 @@ public final class MathHelper {
             if (!fraction.equalsIgnoreCase("0")) {
                 fraction = fullPart + " " + fraction;
             } else {
-                fraction = fullPart + "";
+                fraction = String.valueOf(fullPart);
             }
         }
 
@@ -742,15 +800,15 @@ public final class MathHelper {
      * @param string A tokenized string to get the spans for.
      * @return A collection of spans.
      */
-    public static Collection<List<Object>> computeAllCombinations(Object[] items) {
+    public static <T> Collection<List<T>> computeAllCombinations(T[] items) {
 
         // create bitvector (all bit combinations other than all zeros)
         int bits = items.length;
-        List<List<Object>> combinations = new ArrayList<List<Object>>();
+        List<List<T>> combinations = new ArrayList<List<T>>();
 
         int max = (int)Math.pow(2, bits);
         for (long i = 1; i < max; i++) {
-            List<Object> combination = new LinkedList<Object>();
+            List<T> combination = new LinkedList<T>();
             if (computeCombinationRecursive(i, items, combination, 0)) {
                 combinations.add(combination);
             }
@@ -773,12 +831,12 @@ public final class MathHelper {
      *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
      * @return {@code true} if the computed combination was computed successfully.
      */
-    private static Boolean computeCombinationRecursive(Long bitPattern, Object[] items, List<Object> combination,
-            Integer currentIndex) {
+    private static <T> boolean computeCombinationRecursive(long bitPattern, T[] items, List<T> combination,
+            int currentIndex) {
         if (bitPattern % 2 != 0) {
             combination.add(items[currentIndex]);
         }
-        Long nextBitPattern = bitPattern / 2;
+        long nextBitPattern = bitPattern / 2;
         if (nextBitPattern < 1) {
             return true;
         } else {
@@ -874,7 +932,7 @@ public final class MathHelper {
         }
 
         for (String string : remove) {
-            stringNumber = stringNumber.replace(string, "");
+            stringNumber = stringNumber.replace(string, StringUtils.EMPTY);
         }
 
         // resolve fractions like "1/2"
@@ -883,13 +941,13 @@ public final class MathHelper {
             int nominator = Integer.parseInt(matcher.group(1));
             int denominator = Integer.parseInt(matcher.group(2));
             value += nominator / (double)denominator;
-            stringNumber = stringNumber.replace(matcher.group(), "");
+            stringNumber = stringNumber.replace(matcher.group(), StringUtils.EMPTY);
         }
 
         // parse the rest
-        stringNumber = stringNumber.replaceAll("[^0-9.]", "");
-        stringNumber = stringNumber.replaceAll("\\.(?!\\d)", "");
-        stringNumber = stringNumber.replaceAll("(?<!\\d)\\.", "");
+        stringNumber = stringNumber.replaceAll("[^0-9.]", StringUtils.EMPTY);
+        stringNumber = stringNumber.replaceAll("\\.(?!\\d)", StringUtils.EMPTY);
+        stringNumber = stringNumber.replaceAll("(?<!\\d)\\.", StringUtils.EMPTY);
         stringNumber = stringNumber.trim();
         if (!stringNumber.isEmpty()) {
             try {
@@ -917,6 +975,23 @@ public final class MathHelper {
             return 0;
         }
         return (int)Math.floor(Math.log10(number));
+    }
+
+    /**
+     * <p>
+     * Add two int values and check for integer overflows.
+     * 
+     * @param a The first value.
+     * @param b The second value (negative value to subtract).
+     * @return The sum of the given values.
+     * @throws ArithmeticException in case of a numeric overflow.
+     */
+    public static int add(int a, int b) throws ArithmeticException {
+        int sum = a + b;
+        if ((a & b & ~sum | ~a & ~b & sum) < 0) {
+            throw new ArithmeticException("Overflow for " + a + "+" + b);
+        }
+        return sum;
     }
 
 }

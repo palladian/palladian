@@ -1,11 +1,11 @@
 package ws.palladian.retrieval.feeds.updates;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
  * <p>
@@ -26,18 +26,22 @@ public class FixUpdateStrategy extends AbstractUpdateStrategy {
      */
     private final int checkInterval;
     
+    private final FeedUpdateMode updateMode;
+    
     /**
      * Create strategy and set a fixed check interval in minutes larger than zero.
      * 
      * @param checkInterval Fixed check interval in minutes. Value has to be larger than zero.
      * @throws IllegalArgumentException In case the value is smaller or equal to zero.
      */
-    public FixUpdateStrategy(int lowestInterval, int highestInterval, int checkInterval) {
+    public FixUpdateStrategy(int lowestInterval, int highestInterval, int checkInterval, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval);
         if (checkInterval <= 0) {
             throw new IllegalArgumentException("A fixed check interval smaller or equal to zero is not supported.");
         }
+        Validate.notNull(updateMode, "updateMode must not be null");
         this.checkInterval = checkInterval;
+        this.updateMode = updateMode;
     }
 
     /**
@@ -63,7 +67,7 @@ public class FixUpdateStrategy extends AbstractUpdateStrategy {
         }
 
         // set the (new) check interval to feed
-        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
+        if (updateMode == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedInterval(fixedMinCheckInterval));
         }
     }

@@ -171,7 +171,7 @@ public class DatabaseManagerTest {
         });
         assertEquals(0, insertedRows);
         assertEquals(0,
-                (int)databaseManager.runSingleQuery(OneColumnRowConverter.INTEGER, "SELECT COUNT(*) FROM test2;"));
+                (int)databaseManager.runSingleQuery(RowConverters.INTEGER, "SELECT COUNT(*) FROM test2;"));
     }
 
     @Test

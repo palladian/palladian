@@ -3,12 +3,12 @@ package ws.palladian.retrieval.feeds.updates;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.FeedUpdateMode;
 
 /**
  * <p>
@@ -23,9 +23,13 @@ public class LRU2UpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LRU2UpdateStrategy.class);
+    
+    private final FeedUpdateMode updateMode;
 
-    public LRU2UpdateStrategy(int lowestInterval, int highestInterval) {
+    public LRU2UpdateStrategy(int lowestInterval, int highestInterval, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval);
+        Validate.notNull(updateMode, "updateMode must not be null");
+        this.updateMode = updateMode;
     }
 
     /**
@@ -64,7 +68,7 @@ public class LRU2UpdateStrategy extends AbstractUpdateStrategy {
         }
 
         // set the (new) check interval to feed
-        if (feed.getUpdateMode() == FeedUpdateMode.MIN_DELAY) {
+        if (updateMode == FeedUpdateMode.MIN_DELAY) {
             feed.setUpdateInterval(getAllowedInterval(checkInterval));
         }
     }

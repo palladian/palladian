@@ -72,7 +72,7 @@ public class PollMetaInformation {
      * @param pollTimestamp the pollTimestamp to set
      */
     public final void setPollTimestamp(Date pollTimestamp) {
-        this.pollTimestamp = DateHelper.validateYear(pollTimestamp, 9999);
+        this.pollTimestamp = DateHelper.validateYear(pollTimestamp);
     }
 
     /**
@@ -109,7 +109,7 @@ public class PollMetaInformation {
      * @param httpDate the httpDate to set
      */
     public final void setHttpDate(Date httpDate) {
-        this.httpDate = DateHelper.validateYear(httpDate, 9999);
+        this.httpDate = DateHelper.validateYear(httpDate);
     }
 
     /**
@@ -135,7 +135,7 @@ public class PollMetaInformation {
      * @param httpLastModified the httpLastModified to set
      */
     public final void setHttpLastModified(Date httpLastModified) {
-        this.httpLastModified = DateHelper.validateYear(httpLastModified, 9999);
+        this.httpLastModified = DateHelper.validateYear(httpLastModified);
     }
 
     /**
@@ -161,7 +161,7 @@ public class PollMetaInformation {
      * @param httpExpires the httpExpires to set
      */
     public final void setHttpExpires(Date httpExpires) {
-        this.httpExpires = DateHelper.validateYear(httpExpires, 9999);
+        this.httpExpires = DateHelper.validateYear(httpExpires);
     }
 
 
@@ -188,7 +188,7 @@ public class PollMetaInformation {
      * @param newestItemTimestamp the newestItemTimestamp to set
      */
     public final void setNewestItemTimestamp(Date newestItemTimestamp) {
-        this.newestItemTimestamp = DateHelper.validateYear(newestItemTimestamp, 9999);
+        this.newestItemTimestamp = DateHelper.validateYear(newestItemTimestamp);
     }
 
     /**

@@ -16,7 +16,9 @@ import org.apache.commons.lang3.Validate;
  *      Jaro-Winkler implementation in C</a>
  * @author Philipp Katz
  */
-public class JaroWinklerSimilarity implements StringSimilarity {
+public class JaroWinklerSimilarity extends AbstractStringMetric {
+    
+    private static final String NAME = "Jaro-Winkler";
 
     @Override
     public double getSimilarity(String s1, String s2) {
@@ -97,6 +99,11 @@ public class JaroWinklerSimilarity implements StringSimilarity {
         for (l = 0; l < Math.min(4, s1.length()) && s1.charAt(l) == s2.charAt(l); l++) {
         }
         return jaro + l * 0.1 * (1. - jaro);
+    }
+    
+    @Override
+    public String toString() {
+        return NAME;
     }
 
 }

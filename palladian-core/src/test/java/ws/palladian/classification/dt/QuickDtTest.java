@@ -10,14 +10,13 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.InstanceBuilder;
 import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.FeatureVector;
 
 public class QuickDtTest {
 
@@ -72,7 +71,7 @@ public class QuickDtTest {
 
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
-        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/adultData.txt"), false).readAll();
+        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/adultData.txt"), false).readAll();
         ConfusionMatrix confusionMatrix = evaluate(QuickDtLearner.randomForest(), new QuickDtClassifier(), instances);
         double accuracy = confusionMatrix.getAccuracy();
         assertGreater(0.75, accuracy);
@@ -84,7 +83,7 @@ public class QuickDtTest {
 
     @Test
     public void testWithDiabetesData() throws FileNotFoundException {
-        List<Trainable> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false)
+        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false)
                 .readAll();
         ConfusionMatrix confusionMatrix = evaluate(QuickDtLearner.randomForest(), new QuickDtClassifier(), instances);
         double accuracy = confusionMatrix.getAccuracy();

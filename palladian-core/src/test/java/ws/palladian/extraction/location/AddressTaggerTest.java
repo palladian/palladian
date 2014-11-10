@@ -15,7 +15,7 @@ public class AddressTaggerTest {
 
     @Test
     public void testAddressTagger() throws FileNotFoundException {
-        AddressTagger addressTagger = new AddressTagger();
+        AddressTagger addressTagger = AddressTagger.INSTANCE;
         String textFile = ResourceHelper.getResourcePath("/testTextAddresses.txt");
         String text = FileFormatParser.getText(textFile, TaggingFormat.XML);
         List<LocationAnnotation> locationAnnotations = addressTagger.getAnnotations(text);

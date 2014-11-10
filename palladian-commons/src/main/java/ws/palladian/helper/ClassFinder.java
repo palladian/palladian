@@ -1,7 +1,6 @@
 package ws.palladian.helper;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -14,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -117,7 +116,7 @@ public final class ClassFinder {
                     LOGGER.error("IOException when trying to read {}", classPathItem, e);
                 }
             } else { // we're checking .class files
-                FileHelper.traverseFiles(new File(classPathItem), new FileFilter() {
+                FileHelper.traverseFiles(new File(classPathItem), new Filter<File>() {
                     @Override
                     public boolean accept(File pathname) {
                         String namespaceName = pathname.getPath().substring(classPathItem.length() + 1);
@@ -125,7 +124,7 @@ public final class ClassFinder {
                         return pathname.getName().endsWith(CLASS_FILE_EXTENSION)
                                 && namespaceFilter.accept(namespaceName);
                     }
-                }, new Action<File>() {
+                }, new Consumer<File>() {
                     @Override
                     public void process(File file) {
                         String className = pathToClassName(file.getPath().substring(classPathItem.length() + 1));

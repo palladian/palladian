@@ -2,22 +2,38 @@ package ws.palladian.extraction.location;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotation;
 
 public class EntityPreprocessingTaggerTest {
+
+    private EntityPreprocessingTagger tagger;
+
+    @Before
+    public void setUp() throws FileNotFoundException {
+        InputStream caseDictionaryStream = ResourceHelper.getResourceStream("caseDictionary.csv");
+        tagger = new EntityPreprocessingTagger(caseDictionaryStream, 2, 0);
+    }
+
+    @After
+    public void tearDown() {
+        tagger = null;
+    }
 
     @Test
     public void testEntityPreprocessor() throws IOException {
         String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("testText.txt"));
-        EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
         List<Annotation> annotations = tagger.getAnnotations(text);
         // CollectionHelper.print(annotations);
         assertEquals(41, annotations.size());
@@ -29,28 +45,32 @@ public class EntityPreprocessingTaggerTest {
     }
 
     @Test
+    public void testEntityPreprocessor_shortPhrase_issue294() throws IOException {
+        String text = "New York City";
+        List<Annotation> annotations = tagger.getAnnotations(text);
+        assertEquals(1, annotations.size());
+        assertEquals("New York City", annotations.get(0).getValue());
+    }
+
+    @Test
     public void testCorrectCapitalization() {
-        EntityPreprocessingTagger tagger = new EntityPreprocessingTagger();
-        String corrected = tagger.correctCapitalization("Senior U.S. Military Official Visits Georgia.");
-        assertEquals("Senior U.S. military official visits Georgia.", corrected);
-
-        assertEquals("BY RACHEL E. SHEELEY staff writer",
+        assertEquals("senior U.S. military official visits Georgia.",
+                tagger.correctCapitalization("Senior U.S. Military Official Visits Georgia."));
+        assertEquals("by RACHEL E. SHEELEY staff writer",
                 tagger.correctCapitalization("BY RACHEL E. SHEELEY STAFF WRITER"));
-
         assertEquals("OSCE envoy condemns Dvani attack that killed one policeman.",
                 tagger.correctCapitalization("OSCE Envoy Condemns Dvani Attack that Killed One Policeman."));
         assertEquals(
-                "Competitive growth on imposition of special duties on importation of passenger cars.",
+                "competitive growth on imposition of special duties on importation of passenger cars.",
                 tagger.correctCapitalization("Competitive Growth On Imposition Of Special Duties On Importation Of Passenger Cars."));
+        assertEquals("at MAGAZAN BEACH resort", tagger.correctCapitalization("AT MAGAZAN BEACH RESORT"));
     }
 
     @Test
     public void testLongAnnotationSplit() {
-        StringTagger tagger = new StringTagger();
-        List<Annotation> annotations = tagger
+        List<Annotation> annotations = StringTagger.INSTANCE
                 .getAnnotations("Rocky Hill Tax Credits Available. Jordan Elementary School Principal Stacy DeCorsey shows her students an oversized check made out to the school for $1,825.40. Former Bloomfield Town Councilman Richard Days Dead At 79. Platte County Attorney Sandra Allen Calls Tourism Australia Managing Director Andrew McEvoy.");
-        EntityPreprocessingTagger preprocessingTagger = new EntityPreprocessingTagger();
-        List<Annotation> splitAnnotations = preprocessingTagger.getLongAnnotationSplit(annotations, 3);
+        List<Annotation> splitAnnotations = tagger.getLongAnnotationSplit(annotations, 3);
 
         assertEquals(9, splitAnnotations.size());
         assertEquals("Rocky Hill", splitAnnotations.get(0).getValue());
@@ -62,7 +82,7 @@ public class EntityPreprocessingTaggerTest {
         assertEquals(254, splitAnnotations.get(6).getEndPosition());
 
         annotations = tagger.getAnnotations("New York City-based");
-        splitAnnotations = preprocessingTagger.getLongAnnotationSplit(annotations, 3);
+        splitAnnotations = tagger.getLongAnnotationSplit(annotations, 3);
         assertEquals(2, splitAnnotations.size());
         assertEquals("New York City", splitAnnotations.get(1).getValue());
     }

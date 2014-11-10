@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class LinkedInShares extends BaseRankingService implements RankingService {
+public final class LinkedInShares extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkedInShares.class);
@@ -41,10 +39,9 @@ public final class LinkedInShares extends BaseRankingService implements RankingS
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         Integer shares = null;
@@ -64,9 +61,7 @@ public final class LinkedInShares extends BaseRankingService implements RankingS
         } catch (Exception e) {
             throw new RankingServiceException(e);
         }
-
-        results.put(SHARES, (float)shares);
-        return ranking;
+        return builder.add(SHARES, shares).create();
     }
 
     /**

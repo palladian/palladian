@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -35,7 +33,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Julien Schmehl
  * @see http://www.plurk.com
  */
-public final class PlurkPosts extends BaseRankingService implements RankingService {
+public final class PlurkPosts extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PlurkPosts.class);
@@ -86,24 +84,19 @@ public final class PlurkPosts extends BaseRankingService implements RankingServi
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         try {
-
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://www.plurk.com/API/PlurkSearch/search?api_key="
                     + getApiKey() + "&query=" + encUrl);
-
             JsonObject json = new JsonObject(httpResult.getStringContent());
-
             JsonArray plurks = json.getJsonArray("plurks");
-            float result = plurks.size();
-            results.put(POSTS, result);
-            LOGGER.trace("Plurk.com posts for " + url + " : " + result);
+            builder.add(POSTS, plurks.size());
+            LOGGER.trace("Plurk.com posts for " + url + " : " + plurks.size());
 
         } catch (JsonException e) {
             checkBlocked();
@@ -112,7 +105,7 @@ public final class PlurkPosts extends BaseRankingService implements RankingServi
             checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         }
-        return ranking;
+        return builder.create();
     }
 
     @Override

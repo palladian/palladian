@@ -6,13 +6,13 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -62,8 +62,8 @@ public final class HotelsBaseImporter {
                     return;
                 }
                 String hotelName = parts[1].replace("&amp;", "&");
-                Double latitude = Double.valueOf(parts[12]);
-                Double longitude = Double.valueOf(parts[13]);
+                double latitude = Double.parseDouble(parts[12]);
+                double longitude = Double.parseDouble(parts[13]);
                 GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
                 int id = maxId + lineNumber;
                 locationStore.save(new ImmutableLocation(id, hotelName, LocationType.POI, coordinate, null));
@@ -72,7 +72,7 @@ public final class HotelsBaseImporter {
         };
 
         FileHelper.performActionOnEveryLine(locationFilePath, action);
-        LOGGER.info("imported {} locations in {}", totalLocations, monitor.getTotalElapsedTimeString());
+        LOGGER.info("imported {} locations.");
     }
 
     public static void main(String[] args) throws IOException {

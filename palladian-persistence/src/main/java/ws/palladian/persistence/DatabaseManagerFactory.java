@@ -5,9 +5,9 @@ package ws.palladian.persistence;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
@@ -42,7 +42,7 @@ public final class DatabaseManagerFactory {
     
     public static final String DB_CONFIG_FILE = "database.xml";
 
-    private final static Map<String, DataSource> dataSourceRegistry = new ConcurrentHashMap<String, DataSource>();
+    private final static Map<String, DataSource> dataSourceRegistry = new HashMap<String, DataSource>();
     
     /** Specify the {@link DataSourceFactory} to use, if you need a custom one. */
     public static DataSourceFactory dataSourceFactory = BoneCpDataSourceFactory.INSTANCE;

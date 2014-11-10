@@ -1,22 +1,41 @@
 package ws.palladian.retrieval;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * <p>
@@ -66,10 +85,8 @@ public class DocumentRetriever {
      */
     private int numThreads = DEFAULT_NUM_THREADS;
 
-    /**
-     * The filter for the retriever.
-     */
-    private DownloadFilter downloadFilter;
+    /** The filter for the retriever. */
+    private Filter<? super String> downloadFilter;
 
     /**
      * Some APIs require to send headers such as the accept header, so we can specify that globally for all calls with
@@ -77,10 +94,8 @@ public class DocumentRetriever {
      */
     private Map<String, String> globalHeaders = null;
 
-    /**
-     * The callbacks that are called after each parsed page.
-     */
-    private final List<RetrieverCallback> retrieverCallbacks;
+    /** The callbacks that are called after each parsed page. */
+    private final List<Consumer<Document>> retrieverCallbacks;
 
     private List<String> userAgents;
 
@@ -105,9 +120,9 @@ public class DocumentRetriever {
      */
     public DocumentRetriever(HttpRetriever httpRetriever) {
         this.httpRetriever = httpRetriever;
-        downloadFilter = new DownloadFilter();
+        downloadFilter = Filters.ALL;
         this.initializeAgents();
-        retrieverCallbacks = new ArrayList<RetrieverCallback>();
+        retrieverCallbacks = new ArrayList<Consumer<Document>>();
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -135,7 +150,7 @@ public class DocumentRetriever {
      * @param urls     the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
-    public void getWebDocuments(Collection<String> urls, final RetrieverCallback<Document> callback) {
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
 
         final ProgressMonitor progressMonitor = new ProgressMonitor(urls.size(), 0.5, "DocumentRetriever");
 
@@ -157,7 +172,7 @@ public class DocumentRetriever {
                     public void run() {
                         Document document = getWebDocument(url);
                         if (document != null) {
-                            callback.onFinishRetrieval(document);
+                            callback.process(document);
                         }
                         progressMonitor.incrementAndPrintProgress();
                     }
@@ -199,9 +214,9 @@ public class DocumentRetriever {
      */
     public Set<Document> getWebDocuments(Collection<String> urls) {
         final Set<Document> result = new HashSet<Document>();
-        getWebDocuments(urls, new RetrieverCallback<Document>() {
+        getWebDocuments(urls, new Consumer<Document>() {
             @Override
-            public void onFinishRetrieval(Document document) {
+            public void process(Document document) {
                 synchronized (result) {
                     result.add(document);
                 }
@@ -285,7 +300,7 @@ public class DocumentRetriever {
 
         String contentString = null;
 
-        if (downloadFilter.isAcceptedFileType(url)) {
+        if (downloadFilter.accept(url)) {
             try {
                 if (isFile(url)) {
                     contentString = FileHelper.readFileToString(url);
@@ -312,7 +327,7 @@ public class DocumentRetriever {
      * @param urls     The URLs to download.
      * @param callback The callback to be called for each finished download.
      */
-    public void getTexts(Collection<String> urls, final RetrieverCallback<String> callback) {
+    public void getTexts(Collection<String> urls, final Consumer<String> callback) {
 
         final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
 
@@ -333,7 +348,7 @@ public class DocumentRetriever {
                         }
                         String text = getText(url);
                         if (text != null) {
-                            callback.onFinishRetrieval(text);
+                            callback.process(text);
                         }
                     }
                 }
@@ -362,9 +377,9 @@ public class DocumentRetriever {
      */
     public Set<String> getTexts(Collection<String> urls) {
         final Set<String> result = new HashSet<String>();
-        getTexts(urls, new RetrieverCallback<String>() {
+        getTexts(urls, new Consumer<String>() {
             @Override
-            public void onFinishRetrieval(String text) {
+            public void process(String text) {
                 synchronized (result) {
                     result.add(text);
                 }
@@ -394,7 +409,7 @@ public class DocumentRetriever {
         String cleanUrl = url.trim();
         InputStream inputStream = null;
 
-        if (downloadFilter.isAcceptedFileType(cleanUrl)) {
+        if (downloadFilter.accept(cleanUrl)) {
 
             try {
 
@@ -471,11 +486,11 @@ public class DocumentRetriever {
         this.numThreads = numThreads;
     }
 
-    public void setDownloadFilter(DownloadFilter downloadFilter) {
+    public void setDownloadFilter(Filter<String> downloadFilter) {
         this.downloadFilter = downloadFilter;
     }
 
-    public DownloadFilter getDownloadFilter() {
+    public Filter<? super String> getDownloadFilter() {
         return downloadFilter;
     }
 
@@ -484,20 +499,20 @@ public class DocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     private void callRetrieverCallback(Document document) {
-        for (RetrieverCallback<Document> retrieverCallback : retrieverCallbacks) {
-            retrieverCallback.onFinishRetrieval(document);
+        for (Consumer<Document> retrieverCallback : retrieverCallbacks) {
+            retrieverCallback.process(document);
         }
     }
 
-    public List<RetrieverCallback> getRetrieverCallbacks() {
+    public List<Consumer<Document>> getRetrieverCallbacks() {
         return retrieverCallbacks;
     }
 
-    public void addRetrieverCallback(RetrieverCallback<Document> retrieverCallback) {
+    public void addRetrieverCallback(Consumer<Document> retrieverCallback) {
         retrieverCallbacks.add(retrieverCallback);
     }
 
-    public void removeRetrieverCallback(RetrieverCallback<Document> retrieverCallback) {
+    public void removeRetrieverCallback(Consumer<Document> retrieverCallback) {
         retrieverCallbacks.remove(retrieverCallback);
     }
 
@@ -589,9 +604,9 @@ public class DocumentRetriever {
         // true);
 
         // create a retriever that is triggered for every retrieved page
-        RetrieverCallback<Document> crawlerCallback = new RetrieverCallback<Document>() {
+        Consumer<Document> crawlerCallback = new Consumer<Document>() {
             @Override
-            public void onFinishRetrieval(Document document) {
+            public void process(Document document) {
                 // do something with the page
                 LOGGER.info(document.getDocumentURI());
             }

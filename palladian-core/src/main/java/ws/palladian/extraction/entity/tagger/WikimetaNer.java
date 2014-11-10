@@ -5,17 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -36,6 +38,9 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @see <a href="http://wikimeta.com/api.html">API documentation</a>
  */
 public final class WikimetaNer extends NamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikimetaNer.class);
 
     /** The API key for accessing the service. */
     private final String apiKey;
@@ -177,12 +182,6 @@ public final class WikimetaNer extends NamedEntityRecognizer {
             items.add(lines[index]);
         }
         return items;
-    }
-
-    /** Overridden, intended for unit-testing only. */
-    @Override
-    protected String tagText(String inputText, List<? extends Annotation> annotations) {
-        return super.tagText(inputText, annotations);
     }
 
     @Override

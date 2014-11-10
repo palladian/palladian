@@ -2,9 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -35,7 +33,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.sharethis.com/
  * @see http://help.sharethis.com/api/sharing-api#social-destinations
  */
-public final class SharethisStats extends BaseRankingService implements RankingService {
+public final class SharethisStats extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SharethisStats.class);
@@ -93,10 +91,9 @@ public final class SharethisStats extends BaseRankingService implements RankingS
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         if (isBlocked()) {
-            return ranking;
+            return builder.create();
         }
 
         try {
@@ -104,8 +101,8 @@ public final class SharethisStats extends BaseRankingService implements RankingS
             HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=" + encUrl);
             JsonObject json = new JsonObject(httpResult.getStringContent());
-            float total = json.getJsonObject("total").getInt("outbound");
-            results.put(SHARES, total);
+            int total = json.getJsonObject("total").getInt("outbound");
+            builder.add(SHARES, total);
             LOGGER.trace("ShareThis stats for " + url + " : " + total);
         } catch (JsonException e) {
             checkBlocked();
@@ -114,7 +111,7 @@ public final class SharethisStats extends BaseRankingService implements RankingS
             checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         }
-        return ranking;
+        return builder.create();
     }
 
     @Override

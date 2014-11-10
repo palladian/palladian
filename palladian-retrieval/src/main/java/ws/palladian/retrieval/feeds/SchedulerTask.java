@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -15,8 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
+import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -29,43 +27,10 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
  */
 class SchedulerTask extends TimerTask {
 
-    /** The logger for objects of this class. Configure it using <tt>src/main/resources/log4j.xml</tt>. */
+    /** The logger for objects of this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerTask.class);
 
-    /**
-     * The number of times a feed that has never been checked successfully is put into the queue regardless of its
-     * update interval.
-     */
-    private static final int MAX_IMMEDIATE_RETRIES = 3;
-
-    /**
-     * Max allowed ratio of unreachableCount : checks. If feed was unreachable more often, don't schedule it in the
-     * future.
-     */
-    private static final int CHECKS_TO_UNREACHABLE_RATIO = 10;
-
-    /**
-     * Max allowed ratio of unparsableCount : checks. If feed was unparsable more often, don't schedule it in the
-     * future.
-     */
-    private static final int CHECKS_TO_UNPARSABLE_RATIO = 10;
-
-    /**
-     * Max allowed average time to process a feed. If processing takes longer on average, don't schedule it in the
-     * future.
-     */
-    private static final long MAXIMUM_AVERAGE_PROCESSING_TIME_MS = TimeUnit.MINUTES.toMillis(10);
-
-    /** The store providing persistence for the feeds. */
-    private final FeedStore store;
-
-    /** The actions to perform when processing a feed (and various other cases). */
-    private final FeedProcessingAction action;
-
-    /** The strategy to determine a feed's update behaviour. */
-    private final UpdateStrategy updateStrategy;
-
-    /** The thread pool managing threads that read feeds from the feed sources provided by {@link #collectionOfFeeds}. */
+    /** The thread pool managing threads that read feeds. */
     private final ExecutorService threadPool;
 
     /** Tasks currently scheduled but not yet checked. */
@@ -73,40 +38,36 @@ class SchedulerTask extends TimerTask {
 
     private final Long lastWakeUpTime = null;
 
+    private final FeedReaderSettings settings;
+
     /**
      * <p>
      * Creates a new {@code SchedulerTask} for a feed reader.
      * </p>
      * 
-     * @param threadPoolSize Maximum number of {@link FeedTask}s to schedule.
-     * @param store The store with the feeds.
-     * @param action The action to perform for each read feed.
-     * @param updateStrategy The strategy to use for determining update behavior.
+     * @param All necessary settings, not <code>null</code>.
      */
-    public SchedulerTask(int threadPoolSize, FeedStore store, FeedProcessingAction action, UpdateStrategy updateStrategy) {
-        this.threadPool = Executors.newFixedThreadPool(threadPoolSize);
-        this.scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
-        this.store = store;
-        this.action = action;
-        this.updateStrategy = updateStrategy;
+    SchedulerTask(FeedReaderSettings settings) {
+        this.threadPool = Executors.newFixedThreadPool(settings.getNumThreads());
+        this.scheduledTasks = CollectionHelper.newHashMap();
+        this.settings = settings;
     }
 
     @Override
     public void run() {
-        LOGGER.debug("wake up to check feeds");
-
+        int numScheduled = 0;
         // schedule all feeds
         for (Feed feed : getFeeds()) {
-
             // remove completed FeedTasks
             removeFeedTaskIfDone(feed.getId());
             if (needsLookup(feed)) {
                 if (!scheduledTasks.containsKey(feed.getId())) {
-                    scheduledTasks.put(feed.getId(),
-                            threadPool.submit(new FeedTask(feed, store, action, updateStrategy)));
+                    scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(settings, feed)));
+                    numScheduled++;
                 }
             }
         }
+        LOGGER.debug("scheduled {} feeds", numScheduled);
     }
 
     /**
@@ -123,11 +84,11 @@ class SchedulerTask extends TimerTask {
     private Collection<Feed> getFeeds() {
         if (lastWakeUpTime == null) {
             List<Feed> feedList = new ArrayList<Feed>();
-            feedList.addAll(store.getFeeds());
+            feedList.addAll(settings.getStore().getFeeds());
             Collections.shuffle(feedList);
             return feedList;
         } else {
-            return store.getFeeds();
+            return settings.getStore().getFeeds();
         }
     }
 
@@ -162,30 +123,31 @@ class SchedulerTask extends TimerTask {
         // check whether the feed needs to be blocked
         if (!feed.isBlocked()) {
             if (feed.getChecks() + feed.getUnreachableCount() + feed.getUnparsableCount() >= 3
-                    && feed.getAverageProcessingTime() >= MAXIMUM_AVERAGE_PROCESSING_TIME_MS) {
+                    && feed.getAverageProcessingTime() >= settings.getMaximumAvgProcessingTime()) {
                 LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") takes on average too long to process and is therefore blocked (never scheduled again)!"
                         + " Average processing time was " + feed.getAverageProcessingTime() + " milliseconds.");
                 feed.setBlocked(true);
-                store.updateFeed(feed);
-            } else if (feed.getChecks() < feed.getUnreachableCount() / CHECKS_TO_UNREACHABLE_RATIO) {
+                settings.getStore().updateFeed(feed);
+            } else if (feed.getChecks() < feed.getUnreachableCount() / settings.getChecksToUnreachableRatio()) {
                 LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unreachable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unreachableCount = " + feed.getUnreachableCount());
                 feed.setBlocked(true);
-                store.updateFeed(feed);
-            } else if (feed.getChecks() < feed.getUnparsableCount() / CHECKS_TO_UNPARSABLE_RATIO) {
+                settings.getStore().updateFeed(feed);
+            } else if (feed.getChecks() < feed.getUnparsableCount() / settings.getChecksToUnparsableRatio()) {
                 LOGGER.error("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
                         + ") has been unparsable too often and is therefore blocked (never scheduled again)!"
                         + " checks = " + feed.getChecks() + ", unparsableCount = " + feed.getUnparsableCount());
                 feed.setBlocked(true);
-                store.updateFeed(feed);
+                settings.getStore().updateFeed(feed);
             }
         }
 
         boolean isBlocked = feed.isBlocked();
-        boolean immediateRetry = feed.getChecks() == 0 && feed.getUnreachableCount() <= MAX_IMMEDIATE_RETRIES
-                && feed.getUnparsableCount() <= MAX_IMMEDIATE_RETRIES;
+        boolean immediateRetry = feed.getChecks() == 0
+                && feed.getUnreachableCount() <= settings.getMaxImmediateRetries()
+                && feed.getUnparsableCount() <= settings.getMaxImmediateRetries();
         boolean notYetPolled = feed.getLastPollTime() == null;
         boolean regularSchedule = !notYetPolled
                 && now - feed.getLastPollTime().getTime() > TimeUnit.MINUTES.toMillis(feed.getUpdateInterval());

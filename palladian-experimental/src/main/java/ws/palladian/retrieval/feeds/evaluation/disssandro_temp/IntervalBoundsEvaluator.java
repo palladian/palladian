@@ -8,12 +8,13 @@ import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.LIHZUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.MAVSynchronizationUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
 
 /**
  * Do a batch evaluation on a single update strategy, simulate several interval bounds such as 1, 5, 15, 60 minutes as
@@ -98,13 +99,13 @@ public class IntervalBoundsEvaluator extends DatasetEvaluator {
                 // Fix Learned
                 if (strategy.equalsIgnoreCase("FixLearned")) {
                     int fixLearnedMode = config.getInt("datasetEvaluator.fixLearnedMode");
-                    updateStrategy = new FixLearnedUpdateStrategy(lowerBound, upperBound, fixLearnedMode);
+                    updateStrategy = new FixLearnedUpdateStrategy(lowerBound, upperBound, fixLearnedMode, FeedUpdateMode.MIN_DELAY);
                     logMsg.append(updateStrategy.getName());
                 }
                 // Adaptive TTL
                 else if (strategy.equalsIgnoreCase("AdaptiveTTL")) {
                     double weightM = config.getDouble("datasetEvaluator.adaptiveTTLweightM");
-                    updateStrategy = new AdaptiveTTLUpdateStrategy(lowerBound, upperBound, weightM);
+                    updateStrategy = new AdaptiveTTLUpdateStrategy(lowerBound, upperBound, weightM, FeedUpdateMode.MIN_DELAY);
                     logMsg.append(updateStrategy.getName());
                 }
                 // MAVSync

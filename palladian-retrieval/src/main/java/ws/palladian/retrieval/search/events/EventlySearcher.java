@@ -102,8 +102,8 @@ public class EventlySearcher extends EventSearcher {
                 event.setVenueCity(venueEntry.getString("city"));
                 event.setVenueRegion(venueEntry.getString("area"));
                 event.setVenueCountry(venueEntry.getString("country"));
-                event.setVenueLatitude(Double.valueOf(venueEntry.getString("lat")));
-                event.setVenueLongitude(Double.valueOf(venueEntry.getString("lng")));
+                event.setVenueLatitude(venueEntry.getDouble("lat"));
+                event.setVenueLongitude(venueEntry.getDouble("lng"));
 
                 // XXX the API does not consider the city when searching events
                 if (event.getVenueCity().equalsIgnoreCase(location)) {

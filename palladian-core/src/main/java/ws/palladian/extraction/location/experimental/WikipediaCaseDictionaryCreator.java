@@ -1,20 +1,13 @@
 package ws.palladian.extraction.location.experimental;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.util.List;
 import java.util.Set;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -23,25 +16,23 @@ import org.xml.sax.SAXException;
 
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProcessHelper;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
-import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
-import ws.palladian.retrieval.wikipedia.WikipediaUtil;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
+import ws.palladian.retrieval.wiki.WikiPage;
 
 class WikipediaCaseDictionaryCreator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaCaseDictionaryCreator.class);
 
-    private static final CountMap<String> wordCounts = CountMap.create();
+    private static final Bag<String> wordCounts = Bag.create();
 
-    private static final CountMap<String> uppercaseCounts = CountMap.create();
+    private static final Bag<String> uppercaseCounts = Bag.create();
 
     /**
      * @param wikipediaDump Path to the Wikipedia dump file (in .bz2 format).
@@ -54,15 +45,11 @@ class WikipediaCaseDictionaryCreator {
         }
         Validate.isTrue(limit > 0, "limit must be greater zero");
         try {
-            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            SAXParser parser = saxParserFactory.newSAXParser();
-            InputStream inputStream = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(
-                    wikipediaDump)));
             final int[] counter = new int[] {0};
-            parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
+            MediaWikiUtil.parseDump(wikipediaDump, new Consumer<WikiPage>() {
                 @Override
-                public void process(WikipediaPage page) {
-                    if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
+                public void process(WikiPage page) {
+                    if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                         return;
                     }
                     if (counter[0]++ == limit) {
@@ -75,15 +62,13 @@ class WikipediaCaseDictionaryCreator {
                     System.out.println(counter[0]);
                     String pageText = page.getCleanText();
                     pageText = StringHelper.normalizeQuotes(pageText);
-                    pageText = WikipediaUtil.extractSentences(pageText);
+                    pageText = MediaWikiUtil.extractSentences(pageText);
                     addCounts(pageText);
                 }
-            }));
+            });
         } catch (StopException e) {
             // finished.
         } catch (FileNotFoundException e) {
-            throw new IllegalStateException(e);
-        } catch (ParserConfigurationException e) {
             throw new IllegalStateException(e);
         } catch (SAXException e) {
             throw new IllegalStateException(e);
@@ -110,11 +95,11 @@ class WikipediaCaseDictionaryCreator {
     private static void writeCaseDictionary(File outputFile) {
         Writer writer = null;
         try {
-            Set<String> words = wordCounts.keySet();
+            Set<String> words = wordCounts.uniqueItems();
             writer = new BufferedWriter(new FileWriter(outputFile));
             for (String word : words) {
-                int totalCount = wordCounts.getCount(word);
-                int uppercaseCount = uppercaseCounts.getCount(word);
+                int totalCount = wordCounts.count(word);
+                int uppercaseCount = uppercaseCounts.count(word);
                 writer.write(String.format("%s\t%s\t%s\n", word, totalCount, uppercaseCount));
             }
         } catch (IOException e) {
@@ -135,7 +120,7 @@ class WikipediaCaseDictionaryCreator {
                     try {
                         String[] split = line.split("\t");
                         String value = split[0];
-                        int count = Integer.valueOf(split[1]);
+                        int count = Integer.parseInt(split[1]);
                         if (count >= 10 && value.matches("[A-Za-z\\-]+")) {
                             writer[0].write(line);
                             writer[0].write('\n');

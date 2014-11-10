@@ -8,23 +8,20 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.dataset.DatasetProcessor;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
-import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
-import ws.palladian.extraction.entity.tagger.PalladianNer.LanguageMode;
-import ws.palladian.extraction.entity.tagger.PalladianNer.TrainingMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * @author David Urbansky
@@ -78,18 +75,18 @@ public class Evaluator {
 
         // evaluate in both modes, English and language independent
         for (int i = 0; i < 2; i++) {
-            LanguageMode mode;
+            PalladianNerTrainingSettings trainingSettings;
             if (i == 0) {
-                mode = LanguageMode.English;
+                trainingSettings = PalladianNerTrainingSettings.Builder.english().sparse().create();
             } else {
-                mode = LanguageMode.LanguageIndependent;
+                trainingSettings = PalladianNerTrainingSettings.Builder.languageIndependent().sparse().create();
             }
 
-            LOGGER.info("start evaluating in " + mode + " mode");
+            LOGGER.info("start evaluating in " + trainingSettings.getLanguageMode() + " mode");
 
             StringBuilder results = new StringBuilder();
 
-            results.append("TUDNER, mode = ").append(mode).append("\n");
+            results.append("TUDNER, mode = ").append(trainingSettings.getLanguageMode()).append("\n");
             results.append(";All;;;;;;Unseen only;;;;;;\n");
             results.append("Number of Seeds;Exact Precision;Exact Recall;Exact F1;MUC Precision;MUC Recall;MUC F1;Exact Precision;Exact Recall;Exact F1;MUC Precision;MUC Recall;MUC F1;\n");
 
@@ -97,15 +94,15 @@ public class Evaluator {
 
                 LOGGER.info("evaluating with " + j + " seed entities");
 
-                PalladianNer tagger = new PalladianNer(mode, TrainingMode.Sparse);
+                PalladianNer tagger = new PalladianNer(trainingSettings);
 
-                Annotations<ContextAnnotation> annotations = FileFormatParser
+                Annotations<Annotation> annotations = FileFormatParser
                         .getSeedAnnotations(trainingFilePath, j);
 
                 LOGGER.info("train on these annotations: " + annotations);
 
                 // train the tagger using seed annotations only
-                String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + mode + "."
+                String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + trainingSettings.getLanguageMode() + "."
                         + tagger.getModelFileEndingIfNotSetAutomatically();
                 tagger.train(annotations, modelPath);
 
@@ -113,7 +110,7 @@ public class Evaluator {
                 for (int k = 0; k < 2; k++) {
 
                     // load the trained model
-                    tagger = new PalladianNer(mode);
+                    tagger = new PalladianNer(trainingSettings);
                     tagger.loadModel(modelPath);
                     EvaluationResult er;
 
@@ -143,9 +140,9 @@ public class Evaluator {
 
             }
 
-            FileHelper.writeToFile(EVALUATION_PATH + "evaluateSeedInputOnlyNER_" + mode + ".csv", results);
+            FileHelper.writeToFile(EVALUATION_PATH + "evaluateSeedInputOnlyNER_" + trainingSettings.getLanguageMode() + ".csv", results);
 
-            LOGGER.info("evaluated TUDNER in " + mode + " mode in " + stopWatch.getElapsedTimeString());
+            LOGGER.info("evaluated TUDNER in " + trainingSettings.getLanguageMode() + " mode in " + stopWatch.getElapsedTimeString());
         }
 
     }
@@ -210,7 +207,7 @@ public class Evaluator {
             String numberOfDocuments = StringHelper.getSubstringBetween(filePath, "_sep_", ".");
 
             // get the annotations
-            Annotations<ContextAnnotation> annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
+            Annotations<Annotation> annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
             String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
                     + tagger.getModelFileEndingIfNotSetAutomatically();
@@ -303,7 +300,7 @@ public class Evaluator {
         StringBuilder averagedLine = new StringBuilder();
 
         // get the annotations
-        Annotations<ContextAnnotation> annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
+        Annotations<Annotation> annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
 
         // evaluate once with complete test set and once only over unseen entities
         stopWatch.start();
@@ -316,7 +313,6 @@ public class Evaluator {
         LOGGER.info("evaluating " + tagger.getName() + " on the unseen data took " + stopWatch.getElapsedTimeString());
 
         Set<String> concepts = FileFormatParser.getTagsFromColumnFile(trainingFilePath, "\t");
-        concepts.remove("O");
 
         // write head
         results.append(";Complete Testset;;;;;;Unseen Data Only;;;;;\n");
@@ -449,13 +445,13 @@ public class Evaluator {
         List<TrainableNamedEntityRecognizer> taggerList = new ArrayList<TrainableNamedEntityRecognizer>();
         // taggerList.add(new StanfordNER());
         // IllinoisLbjNer lbjNer = new IllinoisLbjNer();
-        taggerList.add(new PalladianNer(LanguageMode.English));
-        taggerList.add(new PalladianNer(LanguageMode.LanguageIndependent));
+        
+        taggerList.add(new PalladianNer(PalladianNerTrainingSettings.Builder.english().create()));
+        taggerList.add(new PalladianNer(PalladianNerTrainingSettings.Builder.languageIndependent().create()));
         // lbjNer.setConllEvaluation(true); // you have to set conllEvaluation to true if used for conll
         // taggerList.add(lbjNer);
         // taggerList.add(new LingPipeNER());
-        OpenNlpNer openNlpNer = new OpenNlpNer();
-        openNlpNer.setConllEvaluation(true); // you have to set conllEvaluation to true if used for conll
+        // OpenNlpNer openNlpNer = new OpenNlpNer();
         // taggerList.add(openNlpNer);
         // taggerList.add(new JulieNER());
 
@@ -498,8 +494,8 @@ public class Evaluator {
 
         // evaluate all tagger how they depend on the number of documents in the training set
         taggerList.clear();
-        taggerList.add(new PalladianNer(LanguageMode.English));
-        taggerList.add(new PalladianNer(LanguageMode.LanguageIndependent));
+        taggerList.add(new PalladianNer(PalladianNerTrainingSettings.Builder.english().create()));
+        taggerList.add(new PalladianNer(PalladianNerTrainingSettings.Builder.languageIndependent().create()));
         for (TrainableNamedEntityRecognizer tagger : taggerList) {
             // evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
             evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath,

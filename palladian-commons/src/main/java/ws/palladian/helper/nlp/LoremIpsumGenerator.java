@@ -25,7 +25,7 @@ public class LoremIpsumGenerator {
     }
 
     public static String getRandomText(int length) {
-        StringBuilder text = new StringBuilder();
+        StringBuilder text = new StringBuilder(length);
 
         for (int i = 0; i < length; i++) {
             char randomCharacter = (char) (Math.random() * 26 + 97);

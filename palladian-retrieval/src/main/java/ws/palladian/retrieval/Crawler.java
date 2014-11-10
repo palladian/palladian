@@ -19,6 +19,7 @@ import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
 
 /**
@@ -329,7 +330,7 @@ public class Crawler {
         this.crawlerCallbackOnFinish = crawlerCallbackOnFinish;
     }
 
-    public void addCrawlerCallback(RetrieverCallback<Document> crawlerCallback) {
+    public void addCrawlerCallback(Consumer<Document> crawlerCallback) {
         documentRetriever.addRetrieverCallback(crawlerCallback);
     }
 
@@ -372,11 +373,10 @@ public class Crawler {
         Crawler crawler = new Crawler();
 
         // create a callback that is triggered for every crawled page
-        RetrieverCallback<Document> crawlerCallback = new RetrieverCallback<Document>() {
-
+        Consumer<Document> crawlerCallback = new Consumer<Document>() {
             @Override
-            public void onFinishRetrieval(Document document) {
-                LOGGER.info("downloaded the page " + document.getDocumentURI());
+            public void process(Document item) {
+                LOGGER.info("downloaded the page " + item.getDocumentURI());
             }
         };
         crawler.addCrawlerCallback(crawlerCallback);

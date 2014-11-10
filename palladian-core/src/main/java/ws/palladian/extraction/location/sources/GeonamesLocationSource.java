@@ -10,8 +10,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -20,6 +18,8 @@ import ws.palladian.extraction.location.sources.importers.GeonamesUtil;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -117,15 +117,15 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     static Location parseLocation(Node node) {
         String primaryName = XPathHelper.getNode(node, "./toponymName").getTextContent();
-        double latitude = Double.valueOf(XPathHelper.getNode(node, "./lat").getTextContent());
-        double longitude = Double.valueOf(XPathHelper.getNode(node, "./lng").getTextContent());
-        int geonameId = Integer.valueOf(XPathHelper.getNode(node, "./geonameId").getTextContent());
+        double latitude = Double.parseDouble(XPathHelper.getNode(node, "./lat").getTextContent());
+        double longitude = Double.parseDouble(XPathHelper.getNode(node, "./lng").getTextContent());
+        int geonameId = Integer.parseInt(XPathHelper.getNode(node, "./geonameId").getTextContent());
         String featureClass = XPathHelper.getNode(node, "./fcl").getTextContent();
         String featureCode = XPathHelper.getNode(node, "./fcode").getTextContent();
         String populationString = XPathHelper.getNode(node, "./population").getTextContent();
         long population = 0;
         if (!populationString.isEmpty()) {
-            population = Long.valueOf(populationString);
+            population = Long.parseLong(populationString);
         }
         LocationType locationType = GeonamesUtil.mapType(featureClass, featureCode);
         GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
@@ -142,7 +142,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             List<Integer> result = CollectionHelper.newArrayList();
             for (int i = geonames.size() - 1; i >= 0; i--) {
                 Node node = geonames.get(i);
-                int geonameId = Integer.valueOf(node.getTextContent());
+                int geonameId = Integer.parseInt(node.getTextContent());
                 if (geonameId == locationId) { // do not add the supplied Location itself.
                     continue;
                 }

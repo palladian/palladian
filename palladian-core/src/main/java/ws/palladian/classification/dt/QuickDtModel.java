@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import quickdt.PredictiveModel;
 import quickdt.Tree;
 import quickdt.randomForest.RandomForest;
-import ws.palladian.classification.Model;
+import ws.palladian.core.Model;
 
 /**
  * <p>

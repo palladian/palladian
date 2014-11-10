@@ -1,14 +1,17 @@
 package ws.palladian.extraction.location;
 
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
- * Common implementation of {@link Location} interface with utility functionality.
+ * Common implementation of {@link Location} interface with utility functionality. {@link #hashCode()} and
+ * {@link #equals(Object)} are determined via the {@link Location} ID ({@link #getId()}).
  * </p>
  * 
  * @author Philipp Katz
@@ -49,7 +52,7 @@ public abstract class AbstractLocation implements Location {
         }
         return names;
     }
-    
+
     // deprecated getters (returning null values when no coordinate is present)
 
     @Override
@@ -62,6 +65,46 @@ public abstract class AbstractLocation implements Location {
     @Deprecated
     public final Double getLongitude() {
         return getCoordinate() != null ? getCoordinate().getLongitude() : null;
+    }
+
+    // toString
+
+    @Override
+    public String toString() {
+        List<String> toStringParts = CollectionHelper.newArrayList();
+        if (getId() != -1) {
+            toStringParts.add(String.format("id=%s", getId()));
+        }
+        toStringParts.add(String.format("primaryName=%s", getPrimaryName()));
+        if (getType() != LocationType.UNDETERMINED) {
+            toStringParts.add(String.format("type=%s", getType()));
+        }
+        if (getCoordinate() != null) {
+            toStringParts.add(String.format("coordinate=%s", getCoordinate()));
+        }
+        if (getPopulation() != null) {
+            toStringParts.add(String.format("population=%s", getPopulation()));
+        }
+        return String.format("%s [%s]", getClass().getSimpleName(), StringUtils.join(toStringParts, ','));
+    }
+
+    // hashCode and equals
+
+    @Override
+    public int hashCode() {
+        return getId();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        AbstractLocation other = (AbstractLocation)obj;
+        return getId() == other.getId();
     }
 
 }

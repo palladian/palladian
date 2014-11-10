@@ -15,12 +15,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -34,15 +31,15 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.wikipedia.MarkupCoordinate;
-import ws.palladian.retrieval.wikipedia.MultiStreamBZip2InputStream;
-import ws.palladian.retrieval.wikipedia.WikipediaPage;
-import ws.palladian.retrieval.wikipedia.WikipediaPageContentHandler;
-import ws.palladian.retrieval.wikipedia.WikipediaTemplate;
+import ws.palladian.retrieval.wiki.InfoboxTypeMapper;
+import ws.palladian.retrieval.wiki.MarkupCoordinate;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
+import ws.palladian.retrieval.wiki.MultiStreamBZip2InputStream;
+import ws.palladian.retrieval.wiki.WikiPage;
+import ws.palladian.retrieval.wiki.WikiTemplate;
 
 /**
  * <p>
@@ -73,37 +70,10 @@ public class WikipediaLocationImporter {
 
     /** Pages with those titles will be ignored. */
     private static final Pattern IGNORED_PAGES = Pattern.compile("(?:Geography|Battle) of .*");
-    
-    private static final Map<String, LocationType> INFOBOX_MAPPING = loadMapping();
-
-    private static Map<String, LocationType> loadMapping() {
-        InputStream inputStream = null;
-        try {
-            final Map<String, LocationType> result = CollectionHelper.newHashMap();
-            inputStream = WikipediaLocationImporter.class.getResourceAsStream("/wikipediaLocationInfoboxMappings.csv");
-            FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
-                @Override
-                public void performAction(String line, int lineNumber) {
-                    if (line.isEmpty() || line.startsWith("#")) {
-                        return;
-                    }
-                    String[] split = line.split("\\t");
-                    String infoboxType = split[0];
-                    LocationType locationType = LocationType.map(split[1]);
-                    result.put(infoboxType, locationType);
-                }
-            });
-            return result;
-        } finally {
-            FileHelper.close(inputStream);
-        }
-    }
 
     private final LocationStore locationStore;
 
     private final Map<String, Integer> locationNamesIds;
-
-    private final SAXParserFactory saxParserFactory;
 
     private final int idOffset;
 
@@ -122,7 +92,6 @@ public class WikipediaLocationImporter {
         Validate.isTrue(idOffset >= 0);
         this.locationStore = locationStore;
         this.idOffset = idOffset;
-        this.saxParserFactory = SAXParserFactory.newInstance();
         this.locationNamesIds = CollectionHelper.newHashMap();
         this.nameExtraction = new HashSet<AlternativeNameExtraction>(Arrays.asList(nameExtraction));
     }
@@ -180,12 +149,11 @@ public class WikipediaLocationImporter {
 
     void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
-        SAXParser parser = saxParserFactory.newSAXParser();
-        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
+        MediaWikiUtil.parseDump(inputStream, new Consumer<WikiPage>() {
 
             @Override
-            public void process(WikipediaPage page) {
-                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
+            public void process(WikiPage page) {
+                if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (page.isRedirect()) {
@@ -195,15 +163,15 @@ public class WikipediaLocationImporter {
                     LOGGER.debug("Ignoring '{}' by blacklist", page.getTitle());
                     return;
                 }
-                
-                List<WikipediaTemplate> infoboxes = page.getInfoboxes();
+
+                List<WikiTemplate> infoboxes = page.getInfoboxes();
                 if (infoboxes.isEmpty()) {
                     LOGGER.debug("Page '{}' has no infobox; skip", page.getTitle());
                     return;
                 }
                 LocationType type = null;
-                for (WikipediaTemplate infobox : infoboxes) {
-                    type = INFOBOX_MAPPING.get(infobox.getName());
+                for (WikiTemplate infobox : infoboxes) {
+                    type = InfoboxTypeMapper.getLocationType(infobox.getName());
                     if (type != null) {
                         break;
                     }
@@ -216,7 +184,7 @@ public class WikipediaLocationImporter {
                 MarkupCoordinate coordinate = page.getCoordinate();
                 // fallback, use infobox/geobox:
                 if (coordinate == null) {
-                    for (WikipediaTemplate infobox : infoboxes) {
+                    for (WikiTemplate infobox : infoboxes) {
                         Set<MarkupCoordinate> coordinates = infobox.getCoordinates();
                         // XXX we might also want to extract population information here in the future
                         if (coordinates.size() > 0) {
@@ -228,20 +196,19 @@ public class WikipediaLocationImporter {
                 // save:
                 if (coordinate != null) {
                     String cleanArticleName = page.getCleanTitle();
-                    int locationId = Integer.valueOf(page.getIdentifier()) + idOffset;
-                    locationStore
-                            .save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate, coordinate.getPopulation()));
+                    int locationId = Integer.parseInt(page.getIdentifier()) + idOffset;
+                    locationStore.save(new ImmutableLocation(locationId, cleanArticleName, type, coordinate, coordinate
+                            .getPopulation()));
                     LOGGER.trace("Saved location with ID {}, name {}", page.getIdentifier(), cleanArticleName);
-                    locationNamesIds.put(page.getTitle(), Integer.valueOf(page.getIdentifier()));
+                    locationNamesIds.put(page.getTitle(), Integer.parseInt(page.getIdentifier()));
                     counter[0]++;
 
                     // extract and save alternative names if requested
                     if (nameExtraction.contains(PAGE)) {
-                        List<String> sections = page.getSections();
-                        if (sections.size() > 0) {
-                            List<String> extractedAlternativeNames = getStringsInBold(sections.get(0));
+                        List<String> alternativeTitles = page.getAlternativeTitles();
+                        if (alternativeTitles.size() > 0) {
                             Set<AlternativeName> alternativeNames = CollectionHelper.newHashSet();
-                            for (String name : extractedAlternativeNames) {
+                            for (String name : alternativeTitles) {
                                 if (!name.equals(cleanArticleName)) {
                                     alternativeNames.add(new AlternativeName(name));
                                 }
@@ -252,7 +219,7 @@ public class WikipediaLocationImporter {
                     }
                 }
             }
-        }));
+        });
         LOGGER.info("Finished importing {} locations", counter[0]);
     }
 
@@ -265,13 +232,12 @@ public class WikipediaLocationImporter {
      * @throws IOException
      */
     void importAlternativeNames(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
-        SAXParser parser = saxParserFactory.newSAXParser();
         final int[] counter = new int[] {0};
-        parser.parse(inputStream, new WikipediaPageContentHandler(new Action<WikipediaPage>() {
+        MediaWikiUtil.parseDump(inputStream, new Consumer<WikiPage>() {
 
             @Override
-            public void process(WikipediaPage page) {
-                if (page.getNamespaceId() != WikipediaPage.MAIN_NAMESPACE) {
+            public void process(WikiPage page) {
+                if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                     return;
                 }
                 if (!page.isRedirect()) {
@@ -298,18 +264,8 @@ public class WikipediaLocationImporter {
                 LOGGER.debug("Save alternative name {} for location with ID {}", name, id);
                 counter[0]++;
             }
-        }));
+        });
         LOGGER.info("Finished importing {} alternative names", counter[0]);
-    }
-
-    private static final List<String> getStringsInBold(String text) {
-        Pattern pattern = Pattern.compile("'''([^']+)'''");
-        Matcher matcher = pattern.matcher(text);
-        List<String> result = CollectionHelper.newArrayList();
-        while (matcher.find()) {
-            result.add(matcher.group(1));
-        }
-        return result;
     }
 
     public static void main(String[] args) throws Exception {
