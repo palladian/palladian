@@ -676,6 +676,38 @@ public final class CollectionHelper {
 
     /**
      * <p>
+     * Get a sub set of elements of an ordered {@link LinkedHashSet}.
+     * </p>
+     *
+     * @param set The set from which to get the element, not <code>null</code>.
+     * @param offset The number of elements to skip.
+     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @return The sub set.
+     */
+    public static <T> LinkedHashSet<T> getSubset(LinkedHashSet<T> set, int offset, int num) {
+        Validate.notNull(set, "set must not be null");
+        Validate.isTrue(offset >= 0, "offset must be greater/equal zero");
+        Validate.isTrue(num >= 0, "num must be greater/equal zero");
+        int o = Math.min(set.size(), offset);
+        int n = Math.min(num, set.size() - o);
+
+        LinkedHashSet<T> subSet = new LinkedHashSet<T>();
+        Iterator<T> iterator = set.iterator();
+        for (int i = 0; i < set.size(); i++) {
+            if (i < offset) {
+                continue;
+            }
+            subSet.add(iterator.next());
+            if (subSet.size() == num) {
+                break;
+            }
+        }
+
+        return subSet;
+    }
+
+    /**
+     * <p>
      * Get the last element in a {@link List}.
      * </p>
      * 

@@ -5,11 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -596,7 +592,7 @@ public class DatabaseManager {
 
     /**
      * <p>
-     * Run a query operation on the database, return the result as set.
+     * Run a query operation on the database, return the result as set keeping the order determined by the SQL query.
      * </p>
      * 
      * @param <T> Type of the processed objects.
@@ -606,12 +602,12 @@ public class DatabaseManager {
      * @return Set with results.
      */
     public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, String sql, Object... args) {
-        return new HashSet<T>(runQuery(converter, new BasicQuery(sql, args)));
+        return new LinkedHashSet<T>(runQuery(converter, new BasicQuery(sql, args)));
     }
 
     /**
      * <p>
-     * Run a query operation on the database, return the result as set.
+     * Run a query operation on the database, return the result as set keeping the order determined by the SQL query.
      * </p>
      * 
      * @param <T> Type of the processed objects.
@@ -620,7 +616,7 @@ public class DatabaseManager {
      * @return Set with results.
      */
     public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, Query query) {
-        return new HashSet<T>(runQuery(converter, query));
+        return new LinkedHashSet<T>(runQuery(converter, query));
     }
 
     /**
