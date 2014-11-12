@@ -16,6 +16,8 @@ import ws.palladian.helper.functional.Filter;
  * @author pk
  */
 public final class PruningStrategies {
+    
+    // XXX make static methods
 
     /**
      * Prune terms, which occur less than the given count.

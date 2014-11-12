@@ -38,6 +38,7 @@ Iterable<Instance> docs = new TextDatasetIterator("path/to/dataset.csv", "###", 
 
 Features
 --------
+<a name="features"></a>
 
 Features are the input for a classifier. In text classification, we have a long string as an input from which we need to derive features during preprocessing. Palladian's text classifier works with <a href="http://en.wikipedia.org/wiki/N-gram">*n*-grams</a>. *n*-grams are sets of tokens of the length *n*, which are created by sliding a "window" over the given text. Palladian can create features using character- or word-based *n*-grams.
 
@@ -77,14 +78,42 @@ Scoring
 -------
 <a name="scoring"></a>
 
-For calculating category probabilities a `Scorer` is used. We employ a <a href="http://en.wikipedia.org/wiki/Naive_Bayes_classifier">Naïve-Bayes</a>-like method, which is turbocharged using complement class scoring as described in <a href="http://people.csail.mit.edu/jrennie/papers/icml03-nb.pdf">Tackling the Poor Assumptions of Naive Bayes Text Classifiers</a> (Jason D. M. Rennie; Lawrence Shih; Jaime Teevan; David R. Karger; 2003). 
+For calculating category probabilities a `Scorer` is used. We employ a <a href="http://en.wikipedia.org/wiki/Naive_Bayes_classifier">Naïve-Bayes</a>-like method, which is turbocharged using complement class scoring as described in <a href="http://people.csail.mit.edu/jrennie/papers/icml03-nb.pdf">Tackling the Poor Assumptions of Naive Bayes Text Classifiers</a> (Jason D. M. Rennie; Lawrence Shih; Jaime Teevan; David R. Karger; 2003).
+
+The following equations show how the scoring works: 
+
+<!--
+	\operatorname{p}(\mathit{\neg\,\mathit{category}} \, \vert \, \mathit{D}) = 
+	  \sum_{t\, \in \, \operatorname{preprocess}(\mathit{D})} 
+	  % \operatorname{tfidf}(t)
+	  \log
+	  \frac
+	    {\operatorname{count}(t, \neg\,\mathit{category}) + 1}
+	    {\operatorname{termCount}(\neg\,\mathit{category}) + \lvert\,\mathit{Terms}\,\rvert}
+-->
+
+![](./images/equation-complement-naive-bayes.png)
+
+<!--
+  \operatorname{classify}(D) = 
+  \operatorname*{arg\,max}_{\mathit{category}\,\in\,\mathit{Categories}} 
+  \big(
+        \log \frac
+          {\operatorname{docCount}(\mathit{category})}
+          {\lvert\,\mathit{Documents}\,\rvert}
+        - \operatorname{p}(\neg\, \mathit{category} \, \vert \, D)
+  \big)
+-->
+
+![](./images/equation-complement-naive-bayes-2.png)
 
 The described scorer implementation is available as class `BayesScorer`. If you want to customize the scoring method, you may roll out your own implementation. See `Scorer` Javadoc for more details.
 
 Pruning
 -------
+<a name="pruning"></a>
 
-Depending on the amount of training data and the feature settings, dictionaries can get quite large in size. To reduce space consumption of such models, different pruning strategies can be used, which remove potentially less relevant *n*-grams. A simple and efficient strategy is to remove such *n*-grams which occurred rarely during training, because one can assume, that those will not occur frequently during classification, making them less useful than more frequent *n*-grams. While pruning can significantly reduce the size of a dictionary, it usually comes with a sacrifice concerning classification accuracy. Read the <a href="#optimization">next section</a>, how you can evaluate the impact off different pruning strategies.
+Depending on the amount of training data and the feature settings, dictionaries can get quite large in size. To reduce space consumption of such models, different pruning strategies can be used, which remove potentially less relevant *n*-grams. A simple and efficient strategy is to remove such *n*-grams which occurred rarely during training, because one can assume, that those will not occur frequently during classification, making them less useful than more frequent *n*-grams. While pruning can significantly reduce the size of a dictionary, it usually comes with a sacrifice concerning classification accuracy. Read the <a href="#optimization">next section</a>, how you can evaluate the impact of different pruning strategies.
 
 The class `PruningStrategies` provides different ready to use methods for pruning. When instantiating a `PalladianTextClassifier`, you can explicity specify a `DictionaryBuilder` which can be setup with a pruning strategy like so:
 
@@ -102,9 +131,28 @@ Optimization
 ------------
 <a name="optimization"></a>
 
-In order to find out which classifier configuration works best, you can evaluate different setups. The `FeatureSettingOptimizer` provides the method `evaluateFeatureSettings` to run an extensive evaluation with different settings on given sets of training and validation data.
+In order to find out which classifier configuration works best, you can evaluate different setups. The `PalladianTextClassifierOptimizer` allows to run an extensive evaluation with different settings on given sets of training and validation data.
 
-The evaluation method produces a CSV file which holds the results for a combination feature settings, pruning strategies and scorers. The performance is measures in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall</a>, <a href="http://en.wikipedia.org/wiki/F1_score">F1</a>, and <a href="http://en.wikipedia.org/wiki/Accuracy_and_precision">accuracy</a>, separately for each category and as an average over all categories.
+The evaluation produces a CSV file which holds the results for a combination of <a href="#features">feature settings</a>, <a href="#pruning">pruning strategies</a> and <a href="#scoring">scorers</a>. The performance is measures in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall</a>, <a href="http://en.wikipedia.org/wiki/F1_score">F1</a>, and <a href="http://en.wikipedia.org/wiki/Accuracy_and_precision">accuracy</a>, separately for each category and as an average over all categories.
+
+```java
+PalladianTextClassifierOptimizer optimizer = new PalladianTextClassifierOptimizer();
+
+// create combinations of settings for char-based 5- to 8- and word-based 1- to 2-grams;
+// this will also create settings e.g. for character-6-7-grams, if you do not want that,
+// add the #noCombinations method
+optimizer.setFeatureSettings(new FeatureSettingGenerator().chars(5, 8).words(1, 3).create());
+
+// compare no pruning with minimum term count 2
+optimizer.setPruningStrategies(PruningStrategies.none(), PruningStrategies.termCount(2));
+
+// evaluate bayes scorer
+optimizer.setScorers(new BayesScorer(LAPLACE, COMPLEMENT));
+
+// run optimization with all (feature setting, pruning, scorer) combinations using the 
+// given training and test data, and write results to optimizationResult.csv file
+optimizer.runOptimization(train, validate, "optimizationResult.csv");
+```
 
 Best Practices
 --------------
