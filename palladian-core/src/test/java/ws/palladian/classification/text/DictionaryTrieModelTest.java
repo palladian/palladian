@@ -70,6 +70,7 @@ public class DictionaryTrieModelTest {
         assertEquals(0, model.getCategoryEntries(WORD_1).getCount(CATEGORY_2));
         assertEquals(0.75, model.getCategoryEntries(WORD_3).getProbability(CATEGORY_1), 0);
         assertEquals(0.25, model.getCategoryEntries(WORD_3).getProbability(CATEGORY_2), 0);
+        assertEquals(4,  model.getCategoryEntries(WORD_3).getTotalCount());
         assertEquals(1., model.getCategoryEntries(WORD_4).getProbability(CATEGORY_2), 0);
         assertEquals(0., model.getCategoryEntries(WORD_5).getProbability(CATEGORY_1), 0);
         assertEquals(0., model.getCategoryEntries(WORD_5).getProbability(CATEGORY_2), 0);

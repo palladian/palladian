@@ -164,20 +164,22 @@ public final class FeatureSettingOptimizer {
                     // XXX code below should be moved to ConfusionMatrix#toCsv or something alike
                     TreeSet<String> categoryNames = new TreeSet<String>(confusionMatrix.getCategories());
                     if (!headerWritten) {
-                        StringBuilder header = new StringBuilder("featureSetting;scorer;avgPr;avgRc;avgF1;accuracy;");
+                        StringBuilder header = new StringBuilder("featureSetting;pruningStrategy;scorer;avgPr;avgRc;avgF1;accuracy;");
                         for (String categoryName : categoryNames) {
                             header.append("pr-").append(categoryName).append(';');
                             header.append("rc-").append(categoryName).append(';');
                             header.append("f1-").append(categoryName).append(';');
                             header.append("acc-").append(categoryName).append(';');
                         }
-                        header.append("modelSize\n");
+                        header.append("numTerms;");
+                        header.append("numEntries\n");
                         FileHelper.appendFile(resultCsv.getPath(), header);
                         headerWritten = true;
                     }
                     StringBuilder resultLine = new StringBuilder();
                     resultLine.append(featureSetting).append(';');
                     resultLine.append(scorer).append(';');
+                    resultLine.append(pruningStrategy).append(';');
                     resultLine.append(confusionMatrix.getAveragePrecision(true)).append(';');
                     resultLine.append(confusionMatrix.getAverageRecall(true)).append(';');
                     resultLine.append(confusionMatrix.getAverageF(1, true)).append(';');
@@ -191,7 +193,8 @@ public final class FeatureSettingOptimizer {
                         resultLine.append(Double.isNaN(f1) ? StringUtils.EMPTY : f1).append(';');
                         resultLine.append(confusionMatrix.getAccuracy(categoryName)).append(';');
                     }
-                    resultLine.append(model.getNumUniqTerms()).append('\n');
+                    resultLine.append(model.getNumUniqTerms()).append(';');
+                    resultLine.append(model.getNumEntries()).append('\n');
                     FileHelper.appendFile(resultCsv.getPath(), resultLine);
                     progressReporter.increment();
                 }
