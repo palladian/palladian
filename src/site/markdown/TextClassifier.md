@@ -131,7 +131,7 @@ Optimization
 ------------
 <a name="optimization"></a>
 
-In order to find out which classifier configuration works best, you can evaluate different setups. The `PalladianTextClassifierOptimizer` allows to run an extensive evaluation with different settings on given sets of training and validation data.
+In order to find out which classifier configuration works best, you can evaluate different setups. The `PalladianTextClassifierOptimizer` allows to run an extensive evaluation with different settings on given sets of training and validation data. Make sure to use disjunct datasets for training and validation, otherwise the results will not be meaningful.
 
 The evaluation produces a CSV file which holds the results for a combination of <a href="#features">feature settings</a>, <a href="#pruning">pruning strategies</a> and <a href="#scoring">scorers</a>. The performance is measured in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall</a>, <a href="http://en.wikipedia.org/wiki/F1_score">F1</a>, and <a href="http://en.wikipedia.org/wiki/Accuracy_and_precision">accuracy</a>, separately for each category and as an average over all categories.
 
@@ -154,13 +154,6 @@ optimizer.setScorers(new BayesScorer(LAPLACE, COMPLEMENT));
 optimizer.runOptimization(train, validate, "optimizationResult.csv");
 ```
 
-Best Practices
---------------
-
-\paragraph{Using a classifier}
-After we trained a model for a classifier we can apply it to unseen data. Let's use the model we just trained to classify the language of a new document.
-
-
-\paragraph{Evaluating a Classifier}
-To get an idea of how good a trained classifier works, we can evaluate it using test data which is structured the same way as the training data. Listing~\ref{listing:evaluateClassifier} shows how to evaluate a trained classifier, you will see that is very similar to training a classifier. Make sure that you evaluate the classifier using disjunct data, otherwise the evaluation results are invalid .
+Full Example
+------------
 
