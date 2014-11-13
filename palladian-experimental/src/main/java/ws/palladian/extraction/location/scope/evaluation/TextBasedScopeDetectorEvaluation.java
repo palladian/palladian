@@ -8,7 +8,7 @@ import java.util.Set;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
-import ws.palladian.classification.text.evaluation.FeatureSettingOptimizer.FeatureSettingGenerator;
+import ws.palladian.classification.text.evaluation.FeatureSettingGenerator;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
