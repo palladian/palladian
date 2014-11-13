@@ -133,7 +133,7 @@ Optimization
 
 In order to find out which classifier configuration works best, you can evaluate different setups. The `PalladianTextClassifierOptimizer` allows to run an extensive evaluation with different settings on given sets of training and validation data.
 
-The evaluation produces a CSV file which holds the results for a combination of <a href="#features">feature settings</a>, <a href="#pruning">pruning strategies</a> and <a href="#scoring">scorers</a>. The performance is measures in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall</a>, <a href="http://en.wikipedia.org/wiki/F1_score">F1</a>, and <a href="http://en.wikipedia.org/wiki/Accuracy_and_precision">accuracy</a>, separately for each category and as an average over all categories.
+The evaluation produces a CSV file which holds the results for a combination of <a href="#features">feature settings</a>, <a href="#pruning">pruning strategies</a> and <a href="#scoring">scorers</a>. The performance is measured in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall</a>, <a href="http://en.wikipedia.org/wiki/F1_score">F1</a>, and <a href="http://en.wikipedia.org/wiki/Accuracy_and_precision">accuracy</a>, separately for each category and as an average over all categories.
 
 ```java
 PalladianTextClassifierOptimizer optimizer = new PalladianTextClassifierOptimizer();
@@ -150,7 +150,7 @@ optimizer.setPruningStrategies(PruningStrategies.none(), PruningStrategies.termC
 optimizer.setScorers(new BayesScorer(LAPLACE, COMPLEMENT));
 
 // run optimization with all (feature setting, pruning, scorer) combinations using the 
-// given training and test data, and write results to optimizationResult.csv file
+// given training and validation data, and write results to optimizationResult.csv file
 optimizer.runOptimization(train, validate, "optimizationResult.csv");
 ```
 
