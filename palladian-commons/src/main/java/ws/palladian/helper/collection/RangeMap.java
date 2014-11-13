@@ -1,9 +1,6 @@
 package ws.palladian.helper.collection;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * <p>
@@ -17,7 +14,7 @@ import java.util.TreeMap;
  * 
  * @author David Urbansky
  */
-public class RangeMap<K extends Number, V> extends TreeMap<K, V> {
+public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
 
     /**
      * <p>
@@ -32,16 +29,16 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, V> {
         List<V> values = new ArrayList<V>();
 
         if (comparisonType == ComparisonType.EQUALS) {
-            values.add(get(seed));
+            values.addAll(get(seed));
             return values;
         }
 
         double v = seed.doubleValue();
         boolean startCollecting = false;
-        for (Map.Entry<K, V> entry : this.entrySet()) {
+        for (Map.Entry<K, Collection<V>> entry : this.entrySet()) {
 
             if (startCollecting) {
-                values.add(entry.getValue());
+                values.addAll(entry.getValue());
                 continue;
             }
 
@@ -57,7 +54,7 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, V> {
                     || (comparisonType == ComparisonType.MORE && bigger)
                     || (comparisonType == ComparisonType.MORE_EQUALS && biggerEquals)) {
 
-                values.add(entry.getValue());
+                values.addAll(entry.getValue());
 
                 if (comparisonType == ComparisonType.MORE || comparisonType == ComparisonType.MORE_EQUALS) {
                     startCollecting = true;
@@ -84,10 +81,10 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, V> {
         double lbv = lowerBound.doubleValue();
         double ubv = upperBound.doubleValue();
 
-        for (Map.Entry<K, V> entry : this.entrySet()) {
+        for (Map.Entry<K, Collection<V>> entry : this.entrySet()) {
             double v = entry.getKey().doubleValue();
             if (v >= lbv && v <= ubv) {
-                values.add(entry.getValue());
+                values.addAll(entry.getValue());
             }
 
             if (v > ubv) {
@@ -96,5 +93,14 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, V> {
         }
 
         return values;
+    }
+
+    public void put(K key, V c) {
+        Collection<V> vs = get(key);
+        if (vs == null) {
+            vs = new HashSet<V>();
+            put(key, vs);
+        }
+        vs.add(c);
     }
 }
