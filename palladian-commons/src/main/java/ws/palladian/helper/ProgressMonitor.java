@@ -1,6 +1,8 @@
 package ws.palladian.helper;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,6 +51,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /** Prevents outputting the same percentage value again, as specified by showEveryPercent. */
     private int lastOutput = -1;
 
+    private DecimalFormat format = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
+
     /**
      * <p>
      * Create a new {@link ProgressMonitor}.
@@ -58,11 +62,18 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     public ProgressMonitor(double showEveryPercent) {
         Validate.inclusiveBetween(0., 100., showEveryPercent, "showEveryPercent must be in range [0,100]");
         this.showEveryPercent = showEveryPercent;
+
+        if (showEveryPercent%1 > 0) {
+            format.applyPattern("##0.00");
+        } else {
+            format.applyPattern("##0");
+        }
     }
 
     /**
      * <p>
      * Create a new {@link ProgressMonitor} which updates the status every one percent.
+     * </p>
      */
     public ProgressMonitor() {
         this(1.);
@@ -74,9 +85,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * </p>
      * 
      * @param totalCount The total iterations to perform, greater/equal zero.
-     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    @Deprecated
     public ProgressMonitor(long totalCount) {
         this(totalCount, 1);
 
@@ -85,12 +94,11 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /**
      * <p>
      * Create a new {@link ProgressMonitor}.
+     * </p>
      * 
      * @param totalCount The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
-     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    @Deprecated
     public ProgressMonitor(long totalCount, double showEveryPercent) {
         this(totalCount, showEveryPercent, null);
     }
@@ -98,27 +106,30 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /**
      * <p>
      * Create a new {@link ProgressMonitor}.
+     * </p>
      * 
      * @param totalCount The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      * @param processName The name of the process, for identification purposes when outputting the bar.
-     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    @Deprecated
     public ProgressMonitor(long totalCount, double showEveryPercent, String processName) {
         Validate.isTrue(totalCount >= 0, "totalCount must be greater/equal zero");
         Validate.inclusiveBetween(0., 100., showEveryPercent, "showEveryPercent must be in range [0,100]");
         this.showEveryPercent = showEveryPercent;
         startTask(processName, totalCount);
+
+        if (showEveryPercent%1 > 0) {
+            format.applyPattern("##0.00");
+        } else {
+            format.applyPattern("##0");
+        }
     }
 
     /**
      * <p>
      * Increments the counter by one and prints the current progress to the System's standard output.
-     * 
-     * @deprecated Use {@link #increment()} instead.
+     * </p>
      */
-    @Deprecated
     public void incrementAndPrintProgress() {
         increment();
     }
@@ -126,11 +137,9 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /**
      * <p>
      * Increments the counter by the step size and prints the current progress to the System's standard output.
-     * 
+     * </p>
      * @param steps The number of steps to increment the counter with.
-     * @deprecated Use {@link #increment(long)} instead.
      */
-    @Deprecated
     public void incrementByAndPrintProgress(long steps) {
         increment(steps);
     }
@@ -174,25 +183,23 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     }
 
     /**
-     * Prints the current progress.
+     * <p>Prints the current progress.</p>
      * 
      * @param counter Counter for current iteration in a loop.
      */
     private void printProgress() {
         int output = (int)Math.floor(currentProgress * (100 / showEveryPercent));
         if (showEveryPercent == 0 || output != lastOutput) {
-            NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
-            format.setMaximumFractionDigits(getDecimalDigitCount(showEveryPercent));
             long elapsedTime = System.currentTimeMillis() - startTime;
             long remainingTime = (long)(elapsedTime / currentProgress) - elapsedTime;
-            List<String> statistics = CollectionHelper.newArrayList();
+            List<String> statistics = new ArrayList<String>();
             if (currentProgress >= 0) {
                 statistics.add(format.format(100 * currentProgress) + "%");
             }
             if (output > 0) { // do not give any time estimates at the beginning or end
-                statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true));
+                statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true).replaceAll(":\\d+ms",""));
                 if (currentProgress >= 0 && remainingTime > 0) {
-                    statistics.add("~remaining: " + DateHelper.formatDuration(0, remainingTime, true));
+                    statistics.add("~remaining: " + DateHelper.formatDuration(0, remainingTime, true).replaceAll(":\\d+ms",""));
                 }
             }
             StringBuilder progressString = new StringBuilder();
@@ -209,7 +216,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     }
 
     /**
-     * Creates a progress bar.
+     * <p>Creates a progress bar.</p>
      * 
      * @param progress The progress in range [0,1]; negative values will lead to an empty progress bar.
      * @return The progress bar as string.
@@ -225,7 +232,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     }
 
     /**
-     * Get the number of decimal digits for a double value. Does not consider scientific notations currently.
+     * <p>Get the number of decimal digits for a double value. Does not consider scientific notations currently.</p>
      * 
      * @param value The value.
      * @return The number of decimal digits.
@@ -238,7 +245,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     public static void main(String[] args) {
         int totalCount = 1759600335;
-        ProgressMonitor pm = new ProgressMonitor(totalCount, .5, "My Progress");
+        ProgressMonitor pm = new ProgressMonitor(totalCount, 1., "My Progress");
         for (int i = 1; i <= totalCount + 10; i++) {
             pm.increment();
         }
