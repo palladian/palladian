@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class ProgressReporterTest {
+public class ProgressMonitorTest {
     private static final double DELTA = 0.0001;
 
     @Test
