@@ -38,7 +38,6 @@ Iterable<Instance> docs = new TextDatasetIterator("path/to/dataset.csv", "###", 
 
 Features
 --------
-<a name="features"></a>
 
 Features are the input for a classifier. In text classification, we have a long string as an input from which we need to derive features during preprocessing. Palladian's text classifier works with <a href="http://en.wikipedia.org/wiki/N-gram">*n*-grams</a>. *n*-grams are sets of tokens of the length *n*, which are created by sliding a "window" over the given text. Palladian can create features using character- or word-based *n*-grams.
 
@@ -57,7 +56,7 @@ FeatureSetting charSetting = FeatureSettingBuilder.chars(4, 6).create();
 FeatureSetting wordSetting = FeatureSettingBuilder.words(1, 2).create();
 ```
 
-There are several more options available for fine-tuning. Please refer to `FeatureSettingBuilder`'s Javadoc for more detailed information. The optimal feature setting depends heavily on data you want to classify. In the section <a href="#optimization">Optimization</a>, we will explain how you can deterine the perfect settings for your data conveniently.
+There are several more options available for fine-tuning. Please refer to `FeatureSettingBuilder`'s Javadoc for more detailed information. The optimal feature setting depends heavily on data you want to classify. In the section <a href="#Optimization">Optimization</a>, we will explain how you can deterine the perfect settings for your data conveniently.
 
 Classifier
 ----------
@@ -70,13 +69,12 @@ The `PalladianTextClassifier` calculates the probabilities for each learned cate
 | *beach* |    `2`    |   `17`   |    `1`    |
 | *paper* |    `6`    |    `4`   |   `10`    |
 
-To classify a new document, the classifier looks up the counts of each of its *n*-grams in the dictionary and calculates probabilities for each category. The used scoring mechanism is described in the section <a href="#scoring">Scoring</a>.
+To classify a new document, the classifier looks up the counts of each of its *n*-grams in the dictionary and calculates probabilities for each category. The used scoring mechanism is described in the section <a href="#Scoring">Scoring</a>.
 
 Dictionaries are stored using a <a href="http://en.wikipedia.org/wiki/Trie">trie</a> data structure, which provides efficient storage as well as fast access during classification. For more information, refer to the Javadoc of `DictionaryTrieModel`.
 
 Scoring
 -------
-<a name="scoring"></a>
 
 For calculating category probabilities a `Scorer` is used. We employ a <a href="http://en.wikipedia.org/wiki/Naive_Bayes_classifier">Naïve-Bayes</a>-like method, which is turbocharged using complement class scoring as described in <a href="http://people.csail.mit.edu/jrennie/papers/icml03-nb.pdf">Tackling the Poor Assumptions of Naive Bayes Text Classifiers</a> (Jason D. M. Rennie; Lawrence Shih; Jaime Teevan; David R. Karger; 2003).
 
@@ -92,7 +90,9 @@ The following equations show how the scoring works:
 	    {\operatorname{termCount}(\neg\,\mathit{category}) + \lvert\,\mathit{Terms}\,\rvert}
 -->
 
-![](./images/equation-complement-naive-bayes.png)
+<!-- ![](../resources/images/equation-complement-naive-bayes.png) -->
+
+<img src="images/equation-complement-naive-bayes.png" />
 
 <!--
   \operatorname{classify}(D) = 
@@ -105,22 +105,22 @@ The following equations show how the scoring works:
   \big)
 -->
 
-![](./images/equation-complement-naive-bayes-2.png)
+<!-- ![](../resources/equation-complement-naive-bayes-2.png) -->
+<img src="images/equation-complement-naive-bayes-2.png" />
 
 The described scorer implementation is available as class `BayesScorer`. If you want to customize the scoring method, you may roll out your own implementation. See `Scorer` Javadoc for more details.
 
 Pruning
 -------
-<a name="pruning"></a>
 
-Depending on the amount of training data and the feature settings, dictionaries can get quite large in size. To reduce space consumption of such models, different pruning strategies can be used, which remove potentially less relevant *n*-grams. A simple and efficient strategy is to remove such *n*-grams which occurred rarely during training, because one can assume, that those will not occur frequently during classification, making them less useful than more frequent *n*-grams. While pruning can significantly reduce the size of a dictionary, it usually comes with a sacrifice concerning classification accuracy. Read the <a href="#optimization">next section</a>, how you can evaluate the impact of different pruning strategies.
+Depending on the amount of training data and the feature settings, dictionaries can get quite large in size. To reduce space consumption of such models, different pruning strategies can be used, which remove potentially less relevant *n*-grams. A simple and efficient strategy is to remove such *n*-grams which occurred rarely during training, because one can assume, that those will not occur frequently during classification, making them less useful than more frequent *n*-grams. While pruning can significantly reduce the size of a dictionary, it usually comes with a sacrifice concerning classification accuracy. Read the <a href="#Optimization">next section</a>, how you can evaluate the impact of different pruning strategies.
 
 The class `PruningStrategies` provides different ready to use methods for pruning. When instantiating a `PalladianTextClassifier`, you can explicity specify a `DictionaryBuilder` which can be setup with a pruning strategy like so:
 
 ```java
 DictionaryBuilder builder = new DictionaryTrieModel.Builder();
 // remove entries from final dictionary, which occurred less than five times
-builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(5));
+builder.setPruningStrategy(PruningStrategies.termCount(5));
 PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, builder);
 ```
 
@@ -129,11 +129,10 @@ You may also create your own pruning strategies by providing an implementation f
 
 Optimization
 ------------
-<a name="optimization"></a>
 
 In order to find out which classifier configuration works best, you can evaluate different setups. The `PalladianTextClassifierOptimizer` allows to run an extensive evaluation with different settings on given sets of training and validation data. Make sure to use disjunct datasets for training and validation, otherwise the results will not be meaningful.
 
-The evaluation produces a CSV file which holds the results for a combination of <a href="#features">feature settings</a>, <a href="#pruning">pruning strategies</a> and <a href="#scoring">scorers</a>. The performance is measured in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall</a>, <a href="http://en.wikipedia.org/wiki/F1_score">F1</a>, and <a href="http://en.wikipedia.org/wiki/Accuracy_and_precision">accuracy</a>, separately for each category and as an average over all categories.
+The evaluation produces a CSV file which holds the results for a combination of <a href="#Features">feature settings</a>, <a href="#pruning">pruning strategies</a> and <a href="#Scoring">scorers</a>. The performance is measured in <a href="http://en.wikipedia.org/wiki/Precision_and_recall">precision, recall</a>, <a href="http://en.wikipedia.org/wiki/F1_score">F1</a>, and <a href="http://en.wikipedia.org/wiki/Accuracy_and_precision">accuracy</a>, separately for each category and as an average over all categories.
 
 ```java
 PalladianTextClassifierOptimizer optimizer = new PalladianTextClassifierOptimizer();
