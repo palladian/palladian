@@ -1,6 +1,7 @@
 package ws.palladian.helper;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 
 /**
@@ -38,6 +38,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     private final double showEveryPercent;
 
+    private final NumberFormat format;
+    
     private String description;
 
     private long totalSteps = -1;
@@ -51,8 +53,6 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /** Prevents outputting the same percentage value again, as specified by showEveryPercent. */
     private int lastOutput = -1;
 
-    private DecimalFormat format = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
-
     /**
      * <p>
      * Create a new {@link ProgressMonitor}.
@@ -62,12 +62,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     public ProgressMonitor(double showEveryPercent) {
         Validate.inclusiveBetween(0., 100., showEveryPercent, "showEveryPercent must be in range [0,100]");
         this.showEveryPercent = showEveryPercent;
-
-        if (showEveryPercent%1 > 0) {
-            format.applyPattern("##0.00");
-        } else {
-            format.applyPattern("##0");
-        }
+        boolean decimalPrecision = showEveryPercent % 1 > 0;
+        this.format = new DecimalFormat(decimalPrecision ? "##0.00" : "##0", new DecimalFormatSymbols(Locale.US));
     }
 
     /**
@@ -84,10 +80,12 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * Create a new {@link ProgressMonitor} showing the current progress with each percent.
      * </p>
      * 
-     * @param totalCount The total iterations to perform, greater/equal zero.
+     * @param totalSteps The total iterations to perform, greater/equal zero.
+     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    public ProgressMonitor(long totalCount) {
-        this(totalCount, 1);
+    @Deprecated
+    public ProgressMonitor(long totalSteps) {
+        this(totalSteps, 1);
 
     }
 
@@ -96,11 +94,13 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * Create a new {@link ProgressMonitor}.
      * </p>
      * 
-     * @param totalCount The total iterations to perform, greater/equal zero.
+     * @param totalSteps The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
+     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    public ProgressMonitor(long totalCount, double showEveryPercent) {
-        this(totalCount, showEveryPercent, null);
+    @Deprecated
+    public ProgressMonitor(long totalSteps, double showEveryPercent) {
+        this(totalSteps, showEveryPercent, null);
     }
 
     /**
@@ -108,28 +108,26 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * Create a new {@link ProgressMonitor}.
      * </p>
      * 
-     * @param totalCount The total iterations to perform, greater/equal zero.
+     * @param totalSteps The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      * @param processName The name of the process, for identification purposes when outputting the bar.
+     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    public ProgressMonitor(long totalCount, double showEveryPercent, String processName) {
-        Validate.isTrue(totalCount >= 0, "totalCount must be greater/equal zero");
-        Validate.inclusiveBetween(0., 100., showEveryPercent, "showEveryPercent must be in range [0,100]");
-        this.showEveryPercent = showEveryPercent;
-        startTask(processName, totalCount);
-
-        if (showEveryPercent%1 > 0) {
-            format.applyPattern("##0.00");
-        } else {
-            format.applyPattern("##0");
-        }
+    @Deprecated
+    public ProgressMonitor(long totalSteps, double showEveryPercent, String processName) {
+        this(showEveryPercent);
+        Validate.isTrue(totalSteps >= 0, "totalSteps must be greater/equal zero");
+        startTask(processName, totalSteps);
     }
 
     /**
      * <p>
      * Increments the counter by one and prints the current progress to the System's standard output.
      * </p>
+     * 
+     * @deprecated Use {@link #increment()} instead.
      */
+    @Deprecated
     public void incrementAndPrintProgress() {
         increment();
     }
@@ -138,8 +136,12 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * <p>
      * Increments the counter by the step size and prints the current progress to the System's standard output.
      * </p>
+     * 
      * @param steps The number of steps to increment the counter with.
+     * 
+     * @deprecated Use {@link #increment(long)} instead.
      */
+    @Deprecated
     public void incrementByAndPrintProgress(long steps) {
         increment(steps);
     }
@@ -183,7 +185,9 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     }
 
     /**
-     * <p>Prints the current progress.</p>
+     * <p>
+     * Prints the current progress.
+     * </p>
      * 
      * @param counter Counter for current iteration in a loop.
      */
@@ -197,9 +201,10 @@ public final class ProgressMonitor extends AbstractProgressReporter {
                 statistics.add(format.format(100 * currentProgress) + "%");
             }
             if (output > 0) { // do not give any time estimates at the beginning or end
-                statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true).replaceAll(":\\d+ms",""));
+                statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true).replaceAll(":\\d+ms", ""));
                 if (currentProgress >= 0 && remainingTime > 0) {
-                    statistics.add("~remaining: " + DateHelper.formatDuration(0, remainingTime, true).replaceAll(":\\d+ms",""));
+                    statistics.add("~remaining: "
+                            + DateHelper.formatDuration(0, remainingTime, true).replaceAll(":\\d+ms", ""));
                 }
             }
             StringBuilder progressString = new StringBuilder();
@@ -216,7 +221,9 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     }
 
     /**
-     * <p>Creates a progress bar.</p>
+     * <p>
+     * Creates a progress bar.
+     * </p>
      * 
      * @param progress The progress in range [0,1]; negative values will lead to an empty progress bar.
      * @return The progress bar as string.
@@ -231,22 +238,11 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         return stringBuilder.toString();
     }
 
-    /**
-     * <p>Get the number of decimal digits for a double value. Does not consider scientific notations currently.</p>
-     * 
-     * @param value The value.
-     * @return The number of decimal digits.
-     */
-    private static int getDecimalDigitCount(double value) {
-        String stringValue = Double.toString(value).replaceAll("0+$", ""); // remove trailing zeros
-        int idx = stringValue.indexOf('.');
-        return idx > 0 ? stringValue.length() - idx - 1 : 0;
-    }
-
     public static void main(String[] args) {
-        int totalCount = 1759600335;
-        ProgressMonitor pm = new ProgressMonitor(totalCount, 1., "My Progress");
-        for (int i = 1; i <= totalCount + 10; i++) {
+        int totalSteps = 1759600335;
+        ProgressMonitor pm = new ProgressMonitor(0.1);
+        pm.startTask("My Progress", totalSteps);
+        for (int i = 1; i <= totalSteps + 10; i++) {
             pm.increment();
         }
     }
