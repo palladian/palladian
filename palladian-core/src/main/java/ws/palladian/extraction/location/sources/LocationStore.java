@@ -14,7 +14,7 @@ import ws.palladian.extraction.location.LocationSource;
  * 
  * @author Philipp Katz
  */
-public interface LocationStore extends LocationSource {
+public interface LocationStore {
 
     /**
      * <p>
