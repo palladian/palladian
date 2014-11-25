@@ -25,6 +25,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.functional.Function;
@@ -75,14 +76,10 @@ public final class GeonamesImporter {
     private final LocationStore locationStore;
 
     /** Mapping between administrative codes and the corresponding location ID, needed to establish hierarchy. */
-    private final Map<String, Integer> countryMapping;
-    private final Map<String, Integer> admin1Mapping;
-    private final Map<String, Integer> admin2Mapping;
-    private final Map<String, Integer> admin3Mapping;
-    private final Map<String, Integer> admin4Mapping;
+    private final Map<String, Integer> administrativeMappings = CollectionHelper.newHashMap();
 
     /** Explicitly given hierarchy relations, they have precedence over the administrative relations. */
-    private final Map<Integer, Integer> hierarchyMappings;
+    private final Map<Integer, Integer> hierarchyMappings = CollectionHelper.newHashMap();
 
     /**
      * <p>
@@ -93,14 +90,7 @@ public final class GeonamesImporter {
      */
     public GeonamesImporter(LocationStore locationStore) {
         Validate.notNull(locationStore, "locationStore must not be null");
-
         this.locationStore = locationStore;
-        this.countryMapping = CollectionHelper.newHashMap();
-        this.admin1Mapping = CollectionHelper.newHashMap();
-        this.admin2Mapping = CollectionHelper.newHashMap();
-        this.admin3Mapping = CollectionHelper.newHashMap();
-        this.admin4Mapping = CollectionHelper.newHashMap();
-        this.hierarchyMappings = CollectionHelper.newHashMap();
     }
 
     /**
@@ -232,9 +222,9 @@ public final class GeonamesImporter {
      */
     private void importLocations(InputStream inputStream, final int totalLines) {
         LOGGER.info("///////////////////// Inserting locations /////////////////////////////");
-        readLocations(inputStream, totalLines, new LocationLineCallback() {
+        readLocations(inputStream, totalLines, new Consumer<GeonameLocation>() {
             @Override
-            public void readLocation(GeonameLocation geonameLocation) {
+            public void process(GeonameLocation geonameLocation) {
                 locationStore.save(geonameLocation);
                 Integer parentId = getParent(geonameLocation);
                 if (parentId != null) {
@@ -286,30 +276,13 @@ public final class GeonamesImporter {
 
             for (int i = hierarchyCode.size(); i > 0; i--) {
                 String parentCode = StringUtils.join(hierarchyCode.subList(0, i), '.');
-                Map<String, Integer> mapping = getMappingForLevel(i - 1);
-                Integer retrievedParentId = mapping.get(parentCode);
+                Integer retrievedParentId = administrativeMappings.get(parentCode);
                 if (retrievedParentId != null && retrievedParentId != location.geonamesId) {
                     return retrievedParentId;
                 }
             }
         }
         return null;
-    }
-
-    private Map<String, Integer> getMappingForLevel(int level) {
-        switch (level) {
-            case 0:
-                return countryMapping;
-            case 1:
-                return admin1Mapping;
-            case 2:
-                return admin2Mapping;
-            case 3:
-                return admin3Mapping;
-            case 4:
-                return admin4Mapping;
-        }
-        throw new IllegalArgumentException("Level " + level + " is not allowed.");
     }
 
     /**
@@ -323,9 +296,9 @@ public final class GeonamesImporter {
      */
     private void readAdministrativeItems(InputStream inputStream, final int totalLines) {
         LOGGER.info("/////////////////// Reading administrative items //////////////////////");
-        readLocations(inputStream, totalLines, new LocationLineCallback() {
+        readLocations(inputStream, totalLines, new Consumer<GeonameLocation>() {
             @Override
-            public void readLocation(GeonameLocation geonameLocation) {
+            public void process(GeonameLocation geonameLocation) {
                 String codeCombined = geonameLocation.getCodeCombined();
 
                 // remove historic locations from the hierarchy mapping again, as we do not want the DDR in the
@@ -350,10 +323,9 @@ public final class GeonamesImporter {
                     return;
                 }
 
-                Map<String, Integer> mapping = getMappingForLevel(geonameLocation.getLevel());
-                Integer existingItem = mapping.get(codeCombined);
+                Integer existingItem = administrativeMappings.get(codeCombined);
                 if (existingItem == null) {
-                    mapping.put(codeCombined, geonameLocation.geonamesId);
+                    administrativeMappings.put(codeCombined, geonameLocation.geonamesId);
                 } else {
                     LOGGER.error(
                             "There is already an item with code {} in the mappings, this will almost certainly lead to inconsistencies and should be fixed! (item with Geonames ID {})",
@@ -362,12 +334,7 @@ public final class GeonamesImporter {
             }
 
         });
-        LOGGER.info("Finished reading administrative items");
-        LOGGER.info("# country: {}", countryMapping.size());
-        LOGGER.info("# level 1: {}", admin1Mapping.size());
-        LOGGER.info("# level 2: {}", admin2Mapping.size());
-        LOGGER.info("# level 3: {}", admin3Mapping.size());
-        LOGGER.info("# level 4: {}", admin4Mapping.size());
+        LOGGER.info("Finished reading {} administrative items for mapping", administrativeMappings.size());
     }
 
     /**
@@ -403,10 +370,7 @@ public final class GeonamesImporter {
                 }
                 int parentId = Integer.parseInt(split[0]);
                 int childId = Integer.parseInt(split[1]);
-                String type = null;
-                if (split.length > 2) {
-                    type = split[2];
-                }
+                String type = split.length > 2 ? split[2] : null;
                 if (type == null || type.equals("ADM")) {
                     childParents.add(childId, parentId);
                 }
@@ -467,18 +431,11 @@ public final class GeonamesImporter {
      * @return
      */
     private static final String stringOrNull(String string) {
-        if (string.isEmpty()) {
-            return null;
-        }
-        return new String(string);
-    }
-
-    private static interface LocationLineCallback {
-        void readLocation(GeonameLocation geonameLocation);
+        return string.isEmpty() ? null : new String(string);
     }
 
     private static final void readLocations(InputStream inputStream, final int totalLines,
-            final LocationLineCallback callback) {
+            final Consumer<GeonameLocation> callback) {
         final ProgressMonitor monitor = new ProgressMonitor(totalLines, 1);
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
@@ -487,7 +444,7 @@ public final class GeonamesImporter {
                     return;
                 }
                 GeonameLocation geonameLocation = new GeonameLocation(line);
-                callback.readLocation(geonameLocation);
+                callback.process(geonameLocation);
                 monitor.incrementAndPrintProgress();
             }
         });
@@ -619,21 +576,11 @@ public final class GeonamesImporter {
         }
 
         boolean isHistoric() {
-            if (isAdministrativeClass()) {
-                if (featureCode != null && featureCode.endsWith("H")) {
-                    return true;
-                }
-            }
-            return false;
+            return isAdministrativeClass() && featureCode != null && featureCode.endsWith("H");
         }
 
         boolean isLowerOrderAdminDivision() {
-            if ("P".equals(featureClass)) {
-                if (featureCode != null && Arrays.asList("PPLA2", "PPLA3", "PPLA4").contains(featureCode)) {
-                    return true;
-                }
-            }
-            return false;
+            return "P".equals(featureClass) && Arrays.asList("PPLA2", "PPLA3", "PPLA4").contains(featureCode);
         }
 
         boolean isAdministrativeClass() {
@@ -704,19 +651,6 @@ public final class GeonamesImporter {
             return Collections.emptyList();
         }
 
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder bob = new StringBuilder();
-        bob.append("Mappings:").append('\n');
-        bob.append("CountryMapping=").append(countryMapping).append('\n');
-        bob.append("Admin1Mapping=").append(admin1Mapping).append('\n');
-        bob.append("Admin2Mapping=").append(admin2Mapping).append('\n');
-        bob.append("Admin3Mapping=").append(admin3Mapping).append('\n');
-        bob.append("Admin4Mapping=").append(admin4Mapping).append('\n');
-        bob.append("HierarchyMapping=").append(hierarchyMappings);
-        return bob.toString();
     }
 
     public static void main(String[] args) throws IOException {
