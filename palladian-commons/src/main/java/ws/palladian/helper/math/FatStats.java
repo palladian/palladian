@@ -194,7 +194,7 @@ public class FatStats implements Stats {
         }
         List<Double> temp = getDoubleValues();
         Collections.sort(temp);
-        double n = (double)(p / 100.) * temp.size();
+        double n = p / 100. * temp.size();
         if (n == (int)n) {
             return 0.5 * temp.get((int)n - 1) + 0.5 * temp.get((int)n);
         } else {

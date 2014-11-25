@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ws.palladian.extraction.location.AlternativeName;
@@ -22,12 +22,12 @@ import ws.palladian.helper.io.ResourceHelper;
 
 public class GeonamesImporterTest {
 
-    private LocationStore locationStore;
+    private static LocationStore locationStore;
 
-    @Before
-    public void readData() throws FileNotFoundException, IOException {
+    @BeforeClass
+    public static void readData() throws FileNotFoundException, IOException {
         locationStore = new CollectionLocationStore();
-        GeonamesImporter importer = new GeonamesImporter(locationStore);
+        GeonamesImporter importer = new GeonamesImporter(locationStore, null);
         File hierarchyFile = ResourceHelper.getResourceFile("/geonames.org/hierarchy.txt");
         File locationFile = ResourceHelper.getResourceFile("/geonames.org/locationData.txt");
         File alternateNamesFile = ResourceHelper.getResourceFile("/geonames.org/alternateNames.txt");
@@ -426,7 +426,7 @@ public class GeonamesImporterTest {
 
     }
 
-    private void checkHierarchy(List<Integer> hierarchy, int... values) {
+    private static void checkHierarchy(List<Integer> hierarchy, int... values) {
         assertEquals(values.length, hierarchy.size());
         for (int i = 0; i < values.length; i++) {
             assertEquals(values[i], (int)hierarchy.get(i));
