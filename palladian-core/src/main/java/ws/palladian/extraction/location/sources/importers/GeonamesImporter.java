@@ -9,8 +9,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -25,6 +29,7 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.NoProgress;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -120,42 +125,23 @@ public final class GeonamesImporter {
         importLocations(locationProvider, hierarchyProvider, alternateNamesProvider);
     }
 
-    /**
-     * <p>
-     * Import a Geonames dump from a TXT file.
-     * </p>
-     * 
-     * @param locationFile The path to the Geonames dump TXT file, not <code>null</code>.
-     * @param hierarchyFile The path to the hierarchy file, not <code>null</code>.
-     * @param alternateNamesFile The path to the alternate names file, not <code>null</code>.
-     * @throws IOException
-     */
-    public void importLocations(File locationFile, File hierarchyFile, File alternateNamesFile) throws IOException {
-        checkIsFileOfType(locationFile, "txt");
-        checkIsFileOfType(hierarchyFile, "txt");
-        checkIsFileOfType(alternateNamesFile, "txt");
-        InputStreamProvider locationProvider = new FileInputStreamProvider(locationFile);
-        InputStreamProvider hierarchyProvider = new FileInputStreamProvider(hierarchyFile);
-        InputStreamProvider alternateNamesProvider = new FileInputStreamProvider(alternateNamesFile);
-        importLocations(locationProvider, hierarchyProvider, alternateNamesProvider);
-    }
-
-    private void importLocations(InputStreamProvider locationProvider, InputStreamProvider hierarchyProvider,
+    /** Package-private for unit testing. */
+    void importLocations(InputStreamProvider locationProvider, InputStreamProvider hierarchyProvider,
             InputStreamProvider alternateNamesProvider) throws IOException {
         progressReporter.startTask(null, -1);
-        importHierarchy(hierarchyProvider, progressReporter.createSubProgress(0.25));
+        importHierarchy(hierarchyProvider, progressReporter.createSubProgress(0.10));
         int totalLines;
         try (InputStream inputStream = locationProvider.getInputStream()) {
             totalLines = FileHelper.getNumberOfLines(inputStream);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            readAdministrativeItems(inputStream, progressReporter.createSubProgress(0.25), totalLines);
+            readAdministrativeItems(inputStream, progressReporter.createSubProgress(0.30), totalLines);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            importLocations(inputStream, progressReporter.createSubProgress(0.25), totalLines);
+            importLocations(inputStream, progressReporter.createSubProgress(0.30), totalLines);
         }
         LOGGER.info("Finished importing {} locations", totalLines);
-        importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.25));
+        importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.30));
     }
 
     private static void checkIsFileOfType(File filePath, String fileType) {
@@ -254,6 +240,9 @@ public final class GeonamesImporter {
     private void readAdministrativeItems(InputStream inputStream, final ProgressReporter progress, int numLines) {
         LOGGER.info("Reading administrative items");
         progress.startTask("Reading administrative items", numLines);
+        
+        final Set<Integer> mappingsToRemove = new HashSet<>();
+        
         readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
             @Override
             public void process(GeonameLocation geonameLocation) {
@@ -263,15 +252,15 @@ public final class GeonamesImporter {
                 // hierarchy list ... sorry, Erich.
                 if (geonameLocation.isHistoric()) {
                     // XXX keep, but lower priority here?
-                    int removeCount = removeChildFromHierarchy(geonameLocation.geonamesId);
-                    LOGGER.debug("Removed {} occurences of historic location {} with type {} from hierarchy mappings",
-                            new Object[] {removeCount, geonameLocation.geonamesId, codeCombined});
+                    mappingsToRemove.add(geonameLocation.geonamesId);
+                    LOGGER.debug("Removed historic location {} with type {} from hierarchy mappings",
+                            geonameLocation.geonamesId, codeCombined);
                     return;
                 }
 
                 if (geonameLocation.isLowerOrderAdminDivision()) {
                     // XXX keep, but lower priority here?
-                    removeChildFromHierarchy(geonameLocation.geonamesId);
+                    mappingsToRemove.add(geonameLocation.geonamesId);
                     LOGGER.debug("Remove second order relation {}", geonameLocation.geonamesId);
                 }
 
@@ -285,26 +274,23 @@ public final class GeonamesImporter {
                 if (existingItem == null) {
                     administrativeMappings.put(codeCombined, geonameLocation.geonamesId);
                 } else {
-                    LOGGER.error(
-                            "There is already an item with code {} in the mappings, this will almost certainly lead to inconsistencies and should be fixed! (item with Geonames ID {})",
-                            codeCombined, geonameLocation.geonamesId);
+                    LOGGER.warn(
+                            "There is already an item with code {} in the mappings, this will almost certainly lead to inconsistencies and should be fixed! (current {}, existing {})",
+                            codeCombined, geonameLocation.geonamesId, existingItem);
                 }
             }
 
         });
-        LOGGER.info("Finished reading {} administrative items for mapping", administrativeMappings.size());
-    }
 
-    /**
-     * Remove entries from a map with a given value.
-     * 
-     * @param geonamesId The geonames id which to remove.
-     * @return The number of removed entries.
-     */
-    private int removeChildFromHierarchy(int geonamesid) {
-        int oldSize = hierarchyMappings.size();
-        hierarchyMappings.values().removeAll(Collections.singleton(geonamesid));
-        return oldSize - hierarchyMappings.size();
+        LOGGER.debug("Removing {} historic/second order relations from hierarchy mappings", mappingsToRemove.size());
+        Iterator<Entry<Integer, Integer>> iterator = hierarchyMappings.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Entry<Integer, Integer> entry = iterator.next();
+            if (mappingsToRemove.contains(entry.getValue())) {
+                iterator.remove();
+            }
+        }
+        LOGGER.info("Finished reading {} administrative items for mapping", administrativeMappings.size());
     }
 
     /**
@@ -349,7 +335,7 @@ public final class GeonamesImporter {
                     hierarchyMappings.put(childId, CollectionHelper.getFirst(parentIds));
                 }
             }
-            LOGGER.info("Finished importing hierarchy.");
+            LOGGER.info("Finished importing {} items into hierarchy.", hierarchyMappings.size());
         }
     }
 
@@ -618,22 +604,9 @@ public final class GeonamesImporter {
         }
 
     }
-    
-    private static interface InputStreamProvider {
+
+    static interface InputStreamProvider {
         InputStream getInputStream() throws IOException;
-    }
-
-    private static final class FileInputStreamProvider implements InputStreamProvider {
-        private final File file;
-
-        public FileInputStreamProvider(File file) {
-            this.file = file;
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return new FileInputStream(file);
-        }
     }
 
     private static final class ZipEntryInputStreamProvider implements InputStreamProvider {
@@ -663,10 +636,10 @@ public final class GeonamesImporter {
         LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         locationStore.truncate();
 
-        GeonamesImporter importer = new GeonamesImporter(locationStore, null);
-        File locationFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/allCountries.zip");
-        File hierarchyFile = new File("/Users/pk/Desktop/LocationLab/geonames.org/hierarchy.zip");
-        File alternateNames = new File("/Users/pk/Desktop/LocationLab/geonames.org/alternateNames.zip");
+        GeonamesImporter importer = new GeonamesImporter(locationStore, new ProgressMonitor());
+        File locationFile = new File("/Users/pk/Desktop/geonames.org/allCountries.zip");
+        File hierarchyFile = new File("/Users/pk/Desktop/geonames.org/hierarchy.zip");
+        File alternateNames = new File("/Users/pk/Desktop/geonames.org/alternateNames.zip");
         importer.importLocationsZip(locationFile, hierarchyFile, alternateNames);
     }
 

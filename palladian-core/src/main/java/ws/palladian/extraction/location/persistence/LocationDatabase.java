@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -44,7 +45,7 @@ import ws.palladian.persistence.RowConverters;
  * @author Philipp Katz
  * @author David Urbansky
  */
-public class LocationDatabase extends DatabaseManager implements LocationStore {
+public class LocationDatabase extends DatabaseManager implements LocationSource, LocationStore {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
@@ -177,7 +178,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public void save(Location location) {
-        List<Object> args = CollectionHelper.newArrayList();
+        List<Object> args = new ArrayList<>();
         GeoCoordinate coordinate = location.getCoordinate();
         args.add(location.getId());
         args.add(location.getType().toString());
@@ -212,6 +213,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
      * Delete the content in the location database.
      * </p>
      */
+    @SuppressWarnings("resource")
     public void truncate() {
         System.out.println("Really truncate the location database?");
         new Scanner(System.in).nextLine();
