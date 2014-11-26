@@ -1062,6 +1062,23 @@ public final class CollectionHelper {
         return count;
     }
 
+
+    /**
+     * <p>Check whether a list contains a specific item.</p>
+     * @param items The list of items.
+     * @param item The item.
+     * @param <T> The item type.
+     * @return True if the list contains the item already.
+     */
+    public static  <T> boolean contains(T[] items, T item) {
+        for (T i : items) {
+            if (i.equals(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * <p>
      * Make a given {@link Iterator} read-only. Invoking {@link Iterator#remove()} will trigger an
