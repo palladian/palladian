@@ -31,9 +31,6 @@ import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.DefaultMultiMap;
-import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -65,6 +62,9 @@ public final class GeonamesImporter {
 
     /** Mapping between the administrative/country codes and our internal numeric level. */
     private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
+
+    /** Denotes, that a hierarchy mapping was ambiguous (i.e. had multiple values). */
+    private static final Integer AMBIGUOUS = -1;
 
     static {
         Map<String, Integer> temp = new HashMap<>();
@@ -283,14 +283,18 @@ public final class GeonamesImporter {
         });
 
         LOGGER.debug("Removing {} historic/second order relations from hierarchy mappings", mappingsToRemove.size());
-        Iterator<Entry<Integer, Integer>> iterator = hierarchyMappings.entrySet().iterator();
+        removeByValue(hierarchyMappings, mappingsToRemove);
+        LOGGER.info("Finished reading {} administrative items for mapping", administrativeMappings.size());
+    }
+
+    private static void removeByValue(Map<Integer,Integer> map, Set<Integer> valuesToRemove) {
+        Iterator<Entry<Integer, Integer>> iterator = map.entrySet().iterator();
         while (iterator.hasNext()) {
             Entry<Integer, Integer> entry = iterator.next();
-            if (mappingsToRemove.contains(entry.getValue())) {
+            if (valuesToRemove.contains(entry.getValue())) {
                 iterator.remove();
             }
         }
-        LOGGER.info("Finished reading {} administrative items for mapping", administrativeMappings.size());
     }
 
     /**
@@ -311,7 +315,6 @@ public final class GeonamesImporter {
         }
         progress.startTask("Reading hierarchy", numLines);
         try (InputStream inputStream = hierarchyProvider.getInputStream()) {
-            final MultiMap<Integer, Integer> childParents = DefaultMultiMap.createWithSet();
             FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override
                 public void performAction(String line, int lineNumber) {
@@ -323,18 +326,18 @@ public final class GeonamesImporter {
                     int childId = Integer.parseInt(split[1]);
                     String type = split.length > 2 ? split[2] : null;
                     if (type == null || type.equals("ADM")) {
-                        childParents.add(childId, parentId);
+                        Integer existingParentId = hierarchyMappings.get(childId);
+                        if (existingParentId == null) {
+                            hierarchyMappings.put(childId, parentId);
+                        } else if (existingParentId.intValue() != parentId) {
+                            hierarchyMappings.put(childId, AMBIGUOUS);
+                        }
                     }
                     progress.increment();
                 }
             });
-            // only add relation, if unambiguous
-            for (Integer childId : childParents.keySet()) {
-                Collection<Integer> parentIds = childParents.get(childId);
-                if (parentIds.size() == 1) {
-                    hierarchyMappings.put(childId, CollectionHelper.getFirst(parentIds));
-                }
-            }
+            // only keep relation, if unambiguous
+            removeByValue(hierarchyMappings, Collections.singleton(AMBIGUOUS));
             LOGGER.info("Finished importing {} items into hierarchy.", hierarchyMappings.size());
         }
     }
