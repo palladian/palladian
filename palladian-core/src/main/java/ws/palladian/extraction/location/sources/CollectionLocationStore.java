@@ -2,6 +2,8 @@ package ws.palladian.extraction.location.sources;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,11 +11,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.AbstractLocation;
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
@@ -31,13 +32,9 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CollectionLocationStore.class);
 
-    private final Map<Integer, LinkedLocation> idLocation;
-    private final MultiMap<String, LinkedLocation> namesLocations;
+    private final Map<Integer, MutableLocation> idLocation = new HashMap<>();
 
-    public CollectionLocationStore() {
-        idLocation = CollectionHelper.newHashMap();
-        namesLocations = DefaultMultiMap.createWithSet();
-    }
+    private final MultiMap<String, MutableLocation> namesLocations = DefaultMultiMap.createWithSet();
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
@@ -47,34 +44,12 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
 
     @Override
     public void save(Location location) {
-        LinkedLocation linkedLocation = getOrCreate(location.getId());
-        linkedLocation.merge(location);
-        namesLocations.add(location.getPrimaryName().toLowerCase(), linkedLocation);
-        Collection<AlternativeName> alternativeNames = location.getAlternativeNames();
-        if (alternativeNames != null) {
-            for (AlternativeName alternativeName : location.getAlternativeNames()) {
-                namesLocations.add(alternativeName.getName().toLowerCase(), linkedLocation);
-            }
+        MutableLocation locationCopy = new MutableLocation(location);
+        idLocation.put(location.getId(), locationCopy);
+        namesLocations.add(location.getPrimaryName().toLowerCase(), locationCopy);
+        for (AlternativeName alternativeName : location.getAlternativeNames()) {
+            namesLocations.add(alternativeName.getName().toLowerCase(), locationCopy);
         }
-    }
-
-    private LinkedLocation getOrCreate(int locationId) {
-        LinkedLocation linkedLocation = idLocation.get(locationId);
-        if (linkedLocation == null) {
-            linkedLocation = new LinkedLocation(locationId);
-            idLocation.put(locationId, linkedLocation);
-        }
-        return linkedLocation;
-    }
-
-    @Override
-    public void addHierarchy(int childId, int parentId) {
-        if (childId == parentId) {
-            throw new IllegalArgumentException("A child cannot be the parent of itself (id was " + childId + ")");
-        }
-        LinkedLocation parentLocation = getOrCreate(parentId);
-        LinkedLocation childLocation = getOrCreate(childId);
-        childLocation.parent = parentLocation;
     }
 
     @Override
@@ -85,9 +60,9 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("CollectionLocationStore [#locationsIds=");
+        builder.append("CollectionLocationStore [#locations=");
         builder.append(idLocation.size());
-        builder.append(", #namesLocations=");
+        builder.append(", #names=");
         builder.append(namesLocations.size());
         builder.append("]");
         return builder.toString();
@@ -95,43 +70,44 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
 
     @Override
     public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
-        LinkedLocation linkedLocation = getOrCreate(locationId);
-        if (linkedLocation != null) {
-            linkedLocation.alternativeNames.addAll(alternativeNames);
-            for (AlternativeName alternativeName : alternativeNames) {
-                namesLocations.add(alternativeName.getName().toLowerCase(), linkedLocation);
-            }
+        MutableLocation location = idLocation.get(locationId);
+        if (location == null) {
+            throw new IllegalArgumentException("No location with ID " + locationId + " in collection.");
+        }
+        location.alternativeNames.addAll(alternativeNames);
+        for (AlternativeName alternativeName : alternativeNames) {
+            namesLocations.add(alternativeName.getName().toLowerCase(), location);
         }
     }
 
     @Override
     public int getHighestId() {
-        if (idLocation.isEmpty()) {
-            return 0;
-        }
-        return Collections.max(idLocation.keySet());
+        return idLocation.isEmpty() ? 0 : Collections.max(idLocation.keySet());
     }
 
     /**
-     * <p>
-     * In-memory representation of a {@link Location}. This class is mutable and can be updated with new data using
-     * {@link #merge(Location)}. It keeps a pointer to its parent in the hierarchy.
-     * </p>
+     * An in-memory representation of a {@link Location}.
      * 
      * @author Philipp Katz
      */
-    private static final class LinkedLocation extends AbstractLocation {
+    private static final class MutableLocation extends AbstractLocation {
 
         final int id;
         String primaryName;
-        final Set<AlternativeName> alternativeNames = CollectionHelper.newHashSet();
+        Set<AlternativeName> alternativeNames;
         LocationType type;
         GeoCoordinate coordinate;
         Long population;
-        LinkedLocation parent;
+        List<Integer> ancestorIds;
 
-        public LinkedLocation(int id) {
-            this.id = id;
+        public MutableLocation(Location location) {
+            this.id = location.getId();
+            this.primaryName = location.getPrimaryName();
+            this.alternativeNames = new HashSet<>(location.getAlternativeNames());
+            this.type = location.getType();
+            this.coordinate = location.getCoordinate();
+            this.population = location.getPopulation();
+            this.ancestorIds = location.getAncestorIds();
         }
 
         @Override
@@ -153,7 +129,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
         public LocationType getType() {
             return type;
         }
-        
+
         @Override
         public GeoCoordinate getCoordinate() {
             return coordinate;
@@ -166,40 +142,9 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
 
         @Override
         public List<Integer> getAncestorIds() {
-            List<Integer> parentIds = CollectionHelper.newArrayList();
-            if (parent != null) {
-                parent.collectAncestors(parentIds);
-            }
-            return parentIds;
+            return ancestorIds;
         }
 
-        void collectAncestors(List<Integer> parentIds) {
-            parentIds.add(id);
-            if (parent != null) {
-                parent.collectAncestors(parentIds);
-            }
-        }
-
-        void merge(Location location) {
-            if (location.getId() != id) {
-                throw new IllegalArgumentException();
-            }
-            if (location.getPrimaryName() != null) {
-                this.primaryName = location.getPrimaryName();
-            }
-            if (location.getAlternativeNames() != null) {
-                this.alternativeNames.addAll(location.getAlternativeNames());
-            }
-            if (location.getType() != null) {
-                this.type = location.getType();
-            }
-            if (location.getCoordinate() != null) {
-                this.coordinate = location.getCoordinate();
-            }
-            if (location.getPopulation() != null) {
-                this.population = location.getPopulation();
-            }
-        }
     }
 
 }

@@ -30,19 +30,19 @@ public interface LocationStore {
      */
     void save(Location location);
 
-    /**
-     * <p>
-     * Add a hierarchy relation between two locations, identified by their IDs (see {@link Location#getId()}). An
-     * example for a hierarchy would be the tuple "Baden-Württemberg" (child), "Germany" (parent). A hierarchy should
-     * only be created for <b>directly adjacent</b> levels and not be spanning intermediate levels; for example,
-     * <b>no</b> explicit hierarchy must be created between "Regierungsbezirk Stuttgart" (child) and "Germany" (parent),
-     * because "Regierungsbezirk Stuttgart" is contained in "Baden-Württemberg".
-     * </p>
-     * 
-     * @param childId The identifier of the child {@link Location}, not equals {@code parentId}.
-     * @param parentId The identifier of the parent {@link Location}, not equal {@code childId}.
-     */
-    void addHierarchy(int childId, int parentId);
+//    /**
+//     * <p>
+//     * Add a hierarchy relation between two locations, identified by their IDs (see {@link Location#getId()}). An
+//     * example for a hierarchy would be the tuple "Baden-Württemberg" (child), "Germany" (parent). A hierarchy should
+//     * only be created for <b>directly adjacent</b> levels and not be spanning intermediate levels; for example,
+//     * <b>no</b> explicit hierarchy must be created between "Regierungsbezirk Stuttgart" (child) and "Germany" (parent),
+//     * because "Regierungsbezirk Stuttgart" is contained in "Baden-Württemberg".
+//     * </p>
+//     * 
+//     * @param childId The identifier of the child {@link Location}, not equals {@code parentId}.
+//     * @param parentId The identifier of the parent {@link Location}, not equal {@code childId}.
+//     */
+//    void addHierarchy(int childId, int parentId);
 
     /**
      * <p>
@@ -62,4 +62,5 @@ public interface LocationStore {
      * @return The highest location id in the source.
      */
     int getHighestId();
+
 }

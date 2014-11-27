@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,9 +22,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.NoProgress;
@@ -87,6 +85,8 @@ public final class GeonamesImporter {
 
     /** Explicitly given hierarchy relations, they have precedence over the administrative relations. */
     private final Map<Integer, Integer> hierarchyMappings = new HashMap<>();
+    
+    private  final Map<Integer, Integer> childParentIds = new HashMap<>();
 
     /** For reporting import progress. */
     private final ProgressReporter progressReporter;
@@ -129,19 +129,42 @@ public final class GeonamesImporter {
     void importLocations(InputStreamProvider locationProvider, InputStreamProvider hierarchyProvider,
             InputStreamProvider alternateNamesProvider) throws IOException {
         progressReporter.startTask(null, -1);
-        importHierarchy(hierarchyProvider, progressReporter.createSubProgress(0.10));
+        readHierarchy(hierarchyProvider, progressReporter.createSubProgress(0.04));
         int totalLines;
         try (InputStream inputStream = locationProvider.getInputStream()) {
             totalLines = FileHelper.getNumberOfLines(inputStream);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            readAdministrativeItems(inputStream, progressReporter.createSubProgress(0.30), totalLines);
+            readAdministrativeItems(inputStream, progressReporter.createSubProgress(0.24), totalLines);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            importLocations(inputStream, progressReporter.createSubProgress(0.30), totalLines);
+            establishHierarchyMap(totalLines, progressReporter.createSubProgress(0.24), inputStream);
         }
-        LOGGER.info("Finished importing {} locations", totalLines);
-        importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.30));
+        try (InputStream inputStream = locationProvider.getInputStream()) {
+            importLocations(inputStream, progressReporter.createSubProgress(0.24), totalLines);
+        }
+        importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.24));
+    }
+
+    /**
+     * Create the parent-child hierarchy map.
+     * 
+     * @param totalLines
+     * @param progress
+     * @param inputStream
+     */
+    private void establishHierarchyMap(int totalLines, ProgressReporter progress, InputStream inputStream) {
+        LOGGER.info("Reading child-parent hierarchies");
+        progress.startTask("Reading child-parent hierarchies", totalLines);
+        readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
+            @Override
+            public void process(GeonameLocation item) {
+                Integer parentId = getParent(item);
+                if (parentId != null) {
+                    childParentIds.put(item.geonamesId, parentId);
+                }
+            }
+        });
     }
 
     private static void checkIsFileOfType(File filePath, String fileType) {
@@ -163,19 +186,26 @@ public final class GeonamesImporter {
      */
     private void importLocations(InputStream inputStream, final ProgressReporter progress, int numLines) {
         LOGGER.info("Inserting locations");
-        progress.startTask("Reading locations", numLines);
+        progress.startTask("Inserting locations", numLines);
         readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
             @Override
             public void process(GeonameLocation geonameLocation) {
-                locationStore.save(geonameLocation);
-                Integer parentId = getParent(geonameLocation);
-                if (parentId != null) {
-                    locationStore.addHierarchy(geonameLocation.geonamesId, parentId);
-                } else {
-                    LOGGER.debug("No parent for {}", geonameLocation.geonamesId);
+                LocationBuilder builder = new LocationBuilder();
+                builder.setId(geonameLocation.geonamesId);
+                builder.setPrimaryName(geonameLocation.primaryName);
+                builder.setType(GeonamesUtil.mapType(geonameLocation.featureClass, geonameLocation.featureCode));
+                builder.setCoordinate(geonameLocation.coordinate);
+                builder.setPopulation(geonameLocation.population);
+                Integer childId = geonameLocation.geonamesId;
+                Integer parentId;
+                while ((parentId = childParentIds.get(childId)) != null) {
+                    builder.addAncestorId(parentId);
+                    childId = parentId;
                 }
+                locationStore.save(builder.create());
             }
         });
+        LOGGER.info("Finished importing {} locations", numLines);
     }
 
     /**
@@ -306,7 +336,7 @@ public final class GeonamesImporter {
      * @param progress Progress monitor.
      * @throws IOException
      */
-    private void importHierarchy(InputStreamProvider hierarchyProvider, final ProgressReporter progress)
+    private void readHierarchy(InputStreamProvider hierarchyProvider, final ProgressReporter progress)
             throws IOException {
         LOGGER.info("Importing hierarchy");
         int numLines;
@@ -416,7 +446,7 @@ public final class GeonamesImporter {
     /**
      * Temporally hold locations after parsing. This class basically just resembles the structure of the GeoNames data.
      */
-    private static final class GeonameLocation extends AbstractLocation {
+    private static final class GeonameLocation {
         final int geonamesId;
         final GeoCoordinate coordinate;
         final String primaryName;
@@ -467,7 +497,8 @@ public final class GeonamesImporter {
             double latitude = Double.parseDouble(parts[4]);
             this.coordinate = new ImmutableGeoCoordinate(latitude, longitude);
             this.primaryName = stringOrNull(parts[1]);
-            this.population = Long.parseLong(parts[14]);
+            // there are a few negative population values in the data
+            this.population = Math.max(0, Long.parseLong(parts[14]));
             this.featureClass = stringOrNull(parts[6]);
             this.featureCode = stringOrNull(parts[7]);
             this.countryCode = stringOrNull(parts[8]);
@@ -569,41 +600,6 @@ public final class GeonamesImporter {
             builder.append(admin4Code);
             builder.append("]");
             return builder.toString();
-        }
-
-        @Override
-        public int getId() {
-            return geonamesId;
-        }
-
-        @Override
-        public String getPrimaryName() {
-            return primaryName;
-        }
-
-        @Override
-        public Collection<AlternativeName> getAlternativeNames() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public LocationType getType() {
-            return GeonamesUtil.mapType(featureClass, featureCode);
-        }
-
-        @Override
-        public GeoCoordinate getCoordinate() {
-            return coordinate;
-        }
-
-        @Override
-        public Long getPopulation() {
-            return population;
-        }
-
-        @Override
-        public List<Integer> getAncestorIds() {
-            return Collections.emptyList();
         }
 
     }

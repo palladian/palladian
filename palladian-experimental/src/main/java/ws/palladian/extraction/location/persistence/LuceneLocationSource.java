@@ -388,7 +388,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
                 }
                 if (location.getAncestorIds() != null && location.getAncestorIds().size() > 0) {
                     List<Integer> tempHierarchyIds = new ArrayList<Integer>(location.getAncestorIds());
-                    Collections.sort(tempHierarchyIds, Collections.reverseOrder());
+                    Collections.reverse(tempHierarchyIds);
                     String ancestorString = "/" + StringUtils.join(tempHierarchyIds, "/") + "/";
                     document.add(new StringField(FIELD_ANCESTOR_IDS, ancestorString, Field.Store.YES));
                 }
