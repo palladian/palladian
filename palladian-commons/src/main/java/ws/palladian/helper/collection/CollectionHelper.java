@@ -1,24 +1,7 @@
 package ws.palladian.helper.collection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -242,21 +225,21 @@ public final class CollectionHelper {
         print(iterable.iterator());
     }
 
-//    /**
-//     * <p>
-//     * Concatenate two String arrays.
-//     * </p>
-//     * 
-//     * @param array1
-//     * @param array2
-//     * @return The concatenated String array consisting of the first, then the second array's items.
-//     */
-//    public static String[] concat(String[] array1, String[] array2) {
-//        String[] helpArray = new String[array1.length + array2.length];
-//        System.arraycopy(array1, 0, helpArray, 0, array1.length);
-//        System.arraycopy(array2, 0, helpArray, array1.length, array2.length);
-//        return helpArray;
-//    }
+    // /**
+    // * <p>
+    // * Concatenate two String arrays.
+    // * </p>
+    // *
+    // * @param array1
+    // * @param array2
+    // * @return The concatenated String array consisting of the first, then the second array's items.
+    // */
+    // public static String[] concat(String[] array1, String[] array2) {
+    // String[] helpArray = new String[array1.length + array2.length];
+    // System.arraycopy(array1, 0, helpArray, 0, array1.length);
+    // System.arraycopy(array2, 0, helpArray, array1.length, array2.length);
+    // return helpArray;
+    // }
 
     /**
      * <p>
@@ -280,7 +263,6 @@ public final class CollectionHelper {
      * 
      * @return A new {@link TreeMap}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <K, V> TreeMap<K, V> newTreeMap() {
@@ -295,7 +277,6 @@ public final class CollectionHelper {
      * 
      * @return A new {@link LinkedHashMap}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
@@ -310,7 +291,6 @@ public final class CollectionHelper {
      * 
      * @return A new {@link ArrayList}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <E> ArrayList<E> newArrayList() {
@@ -368,6 +348,7 @@ public final class CollectionHelper {
      * Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the LinkedList:
      * <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
      * </p>
+     * 
      * @return A new {@link LinkedList}.
      * @deprecated since Java 7
      */
@@ -442,7 +423,6 @@ public final class CollectionHelper {
      * 
      * @return A new {@link TreeSet}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <E> TreeSet<E> newTreeSet() {
@@ -457,7 +437,6 @@ public final class CollectionHelper {
      * 
      * @return A new {@link LinkedHashSet}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <E> LinkedHashSet<E> newLinkedHashSet() {
@@ -644,14 +623,14 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
-//        List<T> result = CollectionHelper.newArrayList();
-//        for (T t : iterable) {
-//            result.add(t);
-//            if (result.size() == num) {
-//                break;
-//            }
-//        }
-//        return result;
+        // List<T> result = CollectionHelper.newArrayList();
+        // for (T t : iterable) {
+        // result.add(t);
+        // if (result.size() == num) {
+        // break;
+        // }
+        // }
+        // return result;
         return newArrayList(limit(iterable, num));
     }
 
@@ -672,6 +651,41 @@ public final class CollectionHelper {
         int o = Math.min(list.size(), offset);
         int n = Math.min(num, list.size() - o);
         return list.subList(o, o + n);
+    }
+
+    /**
+     * <p>
+     * Get a sub set of elements of an ordered {@link LinkedHashSet}.
+     * </p>
+     *
+     * @param set The set from which to get the element, not <code>null</code>.
+     * @param offset The number of elements to skip.
+     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @return The sub set.
+     */
+    public static <T> LinkedHashSet<T> getSubset(LinkedHashSet<T> set, int offset, int num) {
+        Validate.notNull(set, "set must not be null");
+        Validate.isTrue(offset >= 0, "offset must be greater/equal zero");
+        Validate.isTrue(num >= 0, "num must be greater/equal zero");
+
+        LinkedHashSet<T> subSet = new LinkedHashSet<T>();
+        if (offset > set.size()) {
+            return subSet;
+        }
+
+        Iterator<T> iterator = set.iterator();
+        for (int i = 0; i < set.size(); i++) {
+            T next = iterator.next();
+            if (i < offset) {
+                continue;
+            }
+            subSet.add(next);
+            if (subSet.size() == num) {
+                break;
+            }
+        }
+
+        return subSet;
     }
 
     /**
@@ -1047,7 +1061,24 @@ public final class CollectionHelper {
         }
         return count;
     }
-    
+
+
+    /**
+     * <p>Check whether a list contains a specific item.</p>
+     * @param items The list of items.
+     * @param item The item.
+     * @param <T> The item type.
+     * @return True if the list contains the item already.
+     */
+    public static  <T> boolean contains(T[] items, T item) {
+        for (T i : items) {
+            if (i.equals(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * <p>
      * Make a given {@link Iterator} read-only. Invoking {@link Iterator#remove()} will trigger an

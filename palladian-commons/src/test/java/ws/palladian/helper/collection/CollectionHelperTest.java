@@ -1,27 +1,17 @@
 package ws.palladian.helper.collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Philipp Katz
@@ -181,6 +171,18 @@ public class CollectionHelperTest {
         assertEquals(0, CollectionHelper.getSublist(items, 3, 0).size());
         assertEquals(0, CollectionHelper.getSublist(items, 10, 13).size());
         assertEquals(3, CollectionHelper.getSublist(items, 0, 54).size());
+    }
+
+    @Test
+    public void testGetSubset() {
+        LinkedHashSet<String> items = new LinkedHashSet<String>(Arrays.asList("a", "b", "c"));
+
+        assertEquals(1, CollectionHelper.getSubset(items, 1, 1).size());
+        assertThat(CollectionHelper.getSubset(items, 1, 1), Matchers.hasItem("b"));
+        assertEquals(3, CollectionHelper.getSubset(items, 0, 3).size());
+        assertEquals(0, CollectionHelper.getSubset(items, 3, 0).size());
+        assertEquals(0, CollectionHelper.getSubset(items, 10, 13).size());
+        assertEquals(3, CollectionHelper.getSubset(items, 0, 54).size());
     }
 
     @Test
