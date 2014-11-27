@@ -1,18 +1,19 @@
 package ws.palladian.extraction.location.persistence;
 
+import static ws.palladian.extraction.location.LocationFilters.radius;
+
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
@@ -23,17 +24,9 @@ import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleField;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.LongField;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.index.Term;
@@ -46,7 +39,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.Bits;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
@@ -55,18 +47,13 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
-import ws.palladian.extraction.location.LocationFilters;
-import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * A location source backed by a Lucene index.
@@ -96,7 +83,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      * @author pk
      */
     private static final class SimpleCollector extends Collector {
-        final Set<Integer> docs = CollectionHelper.newHashSet();
+        final Set<Integer> docs = new HashSet<>();
         int docBase;
 
         @Override
@@ -125,37 +112,42 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     private static final Logger LOGGER = LoggerFactory.getLogger(LuceneLocationSource.class);
 
     /** Identifier for the field containing the location id. */
-    private static final String FIELD_ID = "id";
+    static final String FIELD_ID = "id";
 
     /** Identifier for the field containing the location type. */
-    private static final String FIELD_TYPE = "type";
+    static final String FIELD_TYPE = "type";
 
     /** Identifier for the field containing the location name. */
-    private static final String FIELD_NAME = "name";
+    static final String FIELD_PRIMARY_NAME = "primaryName";
+
+    static final String FIELD_ALT_ID = "alternativeId";
+
+    /** Identifier for the field containing the location alternative name. */
+    static final String FIELD_ALT_NAME = "alternativeName";
+
+    /** Identifier for the field containing the alternative names' languages. */
+    static final String FIELD_ALT_LANG = "alternativeLanguage";
 
     /** Identifier for the field containing the geo latitude. */
-    private static final String FIELD_LAT = "lat";
+    static final String FIELD_LAT = "lat";
 
     /** Identifier for the field containing the geo longitude. */
-    private static final String FIELD_LNG = "lng";
+    static final String FIELD_LNG = "lng";
 
     /** Identifier for the field containing the population. */
-    private static final String FIELD_POPULATION = "population";
+    static final String FIELD_POPULATION = "population";
 
     /** Identifier for the field with the ancestor ids. */
-    private static final String FIELD_ANCESTOR_IDS = "ancestorIds";
+    static final String FIELD_ANCESTOR_IDS = "ancestorIds";
 
-    /** Primary location names in the database are appended with this marker (e.g. "Berlin$"). */
-    private static final String PRIMARY_NAME_MARKER = "$";
+    /** Separator character between IDs in hierarchy. */
+    static final char HIERARCHY_SEPARATOR = '/';
 
-    /** Alternative names with language determiner are separated with this marker (e.g. "Berlin#de"). */
-    private static final String NAME_LANGUAGE_SEPARATOR = "#";
+    /** Placeholder, in case a language for an alternative name was not specified. */
+    static final String UNSPECIFIED_LANG = "*";
 
     /** The used Lucene version. */
-    private static final Version LUCENE_VERSION = Version.LUCENE_47;
-
-    /** Commit the batch, after the specified number of documents has been added. */
-    private static final int COMMIT_INTERVAL = 10000;
+    static final Version LUCENE_VERSION = Version.LUCENE_47;
 
     /** The Lucene directory, supplied via class constructor. */
     private final Directory directory;
@@ -166,7 +158,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /** IndexSearcher is Thread-safe. */
     private final IndexSearcher searcher;
 
-    private static final Analyzer ANALYZER = new LowerCaseKeywordAnalyzer();
+    static final Analyzer ANALYZER = new LowerCaseKeywordAnalyzer();
 
     /**
      * <p>
@@ -182,7 +174,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
             reader = DirectoryReader.open(directory);
             searcher = new IndexSearcher(reader);
         } catch (IOException e) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("IOException when opening DirectoryReader or IndexSearcher", e);
         }
     }
 
@@ -192,21 +184,52 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
             // location name also needs to be processed by analyzer; after all we could just lowercase here,
             // but in case we change our analyzer, this method keeps it consistent
             String analyzedName = analyze(locationName);
-            BooleanQuery query = new BooleanQuery();
-            query.setMinimumNumberShouldMatch(1);
-            // search for primary names
-            query.add(new TermQuery(new Term(FIELD_NAME, analyzedName + PRIMARY_NAME_MARKER)), Occur.SHOULD);
-            // search for alternative names without language determiner
-            query.add(new TermQuery(new Term(FIELD_NAME, analyzedName)), Occur.SHOULD);
-            // search for alternative names in all specified languages
-            for (Language language : languages) {
-                String nameLanguageString = analyzedName + NAME_LANGUAGE_SEPARATOR + language.getIso6391();
-                query.add(new TermQuery(new Term(FIELD_NAME, nameLanguageString)), Occur.SHOULD);
+
+            // 1) search by alternative name, get ids-of-locations
+            Collection<Integer> locationIds = queryByAlternativeNames(analyzedName, languages);
+
+            // 2) search by (ids-of-locations || name)
+            BooleanQuery nameIdQuery = new BooleanQuery();
+            nameIdQuery.setMinimumNumberShouldMatch(1);
+            nameIdQuery.add(new TermQuery(new Term(FIELD_PRIMARY_NAME, analyzedName)), Occur.SHOULD);
+            for (Integer locationId : locationIds) {
+                nameIdQuery.add(new TermQuery(new Term(FIELD_ID, locationId.toString())), Occur.SHOULD);
             }
-            return queryLocations(query, searcher, reader);
+            return queryLocations(nameIdQuery);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Encountered IOException while getting locations", e);
         }
+
+    }
+
+    /**
+     * Query for location IDs by their alternative names.
+     * 
+     * @param name The alternative name.
+     * @param languages The set of languages which should match.
+     * @return A {@link Collection} with location IDs, or an empty collection, never <code>null</code>.
+     * @throws IOException In case, the query fails.
+     */
+    private Collection<Integer> queryByAlternativeNames(String name, Set<Language> languages) throws IOException {
+        BooleanQuery languageQuery = new BooleanQuery();
+        languageQuery.setMinimumNumberShouldMatch(1);
+        // without language determiner
+        languageQuery.add(new TermQuery(new Term(FIELD_ALT_LANG, UNSPECIFIED_LANG)), Occur.SHOULD);
+        for (Language language : languages) { // explicitly specified languages
+            languageQuery.add(new TermQuery(new Term(FIELD_ALT_LANG, language.getIso6391())), Occur.SHOULD);
+        }
+
+        BooleanQuery nameQuery = new BooleanQuery();
+        nameQuery.add(new TermQuery(new Term(FIELD_ALT_NAME, name)), Occur.MUST);
+        nameQuery.add(languageQuery, Occur.MUST);
+
+        Collection<Integer> locationIds = new HashSet<>();
+        SimpleCollector collector = new SimpleCollector();
+        searcher.search(nameQuery, collector);
+        for (int docId : collector.docs) {
+            locationIds.add(Integer.valueOf(searcher.doc(docId).get(FIELD_ALT_ID)));
+        }
+        return locationIds;
     }
 
     @Override
@@ -225,7 +248,11 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
                         continue;
                     }
                     try {
-                        return parseLocation(reader.document(currentDoc));
+                        Document document = reader.document(currentDoc);
+                        if (document.get(FIELD_ID) == null) {
+                            continue;
+                        }
+                        return retrieveLocation(document);
                     } catch (IOException e) {
                         throw new IllegalStateException(e);
                     }
@@ -261,18 +288,17 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      * Use the given query to find locations in the index.
      * 
      * @param query The query.
-     * @param searcher The Lucene searcher.
-     * @param reader The Lucene reader.
      * @return A {@link Collection} with matching {@link Location}s, or an empty Collection, never <code>null</code>.
      */
-    private static Collection<Location> queryLocations(Query query, IndexSearcher searcher, IndexReader reader) {
+    private Collection<Location> queryLocations(Query query) {
         StopWatch stopWatch = new StopWatch();
         try {
+            Collection<Location> locations = new HashSet<>();
             SimpleCollector collector = new SimpleCollector();
             searcher.search(query, collector);
-            Collection<Location> locations = CollectionHelper.newHashSet();
             for (int docId : collector.docs) {
-                locations.add(parseLocation(searcher.doc(docId)));
+                Document document = searcher.doc(docId);
+                locations.add(retrieveLocation(document));
             }
             LOGGER.trace("query {} took {}", query, stopWatch);
             return locations;
@@ -282,33 +308,17 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     }
 
     /**
-     * Parse the Lucene {@link Document} and create a {@link Location} from the document's fields.
+     * Retrieve a {@link Location} by its Lucene document ID.
      * 
-     * @param document The Lucene document to convert.
-     * @return The location instance with data from the document.
+     * @param document The Lucene document.
+     * @return A fully parsed Location.
+     * @throws IOException In case the retrieval fails.
      */
-    private static Location parseLocation(Document document) {
+    private Location retrieveLocation(Document document) throws IOException {
         LocationBuilder builder = new LocationBuilder();
-        IndexableField[] nameFields = document.getFields(FIELD_NAME);
-        for (IndexableField nameField : nameFields) {
-            String value = nameField.stringValue();
-            if (value.endsWith(PRIMARY_NAME_MARKER)) {
-                // we have the primary name; strip the "$" marker
-                builder.setPrimaryName(value.substring(0, value.length() - 1));
-                continue;
-            }
-            // we have alternative names (either like "New York", or "New York#en")
-            String[] split = value.split(NAME_LANGUAGE_SEPARATOR);
-            String name = split[0];
-            Language language = null;
-            if (split.length == 2) {
-                language = Language.getByIso6391(split[1]);
-            }
-            builder.addAlternativeName(name, language);
-        }
+        builder.setPrimaryName(document.get(FIELD_PRIMARY_NAME));
         builder.setId(Integer.parseInt(document.get(FIELD_ID)));
-        int typeId = document.getField(FIELD_TYPE).numericValue().intValue();
-        builder.setType(LocationType.values()[typeId]);
+        builder.setType(LocationType.map(document.get(FIELD_TYPE)));
         IndexableField latField = document.getField(FIELD_LAT);
         IndexableField lngField = document.getField(FIELD_LNG);
         if (latField != null && lngField != null) {
@@ -316,97 +326,77 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
             double lng = lngField.numericValue().doubleValue();
             builder.setCoordinate(lat, lng);
         }
-        IndexableField populationField = document.getField(FIELD_POPULATION);
-        if (populationField != null) {
-            builder.setPopulation(populationField.numericValue().longValue());
+        String population = document.get(FIELD_POPULATION);
+        if (population != null) {
+            builder.setPopulation(Long.valueOf(population));
         }
-        IndexableField ancestorIdsField = document.getField(FIELD_ANCESTOR_IDS);
-        if (ancestorIdsField != null) {
-            builder.setAncestorIds(ancestorIdsField.stringValue());
+        String ancestorIds = document.get(FIELD_ANCESTOR_IDS);
+        if (ancestorIds != null) {
+            builder.setAncestorIds(ancestorIds);
         }
-        Location location = builder.create();
-        return location;
+        builder.setAlternativeNames(retrieveAlternativeNames(document.get(FIELD_ID)));
+        return builder.create();
+    }
+
+    /**
+     * Retrieve {@link AlternativeName}s for a given location ID.
+     * 
+     * @param locationId The location ID.
+     * @return A collection with alternative names, or an empty collection if no such exist.
+     * @throws IOException In case the retrieval fails.
+     */
+    private Collection<AlternativeName> retrieveAlternativeNames(String locationId) throws IOException {
+        Collection<AlternativeName> alternativeNames = new HashSet<>();
+        SimpleCollector collector = new SimpleCollector();
+        TermQuery query = new TermQuery(new Term(FIELD_ALT_ID, locationId));
+        searcher.search(query, collector);
+        for (int altDocId : collector.docs) {
+            Document document = searcher.doc(altDocId);
+            String altName = document.get(FIELD_ALT_NAME);
+            String altLangString = document.get(FIELD_ALT_LANG);
+            Language altLang = altLangString != null ? Language.getByIso6391(altLangString) : null;
+            alternativeNames.add(new AlternativeName(altName, altLang));
+        }
+        return alternativeNames;
     }
 
     @Override
     public Location getLocation(int locationId) {
         Query query = new TermQuery(new Term(FIELD_ID, String.valueOf(locationId)));
-        return CollectionHelper.getFirst(queryLocations(query, searcher, reader));
+        return CollectionHelper.getFirst(queryLocations(query));
     }
 
     @Override
-    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+    public List<Location> getLocations(final GeoCoordinate coordinate, double distance) {
         // TODO make use of spatial functionalities;
         // http://lucene.apache.org/core/4_7_0/spatial/
         // http://stackoverflow.com/questions/13628602/how-to-use-lucene-4-0-spatial-api
         // http://www.mhaller.de/archives/156-Spatial-search-with-Lucene.html
         double[] box = coordinate.getBoundingBox(distance);
         BooleanQuery query = new BooleanQuery();
-        query.add(NumericRangeQuery.newDoubleRange(FIELD_LAT, box[0], box[2], true, true), Occur.MUST);
-        query.add(NumericRangeQuery.newDoubleRange(FIELD_LNG, box[1], box[3], true, true), Occur.MUST);
-        Collection<Location> retrievedLocations = queryLocations(query, searcher, reader);
-        return CollectionHelper.filterList(retrievedLocations, LocationFilters.radius(coordinate, distance));
-    }
-
-    /**
-     * <p>
-     * Import locations into Lucene from a different location source.
-     * 
-     * @param source The {@link LocationSource} from which to import.
-     * @param directory The destination {@link Directory}; will be closed after import.
-     * @throws IOException In case, writing the index fails.
-     */
-    public static void importLocations(LocationSource source, Directory directory) throws IOException {
-        Validate.notNull(source, "source must not be null");
-        Validate.notNull(directory, "directory must not be null");
-        IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
-        IndexWriter indexWriter = null;
-        try {
-            indexWriter = new IndexWriter(directory, indexWriterConfig);
-            int counter = 0;
-            Iterator<Location> iterator = source.getLocations();
-            ProgressMonitor monitor = new ProgressMonitor(source.size(), 1);
-            while (iterator.hasNext()) {
-                Location location = iterator.next();
-                Document document = new Document();
-                document.add(new StringField(FIELD_ID, String.valueOf(location.getId()), Field.Store.YES));
-                document.add(new IntField(FIELD_TYPE, location.getType().ordinal(), Field.Store.YES));
-                document.add(new TextField(FIELD_NAME, location.getPrimaryName() + PRIMARY_NAME_MARKER, Field.Store.YES));
-                for (AlternativeName altName : location.getAlternativeNames()) {
-                    String languageString = altName.getLanguage() != null ? (NAME_LANGUAGE_SEPARATOR + altName
-                            .getLanguage().getIso6391()) : "";
-                    String nameString = altName.getName() + languageString;
-                    document.add(new TextField(FIELD_NAME, nameString, Field.Store.YES));
-                }
-                GeoCoordinate coordinate = location.getCoordinate();
-                if (coordinate != null) {
-                    document.add(new DoubleField(FIELD_LAT, coordinate.getLatitude(), Field.Store.YES));
-                    document.add(new DoubleField(FIELD_LNG, coordinate.getLongitude(), Field.Store.YES));
-                }
-                if (location.getPopulation() != null) {
-                    document.add(new LongField(FIELD_POPULATION, location.getPopulation(), Field.Store.YES));
-                }
-                if (location.getAncestorIds() != null && location.getAncestorIds().size() > 0) {
-                    List<Integer> tempHierarchyIds = new ArrayList<Integer>(location.getAncestorIds());
-                    Collections.reverse(tempHierarchyIds);
-                    String ancestorString = "/" + StringUtils.join(tempHierarchyIds, "/") + "/";
-                    document.add(new StringField(FIELD_ANCESTOR_IDS, ancestorString, Field.Store.YES));
-                }
-                indexWriter.addDocument(document);
-                if (++counter % COMMIT_INTERVAL == 0) {
-                    LOGGER.trace("Wrote {} documents to index, committing ...", counter);
-                    indexWriter.commit();
-                }
-                monitor.incrementAndPrintProgress();
+        // we're using floats here, see comment in
+        // ws.palladian.extraction.location.persistence.LuceneLocationStore.save(Location)
+        query.add(NumericRangeQuery.newFloatRange(FIELD_LAT, (float)box[0], (float)box[2], true, true), Occur.MUST);
+        query.add(NumericRangeQuery.newFloatRange(FIELD_LNG, (float)box[1], (float)box[3], true, true), Occur.MUST);
+        Collection<Location> retrievedLocations = queryLocations(query);
+        // remove locations out of the box
+        List<Location> filtered = CollectionHelper.filterList(retrievedLocations, radius(coordinate, distance));
+        // sort them by distance to given coordinate
+        Collections.sort(filtered, new Comparator<Location>() {
+            @Override
+            public int compare(Location o1, Location o2) {
+                double d1 = o1.getCoordinate().distance(coordinate);
+                double d2 = o2.getCoordinate().distance(coordinate);
+                return Double.compare(d1, d2);
             }
-        } finally {
-            FileHelper.close(indexWriter, directory);
-        }
+        });
+        return filtered;
     }
 
     @Override
     public int size() {
-        return reader.numDocs();
+        // XXX can we make this more performant?
+        return CollectionHelper.count(getLocations());
     }
 
     @Override
@@ -418,12 +408,6 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     @Override
     public String toString() {
         return getClass().getSimpleName() + ": " + directory;
-    }
-
-    public static void main(String[] args) throws IOException {
-        Directory directory = new MMapDirectory(new File("/Users/pk/temp/luceneLocationDatabase"));
-        LocationDatabase locationDatabase = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        importLocations(locationDatabase, directory);
     }
 
 }
