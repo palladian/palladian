@@ -68,12 +68,9 @@ public class Crawler {
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
     private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
-    private final Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
 
-    /** All urls that have been visited or extracted. */
-    private final Set<String> seenUrls = new HashSet<String>();
-
-    private final Set<String> urlRules = new HashSet<String>();
+    private Set<String> urlRules = new HashSet<String>();
 
     /** If true, all query params in the URL ?= will be stripped. */
     private boolean stripQueryParams = true;
@@ -309,7 +306,6 @@ public class Crawler {
                 urlStack.add(url);
             }
 
-            seenUrls.add(url);
         }
     }
 
@@ -352,6 +348,22 @@ public class Crawler {
 
     public void setStripQueryParams(boolean stripQueryParams) {
         this.stripQueryParams = stripQueryParams;
+    }
+
+    public Set<String> getUrlStack() {
+        return urlStack;
+    }
+
+    public void setUrlStack(Set<String> urlStack) {
+        this.urlStack = urlStack;
+    }
+
+    public Set<String> getVisitedUrls() {
+        return visitedUrls;
+    }
+
+    public void setVisitedUrls(Set<String> visitedUrls) {
+        this.visitedUrls = visitedUrls;
     }
 
     public static void main(String[] args) {
