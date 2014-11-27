@@ -63,4 +63,12 @@ public interface LocationStore {
      */
     int getHighestId();
 
+//    /**
+//     * <p>
+//     * Import all locations from a given locations source.
+//     * 
+//     * @param source The {@link LocationSource} to import, not <code>null</code>.
+//     */
+//    void copy(LocationSource source);
+
 }
