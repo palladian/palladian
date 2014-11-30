@@ -85,6 +85,16 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
         return idLocation.isEmpty() ? 0 : Collections.max(idLocation.keySet());
     }
 
+    @Override
+    public void startImport() {
+        // nothing to to
+    }
+
+    @Override
+    public void finishImport() {
+        // nothing to to
+    }
+
     /**
      * An in-memory representation of a {@link Location}.
      * 
