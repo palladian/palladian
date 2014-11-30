@@ -4,13 +4,12 @@ import java.util.Collection;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationSource;
 
 /**
  * <p>
- * A {@link LocationStore} extends a {@link LocationSource} with the ability to add and save new {@link Location}s. A
- * typical example for a potential implementation of a {@link LocationStore} is a relational database.
- * </p>
+ * A {@link LocationStore} provided the ability to add and save new {@link Location}s. A typical example for a potential
+ * implementation of a {@link LocationStore} is a relational database. Important: <b>Before</b> adding any data to an
+ * instance, you must invoke {@link #startImport()}. After all locations have been added, invoke {@link #finishImport()}.
  * 
  * @author Philipp Katz
  */
@@ -70,5 +69,15 @@ public interface LocationStore {
 //     * @param source The {@link LocationSource} to import, not <code>null</code>.
 //     */
 //    void copy(LocationSource source);
+    
+    /**
+     * Invoke before starting import.
+     */
+    void startImport();
+
+    /**
+     * Invoke after finishing import.
+     */
+    void finishImport();
 
 }

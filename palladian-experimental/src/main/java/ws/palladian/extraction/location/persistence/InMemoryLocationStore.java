@@ -1,7 +1,9 @@
 package ws.palladian.extraction.location.persistence;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,10 +17,11 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
@@ -32,7 +35,7 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
  * @see <a href="http://stackoverflow.com/questions/10064422/java-on-memory-efficient-key-value-store">Foundation for
  *      code: Stack Overflow: Java On-Memory Efficient Key-Value Store</a>
  */
-public final class InMemoryLocationStore extends SingleQueryLocationSource {
+public final class InMemoryLocationStore extends SingleQueryLocationSource implements LocationStore {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryLocationStore.class);
@@ -55,11 +58,12 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
      */
     public InMemoryLocationStore(LocationSource source) {
         this(source.size() * 3); // load factor determined empirically
-        ProgressMonitor progressMonitor = new ProgressMonitor(source.size(), 1);
+        ProgressReporter progressMonitor = new ProgressMonitor();
+        progressMonitor.startTask("Reading source", source.size());
         Iterator<Location> sourceIterator = source.getLocations();
         while (sourceIterator.hasNext()) {
-            add(sourceIterator.next());
-            progressMonitor.incrementAndPrintProgress();
+            save(sourceIterator.next());
+            progressMonitor.increment();
         }
     }
 
@@ -68,7 +72,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
         int hash = normalizeName(locationName).hashCode();
         Validate.isTrue(hash != NULL, "key cannot be " + NULL);
         int index = indexFor(hash);
-        Collection<Location> hits = CollectionHelper.newHashSet();
+        Collection<Location> hits = new HashSet<>();
         while (keys[index] != NULL) {
             if (keys[index] == hash) {
                 LocationContainer location = locations[index];
@@ -92,7 +96,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
     @Override
     public Location getLocation(int locationId) {
         for (LocationContainer location : locations) {
-            if (location.id == locationId) {
+            if (location != null && location.id == locationId) {
                 return location.createLocation();
             }
         }
@@ -107,10 +111,13 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
 
             @Override
             protected Location getNext() throws Finished {
-                if (idx >= locations.length) {
-                    throw new Finished();
+                for (; idx < locations.length;) {
+                    LocationContainer locationContainer = locations[idx++];
+                    if (locationContainer != null) {
+                        return locationContainer.createLocation();
+                    }
                 }
-                return locations[idx++].createLocation();
+                throw FINISHED;
             }
         };
     }
@@ -120,11 +127,13 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
         return size;
     }
 
-    public void add(Location location) {
+    @Override
+    public void save(Location location) {
         LocationContainer locationContainer = new LocationContainer(location);
         for (String name : location.collectAlternativeNames()) {
             add(name, locationContainer);
         }
+        size++;
     }
 
     private void add(String name, LocationContainer location) {
@@ -141,7 +150,6 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
         }
         keys[index] = hash;
         locations[index] = location;
-        ++size;
     }
 
     private static String normalizeName(String name) {
@@ -220,7 +228,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
          */
         private static final char[] encodeNames(Location location) {
             StringBuilder builder = new StringBuilder();
-            Set<String> temp = CollectionHelper.newLinkedHashSet();
+            Set<String> temp = new LinkedHashSet<>();
             temp.add(location.getPrimaryName());
             for (AlternativeName altName : location.getAlternativeNames()) {
                 temp.add(altName.getName());
@@ -290,6 +298,28 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
             return false;
         }
 
+    }
+
+    @Override
+    public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public int getHighestId() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    
+    @Override
+    public void startImport() {
+        // nothing to to
+    }
+    
+    @Override
+    public void finishImport() {
+        // nothing to to
     }
 
 }

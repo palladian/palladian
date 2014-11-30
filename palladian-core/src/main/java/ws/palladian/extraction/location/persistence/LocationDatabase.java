@@ -278,13 +278,15 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
         return runSingleQuery(RowConverters.INTEGER, GET_LOCATION_COUNT);
     }
 
-    public void disableKeys() {
+    @Override
+    public void startImport() {
         runUpdate("ALTER TABLE `locations` DISABLE KEYS");
         runUpdate("ALTER TABLE `location_alternative_names` DISABLE KEYS");
         LOGGER.info("Disabled keys");
     }
 
-    public void enableKeys() {
+    @Override
+    public void finishImport() {
         runUpdate("ALTER TABLE `locations` ENABLE KEYS");
         runUpdate("ALTER TABLE `location_alternative_names` ENABLE KEYS");
         LOGGER.info("Enabled keys");

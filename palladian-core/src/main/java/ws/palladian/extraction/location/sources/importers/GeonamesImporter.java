@@ -129,6 +129,7 @@ public final class GeonamesImporter {
     void importLocations(InputStreamProvider locationProvider, InputStreamProvider hierarchyProvider,
             InputStreamProvider alternateNamesProvider) throws IOException {
         progressReporter.startTask(null, -1);
+        locationStore.startImport();
         readHierarchy(hierarchyProvider, progressReporter.createSubProgress(0.04));
         int totalLines;
         try (InputStream inputStream = locationProvider.getInputStream()) {
@@ -144,6 +145,7 @@ public final class GeonamesImporter {
             importLocations(inputStream, progressReporter.createSubProgress(0.24), totalLines);
         }
         importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.24));
+        locationStore.finishImport();
     }
 
     /**
