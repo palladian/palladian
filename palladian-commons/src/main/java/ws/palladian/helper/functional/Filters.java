@@ -47,6 +47,14 @@ public final class Filters {
         }
     };
 
+    /** A filter which rejects empty {@link CharSequence}s. */
+    public static final Filter<CharSequence> EMPTY = new Filter<CharSequence>() {
+        @Override
+        public boolean accept(CharSequence item) {
+            return item != null && item.length() > 0;
+        }
+    };
+
     /**
      * Get a filter which inverts a given one. Items which would be accepted by the wrapped Filter are discarded, and
      * vice versa.
