@@ -231,7 +231,9 @@ public final class LuceneLocationStore implements LocationStore {
         // explicitly changed from DoubleField to a FloatField to save space;
         // when changing back to double, make sure to revert the range queries in
         // ws.palladian.extraction.location.persistence.LuceneLocationSource.getLocations(GeoCoordinate, double)
-        document.add(new DoubleField(fieldName, Double.parseDouble(stringValue), Field.Store.YES));
+        if (stringValue != null) {
+            document.add(new DoubleField(fieldName, Double.parseDouble(stringValue), Field.Store.YES));
+        }
     }
 
 
