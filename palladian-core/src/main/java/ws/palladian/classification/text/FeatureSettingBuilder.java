@@ -3,6 +3,7 @@ package ws.palladian.classification.text;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Factory;
 
 /**
@@ -23,6 +24,9 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     int maxTermLength = FeatureSetting.DEFAULT_MAX_TERM_LENGTH;
     boolean caseSensitive = FeatureSetting.DEFAULT_CASE_SENSITIVE;
     boolean characterPadding = FeatureSetting.DEFAULT_CHARACTER_PADDING;
+    boolean stem = FeatureSetting.DEFAULT_STEM;
+    boolean removeStopwords = FeatureSetting.DEFAULT_REMOVE_STOPWORDS;
+    Language language = FeatureSetting.DEFAULT_LANGUAGE;
 
     /**
      * <p>
@@ -223,6 +227,53 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
                     + TextFeatureType.CHAR_NGRAMS + " mode.");
         }
         this.characterPadding = true;
+        return this;
+    }
+
+    /**
+     * <p>
+     * Enable stemming, only in case, word n-grams are selected. Specify language using {@link #language(Language)}.
+     * 
+     * @return The builder, to allow method chaining.
+     */
+    public FeatureSettingBuilder stem() {
+        if (featureType != TextFeatureType.WORD_NGRAMS) {
+            throw new UnsupportedOperationException("Stemming in only supported for " + TextFeatureType.WORD_NGRAMS
+                    + " mode.");
+        }
+        this.stem = true;
+        return this;
+    }
+
+    /**
+     * <p>
+     * Enable stop word removal, only in case, word n-grams are selected. Specify language using
+     * {@link #language(Language)}.
+     * 
+     * @return The builder, to allow method chaining.
+     */
+    public FeatureSettingBuilder removeStopwords() {
+        if (featureType != TextFeatureType.WORD_NGRAMS) {
+            throw new UnsupportedOperationException("Stopword removal in only supported for "
+                    + TextFeatureType.WORD_NGRAMS + " mode.");
+        }
+        this.removeStopwords = true;
+        return this;
+    }
+
+    /**
+     * <p>
+     * Select the language for stemming/stop word removal.
+     * 
+     * @param language The language, not <code>null</code>.
+     * @return The builder, to allow method chaining.
+     */
+    public FeatureSettingBuilder language(Language language) {
+        Validate.notNull(language, "language must not be null");
+        if (featureType != TextFeatureType.WORD_NGRAMS) {
+            throw new UnsupportedOperationException("Only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
+        }
+        this.language = language;
         return this;
     }
 
