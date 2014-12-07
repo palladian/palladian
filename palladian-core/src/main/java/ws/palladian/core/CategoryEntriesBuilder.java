@@ -1,6 +1,6 @@
 package ws.palladian.core;
 
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
@@ -124,7 +124,8 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     @Override
     public CategoryEntries create() {
         double total = getTotalScore();
-        Map<String, Category> map = CollectionHelper.newHashMap();
+        Map<String, Category> map = new HashMap<String, Category>();
+        Map<Double, Set<Category>> sortingHelpMap = new TreeMap<Double, Set<Category>>();
         Category mostLikely = null;
         for (Entry<String, MutableDouble> entry : entryMap.entrySet()) {
             double probability;
@@ -140,11 +141,30 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
             String name = entry.getKey();
             Category category = new ImmutableCategory(name, probability);
             map.put(name, category);
+
+            // update information for sorting
+            double sortingProbability = 1. - category.getProbability();
+            Set<Category> categories = sortingHelpMap.get(sortingProbability);
+            if (categories == null) {
+                categories = new HashSet<Category>();
+            }
+            categories.add(category);
+            sortingHelpMap.put(sortingProbability, categories);
+
             if (mostLikely == null || mostLikely.getProbability() < probability) {
                 mostLikely = category;
             }
         }
-        return new ImmutableCategoryEntries(map, mostLikely);
+
+        // order by score
+        Map<String, Category> orderedMap = new LinkedHashMap<String, Category>();
+        for (Set<Category> categories : sortingHelpMap.values()) {
+            for (Category category : categories) {
+                orderedMap.put(category.getName(), category);
+            }
+        }
+
+        return new ImmutableCategoryEntries(orderedMap, mostLikely);
         
 //        double total = getTotalScore();
 //        Map<String, Double> map = CollectionHelper.newHashMap();
