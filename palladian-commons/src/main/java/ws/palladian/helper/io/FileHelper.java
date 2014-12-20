@@ -411,21 +411,28 @@ public final class FileHelper {
     /**
      * Create a list with each line of the given file as an element.
      * 
-     * @param contentFile the content file
+     * @param file The file.
      * @param numberOfLines The number of lines to read. Use -1 to read whole file.
      * @return A list with the lines as elements.
      */
-    public static List<String> readFileToArray(File contentFile, long startLine, int numberOfLines) {
-        List<String> list = new ArrayList<String>();
+    public static List<String> readFileToArray(File file, long startLine, int numberOfLines) {
+        List<String> list = new ArrayList<>();
         InputStream inputStream = null;
 
         try {
-            inputStream = new FileInputStream(contentFile);
+
+            inputStream = new FileInputStream(file);
+
+            if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
+                inputStream = new GZIPInputStream(inputStream);
+            }
 
             list = readFileToArray(inputStream, startLine, numberOfLines);
 
         } catch (FileNotFoundException e) {
-            LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
+            LOGGER.error(file.getPath() + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(file.getPath() + ", " + e.getMessage());
         } finally {
             close(inputStream);
         }
@@ -438,7 +445,7 @@ public final class FileHelper {
     }
 
     public static List<String> readFileToArray(InputStream inputStream, long startLine, int numberOfLines) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
         BufferedReader reader = null;
 
@@ -447,7 +454,7 @@ public final class FileHelper {
             reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
 
             long lineNumber = 1;
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
                 if (lineNumber >= startLine) {
                     list.add(line);
@@ -480,7 +487,7 @@ public final class FileHelper {
         }
 
         // remember all seen hashes
-        final Set<Integer> seenHashes = new HashSet<Integer>();
+        final Set<Integer> seenHashes = new HashSet<>();
 
         final Writer writer;
 
