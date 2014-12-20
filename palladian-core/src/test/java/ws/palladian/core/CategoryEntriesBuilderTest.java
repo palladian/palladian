@@ -1,11 +1,11 @@
 package ws.palladian.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import java.util.Iterator;
 
 import org.junit.Test;
-
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.CategoryEntriesBuilder;
 
 public class CategoryEntriesBuilderTest {
 
@@ -24,6 +24,13 @@ public class CategoryEntriesBuilderTest {
         assertEquals(0.1, categoryEntries.getProbability("A"), DELTA);
         assertEquals(0.7, categoryEntries.getProbability("B"), DELTA);
         assertEquals(0.2, categoryEntries.getProbability("C"), DELTA);
+
+        // iteration order should be descending
+        Iterator<Category> iterator = categoryEntries.iterator();
+        assertEquals("B", iterator.next().getName());
+        assertEquals("C", iterator.next().getName());
+        assertEquals("A", iterator.next().getName());
+        assertFalse(iterator.hasNext());
 
         builder = new CategoryEntriesBuilder();
         builder.set("A", 10);

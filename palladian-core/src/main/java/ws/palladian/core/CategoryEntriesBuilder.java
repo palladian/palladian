@@ -7,6 +7,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.functional.Factory;
 
 /**
@@ -30,7 +31,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * </p>
      */
     public CategoryEntriesBuilder() {
-        entryMap = CollectionHelper.newHashMap();
+        entryMap = new HashMap<>();
     }
 
     /**
@@ -42,7 +43,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      */
     public CategoryEntriesBuilder(Map<String, ? extends Number> map) {
         Validate.notNull(map, "map must not be null");
-        entryMap = CollectionHelper.newHashMap();
+        entryMap = new HashMap<>();
         for (Entry<String, ? extends Number> entry : map.entrySet()) {
             double score = entry.getValue().doubleValue();
             validateNumber(score);
@@ -124,8 +125,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     @Override
     public CategoryEntries create() {
         double total = getTotalScore();
-        Map<String, Category> map = new HashMap<String, Category>();
-        Map<Double, Set<Category>> sortingHelpMap = new TreeMap<Double, Set<Category>>();
+        Map<String, Category> map = new HashMap<>();
         Category mostLikely = null;
         for (Entry<String, MutableDouble> entry : entryMap.entrySet()) {
             double probability;
@@ -141,46 +141,13 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
             String name = entry.getKey();
             Category category = new ImmutableCategory(name, probability);
             map.put(name, category);
-
-            // update information for sorting
-            double sortingProbability = 1. - category.getProbability();
-            Set<Category> categories = sortingHelpMap.get(sortingProbability);
-            if (categories == null) {
-                categories = new HashSet<Category>();
-            }
-            categories.add(category);
-            sortingHelpMap.put(sortingProbability, categories);
-
             if (mostLikely == null || mostLikely.getProbability() < probability) {
                 mostLikely = category;
             }
         }
-
         // order by score
-        Map<String, Category> orderedMap = new LinkedHashMap<String, Category>();
-        for (Set<Category> categories : sortingHelpMap.values()) {
-            for (Category category : categories) {
-                orderedMap.put(category.getName(), category);
-            }
-        }
-
-        return new ImmutableCategoryEntries(orderedMap, mostLikely);
-        
-//        double total = getTotalScore();
-//        Map<String, Double> map = CollectionHelper.newHashMap();
-//        for (Entry<String, MutableDouble> entry : entryMap.entrySet()) {
-//            if (total == 0) {
-//                map.put(entry.getKey(), 0.);
-//            } else {
-//                double normalized = entry.getValue().doubleValue() / total;
-//                if (total < 0) {
-//                    // in case we have summed up log probabilities; we need the "inverse"
-//                    normalized = 1 - normalized;
-//                }
-//                map.put(entry.getKey(), normalized);
-//            }
-//        }
-//        return new ImmutableCategoryEntries(map);
+        map = CollectionHelper.sortByValue(map, Order.DESCENDING);
+        return new ImmutableCategoryEntries(map, mostLikely);
     }
 
     /**
