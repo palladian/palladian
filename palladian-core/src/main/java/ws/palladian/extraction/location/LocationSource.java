@@ -41,7 +41,7 @@ public interface LocationSource {
      * contrast to {@link #getLocation(int)}. E.g. database implementations can do this with only one round trip.
      * </p>
      * 
-     * @param locationName The names of the location to search, not <code>null</code>.
+     * @param locationNames The names of the location to search, not <code>null</code>.
      * @param languages A set of {@link Language}s in which the given name must be, not <code>null</code>. Names in
      *            other languages than the specified one(s) are not retrieved, while names without explicitly defined
      *            language always match.
@@ -49,6 +49,26 @@ public interface LocationSource {
      *         collections, if no matches were found, never <code>null</code>.
      */
     MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages);
+
+    /**
+     * <p>
+     * Search for multiple {@link Location}s by given names, in a specified set of {@link Language}s and around a given
+     * coordinate. When multiple {@link Location}s need to be searched at one go, this allows implementations
+     * performance optimizations in contrast to {@link #getLocation(int)}. E.g. database implementations can do this
+     * with only one round trip.
+     * </p>
+     * 
+     * @param locationName The names of the location to search, not <code>null</code>.
+     * @param languages A set of {@link Language}s in which the given name must be, not <code>null</code>. Names in
+     *            other languages than the specified one(s) are not retrieved, while names without explicitly defined
+     *            language always match.
+     * @param coordinate The {@link GeoCoordinate} representing the center around which to search.
+     * @param distance The maximum distance from the given coordinate, must be greater/equal zero.
+     * @return A map containing the given query names as keys and the found locations as value collections, or empty
+     *         collections, if no matches were found, never <code>null</code>.
+     */
+    MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
+            GeoCoordinate coordinate, double distance);
 
     /**
      * <p>

@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -7,7 +8,6 @@ import java.util.Set;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
@@ -34,8 +34,14 @@ public abstract class SingleQueryLocationSource implements LocationSource {
     }
 
     @Override
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
+            GeoCoordinate coordinate, double distance) {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
+    }
+
+    @Override
     public final List<Location> getLocations(List<Integer> locationIds) {
-        List<Location> locations = CollectionHelper.newArrayList();
+        List<Location> locations = new ArrayList<>();
         for (Integer locationId : locationIds) {
             Location location = getLocation(locationId);
             if (location != null) {

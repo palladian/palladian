@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -70,7 +71,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
                     UrlHelper.encodeParameter(locationName), username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
-            List<Location> result = CollectionHelper.newArrayList();
+            List<Location> result = new ArrayList<>();
             List<Location> retrievedLocations = parseLocations(document);
             for (Location retrievedLocation : retrievedLocations) {
                 List<Integer> hierarchy = getHierarchy(retrievedLocation.getId());
@@ -84,7 +85,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     static List<Location> parseLocations(Document document) {
         checkError(document);
-        List<Location> result = CollectionHelper.newArrayList();
+        List<Location> result = new ArrayList<>();
         List<Node> geonames = XPathHelper.getNodes(document, "//geoname");
         for (Node node : geonames) {
             Location location = parseLocation(node);
@@ -139,7 +140,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
             List<Node> geonames = XPathHelper.getNodes(document, "//geoname/geonameId");
-            List<Integer> result = CollectionHelper.newArrayList();
+            List<Integer> result = new ArrayList<>();
             for (int i = geonames.size() - 1; i >= 0; i--) {
                 Node node = geonames.get(i);
                 int geonameId = Integer.parseInt(node.getTextContent());

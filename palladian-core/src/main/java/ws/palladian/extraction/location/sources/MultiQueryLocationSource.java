@@ -9,6 +9,7 @@ import java.util.Set;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
@@ -25,6 +26,12 @@ public abstract class MultiQueryLocationSource implements LocationSource {
     @Override
     public final Collection<Location> getLocations(String locationName, Set<Language> languages) {
         return getLocations(Collections.singletonList(locationName), languages).get(locationName);
+    }
+    
+    @Override
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
+            GeoCoordinate coordinate, double distance) {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
 
     @Override
