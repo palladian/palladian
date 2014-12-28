@@ -109,11 +109,11 @@ public class CollectionFeedSource implements FeedStore {
         return 0;
     }
 
-    @Override
-    public boolean updateMetaInformation(Feed feed) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+//    @Override
+//    public boolean updateMetaInformation(Feed feed) {
+//        // TODO Auto-generated method stub
+//        return false;
+//    }
 
     @Override
     public boolean addFeedPoll(PollMetaInformation pollMetaInfo) {

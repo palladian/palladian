@@ -58,15 +58,15 @@ public interface FeedStore {
 //     */
 //    boolean deleteFeedByUrl(String feedUrl);
 
-    /**
-     * <p>
-     * Update the feed's meta information only.
-     * </p>
-     * 
-     * @param feed The feed containing the meta information to update.
-     * @return <code>true</code> if feed meta information was updated successfully.
-     */
-    boolean updateMetaInformation(Feed feed);
+//    /**
+//     * <p>
+//     * Update the feed's meta information only.
+//     * </p>
+//     * 
+//     * @param feed The feed containing the meta information to update.
+//     * @return <code>true</code> if feed meta information was updated successfully.
+//     */
+//    boolean updateMetaInformation(Feed feed);
 
     /**
      * <p>
