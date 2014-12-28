@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.scope;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -107,7 +108,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
          *         common coordinate of that specific cell.
          */
         public Map<String, GeoCoordinate> getMapping() {
-            Map<String, GeoCoordinate> result = CollectionHelper.newHashMap();
+            Map<String, GeoCoordinate> result = new HashMap<>();
             ProgressReporter progress = new ProgressMonitor();
             progress.startTask("Calculating cell to coordinate mapping", cellStatsMap.size());
             for (Entry<String, CoordinateStats> entry : cellStatsMap.entrySet()) {

@@ -1,7 +1,9 @@
 package ws.palladian.extraction.location;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -119,7 +121,7 @@ public class AnnotationRuleEngine {
     private final List<Rule> rules;
 
     private static List<Rule> parseRules(InputStream inputStream) {
-        final List<Rule> rules = CollectionHelper.newArrayList();
+        final List<Rule> rules = new ArrayList<>();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -194,7 +196,7 @@ public class AnnotationRuleEngine {
     }
 
     public List<ClassifiedAnnotation> apply(String text, List<? extends Annotation> annotations) {
-        Map<Annotation, CategoryEntriesBuilder> probabilities = CollectionHelper.newLinkedHashMap();
+        Map<Annotation, CategoryEntriesBuilder> probabilities = new LinkedHashMap<>();
         for (Annotation annotation : annotations) {
             probabilities.put(annotation, new CategoryEntriesBuilder());
         }
@@ -203,7 +205,7 @@ public class AnnotationRuleEngine {
                 rule.apply(annotation, text, probabilities);
             }
         }
-        List<ClassifiedAnnotation> result = CollectionHelper.newArrayList();
+        List<ClassifiedAnnotation> result = new ArrayList<>();
         for (Entry<Annotation, CategoryEntriesBuilder> resultEntry : probabilities.entrySet()) {
             result.add(new ClassifiedAnnotation(resultEntry.getKey(), resultEntry.getValue().create()));
         }

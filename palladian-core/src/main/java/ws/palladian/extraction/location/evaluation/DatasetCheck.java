@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -13,7 +14,6 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -38,7 +38,7 @@ final class DatasetCheck {
     private static final Set<String> allowedTags;
 
     static {
-        allowedTags = CollectionHelper.newHashSet();
+        allowedTags = new HashSet<>();
         for (LocationType type : LocationType.values()) {
             allowedTags.add(type.toString());
         }
@@ -71,7 +71,7 @@ final class DatasetCheck {
             Map<String, Set<String>> valueTags = LazyMap.create(new Factory<Set<String>>() {
                 @Override
                 public Set<String> create() {
-                    return CollectionHelper.newHashSet();
+                    return new HashSet<>();
                 }
             });
 

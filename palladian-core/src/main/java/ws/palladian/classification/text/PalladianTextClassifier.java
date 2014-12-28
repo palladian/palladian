@@ -1,6 +1,7 @@
 package ws.palladian.classification.text;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -17,7 +18,6 @@ import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Learner;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Function;
 
 /**
@@ -197,7 +197,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
             Iterator<String> iterator = preprocessor.compute(textValue.getText());
-            Collection<String> terms = learnCounts ? Bag.<String> create() : CollectionHelper.<String> newHashSet();
+            Collection<String> terms = learnCounts ? Bag.<String> create() : new HashSet<String>();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
@@ -222,7 +222,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         final int numDocs = model.getNumDocuments();
         final int numTerms = model.getNumTerms();
         final boolean scoreNonMatches = scorer.scoreNonMatches();
-        final Set<String> matchedCategories = CollectionHelper.newHashSet();
+        final Set<String> matchedCategories = new HashSet<>();
 
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();

@@ -1,5 +1,6 @@
 package ws.palladian.extraction.sentence;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -69,7 +70,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
     @Override
     public Iterator<Token> iterateTokens(String text) {
         // recognize URLs, dates and smileys, so we don't break them
-        List<Annotation> maskAnnotations = CollectionHelper.newArrayList();
+        List<Annotation> maskAnnotations = new ArrayList<>();
         maskAnnotations.addAll(UrlTagger.INSTANCE.getAnnotations(text));
         maskAnnotations.addAll(DATE_TAGGER.getAnnotations(text));
         maskAnnotations.addAll(SmileyTagger.INSTANCE.getAnnotations(text));
@@ -83,7 +84,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
         String maskedText = maskedTextBuilder.toString();
 
         // tokenize the masked text
-        List<Token> maskedSentences = CollectionHelper.newArrayList();
+        List<Token> maskedSentences = new ArrayList<>();
         Pattern pattern = language == Language.GERMAN ? PATTERN_DE : PATTERN_EN;
         Matcher matcher = pattern.matcher(maskedText);
         int lastIndex = 0;
@@ -104,7 +105,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
         }
 
         // recreate annotations without masks
-        List<Token> sentences = CollectionHelper.newArrayList();
+        List<Token> sentences = new ArrayList<>();
         for (Token tempSentence : maskedSentences) {
             int start = tempSentence.getStartPosition();
             String value = text.substring(start, start + tempSentence.getValue().length());

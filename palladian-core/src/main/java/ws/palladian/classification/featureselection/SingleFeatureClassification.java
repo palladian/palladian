@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,7 +82,7 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
     public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
-        Map<String, Double> scores = CollectionHelper.newHashMap();
+        Map<String, Double> scores = new HashMap<>();
 
         Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);

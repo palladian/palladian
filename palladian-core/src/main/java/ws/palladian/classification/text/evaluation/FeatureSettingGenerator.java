@@ -1,12 +1,12 @@
 package ws.palladian.classification.text.evaluation;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
 
 /**
@@ -64,7 +64,7 @@ public final class FeatureSettingGenerator implements Factory<Set<FeatureSetting
 
     @Override
     public Set<FeatureSetting> create() {
-        Set<FeatureSetting> settings = CollectionHelper.newLinkedHashSet();
+        Set<FeatureSetting> settings = new LinkedHashSet<>();
         if (minCharLength > 0) {
             for (int min = minCharLength; min <= maxCharLength; min++) {
                 for (int max = min; max <= maxCharLength; max++) {

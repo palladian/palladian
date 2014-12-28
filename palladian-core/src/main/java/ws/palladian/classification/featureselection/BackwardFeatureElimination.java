@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -225,11 +226,11 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      */
     public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet,
             Iterable<? extends Instance> validationSet, ProgressReporter progress) {
-        Map<String, Integer> ranks = CollectionHelper.newHashMap();
+        Map<String, Integer> ranks = new HashMap<>();
 
         Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
-        final List<String> eliminatedFeatures = CollectionHelper.newArrayList();
+        final List<String> eliminatedFeatures = new ArrayList<>();
         final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
         progress.startTask("Backwards feature elimination", iterations);
         int featureIndex = 0;
@@ -252,7 +253,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
                 if (featuresToCheck.isEmpty()) {
                     break;
                 }
-                List<TestRun> runs = CollectionHelper.newArrayList();
+                List<TestRun> runs = new ArrayList<>();
 
                 for (String currentFeature : featuresToCheck) {
                     List<String> featuresToEliminate = new ArrayList<String>(eliminatedFeatures);

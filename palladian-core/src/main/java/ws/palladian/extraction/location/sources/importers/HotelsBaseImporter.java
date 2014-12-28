@@ -51,7 +51,8 @@ public final class HotelsBaseImporter {
         // get the currently highest id
         final int maxId = locationStore.getHighestId();
         final int totalLocations = FileHelper.getNumberOfLines(locationFilePath) - 1;
-        final ProgressMonitor monitor = new ProgressMonitor(totalLocations, 1);
+        final ProgressMonitor monitor = new ProgressMonitor();
+        monitor.startTask(null, totalLocations);
 
         LineAction action = new LineAction() {
 
@@ -67,7 +68,7 @@ public final class HotelsBaseImporter {
                 GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
                 int id = maxId + lineNumber;
                 locationStore.save(new ImmutableLocation(id, hotelName, LocationType.POI, coordinate, null));
-                monitor.incrementAndPrintProgress();
+                monitor.increment();
             }
         };
 
