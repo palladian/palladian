@@ -5,9 +5,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -33,14 +33,12 @@ public abstract class AbstractFeedParser implements FeedParser {
             }
             return getFeed(httpResult);
         } else {
-            InputStream inputStream = null;
-            try {
-                inputStream = new BufferedInputStream(new FileInputStream(file));
+            try (InputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
                 return getFeed(inputStream);
             } catch (FileNotFoundException e) {
                 throw new FeedParserException("File \"" + file + "\" not found");
-            } finally {
-                FileHelper.close(inputStream);
+            } catch (IOException e) {
+                throw new FeedParserException("Encountered IOException", e);
             }
         }
     }
