@@ -256,6 +256,7 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
         return new ArrayList<Location>(CollectionHelper.getFirst(result));
     }
 
+    @Override
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
             GeoCoordinate coordinate, double distance) {
         return getLocationsInternal(locationNames, languages, coordinate, distance);

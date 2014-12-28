@@ -1,7 +1,9 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +16,6 @@ import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
@@ -31,7 +32,7 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource {
     private static final Map<String, LocationType> LOCATION_MAPPING;
 
     static {
-        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        Map<String, LocationType> temp = new HashMap<>();
         temp.put("Country", LocationType.COUNTRY);
         temp.put("Nation", LocationType.COUNTRY);
         temp.put("County", LocationType.UNIT);
@@ -55,7 +56,7 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource {
     @Override
     public List<Location> getLocations(String locationName, Set<Language> languages) {
         LOGGER.warn("getLocations(String,EnumSet<Language>) is not supported, ignoring language parameter");
-        List<Location> locations = CollectionHelper.newArrayList();
+        List<Location> locations = new ArrayList<>();
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
         String url = String.format("http://webknox.com/api/entities/search?entityName=%s&apiKey=%s",

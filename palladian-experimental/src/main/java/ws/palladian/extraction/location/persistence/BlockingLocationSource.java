@@ -59,12 +59,13 @@ public class BlockingLocationSource extends MultiQueryLocationSource {
         LOGGER.info("Initializing bloom filter (this takes some time)...");
         BloomFilter<String> filter = new BloomFilter<String>(FALSE_POSITIVE_PROBABILITY, ESTIMATED_SIZE);
         Iterator<Location> iterator = source.getLocations();
-        ProgressMonitor monitor = new ProgressMonitor(source.size(), 1);
+        ProgressMonitor monitor = new ProgressMonitor();
+        monitor.startTask("Initializing filter", source.size());
         while (iterator.hasNext()) {
             Set<String> locationNames = iterator.next().collectAlternativeNames();
             Set<String> lowercaseLocationNames = CollectionHelper.convertSet(locationNames, Functions.LOWERCASE);
             filter.addAll(lowercaseLocationNames);
-            monitor.incrementAndPrintProgress();
+            monitor.increment();
         }
         return filter;
     }
