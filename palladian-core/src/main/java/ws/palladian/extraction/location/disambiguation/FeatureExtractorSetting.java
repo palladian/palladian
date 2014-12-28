@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -74,11 +75,11 @@ public interface FeatureExtractorSetting {
         int equalDistance = DEFAULT_EQUAL_DISTANCE;
         int[] distanceValues;
         int[] populationValues;
-        List<ScopeDetector> scopeDetectors = CollectionHelper.newArrayList();
-        List<Searcher<? extends WebContent>> indexSearchers = CollectionHelper.newArrayList();
+        List<ScopeDetector> scopeDetectors = new ArrayList<>();
+        List<Searcher<? extends WebContent>> indexSearchers = new ArrayList<>();
         String[] locationMarkers = new String[0];
         boolean debug = false;
-        HashSet<String> entityCategories = CollectionHelper.newHashSet();
+        HashSet<String> entityCategories = new HashSet<>();
 
         public Builder setEqualDistance(int equalDistance) {
             this.equalDistance = equalDistance;
