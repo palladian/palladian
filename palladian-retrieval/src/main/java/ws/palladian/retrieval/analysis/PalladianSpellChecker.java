@@ -195,6 +195,9 @@ public class PalladianSpellChecker {
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<Integer, String>();
         for (String s : list) {
+            if (s.isEmpty()) {
+                continue;
+            }
             Integer count = words.get(s);
             if (count != null) {
                 candidates.put(count, s);
