@@ -2,6 +2,7 @@ package ws.palladian.helper.collection;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -25,13 +26,13 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     private static final long serialVersionUID = 2L;
 
     /** The maps holding the matrix. */
-    private final Map<K, Map<K, V>> matrix = CollectionHelper.newHashMap();
+    private final Map<K, Map<K, V>> matrix = new HashMap<>();
 
     /** All keys for the x-axis used in the matrix. */
-    private final Set<K> keysX = CollectionHelper.newLinkedHashSet();
+    private final Set<K> keysX = new LinkedHashSet<>();
 
     /** All keys for the y-axis used in the matrix. */
-    private final Set<K> keysY = CollectionHelper.newLinkedHashSet();
+    private final Set<K> keysY = new LinkedHashSet<>();
 
     public static <K, V> MapMatrix<K, V> create() {
         return new MapMatrix<K, V>();
@@ -45,7 +46,7 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
 
     @Override
     public MatrixVector<K, V> getColumn(K x) {
-        Map<K, V> column = CollectionHelper.newHashMap();
+        Map<K, V> column = new HashMap<>();
         for (Entry<K, Map<K, V>> row : matrix.entrySet()) {
             K y = row.getKey();
             for (Entry<K, V> cell : row.getValue().entrySet()) {

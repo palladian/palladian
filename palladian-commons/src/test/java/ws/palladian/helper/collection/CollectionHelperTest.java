@@ -238,7 +238,6 @@ public class CollectionHelperTest {
 
     @Test
     public void testDistinct() {
-        @SuppressWarnings("unchecked")
         Set<String> values = CollectionHelper.distinct(Arrays.asList("a", "b", "c"), Arrays.asList("b", "c", "d"));
         assertEquals(4, values.size());
     }

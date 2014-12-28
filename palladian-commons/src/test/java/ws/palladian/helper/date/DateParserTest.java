@@ -520,10 +520,11 @@ public class DateParserTest {
     @Ignore // make this faster!
     public void testExtractFromText() throws IOException {
         final int count = 25;
-        final ProgressMonitor monitor = new ProgressMonitor(count, 1);
+        final ProgressMonitor monitor = new ProgressMonitor();
+        monitor.startTask(null, count);
         String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("/wikipedia_2011_Egyptian_revolution.txt"));
         for (int i = 0; i < count; i++) {
-            monitor.incrementAndPrintProgress();
+            monitor.increment();
             DateParser.findDates(text);
         }
         DateParser.printHallOfShame();

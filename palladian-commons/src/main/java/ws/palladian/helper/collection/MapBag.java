@@ -1,5 +1,7 @@
 package ws.palladian.helper.collection;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -26,7 +28,7 @@ public class MapBag {
     private Map<String, Integer> map;
 
     public MapBag() {
-        map = CollectionHelper.newHashMap();
+        map = new HashMap<>();
     }
 
     public Set<String> getAllBagEntries() {
@@ -40,7 +42,7 @@ public class MapBag {
     public Set<String> getBag(String bagEntry) {
         Integer bagId = map.get(bagEntry);
 
-        Set<String> bagEntries = CollectionHelper.newHashSet();
+        Set<String> bagEntries = new HashSet<>();
         for (Entry<String, Integer> entry : map.entrySet()) {
             if (entry.getValue() == bagId) {
                 bagEntries.add(entry.getKey());

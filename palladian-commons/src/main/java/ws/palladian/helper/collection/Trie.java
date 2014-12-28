@@ -2,6 +2,7 @@ package ws.palladian.helper.collection;
 
 import java.io.Serializable;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -151,7 +152,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
      */
     public boolean clean() {
         boolean clean = true;
-        List<Trie<V>> temp = CollectionHelper.newArrayList();
+        List<Trie<V>> temp = new ArrayList<>();
         for (Trie<V> child : children) {
             boolean childClean = child.clean();
             if (!childClean) {

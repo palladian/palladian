@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 /**
  * Default {@link Filter} implementations.
  * 
@@ -225,7 +223,7 @@ public final class Filters {
         private final Set<String> extensionsSet;
 
         private FileExtensionFilter(String... extensions) {
-            extensionsSet = CollectionHelper.newHashSet();
+            extensionsSet = new HashSet<>();
             for (String extension : extensions) {
                 if (extension != null && extension.length() > 0) {
                     if (extension.startsWith(".")) {

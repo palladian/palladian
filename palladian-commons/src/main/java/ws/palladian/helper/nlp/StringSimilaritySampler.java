@@ -1,12 +1,12 @@
 package ws.palladian.helper.nlp;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.SetSimilarities;
 
 final class StringSimilaritySampler {
@@ -45,7 +45,7 @@ final class StringSimilaritySampler {
     }
 
     public static void main(String[] args) {
-        List<StringMetric> similarities = CollectionHelper.newArrayList();
+        List<StringMetric> similarities = new ArrayList<>();
         // similarities.add(new CharacterNGramSimilarity(3));
         // similarities.add(new CharacterNGramSimilarity(4));
         // similarities.add(new CharacterNGramSimilarity(5));
@@ -64,7 +64,7 @@ final class StringSimilaritySampler {
         similarities.add(new JaroWinklerSimilarity());
         similarities.add(new LevenshteinSimilarity());
 
-        List<String> strings = CollectionHelper.newArrayList();
+        List<String> strings = new ArrayList<>();
         strings.add("Earthquake Shakes Mexico City");
         strings.add("Panic as earthquake hits Mexico City");
         strings.add("Powerful Quake Rattles Mexico");

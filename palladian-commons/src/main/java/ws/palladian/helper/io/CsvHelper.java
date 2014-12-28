@@ -1,10 +1,9 @@
 package ws.palladian.helper.io;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 public final class CsvHelper {
 
@@ -21,7 +20,7 @@ public final class CsvHelper {
      */
     public static List<String> splitCsvLine(String line, char separator) {
         Validate.notNull(line, "line must not be null");
-        List<String> split = CollectionHelper.newArrayList();
+        List<String> split = new ArrayList<>();
         boolean insideQuote = false;
         StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < line.length(); i++) {

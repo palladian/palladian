@@ -2,6 +2,7 @@ package ws.palladian.helper;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,8 +23,6 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -147,7 +146,7 @@ public class Mailer {
      * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
      */
     public boolean sendMail(String sender, List<String> recipients, String subject, String text) {
-        Map<RecipientType, List<String>> recipientMap = CollectionHelper.newHashMap();
+        Map<RecipientType, List<String>> recipientMap = new HashMap<>();
         recipientMap.put(RecipientType.TO, recipients);
         return sendMail(sender, sender, recipientMap, subject, text, false);
     }
