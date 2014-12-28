@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -82,7 +82,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * </p>
      */
     public JsonObject() {
-        map = new HashMap<String, Object>();
+        map = new LinkedHashMap<String, Object>();
     }
 
     JsonObject(JsonTokener x) throws JsonException {
@@ -140,7 +140,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @throws JsonException
      */
     public JsonObject(Map<?, ?> map) {
-        this.map = new HashMap<String, Object>();
+        this.map = new LinkedHashMap<String, Object>();
         if (map != null) {
             for (Object key : map.keySet()) {
                 Object value = map.get(key);

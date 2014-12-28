@@ -87,7 +87,7 @@ public final class ImmutableCategory implements Category {
 
     @Override
     public int compareTo(Category other) {
-        return Double.compare(other.getProbability(), this.probability);
+        return Double.compare(this.probability, other.getProbability());
     }
 
 }

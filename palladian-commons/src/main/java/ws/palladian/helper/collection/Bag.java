@@ -339,7 +339,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        map = new HashMap<T, Integer>();
+        map = new HashMap<>();
         int numEntries = in.readInt();
         for (int i = 0; i < numEntries; i++) {
             @SuppressWarnings("unchecked")

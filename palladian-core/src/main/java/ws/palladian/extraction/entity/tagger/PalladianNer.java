@@ -295,7 +295,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     private DictionaryBuilder createDictionaryBuilder() {
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
-        int minCount = trainingSettings.getMinDictionaryCount();
+        int minCount = 1;
+        // FIXME what's going on here, why can this be null?
+        if (trainingSettings != null) {
+            minCount = trainingSettings.getMinDictionaryCount();
+        }
         if (minCount > 1) {
             builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(minCount));
         }

@@ -62,6 +62,9 @@
 				<version>2.5</version>
 				<configuration>
 					<argLine>-Xms256m -Xmx1024m</argLine>
+                    <systemPropertyVariables>
+                        <java.awt.headless>true</java.awt.headless>
+                    </systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>
