@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +50,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
     static {
-        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        Map<String, LocationType> temp = new HashMap<>();
         temp.put("continent", LocationType.CONTINENT);
         temp.put("city", LocationType.CITY);
         temp.put("country", LocationType.COUNTRY);
@@ -69,7 +71,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
     @Override
     public List<LocationAnnotation> getAnnotations(String inputText) {
 
-        List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
+        List<LocationAnnotation> annotations = new ArrayList<>();
 
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 

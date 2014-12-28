@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,7 +26,6 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.ArrayIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.nlp.StringHelper;
@@ -62,7 +62,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
 
     @Override
     protected List<String> getTags(List<String> tokens) {
-        List<String> tags = CollectionHelper.newArrayList();
+        List<String> tags = new ArrayList<>();
         for (String token : tokens) {
             FeatureVector featureVector = extractFeatures(token);
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
@@ -90,7 +90,8 @@ public class PalladianPosTagger extends AbstractPosTagger {
         BrownCorpusIterator(String trainingDirectory) {
             File[] trainingFilesArray = FileHelper.getFiles(trainingDirectory);
             trainingFiles = new ArrayIterator<File>(trainingFilesArray);
-            progressMonitor = new ProgressMonitor(trainingFilesArray.length, 1);
+            progressMonitor = new ProgressMonitor();
+            progressMonitor.startTask(null, trainingFilesArray.length);
         }
 
         @Override
@@ -99,7 +100,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
                 return currentInstances.next();
             }
             if (trainingFiles.hasNext()) {
-                progressMonitor.incrementAndPrintProgress();
+                progressMonitor.increment();
                 currentInstances = createInstances(trainingFiles.next());
                 return currentInstances.next();
             }
@@ -114,7 +115,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
                 throw new IllegalStateException(e);
             }
             String[] wordsAndTagPairs = content.split("\\s");
-            List<Instance> trainingInstances = CollectionHelper.newArrayList();
+            List<Instance> trainingInstances = new ArrayList<>();
             for (String wordAndTagPair : wordsAndTagPairs) {
                 String[] wordAndTag = wordAndTagPair.split("/");
                 String word = wordAndTag[0];

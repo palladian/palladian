@@ -1,6 +1,7 @@
 package ws.palladian.extraction.token;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -184,7 +185,7 @@ public final class Tokenizer {
         // TODO Since requirements might differ slightly from application to application, this filtering should be
         // carried out by each calling application itself.
         if (onlyRealSentences) {
-            List<String> realSentences = CollectionHelper.newArrayList();
+            List<String> realSentences = new ArrayList<>();
             for (String sentence : sentences) {
                 String[] parts = sentence.split("\n");
                 sentence = parts[parts.length - 1];

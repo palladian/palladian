@@ -1,6 +1,8 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -68,7 +70,7 @@ class LocalGlobalLexiconConverter {
             String fcode = null;
             Double lat = null;
             Double lng = null;
-            List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
+            List<LocationAnnotation> annotations = new ArrayList<>();
 
             @Override
             public void startElement(String uri, String localName, String qName, Attributes attributes)
@@ -213,7 +215,7 @@ class LocalGlobalLexiconConverter {
     public static final void cleanClust(File datasetPath) {
         File[] files = FileHelper.getFiles(datasetPath.getPath(), "text_");
         File destinationDirectory = new File(datasetPath, "0-all");
-        Set<Integer> deduplication = CollectionHelper.newHashSet();
+        Set<Integer> deduplication = new HashSet<>();
         int annotated = 0;
         for (File file : files) {
             String fileContent = FileHelper.tryReadFileToString(file);

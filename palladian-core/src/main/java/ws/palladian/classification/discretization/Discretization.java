@@ -1,6 +1,7 @@
 package ws.palladian.classification.discretization;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public final class Discretization {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Discretization.class);
 
-    private final Map<String, Binner> binners = CollectionHelper.newHashMap();
+    private final Map<String, Binner> binners = new HashMap<>();
 
     public Discretization(Iterable<? extends Instance> dataset) {
         this(dataset, NoProgress.INSTANCE);

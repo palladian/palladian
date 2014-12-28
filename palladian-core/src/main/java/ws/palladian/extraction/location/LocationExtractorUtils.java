@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.geo.GeoCoordinate;
 
@@ -52,7 +51,7 @@ public final class LocationExtractorUtils {
      *         least one name.
      */
     public static boolean differentNames(Collection<Location> locations) {
-        Set<String> allNames = CollectionHelper.newHashSet();
+        Set<String> allNames = new HashSet<>();
         for (Location location : locations) {
             Set<String> currentNames = location.collectAlternativeNames();
             if (allNames.size() > 0) {

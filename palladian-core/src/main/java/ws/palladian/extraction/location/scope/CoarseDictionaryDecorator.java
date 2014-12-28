@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.scope;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,10 +49,10 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
     private final GridCreator fineGrid;
 
     /** Cache mapped values, because mapping is not very fast. */
-    private final Map<String, String> fineToCoarseIdentifier = CollectionHelper.newHashMap();
+    private final Map<String, String> fineToCoarseIdentifier = new HashMap<>();
 
     /** Cache often requested terms and their TermCategoryEntries. */
-    private final Map<String, CategoryEntries> entriesCache = CollectionHelper.newHashMap();
+    private final Map<String, CategoryEntries> entriesCache = new HashMap<>();
 
     /**
      * Keep only those TermCategoryEntries cached, where the #size is greater than this value (this is adapted

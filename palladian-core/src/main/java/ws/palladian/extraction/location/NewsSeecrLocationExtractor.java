@@ -1,13 +1,13 @@
 package ws.palladian.extraction.location;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
@@ -73,7 +73,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
         checkError(result);
         LOGGER.debug("Result JSON: {}", resultString);
         try {
-            List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
+            List<LocationAnnotation> annotations = new ArrayList<>();
             JsonObject jsonResult = new JsonObject(resultString);
             JsonArray resultArray = jsonResult.getJsonArray("results");
             for (int i = 0; i < resultArray.size(); i++) {
@@ -94,7 +94,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
                     coordinate = new ImmutableGeoCoordinate(lat, lng);
                 }
                 Long population = locationJson.tryGetLong("population");
-                List<AlternativeName> alternativeNames = CollectionHelper.newArrayList();
+                List<AlternativeName> alternativeNames = new ArrayList<>();
                 JsonArray altNamesJson = locationJson.getJsonArray("alternativeNames");
                 for (int j = 0; j < altNamesJson.size(); j++) {
                     JsonObject altNameJson = altNamesJson.getJsonObject(j);
@@ -102,7 +102,7 @@ public final class NewsSeecrLocationExtractor extends LocationExtractor {
                     Language altLng = Language.getByIso6391(altNameJson.getString("language"));
                     alternativeNames.add(new AlternativeName(altName, altLng));
                 }
-                List<Integer> ancestorIds = CollectionHelper.newArrayList();
+                List<Integer> ancestorIds = new ArrayList<>();
                 JsonArray ancestorJson = locationJson.getJsonArray("ancestorIds");
                 for (int j = 0; j < ancestorJson.size(); j++) {
                     ancestorIds.add(ancestorJson.getInt(j));

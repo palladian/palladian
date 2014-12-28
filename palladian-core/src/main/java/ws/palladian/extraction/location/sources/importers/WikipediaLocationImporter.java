@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +93,7 @@ public class WikipediaLocationImporter {
         Validate.isTrue(idOffset >= 0);
         this.locationStore = locationStore;
         this.idOffset = idOffset;
-        this.locationNamesIds = CollectionHelper.newHashMap();
+        this.locationNamesIds = new HashMap<>();
         this.nameExtraction = new HashSet<AlternativeNameExtraction>(Arrays.asList(nameExtraction));
     }
 
@@ -207,7 +208,7 @@ public class WikipediaLocationImporter {
                     if (nameExtraction.contains(PAGE)) {
                         List<String> alternativeTitles = page.getAlternativeTitles();
                         if (alternativeTitles.size() > 0) {
-                            Set<AlternativeName> alternativeNames = CollectionHelper.newHashSet();
+                            Set<AlternativeName> alternativeNames = new HashSet<>();
                             for (String name : alternativeTitles) {
                                 if (!name.equals(cleanArticleName)) {
                                     alternativeNames.add(new AlternativeName(name));

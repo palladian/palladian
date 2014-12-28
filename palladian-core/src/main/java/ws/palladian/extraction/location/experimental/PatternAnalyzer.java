@@ -7,6 +7,7 @@ import static ws.palladian.helper.functional.Filters.regex;
 import static ws.palladian.helper.functional.Functions.LOWERCASE;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +87,7 @@ public class PatternAnalyzer {
                 }
             }
         });
-        Set<Filter<CategoryEntries>> pruningStrategies = CollectionHelper.newHashSet();
+        Set<Filter<CategoryEntries>> pruningStrategies = new HashSet<>();
         pruningStrategies.add(new PruningStrategies.TermCountPruningStrategy(minCount));
         pruningStrategies.add(new PruningStrategies.MinProbabilityPruningStrategy(minProb));
         builder.setPruningStrategy(and(pruningStrategies));
