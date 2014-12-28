@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
@@ -2097,7 +2096,7 @@ public final class StringHelper {
      */
     public static final List<String> getSubPhrases(String string) {
         Validate.notNull(string, "string must not be null");
-        List<String> phrases = CollectionHelper.newArrayList();
+        List<String> phrases = new ArrayList<>();
         String[] split = string.split("\\s");
         for (int i = 0; i < split.length; i++) {
             for (int j = i; j < split.length; j++) {

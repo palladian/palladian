@@ -1,5 +1,6 @@
 package ws.palladian.helper.math;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +44,7 @@ public class FatStats implements Stats {
      * </p>
      */
     public FatStats() {
-        this.values = CollectionHelper.newArrayList();
+        this.values = new ArrayList<>();
     }
 
     /**

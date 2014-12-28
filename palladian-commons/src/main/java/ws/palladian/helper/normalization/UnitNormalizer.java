@@ -1,7 +1,9 @@
 package ws.palladian.helper.normalization;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,7 +12,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.constants.UnitType;
@@ -29,7 +30,7 @@ public class UnitNormalizer {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UnitNormalizer.class);
 
-    private final static List<String> ALL_UNITS = CollectionHelper.newArrayList();
+    private final static List<String> ALL_UNITS = new ArrayList<>();
 
     static {
         for (UnitType unitType : UnitType.values()) {
@@ -132,7 +133,7 @@ public class UnitNormalizer {
             return UnitType.TEMPERATURE.getUnitNames();
         }
 
-        return CollectionHelper.newHashSet();
+        return new HashSet<>();
     }
 
     /**

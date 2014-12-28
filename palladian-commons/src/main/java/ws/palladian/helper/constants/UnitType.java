@@ -1,11 +1,11 @@
 package ws.palladian.helper.constants;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 
 /**
@@ -33,8 +33,8 @@ public enum UnitType {
     CURRENCY,
     OTHER;
 
-    private List<Pair<List<String>, Double>> units = CollectionHelper.newArrayList();
-    private List<String> sortedUnitNames = CollectionHelper.newArrayList();
+    private List<Pair<List<String>, Double>> units = new ArrayList<>();
+    private List<String> sortedUnitNames = new ArrayList<>();
 
     public boolean contains(String unit) {
         for (Pair<List<String>, Double> entry : this.units) {
@@ -50,30 +50,30 @@ public enum UnitType {
 
     static {
 
-        List<String> unitList = CollectionHelper.newArrayList();
+        List<String> unitList = new ArrayList<>();
 
         // NONE units are normalized to 1
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("trillions");
         unitList.add("trillion");
         UnitType.NONE.units.add(Pair.of(unitList, 1000000000000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("billions");
         unitList.add("billion");
         UnitType.NONE.units.add(Pair.of(unitList, 1000000000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("millions");
         unitList.add("million");
         UnitType.NONE.units.add(Pair.of(unitList, 1000000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("thousand");
         unitList.add("k");
         UnitType.NONE.units.add(Pair.of(unitList, 1000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("percents");
         unitList.add("per cent");
         unitList.add("percent");
@@ -82,7 +82,7 @@ public enum UnitType {
         UnitType.NONE.units.add(Pair.of(unitList, 0.01));
 
         // PIXEL units are normalized to 1
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("mega pixels");
         unitList.add("megapixels");
         unitList.add("mega pixel");
@@ -93,7 +93,7 @@ public enum UnitType {
         unitList.add("mp");
         UnitType.PIXEL.units.add(Pair.of(unitList, 1000000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("kilopixels");
         unitList.add("kilo pixel");
         unitList.add("kilopixel");
@@ -101,13 +101,13 @@ public enum UnitType {
         unitList.add("k");
         UnitType.PIXEL.units.add(Pair.of(unitList, 1000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("pixel");
         UnitType.PIXEL.units.add(Pair.of(unitList, 1.0));
 
         // TEMPERATURE units will not be normalized as there are non-linear projections
         for (TemperatureUnit tUnit : TemperatureUnit.values()) {
-            unitList = CollectionHelper.newArrayList();
+            unitList = new ArrayList<>();
             for (String name : tUnit.getNames()) {
                 unitList.add(name);
             }
@@ -115,28 +115,28 @@ public enum UnitType {
         }
 
         // TIME units are normalized to seconds
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("years");
         unitList.add("year");
         UnitType.TIME.units.add(Pair.of(unitList, 31536000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("months");
         unitList.add("month");
         UnitType.TIME.units.add(Pair.of(unitList, 2592000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("weeks");
         unitList.add("week");
         UnitType.TIME.units.add(Pair.of(unitList, 604800.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("day(s)");
         unitList.add("days");
         unitList.add("day");
         UnitType.TIME.units.add(Pair.of(unitList, 86400.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("hour(s)");
         unitList.add("hours");
         unitList.add("hour");
@@ -145,14 +145,14 @@ public enum UnitType {
         unitList.add("h");
         UnitType.TIME.units.add(Pair.of(unitList, 3600.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("minute(s)");
         unitList.add("minutes");
         unitList.add("minute");
         unitList.add("min");
         UnitType.TIME.units.add(Pair.of(unitList, 60.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("second(s)");
         unitList.add("seconds");
         unitList.add("second");
@@ -160,32 +160,32 @@ public enum UnitType {
         unitList.add("s");
         UnitType.TIME.units.add(Pair.of(unitList, 1.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("milli seconds");
         unitList.add("milliseconds");
         unitList.add("ms");
         UnitType.TIME.units.add(Pair.of(unitList, 0.001));
 
         // DIGITAL units are normalized to bytes
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("tera bytes");
         unitList.add("terabytes");
         unitList.add("tb");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1099511627776.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("giga byte");
         unitList.add("gigabytes");
         unitList.add("gb");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1073741824.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("mega byte");
         unitList.add("megabytes");
         unitList.add("mb");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1048576.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("kilo byte");
         unitList.add("kilobyte");
         unitList.add("kilobytes");
@@ -193,55 +193,55 @@ public enum UnitType {
         unitList.add("kbyte");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1024.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("byte");
         unitList.add("bytes");
         unitList.add("b");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("bit");
         unitList.add("bits");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1. / 8));
 
         // FREQUENCY units are normalized to 1
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("terra hertz");
         unitList.add("terrahertz");
         unitList.add("thz");
         UnitType.FREQUENCY.units.add(Pair.of(unitList, 1000000000000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("giga hertz");
         unitList.add("gigahertz");
         unitList.add("ghz");
         UnitType.FREQUENCY.units.add(Pair.of(unitList, 1000000000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("mega hertz");
         unitList.add("megahertz");
         unitList.add("mhz");
         UnitType.FREQUENCY.units.add(Pair.of(unitList, 1000000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("kilo hertz");
         unitList.add("kilohertz");
         unitList.add("khz");
         UnitType.FREQUENCY.units.add(Pair.of(unitList, 1000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("hertz");
         unitList.add("hz");
         UnitType.FREQUENCY.units.add(Pair.of(unitList, 1.0));
 
         // LENGTH units are normalized to centimeter
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("miles");
         unitList.add("mile");
         unitList.add("mi");
         UnitType.LENGTH.units.add(Pair.of(unitList, 160934.4));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("kilometers");
         unitList.add("kilometres");
         unitList.add("kilometre");
@@ -250,7 +250,7 @@ public enum UnitType {
         unitList.add("km");
         UnitType.LENGTH.units.add(Pair.of(unitList, 100000.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("meters");
         unitList.add("metres");
         unitList.add("meter");
@@ -258,7 +258,7 @@ public enum UnitType {
         unitList.add("m");
         UnitType.LENGTH.units.add(Pair.of(unitList, 100.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("decimeter");
         unitList.add("decimeters");
         unitList.add("decimetre");
@@ -266,20 +266,20 @@ public enum UnitType {
         unitList.add("dm");
         UnitType.LENGTH.units.add(Pair.of(unitList, 10.0));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("foot");
         unitList.add("feet");
         unitList.add("ft");
         UnitType.LENGTH.units.add(Pair.of(unitList, 30.48));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("inches");
         unitList.add("inch");
         unitList.add("in");
         unitList.add("\"");
         UnitType.LENGTH.units.add(Pair.of(unitList, 2.54));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("centimeters");
         unitList.add("centimetres");
         unitList.add("centimeter");
@@ -287,7 +287,7 @@ public enum UnitType {
         unitList.add("cm");
         UnitType.LENGTH.units.add(Pair.of(unitList, 1.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("millimeters");
         unitList.add("millimetres");
         unitList.add("millimeter");
@@ -296,33 +296,33 @@ public enum UnitType {
         UnitType.LENGTH.units.add(Pair.of(unitList, 0.1));
 
         // WEIGHT units are normalized to grams
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("tons");
         unitList.add("ton");
         UnitType.WEIGHT.units.add(Pair.of(unitList, 1000000.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("kilograms");
         unitList.add("kilogram");
         unitList.add("kg");
         unitList.add("kgs");
         UnitType.WEIGHT.units.add(Pair.of(unitList, 1000.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("pounds");
         unitList.add("pound");
         unitList.add("lbs");
         unitList.add("lb");
         UnitType.WEIGHT.units.add(Pair.of(unitList, 453.59237));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("ounces");
         unitList.add("ounce");
         unitList.add("ozs");
         unitList.add("oz");
         UnitType.WEIGHT.units.add(Pair.of(unitList, 28.3495231));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("gram");
         unitList.add("grams");
         unitList.add("g");
@@ -331,7 +331,7 @@ public enum UnitType {
         UnitType.WEIGHT.units.add(Pair.of(unitList, 1.));
 
         // AREA units are normalized to square meter
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("square miles");
         unitList.add("square mile");
         unitList.add("sq.miles");
@@ -339,7 +339,7 @@ public enum UnitType {
         unitList.add("sq mi");
         UnitType.AREA.units.add(Pair.of(unitList, 2589988.11));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("square kilometers");
         unitList.add("square kilometer");
         unitList.add("square kilometres");
@@ -362,12 +362,12 @@ public enum UnitType {
         unitList.add("km2");
         UnitType.AREA.units.add(Pair.of(unitList, 1000000.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("hectares");
         unitList.add("hectare");
         UnitType.AREA.units.add(Pair.of(unitList, 10000.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("square meters");
         unitList.add("square meter");
         unitList.add("square metres");
@@ -391,44 +391,44 @@ public enum UnitType {
         UnitType.AREA.units.add(Pair.of(unitList, 1.));
 
         // VOLUME units are normalized to milliliter
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("m³");
         UnitType.VOLUME.units.add(Pair.of(unitList, 1000000.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("gallons");
         unitList.add("gallon");
         unitList.add("gal");
         UnitType.VOLUME.units.add(Pair.of(unitList, 3785.41));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("liters");
         unitList.add("liter");
         unitList.add("l");
         UnitType.VOLUME.units.add(Pair.of(unitList, 1000.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("quarts");
         unitList.add("quart");
         unitList.add("qts");
         unitList.add("qt");
         UnitType.VOLUME.units.add(Pair.of(unitList, 946.353));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("pints");
         unitList.add("pint");
         unitList.add("pts");
         unitList.add("pt");
         UnitType.VOLUME.units.add(Pair.of(unitList, 473.176));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("cups");
         unitList.add("cup");
         unitList.add("cp");
         unitList.add("c");
         UnitType.VOLUME.units.add(Pair.of(unitList, 236.588));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("fl. oz");
         unitList.add("fl. oz.");
         unitList.add("fl. ozs");
@@ -445,7 +445,7 @@ public enum UnitType {
         unitList.add("fluid ounces");
         UnitType.VOLUME.units.add(Pair.of(unitList, 29.57));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("tablespoons");
         unitList.add("tablespoon");
         unitList.add("Tbsps");
@@ -454,13 +454,13 @@ public enum UnitType {
         unitList.add("T");
         UnitType.VOLUME.units.add(Pair.of(unitList, 14.7868));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("centiliters");
         unitList.add("centilitres");
         unitList.add("cl");
         UnitType.VOLUME.units.add(Pair.of(unitList, 10.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("teaspoons");
         unitList.add("teaspoon");
         unitList.add("tsps");
@@ -468,7 +468,7 @@ public enum UnitType {
         unitList.add("t");
         UnitType.VOLUME.units.add(Pair.of(unitList, 4.92892));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("milliliters");
         unitList.add("millilitres");
         unitList.add("milliliter");
@@ -479,7 +479,7 @@ public enum UnitType {
         unitList.add("cm³");
         UnitType.VOLUME.units.add(Pair.of(unitList, 1.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         // US 1.5 fl. oz (different depending on country)
         unitList.add("measures");
         unitList.add("measure");
@@ -488,24 +488,24 @@ public enum UnitType {
         UnitType.VOLUME.units.add(Pair.of(unitList, 44.3603));
 
         // SPEED units are normalized to km/h
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("miles per hour");
         unitList.add("mph");
         UnitType.SPEED.units.add(Pair.of(unitList, 1.609344));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("kilometers per hour");
         unitList.add("kmh");
         unitList.add("kph");
         UnitType.SPEED.units.add(Pair.of(unitList, 1.));
 
         // POWER_RATIO
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("db");
         UnitType.POWER_RATIO.units.add(Pair.of(unitList, 1.));
 
         // CURRENCY units are not normalized
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("euros");
         unitList.add("euro");
         unitList.add("eur");
@@ -516,13 +516,13 @@ public enum UnitType {
         UnitType.CURRENCY.units.add(Pair.of(unitList, 1.));
 
         // OTHER units are normalized to different values
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("kilowatts");
         unitList.add("kilowatt");
         unitList.add("kw");
         UnitType.OTHER.units.add(Pair.of(unitList, 1.3410));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("horsepower");
         unitList.add("horses");
         unitList.add("kcal");
@@ -531,7 +531,7 @@ public enum UnitType {
         unitList.add("hp");
         UnitType.OTHER.units.add(Pair.of(unitList, 1.));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("foot pounds");
         unitList.add("foot-pounds");
         unitList.add("pound feet");
@@ -547,7 +547,7 @@ public enum UnitType {
         unitList.add("ft-lbs");
         UnitType.OTHER.units.add(Pair.of(unitList, 1.355817952));
 
-        unitList = CollectionHelper.newArrayList();
+        unitList = new ArrayList<>();
         unitList.add("newton meters");
         unitList.add("newton meter");
         unitList.add("nm");
@@ -555,7 +555,7 @@ public enum UnitType {
 
         // sort all unit names
         for (UnitType unitType : values()) {
-            unitType.sortedUnitNames = CollectionHelper.newArrayList();
+            unitType.sortedUnitNames = new ArrayList<>();
 
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
                 for (String unit : pair.getLeft()) {

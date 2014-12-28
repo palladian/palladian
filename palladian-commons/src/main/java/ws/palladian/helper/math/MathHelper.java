@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -80,7 +80,7 @@ public final class MathHelper {
         FRACTION_MAP.put(0.7, "7/10");
         FRACTION_MAP.put(0.9, "9/10");
         
-        Map<Double, Double> locZMapping = CollectionHelper.newLinkedHashMap();
+        Map<Double, Double> locZMapping = new LinkedHashMap<>();
         locZMapping.put(0.75, 1.151);
         locZMapping.put(0.85, 1.139);
         locZMapping.put(0.90, 1.645);

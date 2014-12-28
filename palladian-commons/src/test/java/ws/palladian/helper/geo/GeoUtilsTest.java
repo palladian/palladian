@@ -7,13 +7,13 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class GeoUtilsTest {
 
@@ -24,20 +24,20 @@ public class GeoUtilsTest {
 
     @BeforeClass
     public static void setUp() {
-        coordinates1 = CollectionHelper.newHashSet();
+        coordinates1 = new HashSet<>();
         coordinates1.add(new ImmutableGeoCoordinate(52.52437, 13.41053));
         coordinates1.add(new ImmutableGeoCoordinate(51.50853, -0.12574));
         coordinates1.add(new ImmutableGeoCoordinate(47.66033, 9.17582));
         coordinates1.add(new ImmutableGeoCoordinate(45.74846, 4.84671));
 
-        coordinates2 = CollectionHelper.newHashSet();
+        coordinates2 = new HashSet<>();
         coordinates2.add(new ImmutableGeoCoordinate(40.71427, -74.00597));
         coordinates2.add(new ImmutableGeoCoordinate(35.68950, 139.69171));
 
-        coordinates3 = CollectionHelper.newHashSet();
+        coordinates3 = new HashSet<>();
         coordinates3.add(new ImmutableGeoCoordinate(52.52437, 13.41053));
 
-        coordinates4 = CollectionHelper.newHashSet();
+        coordinates4 = new HashSet<>();
         coordinates4.add(new ImmutableGeoCoordinate(39.00027, -105.50083));
         coordinates4.add(new ImmutableGeoCoordinate(52.16045, -0.70312));
         coordinates4.add(new ImmutableGeoCoordinate(-33, -56));

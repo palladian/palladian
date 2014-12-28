@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +41,7 @@ public class DefaultMultiMap<K, V> extends AbstractMap<K,Collection<V>> implemen
         return new DefaultMultiMap<K, V>(new Factory<Collection<V>>() {
             @Override
             public Collection<V> create() {
-                return CollectionHelper.newArrayList();
+                return new ArrayList<>();
             }
         });
     }
@@ -56,7 +57,7 @@ public class DefaultMultiMap<K, V> extends AbstractMap<K,Collection<V>> implemen
         return new DefaultMultiMap<K, V>(new Factory<Collection<V>>() {
             @Override
             public Collection<V> create() {
-                return CollectionHelper.newHashSet();
+                return new HashSet<>();
             }
         });
     }

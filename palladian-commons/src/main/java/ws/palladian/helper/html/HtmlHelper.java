@@ -866,7 +866,7 @@ public final class HtmlHelper {
      */
     public static List<Node> getAllSiblings(Node node) {
         Validate.notNull(node, "node must not be null");
-        List<Node> result = CollectionHelper.newArrayList();
+        List<Node> result = new ArrayList<>();
         NodeList childNodes = node.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node childNode = childNodes.item(i);
