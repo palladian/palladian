@@ -148,7 +148,7 @@ public final class BitlyClicks extends AbstractRankingService {
         for (String hash : bitlyHashes) {
             hashes.append("&hash=" + hash);
         }
-        Map<String, Integer> clicks = CollectionHelper.newHashMap();
+        Map<String, Integer> clicks = new HashMap<>();
         if (hashes.length() > 0) {
             String url = "http://api.bit.ly/v3/clicks?login=" + login + "&apiKey=" + apiKey + "&mode=batch"
                     + hashes.toString();
