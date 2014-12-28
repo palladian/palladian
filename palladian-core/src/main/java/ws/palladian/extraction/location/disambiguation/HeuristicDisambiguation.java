@@ -116,7 +116,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         Set<Annotation> unlikelyLocations = getUnlikelyLocations(locations);
         locations.keySet().removeAll(unlikelyLocations);
 
-        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<LocationAnnotation> result = new ArrayList<>();
 
         Set<Location> anchors = getAnchors(locations);
 
@@ -133,7 +133,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             Collection<Location> currentAnchors = new HashSet<Location>(anchors);
             currentAnchors.removeAll(candidates);
 
-            Set<Location> preselection = CollectionHelper.newHashSet();
+            Set<Location> preselection = new HashSet<>();
 
             for (Location candidate : candidates) {
                 if (anchors.contains(candidate)) {
@@ -168,7 +168,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     }
 
     private Set<Annotation> getUnlikelyLocations(MultiMap<ClassifiedAnnotation, Location> locations) {
-        Set<Annotation> unlikelyLocations = CollectionHelper.newHashSet();
+        Set<Annotation> unlikelyLocations = new HashSet<>();
         for (ClassifiedAnnotation annotation : locations.keySet()) {
             LocationSet group = new LocationSet(locations.get(annotation));
             boolean likelyLocation = group.where(type(COUNTRY, CONTINENT)).size() > 0;
@@ -225,7 +225,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     }
 
     private Set<Location> getAnchors(MultiMap<? extends Annotation, Location> locations) {
-        Set<Location> anchorLocations = CollectionHelper.newHashSet();
+        Set<Location> anchorLocations = new HashSet<>();
 
         // get prominent anchor locations; continents, countries and locations with very high population
         for (Location location : locations.allValues()) {
@@ -321,7 +321,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         LOGGER.debug("Identified {} locations via lasso trick", lassoLocations.size());
 
         // add parents of the given locations
-        Set<Location> parents = CollectionHelper.newHashSet();
+        Set<Location> parents = new HashSet<>();
         for (Location location : lassoLocations) {
             for (Location other : locations.allValues()) {
                 if (location.descendantOf(other)) {
