@@ -3,10 +3,6 @@ package ws.palladian.retrieval.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
@@ -35,10 +31,10 @@ import ws.palladian.retrieval.resources.WebContent;
  */
 public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractSearcher<R> {
 
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseGoogleSearcher.class);
+//    /** The logger for this class. */
+//    private static final Logger LOGGER = LoggerFactory.getLogger(BaseGoogleSearcher.class);
 
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private static final RequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1, TimeUnit.SECONDS);
 
@@ -64,7 +60,7 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
                 checkResponse(jsonObject);
                 JsonObject responseData = jsonObject.getJsonObject("responseData");
 
-                TOTAL_REQUEST_COUNT.incrementAndGet();
+//                TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 // in the first iteration find the maximum of available pages and limit the search to those
                 if (i == 0) {
@@ -89,7 +85,7 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
             }
         }
 
-        LOGGER.debug("google requests: " + TOTAL_REQUEST_COUNT.get());
+//        LOGGER.debug("google requests: " + TOTAL_REQUEST_COUNT.get());
         return webResults;
     }
 
@@ -211,14 +207,14 @@ public abstract class BaseGoogleSearcher<R extends WebContent> extends AbstractS
         return hitCount;
     }
 
-    /**
-     * Gets the number of HTTP requests sent to Google.
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
-    }
+//    /**
+//     * Gets the number of HTTP requests sent to Google.
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.get();
+//    }
     
     @Override
     public boolean isDeprecated() {

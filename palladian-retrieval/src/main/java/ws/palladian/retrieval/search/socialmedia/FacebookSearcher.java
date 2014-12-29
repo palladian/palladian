@@ -1,7 +1,9 @@
 package ws.palladian.retrieval.search.socialmedia;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -117,8 +119,8 @@ public final class FacebookSearcher extends AbstractSearcher<WebContent> {
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebContent> result = CollectionHelper.newArrayList();
-        Set<String> urlDeduplication = CollectionHelper.newHashSet();
+        List<WebContent> result = new ArrayList<>();
+        Set<String> urlDeduplication = new HashSet<>();
         
         // XXX paging is no longer supported
         if (resultCount > 100) {

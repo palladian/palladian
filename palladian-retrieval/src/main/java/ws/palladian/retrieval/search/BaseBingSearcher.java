@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -49,7 +48,7 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     protected final String accountKey;
     
@@ -98,7 +97,7 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
             try {
                 jsonString = getResponseData(requestUrl);
                 JsonObject responseData = new JsonObject(jsonString).getJsonObject("d");
-                TOTAL_REQUEST_COUNT.incrementAndGet();
+//                TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 long currentTotal = responseData.queryLong("results[0]/" + getSourceType() + "Total");
                 if (totalResults == null) {
@@ -253,13 +252,13 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
         return result;
     }
 
-    /**
-     * Gets the number of HTTP requests sent to Bing.
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
-    }
+//    /**
+//     * Gets the number of HTTP requests sent to Bing.
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.get();
+//    }
 
 }

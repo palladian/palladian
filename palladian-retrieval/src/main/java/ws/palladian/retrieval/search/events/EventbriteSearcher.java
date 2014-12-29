@@ -1,8 +1,8 @@
 package ws.palladian.retrieval.search.events;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,14 +33,23 @@ import ws.palladian.retrieval.search.SearcherException;
  */
 public class EventbriteSearcher extends EventSearcher {
 
-    /**
-     * Identifier for the API key when supplied via {@link Configuration}.
-     */
+    /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.eventbrite.key";
 
     private final String apiKey;
 
-    private Map<EventType, Set<String>> eventTypeMapping;
+    private static final Map<EventType, Set<String>> EVENT_TYPE_MAPPING = createMapping();
+
+    private static Map<EventType, Set<String>> createMapping() {
+        Map<EventType, Set<String>> mapping = new HashMap<>();
+        mapping.put(EventType.CONCERT, CollectionHelper.newHashSet("music"));
+        mapping.put(EventType.SPORT, CollectionHelper.newHashSet("sports"));
+        mapping.put(EventType.THEATRE, CollectionHelper.newHashSet("performances"));
+        mapping.put(EventType.EXHIBITION, CollectionHelper.newHashSet("conventions", "tradeshows"));
+        mapping.put(EventType.FESTIVAL, CollectionHelper.newHashSet("food"));
+        mapping.put(EventType.CONFERENCE, CollectionHelper.newHashSet("conferences", "seminars", "fairs"));
+        return mapping;
+    }
 
     /**
      * <p>
@@ -52,7 +61,6 @@ public class EventbriteSearcher extends EventSearcher {
     public EventbriteSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
-        setup();
     }
 
     /**
@@ -68,21 +76,10 @@ public class EventbriteSearcher extends EventSearcher {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
-    private void setup() {
-        eventTypeMapping = CollectionHelper.newHashMap();
-        eventTypeMapping.put(EventType.CONCERT, new HashSet<String>(Arrays.asList("music")));
-        eventTypeMapping.put(EventType.SPORT, new HashSet<String>(Arrays.asList("sports")));
-        eventTypeMapping.put(EventType.THEATRE, new HashSet<String>(Arrays.asList("performances")));
-        eventTypeMapping.put(EventType.EXHIBITION, new HashSet<String>(Arrays.asList("conventions", "tradeshows")));
-        eventTypeMapping.put(EventType.FESTIVAL, new HashSet<String>(Arrays.asList("food")));
-        eventTypeMapping.put(EventType.CONFERENCE,
-                new HashSet<String>(Arrays.asList("conferences", "seminars", "fairs")));
-    }
-
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType, int maxResults) throws SearcherException {
-        List<Event> events = CollectionHelper.newArrayList();
+        List<Event> events = new ArrayList<>();
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
 
@@ -158,7 +155,7 @@ public class EventbriteSearcher extends EventSearcher {
         }
 
         if (eventType != null) {
-            Set<String> categoryIds = eventTypeMapping.get(eventType);
+            Set<String> categoryIds = EVENT_TYPE_MAPPING.get(eventType);
             if (categoryIds != null) {
                 url += "&category=" + StringUtils.join(categoryIds, ",");
             }

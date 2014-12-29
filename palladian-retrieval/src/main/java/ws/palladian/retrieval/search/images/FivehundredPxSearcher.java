@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.search.images;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -127,7 +128,7 @@ public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebI
         int numPages = (int)Math.ceil((double)query.getResultCount() / MAX_RESULTS_PER_PAGE);
         LOGGER.debug("# necessary request for {} : {}", query.getResultCount(), numPages);
         Long totalItems = null;
-        List<WebImage> images = CollectionHelper.newArrayList();
+        List<WebImage> images = new ArrayList<>();
         for (int page = 1; page <= numPages; page++) {
             String requestUrl = createRequestUrl(query, page, MAX_RESULTS_PER_PAGE);
             LOGGER.debug("Request URL = {}", requestUrl);

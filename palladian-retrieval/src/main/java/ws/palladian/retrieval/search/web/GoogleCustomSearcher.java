@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -8,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -94,7 +94,7 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebContent> results = CollectionHelper.newArrayList();
+        List<WebContent> results = new ArrayList<>();
 
         // Google Custom Search gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
         double numChunks = Math.min(10, Math.ceil((double)resultCount / 10));
@@ -150,7 +150,7 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
 
     /** default visibility for unit testing. */
     static List<WebContent> parse(String jsonString) throws JsonException {
-        List<WebContent> result = CollectionHelper.newArrayList();
+        List<WebContent> result = new ArrayList<>();
         JsonObject jsonObject = new JsonObject(jsonString);
         JsonArray jsonItems = jsonObject.getJsonArray("items");
         for (int i = 0; i < jsonItems.size(); i++) {

@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search.socialmedia;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -80,7 +81,7 @@ public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebContent> results = CollectionHelper.newArrayList();
+        List<WebContent> results = new ArrayList<>();
 
         String nextPageToken = null;
 

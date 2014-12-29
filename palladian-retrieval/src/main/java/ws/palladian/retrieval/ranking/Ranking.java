@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
 
 /**
@@ -25,11 +24,12 @@ public class Ranking {
         private final RankingService service;
         private final String url;
         private final Map<RankingType, Number> values;
+        private Date retrieved = new Date();
 
         public Builder(RankingService service, String url) {
             this.service = service;
             this.url = url;
-            this.values = CollectionHelper.newHashMap();
+            this.values = new HashMap<>();
         }
 
         public Builder add(RankingType type, Number value) {
@@ -44,10 +44,15 @@ public class Ranking {
             }
             return this;
         }
+        
+        public Builder setRetrieved(Date retrieved) {
+            this.retrieved = retrieved;
+            return this;
+        }
 
         @Override
         public Ranking create() {
-            return new Ranking(service, url, values);
+            return new Ranking(this);
         }
 
         @Override
@@ -69,38 +74,12 @@ public class Ranking {
     /** The time when the ranking was retrieved */
     private final Date retrieved;
 
-    /**
-     * <p>
-     * Create a new instance with the retrieved value set to now.
-     * </p>
-     *
-     * @param service
-     * @param url
-     * @param values a Map of all ranking values associated with this ranking and their corresponding ranking type
-     * @deprecated Use the {@link Builder}.
-     */
-    @Deprecated
-    public Ranking(RankingService service, String url, Map<RankingType, ? extends Number> values) {
-        this(service, url, values, new Date());
-    }
-
-    /**
-     * <p>
-     * Create a new, fully initialized instance.
-     * </p>
-     *
-     * @param service
-     * @param url
-     * @param values a Map of all ranking values associated with this ranking and their corresponding ranking type
-     * @param retrieved
-     * @deprecated Use the {@link Builder}.
-     */
-    @Deprecated
-    public Ranking(RankingService service, String url, Map<RankingType, ? extends Number> values, Date retrieved) {
-        this.service = service;
-        this.values = new HashMap<RankingType, Number>(values);
-        this.url = url;
-        this.retrieved = retrieved;
+    /** Constructor for {@link Builder}. */
+    private Ranking(Builder builder) {
+        this.service = builder.service;
+        this.values = new HashMap<RankingType, Number>(builder.values);
+        this.url = builder.url;
+        this.retrieved = builder.retrieved;
     }
 
     public RankingService getService() {

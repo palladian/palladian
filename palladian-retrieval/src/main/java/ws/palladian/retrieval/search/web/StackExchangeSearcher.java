@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebC
                     + queryUrl + "\"");
         }
         try {
-            List<WebContent> resultList = CollectionHelper.newArrayList();
+            List<WebContent> resultList = new ArrayList<>();
             JsonObject resultJson = new JsonObject(httpResult.getStringContent());
             JsonArray jsonItems = resultJson.getJsonArray("items");
             for (int i = 0; i < jsonItems.size(); i++) {

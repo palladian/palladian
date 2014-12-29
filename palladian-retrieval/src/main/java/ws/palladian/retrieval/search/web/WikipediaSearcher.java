@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search.web;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebContent> results = CollectionHelper.newArrayList();
+        List<WebContent> results = new ArrayList<>();
         String baseUrl = getBaseUrl(language);
 
         // fetch in chunks of 50 items, this is maximum size

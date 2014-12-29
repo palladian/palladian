@@ -2,7 +2,6 @@ package ws.palladian.retrieval.search.web;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 
@@ -40,7 +39,7 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.blekko.key";
 
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /** The time in milliseconds we wait between two requests. */
     private static final int THROTTLING_INTERVAL_MS = 1000;
@@ -102,7 +101,7 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
                 String requestUrl = getRequestUrl(query, pageSize, i);
                 THROTTLE.hold();
                 HttpResult httpResult = retriever.httpGet(requestUrl);
-                TOTAL_REQUEST_COUNT.incrementAndGet();
+//                TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 jsonString = httpResult.getStringContent();
                 JsonObject jsonObject = new JsonObject(jsonString);
@@ -171,7 +170,7 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
         String jsonString = null;
         try {
             httpResult = retriever.httpGet(requestUrl);
-            TOTAL_REQUEST_COUNT.incrementAndGet();
+//            TOTAL_REQUEST_COUNT.incrementAndGet();
 
             jsonString = httpResult.getStringContent();
             JsonObject jsonObject = new JsonObject(jsonString);
@@ -200,16 +199,16 @@ public final class BlekkoSearcher extends AbstractSearcher<WebContent> {
         return totalResults;
     }
 
-    /**
-     * <p>
-     * Gets the number of HTTP requests sent to blekko.
-     * </p>
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.intValue();
-    }
+//    /**
+//     * <p>
+//     * Gets the number of HTTP requests sent to blekko.
+//     * </p>
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.intValue();
+//    }
 
     public static void main(String[] args) throws SearcherException {
         // CollectionHelper.print(new BlekkoSearcher(ConfigHolder.getInstance().getConfig()).search("cinefreaks", 10));
