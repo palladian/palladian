@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.videos;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -145,13 +145,13 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
 
     @Override
     public SearchResults<WebVideo> search(MultifacetQuery query) throws SearcherException {
-        List<WebVideo> webResults = CollectionHelper.newArrayList();
+        List<WebVideo> webResults = new ArrayList<>();
         Long numResults = null;
         String url = null;
         String jsonString = null;
         int numRequests = 0;
         try {
-            List<String> videoIds = CollectionHelper.newArrayList();
+            List<String> videoIds = new ArrayList<>();
             String nextPageToken = null;
             // retrieve the video IDs matching the search
             while (videoIds.size() < query.getResultCount()) {

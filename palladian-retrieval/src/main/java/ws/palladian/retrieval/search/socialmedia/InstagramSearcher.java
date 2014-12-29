@@ -1,10 +1,12 @@
 package ws.palladian.retrieval.search.socialmedia;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -144,7 +146,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
     }
 
     private List<WebImage> fetchResult(int resultCount, String queryUrl) throws SearcherException {
-        List<WebImage> result = CollectionHelper.newArrayList();
+        List<WebImage> result = new ArrayList<>();
         page: for (;;) {
             HttpResult httpResult = performGet(queryUrl);
             String jsonString = httpResult.getStringContent();
@@ -239,7 +241,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         }
         if (data.get("tags") != null) {
             JsonArray tagArray = data.getJsonArray("tags");
-            Set<String> tagSet = CollectionHelper.newHashSet();
+            Set<String> tagSet = new HashSet<>();
             for (int j = 0; j < tagArray.size(); j++) {
                 tagSet.add(tagArray.getString(j));
             }
@@ -327,7 +329,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
             Facet deepFacet = query.getFacet(DeepCoordinateRetrieval.INSTAGRAM_DEEP_COORDINATE_RETRIEVAL_ID);
             if (deepFacet != null) {
                 List<LocationId> locationIds = getIdsForCoordinate(coordinate, radius);
-                results = CollectionHelper.newArrayList();
+                results = new ArrayList<>();
                 for (LocationId locationId : locationIds) {
                     MultifacetQuery.Builder locationIdQueryBuilder = new MultifacetQuery.Builder();
                     locationIdQueryBuilder.addFacet(locationId);
@@ -406,7 +408,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * (deprecated)
      */
     private static String getTag(MultifacetQuery query) {
-        Collection<String> allTags = CollectionHelper.newArrayList();
+        Collection<String> allTags = new ArrayList<>();
         if (query.getTags().size() > 0) {
             allTags = query.getTags();
         } else if (query.getText() != null) {
@@ -437,7 +439,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
     private List<LocationId> getIdsForCoordinate(GeoCoordinate coordinate, int distance) throws SearcherException {
         Validate.notNull(coordinate, "coordinate must not be null");
         Validate.isTrue(distance >= 0, "distance must be greater/equal zero");
-        List<LocationId> locationIds = CollectionHelper.newArrayList();
+        List<LocationId> locationIds = new ArrayList<>();
         String coordinateToLocationsQueryUrl = String.format(
                 "https://api.instagram.com/v1/locations/search?lat=%s&lng=%s&distance=%s&access_token=%s",
                 coordinate.getLatitude(), coordinate.getLongitude(), distance, accessToken);

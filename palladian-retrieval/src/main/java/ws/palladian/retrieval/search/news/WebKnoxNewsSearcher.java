@@ -9,7 +9,7 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
+import ws.palladian.retrieval.search.AbstractWebKnoxSearcher;
 
 /**
  * <p>
@@ -21,7 +21,7 @@ import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
  * @see http://webknox.com/api#!/news/search_GET
  * @author David Urbansky
  */
-public final class WebKnoxNewsSearcher extends BaseWebKnoxSearcher {
+public final class WebKnoxNewsSearcher extends AbstractWebKnoxSearcher {
 
     /** If true, only news are returned, that contain the search term exactly as given in their titles. */
     private final boolean onlyExactMatchesInTitle;
@@ -31,7 +31,7 @@ public final class WebKnoxNewsSearcher extends BaseWebKnoxSearcher {
      * @param onlyExactMatchesInTitle If true, only news are returned, that contain the search term exactly as given in
      *            their titles.
      * 
-     * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(String)
+     * @see AbstractWebKnoxSearcher#BaseWebKnoxSearcher(String)
      */
     public WebKnoxNewsSearcher(String apiKey, boolean onlyExactMatchesInTitle) {
         super(apiKey);
@@ -40,10 +40,10 @@ public final class WebKnoxNewsSearcher extends BaseWebKnoxSearcher {
 
     /**
      * @param configuration A {@link Configuration} instance providing the required API key as
-     *            {@value BaseWebKnoxSearcher#CONFIG_API_KEY}, not <code>null</code>.
+     *            {@value AbstractWebKnoxSearcher#CONFIG_API_KEY}, not <code>null</code>.
      * @param onlyExactMatchesInTitle If true, only news are returned, that contain the search term exactly as given in
      *            their titles.
-     * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(Configuration)
+     * @see AbstractWebKnoxSearcher#BaseWebKnoxSearcher(Configuration)
      */
     public WebKnoxNewsSearcher(Configuration configuration, boolean onlyExactMatchesInTitle) {
         super(configuration);
@@ -67,7 +67,7 @@ public final class WebKnoxNewsSearcher extends BaseWebKnoxSearcher {
      * </p>
      * 
      * @param configuration A {@link Configuration} instance providing the required API key as
-     *            {@value BaseWebKnoxSearcher#CONFIG_API_KEY}, not <code>null</code>.
+     *            {@value AbstractWebKnoxSearcher#CONFIG_API_KEY}, not <code>null</code>.
      */
     public WebKnoxNewsSearcher(Configuration configuration) {
         this(configuration, false);

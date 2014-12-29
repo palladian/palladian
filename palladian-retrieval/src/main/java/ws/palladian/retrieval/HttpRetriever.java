@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -64,7 +65,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.HttpHelper;
@@ -172,7 +172,7 @@ public class HttpRetriever {
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
     /** Any of these status codes will cause a removal of the used proxy. */
-    private Set<Integer> proxyRemoveStatusCodes = CollectionHelper.newHashSet();
+    private Set<Integer> proxyRemoveStatusCodes = new HashSet<>();
 
     /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
     private ProxyRemoverCallback proxyRemoveCallback = null;
@@ -390,7 +390,7 @@ public class HttpRetriever {
                 if(request.getHttpEntity() != null){
                     entity = request.getHttpEntity();
                 }else{
-                    List<NameValuePair> postParams = CollectionHelper.newArrayList();
+                    List<NameValuePair> postParams = new ArrayList<>();
                     for (Entry<String, String> param : request.getParameters().entrySet()) {
                         postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                     }

@@ -1,8 +1,8 @@
 package ws.palladian.retrieval.search.events;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +47,20 @@ public class EventfulSearcher extends EventSearcher {
 
     private final String apiKey;
 
-    private Map<EventType, Set<String>> eventTypeMapping;
+    private static final Map<EventType, Set<String>> EVENT_TYPE_MAPPING = createMapping();
+
+    private static final Map<EventType, Set<String>> createMapping() {
+        Map<EventType, Set<String>> map = new HashMap<>();
+        map.put(EventType.CONCERT, CollectionHelper.newHashSet("music"));
+        map.put(EventType.COMEDY, CollectionHelper.newHashSet("movies_film", "performing_arts"));
+        map.put(EventType.SPORT, CollectionHelper.newHashSet("sports"));
+        map.put(EventType.THEATRE, CollectionHelper.newHashSet("performing_arts"));
+        map.put(EventType.MOVIE, CollectionHelper.newHashSet("movies_film"));
+        map.put(EventType.EXHIBITION, CollectionHelper.newHashSet("art"));
+        map.put(EventType.FESTIVAL, CollectionHelper.newHashSet("festivals_parades", "food"));
+        map.put(EventType.CONFERENCE, CollectionHelper.newHashSet("conference"));
+        return map;
+    }
 
     /**
      * <p>
@@ -59,7 +72,6 @@ public class EventfulSearcher extends EventSearcher {
     public EventfulSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
-        setup();
     }
 
     /**
@@ -75,23 +87,11 @@ public class EventfulSearcher extends EventSearcher {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
-    private void setup() {
-        eventTypeMapping = CollectionHelper.newHashMap();
-        eventTypeMapping.put(EventType.CONCERT, new HashSet<String>(Arrays.asList("music")));
-        eventTypeMapping.put(EventType.COMEDY, new HashSet<String>(Arrays.asList("movies_film", "performing_arts")));
-        eventTypeMapping.put(EventType.SPORT, new HashSet<String>(Arrays.asList("sports")));
-        eventTypeMapping.put(EventType.THEATRE, new HashSet<String>(Arrays.asList("performing_arts")));
-        eventTypeMapping.put(EventType.MOVIE, new HashSet<String>(Arrays.asList("movies_film")));
-        eventTypeMapping.put(EventType.EXHIBITION, new HashSet<String>(Arrays.asList("art")));
-        eventTypeMapping.put(EventType.FESTIVAL, new HashSet<String>(Arrays.asList("festivals_parades", "food")));
-        eventTypeMapping.put(EventType.CONFERENCE, new HashSet<String>(Arrays.asList("conference")));
-    }
-
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType, int maxResults) throws SearcherException {
 
-        List<Event> events = CollectionHelper.newArrayList();
+        List<Event> events = new ArrayList<>();
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
         requestUrl += "&page_number=PAGE_NUMBER";
@@ -203,7 +203,7 @@ public class EventfulSearcher extends EventSearcher {
             }
         }
         if (eventType != null) {
-            Set<String> categoryIds = eventTypeMapping.get(eventType);
+            Set<String> categoryIds = EVENT_TYPE_MAPPING.get(eventType);
             if (categoryIds != null) {
                 url += "&category=" + StringUtils.join(categoryIds, ",");
             }

@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.socialmedia;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -166,7 +167,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
         try {
             JsonObject jsonResult = new JsonObject(result.getStringContent());
             LOGGER.trace("JSON result: {}", result.getStringContent());
-            List<WebContent> results = CollectionHelper.newArrayList();
+            List<WebContent> results = new ArrayList<>();
             JsonArray jsonBusinesses = jsonResult.getJsonArray("businesses");
             for (Object jsonEntry : jsonBusinesses) {
                 JsonObject jsonObject = (JsonObject)jsonEntry;

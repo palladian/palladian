@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -7,7 +8,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -26,10 +26,10 @@ import ws.palladian.retrieval.resources.WebContent;
  * @see <a href="http://webknox.com/api">WebKnox API</a>
  * @author David Urbansky
  */
-public abstract class BaseWebKnoxSearcher extends AbstractMultifacetSearcher<WebContent> {
+public abstract class AbstractWebKnoxSearcher extends AbstractMultifacetSearcher<WebContent> {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseWebKnoxSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebKnoxSearcher.class);
 
     /** The base URL endpoint of the WebKnox service. */
     protected static final String BASE_SERVICE_URL = "http://webknox.com/api/";
@@ -48,7 +48,7 @@ public abstract class BaseWebKnoxSearcher extends AbstractMultifacetSearcher<Web
      * 
      * @param apiKey The api key for accessing WebKnox.
      */
-    public BaseWebKnoxSearcher(String apiKey) {
+    public AbstractWebKnoxSearcher(String apiKey) {
         Validate.notEmpty(apiKey, "api key must not be empty");
         this.apiKey = apiKey;
         this.retriever = HttpRetrieverFactory.getHttpRetriever();
@@ -62,7 +62,7 @@ public abstract class BaseWebKnoxSearcher extends AbstractMultifacetSearcher<Web
      * @param configuration The configuration which must provide an account key for accessing WebKnox, which must be
      *            provided as string via key <tt>api.webknox.apiKey</tt> in the configuration.
      */
-    public BaseWebKnoxSearcher(Configuration configuration) {
+    public AbstractWebKnoxSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
@@ -73,7 +73,7 @@ public abstract class BaseWebKnoxSearcher extends AbstractMultifacetSearcher<Web
             throw new SearcherException("Only English langauge is supported by " + getName() + ".");
         }
 
-        List<WebContent> webResults = CollectionHelper.newArrayList();
+        List<WebContent> webResults = new ArrayList<>();
 
         try {
             String requestUrl = buildRequestUrl(query.getText(), 0, query.getResultCount());

@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.videos;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -128,7 +128,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
             throw new SearcherException("The query must specify a search string (other parameters are not supported).");
         }
 
-        List<WebVideo> webResults = CollectionHelper.newArrayList();
+        List<WebVideo> webResults = new ArrayList<>();
         int requestedResults = query.getResultCount();
         Long availableResults = null;
         for (int page = 0; page < Math.ceil((double)requestedResults / 50); page++) {
@@ -172,7 +172,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
     }
 
     public static List<WebVideo> parseVideoResult(JsonObject json) throws JsonException {
-        List<WebVideo> result = CollectionHelper.newArrayList();
+        List<WebVideo> result = new ArrayList<>();
         JsonArray jsonVideos = json.queryJsonArray("videos/video");
         for (int i = 0; i < jsonVideos.size(); i++) {
             JsonObject jsonVideo = jsonVideos.getJsonObject(i);

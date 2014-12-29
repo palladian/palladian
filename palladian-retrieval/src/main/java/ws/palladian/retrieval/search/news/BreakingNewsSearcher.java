@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search.news;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -67,7 +68,7 @@ public final class BreakingNewsSearcher extends AbstractMultifacetSearcher<WebCo
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         String jsonString = null;
         try {
-            List<WebContent> resultList = CollectionHelper.newArrayList();
+            List<WebContent> resultList = new ArrayList<>();
             outer: for (;;) {
                 HttpResult httpResult = httpRetriever.httpGet(queryUrl);
                 jsonString = httpResult.getStringContent();

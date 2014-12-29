@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -10,7 +11,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
@@ -115,7 +115,7 @@ class ImmutableMultifacetQuery implements MultifacetQuery {
     @Override
     public String toString() {
         DateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        List<String> toStringParts = CollectionHelper.newArrayList();
+        List<String> toStringParts = new ArrayList<>();
 
         if (id != null) {
             toStringParts.add(String.format("id=%s", id));

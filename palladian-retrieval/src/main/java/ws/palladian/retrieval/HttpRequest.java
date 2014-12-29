@@ -2,12 +2,11 @@ package ws.palladian.retrieval;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpEntity;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 public final class HttpRequest {
 
@@ -28,8 +27,8 @@ public final class HttpRequest {
 
         this.method = method;
         this.url = url;
-        this.headers = CollectionHelper.newHashMap();
-        this.parameters = CollectionHelper.newHashMap();
+        this.headers = new HashMap<>();
+        this.parameters = new HashMap<>();
     }
 
     public HttpRequest(HttpMethod method, String url, HttpEntity httpEntity) {
