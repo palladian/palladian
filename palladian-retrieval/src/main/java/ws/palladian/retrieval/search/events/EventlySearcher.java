@@ -50,7 +50,7 @@ public class EventlySearcher extends EventSearcher {
 
     /**
      * <p>
-     * FIXME Creates a new evently searcher.
+     * Creates a new evently searcher.
      * </p>
      * 
      * @param configuration The configuration which must provide an API key for accessing evently, which must be
