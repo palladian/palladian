@@ -39,7 +39,7 @@ public final class ProcessHelper {
             in = p.getInputStream();
             byte[] buffer = new byte[4096];
 
-            int n = 0;
+            int n;
             while ((n = in.read(buffer)) != -1) {
                 stringOutputStream.write(buffer, 0, n);
             }
