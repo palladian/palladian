@@ -1,10 +1,6 @@
 package ws.palladian.extraction.location;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ClassifyingTagger;
@@ -82,7 +78,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public static <A extends Annotation> MultiMap<A, Location> fetchLocations(LocationSource source, List<A> annotations) {
-        Set<String> valuesToRetrieve = CollectionHelper.newHashSet();
+        Set<String> valuesToRetrieve = new HashSet<>();
         for (Annotation annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             valuesToRetrieve.add(entityValue);

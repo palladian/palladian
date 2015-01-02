@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.images;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class StockXchngSearcher extends AbstractSearcher<WebImage> {
 
     @Override
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImage> results = CollectionHelper.newArrayList();
+        List<WebImage> results = new ArrayList<>();
 
         resultCount = Math.min(1000, resultCount);
 

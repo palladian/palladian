@@ -2,6 +2,7 @@ package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -13,7 +14,7 @@ public class NumericVectorTest {
     @Test
     public void testCosineSimMetric() {
 
-        Map<String, Double> temp = CollectionHelper.newHashMap();
+        Map<String, Double> temp = new HashMap<>();
         temp.put("cow", 3.);
         temp.put("pig", 2.);
         temp.put("dog", 0.);
@@ -26,7 +27,7 @@ public class NumericVectorTest {
         temp.put("car", 0.);
         NumericVector<String> vector1 = new ImmutableNumericVector<String>(temp);
 
-        temp = CollectionHelper.newHashMap();
+        temp = new HashMap<>();
         temp.put("cow", 1.);
         temp.put("pig", 2.);
         temp.put("dog", 0.);
@@ -39,7 +40,7 @@ public class NumericVectorTest {
         temp.put("car", 2.);
         NumericVector<String> vector2 = new ImmutableNumericVector<String>(temp);
 
-        temp = CollectionHelper.newHashMap();
+        temp = new HashMap<>();
         NumericVector<String> vector3 = new ImmutableNumericVector<String>(temp);
 
         assertEquals(12, vector1.sum(), 0.01);

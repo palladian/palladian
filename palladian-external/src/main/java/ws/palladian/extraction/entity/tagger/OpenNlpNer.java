@@ -10,11 +10,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
@@ -116,7 +113,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
         List<File> modelFiles = FileHelper.getFiles(new File(configModelFilePath), fileExtension(".bin"), NONE);
         Validate.isTrue(modelFiles.size() > 0, "Model file path must at least provide one .bin model.");
 
-        this.nameFinderModels = CollectionHelper.newArrayList();
+        this.nameFinderModels = new ArrayList<>();
         for (File modelFile : modelFiles) {
             LOGGER.info("Loading {}", modelFile);
             try {
@@ -212,7 +209,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
         for (final String type : types) {
             LOGGER.debug("Training {}", type);
             List<Annotation> currentAnnotations = filterList(annotations, AnnotationFilters.tag(type));
-            List<NameSample> nameSamples = CollectionHelper.newArrayList();
+            List<NameSample> nameSamples = new ArrayList<>();
             Span[] sentences = sentenceDetector.sentPosDetect(text);
             for (Span sentence : sentences) {
                 String sentenceString = sentence.getCoveredText(text).toString();
@@ -256,7 +253,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
      * @return An array of spans representing the annotated and tagged entities.
      */
     private static Span[] getSpans(int sentenceOffset, List<Annotation> annotations, Span[] tokenSpans) {
-        List<Span> spans = CollectionHelper.newArrayList();
+        List<Span> spans = new ArrayList<>();
         for (int idx = 0; idx < annotations.size(); idx++) {
             Annotation annotation = annotations.get(idx);
             int start = -1;

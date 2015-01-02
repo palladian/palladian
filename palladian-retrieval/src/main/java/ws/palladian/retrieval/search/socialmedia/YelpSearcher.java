@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.search.socialmedia;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +64,8 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
 
         public CategoryFilter(String... categories) {
             Validate.notNull(categories, "categories must not be null");
-            this.categories = CollectionHelper.newHashSet(categories);
+            this.categories = new HashSet<>();
+            this.categories.addAll(Arrays.asList(categories));
         }
 
         @Override
@@ -166,7 +166,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
         try {
             JsonObject jsonResult = new JsonObject(result.getStringContent());
             LOGGER.trace("JSON result: {}", result.getStringContent());
-            List<WebContent> results = CollectionHelper.newArrayList();
+            List<WebContent> results = new ArrayList<>();
             JsonArray jsonBusinesses = jsonResult.getJsonArray("businesses");
             for (Object jsonEntry : jsonBusinesses) {
                 JsonObject jsonObject = (JsonObject)jsonEntry;

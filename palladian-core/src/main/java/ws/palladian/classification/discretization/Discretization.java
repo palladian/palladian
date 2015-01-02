@@ -1,8 +1,6 @@
 package ws.palladian.classification.discretization;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -25,7 +23,7 @@ public final class Discretization {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Discretization.class);
 
-    private final Map<String, Binner> binners = CollectionHelper.newHashMap();
+    private final Map<String, Binner> binners = new HashMap<>();
 
     public Discretization(Iterable<? extends Instance> dataset) {
         this(dataset, NoProgress.INSTANCE);
@@ -53,7 +51,7 @@ public final class Discretization {
      */
     @Deprecated
     private static Set<String> getNumericFeatureNames(Iterable<? extends Instance> dataset) {
-        Set<String> numericFeatureNames = CollectionHelper.newHashSet();
+        Set<String> numericFeatureNames = new HashSet<>();
         for (Instance instance : dataset) {
             FeatureVector featureVector = instance.getVector();
             for (VectorEntry<String, Value> vectorEntry : featureVector) {

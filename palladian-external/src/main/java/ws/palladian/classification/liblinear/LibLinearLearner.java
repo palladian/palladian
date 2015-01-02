@@ -1,6 +1,7 @@
 package ws.palladian.classification.liblinear;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -105,8 +106,8 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
         Normalization normalization = normalizer.calculate(featureVectors);
         DummyVariableCreator dummyCoder = new DummyVariableCreator(featureVectors);
         Problem problem = new Problem();
-        List<String> featureLabels = CollectionHelper.newArrayList();
-        List<String> classIndices = CollectionHelper.newArrayList();
+        List<String> featureLabels = new ArrayList<>();
+        List<String> classIndices = new ArrayList<>();
         for (Instance instance : instances) {
             problem.l++;
             FeatureVector featureVector = dummyCoder.convert(instance.getVector());
@@ -146,7 +147,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
     }
 
     static de.bwaldvogel.liblinear.Feature[] makeInstance(List<String> labels, FeatureVector featureVector, double bias) {
-        List<de.bwaldvogel.liblinear.Feature> features = CollectionHelper.newArrayList();
+        List<de.bwaldvogel.liblinear.Feature> features = new ArrayList<>();
         int index = 0; // 1-indexed
         for (String label : labels) {
             index++;

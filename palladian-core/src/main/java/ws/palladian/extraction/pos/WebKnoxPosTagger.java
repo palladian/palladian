@@ -1,5 +1,6 @@
 package ws.palladian.extraction.pos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -72,7 +73,7 @@ public class WebKnoxPosTagger extends AbstractPosTagger {
         }
 
         String[] words = taggedText.split("\\s");
-        List<String> tags = CollectionHelper.newArrayList();
+        List<String> tags = new ArrayList<>();
         for (String word : words) {
             String[] parts = word.split("/");
             String tag = parts[1].toUpperCase();

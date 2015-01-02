@@ -1,9 +1,6 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 
@@ -74,11 +71,11 @@ public interface FeatureExtractorSetting {
         int equalDistance = DEFAULT_EQUAL_DISTANCE;
         int[] distanceValues;
         int[] populationValues;
-        List<ScopeDetector> scopeDetectors = CollectionHelper.newArrayList();
-        List<Searcher<? extends WebContent>> indexSearchers = CollectionHelper.newArrayList();
+        List<ScopeDetector> scopeDetectors = new ArrayList<>();
+        List<Searcher<?>> indexSearchers = CollectionHelper.newArrayList();
         String[] locationMarkers = new String[0];
         boolean debug = false;
-        HashSet<String> entityCategories = CollectionHelper.newHashSet();
+        HashSet<String> entityCategories = new HashSet<>();
 
         public Builder setEqualDistance(int equalDistance) {
             this.equalDistance = equalDistance;
@@ -125,11 +122,11 @@ public interface FeatureExtractorSetting {
             this.equalDistance = setting.getEqualDistance();
             this.distanceValues = Arrays.copyOf(setting.getDistanceValues(), setting.getDistanceValues().length);
             this.populationValues = Arrays.copyOf(setting.getPopulationValues(), setting.getPopulationValues().length);
-            this.scopeDetectors = CollectionHelper.newArrayList(setting.getScopeDetectors());
-            this.indexSearchers = CollectionHelper.newArrayList(setting.getIndexSearchers());
+            this.scopeDetectors = setting.getScopeDetectors();
+            this.indexSearchers = setting.getIndexSearchers();
             this.locationMarkers = Arrays.copyOf(setting.getLocationMarkers(), setting.getLocationMarkers().length);
             this.debug = setting.isDebug();
-            this.entityCategories = CollectionHelper.newHashSet(setting.getEntityCategories());
+            this.entityCategories = new HashSet<>(setting.getEntityCategories());
             return this;
         }
 

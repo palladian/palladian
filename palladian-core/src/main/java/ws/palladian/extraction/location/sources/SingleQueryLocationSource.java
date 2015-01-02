@@ -1,9 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -35,7 +32,7 @@ public abstract class SingleQueryLocationSource implements LocationSource {
 
     @Override
     public final List<Location> getLocations(List<Integer> locationIds) {
-        List<Location> locations = CollectionHelper.newArrayList();
+        List<Location> locations = new ArrayList<>();
         for (Integer locationId : locationIds) {
             Location location = getLocation(locationId);
             if (location != null) {

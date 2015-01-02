@@ -29,7 +29,7 @@ public class Ranking {
         public Builder(RankingService service, String url) {
             this.service = service;
             this.url = url;
-            this.values = CollectionHelper.newHashMap();
+            this.values = new HashMap<>();
         }
 
         public Builder add(RankingType type, Number value) {

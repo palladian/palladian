@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.socialmedia;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -108,7 +109,7 @@ public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebC
         try {
             JsonObject jsonResult = new JsonObject(httpResult.getStringContent());
             long count = jsonResult.getLong("count");
-            List<WebContent> results = CollectionHelper.newArrayList();
+            List<WebContent> results = new ArrayList<>();
             JsonArray jsonItems = jsonResult.getJsonArray("items");
             for (int i = 0; i < Math.min(jsonItems.size(), query.getResultCount()); i++) {
                 BasicWebContent.Builder builder = new BasicWebContent.Builder();

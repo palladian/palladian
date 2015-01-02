@@ -1,12 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -105,7 +99,7 @@ public final class BitlyClicks extends AbstractRankingService {
             return results;
         }
         // deduplicate provided URLs and create list
-        List<String> urlList = CollectionHelper.newArrayList(CollectionHelper.newHashSet(urls));
+        List<String> urlList = new ArrayList<>(new HashSet<>(urls));
         // iterate through urls in batches of 15, since this is the maximum number we can send to bit.ly at once
         int numRequests = (int)Math.ceil(urlList.size() / (float)BATCH_SIZE);
         for (int r = 0; r < numRequests; r++) {
@@ -148,7 +142,7 @@ public final class BitlyClicks extends AbstractRankingService {
         for (String hash : bitlyHashes) {
             hashes.append("&hash=" + hash);
         }
-        Map<String, Integer> clicks = CollectionHelper.newHashMap();
+        Map<String, Integer> clicks = new HashMap<>();
         if (hashes.length() > 0) {
             String url = "http://api.bit.ly/v3/clicks?login=" + login + "&apiKey=" + apiKey + "&mode=batch"
                     + hashes.toString();

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -82,7 +83,7 @@ public final class ClassFinder {
         Validate.notNull(type, "type must not be null");
         Validate.notNull(namespaceFilter, "namespaceFilter must not be null");
 
-        final Collection<Class<? extends T>> result = CollectionHelper.newHashSet();
+        final Collection<Class<? extends T>> result = new HashSet<>();
         final ConcreteClassFilter classFilter = new ConcreteClassFilter(type);
 
         LOGGER.debug("Classpath = {}", CLASSPATH);

@@ -1,11 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -81,7 +76,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     @Override
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
-        Set<String> needsLookup = CollectionHelper.newHashSet();
+        Set<String> needsLookup = new HashSet<>();
         requests++;
 
         for (String locationName : locationNames) {
@@ -126,8 +121,8 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
 
     @Override
     public List<Location> getLocations(List<Integer> locationIds) {
-        Map<Integer, Location> tempResult = CollectionHelper.newHashMap();
-        Set<Integer> needsLookup = CollectionHelper.newHashSet();
+        Map<Integer, Location> tempResult = new HashMap<>();
+        Set<Integer> needsLookup = new HashSet<>();
         requests++;
 
         for (Integer locationId : locationIds) {
@@ -150,7 +145,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
             }
         }
 
-        List<Location> result = CollectionHelper.newArrayList();
+        List<Location> result = new ArrayList<>();
         for (Integer locationId : locationIds) {
             result.add(tempResult.get(locationId));
         }

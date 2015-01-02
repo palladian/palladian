@@ -1,6 +1,7 @@
 package ws.palladian.classification.text;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -222,7 +223,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         final int numDocs = model.getNumDocuments();
         final int numTerms = model.getNumTerms();
         final boolean scoreNonMatches = scorer.scoreNonMatches();
-        final Set<String> matchedCategories = CollectionHelper.newHashSet();
+        final Set<String> matchedCategories = new HashSet<>();
 
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();

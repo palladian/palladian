@@ -6,11 +6,7 @@ import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
 import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -100,7 +96,7 @@ public final class FeatureSettingOptimizer {
 
         @Override
         public Set<FeatureSetting> create() {
-            Set<FeatureSetting> settings = CollectionHelper.newLinkedHashSet();
+            Set<FeatureSetting> settings = new LinkedHashSet<>();
             if (minCharLength > 0) {
                 for (int min = minCharLength; min <= maxCharLength; min++) {
                     for (int max = min; max <= maxCharLength; max++) {
@@ -208,7 +204,7 @@ public final class FeatureSettingOptimizer {
         System.exit(0);
         // String datasetFile = "/Users/pk/Desktop/amplicateDataset20k_random10000.txt";
         // TextDatasetIterator iterator = new TextDatasetIterator(datasetFile, "<###>", false);
-        // List<Instance> temp = CollectionHelper.newArrayList(iterator);
+        // List<Instance> temp = new ArrayList<>(iterator);
         // List<Instance> training = temp.subList(0, temp.size() / 2);
         // List<Instance> validation = temp.subList(temp.size() / 2 + 1, temp.size());
         
@@ -228,7 +224,7 @@ public final class FeatureSettingOptimizer {
         training = CollectionHelper.newArrayList(training);
         validation = CollectionHelper.newArrayList(validation);
         
-        List<Scorer> scorers = CollectionHelper.newArrayList();
+        List<Scorer> scorers = new ArrayList<>();
         scorers.add(new PalladianTextClassifier.DefaultScorer());
         scorers.add(new BayesScorer(new Options[0]));
         scorers.add(new BayesScorer(LAPLACE));

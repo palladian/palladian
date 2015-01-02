@@ -1,9 +1,6 @@
 package ws.palladian.classification.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +26,9 @@ public final class ZScoreNormalizer extends AbstractStatsNormalizer {
 
         private static final long serialVersionUID = 1L;
 
-        private final Map<String, Double> standardDeviations = CollectionHelper.newHashMap();
+        private final Map<String, Double> standardDeviations = new HashMap<>();
 
-        private final Map<String, Double> means = CollectionHelper.newHashMap();
+        private final Map<String, Double> means = new HashMap<>();
 
         ZScoreNormalization(Map<String, Stats> statsMap) {
             for (String featureName : statsMap.keySet()) {

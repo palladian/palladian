@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class DiscretizationTest {
 
     @Test
     public void testBinner_idealizedData() {
-        Collection<Instance> dataset = CollectionHelper.newArrayList();
+        Collection<Instance> dataset = new ArrayList<>();
         dataset.add(new InstanceBuilder().set("f", 1).create("A"));
         dataset.add(new InstanceBuilder().set("f", 2).create("A"));
         dataset.add(new InstanceBuilder().set("f", 3).create("A"));

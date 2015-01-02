@@ -1,6 +1,7 @@
 package ws.palladian.retrieval;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public class PhotoXpressSearcher extends AbstractSearcher<WebImage> {
 
         String request = buildRequest(query);
 
-        Map<String, String> content = CollectionHelper.newHashMap();
+        Map<String, String> content = new HashMap<>();
         System.out.println(request);
         content.put("content", request);
         HttpResult httpPost;

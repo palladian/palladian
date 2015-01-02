@@ -12,6 +12,9 @@ import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 public class InstanceBuilderTest {
 
     private FeatureVector featureVector;
@@ -32,7 +35,7 @@ public class InstanceBuilderTest {
 
     @Test
     public void testKeys() {
-        assertEquals(CollectionHelper.newHashSet("testFeature1", "testFeature2", "testFeature3"), featureVector.keys());
+        assertEquals(new HashSet<>(Arrays.asList("testFeature1", "testFeature2", "testFeature3")), featureVector.keys());
     }
 
     @Test

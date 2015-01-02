@@ -1,10 +1,7 @@
 package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.core.FeatureVector;
@@ -53,7 +50,7 @@ public final class KnnModel implements Model {
 
     private List<TrainingExample> initTrainingInstances(Iterable<? extends Instance> instances,
             Normalization normalization) {
-        List<TrainingExample> ret = CollectionHelper.newArrayList();
+        List<TrainingExample> ret = new ArrayList<>();
         for (Instance instance : instances) {
             FeatureVector normalizedFeatureVector = normalization.normalize(instance.getVector());
             ret.add(new TrainingExample(normalizedFeatureVector, instance.getCategory()));
@@ -81,7 +78,7 @@ public final class KnnModel implements Model {
 
     @Override
     public Set<String> getCategories() {
-        Set<String> categories = CollectionHelper.newHashSet();
+        Set<String> categories = new HashSet<>();
         for (TrainingExample example : trainingExamples) {
             categories.add(example.category);
         }

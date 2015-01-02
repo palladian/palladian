@@ -4,11 +4,7 @@ import static java.lang.Math.pow;
 import static ws.palladian.helper.math.MathHelper.log2;
 
 import java.text.NumberFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -200,7 +196,7 @@ public final class Binner implements Iterable<Binner.Interval> {
         LOGGER.debug("cut point = {} @ {}, gain = {}", currentBoundary, boundaryIdx, maxGain);
 
         // search boundaries recursive; result: find[leftSplit], currentBoundary, find[rightSplit]
-        List<Double> boundaries = CollectionHelper.newArrayList();
+        List<Double> boundaries = new ArrayList<>();
         boundaries.addAll(findBoundaries(dataset.subList(0, boundaryIdx), featureName));
         boundaries.add(currentBoundary);
         boundaries.addAll(findBoundaries(dataset.subList(boundaryIdx, n), featureName));

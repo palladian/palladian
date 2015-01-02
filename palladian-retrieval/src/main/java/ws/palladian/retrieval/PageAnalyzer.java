@@ -189,7 +189,7 @@ public final class PageAnalyzer {
                 longestXPath = string;
             }
         }
-        Set<String> toRemove = CollectionHelper.newHashSet();
+        Set<String> toRemove = new HashSet<>();
         for (String string : nsxpaths) {
             if (longestXPath.length() > string.length() && longestXPath.startsWith(string)) {
                 toRemove.add(string);

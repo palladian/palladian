@@ -1,11 +1,8 @@
 package ws.palladian.helper;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 import javax.mail.Address;
 import javax.mail.Authenticator;
@@ -147,7 +144,7 @@ public class Mailer {
      * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
      */
     public boolean sendMail(String sender, List<String> recipients, String subject, String text) {
-        Map<RecipientType, List<String>> recipientMap = CollectionHelper.newHashMap();
+        Map<RecipientType, List<String>> recipientMap = new HashMap<>();
         recipientMap.put(RecipientType.TO, recipients);
         return sendMail(sender, sender, recipientMap, subject, text, false);
     }

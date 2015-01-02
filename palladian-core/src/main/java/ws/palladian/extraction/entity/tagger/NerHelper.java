@@ -225,7 +225,7 @@ public final class NerHelper {
         Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
                 + escapedEntity + "(?=\\s)", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(text);
-        List<Integer> offsets = CollectionHelper.newArrayList();
+        List<Integer> offsets = new ArrayList<>();
         while (matcher.find()) {
             int offset = matcher.start();
             offsets.add(offset);
@@ -243,7 +243,7 @@ public final class NerHelper {
      * @return A list with cumulated left context tokens from length 1 ... n.
      */
     public static List<String> getLeftContexts(Annotation annotation, String text, int size) {
-        List<String> contexts = CollectionHelper.newArrayList();
+        List<String> contexts = new ArrayList<>();
         if (text.length() < annotation.getStartPosition()) {
             return contexts;
         }
@@ -275,7 +275,7 @@ public final class NerHelper {
      * @return A list with cumulated right context tokens from length 1 ... n.
      */
     public static List<String> getRightContexts(Annotation annotation, String text, int size) {
-        List<String> contexts = CollectionHelper.newArrayList();
+        List<String> contexts = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
         for (int idx = annotation.getEndPosition(); idx < text.length(); idx++) {
             char ch = text.charAt(idx);

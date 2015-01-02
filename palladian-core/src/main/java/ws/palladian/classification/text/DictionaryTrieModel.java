@@ -4,13 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
@@ -300,7 +294,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 return c1.getName().compareTo(c2.getName());
             }
         });
-        Map<String, Integer> categoryIndices = CollectionHelper.newHashMap();
+        Map<String, Integer> categoryIndices = new HashMap<>();
         int idx = 0;
         for (Category category : sortedCategories) {
             categoryIndices.put(category.getName(), idx++);
@@ -342,7 +336,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         if (version != VERSION) {
             throw new IOException("Unsupported version: " + version);
         }
-        Map<Integer, String> categoryIndices = CollectionHelper.newHashMap();
+        Map<Integer, String> categoryIndices = new HashMap<>();
         entryTrie = new Trie<LinkedCategoryEntries>();
         // header
         int numCategories = in.readInt();

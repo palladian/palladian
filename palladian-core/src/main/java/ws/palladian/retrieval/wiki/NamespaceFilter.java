@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.wiki;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -10,7 +11,7 @@ public final class NamespaceFilter implements Filter<WikiPageReference> {
     private final Set<Integer> acceptedNamespaces;
 
     public NamespaceFilter(int... acceptedNamespaces) {
-        this.acceptedNamespaces = CollectionHelper.newHashSet();
+        this.acceptedNamespaces = new HashSet<>();
         for (int namespace : acceptedNamespaces) {
             this.acceptedNamespaces.add(namespace);
         }

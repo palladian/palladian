@@ -1,9 +1,6 @@
 package ws.palladian.classification.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -31,10 +28,10 @@ public class MinMaxNormalizer extends AbstractStatsNormalizer {
         private static final long serialVersionUID = 7227377881428315427L;
 
         /** Hold the max value of each feature <featureIndex, maxValue> */
-        private final Map<String, Double> maxValues = CollectionHelper.newHashMap();
+        private final Map<String, Double> maxValues = new HashMap<>();
 
         /** Hold the min value of each feature <featureName, minValue> */
-        private final Map<String, Double> minValues = CollectionHelper.newHashMap();
+        private final Map<String, Double> minValues = new HashMap<>();
 
         MinMaxNormalization(Map<String, Stats> statsMap) {
             for (String featureName : statsMap.keySet()) {

@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.wiki;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +29,7 @@ public final class InfoboxTypeMapper {
     private static final Map<String, String> loadMapping(final int colIdx) {
         InputStream inputStream = null;
         try {
-            final Map<String, String> result = CollectionHelper.newHashMap();
+            final Map<String, String> result = new HashMap<>();
             inputStream = WikipediaLocationImporter.class.getResourceAsStream(MAPPING_FILE);
             int numLines = FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override

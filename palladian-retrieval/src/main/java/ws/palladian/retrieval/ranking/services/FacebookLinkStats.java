@@ -1,11 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Validate;
@@ -76,9 +71,9 @@ public final class FacebookLinkStats extends AbstractRankingService {
 
     @Override
     public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
-        Map<String, Ranking> results = CollectionHelper.newHashMap();
-        List<String> urlBatch = CollectionHelper.newArrayList();
-        for (String url : CollectionHelper.newHashSet(urls)) {
+        Map<String, Ranking> results = new HashMap<>();
+        List<String> urlBatch = new ArrayList<>();
+        for (String url : new HashSet<>(urls)) {
             urlBatch.add(url);
             if (urlBatch.size() >= BATCH_SIZE) {
                 Map<String, Ranking> batchRanking = getRanking2(urlBatch);

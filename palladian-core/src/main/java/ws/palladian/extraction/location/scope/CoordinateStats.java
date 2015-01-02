@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class CoordinateStats {
         }
     };
 
-    private final List<GeoCoordinate> coordinates = CollectionHelper.newArrayList();
+    private final List<GeoCoordinate> coordinates = new ArrayList<>();
 
     public void add(GeoCoordinate coordinate) {
         coordinates.add(coordinate);

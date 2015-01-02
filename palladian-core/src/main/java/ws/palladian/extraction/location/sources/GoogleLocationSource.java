@@ -1,10 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +34,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleLocationSource.class);
 
-    private static final Map<String, LocationType> TYPE_MAPPING = CollectionHelper.newHashMap();
+    private static final Map<String, LocationType> TYPE_MAPPING = new HashMap<>();
 
     private final HttpRetriever httpRetriever;
 
@@ -105,7 +101,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
 
     private List<Location> parseLocations(JsonObject jsonResponse) throws JsonException {
         List<Location> locations;
-        locations = CollectionHelper.newArrayList();
+        locations = new ArrayList<>();
         if (jsonResponse.get("results") != null) {
             JsonArray result = jsonResponse.getJsonArray("results");
             for (int i = 0; i < result.size(); i++) {

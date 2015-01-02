@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -19,7 +20,7 @@ public class MathHelperTest {
 
     @Test
     public void testRandomSample() {
-        Collection<Integer> numbers = CollectionHelper.newArrayList(new AbstractIterator<Integer>() {
+        AbstractIterator<Integer> abstractIterator = new AbstractIterator<Integer>() {
             int counter = 0;
 
             @Override
@@ -29,7 +30,9 @@ public class MathHelperTest {
                 }
                 return counter++;
             }
-        });
+        };
+        Collection<AbstractIterator> numbers = new ArrayList<>();
+        numbers.add(abstractIterator);
         assertEquals(5, MathHelper.sample(numbers, 5).size());
         assertEquals(1, MathHelper.sample(numbers, 1).size());
     }

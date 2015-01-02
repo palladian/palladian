@@ -1,6 +1,7 @@
 package ws.palladian.extraction.pos;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class WiktionaryPosTagger extends AbstractPosTagger {
         
         
         // int lastIndex = -1;
-        List<String> tags = CollectionHelper.newArrayList();
+        List<String> tags = new ArrayList<>();
 
         for (String token : tokens) {
 

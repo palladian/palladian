@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +47,7 @@ public abstract class AbstractLocation implements Location {
 
     @Override
     public final Set<String> collectAlternativeNames() {
-        Set<String> names = CollectionHelper.newHashSet();
+        Set<String> names = new HashSet<>();
         names.add(LocationExtractorUtils.normalizeName(this.getPrimaryName()));
         for (AlternativeName alternativeName : this.getAlternativeNames()) {
             names.add(LocationExtractorUtils.normalizeName(alternativeName.getName()));
@@ -71,7 +73,7 @@ public abstract class AbstractLocation implements Location {
 
     @Override
     public String toString() {
-        List<String> toStringParts = CollectionHelper.newArrayList();
+        List<String> toStringParts = new ArrayList<>();
         if (getId() != -1) {
             toStringParts.add(String.format("id=%s", getId()));
         }

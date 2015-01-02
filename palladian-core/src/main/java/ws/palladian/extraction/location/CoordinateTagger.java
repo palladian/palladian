@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,7 +53,7 @@ public final class CoordinateTagger implements Tagger {
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
-        List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
+        List<LocationAnnotation> annotations = new ArrayList<>();
         Matcher matcher = PATTERN_DEG.matcher(text);
         while (matcher.find()) {
             try {

@@ -7,11 +7,7 @@ import static ws.palladian.helper.collection.CollectionHelper.filterSet;
 import static ws.palladian.helper.functional.Filters.equal;
 import static ws.palladian.helper.functional.Filters.not;
 
-import java.util.AbstractSet;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 
@@ -33,7 +29,7 @@ public class LocationSet extends AbstractSet<Location> {
 
     public LocationSet(Collection<? extends Location> locations) {
         Validate.notNull(locations, "locations must not be null");
-        this.locations = Collections.unmodifiableSet(CollectionHelper.newHashSet(locations));
+        this.locations = Collections.unmodifiableSet(new HashSet<>(locations));
     }
 
     // query methods

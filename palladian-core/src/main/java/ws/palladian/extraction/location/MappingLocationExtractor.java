@@ -1,8 +1,6 @@
 package ws.palladian.extraction.location;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -49,10 +47,10 @@ public class MappingLocationExtractor extends LocationExtractor {
 
     @Override
     public List<LocationAnnotation> getAnnotations(String inputText) {
-        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<LocationAnnotation> result = new ArrayList<>();
         List<? extends Annotation> annotations = entityRecognizer.getAnnotations(inputText);
         // set of unmapped annotations, for debugging purposes
-        Set<String> unmappedTags = CollectionHelper.newHashSet();
+        Set<String> unmappedTags = new HashSet<>();
         for (Annotation annotation : annotations) {
             LocationType mappedType = mapping.get(annotation.getTag());
             if (mappedType == null) {

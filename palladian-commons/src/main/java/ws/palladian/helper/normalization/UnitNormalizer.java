@@ -1,8 +1,6 @@
 package ws.palladian.helper.normalization;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +27,7 @@ public class UnitNormalizer {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UnitNormalizer.class);
 
-    private final static List<String> ALL_UNITS = CollectionHelper.newArrayList();
+    private final static List<String> ALL_UNITS = new ArrayList<>();
 
     static {
         for (UnitType unitType : UnitType.values()) {
@@ -132,7 +130,7 @@ public class UnitNormalizer {
             return UnitType.TEMPERATURE.getUnitNames();
         }
 
-        return CollectionHelper.newHashSet();
+        return new HashSet<>();
     }
 
     /**

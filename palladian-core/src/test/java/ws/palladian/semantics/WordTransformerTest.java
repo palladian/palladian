@@ -2,6 +2,7 @@ package ws.palladian.semantics;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -231,7 +232,7 @@ public class WordTransformerTest {
         //        LingPipePosTagger posTagger = new LingPipePosTagger();
         //        posTagger.loadModel("data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
 
-        List<Annotation> tas = CollectionHelper.newArrayList();
+        List<Annotation> tas = new ArrayList<>();
         tas.add(new ImmutableAnnotation(0, "DUMMY", "VB"));
         //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",tas));

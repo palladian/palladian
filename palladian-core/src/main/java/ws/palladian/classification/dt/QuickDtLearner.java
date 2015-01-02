@@ -1,6 +1,8 @@
 package ws.palladian.classification.dt;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -84,8 +86,8 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
 
     @Override
     public QuickDtModel train(Iterable<? extends ws.palladian.core.Instance> instances) {
-        Set<Instance> trainingInstances = CollectionHelper.newHashSet();
-        Set<String> classes = CollectionHelper.newHashSet();
+        Set<Instance> trainingInstances = new HashSet<>();
+        Set<String> classes = new HashSet<>();
         for (ws.palladian.core.Instance instance : instances) {
             Serializable[] input = getInput(instance.getVector());
             trainingInstances.add(HashMapAttributes.create(input).classification(instance.getCategory()));
@@ -96,7 +98,7 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
     }
 
     static Serializable[] getInput(FeatureVector featureVector) {
-        List<Serializable> inputs = CollectionHelper.newArrayList();
+        List<Serializable> inputs = new ArrayList<>();
         for (VectorEntry<String, Value> feature : featureVector) {
             Value value = feature.value();
             if (value instanceof NominalValue) {

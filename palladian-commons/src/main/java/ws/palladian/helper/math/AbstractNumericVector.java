@@ -1,5 +1,6 @@
 package ws.palladian.helper.math;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
@@ -12,7 +13,7 @@ abstract class AbstractNumericVector<K> implements NumericVector<K> {
     @Override
     public NumericVector<K> add(NumericVector<K> other) {
         Validate.notNull(other, "other must not be null");
-        Map<K, Double> addedVector = CollectionHelper.newHashMap();
+        Map<K, Double> addedVector = new HashMap<>();
         for (K key : CollectionHelper.distinct(keys(), other.keys())) {
             double thisValue = get(key);
             double otherValue = other.get(key);

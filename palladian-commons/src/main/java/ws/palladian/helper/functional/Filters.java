@@ -217,7 +217,7 @@ public final class Filters {
         private final Set<String> extensionsSet;
 
         private FileExtensionFilter(String... extensions) {
-            extensionsSet = CollectionHelper.newHashSet();
+            extensionsSet = new HashSet<>();
             for (String extension : extensions) {
                 if (extension != null && extension.length() > 0) {
                     if (extension.startsWith(".")) {

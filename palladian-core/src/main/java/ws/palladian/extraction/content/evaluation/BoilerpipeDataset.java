@@ -1,6 +1,7 @@
 package ws.palladian.extraction.content.evaluation;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ public final class BoilerpipeDataset implements ContentExtractionDataset {
         if (!urlMappingFile.isFile()) {
             throw new IllegalStateException(urlMappingFile + " does not exist.");
         }
-        final Map<String, String> mapping = CollectionHelper.newHashMap();
+        final Map<String, String> mapping = new HashMap<>();
         final Pattern split = Pattern.compile("<urn:uuid:([a-z0-9\\-]*?)>\\s(.*?)");
         FileHelper.performActionOnEveryLine(urlMappingFile, new LineAction() {
             @Override

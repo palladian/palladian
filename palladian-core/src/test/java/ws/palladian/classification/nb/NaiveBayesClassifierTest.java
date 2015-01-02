@@ -9,6 +9,7 @@ import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class NaiveBayesClassifierTest {
 
     @Test
     public void testNaiveBayesWithPlayData() {
-        List<Instance> instances = CollectionHelper.newArrayList();
+        List<Instance> instances = new ArrayList<>();
         // @formatter:off
         instances.add(new InstanceBuilder().set("outlook", "sunny").set("temp", "hot").set("humidity", "high").set("windy", "false").create("no"));
         instances.add(new InstanceBuilder().set("outlook", "sunny").set("temp", "hot").set("humidity", "high").set("windy", "true").create("no"));
@@ -76,7 +77,7 @@ public class NaiveBayesClassifierTest {
 
     @Test
     public void testNaiveBayesNumeric() {
-        List<Instance> instances = CollectionHelper.newArrayList();
+        List<Instance> instances = new ArrayList<>();
         instances.add(new InstanceBuilder().set("f", 3.0).create("Case"));
         instances.add(new InstanceBuilder().set("f", 6.0).create("Case"));
         instances.add(new InstanceBuilder().set("f", 20.0).create("Case"));

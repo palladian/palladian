@@ -177,7 +177,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public void save(Location location) {
-        List<Object> args = CollectionHelper.newArrayList();
+        List<Object> args = new ArrayList<>();
         GeoCoordinate coordinate = location.getCoordinate();
         args.add(location.getId());
         args.add(location.getType().toString());

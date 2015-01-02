@@ -3,9 +3,7 @@ package ws.palladian.extraction.location;
 import static ws.palladian.extraction.entity.StringTagger.CANDIDATE_TAG;
 
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -70,7 +68,7 @@ public class EntityPreprocessingTagger implements Tagger {
      * @return
      */
     private static final Map<String, Double> loadCaseDictionary(InputStream inputStream, final double lowercaseThreshold) {
-        final Map<String, Double> result = CollectionHelper.newHashMap();
+        final Map<String, Double> result = new HashMap<>();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -87,7 +85,7 @@ public class EntityPreprocessingTagger implements Tagger {
     @Override
     public List<Annotation> getAnnotations(String text) {
         List<? extends Annotation> annotations = TAGGER.getAnnotations(text);
-        List<Annotation> fixedAnnotations = CollectionHelper.newArrayList();
+        List<Annotation> fixedAnnotations = new ArrayList<>();
 
         Set<String> inSentence = getInSentenceCandidates(text, annotations);
         inSentence = CollectionHelper.filterSet(inSentence, new Filter<String>() {
@@ -175,11 +173,11 @@ public class EntityPreprocessingTagger implements Tagger {
      * @return List with all additionally created annotations.
      */
     List<Annotation> getLongAnnotationSplit(List<Annotation> annotations, int length) {
-        List<Annotation> splitAnnotations = CollectionHelper.newArrayList();
+        List<Annotation> splitAnnotations = new ArrayList<>();
         for (Annotation annotation : annotations) {
             String[] parts = annotation.getValue().split("\\s");
             if (parts.length >= length) {
-                List<String> cumulatedTokens = CollectionHelper.newArrayList();
+                List<String> cumulatedTokens = new ArrayList<>();
                 for (String token : parts) {
                     double lcRatio = getLowercaseRatio(token);
                     if (lcRatio < lowercaseThreshold) {
@@ -226,7 +224,7 @@ public class EntityPreprocessingTagger implements Tagger {
      * @return
      */
     private static Set<String> getInSentenceCandidates(String text, List<? extends Annotation> annotations) {
-        Set<String> inSentence = CollectionHelper.newHashSet();
+        Set<String> inSentence = new HashSet<>();
         for (Annotation annotation : annotations) {
             if (isWithinSentence(text, annotation)) {
                 String value = annotation.getValue();
