@@ -4,11 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -59,7 +55,7 @@ public final class GeonamesImporter {
     private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
 
     static {
-        Map<String, Integer> temp = CollectionHelper.newHashMap();
+        Map<String, Integer> temp = new HashMap<>();
         temp.put("PCLI", 0);
         temp.put("PCLD", 0);
         temp.put("TERR", 0);
@@ -95,12 +91,12 @@ public final class GeonamesImporter {
         Validate.notNull(locationStore, "locationStore must not be null");
 
         this.locationStore = locationStore;
-        this.countryMapping = CollectionHelper.newHashMap();
-        this.admin1Mapping = CollectionHelper.newHashMap();
-        this.admin2Mapping = CollectionHelper.newHashMap();
-        this.admin3Mapping = CollectionHelper.newHashMap();
-        this.admin4Mapping = CollectionHelper.newHashMap();
-        this.hierarchyMappings = CollectionHelper.newHashMap();
+        this.countryMapping = new HashMap<>();
+        this.admin1Mapping = new HashMap<>();
+        this.admin2Mapping = new HashMap<>();
+        this.admin3Mapping = new HashMap<>();
+        this.admin4Mapping = new HashMap<>();
+        this.hierarchyMappings = new HashMap<>();
     }
 
     /**
@@ -563,7 +559,7 @@ public final class GeonamesImporter {
         }
 
         List<String> getCodeParts() {
-            List<String> ret = CollectionHelper.newArrayList();
+            List<String> ret = new ArrayList<>();
 
             int level = getLevel();
             if (level >= 0) {

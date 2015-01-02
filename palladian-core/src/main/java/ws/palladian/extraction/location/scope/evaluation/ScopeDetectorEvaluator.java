@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.scope.evaluation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,9 +49,9 @@ public class ScopeDetectorEvaluator {
 
     private static final String RESULT_DETAILS_FILE = "data/scopeDetectionDetailedResults_%s.csv";
 
-    private final List<Iterable<LocationDocument>> datasets = CollectionHelper.newArrayList();
+    private final List<Iterable<LocationDocument>> datasets = new ArrayList<>();
 
-    private final List<ScopeDetector> detectors = CollectionHelper.newArrayList();
+    private final List<ScopeDetector> detectors = new ArrayList<>();
 
     public void addDataset(Iterable<LocationDocument> dataset) {
         datasets.add(dataset);

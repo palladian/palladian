@@ -1,6 +1,7 @@
 package ws.palladian.classification.featureselection;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,7 +62,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
-        Map<String, Double> informationGainValues = CollectionHelper.newHashMap();
+        Map<String, Double> informationGainValues = new HashMap<>();
 
         progress.startTask("Information Gain", -1);
         LOGGER.debug("Calculating discretization");

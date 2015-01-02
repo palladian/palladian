@@ -1,11 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -54,7 +50,7 @@ public class OsmLocationSource extends SingleQueryLocationSource {
 
     static {
         // http://wiki.openstreetmap.org/wiki/Key:place
-        TYPE_MAPPING = CollectionHelper.newHashMap();
+        TYPE_MAPPING = new HashMap<>();
         TYPE_MAPPING.put("city", LocationType.CITY);
         TYPE_MAPPING.put("town", LocationType.CITY);
         TYPE_MAPPING.put("village", LocationType.CITY);
@@ -114,7 +110,7 @@ public class OsmLocationSource extends SingleQueryLocationSource {
             String content = new String(result.getContent(), Charset.forName("UTF-8"));
             JsonObject jsonObject = new JsonObject(content);
             JsonArray elementsJson = jsonObject.getJsonArray("elements");
-            List<Location> locations = CollectionHelper.newArrayList();
+            List<Location> locations = new ArrayList<>();
             for (int i = 0; i < elementsJson.size(); i++) {
                 JsonObject jsonElement = elementsJson.getJsonObject(i);
                 double lat = jsonElement.getDouble("lat");
@@ -146,7 +142,7 @@ public class OsmLocationSource extends SingleQueryLocationSource {
     }
 
     private Set<AlternativeName> parseAlternativeNames(JsonObject jsonTags) throws JsonException {
-        Set<AlternativeName> altNames = CollectionHelper.newHashSet();
+        Set<AlternativeName> altNames = new HashSet<>();
         for (String key : jsonTags.keySet()) {
             if (key.startsWith("name:")) {
                 String languageCode = key.substring(key.indexOf(':') + 1);

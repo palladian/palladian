@@ -1,5 +1,6 @@
 package ws.palladian.classification.discretization;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
@@ -15,7 +16,7 @@ public class DatasetStatistics {
 
     public DatasetStatistics(Iterable<? extends Instance> instances) {
         CountingCategoryEntriesBuilder categoryPriorsBuilder = new CountingCategoryEntriesBuilder();
-        this.featureNames = CollectionHelper.newHashSet();
+        this.featureNames = new HashSet<>();
         for (Instance instance : instances) {
             categoryPriorsBuilder.add(instance.getCategory(), 1);
             featureNames.addAll(instance.getVector().keys());

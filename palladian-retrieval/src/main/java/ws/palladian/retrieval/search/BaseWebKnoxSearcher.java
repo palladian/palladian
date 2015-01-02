@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -73,7 +74,7 @@ public abstract class BaseWebKnoxSearcher extends AbstractMultifacetSearcher<Web
             throw new SearcherException("Only English langauge is supported by " + getName() + ".");
         }
 
-        List<WebContent> webResults = CollectionHelper.newArrayList();
+        List<WebContent> webResults = new ArrayList<>();
 
         try {
             String requestUrl = buildRequestUrl(query.getText(), 0, query.getResultCount());

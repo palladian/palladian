@@ -1,6 +1,7 @@
 package ws.palladian.classification.text;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
@@ -236,7 +237,7 @@ public class FeatureSetting implements Serializable {
      * @return The settings as key-value properties (useful e.g. for persistence).
      */
     public Map<String, String> toMap() {
-        Map<String, String> map = CollectionHelper.newHashMap();
+        Map<String, String> map = new HashMap<>();
         map.put(PROPERTY_TEXT_FEATURE_TYPE, textFeatureType.name());
         map.put(PROPERTY_MAX_TERMS, String.valueOf(maxTerms));
         map.put(PROPERTY_MIN_N_GRAM_LENGTH, String.valueOf(minNGramLength));

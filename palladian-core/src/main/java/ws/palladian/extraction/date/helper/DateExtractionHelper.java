@@ -141,7 +141,7 @@ public final class DateExtractionHelper {
                 highestExactness = currentExactness;
             }
         }
-        List<D> result = CollectionHelper.newArrayList();
+        List<D> result = new ArrayList<>();
         for (D date : dates) {
             if (date.getExactness() == highestExactness) {
                 result.add(date);
@@ -190,7 +190,7 @@ public final class DateExtractionHelper {
      * @return A list with the {@link RatedDate}s.
      */
     public static <T extends ExtractedDate> List<RatedDate<T>> setRate(List<T> dates, double rate) {
-        List<RatedDate<T>> result = CollectionHelper.newArrayList();
+        List<RatedDate<T>> result = new ArrayList<>();
         for (int i = 0; i < dates.size(); i++) {
             result.add(RatedDate.create(dates.get(i), rate));
         }

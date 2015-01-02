@@ -1,5 +1,6 @@
 package ws.palladian.extraction.date.rater;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -55,7 +56,7 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
      * @return
      */
     public List<RatedDate<MetaDate>> evaluateHTTPDate(List<MetaDate> httpDates,ExtractedDate downloadedDate) {
-        List<RatedDate<MetaDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<MetaDate>> result = new ArrayList<>();
         double rate = 0;
         for (int i = 0; i < httpDates.size(); i++) {
             MetaDate date = httpDates.get(i);

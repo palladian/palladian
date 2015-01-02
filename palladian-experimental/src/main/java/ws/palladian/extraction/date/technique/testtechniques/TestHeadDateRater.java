@@ -90,7 +90,7 @@ public class TestHeadDateRater extends HeadDateRater {
      * @return Hashmap with dates and rateings.
      */
 	protected List<RatedDate<MetaDate>> evaluateHeadDate(ArrayList<MetaDate> headDates, ExtractedDate actualDate) {
-        List<RatedDate<MetaDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<MetaDate>> result = new ArrayList<>();
         for (int i = 0; i < headDates.size(); i++) {
             double rate;
             MetaDate date = headDates.get(i);

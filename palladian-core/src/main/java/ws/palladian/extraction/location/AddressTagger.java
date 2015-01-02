@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -36,7 +37,7 @@ public final class AddressTagger implements Tagger {
 
     @Override
     public List<LocationAnnotation> getAnnotations(String text) {
-        List<LocationAnnotation> ret = CollectionHelper.newArrayList();
+        List<LocationAnnotation> ret = new ArrayList<>();
 
         // TODO StringTagger is too strict here, e.g. the following candidate is not recognized:
         // Viale di Porta Ardeatine -- use dedicted regex here?
@@ -70,7 +71,7 @@ public final class AddressTagger implements Tagger {
         }
 
         // step two: look for street numbers before or after
-        List<LocationAnnotation> streetNumbers = CollectionHelper.newArrayList();
+        List<LocationAnnotation> streetNumbers = new ArrayList<>();
         for (Annotation annotation : ret) {
             String regEx = Pattern.quote(annotation.getValue());
 

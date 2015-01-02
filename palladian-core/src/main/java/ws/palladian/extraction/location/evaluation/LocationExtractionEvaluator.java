@@ -17,14 +17,7 @@ import static ws.palladian.extraction.location.disambiguation.HeuristicDisambigu
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
@@ -101,9 +94,9 @@ public final class LocationExtractionEvaluator {
 
     }
 
-    private final List<File> datasetPaths = CollectionHelper.newArrayList();
+    private final List<File> datasetPaths = new ArrayList<>();
 
-    private final List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+    private final List<LocationExtractor> extractors = new ArrayList<>();
 
     /**
      * <p>
@@ -383,7 +376,7 @@ public final class LocationExtractionEvaluator {
     }
 
     private static List<LocationExtractor> createForParameterOptimization(LocationDatabase database) {
-        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+        List<LocationExtractor> extractors = new ArrayList<>();
         for (int anchorDistanceThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000)) {
             extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
                     anchorDistanceThreshold, //
@@ -458,7 +451,7 @@ public final class LocationExtractionEvaluator {
     }
 
     private static List<LocationExtractor> createForThresholdAnalysis(LocationDatabase database, QuickDtModel model) {
-        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+        List<LocationExtractor> extractors = new ArrayList<>();
         for (int i = 0; i <= 10; i++) {
             double threshold = i / 10.;
             FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, threshold, new ConfigurableFeatureExtractor());
@@ -468,7 +461,7 @@ public final class LocationExtractionEvaluator {
     }
 
 //    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
-//        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+//        List<LocationExtractor> extractors = new ArrayList<>();
 //        for (int i = 0; i <= 5000; i += 100) {
 //            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
 //                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);

@@ -1,8 +1,6 @@
 package ws.palladian.retrieval.search.events;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -63,7 +61,7 @@ public class EventlySearcher extends EventSearcher {
     }
 
     private void setup() {
-        eventTypeMapping = CollectionHelper.newHashMap();
+        eventTypeMapping = new HashMap<>();
         eventTypeMapping.put(EventType.CONCERT, 1);
         eventTypeMapping.put(EventType.COMEDY, 2);
         eventTypeMapping.put(EventType.THEATRE, 4);
@@ -74,7 +72,7 @@ public class EventlySearcher extends EventSearcher {
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType, int maxResults) throws SearcherException {
-        List<Event> events = CollectionHelper.newArrayList();
+        List<Event> events = new ArrayList<>();
 
         String requestUrl = buildRequest(keywords, location, eventType);
 

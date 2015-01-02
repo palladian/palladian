@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.images;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -73,7 +74,7 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
      * @param language Supported languages are  id, cs, de, en, es, fr, it, nl, no, hu, ru, pl, pt, ro, fi, sv, tr, ja, ko, and zh.
      */
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImage> results = CollectionHelper.newArrayList();
+        List<WebImage> results = new ArrayList<>();
 
         if (language == null) {
             language = DEFAULT_SEARCHER_LANGUAGE;

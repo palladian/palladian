@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.sources.importers;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import ws.palladian.extraction.location.LocationType;
@@ -22,7 +23,7 @@ public final class GeonamesUtil {
     private static final Map<String, LocationType> FEATURE_MAPPING;
 
     static {
-        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        Map<String, LocationType> temp = new HashMap<>();
         temp.put("A", LocationType.UNIT);
         temp.put("A.PCL", LocationType.COUNTRY);
         temp.put("A.PCLF", LocationType.COUNTRY);

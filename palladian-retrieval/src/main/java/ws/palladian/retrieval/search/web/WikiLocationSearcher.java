@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -67,7 +68,7 @@ public final class WikiLocationSearcher extends AbstractMultifacetSearcher<WebCo
         try {
             JsonObject jsonObject = new JsonObject(httpResult.getStringContent());
             JsonArray articlesJson = jsonObject.queryJsonArray("/articles");
-            List<WebContent> resultList = CollectionHelper.newArrayList();
+            List<WebContent> resultList = new ArrayList<>();
             for (Object entry : articlesJson) {
                 JsonObject articleJson = (JsonObject)entry;
                 BasicWebContent.Builder builder = new BasicWebContent.Builder();

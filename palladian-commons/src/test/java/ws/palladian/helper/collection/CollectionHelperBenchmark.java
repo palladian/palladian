@@ -1,10 +1,6 @@
 package ws.palladian.helper.collection;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -50,7 +46,7 @@ class CollectionHelperBenchmark {
      */
     public static void intersectBenchmark() {
         final int numRuns = 1000;
-        List<Pair<Set<Integer>, Set<Integer>>> testSets = CollectionHelper.newArrayList();
+        List<Pair<Set<Integer>, Set<Integer>>> testSets = new ArrayList<>();
         testSets.add(Pair.of(createRandomSet(100000), createRandomSet(100000)));
         testSets.add(Pair.of(createRandomSet(10000), createRandomSet(100000)));
         testSets.add(Pair.of(createRandomSet(1000), createRandomSet(100000)));

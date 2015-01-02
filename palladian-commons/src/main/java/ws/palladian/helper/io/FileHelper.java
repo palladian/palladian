@@ -1953,7 +1953,7 @@ public final class FileHelper {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(fileFilter, "fileFilter must not be null");
         Validate.notNull(directoryFilter, "directoryFilter must not be null");
-        List<File> files = CollectionHelper.newArrayList();
+        List<File> files = new ArrayList<>();
         traverseFiles(path, fileFilter, directoryFilter, new Collector<File>(files));
         return files;
     }

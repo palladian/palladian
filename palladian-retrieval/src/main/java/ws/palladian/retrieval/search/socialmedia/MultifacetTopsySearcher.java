@@ -5,12 +5,7 @@ import static ws.palladian.helper.constants.Language.ENGLISH;
 import static ws.palladian.helper.constants.Language.JAPANESE;
 import static ws.palladian.helper.constants.Language.KOREAN;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -117,7 +112,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
 
     @Override
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
-        List<WebContent> webContent = CollectionHelper.newArrayList();
+        List<WebContent> webContent = new ArrayList<>();
         Long totalResults = null;
         int skippedRetweets = 0;
         out: for (int page = 1;; page++) {
@@ -214,7 +209,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
     static Set<String> extractTags(String content) {
         if (StringUtils.isNotEmpty(content)) {
             Matcher matcher = CONTENT_HASHTAG_PATTERN.matcher(content);
-            LinkedHashSet<String> tags = CollectionHelper.newLinkedHashSet();
+            LinkedHashSet<String> tags = new LinkedHashSet<>();
             while (matcher.find()) {
                 tags.add(matcher.group(1));
             }

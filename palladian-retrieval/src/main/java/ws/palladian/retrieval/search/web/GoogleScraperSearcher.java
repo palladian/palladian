@@ -104,7 +104,7 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
     
     static List<WebContent> parseHtml(Document document) throws SearcherException {
         
-        List<WebContent> result = CollectionHelper.newArrayList();
+        List<WebContent> result = new ArrayList<>();
         
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, LINK_XPATH);
         List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, INFORMATION_XPATH);

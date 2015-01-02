@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
 
     @Override
     protected List<String> getTags(List<String> tokens) {
-        List<String> tags = CollectionHelper.newArrayList();
+        List<String> tags = new ArrayList<>();
         for (String token : tokens) {
             FeatureVector featureVector = extractFeatures(token);
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
@@ -114,7 +115,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
                 throw new IllegalStateException(e);
             }
             String[] wordsAndTagPairs = content.split("\\s");
-            List<Instance> trainingInstances = CollectionHelper.newArrayList();
+            List<Instance> trainingInstances = new ArrayList<>();
             for (String wordAndTagPair : wordsAndTagPairs) {
                 String[] wordAndTag = wordAndTagPair.split("/");
                 String word = wordAndTag[0];

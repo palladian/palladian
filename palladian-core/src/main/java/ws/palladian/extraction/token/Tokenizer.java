@@ -1,9 +1,7 @@
 package ws.palladian.extraction.token;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import ws.palladian.core.Token;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
@@ -45,7 +43,10 @@ public final class Tokenizer {
      */
     public static List<String> tokenize(String inputString) {
         Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(inputString);
-        return CollectionHelper.newArrayList(CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER));
+        Iterator<String> convert = CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
+        ArrayList arrayList = new ArrayList();
+        arrayList.add(convert);
+        return arrayList;
     }
 
     /**
@@ -60,7 +61,8 @@ public final class Tokenizer {
      */
     public static Set<String> calculateCharNGrams(String string, int n) {
         Iterator<Token> nGramIterator = new CharacterNGramTokenizer(n, n).iterateTokens(string);
-        return CollectionHelper.newHashSet(CollectionHelper.convert(nGramIterator, Token.VALUE_CONVERTER));
+        Iterator<String> convert = CollectionHelper.convert(nGramIterator, Token.VALUE_CONVERTER);
+        return new HashSet<>();
     }
 
     /**
@@ -184,7 +186,7 @@ public final class Tokenizer {
         // TODO Since requirements might differ slightly from application to application, this filtering should be
         // carried out by each calling application itself.
         if (onlyRealSentences) {
-            List<String> realSentences = CollectionHelper.newArrayList();
+            List<String> realSentences = new ArrayList<>();
             for (String sentence : sentences) {
                 String[] parts = sentence.split("\n");
                 sentence = parts[parts.length - 1];

@@ -3,6 +3,7 @@ package ws.palladian.retrieval.wiki;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -289,7 +290,7 @@ public final class MediaWikiUtil {
             String categoryName) {
         Validate.notNull(descriptor, "descriptor must not be null");
         Validate.notEmpty(categoryName, "categoryName must not be empty");
-        List<WikiPageReference> pages = CollectionHelper.newArrayList();
+        List<WikiPageReference> pages = new ArrayList<>();
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         String trimmedCategoryName = categoryName.replaceAll("[Cc]ategory:", "");
         String cmTitle = "Category:" + UrlHelper.encodeParameter(trimmedCategoryName);
@@ -379,7 +380,7 @@ public final class MediaWikiUtil {
         Validate.notEmpty(pageName, "pageName must not be empty");
 
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
-        List<WikiPageReference> result = CollectionHelper.newArrayList();
+        List<WikiPageReference> result = new ArrayList<>();
         for (String blContinue = null;;) {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(descriptor.getEndpoint());
@@ -467,7 +468,7 @@ public final class MediaWikiUtil {
     }
 
     private static final List<String> splitTemplateMarkup(String markup) {
-        List<String> result = CollectionHelper.newArrayList();
+        List<String> result = new ArrayList<>();
         int startIdx = markup.indexOf('|') + 1;
         for (int currentIdx = startIdx; currentIdx < markup.length(); currentIdx++) {
             char currentChar = markup.charAt(currentIdx);
@@ -523,7 +524,7 @@ public final class MediaWikiUtil {
      */
     static List<MarkupCoordinate> extractCoordinateTag(String text) {
         Validate.notNull(text, "text must not be null");
-        List<MarkupCoordinate> result = CollectionHelper.newArrayList();
+        List<MarkupCoordinate> result = new ArrayList<>();
         Matcher m = COORDINATE_TAG_PATTERN.matcher(text);
         while (m.find()) {
             // get coordinate parameters
@@ -622,7 +623,7 @@ public final class MediaWikiUtil {
      * @return The content in the markup, or an empty list of not found, never <code>null</code>.
      */
     public static List<String> getNamedMarkup(String markup, String... names) {
-        List<String> result = CollectionHelper.newArrayList();
+        List<String> result = new ArrayList<>();
         int startIdx = 0;
         String cleanMarkup = HtmlHelper.stripHtmlTags(markup, HtmlElement.COMMENTS);
         String namesSeparated = StringUtils.join(names, "|").toLowerCase();

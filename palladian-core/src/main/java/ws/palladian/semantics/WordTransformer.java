@@ -47,7 +47,7 @@ public class WordTransformer {
     private static final List<String> GERMAN_NOUNS = new ArrayList<String>();
 
     /** Exceptions for German stemming. */
-    private static final Map<String, String> GERMAN_STEMMING_EXCEPTIONS = CollectionHelper.newHashMap();
+    private static final Map<String, String> GERMAN_STEMMING_EXCEPTIONS = new HashMap<>();
 
     static {
 
@@ -602,7 +602,7 @@ public class WordTransformer {
         boolean isAreFound = (StringHelper.containsWord("is", string) || StringHelper.containsWord("are", string));
         boolean wasWereFound = (StringHelper.containsWord("was", string) || StringHelper.containsWord("were", string));
 
-        Set<String> posTags = CollectionHelper.newHashSet();
+        Set<String> posTags = new HashSet<>();
         for (Annotation a : annotations) {
             posTags.add(a.getTag());
         }

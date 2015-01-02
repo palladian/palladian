@@ -2,6 +2,7 @@ package ws.palladian.retrieval;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -27,7 +28,7 @@ public class OAuthUtilTest {
         // OAuthParams oAuthParams = new OAuthParams(consumerKey, consumerSecret, token, tokenSecret);
         HttpRequest httpRequest = new HttpRequest(httpMethod, baseUrl);
 
-        Map<String, String> params = CollectionHelper.newHashMap();
+        Map<String, String> params = new HashMap<>();
 
         params.put("status", "Hello Ladies + Gentlemen, a signed OAuth request!");
         params.put("include_entities", "true");
@@ -55,7 +56,7 @@ public class OAuthUtilTest {
         String signature = OAuthUtil.createSignature(signatureBaseString, signingKey);
         assertEquals("tnnArxj06cWHq44gCs1OSKk/jLY=", signature);
 
-        // Map<String, String> params2 = CollectionHelper.newHashMap();
+        // Map<String, String> params2 = new HashMap<>();
         // params2.put("include_entities", "true");
         // params2.put("status", "Hello Ladies + Gentlemen, a signed OAuth request!");
         // HttpRequest signedHttpRequest = OAuthUtil.createSignedRequest(httpRequest, oAuthParams);

@@ -1,8 +1,6 @@
 package ws.palladian.retrieval.wiki;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -70,7 +68,7 @@ public class WikiTemplate {
      * @return All matching values for the keys, or an empty {@link List} in case no entries exist.
      */
     public List<String> getEntries(String... keys) {
-        List<String> entries = CollectionHelper.newArrayList();
+        List<String> entries = new ArrayList<>();
         for (String key : keys) {
             String entry = getEntry(key);
             if (entry != null) {
@@ -92,7 +90,7 @@ public class WikiTemplate {
      * @return Set with all extracted {@link MarkupCoordinate}s, or an empty Set, never <code>null</code>.
      */
     public Set<MarkupCoordinate> getCoordinates() {
-        Set<MarkupCoordinate> coordinates = CollectionHelper.newHashSet();
+        Set<MarkupCoordinate> coordinates = new HashSet<>();
 
         String display = getEntry("coordinates_display");
         String type = getEntry("coordinates_type");

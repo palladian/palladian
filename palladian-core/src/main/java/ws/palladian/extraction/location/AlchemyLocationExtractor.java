@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class AlchemyLocationExtractor extends MappingLocationExtractor {
     private static final Map<String, LocationType> LOCATION_MAPPING;
 
     static {
-        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        Map<String, LocationType> temp = new HashMap<>();
         temp.put("city", LocationType.CITY);
         temp.put("country", LocationType.COUNTRY);
         temp.put("facility", LocationType.POI);

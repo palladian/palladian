@@ -1,9 +1,6 @@
 package ws.palladian.extraction.location.persistence;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
@@ -68,7 +65,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
         int hash = normalizeName(locationName).hashCode();
         Validate.isTrue(hash != NULL, "key cannot be " + NULL);
         int index = indexFor(hash);
-        Collection<Location> hits = CollectionHelper.newHashSet();
+        Collection<Location> hits = new HashSet<>();
         while (keys[index] != NULL) {
             if (keys[index] == hash) {
                 LocationContainer location = locations[index];
@@ -220,7 +217,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource {
          */
         private static final char[] encodeNames(Location location) {
             StringBuilder builder = new StringBuilder();
-            Set<String> temp = CollectionHelper.newLinkedHashSet();
+            Set<String> temp = new LinkedHashSet<>();
             temp.add(location.getPrimaryName());
             for (AlternativeName altName : location.getAlternativeNames()) {
                 temp.add(altName.getName());

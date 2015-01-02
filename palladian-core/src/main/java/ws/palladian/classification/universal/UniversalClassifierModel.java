@@ -1,5 +1,6 @@
 package ws.palladian.classification.universal;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import ws.palladian.classification.nb.NaiveBayesModel;
@@ -49,7 +50,7 @@ public class UniversalClassifierModel implements Model {
 
     @Override
     public Set<String> getCategories() {
-        Set<String> result = CollectionHelper.newHashSet();
+        Set<String> result = new HashSet<>();
         if (bayesModel != null) {
             result.addAll(bayesModel.getCategories());
         }

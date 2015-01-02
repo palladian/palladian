@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.scope;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -127,7 +128,7 @@ public class MultiStepDictionaryScopeDetector implements ScopeDetector {
                 String currentCellIdentifier = coarseResult.getMostLikely().getName();
                 gridCell = gridCreators[i].getCell(currentCellIdentifier);
             } else { // we already have a coarser prediction; we limit this prediction to this area
-                Set<String> categories = CollectionHelper.newHashSet();
+                Set<String> categories = new HashSet<>();
                 for (GridCell finerCell : gridCreators[i].getCells(gridCell)) {
                     categories.add(finerCell.getIdentifier());
                 }

@@ -112,7 +112,7 @@ public final class MathHelper {
 //        Validate.notNull(setA, "setA must not be null");
 //        Validate.notNull(setB, "setB must not be null");
 //
-//        Set<T> intersection = CollectionHelper.newHashSet();
+//        Set<T> intersection = new HashSet<>();
 //        intersection.addAll(setA);
 //        intersection.retainAll(setB);
 //
@@ -120,7 +120,7 @@ public final class MathHelper {
 //            return 0;
 //        }
 //
-//        Set<T> union = CollectionHelper.newHashSet();
+//        Set<T> union = new HashSet<>();
 //        union.addAll(setA);
 //        union.addAll(setB);
 //
@@ -146,7 +146,7 @@ public final class MathHelper {
 //            return 0;
 //        }
 //
-//        Set<T> intersection = CollectionHelper.newHashSet();
+//        Set<T> intersection = new HashSet<>();
 //        intersection.addAll(setA);
 //        intersection.retainAll(setB);
 //

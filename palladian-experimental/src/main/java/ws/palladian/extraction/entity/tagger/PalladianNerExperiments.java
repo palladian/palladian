@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +56,7 @@ public class PalladianNerExperiments {
 
         text = HtmlHelper.stripHtmlTags(text);
         String taggedText = tagger.tag(text);
-        List<String> temp = CollectionHelper.newArrayList();
+        List<String> temp = new ArrayList<>();
         for (LocationType t : LocationType.values()) {
             temp.add(t.name());
         }

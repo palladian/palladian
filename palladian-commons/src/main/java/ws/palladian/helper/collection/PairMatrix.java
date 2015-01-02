@@ -1,5 +1,7 @@
 package ws.palladian.helper.collection;
 
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,9 +11,9 @@ import ws.palladian.helper.functional.Filter;
 
 public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
 
-    private final Map<Pair<K, K>, V> matrixMap = CollectionHelper.newHashMap();
-    private final Set<K> keysX = CollectionHelper.newLinkedHashSet();
-    private final Set<K> keysY = CollectionHelper.newLinkedHashSet();
+    private final Map<Pair<K, K>, V> matrixMap = new HashMap<>();
+    private final Set<K> keysX = new LinkedHashSet<>();
+    private final Set<K> keysY = new LinkedHashSet<>();
 
     @Override
     public V get(K x, K y) {
@@ -44,7 +46,7 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
 
     @Override
     public MatrixVector<K, V> getRow(K y) {
-        Map<K, V> row = CollectionHelper.newHashMap();
+        Map<K, V> row = new HashMap<>();
         for (K x : keysX) {
             V entry = matrixMap.get(Pair.of(x, y));
             if (entry != null) {
@@ -56,7 +58,7 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
 
     @Override
     public MatrixVector<K, V> getColumn(K x) {
-        Map<K, V> column = CollectionHelper.newHashMap();
+        Map<K, V> column = new HashMap<>();
         for (K y : keysY) {
             V entry = matrixMap.get(Pair.of(x, y));
             if (entry != null) {

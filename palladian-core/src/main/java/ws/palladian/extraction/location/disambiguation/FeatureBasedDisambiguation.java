@@ -1,9 +1,6 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -65,14 +62,14 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
         Set<ClassifiableLocation> classifiableLocations = featureExtractor.extract(text, locations);
-        Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
+        Map<Integer, Double> scoredLocations = new HashMap<>();
 
         for (ClassifiableLocation classifiableLocation : classifiableLocations) {
             CategoryEntries classification = classifier.classify(classifiableLocation.getFeatureVector(), model);
             scoredLocations.put(classifiableLocation.getLocation().getId(), classification.getProbability("true"));
         }
 
-        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<LocationAnnotation> result = new ArrayList<>();
         for (Annotation annotation : locations.keySet()) {
             Collection<Location> candidates = locations.get(annotation);
 

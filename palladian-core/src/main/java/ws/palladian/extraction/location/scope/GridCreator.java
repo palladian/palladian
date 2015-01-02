@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -86,7 +87,7 @@ public final class GridCreator implements Iterable<GridCell> {
      */
     public List<GridCell> getCells(GridCell cell) {
         Validate.notNull(cell, "cell must not be null");
-        List<GridCell> cells = CollectionHelper.newArrayList();
+        List<GridCell> cells = new ArrayList<>();
         for (double lat = cell.lat1; lat < cell.lat2; lat += gridSize) {
             for (double lng = cell.lng1; lng < cell.lng2; lng += gridSize) {
                 lat = GeoUtils.normalizeLatitude(lat);

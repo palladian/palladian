@@ -2,6 +2,7 @@ package ws.palladian.extraction.pos;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -77,7 +78,7 @@ public class TweetNlpPosTagger extends AbstractPosTagger {
         ModelSentence ms = new ModelSentence(sentence.T());
         featureExtractor.computeFeatures(sentence, ms);
         model.greedyDecode(ms, false);
-        List<String> tags = CollectionHelper.newArrayList();
+        List<String> tags = new ArrayList<>();
         for (int t = 0; t < sentence.T(); t++) {
             tags.add(model.labelVocab.name(ms.labels[t]));
         }

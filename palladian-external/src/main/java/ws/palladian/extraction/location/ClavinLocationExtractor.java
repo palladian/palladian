@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -71,7 +72,7 @@ public final class ClavinLocationExtractor extends LocationExtractor {
     @Override
     public List<LocationAnnotation> getAnnotations(String inputText) {
         try {
-            List<LocationAnnotation> result = CollectionHelper.newArrayList();
+            List<LocationAnnotation> result = new ArrayList<>();
             List<ResolvedLocation> resolvedLocations = parser.parse(inputText);
             for (ResolvedLocation resolvedLocation : resolvedLocations) {
                 result.add(makeLocationAnnotation(resolvedLocation));

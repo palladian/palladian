@@ -1,9 +1,6 @@
 package ws.palladian.extraction.location;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -76,7 +73,7 @@ public final class LocationBuilder implements Factory<Location> {
 
     public LocationBuilder setAncestorIds(int... ancestorIds) {
         if (ancestorIds != null) {
-            this.ancestorIds = CollectionHelper.newArrayList();
+            this.ancestorIds = new ArrayList<>();
             for (int ancestorId : ancestorIds) {
                 this.ancestorIds.add(ancestorId);
             }
@@ -98,7 +95,7 @@ public final class LocationBuilder implements Factory<Location> {
      */
     public LocationBuilder setAncestorIds(String hierarchyPath) {
         if (hierarchyPath != null) {
-            ancestorIds = CollectionHelper.newArrayList();
+            ancestorIds = new ArrayList<>();
             String[] splitPath = hierarchyPath.split("/");
             for (int i = splitPath.length - 1; i >= 0; i--) {
                 String ancestorId = splitPath[i];

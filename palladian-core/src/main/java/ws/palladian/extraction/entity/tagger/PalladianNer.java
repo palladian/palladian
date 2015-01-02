@@ -10,13 +10,8 @@ import static ws.palladian.helper.functional.Filters.not;
 
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -209,7 +204,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             }
         }
         DictionaryModel temp = builder.create();
-        Set<String> lowerCaseDictionary = CollectionHelper.newHashSet();
+        Set<String> lowerCaseDictionary = new HashSet<>();
         for (DictionaryEntry entry : temp) {
             String token = entry.getTerm();
             if (entry.getCategoryEntries().getProbability("a") > 0.5) {
@@ -394,7 +389,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 Iterable<Annotation> currentType = CollectionHelper
                         .filter(fileAnnotations, AnnotationFilters.tag(type));
                 Collection<Annotation> sampled = MathHelper.sample(currentType, minCount);
-                equalizedSampling.addAll(CollectionHelper.newHashSet(sampled));
+                equalizedSampling.addAll(new HashSet<>(sampled));
             }
             LOGGER.info("Original distribution {}; reduced from {} to {} for equalization", typeCounts,
                     fileAnnotations.size(), equalizedSampling.size());
@@ -416,7 +411,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         // in complete training mode, the tagger is learned twice on the training data
         if (trainingSettings.getTrainingMode() == Complete) {
             LOGGER.info("Start retraining (because of complete dataset, no sparse annotations)");
-            model.removeAnnotations = CollectionHelper.newHashSet();
+            model.removeAnnotations = new HashSet<>();
             EvaluationResult evaluationResult = evaluate(trainingFilePath, COLUMN);
             Set<String> goldAnnotations = CollectionHelper.convertSet(fileAnnotations, VALUE_CONVERTER);
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
@@ -471,7 +466,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private static List<ClassifiedAnnotation> getAnnotations(Tagger tagger, String inputText) {
-        List<ClassifiedAnnotation> result = CollectionHelper.newArrayList();
+        List<ClassifiedAnnotation> result = new ArrayList<>();
         for (Annotation annotation : tagger.getAnnotations(inputText)) {
             CategoryEntries categoryEntries = new CategoryEntriesBuilder().set(annotation.getTag(), 1).create();
             result.add(new ClassifiedAnnotation(annotation, categoryEntries));
@@ -551,7 +546,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             // use the the string tagger to tag entities in English mode
             tagger = StringTagger.INSTANCE;
         }
-        Set<Annotation> annotations = CollectionHelper.newHashSet(tagger.getAnnotations(inputText));
+        Set<Annotation> annotations = new HashSet<>(tagger.getAnnotations(inputText));
         preProcessAnnotations(annotations);
         Annotations<ClassifiedAnnotation> classifiedAnnotations = classifyCandidates(annotations);
         classifiedAnnotations = postProcessAnnotations(inputText, classifiedAnnotations);
@@ -624,8 +619,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private void fixStartErrorsWithCaseDictionary(Set<Annotation> annotations) {
-        Set<Annotation> toAdd = CollectionHelper.newHashSet();
-        Set<Annotation> toRemove = CollectionHelper.newHashSet();
+        Set<Annotation> toAdd = new HashSet<>();
+        Set<Annotation> toRemove = new HashSet<>();
         for (Annotation annotation : annotations) {
             String value = annotation.getValue();
             String[] parts = value.split("\\s");
@@ -666,8 +661,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private static void removeDateFragments(Set<Annotation> annotations) {
-        Set<Annotation> toAdd = CollectionHelper.newHashSet();
-        Set<Annotation> toRemove = CollectionHelper.newHashSet();
+        Set<Annotation> toAdd = new HashSet<>();
+        Set<Annotation> toRemove = new HashSet<>();
         for (Annotation annotation : annotations) {
             Annotation result = removeDateFragment(annotation);
             if (result != null) {
@@ -691,8 +686,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private void unwrapWithContext(Set<Annotation> annotations) {
-        Set<Annotation> toAdd = CollectionHelper.newHashSet();
-        Set<Annotation> toRemove = CollectionHelper.newHashSet();
+        Set<Annotation> toAdd = new HashSet<>();
+        Set<Annotation> toRemove = new HashSet<>();
         for (Annotation annotation : annotations) {
             String entity = annotation.getValue();
             // do not unwrap, in case we have the value in the entity dictionary
@@ -770,8 +765,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private void unwrapEntities(Set<Annotation> annotations) {
-        Set<Annotation> toAdd = CollectionHelper.newHashSet();
-        Set<Annotation> toRemove = CollectionHelper.newHashSet();
+        Set<Annotation> toAdd = new HashSet<>();
+        Set<Annotation> toRemove = new HashSet<>();
         for (Annotation annotation : annotations) {
             boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
             if (isAllUppercase) {
@@ -871,7 +866,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 insideAnnotationCounts.add(partBuilder.toString());
             }
         }
-        Set<String> leftContexts = CollectionHelper.newHashSet();
+        Set<String> leftContexts = new HashSet<>();
         int minCount = trainingSettings.getMinDictionaryCount();
         for (Entry<String, Integer> entry : leftContextCounts.unique()) {
             String leftContext = entry.getKey();
@@ -918,13 +913,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @return A set of annotations found in this annotation.
      */
     private Set<Annotation> unwrapAnnotations(Annotation annotation, Set<Annotation> annotations) {
-        Set<String> otherValues = CollectionHelper.newHashSet();
+        Set<String> otherValues = new HashSet<>();
         for (Annotation currentAnnotation : annotations) {
             if (!currentAnnotation.equals(annotation)) {
                 otherValues.add(currentAnnotation.getValue().toLowerCase());
             }
         }
-        Set<Annotation> unwrappedAnnotations = CollectionHelper.newHashSet();
+        Set<Annotation> unwrappedAnnotations = new HashSet<>();
         String annotationValue = annotation.getValue();
         List<String> parts = StringHelper.getSubPhrases(annotationValue);
         for (String part : parts) {

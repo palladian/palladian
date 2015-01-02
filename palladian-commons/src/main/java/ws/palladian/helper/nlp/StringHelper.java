@@ -2097,7 +2097,7 @@ public final class StringHelper {
      */
     public static final List<String> getSubPhrases(String string) {
         Validate.notNull(string, "string must not be null");
-        List<String> phrases = CollectionHelper.newArrayList();
+        List<String> phrases = new ArrayList<>();
         String[] split = string.split("\\s");
         for (int i = 0; i < split.length; i++) {
             for (int j = i; j < split.length; j++) {

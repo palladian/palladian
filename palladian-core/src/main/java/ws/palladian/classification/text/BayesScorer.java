@@ -7,6 +7,7 @@ import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
 import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -59,7 +60,7 @@ public final class BayesScorer implements Scorer {
     public BayesScorer(Options... options) {
         Validate.notNull(options, "options must not be null");
         this.options = options;
-        Set<Options> temp = CollectionHelper.newHashSet(options);
+        Set<Options> temp = new HashSet(Arrays.asList(options));
         this.laplace = temp.contains(LAPLACE);
         this.prior = temp.contains(PRIORS);
         this.frequencies = temp.contains(FREQUENCIES);

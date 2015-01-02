@@ -1,12 +1,6 @@
 package ws.palladian.retrieval.resources;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,9 +35,9 @@ public class BasicWebContent implements WebContent {
         protected Date published;
         protected GeoCoordinate coordinate;
         protected String identifier;
-        protected Set<String> tags = CollectionHelper.newHashSet();
+        protected Set<String> tags = new HashSet<>();
         protected String source;
-        protected Map<String, Object> additionalData = CollectionHelper.newHashMap();
+        protected Map<String, Object> additionalData = new HashMap<>();
 
         public Builder setId(int id) {
             this.id = id;
@@ -234,7 +228,7 @@ public class BasicWebContent implements WebContent {
      *         overriding this in sub classes.
      */
     protected List<String> getToStringParts() {
-        List<String> toStringParts = CollectionHelper.newArrayList();
+        List<String> toStringParts = new ArrayList<>();
         if (id != -1) {
             toStringParts.add(String.format("id=%s", id));
         }

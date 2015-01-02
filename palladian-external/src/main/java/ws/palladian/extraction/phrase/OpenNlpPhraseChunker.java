@@ -3,6 +3,7 @@ package ws.palladian.extraction.phrase;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import opennlp.tools.chunker.ChunkerME;
@@ -77,7 +78,7 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
         String tag = "";
         StringBuilder token = new StringBuilder();
 
-        List<Annotation> tagAnnotations = CollectionHelper.newArrayList();
+        List<Annotation> tagAnnotations = new ArrayList<>();
 
         // joining Tags
         for (int i = 0; i < chunks.length; i++) {

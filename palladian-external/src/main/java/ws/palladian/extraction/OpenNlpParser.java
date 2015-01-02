@@ -197,7 +197,7 @@ public class OpenNlpParser extends AbstractParser {
 
         openNLPParse = getFullParse(sentence)[index];
 
-        List<Annotation> tagAnnotations = CollectionHelper.newArrayList();
+        List<Annotation> tagAnnotations = new ArrayList<>();
 
         parse2Annotations(openNLPParse, tagAnnotations);
 

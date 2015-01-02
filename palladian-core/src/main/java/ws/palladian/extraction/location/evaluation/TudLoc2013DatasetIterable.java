@@ -1,10 +1,7 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -155,7 +152,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
     }
 
     private static List<LocationAnnotation> getAnnotations(String rawText, Map<Integer, GeoCoordinate> coordinates) {
-        List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
+        List<LocationAnnotation> annotations = new ArrayList<>();
         Annotations<Annotation> xmlAnnotations = FileFormatParser.getAnnotationsFromXmlText(rawText);
         for (Annotation xmlAnnotation : xmlAnnotations) {
             int dummyId = xmlAnnotation.getValue().hashCode();

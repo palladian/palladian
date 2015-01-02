@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -167,7 +168,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
                 numEntries += categoryEntries.size();
             }
 
-            Map<String, String> commitUserData = CollectionHelper.newHashMap();
+            Map<String, String> commitUserData = new HashMap<>();
             if (dictionary.getFeatureSetting() != null) {
                 commitUserData.putAll(dictionary.getFeatureSetting().toMap());
             }

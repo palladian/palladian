@@ -1,5 +1,6 @@
 package ws.palladian.extraction.pos;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public abstract class AbstractPosTagger implements Tagger {
         List<Token> tokenList = CollectionHelper.newArrayList(tokenAnnotations);
         List<String> tokens = CollectionHelper.convertList(tokenList, Token.VALUE_CONVERTER);
         List<String> posTags = getTags(tokens);
-        List<Annotation> result = CollectionHelper.newArrayList();
+        List<Annotation> result = new ArrayList<>();
         Iterator<String> tagsIterator = posTags.iterator();
         for (Token annotation : tokenList) {
             String tag = tagsIterator.next().toUpperCase();

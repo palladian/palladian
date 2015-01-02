@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.news;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -96,7 +97,7 @@ public final class NewsSeecrSearcher extends AbstractMultifacetSearcher<WebConte
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
 
         final int resultCount = query.getResultCount();
-        List<WebContent> webResults = CollectionHelper.newArrayList();
+        List<WebContent> webResults = new ArrayList<>();
 
         for (int offset = 0; offset < Math.ceil((double)resultCount / RESULTS_PER_REQUEST); offset++) {
 

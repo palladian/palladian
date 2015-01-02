@@ -23,7 +23,7 @@ public class SitemapRetriever {
     private final static Pattern LOC_PATTERN = Pattern.compile("(?<=loc\\>).*?(?=\\</loc)", Pattern.CASE_INSENSITIVE);
 
     public List<String> getUrls(String sitemapIndexUrl) {
-        List<String> pageUrls = CollectionHelper.newArrayList();
+        List<String> pageUrls = new ArrayList<>();
 
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
@@ -52,7 +52,7 @@ public class SitemapRetriever {
             List<String> sitemapUrls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapText);
 
             // clean
-            List<String> cleanSitemapUrls = CollectionHelper.newArrayList();
+            List<String> cleanSitemapUrls = new ArrayList<>();
             for (String url : sitemapUrls) {
                 cleanSitemapUrls.add(normalizeUrl(url));
             }
@@ -86,7 +86,7 @@ public class SitemapRetriever {
         List<String> sitemapUrls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapText);
 
         // clean
-        List<String> cleanSitemapUrls = CollectionHelper.newArrayList();
+        List<String> cleanSitemapUrls = new ArrayList<>();
         for (String url : sitemapUrls) {
             cleanSitemapUrls.add(normalizeUrl(url));
         }

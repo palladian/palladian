@@ -2,6 +2,7 @@ package ws.palladian.retrieval;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -49,7 +50,7 @@ public final class OAuthUtil {
         Validate.notNull(httpRequest, "httpRequest must not be null");
         Validate.notNull(oAuthParams, "oAuthParams must not be null");
 
-        Map<String, String> oAuthHeader = CollectionHelper.newHashMap();
+        Map<String, String> oAuthHeader = new HashMap<>();
         oAuthHeader.put("oauth_consumer_key", oAuthParams.getConsumerKey());
         oAuthHeader.put("oauth_nonce", createRandomString());
         oAuthHeader.put("oauth_signature_method", "HMAC-SHA1");
@@ -57,7 +58,7 @@ public final class OAuthUtil {
         oAuthHeader.put("oauth_token", oAuthParams.getAccessToken());
         oAuthHeader.put("oauth_version", "1.0");
 
-        Map<String, String> allParams = CollectionHelper.newHashMap();
+        Map<String, String> allParams = new HashMap<>();
         allParams.putAll(httpRequest.getParameters());
         allParams.putAll(oAuthHeader);
 
@@ -78,7 +79,7 @@ public final class OAuthUtil {
             authorization.append(String.format("%s=\"%s\"", urlEncode(key), urlEncode(value)));
         }
 
-        Map<String, String> newHeaders = CollectionHelper.newHashMap();
+        Map<String, String> newHeaders = new HashMap<>();
         newHeaders.putAll(httpRequest.getHeaders());
         newHeaders.put("Authorization", authorization.toString());
         return new HttpRequest(httpRequest.getMethod(), httpRequest.getUrl(), newHeaders, httpRequest.getParameters());

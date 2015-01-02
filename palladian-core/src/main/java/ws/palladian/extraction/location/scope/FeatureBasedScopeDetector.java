@@ -8,11 +8,7 @@ import static ws.palladian.helper.collection.CollectionHelper.coalesce;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -119,7 +115,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         }
         int numLocations = annotations.size();
 
-        Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
+        Set<ClassifiableLocation> instances = new HashSet<>();
         for (Location location : allStats) {
             GeoCoordinate coordinate = CollectionHelper.coalesce(location.getCoordinate(), GeoCoordinate.NULL);
             double maxDisambiguationTrust = 0;
@@ -185,7 +181,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         Validate.notNull(documents, "documents must not be null");
         Validate.notNull(extractor, "extractor must not be null");
 
-        Collection<Instance> instances = CollectionHelper.newHashSet();
+        Collection<Instance> instances = new HashSet<>();
         for (LocationDocument trainDocument : documents) {
             List<LocationAnnotation> annotations = extractor.getAnnotations(trainDocument.getText());
             Location mainLocation = trainDocument.getMainLocation();

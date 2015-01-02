@@ -1,12 +1,7 @@
 package ws.palladian.extraction.location.scope;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -48,10 +43,10 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
     private final GridCreator fineGrid;
 
     /** Cache mapped values, because mapping is not very fast. */
-    private final Map<String, String> fineToCoarseIdentifier = CollectionHelper.newHashMap();
+    private final Map<String, String> fineToCoarseIdentifier = new HashMap<>();
 
     /** Cache often requested terms and their TermCategoryEntries. */
-    private final Map<String, CategoryEntries> entriesCache = CollectionHelper.newHashMap();
+    private final Map<String, CategoryEntries> entriesCache = new HashMap<>();
 
     /**
      * Keep only those TermCategoryEntries cached, where the #size is greater than this value (this is adapted
@@ -168,7 +163,7 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
             // size is above the now removed threshold ...
             // StopWatch stopWatch = new StopWatch();
             // LOGGER.debug("Size of cache {}, cleaning up", entriesCache.size());
-            List<Entry<String, CategoryEntries>> temp = CollectionHelper.newArrayList(entriesCache.entrySet());
+            List<Entry<String, CategoryEntries>> temp = new ArrayList<>(entriesCache.entrySet());
             Collections.sort(temp, new Comparator<Entry<String, CategoryEntries>>() {
                 @Override
                 public int compare(Entry<String, CategoryEntries> e1, Entry<String, CategoryEntries> e2) {

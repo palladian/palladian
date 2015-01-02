@@ -302,7 +302,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         } else {
             JsonObject tagsObject = (JsonObject)tagsElement;
             JsonArray tagsArray = tagsObject.getJsonArray("tag");
-            tags = CollectionHelper.newHashSet();
+            tags = new HashSet<>();
             for (Object tagContent : tagsArray) {
                 tags.add(((JsonObject)tagContent).getString("_content"));
             }

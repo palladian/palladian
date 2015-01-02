@@ -35,10 +35,10 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      * @return
      */
     public List<RatedDate<ArchiveDate>> rate(List<ArchiveDate> dates, List<? extends RatedDate<?>> allDates) {
-        List<RatedDate<ArchiveDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<ArchiveDate>> result = new ArrayList<>();
         
         
-        Map<ExtractedDate, Double> datesWeights = CollectionHelper.newHashMap();
+        Map<ExtractedDate, Double> datesWeights = new HashMap<>();
         for (RatedDate<?> ratedDate : allDates) {
             datesWeights.put(ratedDate.getDate(), ratedDate.getRate());
         }

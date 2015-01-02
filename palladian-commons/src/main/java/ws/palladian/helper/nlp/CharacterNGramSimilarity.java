@@ -1,5 +1,6 @@
 package ws.palladian.helper.nlp;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -77,7 +78,7 @@ public class CharacterNGramSimilarity extends AbstractStringMetric {
         temp.append(s);
         temp.append(StringUtils.repeat('#', n - 1));
         s = temp.toString();
-        Set<String> ret = CollectionHelper.newHashSet();
+        Set<String> ret = new HashSet<>();
         for (int i = 0; i <= s.length() - n; i++) {
             ret.add(s.substring(i, i + n));
         }

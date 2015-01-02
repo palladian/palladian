@@ -5,12 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -96,7 +91,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      * @author pk
      */
     private static final class SimpleCollector extends Collector {
-        final Set<Integer> docs = CollectionHelper.newHashSet();
+        final Set<Integer> docs = new HashSet<>();
         int docBase;
 
         @Override
@@ -270,7 +265,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         try {
             SimpleCollector collector = new SimpleCollector();
             searcher.search(query, collector);
-            Collection<Location> locations = CollectionHelper.newHashSet();
+            Collection<Location> locations = new HashSet<>();
             for (int docId : collector.docs) {
                 locations.add(parseLocation(searcher.doc(docId)));
             }

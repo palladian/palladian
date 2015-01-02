@@ -13,11 +13,8 @@ import static ws.palladian.helper.collection.CollectionHelper.coalesce;
 import static ws.palladian.helper.functional.Filters.equal;
 import static ws.palladian.helper.functional.Filters.not;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -67,7 +64,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
 
     @Override
     public Set<ClassifiableLocation> extract(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
-        Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
+        Set<ClassifiableLocation> instances = new HashSet<>();
         LocationSet allLocations = new LocationSet(locations.allValues());
         LocationSet uniqLocations = new LocationSet(getUniqueLocations(locations.values()));
         LocationSet continents = allLocations.where(type(LocationType.CONTINENT));
@@ -76,7 +73,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
         List<GeoCoordinate> scopes = determineTextScopes(text);
         MultiMap<Location, String> mentions = createMentionMap(locations);
 
-        Set<String> alreadyChecked = CollectionHelper.newHashSet();
+        Set<String> alreadyChecked = new HashSet<>();
 
         for (Entry<ClassifiedAnnotation, Collection<Location>> entry : locations.entrySet()) {
 
@@ -208,7 +205,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     }
 
     private List<GeoCoordinate> determineTextScopes(String text) {
-        List<GeoCoordinate> result = CollectionHelper.newArrayList();
+        List<GeoCoordinate> result = new ArrayList<>();
         for (ScopeDetector scopeDetector : setting.getScopeDetectors()) {
             result.add(scopeDetector.getScope(text));
         }
@@ -216,7 +213,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     }
 
     private Map<String, Long> getIndexCounts(String value) {
-        Map<String, Long> counts = CollectionHelper.newHashMap();
+        Map<String, Long> counts = new HashMap<>();
         String query = String.format("\"%s\"", value);
         for (Searcher<?> searcher : setting.getIndexSearchers()) {
             try {
@@ -244,7 +241,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     }
 
     private Set<Location> getUniqueLocations(Collection<Collection<Location>> locationGroups) {
-        Set<Location> uniqueLocations = CollectionHelper.newHashSet();
+        Set<Location> uniqueLocations = new HashSet<>();
         for (Collection<Location> group : locationGroups) {
             if (new LocationSet(group).where(coordinate()).largestDistance() < setting.getEqualDistance()) {
                 uniqueLocations.addAll(group);

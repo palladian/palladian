@@ -6,10 +6,7 @@ import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultT
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR4;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
@@ -83,7 +80,7 @@ public class GeoEvaluationResult {
         }
     }
 
-    private final List<EvaluationItem> completeEvaluationList = CollectionHelper.newArrayList();
+    private final List<EvaluationItem> completeEvaluationList = new ArrayList<>();
 
     private int correct = 0;
 
@@ -133,8 +130,8 @@ public class GeoEvaluationResult {
     }
     
     public void addResultFromDocument(String fileName, List<LocationAnnotation> gold, List<LocationAnnotation> result) {
-        List<EvaluationItem> evaluationList = CollectionHelper.newArrayList();
-        Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
+        List<EvaluationItem> evaluationList = new ArrayList<>();
+        Set<Annotation> taggedAnnotations = new HashSet<>();
 
         // evaluate
         for (LocationAnnotation assignedAnnotation : result) {

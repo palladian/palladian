@@ -1,8 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -439,7 +437,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
         LOGGER.debug("sending {} text chunks, total text length {}", textChunks.size(), inputText.length());
 
-        Set<String> checkedEntities = CollectionHelper.newHashSet();
+        Set<String> checkedEntities = new HashSet<>();
         for (String textChunk : textChunks) {
 
             try {
@@ -454,7 +452,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
                     JsonObject entity = entities.getJsonObject(i);
                     String entityName = entity.getString("text");
                     String entityType = entity.getString("type");
-                    List<String> subTypeList = CollectionHelper.newArrayList();
+                    List<String> subTypeList = new ArrayList<>();
                     if (entity.get("disambiguated") != null) {
                         JsonObject disambiguated = entity.getJsonObject("disambiguated");
                         if (disambiguated.get("subType") != null) {
