@@ -42,7 +42,7 @@ public class PalladianSpellChecker {
     /** Do not correct words that contain any of these characters. */
     private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/") + "]");
 
-    private Trie<Integer> words = new Trie<Integer>();
+    private Trie<Integer> words = new Trie<>();
 
     public PalladianSpellChecker() {
     }
@@ -52,7 +52,7 @@ public class PalladianSpellChecker {
         StopWatch stopWatch = new StopWatch();
 
         // read the input file and create a P(w) model by counting the word occurrences
-        final Set<String> uniqueWords = new HashSet<String>();
+        final Set<String> uniqueWords = new HashSet<>();
         final Pattern p = Pattern.compile("[\\wöäüß-]+");
         LineAction lineAction = new LineAction() {
 
@@ -92,7 +92,7 @@ public class PalladianSpellChecker {
      * @return A list of possible variations.
      */
     private List<String> edits(String word) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
 
         int n = word.length();
 
@@ -193,7 +193,7 @@ public class PalladianSpellChecker {
         }
 
         List<String> list = edits(word);
-        Map<Integer, String> candidates = new HashMap<Integer, String>();
+        Map<Integer, String> candidates = new HashMap<>();
         for (String s : list) {
             if (s.isEmpty()) {
                 continue;
