@@ -1,5 +1,6 @@
 package ws.palladian.helper.math;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -35,6 +36,14 @@ public class MathHelperTest {
         numbers.add(abstractIterator);
         assertEquals(5, MathHelper.sample(numbers, 5).size());
         assertEquals(1, MathHelper.sample(numbers, 1).size());
+        Collection<AbstractIterator> sample1 = MathHelper.sample(numbers, 5);
+        Collection<AbstractIterator> sample2 = MathHelper.sample(numbers, 5);
+        assertFalse(sample1.containsAll(sample2));
+        assertFalse(sample2.containsAll(sample1));
+        sample1 = MathHelper.sample(numbers, 1);
+        sample2 = MathHelper.sample(numbers, 1);
+        assertFalse(sample1.containsAll(sample2));
+        assertFalse(sample2.containsAll(sample1));
     }
 
     @Test
