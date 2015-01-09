@@ -1,7 +1,5 @@
 package ws.palladian.extraction.location.scope.evaluation;
 
-import static ws.palladian.extraction.location.scope.evaluation.ScopeDetectorEvaluator.evaluateScopeDetection;
-
 import java.io.File;
 
 import ws.palladian.classification.text.FeatureSetting;
@@ -9,10 +7,6 @@ import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
-import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
-import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
-import ws.palladian.extraction.location.scope.MultiStepDictionaryScopeDetector;
-import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.extraction.location.scope.evaluation.GeoTextDatasetReader.Combination;
 import ws.palladian.extraction.location.scope.evaluation.GeoTextDatasetReader.SubSet;
 

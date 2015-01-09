@@ -19,7 +19,6 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;

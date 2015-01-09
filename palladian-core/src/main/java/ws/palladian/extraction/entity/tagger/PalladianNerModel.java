@@ -11,7 +11,6 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public final class PalladianNerModel implements Serializable {
 

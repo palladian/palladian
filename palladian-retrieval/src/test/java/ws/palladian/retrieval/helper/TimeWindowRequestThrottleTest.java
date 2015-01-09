@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.helper;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;

@@ -12,7 +12,6 @@ import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 

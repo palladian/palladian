@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 
 /**

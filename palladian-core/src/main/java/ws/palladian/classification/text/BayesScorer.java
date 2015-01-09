@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>

@@ -1,6 +1,14 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -8,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonArray;

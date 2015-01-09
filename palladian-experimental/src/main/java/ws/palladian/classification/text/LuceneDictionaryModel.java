@@ -33,7 +33,6 @@ import org.apache.lucene.util.Version;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 
 /**

@@ -2,13 +2,11 @@ package ws.palladian.classification.text;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import ws.palladian.helper.collection.CollectionHelper;
-
 import java.util.Arrays;
 import java.util.HashSet;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public abstract class AbstractDictionaryModelTest {
     

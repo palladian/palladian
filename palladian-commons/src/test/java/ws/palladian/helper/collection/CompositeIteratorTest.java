@@ -11,8 +11,6 @@ import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CompositeIterator;
-
 public class CompositeIteratorTest {
 
     @Test

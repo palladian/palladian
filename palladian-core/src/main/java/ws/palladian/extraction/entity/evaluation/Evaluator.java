@@ -20,7 +20,6 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
