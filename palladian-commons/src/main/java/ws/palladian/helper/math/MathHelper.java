@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,7 @@ public final class MathHelper {
         FRACTION_MAP.put(0.7, "7/10");
         FRACTION_MAP.put(0.9, "9/10");
         
-        Map<Double, Double> locZMapping = CollectionHelper.newLinkedHashMap();
+        Map<Double, Double> locZMapping = new LinkedHashMap<>();
         locZMapping.put(0.75, 1.151);
         locZMapping.put(0.85, 1.139);
         locZMapping.put(0.90, 1.645);
@@ -442,11 +443,7 @@ public final class MathHelper {
     public static <T> T randomEntry(Collection<T> collection) {
 //        Collection<T> randomSample = randomSample(collection, 1);
         Collection<T> randomSample = sample(collection, 1);
-        if (!randomSample.isEmpty()) {
-            return randomSample.iterator().next();
-        }
-
-        return null;
+        return CollectionHelper.getFirst(randomSample);
     }
 
 //    /**
@@ -535,7 +532,7 @@ public final class MathHelper {
         int i = k + 1;
         while (input.hasNext()) {
             T item = input.next();
-            int j = RANDOM.nextInt(i++) + 1;
+            int j = RANDOM.nextInt(i++);
             if (j < k) {
                 sample.set(j, item);
             }
