@@ -10,7 +10,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.extraction.token.TwokenizeTokenizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import cmu.arktweetnlp.impl.Model;
 import cmu.arktweetnlp.impl.ModelSentence;
 import cmu.arktweetnlp.impl.Sentence;

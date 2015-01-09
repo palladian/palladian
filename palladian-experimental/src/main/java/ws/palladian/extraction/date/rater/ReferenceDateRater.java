@@ -6,7 +6,6 @@ import java.util.List;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>

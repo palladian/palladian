@@ -10,7 +10,6 @@ import org.junit.Test;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class GeoEvaluationResultTest {
     

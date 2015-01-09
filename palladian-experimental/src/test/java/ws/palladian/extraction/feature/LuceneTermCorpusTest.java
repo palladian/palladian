@@ -1,6 +1,6 @@
 package ws.palladian.extraction.feature;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
@@ -15,7 +15,6 @@ import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.junit.Test;
 
-import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.helper.io.FileHelper;
 
 public class LuceneTermCorpusTest {

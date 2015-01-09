@@ -1,6 +1,7 @@
 package ws.palladian.core;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;

@@ -12,7 +12,6 @@ import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public final class OpenNlpPhraseChunker implements PhraseChunker {
     

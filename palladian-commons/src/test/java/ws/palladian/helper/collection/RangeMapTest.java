@@ -1,10 +1,10 @@
 package ws.palladian.helper.collection;
 
+import static org.junit.Assert.assertThat;
+
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class RangeMapTest {
 

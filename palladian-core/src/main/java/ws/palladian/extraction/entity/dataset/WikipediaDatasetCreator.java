@@ -1,8 +1,6 @@
 package ws.palladian.extraction.entity.dataset;
 
 import static ws.palladian.core.AnnotationFilters.tag;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.English;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Sparse;
 import static ws.palladian.helper.collection.CollectionHelper.remove;
 import static ws.palladian.helper.constants.Language.ENGLISH;
 import static ws.palladian.helper.functional.Filters.fileExtension;
@@ -18,8 +16,13 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,15 +31,11 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.text.PruningStrategies;
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.DictionaryTagger;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
-import ws.palladian.extraction.entity.tagger.PalladianNer;
-import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings;
-import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.Builder;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;

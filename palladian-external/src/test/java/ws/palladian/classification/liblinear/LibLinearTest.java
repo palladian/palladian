@@ -11,17 +11,16 @@ import java.util.List;
 
 import org.junit.Test;
 
-import de.bwaldvogel.liblinear.Parameter;
-import de.bwaldvogel.liblinear.SolverType;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.math.ConfusionMatrix;
+import de.bwaldvogel.liblinear.Parameter;
+import de.bwaldvogel.liblinear.SolverType;
 
 public class LibLinearTest {
 

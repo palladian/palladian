@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.dates.ContentDate;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;

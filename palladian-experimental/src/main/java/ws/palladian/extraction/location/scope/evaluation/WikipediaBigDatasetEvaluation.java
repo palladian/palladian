@@ -1,43 +1,32 @@
 package ws.palladian.extraction.location.scope.evaluation;
 
-import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
-import static ws.palladian.classification.text.BayesScorer.Options.FREQUENCIES;
-import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
-import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
-import static ws.palladian.extraction.location.scope.evaluation.ScopeDetectorEvaluator.evaluateScopeDetection;
-
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.text.BayesScorer;
 import ws.palladian.classification.text.DictionaryBuilder;
 import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PruningStrategies;
-import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
-import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector;
-import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
-import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeDetectorLearner;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.ConsumerIteratorAdapter;
 import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.ConsumerIteratorAdapter;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.wiki.MarkupCoordinate;
-import ws.palladian.retrieval.wiki.WikiPage;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
+import ws.palladian.retrieval.wiki.WikiPage;
 
 /**
  * Evaluation script for the text-based scope detection using the big Wikipedia dump.

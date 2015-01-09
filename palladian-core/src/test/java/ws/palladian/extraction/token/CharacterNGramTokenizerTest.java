@@ -7,7 +7,6 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import ws.palladian.core.Token;
-import ws.palladian.extraction.token.CharacterNGramTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class CharacterNGramTokenizerTest {
