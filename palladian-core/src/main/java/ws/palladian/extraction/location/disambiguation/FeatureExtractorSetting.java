@@ -126,11 +126,11 @@ public interface FeatureExtractorSetting {
             this.equalDistance = setting.getEqualDistance();
             this.distanceValues = Arrays.copyOf(setting.getDistanceValues(), setting.getDistanceValues().length);
             this.populationValues = Arrays.copyOf(setting.getPopulationValues(), setting.getPopulationValues().length);
-            this.scopeDetectors = CollectionHelper.newArrayList(setting.getScopeDetectors());
-            this.indexSearchers = CollectionHelper.newArrayList(setting.getIndexSearchers());
+            this.scopeDetectors = setting.getScopeDetectors();
+            this.indexSearchers = setting.getIndexSearchers();
             this.locationMarkers = Arrays.copyOf(setting.getLocationMarkers(), setting.getLocationMarkers().length);
             this.debug = setting.isDebug();
-            this.entityCategories = CollectionHelper.newHashSet(setting.getEntityCategories());
+            this.entityCategories = new HashSet<>(setting.getEntityCategories());
             return this;
         }
 

@@ -1,5 +1,6 @@
 package ws.palladian.extraction.date.rater;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.date.KeyWords;
@@ -52,7 +53,7 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
      * @return
      */
     private List<RatedDate<StructureDate>> evaluateStructDate(List<StructureDate> structDates) {
-        List<RatedDate<StructureDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<StructureDate>> result = new ArrayList<>();
         for (StructureDate structDate : structDates) {
             byte keywordPriority = KeyWords.getKeywordPriority(structDate.getKeyword());
             double rate;

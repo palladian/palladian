@@ -61,7 +61,7 @@ public class EventlySearcher extends EventSearcher {
 
     /**
      * <p>
-     * FIXME Creates a new evently searcher.
+     * Creates a new evently searcher.
      * </p>
      * 
      * @param configuration The configuration which must provide an API key for accessing evently, which must be
@@ -71,7 +71,6 @@ public class EventlySearcher extends EventSearcher {
     public EventlySearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
     }
-
 
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,

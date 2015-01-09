@@ -21,6 +21,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -112,7 +113,7 @@ public final class MathHelper {
 //        Validate.notNull(setA, "setA must not be null");
 //        Validate.notNull(setB, "setB must not be null");
 //
-//        Set<T> intersection = CollectionHelper.newHashSet();
+//        Set<T> intersection = new HashSet<>();
 //        intersection.addAll(setA);
 //        intersection.retainAll(setB);
 //
@@ -120,7 +121,7 @@ public final class MathHelper {
 //            return 0;
 //        }
 //
-//        Set<T> union = CollectionHelper.newHashSet();
+//        Set<T> union = new HashSet<>();
 //        union.addAll(setA);
 //        union.addAll(setB);
 //
@@ -146,7 +147,7 @@ public final class MathHelper {
 //            return 0;
 //        }
 //
-//        Set<T> intersection = CollectionHelper.newHashSet();
+//        Set<T> intersection = new HashSet<>();
 //        intersection.addAll(setA);
 //        intersection.retainAll(setB);
 //
@@ -442,11 +443,7 @@ public final class MathHelper {
     public static <T> T randomEntry(Collection<T> collection) {
 //        Collection<T> randomSample = randomSample(collection, 1);
         Collection<T> randomSample = sample(collection, 1);
-        if (!randomSample.isEmpty()) {
-            return randomSample.iterator().next();
-        }
-
-        return null;
+        return CollectionHelper.getFirst(randomSample);
     }
 
 //    /**
@@ -535,7 +532,7 @@ public final class MathHelper {
         int i = k + 1;
         while (input.hasNext()) {
             T item = input.next();
-            int j = RANDOM.nextInt(i++) + 1;
+            int j = RANDOM.nextInt(i++);
             if (j < k) {
                 sample.set(j, item);
             }

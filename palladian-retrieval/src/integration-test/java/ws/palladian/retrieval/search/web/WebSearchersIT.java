@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.web;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class WebSearchersIT {
     @Parameters(name = "{0}")
     public static Collection<Object[]> searchers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
-        List<Object[]> searchers = CollectionHelper.newArrayList();
+        List<Object[]> searchers = new ArrayList<>();
 
         // web page searchers
         searchers.add(new Object[] {new BingSearcher(configuration)});

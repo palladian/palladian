@@ -1,9 +1,7 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -31,7 +29,7 @@ final class UnlockTextMockExtractor extends LocationExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnlockTextMockExtractor.class);
 
     static List<Location> parseLocations(String jsonInput) throws JsonException {
-        List<Location> locations = CollectionHelper.newArrayList();
+        List<Location> locations = new ArrayList<>();
         JsonArray resultArray = new JsonArray(jsonInput);
         JsonObject placesJson = null;
         for (int i = 0; i < resultArray.size(); i++) {
@@ -48,7 +46,7 @@ final class UnlockTextMockExtractor extends LocationExtractor {
             GeoCoordinate coordinate = null;
             Long pop = null;
             int id = -1;
-            List<AlternativeName> altNames = CollectionHelper.newArrayList();
+            List<AlternativeName> altNames = new ArrayList<>();
 
             JsonArray locationJson = placesJson.getJsonArray(name);
             for (int i = 0; i < locationJson.size(); i++) {
@@ -96,7 +94,7 @@ final class UnlockTextMockExtractor extends LocationExtractor {
         return annotations;
     }
 
-    private final Map<Integer, List<LocationAnnotation>> data = CollectionHelper.newHashMap();
+    private final Map<Integer, List<LocationAnnotation>> data = new HashMap<>();
 
     public UnlockTextMockExtractor(File pathToTexts, File pathToJsonResults) {
         Validate.notNull(pathToTexts, "pathToTexts must not be null");

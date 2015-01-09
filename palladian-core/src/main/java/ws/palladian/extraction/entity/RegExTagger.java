@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +31,7 @@ public class RegExTagger implements Tagger {
 
     @Override
     public final List<Annotation> getAnnotations(String text) {
-        List<Annotation> annotations = CollectionHelper.newArrayList();
+        List<Annotation> annotations = new ArrayList<>();
         String cleanText = StringHelper.replaceProtectedSpace(text);
         Matcher matcher = pattern.matcher(cleanText);
         while (matcher.find()) {

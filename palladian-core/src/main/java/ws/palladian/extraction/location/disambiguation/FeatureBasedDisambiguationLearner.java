@@ -84,7 +84,7 @@ public class FeatureBasedDisambiguationLearner {
         for (File datasetDirectory : datasetDirectories) {
             datasetIterators.add(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
         }
-        return learn(new CompositeIterator<LocationDocument>(datasetIterators));
+        return learn(new CompositeIterator<>(datasetIterators));
     }
 
     public QuickDtModel learn(Iterator<LocationDocument> trainDocuments) {

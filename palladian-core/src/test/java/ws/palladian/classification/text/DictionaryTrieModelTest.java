@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -53,12 +55,12 @@ public class DictionaryTrieModelTest {
          * </pre>
          */
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
-        builder.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_2, WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_3, WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_3), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_1, WORD_3)), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_2, WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_3, WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_1, WORD_3)), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_3)), CATEGORY_1);
         model = builder.create();
     }
 

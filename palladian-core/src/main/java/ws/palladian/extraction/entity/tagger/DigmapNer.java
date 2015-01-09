@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class DigmapNer extends NamedEntityRecognizer {
     /** Mapping for the XML namespace. */
     private static final Map<String, String> NAMESPACE_MAPPING;
     static {
-        NAMESPACE_MAPPING = CollectionHelper.newHashMap();
+        NAMESPACE_MAPPING = new HashMap<>();
         NAMESPACE_MAPPING.put("gp", "http://www.opengis.net/gp");
     }
 

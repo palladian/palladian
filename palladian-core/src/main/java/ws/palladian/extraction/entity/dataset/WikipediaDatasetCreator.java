@@ -18,11 +18,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -103,8 +100,8 @@ class WikipediaDatasetCreator {
             }
         }
 
-        Map<String, String> additionalItems = CollectionHelper.newHashMap();
-        Set<String> toRemoveItems = CollectionHelper.newHashSet();
+        Map<String, String> additionalItems = new HashMap<>();
+        Set<String> toRemoveItems = new HashSet<>();
         for (Entry<String, String> entry : resolvedLinkEntities.entrySet()) {
             String title = entry.getKey();
             String type = entry.getValue();

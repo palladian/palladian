@@ -3,6 +3,7 @@
  */
 package ws.palladian.classification;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -90,8 +91,8 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
         DummyVariableCreator dummyCoder = new DummyVariableCreator(featureVectors);
 
         // determine feature and class names
-        List<String> featureNames = CollectionHelper.newArrayList();
-        List<String> classNames = CollectionHelper.newArrayList();
+        List<String> featureNames = new ArrayList<>();
+        List<String> classNames = new ArrayList<>();
         for (Instance instance : instances) {
             FeatureVector featureVector = dummyCoder.convert(instance.getVector());
             for (VectorEntry<String, Value> entry : featureVector) {
@@ -174,7 +175,7 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
         featureVector = normalization.normalize(featureVector);
         featureVector = dummyCoder.convert(featureVector);
 
-        List<svm_node> libSvmFeatureVector = CollectionHelper.newArrayList();
+        List<svm_node> libSvmFeatureVector = new ArrayList<>();
         for (int i = 0; i < featureNames.size(); i++) {
             String featureName = featureNames.get(i);
             Value value = featureVector.get(featureName);

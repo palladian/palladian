@@ -2,6 +2,7 @@ package ws.palladian.classification.discretization;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,7 +55,7 @@ public final class Discretization {
      */
     @Deprecated
     private static Set<String> getNumericFeatureNames(Iterable<? extends Instance> dataset) {
-        Set<String> numericFeatureNames = CollectionHelper.newHashSet();
+        Set<String> numericFeatureNames = new HashSet<>();
         for (Instance instance : dataset) {
             FeatureVector featureVector = instance.getVector();
             for (VectorEntry<String, Value> vectorEntry : featureVector) {

@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.search.socialmedia;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,7 +12,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
@@ -66,7 +67,8 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
 
         public CategoryFilter(String... categories) {
             Validate.notNull(categories, "categories must not be null");
-            this.categories = CollectionHelper.newHashSet(categories);
+            this.categories = new HashSet<>();
+            this.categories.addAll(Arrays.asList(categories));
         }
 
         @Override

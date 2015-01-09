@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -54,7 +55,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
         request.addParameter("text", inputText);
 
-        List<Annotation> annotations = CollectionHelper.newArrayList();
+        List<Annotation> annotations = new ArrayList<>();
         String content;
         try {
             HttpResult httpResult = httpRetriever.execute(request);

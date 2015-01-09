@@ -394,11 +394,7 @@ public class HttpRetriever {
                     for (Entry<String, String> param : request.getParameters().entrySet()) {
                         postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                     }
-//                    try {
                         entity = new UrlEncodedFormEntity(postParams,request.getCharset());
-//                    } catch (UnsupportedEncodingException e) {
-//                        throw new IllegalStateException(e);
-//                    }
                 }
 
                 httpPost.setEntity(entity);
@@ -414,7 +410,20 @@ public class HttpRetriever {
                 break;
             case PUT:
                 url = createUrl(request);
-                httpRequest = new HttpPut(url);
+                HttpPut httpPut = new HttpPut(url);
+
+                if(request.getHttpEntity() != null){
+                    entity = request.getHttpEntity();
+                }else{
+                    List<NameValuePair> postParams = new ArrayList<>();
+                    for (Entry<String, String> param : request.getParameters().entrySet()) {
+                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                    }
+                    entity = new UrlEncodedFormEntity(postParams,request.getCharset());
+                }
+
+                httpPut.setEntity(entity);
+                httpRequest = httpPut;
                 break;
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());

@@ -240,7 +240,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         int highestCount = xpathset.getCountOfXPath(highestCountXPath);
 
         // if we know the main content block, remove all xPath which are not in that block
-        Set<String> outOfMainContent = CollectionHelper.newHashSet();
+        Set<String> outOfMainContent = new HashSet<>();
         if (!resultNodeXPath.isEmpty()) {
             for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
                 if (!mapEntry.getKey().startsWith(resultNodeXPath)) {
@@ -491,7 +491,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // document
         String imgXPath = ".//xhtml:img";
 
-        List<Node> imageNodes = CollectionHelper.newArrayList();
+        List<Node> imageNodes = new ArrayList<>();
 
         while (imageNodes.isEmpty() && imageParentNode != null) {
             imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
@@ -620,7 +620,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public void analyzeImages() {
 
-        List<WebImage> temp = CollectionHelper.newArrayList();
+        List<WebImage> temp = new ArrayList<>();
 
         for (WebImage webImage : getImages()) {
             if (webImage.getWidth() == 0 || webImage.getHeight() == 0) {

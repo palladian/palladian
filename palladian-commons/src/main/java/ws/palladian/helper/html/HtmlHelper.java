@@ -182,7 +182,7 @@ public final class HtmlHelper {
         if (htmlElements.isEmpty()) {
             return htmlText;
         }
-        List<String> regexes = CollectionHelper.newArrayList();
+        List<String> regexes = new ArrayList<>();
         if (htmlElements.contains(HtmlElement.COMMENTS)) {
             regexes.add("<!--.*?-->");
         }

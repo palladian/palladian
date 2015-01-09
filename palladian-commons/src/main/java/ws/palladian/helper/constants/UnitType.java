@@ -12,9 +12,8 @@ import ws.palladian.helper.collection.StringLengthComparator;
  * <p>
  * The type of a unit, e.g. "weight" for units such as "g", "tons" etc.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public enum UnitType {
 
@@ -50,7 +49,7 @@ public enum UnitType {
 
     static {
 
-        List<String> unitList = new ArrayList<>();
+        List<String> unitList;
 
         // NONE units are normalized to 1
         unitList = new ArrayList<>();
@@ -111,7 +110,7 @@ public enum UnitType {
             for (String name : tUnit.getNames()) {
                 unitList.add(name);
             }
-            UnitType.TEMPERATURE.units.add(Pair.<List<String>, Double> of(unitList, null));
+            UnitType.TEMPERATURE.units.add(Pair.<List<String>, Double>of(unitList, null));
         }
 
         // TIME units are normalized to seconds

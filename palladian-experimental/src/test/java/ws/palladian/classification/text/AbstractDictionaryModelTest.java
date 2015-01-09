@@ -7,6 +7,9 @@ import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 public abstract class AbstractDictionaryModelTest {
     
     private static final String CATEGORY_1 = "category1";
@@ -46,12 +49,12 @@ public abstract class AbstractDictionaryModelTest {
          * </pre>
          */
         DictionaryBuilder builder = getBuilder();
-        builder.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_2, WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_3, WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_3), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_1, WORD_3)), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_2, WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_3, WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_1, WORD_3)), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_3)), CATEGORY_1);
         model = builder.create();
     }
 
