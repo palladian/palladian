@@ -1,12 +1,11 @@
 package ws.palladian.helper.math;
 
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +20,7 @@ public class MathHelperTest {
 
     @Test
     public void testRandomSample() {
-        AbstractIterator<Integer> abstractIterator = new AbstractIterator<Integer>() {
+        Collection<Integer> numbers = CollectionHelper.newArrayList(new AbstractIterator<Integer>() {
             int counter = 0;
 
             @Override
@@ -31,19 +30,14 @@ public class MathHelperTest {
                 }
                 return counter++;
             }
-        };
-        Collection<AbstractIterator> numbers = new ArrayList<>();
-        numbers.add(abstractIterator);
-        assertEquals(5, MathHelper.sample(numbers, 5).size());
+        });
         assertEquals(1, MathHelper.sample(numbers, 1).size());
-        Collection<AbstractIterator> sample1 = MathHelper.sample(numbers, 5);
-        Collection<AbstractIterator> sample2 = MathHelper.sample(numbers, 5);
-        assertFalse(sample1.containsAll(sample2));
-        assertFalse(sample2.containsAll(sample1));
-        sample1 = MathHelper.sample(numbers, 1);
-        sample2 = MathHelper.sample(numbers, 1);
-        assertFalse(sample1.containsAll(sample2));
-        assertFalse(sample2.containsAll(sample1));
+        assertEquals(5, MathHelper.sample(numbers, 5).size());
+        assertEquals(1000, MathHelper.sample(numbers, 10000).size());
+        
+        // the two samples must be different
+        assertNotEquals(MathHelper.sample(numbers, 5), MathHelper.sample(numbers, 5));
+        assertNotEquals(MathHelper.sample(numbers, 1), MathHelper.sample(numbers, 1));
     }
 
     @Test
