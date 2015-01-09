@@ -2,6 +2,7 @@ package ws.palladian.extraction.content.evaluation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public final class TudContentExtractionDataset implements ContentExtractionDatas
     }
 
     private static Map<String, String> readFileUrlMapping(File tudDatasetDirectory) {
-        final Map<String, String> mapping = CollectionHelper.newHashMap();
+        final Map<String, String> mapping = new HashMap<>();
         File csvFile = new File(tudDatasetDirectory, "___index.csv");
         if (!csvFile.isFile()) {
             throw new IllegalStateException(csvFile + " does not exist.");

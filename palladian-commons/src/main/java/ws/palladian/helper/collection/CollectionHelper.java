@@ -244,7 +244,7 @@ public final class CollectionHelper {
     /**
      * <p>
      * Create a new {@link HashMap}. This method allows omitting the type parameter when creating the HashMap:
-     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newHashMap();</code>.
+     * <code>Map&lt;String, Integer&gt; map = new HashMap<>();</code>.
      * </p>
      * 
      * @return A new {@link HashMap}.
@@ -286,7 +286,7 @@ public final class CollectionHelper {
     /**
      * <p>
      * Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the ArrayList:
-     * <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
+     * <code>List&lt;String&gt; list = new ArrayList<>();</code>.
      * </p>
      * 
      * @return A new {@link ArrayList}.
@@ -360,7 +360,7 @@ public final class CollectionHelper {
     /**
      * <p>
      * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
-     * <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
+     * <code>Set&lt;String&gt; set = new HashSet<>();</code>.
      * </p>
      * 
      * @return A new {@link HashSet}.
@@ -432,7 +432,7 @@ public final class CollectionHelper {
     /**
      * <p>
      * Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
-     * LinkedHashSet: <code>Set&lt;String&gt; set = CollectionHelper.newLinkedHashSet();</code>.
+     * LinkedHashSet: <code>Set&lt;String&gt; set = new LinkedHashSet<>();</code>.
      * </p>
      * 
      * @return A new {@link LinkedHashSet}.
@@ -623,7 +623,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
-        // List<T> result = CollectionHelper.newArrayList();
+        // List<T> result = new ArrayList<>();
         // for (T t : iterable) {
         // result.add(t);
         // if (result.size() == num) {

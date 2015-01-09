@@ -103,13 +103,13 @@
 //     * @return HashMap of dates, with rate as value.
 //     */
 //    public List<RatedDate<? extends ExtractedDate>> rate(List<ExtractedDate> extractedDates) {
-//        List<RatedDate<? extends ExtractedDate>> evaluatedDates = CollectionHelper.newArrayList();
+//        List<RatedDate<? extends ExtractedDate>> evaluatedDates = new ArrayList<>();
 //
 //        List<ExtractedDate> dates = DateExtractionHelper.filterByRange(extractedDates);
-//        List<RatedDate<UrlDate>> urlResult = CollectionHelper.newArrayList();
-//        List<RatedDate<MetaDate>> metaResult = CollectionHelper.newArrayList();
-//        List<RatedDate<StructureDate>> structResult = CollectionHelper.newArrayList();
-//        List<RatedDate<ContentDate>> contResult = CollectionHelper.newArrayList();
+//        List<RatedDate<UrlDate>> urlResult = new ArrayList<>();
+//        List<RatedDate<MetaDate>> metaResult = new ArrayList<>();
+//        List<RatedDate<StructureDate>> structResult = new ArrayList<>();
+//        List<RatedDate<ContentDate>> contResult = new ArrayList<>();
 //
 //
 //        List<UrlDate> urlDates = DateExtractionHelper.filter(dates, UrlDate.class);
@@ -207,7 +207,7 @@
 //        List<RatedDate<T>> result = dates;
 //        List<RatedDate<T>> temp = dates; // Where worked dates can be removed.
 //        List<RatedDate<T>> tempContentDates; // only dates that are equal to metaDate.
-//        List<RatedDate<T>> tempResult = CollectionHelper.newArrayList(); // worked dates can be put in.
+//        List<RatedDate<T>> tempResult = new ArrayList<>(); // worked dates can be put in.
 //        
 //        List<RatedDate<MetaDate>> sortedMetaDates = new ArrayList<RatedDate<MetaDate>>(metaDates);
 //        RatedDateComparator ratedDateComparator = new RatedDateComparator();
@@ -312,7 +312,7 @@
 //     */
 //    private <T extends ExtractedDate> List<RatedDate<T>> normalizeRate(List<RatedDate<T>> dates) {
 //        double highestRate = DateExtractionHelper.getHighestRate(dates);
-//        List<RatedDate<T>> result = CollectionHelper.newArrayList();
+//        List<RatedDate<T>> result = new ArrayList<>();
 //        if (highestRate > 1.0) {
 //            for (RatedDate<T> date : dates) {
 //                result.add(RatedDate.create(date.getDate(), Math.round(date.getRate() / highestRate * 10000) / 10000.0));
@@ -335,9 +335,9 @@
 //        List<RatedDate<StructureDate>> structureDates = dc.orderDates(structDates, true);
 //        List<RatedDate<ContentDate>> result = contentDates;
 //        List<RatedDate<ContentDate>> temp = contentDates;
-//        List<RatedDate<ContentDate>> tempContentDates = CollectionHelper.newArrayList();
+//        List<RatedDate<ContentDate>> tempContentDates = new ArrayList<>();
 //        
-//        Map<StructureDate, Double> structureWeights = CollectionHelper.newHashMap();
+//        Map<StructureDate, Double> structureWeights = new HashMap<>();
 //        for (RatedDate<StructureDate> structureDate : structDates) {
 //            structureWeights.put(structureDate.getDate(), structureDate.getRate());
 //        }

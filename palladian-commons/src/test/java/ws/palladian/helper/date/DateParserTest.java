@@ -4,12 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -444,8 +446,20 @@ public class DateParserTest {
         assertEquals(1999, DateParserLogic.normalizeYear("'99"));
         assertEquals(2003, DateParserLogic.normalizeYear("'03"));
         assertEquals(2010, DateParserLogic.normalizeYear("'10"));
-        assertEquals(1915, DateParserLogic.normalizeYear("'15"));
-        assertEquals(1915, DateParserLogic.normalizeYear("15"));
+        
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        assertEquals(currentYear, DateParserLogic.normalizeYear("" + currentYear));
+
+        // short years should be normalized to current century, in case given year <= current year
+        int currentYearShort = currentYear % 100;
+        assertEquals(currentYear, DateParserLogic.normalizeYear("'" + currentYearShort));
+        assertEquals(currentYear, DateParserLogic.normalizeYear("" + currentYearShort));
+        
+        // short years should be normalized to last century, in case given year > current year
+        int nextYearShort = currentYearShort + 1;
+        assertEquals(currentYear - 99, DateParserLogic.normalizeYear("'" + nextYearShort));
+        assertEquals(currentYear - 99, DateParserLogic.normalizeYear("" + nextYearShort));
+        
         assertEquals(1915, DateParserLogic.normalizeYear("1915"));
         assertEquals(2012, DateParserLogic.normalizeYear("2012\n1"));
     }
@@ -519,8 +533,8 @@ public class DateParserTest {
     @Test
     @Ignore // make this faster!
     public void testExtractFromText() throws IOException {
-        final int count = 25;
-        final ProgressMonitor monitor = new ProgressMonitor();
+        int count = 25;
+        ProgressReporter monitor = new ProgressMonitor();
         monitor.startTask(null, count);
         String text = FileHelper.readFileToString(ResourceHelper.getResourcePath("/wikipedia_2011_Egyptian_revolution.txt"));
         for (int i = 0; i < count; i++) {

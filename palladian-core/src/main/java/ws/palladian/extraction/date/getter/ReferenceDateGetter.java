@@ -50,7 +50,7 @@ public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
 
             // keep all with highest rate
             // TODO test this
-            List<ContentDate> highRatedContentDates = CollectionHelper.newArrayList();
+            List<ContentDate> highRatedContentDates = new ArrayList<>();
             double highestRate = 0.0;
             for (RatedDate<ContentDate> ratedDate : ratedContentDates) {
                 if (ratedDate.getRate() > highestRate) {

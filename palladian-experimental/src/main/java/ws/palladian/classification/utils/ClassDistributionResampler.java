@@ -1,12 +1,7 @@
 package ws.palladian.classification.utils;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -77,7 +72,7 @@ public class ClassDistributionResampler implements Iterable<Instance> {
         for (Double value : probabilities.values()) {
             minProbability = Math.min(minProbability, value);
         }
-        List<Instance> result = CollectionHelper.newArrayList();
+        List<Instance> result = new ArrayList<>();
         Bag<String> temp = Bag.create();
         for (Instance trainable : data) {
             String targetClass = trainable.getCategory();

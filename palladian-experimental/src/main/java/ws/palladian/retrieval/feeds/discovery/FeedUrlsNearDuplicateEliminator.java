@@ -96,7 +96,7 @@ public class FeedUrlsNearDuplicateEliminator {
         Map<String, Collection<String>> temp = LazyMap.create(new Factory<Collection<String>>() {
             @Override
             public Collection<String> create() {
-                return CollectionHelper.newArrayList();
+                return new ArrayList<>();
             }
         });
 

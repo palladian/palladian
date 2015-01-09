@@ -2,7 +2,9 @@ package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
@@ -12,11 +14,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 public class SetSimilaritiesTest {
 
     private static final double DELTA = 0.001;
-    private static final Set<Integer> set1 = CollectionHelper.newHashSet(1, 2, 3, 4);
-    private static final Set<Integer> set2 = CollectionHelper.newHashSet(1, 2, 3, 6);
-    private static final Set<Integer> set3 = CollectionHelper.newHashSet(1, 2, 3, 4);
-    private static final Set<Integer> set4 = CollectionHelper.newHashSet(5, 6, 7, 8);
-    private static final Set<Integer> set5 = CollectionHelper.newHashSet(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    private static final Set<Integer> set1 = new HashSet<>(Arrays.asList(1, 2, 3, 4));
+    private static final Set<Integer> set2 = new HashSet<>(Arrays.asList(1, 2, 3, 6));
+    private static final Set<Integer> set3 = new HashSet<>(Arrays.asList(1, 2, 3, 4));
+    private static final Set<Integer> set4 = new HashSet<>(Arrays.asList(5, 6, 7, 8));
+    private static final Set<Integer> set5 = new HashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
     private static final Set<Integer> emptySet = Collections.emptySet();
 
     @Test

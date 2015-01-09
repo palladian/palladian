@@ -7,6 +7,7 @@ import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class KnnClassifierTest {
     @Test
     public void testKnnClassifier() {
         // create some instances for the vector space
-        List<Instance> trainingInstances = CollectionHelper.newArrayList();
+        List<Instance> trainingInstances = new ArrayList<>();
         trainingInstances.add(new InstanceBuilder().set("f1", 3d).set("f2", 4d).set("f3", 5d).create("A"));
         trainingInstances.add(new InstanceBuilder().set("f1", 3d).set("f2", 6d).set("f3", 6d).create("A"));
         trainingInstances.add(new InstanceBuilder().set("f1", 4d).set("f2", 4d).set("f3", 4d).create("B"));

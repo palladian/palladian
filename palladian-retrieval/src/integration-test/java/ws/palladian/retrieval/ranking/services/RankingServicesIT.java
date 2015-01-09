@@ -3,6 +3,7 @@ package ws.palladian.retrieval.ranking.services;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class RankingServicesIT {
     @Parameters(name = "{0}")
     public static Collection<Object[]> rankers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
-        List<Object[]> rankers = CollectionHelper.newArrayList();
+        List<Object[]> rankers = new ArrayList<>();
         rankers.add(new Object[] {new AlexaRank()});
         rankers.add(new Object[] {new BibsonomyBookmarks(configuration)});
         rankers.add(new Object[] {new BitlyClicks(configuration)});

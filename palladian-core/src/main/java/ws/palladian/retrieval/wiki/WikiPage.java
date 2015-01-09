@@ -132,7 +132,7 @@ public class WikiPage extends WikiPageReference {
         // like this, it also works for bold text with a ' character:
 //        Pattern pattern = Pattern.compile("'''([^'\n]+('[^'\n]+)?)'''");
 //        Matcher matcher = pattern.matcher(text);
-//        List<String> result = CollectionHelper.newArrayList();
+//        List<String> result = new ArrayList<>();
 //        while (matcher.find()) {
 //            String group = matcher.group(1);
 //            if (StringUtils.isNotBlank(group) && group.length() > 1) {

@@ -302,7 +302,7 @@ public final class LingPipePhraseChunker implements PhraseChunker {
     public List<Annotation> chunk(String sentence) {
       char[] characters = Strings.toCharArray(sentence);
       Chunking chunking = this.chunk(characters, 0, characters.length);
-      List<Annotation> tagAnnotations = CollectionHelper.newArrayList();
+      List<Annotation> tagAnnotations = new ArrayList<>();
       for (Chunk chunk : chunking.chunkSet()) {
             Annotation tagAnnotation = new ImmutableAnnotation(chunk.start(), sentence.substring(chunk.start(),
                     chunk.end()), chunk.type());

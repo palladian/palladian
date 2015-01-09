@@ -26,8 +26,8 @@ public class InformativenessAssigner {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InformativenessAssigner.class);
 
-    private HashMap<String, Double> tokenFrequencies = CollectionHelper.newHashMap();
-    private Map<String, Double> normalizedTokenFrequencies = CollectionHelper.newHashMap();
+    private HashMap<String, Double> tokenFrequencies = new HashMap<>();
+    private Map<String, Double> normalizedTokenFrequencies = new HashMap<>();
 
     private InformativenessAssigner() {
         // loadFrequencyMap();

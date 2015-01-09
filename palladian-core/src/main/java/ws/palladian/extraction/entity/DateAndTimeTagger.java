@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -41,7 +42,7 @@ public class DateAndTimeTagger implements Tagger {
 
     @Override
     public List<Annotation> getAnnotations(String text) {
-        List<Annotation> annotations = CollectionHelper.newArrayList();
+        List<Annotation> annotations = new ArrayList<>();
 
         List<ExtractedDate> allDates = DateParser.findDates(text, dateFormats);
 

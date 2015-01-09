@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -169,7 +170,7 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
             // size is above the now removed threshold ...
             // StopWatch stopWatch = new StopWatch();
             // LOGGER.debug("Size of cache {}, cleaning up", entriesCache.size());
-            List<Entry<String, CategoryEntries>> temp = CollectionHelper.newArrayList(entriesCache.entrySet());
+            List<Entry<String, CategoryEntries>> temp = new ArrayList<>(entriesCache.entrySet());
             Collections.sort(temp, new Comparator<Entry<String, CategoryEntries>>() {
                 @Override
                 public int compare(Entry<String, CategoryEntries> e1, Entry<String, CategoryEntries> e2) {

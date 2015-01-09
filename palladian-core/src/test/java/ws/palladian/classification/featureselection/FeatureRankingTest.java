@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class FeatureRankingTest {
 
     @Before
     public void setUp() {
-        fixture = CollectionHelper.newArrayList();
+        fixture = new ArrayList<>();
         fixture.add(new InstanceBuilder().set("a", 2).set("b", 1).set("c", 1).set("d", 1).create("c1"));
         fixture.add(new InstanceBuilder().set("a", 1).set("b", 1).set("c", 1).create("c1"));
         fixture.add(new InstanceBuilder().set("d", 1).set("e", 1).set("f", 1).create("c2"));
@@ -109,7 +110,7 @@ public class FeatureRankingTest {
 
     @Test
     public void testNumericFeatureWithInformationGain() throws Exception {
-        List<Instance> dataset = CollectionHelper.newArrayList();
+        List<Instance> dataset = new ArrayList<>();
         dataset.add(new InstanceBuilder().set("numeric", 1.0d).create("a"));
         dataset.add(new InstanceBuilder().set("numeric", 2.0d).create("b"));
         dataset.add(new InstanceBuilder().set("numeric", 3.0d).create("a"));

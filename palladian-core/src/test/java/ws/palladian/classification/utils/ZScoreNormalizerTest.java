@@ -2,6 +2,7 @@ package ws.palladian.classification.utils;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class ZScoreNormalizerTest {
 
     @Test
     public void testZScoreNormalization() {
-        List<FeatureVector> features = CollectionHelper.newArrayList();
+        List<FeatureVector> features = new ArrayList<>();
         features.add(new InstanceBuilder().set("v1", 35.).create());
         features.add(new InstanceBuilder().set("v1", 36.).create());
         features.add(new InstanceBuilder().set("v1", 46.).create());
@@ -33,7 +34,7 @@ public class ZScoreNormalizerTest {
 
     @Test
     public void testNormalizationWithEqualMinMax() {
-        Collection<FeatureVector> instances = CollectionHelper.newArrayList();
+        Collection<FeatureVector> instances = new ArrayList<>();
         instances.add(new InstanceBuilder().set("test", 0.9).create());
         instances.add(new InstanceBuilder().set("test", 0.9).create());
         Normalization normalization = new ZScoreNormalizer().calculate(instances);

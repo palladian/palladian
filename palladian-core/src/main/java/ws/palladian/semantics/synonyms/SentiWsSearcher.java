@@ -1,5 +1,6 @@
 package ws.palladian.semantics.synonyms;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class SentiWsSearcher {
     private MapBag versions = new MapBag();
 
     /** Hold all basic forms. **/
-    private Map<Set<String>, String> basics = CollectionHelper.newHashMap();
+    private Map<Set<String>, String> basics = new HashMap<>();
 
 
     public SentiWsSearcher(String sentiWsFilePath) {

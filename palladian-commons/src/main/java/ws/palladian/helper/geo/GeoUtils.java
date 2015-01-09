@@ -2,9 +2,7 @@ package ws.palladian.helper.geo;
 
 import static java.lang.Math.toRadians;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -315,7 +313,7 @@ public final class GeoUtils {
             return EARTH_MAX_DISTANCE_KM;
         }
         double largestDistance = 0;
-        List<GeoCoordinate> temp = CollectionHelper.newArrayList(CollectionHelper.newHashSet(coordinates));
+        List<GeoCoordinate> temp = new ArrayList<>(new HashSet<>(coordinates));
         for (int i = 0; i < temp.size(); i++) {
             GeoCoordinate c1 = temp.get(i);
             for (int j = i + 1; j < temp.size(); j++) {

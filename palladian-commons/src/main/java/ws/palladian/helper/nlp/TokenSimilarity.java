@@ -1,5 +1,7 @@
 package ws.palladian.helper.nlp;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -39,8 +41,10 @@ public class TokenSimilarity extends AbstractStringMetric {
             return 1;
         }
 
-        Set<String> split1 = CollectionHelper.newHashSet(s1lower.split("\\s"));
-        Set<String> split2 = CollectionHelper.newHashSet(s2lower.split("\\s"));
+        Set<String> split1 = new HashSet<>();
+        split1.addAll(Arrays.asList(s1lower.split("\\s")));
+        Set<String> split2 = new HashSet<>();
+        split2.addAll(Arrays.asList(s2lower.split("\\s")));
         return similarity.getSimilarity(split1, split2);
     }
 

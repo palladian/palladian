@@ -2,6 +2,7 @@ package ws.palladian.extraction.token;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 

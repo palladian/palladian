@@ -1,9 +1,6 @@
 package ws.palladian.clustering;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 
@@ -54,9 +51,9 @@ public class DBSCAN<T> {
      */
     public Set<Set<T>> cluster(Iterable<? extends T> data) {
         Validate.notNull(data, "data must not be null");
-        Set<Set<T>> clusters = CollectionHelper.newHashSet();
-        Set<T> visited = CollectionHelper.newHashSet();
-        Set<T> clustered = CollectionHelper.newHashSet();
+        Set<Set<T>> clusters = new HashSet<>();
+        Set<T> visited = new HashSet<>();
+        Set<T> clustered = new HashSet<>();
         for (T d : data) {
             if (visited.contains(d)) {
                 continue;
@@ -96,7 +93,7 @@ public class DBSCAN<T> {
     }
 
     private Set<T> regionQuery(T d, Iterable<? extends T> data) {
-        Set<T> neighbors = CollectionHelper.newHashSet();
+        Set<T> neighbors = new HashSet<>();
         for (T n : data) {
             if (distance.getDistance(d, n) < eps) {
                 neighbors.add(n);

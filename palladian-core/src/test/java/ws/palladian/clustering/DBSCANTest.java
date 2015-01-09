@@ -3,6 +3,7 @@ package ws.palladian.clustering;
 import static org.junit.Assert.assertEquals;
 
 import java.awt.Point;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class DBSCANTest {
     @Test
     public void testDBSCAN() {
         DBSCAN<Point> dbscan = new DBSCAN<Point>(1.5, 3, new EuclideanDistance());
-        Set<Point> points = CollectionHelper.newHashSet();
+        Set<Point> points = new HashSet<>();
         points.add(new Point(1, 1));
         points.add(new Point(2, 1));
         points.add(new Point(2, 2));
@@ -38,7 +39,7 @@ public class DBSCANTest {
 
     @Test
     public void testDBSCANStrings() {
-        Set<String> strings = CollectionHelper.newHashSet();
+        Set<String> strings = new HashSet<>();
         strings.add("apple");
         strings.add("aple");
         strings.add("aapple");

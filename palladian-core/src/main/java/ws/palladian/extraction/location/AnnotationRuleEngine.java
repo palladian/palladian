@@ -2,6 +2,8 @@ package ws.palladian.extraction.location;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,7 +67,7 @@ public class AnnotationRuleEngine {
         REMOVE_FRAGMENTS {
             @Override
             void apply(Annotation annotation, Map<Annotation, CategoryEntriesBuilder> probs, String outcome) {
-                Set<String> parts = CollectionHelper.newHashSet(annotation.getValue().split("\\s"));
+                Set<String> parts = new HashSet<>(Arrays.asList(annotation.getValue().split("\\s")));
                 Iterator<Annotation> iterator = probs.keySet().iterator();
                 while (iterator.hasNext()) {
                     if (StringHelper.containsWord(parts, iterator.next().getValue())) {

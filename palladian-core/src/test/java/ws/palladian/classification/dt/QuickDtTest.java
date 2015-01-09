@@ -6,6 +6,7 @@ import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
 import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class QuickDtTest {
 
 //    @Test
 //    public void testDirectly() {
-//        final Set<quickdt.Instance> instances = CollectionHelper.newHashSet();
+//        final Set<quickdt.Instance> instances = new HashSet<>();
 //        // A male weighing 168lb that is 55 inches tall, they are overweight
 //        instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification(
 //                "overweight"));
@@ -48,7 +49,7 @@ public class QuickDtTest {
     public void testDecisionTreeClassifier() {
 
         // sample data taken from https://github.com/sanity/quickdt
-        List<Instance> instances = CollectionHelper.newArrayList();
+        List<Instance> instances = new ArrayList<>();
 
         instances.add(new InstanceBuilder().set("height", 55.).set("weight", 168.).set("gender", "male").create("overweight"));
         instances.add(new InstanceBuilder().set("height", 75.).set("weight", 168.).set("gender", "female").create("healthy"));

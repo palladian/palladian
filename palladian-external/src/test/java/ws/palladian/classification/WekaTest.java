@@ -11,6 +11,7 @@ import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class WekaTest {
         builder = new InstanceBuilder();
         Instance instance = builder.set("a", 1.1).set("b", "value2").set("v1", true).set("v2", true).create("c2");
 
-        List<Instance> trainingInstances = CollectionHelper.newArrayList();
+        List<Instance> trainingInstances = new ArrayList<>();
         trainingInstances.add(instance1);
         trainingInstances.add(instance);
         WekaModel model = new WekaLearner(new NaiveBayes()).train(trainingInstances);

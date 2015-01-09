@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -79,7 +79,7 @@ public final class FacebookLinkStats extends AbstractRankingService {
     public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
         Map<String, Ranking> results = new HashMap<>();
         List<String> urlBatch = new ArrayList<>();
-        for (String url : CollectionHelper.newHashSet(urls)) {
+        for (String url : new HashSet<>(urls)) {
             urlBatch.add(url);
             if (urlBatch.size() >= BATCH_SIZE) {
                 Map<String, Ranking> batchRanking = getRanking2(urlBatch);

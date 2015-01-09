@@ -468,7 +468,7 @@ public final class LocationExtractionEvaluator {
     }
 
 //    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
-//        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+//        List<LocationExtractor> extractors = new ArrayList<>();
 //        for (int i = 0; i <= 5000; i += 100) {
 //            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
 //                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);

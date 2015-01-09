@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.cooccurrence;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,7 +36,7 @@ public class CoOccurrenceStatistics {
         this.term1 = term1;
         this.term2 = term2;
         coOccurrences = Bag.create();
-        coOccurrenceSources = CollectionHelper.newHashMap();
+        coOccurrenceSources = new HashMap<>();
     }
 
     public Map<String, Collection<String>> getCoOccurrenceSources() {

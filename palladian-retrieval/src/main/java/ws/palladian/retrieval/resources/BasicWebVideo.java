@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -113,7 +114,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
 
     @Override
     protected List<String> getToStringParts() {
-        List<String> toStringParts = CollectionHelper.newArrayList(super.getToStringParts());
+        List<String> toStringParts = new ArrayList<>(super.getToStringParts());
         if (videoUrl != null) {
             toStringParts.add(String.format("videoUrl=%s", videoUrl));
         }

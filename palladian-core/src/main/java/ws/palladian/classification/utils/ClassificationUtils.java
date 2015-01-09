@@ -8,9 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -235,7 +233,7 @@ public final class ClassificationUtils {
      */
     public static List<Instance> filterFeatures(Iterable<? extends Instance> instances,
             Filter<? super String> nameFilter) {
-        List<Instance> result = CollectionHelper.newArrayList();
+        List<Instance> result = new ArrayList<>();
         for (Instance instance : instances) {
             FeatureVector featureVector = ClassificationUtils.filterFeatures(instance.getVector(), nameFilter);
             result.add(new InstanceBuilder().add(featureVector).create(instance.getCategory()));
@@ -301,7 +299,7 @@ public final class ClassificationUtils {
      */
     public static NumericVector<String> getNumericVector(FeatureVector featureVector) {
         Validate.notNull(featureVector, "featureVector must not be null");
-        Map<String, Double> values = CollectionHelper.newHashMap();
+        Map<String, Double> values = new HashMap<>();
         for (VectorEntry<String, Value> entry : featureVector) {
             Value value = entry.value();
             if (value instanceof NumericValue) {

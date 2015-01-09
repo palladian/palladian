@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -93,7 +94,7 @@ public class SitemapAnalyzer {
 
             @Override
             public void process(Document document) {
-                Map<String, Object> map = CollectionHelper.newHashMap();
+                Map<String, Object> map = new HashMap<>();
 
                 Set<String> outInt = HtmlHelper.getLinks(document, true, false);
                 Set<String> outExt = HtmlHelper.getLinks(document, false, true);
@@ -117,7 +118,7 @@ public class SitemapAnalyzer {
                 int wordCount = StringHelper.countWords(noHtml);
 
                 // int indexed = 0;
-                // List<WebResult> searchResults = CollectionHelper.newArrayList();
+                // List<WebResult> searchResults = new ArrayList<>();
                 // try {
                 // searchResults = googleSearcher.search("\"" + document.getDocumentURI().replace("http://", "")
                 // + "\"", 1);

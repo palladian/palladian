@@ -1,9 +1,6 @@
 package ws.palladian.extraction.date.getter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
@@ -53,8 +50,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
     private void setFeatures(List<ContentDate> dates, Document document) {
 
-        List<ContentDate> posOrder = CollectionHelper.newArrayList();
-        List<ContentDate> ageOrder = CollectionHelper.newArrayList();
+        List<ContentDate> posOrder = new ArrayList<>();
+        List<ContentDate> ageOrder = new ArrayList<>();
         for (ContentDate date : dates) {
             if (date.get(ContentDate.DATEPOS_IN_DOC) != -1) {
                 posOrder.add(date);
@@ -115,7 +112,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      */
     private List<ContentDate> getContentDates(Document document) {
 
-        List<ContentDate> dates = CollectionHelper.newArrayList();
+        List<ContentDate> dates = new ArrayList<>();
         List<Node> textNodes = XPathHelper.getNodes(document, "//text()");
 
         if (textNodes.isEmpty()) {
@@ -229,7 +226,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @return A {@link Map} with indices of the keywords as keys and their text values.
      */
     private Map<Integer, String> findContentKeywords(String text) {
-        Map<Integer, String> keyContentMap = CollectionHelper.newHashMap();
+        Map<Integer, String> keyContentMap = new HashMap<>();
         String tempText = text.toLowerCase();
         for (String keyword : KeyWords.BODY_CONTENT_KEYWORDS_ALL) {
             int index = tempText.indexOf(keyword);
@@ -310,7 +307,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     }
 
     static List<ContentDate> findAllDates(String text) {
-        List<ContentDate> dates = CollectionHelper.newArrayList();
+        List<ContentDate> dates = new ArrayList<>();
         for (DateFormat format : RegExp.ALL_DATE_FORMATS) {
             Matcher matcher = format.getPattern().matcher(text);
             while (matcher.find()) {
