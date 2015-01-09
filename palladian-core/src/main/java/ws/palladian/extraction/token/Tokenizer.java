@@ -1,7 +1,10 @@
 package ws.palladian.extraction.token;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import ws.palladian.core.Token;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
@@ -43,10 +46,7 @@ public final class Tokenizer {
      */
     public static List<String> tokenize(String inputString) {
         Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(inputString);
-        Iterator<String> convert = CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
-        ArrayList arrayList = new ArrayList();
-        arrayList.add(convert);
-        return arrayList;
+        return CollectionHelper.newArrayList(CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER));
     }
 
     /**
@@ -61,8 +61,7 @@ public final class Tokenizer {
      */
     public static Set<String> calculateCharNGrams(String string, int n) {
         Iterator<Token> nGramIterator = new CharacterNGramTokenizer(n, n).iterateTokens(string);
-        Iterator<String> convert = CollectionHelper.convert(nGramIterator, Token.VALUE_CONVERTER);
-        return new HashSet<>();
+        return CollectionHelper.newHashSet(CollectionHelper.convert(nGramIterator, Token.VALUE_CONVERTER));
     }
 
     /**
