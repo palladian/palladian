@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 /**
  * Default {@link Filter} implementations.
  * 
@@ -266,6 +268,36 @@ public final class Filters {
                 return item.isDirectory();
             }
         };
+    }
+
+    /**
+     * Get a filter by file names.
+     * 
+     * @param names The names to accept, not <code>null</code>.
+     * @return A filter accepting files with the specified names.
+     */
+    public static Filter<File> fileName(String... names) {
+        Validate.notNull(names, "names must not be null");
+        return new FileNameFilter(names);
+    }
+
+    private static final class FileNameFilter implements Filter<File> {
+        private final Set<String> nameSet;
+
+        public FileNameFilter(String... names) {
+            nameSet = CollectionHelper.newHashSet(names);
+        }
+
+        @Override
+        public boolean accept(File item) {
+            return nameSet.contains(item.getName());
+        }
+        
+        @Override
+        public String toString() {
+            return "FileNameFilter " + nameSet;
+        }
+
     }
 
 }
