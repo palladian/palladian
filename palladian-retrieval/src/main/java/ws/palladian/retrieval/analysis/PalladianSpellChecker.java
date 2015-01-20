@@ -204,12 +204,12 @@ public class PalladianSpellChecker {
             }
         }
 
-        // check for edit distance 2 if we haven't found anything
+        // check for edit distance 2 if we haven't found anything, the first character must not change
         if (candidates.isEmpty()) {
             for (String s : list) {
                 for (String w : edits(s)) {
                     Integer count = words.get(w);
-                    if (count != null) {
+                    if (count != null && firstCharacterSame(w,word)) {
                         candidates.put(count, w);
                     }
                 }
@@ -226,6 +226,13 @@ public class PalladianSpellChecker {
         }
 
         return corrected;
+    }
+
+    private boolean firstCharacterSame(String a, String b) {
+        if (a.isEmpty() || b.isEmpty()) {
+            return false;
+        }
+        return a.charAt(0) == b.charAt(0);
     }
 
     public Trie<Integer> getWords() {

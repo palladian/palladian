@@ -196,7 +196,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         if (showEveryPercent == 0 || output != lastOutput) {
             long elapsedTime = System.currentTimeMillis() - startTime;
             long remainingTime = (long)(elapsedTime / currentProgress) - elapsedTime;
-            List<String> statistics = new ArrayList<String>();
+            List<String> statistics = new ArrayList<>();
             if (currentProgress >= 0) {
                 statistics.add(format.format(100 * currentProgress) + "%");
             }
