@@ -334,7 +334,7 @@ public final class DatasetManager {
         FileWriter splitFile2 = new FileWriter(split2Name);
 
         // a map holding all file links for each class
-        Map<String, Set<String>> classMap = new HashMap<String, Set<String>>();
+        Map<String, Set<String>> classMap = new HashMap<>();
 
         List<String> lines = FileHelper.readFileToArray(indexFilePath);
         for (String line : lines) {
@@ -342,7 +342,7 @@ public final class DatasetManager {
             String[] parts = line.split(separator);
             Set<String> links = classMap.get(parts[1]);
             if (links == null) {
-                links = new HashSet<String>();
+                links = new HashSet<>();
                 links.add(parts[0]);
                 classMap.put(parts[1], links);
             } else {
