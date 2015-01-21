@@ -208,6 +208,7 @@ public class StringHelperTest {
 
     @Test
     public void testGetSubstringBetween() {
+        assertEquals("2", StringHelper.getSubstringBetween("A: 1\nB: 2%", "B: ", "%"));
         assertEquals("all the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", null, " in ohio"));
         assertEquals("the lilacs in ohio", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", null));
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));

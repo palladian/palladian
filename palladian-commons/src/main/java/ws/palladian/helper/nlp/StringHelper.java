@@ -1402,7 +1402,7 @@ public final class StringHelper {
     public static List<String> getSubstringsBetween(String string, String leftBorder, String rightBorder) {
         Validate.notNull(string, "string must not be null");
 
-        List<String> substrings = new ArrayList<String>();
+        List<String> substrings = new ArrayList<>();
 
         int leftBorderLength = 0;
         if (leftBorder != null) {
