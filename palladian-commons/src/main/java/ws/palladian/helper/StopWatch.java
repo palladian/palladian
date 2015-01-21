@@ -18,6 +18,10 @@ public class StopWatch {
     /** The time of the last break point (when start was called). */
     private long lastBreakpointTime = 0;
 
+    /** The time of the last call of getElapsedTimeString(). */
+    private long lastElapsedTimeStringCall = 0;
+    private long lastElapsedTimeStringCallInterval = 0;
+
     /** The stop time. */
     private long stopTime = 0;
 
@@ -29,12 +33,14 @@ public class StopWatch {
 
     /** To which detail the output should be shown. */
     private TimeUnit outputDetail = TimeUnit.MILLISECONDS;
+    private int elapsedTimeStringAndIncrement;
 
     /**
      * The StopWatch starts running right after object creation.
      */
     public StopWatch() {
         this.startTime = System.currentTimeMillis();
+        this.lastElapsedTimeStringCall = this.startTime;
         start();
     }
 
@@ -119,8 +125,8 @@ public class StopWatch {
     }
 
     /**
-     * Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
-     * called.
+     * <p>Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
+     * called.</p>
      * 
      * @param output If true, the elapsed time will be printed to the console as well.
      * @return The elapsed time as a string.
@@ -138,7 +144,21 @@ public class StopWatch {
         if (output) {
             System.out.println(elapsed);
         }
+
+        lastElapsedTimeStringCallInterval = System.currentTimeMillis() - lastElapsedTimeStringCall;
+        lastElapsedTimeStringCall = System.currentTimeMillis();
+
         return elapsed;
+    }
+
+    /**
+     * <p>Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
+     * called and the increment in time since this method or getElapsedTimeString was called last.</p>
+     *
+     * @return
+     */
+    public String getElapsedTimeStringAndIncrement() {
+        return getElapsedTimeString()+" (+"+DateHelper.formatDuration(0,lastElapsedTimeStringCallInterval)+")";
     }
 
     private String shortenTimeString(String elapsed) {
@@ -225,4 +245,5 @@ public class StopWatch {
         s.getElapsedTimeString(true);
         System.out.println(s.getElapsedTime(true));
     }
+
 }
