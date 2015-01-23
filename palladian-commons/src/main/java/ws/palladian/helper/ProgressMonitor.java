@@ -36,19 +36,33 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     private static final char PROGRESS_CHAR = '■';
 
+    /** Increments of percentages when the progress should be shown, e.g. every 1%. */
     private final double showEveryPercent;
 
-    private final NumberFormat format;
-    
+    /** Whether to output more progress information during each report. */
+    private boolean enhancedStats = true;
+
+    /** Format of the percent output. */
+    private final NumberFormat percentFormat;
+
+    /** Format of the number of remaining items. */
+    private final NumberFormat itemFormat;
+
     private String description;
 
     private long totalSteps = -1;
 
     private long startTime;
 
+    private long lastPrintTime;
+
     private long currentSteps;
 
     private double currentProgress;
+
+    /** Keep track of the last 3 iterations */
+    private List<Long> lastIterationTimes;
+    private final int lastIterationWindow = 3;
 
     /** Prevents outputting the same percentage value again, as specified by showEveryPercent. */
     private int lastOutput = -1;
@@ -63,7 +77,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         Validate.inclusiveBetween(0., 100., showEveryPercent, "showEveryPercent must be in range [0,100]");
         this.showEveryPercent = showEveryPercent;
         boolean decimalPrecision = showEveryPercent % 1 > 0;
-        this.format = new DecimalFormat(decimalPrecision ? "##0.00" : "##0", new DecimalFormatSymbols(Locale.US));
+        this.percentFormat = new DecimalFormat(decimalPrecision ? "##0.00" : "##0", new DecimalFormatSymbols(Locale.US));
+        this.itemFormat = new DecimalFormat("###,###,###,##0", new DecimalFormatSymbols(Locale.US));
     }
 
     /**
@@ -151,6 +166,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         this.description = description;
         this.totalSteps = totalSteps;
         this.startTime = System.currentTimeMillis();
+        this.lastPrintTime = startTime;
+        lastIterationTimes = new ArrayList<>();
     }
 
     @Override
@@ -195,16 +212,27 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         int output = (int)Math.floor(currentProgress * (100 / showEveryPercent));
         if (showEveryPercent == 0 || output != lastOutput) {
             long elapsedTime = System.currentTimeMillis() - startTime;
-            long remainingTime = (long)(elapsedTime / currentProgress) - elapsedTime;
+            double iterationsLeft = (100.*(1.0-currentProgress)) / showEveryPercent;
             List<String> statistics = new ArrayList<>();
             if (currentProgress >= 0) {
-                statistics.add(format.format(100 * currentProgress) + "%");
+                statistics.add(percentFormat.format(100 * currentProgress) + "%");
             }
             if (output > 0) { // do not give any time estimates at the beginning or end
+
+                if (isEnhancedStats()) {
+                    statistics.add(itemFormat.format(totalSteps - currentSteps) + " items left");
+                }
                 statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true).replaceAll(":\\d+ms", ""));
-                if (currentProgress >= 0 && remainingTime > 0) {
+                long iterationTime = elapsedTime - lastPrintTime;
+                lastIterationTimes.add(0,iterationTime);
+                if (isEnhancedStats()) {
+                    statistics.add("iteration: "
+                            + DateHelper.formatDuration(0, iterationTime, true).replaceAll(":\\d+ms", ""));
+                }
+                if (currentProgress >= 0 && iterationsLeft > 0) {
+                    double remainingTime = getAverageIterationTime() * iterationsLeft;
                     statistics.add("~remaining: "
-                            + DateHelper.formatDuration(0, remainingTime, true).replaceAll(":\\d+ms", ""));
+                            + DateHelper.formatDuration(0, (long)remainingTime, true).replaceAll(":\\d+ms", ""));
                 }
             }
             StringBuilder progressString = new StringBuilder();
@@ -214,11 +242,23 @@ public final class ProgressMonitor extends AbstractProgressReporter {
             String progressBar = createProgressBar(currentProgress);
             progressString.append(progressBar);
             progressString.append(' ');
-            progressString.append(StringUtils.join(statistics, ", "));
+            progressString.append(StringUtils.join(statistics, " | "));
             System.out.println(progressString);
             lastOutput = output;
+            lastPrintTime = elapsedTime;
         }
     }
+
+    private double getAverageIterationTime() {
+        double time = 0.;
+        int count = Math.min(lastIterationWindow, lastIterationTimes.size());
+        for (int i = 0; i < count; i++) {
+            time += lastIterationTimes.get(i);
+        }
+        lastIterationTimes = lastIterationTimes.subList(0,count);
+        return time / count;
+    }
+
 
     /**
      * <p>
@@ -238,11 +278,19 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         return stringBuilder.toString();
     }
 
+    public boolean isEnhancedStats() {
+        return enhancedStats;
+    }
+
+    public void setEnhancedStats(boolean enhancedStats) {
+        this.enhancedStats = enhancedStats;
+    }
+
     public static void main(String[] args) {
-        int totalSteps = 1759600335;
+        int totalSteps = 1700335346;
         ProgressMonitor pm = new ProgressMonitor(0.1);
         pm.startTask("My Progress", totalSteps);
-        for (int i = 1; i <= totalSteps + 10; i++) {
+        for (int i = 1; i < totalSteps; i++) {
             pm.increment();
         }
     }
