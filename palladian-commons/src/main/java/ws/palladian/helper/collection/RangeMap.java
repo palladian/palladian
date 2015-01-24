@@ -26,7 +26,7 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
      * @return An ordered list of values.
      */
     public List<V> getValues(K seed, ComparisonType comparisonType) {
-        List<V> values = new ArrayList<V>();
+        List<V> values = new ArrayList<>();
 
         if (comparisonType == ComparisonType.EQUALS) {
             values.addAll(get(seed));
@@ -76,7 +76,7 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
      * @return A list of object within the given range.
      */
     public List<V> getValuesBetween(K lowerBound, K upperBound) {
-        List<V> values = new ArrayList<V>();
+        List<V> values = new ArrayList<>();
 
         double lbv = lowerBound.doubleValue();
         double ubv = upperBound.doubleValue();
@@ -98,7 +98,7 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
     public void put(K key, V c) {
         Collection<V> vs = get(key);
         if (vs == null) {
-            vs = new HashSet<V>();
+            vs = new HashSet<>();
             put(key, vs);
         }
         vs.add(c);

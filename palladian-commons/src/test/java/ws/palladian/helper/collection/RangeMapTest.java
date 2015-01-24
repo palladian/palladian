@@ -12,7 +12,7 @@ public class RangeMapTest {
 
     @Before
     public void setUp() throws Exception {
-        rm = new RangeMap<Double, String>();
+        rm = new RangeMap<>();
         rm.put(4.9, "C");
         rm.put(0.9, "A");
         rm.put(3.3, "B");
