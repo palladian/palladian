@@ -1,45 +1,43 @@
-package ws.palladian.retrieval.analysis;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+package ws.palladian.semantics;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * Spell checks and auto-corrects text using the Palladian spell checker which is based on Peter Norvigs implementation.
  * </p>
- * 
+ * <p/>
  * <p>
  * Training data can be found on Palladian server under Datasets/SpellingCorrection
  * </p>
- * 
- * @see http://norvig.com/spell-correct.html
+ *
  * @author David Urbansky
- * 
+ * @see http://norvig.com/spell-correct.html
  */
 public class PalladianSpellChecker {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianSpellChecker.class);
     private static final Pattern SPLIT = Pattern.compile("\\s");
 
-    /** Do not correct words that contain any of these characters. */
+    private boolean germanCompoundSupport = false;
+
+    /**
+     * Do not correct words that contain any of these characters.
+     */
     private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/") + "]");
 
     private Trie<Integer> words = new Trie<>();
@@ -87,7 +85,7 @@ public class PalladianSpellChecker {
      * <li>26n alternations (replaced letter)</li>
      * <li>26(n+1) insertions (letter added at arbirary position)</li>
      * </ol>
-     * 
+     *
      * @param word The word for which we create the edit distance words.
      * @return A list of possible variations.
      */
@@ -128,7 +126,7 @@ public class PalladianSpellChecker {
      * <p>
      * Automatically detect and correct spelling mistakes.
      * </p>
-     * 
+     *
      * @param text The text to check for errors.
      * @return The auto-corrected text.
      */
@@ -163,7 +161,7 @@ public class PalladianSpellChecker {
      * <p>
      * Automatically detect and correct spelling mistakes in a word.
      * </p>
-     * 
+     *
      * @param word The word to check for errors.
      * @return The auto-corrected word.
      */
@@ -202,14 +200,29 @@ public class PalladianSpellChecker {
             if (count != null) {
                 candidates.put(count, s);
             }
+    }
+
+        // German words can be compounds, e.g. "Goldkette", we most likely don't have all these words in the dictionary and might cause incorrect corrections, we therefore split the compound and test its parts for misspellings
+        boolean compoundCorrect = false;
+        if (isGermanCompoundSupport()) {
+            compoundCorrect = true;
+            List<String> strings = WordTransformer.splitGermanCompoundWords(word);
+            for (String string : strings) {
+                if (words.get(string) == null) {
+                    String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
+                    if (words.get(key) == null) {
+                        compoundCorrect = false;
+                    }
+                }
+            }
         }
 
         // check for edit distance 2 if we haven't found anything, the first character must not change
-        if (candidates.isEmpty()) {
+        if (candidates.isEmpty() && !compoundCorrect) {
             for (String s : list) {
                 for (String w : edits(s)) {
                     Integer count = words.get(w);
-                    if (count != null && firstCharacterSame(w,word)) {
+                    if (count != null && firstCharacterSame(w, word)) {
                         candidates.put(count, w);
                     }
                 }
@@ -217,7 +230,7 @@ public class PalladianSpellChecker {
         }
 
         String corrected = word;
-        if (!candidates.isEmpty()) {
+        if (!candidates.isEmpty() && !compoundCorrect) {
             corrected = candidates.get(Collections.max(candidates.keySet()));
         }
 
@@ -241,6 +254,14 @@ public class PalladianSpellChecker {
 
     public void setWords(Trie<Integer> words) {
         this.words = words;
+    }
+
+    public boolean isGermanCompoundSupport() {
+        return germanCompoundSupport;
+    }
+
+    public void setGermanCompoundSupport(boolean germanCompoundSupport) {
+        this.germanCompoundSupport = germanCompoundSupport;
     }
 
     public static void main(String[] args) throws IOException {
