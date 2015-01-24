@@ -20,6 +20,27 @@ import ws.palladian.helper.constants.Language;
 public class WordTransformerTest {
 
     @Test
+    public void testSplitGermanCompounds() {
+        List<String> words;
+
+        words = WordTransformer.splitGermanCompoundWords("Teaktische");
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("teak", words.get(0));
+        assertEquals("tisch", words.get(1));
+
+        words = WordTransformer.splitGermanCompoundWords("Kunststofftische");
+        assertEquals(2, words.size());
+        assertEquals("kunststoff", words.get(0));
+        assertEquals("tisch", words.get(1));
+
+        words = WordTransformer.splitGermanCompoundWords("Goldketten");
+        assertEquals(2, words.size());
+        assertEquals("gold", words.get(0));
+        assertEquals("kette", words.get(1));
+    }
+
+    @Test
     public void testWordToSingularEnglish() {
         assertEquals("elephant", WordTransformer.wordToSingular("elephants", Language.ENGLISH));
         assertEquals("city", WordTransformer.wordToSingular("cities", Language.ENGLISH));
@@ -52,20 +73,21 @@ public class WordTransformerTest {
 
     @Test
     public void testWordToSingularGerman() {
-        assertEquals("Weihnachtsdeko", WordTransformer.wordToSingular("Weihnachtsdeko", Language.GERMAN));
-        assertEquals("Eilsendungadresse", WordTransformer.wordToSingular("Eilsendungadressen", Language.GERMAN));
-        assertEquals("Kette", WordTransformer.wordToSingular("Ketten", Language.GERMAN));
-        assertEquals("Halskette", WordTransformer.wordToSingular("Halsketten", Language.GERMAN));
-        assertEquals("Apfel", WordTransformer.wordToSingular("Äpfel", Language.GERMAN));
-        assertEquals("Apfelkuchen", WordTransformer.wordToSingular("Apfelkuchen", Language.GERMAN));
+        assertEquals("weihnachtsdeko", WordTransformer.wordToSingular("Weihnachtsdeko", Language.GERMAN));
+        assertEquals("eilsendungadresse", WordTransformer.wordToSingular("Eilsendungadressen", Language.GERMAN));
+        assertEquals("kette", WordTransformer.wordToSingular("Ketten", Language.GERMAN));
+        assertEquals("halskette", WordTransformer.wordToSingular("Halsketten", Language.GERMAN));
+        assertEquals("apfel", WordTransformer.wordToSingular("Äpfel", Language.GERMAN));
+        assertEquals("apfelkuchen", WordTransformer.wordToSingular("Apfelkuchen", Language.GERMAN));
+        assertEquals("eßtisch", WordTransformer.wordToSingular("eßtische", Language.GERMAN));
     }
 
     @Test
     public void testWordToPluralGerman() {
         assertEquals("arten", WordTransformer.wordToPlural("arten", Language.GERMAN));
-        assertEquals("Ketten", WordTransformer.wordToPlural("Kette", Language.GERMAN));
-        assertEquals("Apfelkuchen", WordTransformer.wordToPlural("Apfelkuchen", Language.GERMAN));
-        assertEquals("Eilsendungadressen", WordTransformer.wordToPlural("Eilsendungadresse", Language.GERMAN));
+        assertEquals("ketten", WordTransformer.wordToPlural("Kette", Language.GERMAN));
+        assertEquals("apfelkuchen", WordTransformer.wordToPlural("Apfelkuchen", Language.GERMAN));
+        assertEquals("eilsendungadressen", WordTransformer.wordToPlural("Eilsendungadresse", Language.GERMAN));
     }
 
     @Test
