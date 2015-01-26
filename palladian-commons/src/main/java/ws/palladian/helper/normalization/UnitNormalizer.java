@@ -74,7 +74,7 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
-            if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|-|\\s)").matcher(text).find()) {
+            if (Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|-|\\s)").matcher(text).find()) {
                 return unit;
             }
         }
@@ -84,7 +84,7 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text, UnitType unitType) {
         for (String unit : unitType.getUnitNames()) {
-            if (Pattern.compile("(?<=\\d|\\s|^)" + unit + "(?=$|\\s)").matcher(text).find()) {
+            if (Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|\\s)").matcher(text).find()) {
                 return unit;
             }
         }
