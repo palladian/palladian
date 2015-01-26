@@ -438,7 +438,7 @@ public final class StringHelper {
     }
 
     public static Set<String> containsWhichWords(Collection<String> words, String searchString) {
-        Set<String> containedWords = new HashSet<String>();
+        Set<String> containedWords = new HashSet<>();
 
         for (String word : words) {
             if (containsWord(word, searchString)) {
@@ -463,8 +463,6 @@ public final class StringHelper {
         String allowedNeighbors = "[\\s,.;-?!()\\[\\]]";
         String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
                 + allowedNeighbors + word + "$)|(^" + word + "$)";
-
-        word = Pattern.quote(word);
 
         try {
             Pattern pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
@@ -606,7 +604,7 @@ public final class StringHelper {
         String searchStringLc = searchString.toLowerCase();
 
         int oldIndex = 0;
-        int index = 0;
+        int index;
         do {
             index = searchStringLc.indexOf(word, oldIndex);
             if (index == -1) {
@@ -1813,7 +1811,7 @@ public final class StringHelper {
             return Collections.emptyList();
         }
 
-        List<String> matches = new ArrayList<String>();
+        List<String> matches = new ArrayList<>();
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
             matches.add(matcher.group());
