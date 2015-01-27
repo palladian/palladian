@@ -80,7 +80,7 @@ public class WordTransformer {
             inputStream = WordTransformer.class.getResourceAsStream("/germanWords.txt");
             List<String> list = FileHelper.readFileToArray(inputStream);
             for (String string : list) {
-                if (string.isEmpty()) {
+                if (string.length() < 2) {
                     continue;
                 }
                 GERMAN_WORDS.add(string.toLowerCase());

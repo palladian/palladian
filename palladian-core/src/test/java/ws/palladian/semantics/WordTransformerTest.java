@@ -23,6 +23,11 @@ public class WordTransformerTest {
     public void testSplitGermanCompounds() {
         List<String> words;
 
+        words = WordTransformer.splitGermanCompoundWords("hadny");
+        CollectionHelper.print(words);
+        assertEquals(1, words.size());
+        assertEquals("hadny", words.get(0));
+
         words = WordTransformer.splitGermanCompoundWords("Teaktische");
         CollectionHelper.print(words);
         assertEquals(2, words.size());
