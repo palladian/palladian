@@ -35,7 +35,7 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     private final Set<K> keysY = new LinkedHashSet<>();
 
     public static <K, V> MapMatrix<K, V> create() {
-        return new MapMatrix<K, V>();
+        return new MapMatrix<>();
     }
 
     @Override
