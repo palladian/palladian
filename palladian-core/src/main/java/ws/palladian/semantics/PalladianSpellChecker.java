@@ -1,17 +1,25 @@
 package ws.palladian.semantics;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -110,6 +118,10 @@ public class PalladianSpellChecker {
             for (char c = 'a'; c <= 'z'; ++c) {
                 result.add(word.substring(0, i) + c + word.substring(i + 1));
             }
+            // umlauts
+            result.add(word.substring(0, i) + 'ä' + word.substring(i + 1));
+            result.add(word.substring(0, i) + 'ö' + word.substring(i + 1));
+            result.add(word.substring(0, i) + 'ü' + word.substring(i + 1));
         }
 
         // insertions, 26(n+1)
@@ -200,9 +212,10 @@ public class PalladianSpellChecker {
             if (count != null) {
                 candidates.put(count, s);
             }
-    }
+        }
 
-        // German words can be compounds, e.g. "Goldkette", we most likely don't have all these words in the dictionary and might cause incorrect corrections, we therefore split the compound and test its parts for misspellings
+        // German words can be compounds, e.g. "Goldkette", we most likely don't have all these words in the dictionary
+        // and might cause incorrect corrections, we therefore split the compound and test its parts for misspellings
         boolean compoundCorrect = false;
         if (isGermanCompoundSupport()) {
             compoundCorrect = true;
