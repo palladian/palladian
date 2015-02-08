@@ -96,10 +96,10 @@ public final class CollectionHelper {
     public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map, Order order) {
         Validate.notNull(map, "map must not be null");
         Validate.notNull(order, "order must not be null");
-        List<Entry<K, V>> list = new LinkedList<Entry<K, V>>(map.entrySet());
+        List<Entry<K, V>> list = new LinkedList<>(map.entrySet());
         Collections.sort(list, new EntryValueComparator<V>(order));
 
-        Map<K, V> result = new LinkedHashMap<K, V>();
+        Map<K, V> result = new LinkedHashMap<>();
         for (Entry<K, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
@@ -157,23 +157,6 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Get a key given for a value (1 to 1 {@link Map}s).
-     * </p>
-     * 
-     * @param value The value.
-     * @return The key that matches the given value, or <code>null</code> if no such value.
-     */
-    public static <K, V> K getKeyByValue(Map<K, V> map, V value) {
-        for (Entry<K, V> mapEntry : map.entrySet()) {
-            if (mapEntry.getValue().equals(value)) {
-                return mapEntry.getKey();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * <p>
      * Print a human readable, line separated output of an Array.
      * </p>
      * 
@@ -181,7 +164,7 @@ public final class CollectionHelper {
      */
     public static void print(Object[] array) {
         Validate.notNull(array, "array must not be null");
-        print(new ArrayIterator<Object>(array));
+        print(new ArrayIterator<>(array));
     }
 
     /**
@@ -252,7 +235,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <K, V> HashMap<K, V> newHashMap() {
-        return new HashMap<K, V>();
+        return new HashMap<>();
     }
 
     /**
@@ -266,7 +249,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <K, V> TreeMap<K, V> newTreeMap() {
-        return new TreeMap<K, V>();
+        return new TreeMap<>();
     }
 
     /**
@@ -280,7 +263,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
-        return new LinkedHashMap<K, V>();
+        return new LinkedHashMap<>();
     }
 
     /**
@@ -294,7 +277,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <E> ArrayList<E> newArrayList() {
-        return new ArrayList<E>();
+        return new ArrayList<>();
     }
 
     /**
@@ -320,7 +303,7 @@ public final class CollectionHelper {
      */
     public static <E> ArrayList<E> newArrayList(Iterator<? extends E> iterator) {
         Validate.notNull(iterator, "iterator must not be null");
-        ArrayList<E> list = new ArrayList<E>();
+        ArrayList<E> list = new ArrayList<>();
         while (iterator.hasNext()) {
             list.add(iterator.next());
         }
@@ -951,7 +934,7 @@ public final class CollectionHelper {
     public static <T> Iterator<T> limit(Iterator<T> iterator, int limit) {
         Validate.notNull(iterator, "iterator must not be null");
         Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
-        return new LimitIterator<T>(iterator, limit);
+        return new LimitIterator<>(iterator, limit);
     }
 
     /**
@@ -996,7 +979,7 @@ public final class CollectionHelper {
             smallerSet = setB;
             largerSet = setA;
         }
-        Set<T> intersection = new HashSet<T>();
+        Set<T> intersection = new HashSet<>();
         for (T element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
