@@ -1,19 +1,26 @@
 package ws.palladian.semantics;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.pos.AbstractPosTagger;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
-
-import java.io.InputStream;
-import java.util.*;
 
 /**
  * <p>
@@ -277,10 +284,8 @@ public class WordTransformer {
 
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldketten" ->
             // "Gold" "Ketten" -> "Kette" => "Goldkette"
-            String lowerCasePlural = lowerCasePluralForm;
-
             for (String word2 : GERMAN_NOUNS) {
-                if (lowerCasePlural.endsWith(word2) && word2.length() < lowerCasePlural.length()) {
+                if (lowerCasePluralForm.endsWith(word2) && word2.length() < lowerCasePluralForm.length()) {
                     String singular2 = wordToSingularGermanCaseSensitive(word2);
                     return lowerCasePluralForm.replace(word2, singular2);
                 }
@@ -383,7 +388,7 @@ public class WordTransformer {
             }
         }
 
-        String plural = singular;
+        String plural;
 
         // check exceptions where no rules apply to transformation
         if (getIrregularNouns().containsKey(singular)) {
@@ -472,10 +477,8 @@ public class WordTransformer {
 
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldkette" ->
             // "Gold" "Kette" -> "Ketten" => "Goldketten"
-            String lowerCaseSingular = lowerCaseWord;
-
             for (String word2 : GERMAN_NOUNS) {
-                if (lowerCaseSingular.endsWith(word2) && word2.length() < lowerCaseSingular.length()) {
+                if (lowerCaseWord.endsWith(word2) && word2.length() < lowerCaseWord.length()) {
                     String singular2 = wordToPluralGermanCaseSensitive(word2);
                     return lowerCaseWord.replace(word2, singular2);
                 }
@@ -549,7 +552,7 @@ public class WordTransformer {
             return "has";
         }
 
-        Set<String> stay = new HashSet<String>(Arrays.asList("can", "could", "will", "would", "may", "might", "shall",
+        Set<String> stay = new HashSet<>(Arrays.asList("can", "could", "will", "would", "may", "might", "shall",
                 "should", "must"));
         if (stay.contains(verb)) {
             return verb;
