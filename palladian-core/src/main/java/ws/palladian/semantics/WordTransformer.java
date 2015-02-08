@@ -31,9 +31,14 @@ public class WordTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(WordTransformer.class);
 
     /**
-     * The Constant IRREGULAR_NOUNS <singular, plural>.
+     * The Constant IRREGULAR_NOUNS <plural, singular>.
      */
     private static final Map<String, String> IRREGULAR_NOUNS = new HashMap<>();
+
+    /**
+     * The Constant IRREGULAR_NOUNS_REVERSE <singular, plural>.
+     */
+    private static final Map<String, String> IRREGULAR_NOUNS_REVERSE = new HashMap<>();
 
     /**
      * The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>.
@@ -44,6 +49,7 @@ public class WordTransformer {
      * The German singular plural map for nouns.
      */
     private static final Map<String, String> GERMAN_SINGULAR_PLURAL = new HashMap<>();
+    private static final Map<String, String> GERMAN_PLURAL_SINGULAR = new HashMap<>();
     private static final List<String> GERMAN_NOUNS = new ArrayList<>();
     private static final List<String> GERMAN_WORDS = new ArrayList<>();
 
@@ -68,7 +74,10 @@ public class WordTransformer {
                 if (parts[1].isEmpty()) {
                     continue;
                 }
-                GERMAN_SINGULAR_PLURAL.put(parts[1].toLowerCase(), parts[3].toLowerCase());
+                String singular = parts[1].toLowerCase();
+                String plural = parts[3].toLowerCase();
+                GERMAN_SINGULAR_PLURAL.put(singular, plural);
+                GERMAN_PLURAL_SINGULAR.put(plural,singular);
             }
 
         } finally {
@@ -136,6 +145,7 @@ public class WordTransformer {
             for (String string : list) {
                 String[] parts = string.split(" ");
                 IRREGULAR_NOUNS.put(parts[1], parts[0]);
+                IRREGULAR_NOUNS_REVERSE.put(parts[0], parts[1]);
             }
 
         } finally {
@@ -194,7 +204,7 @@ public class WordTransformer {
 
         // check exceptions where no rules apply to transformation
         if (getIrregularNouns().containsValue(plural)) {
-            singular = CollectionHelper.getKeyByValue(getIrregularNouns(), singular);
+            singular = IRREGULAR_NOUNS_REVERSE.get(singular);
 
             if (StringHelper.startsUppercase(plural)) {
                 singular = StringHelper.upperCaseFirstLetter(singular);
@@ -260,7 +270,7 @@ public class WordTransformer {
 
     public static String wordToSingularGermanCaseSensitive(String lowerCasePluralForm) {
 
-        String singular = CollectionHelper.getKeyByValue(GERMAN_SINGULAR_PLURAL, lowerCasePluralForm);
+        String singular = GERMAN_PLURAL_SINGULAR.get(lowerCasePluralForm);
         if (singular != null) {
             return singular;
         } else {
