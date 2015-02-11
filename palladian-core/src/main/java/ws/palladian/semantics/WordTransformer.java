@@ -65,6 +65,11 @@ public class WordTransformer {
      */
     private static final Map<String, String> GERMAN_STEMMING_EXCEPTIONS = new HashMap<>();
 
+    /**
+     * Exceptions for English stemming.
+     */
+    private static final Map<String, String> ENGLISH_STEMMING_EXCEPTIONS = new HashMap<>();
+
     static {
 
         // German nouns
@@ -121,6 +126,22 @@ public class WordTransformer {
                     continue;
                 }
                 GERMAN_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
+        // English stemming exceptions
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/englishStemmingExceptions.tsv");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split("\t");
+                if (parts[1].isEmpty()) {
+                    continue;
+                }
+                ENGLISH_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
             }
 
         } finally {
@@ -523,6 +544,10 @@ public class WordTransformer {
 
     public static String stemEnglishWord(String word) {
         // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
+        String exception = ENGLISH_STEMMING_EXCEPTIONS.get(word.toLowerCase());
+        if (exception != null) {
+            return StringHelper.alignCasing(exception, word);
+        }
         return new Stemmer(Language.ENGLISH).stem(word);
     }
 
