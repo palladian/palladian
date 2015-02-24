@@ -20,7 +20,7 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
  */
 public class SitemapRetriever {
 
-    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=loc\\>).*?(?=\\</loc)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE);
 
     public List<String> getUrls(String sitemapIndexUrl) {
         List<String> pageUrls = new ArrayList<>();
@@ -79,7 +79,7 @@ public class SitemapRetriever {
     }
 
     private List<String> getUrlsFromSitemap(String sitemapUrl) {
-        List<String> pageUrls = new ArrayList<String>();
+        List<String> pageUrls = new ArrayList<>();
 
         // read
         String sitemapText = new DocumentRetriever().getText(sitemapUrl);
