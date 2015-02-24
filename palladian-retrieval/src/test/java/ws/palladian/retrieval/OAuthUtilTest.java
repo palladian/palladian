@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 
 /**

@@ -17,7 +17,6 @@ import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.wiki.WikiPage;

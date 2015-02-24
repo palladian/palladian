@@ -18,7 +18,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.classification.text.FeatureSettingBuilder;
-import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Instance;

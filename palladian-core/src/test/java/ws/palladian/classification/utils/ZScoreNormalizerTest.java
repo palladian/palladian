@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class ZScoreNormalizerTest {
 

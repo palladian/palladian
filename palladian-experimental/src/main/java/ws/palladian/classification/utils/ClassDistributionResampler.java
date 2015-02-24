@@ -1,7 +1,13 @@
 package ws.palladian.classification.utils;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -11,7 +17,6 @@ import ws.palladian.classification.zeror.ZeroRLearner;
 import ws.palladian.classification.zeror.ZeroRModel;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factories;
 

@@ -1,12 +1,18 @@
 package ws.palladian.retrieval.search;
 
-import org.apache.commons.lang3.StringUtils;
-import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.geo.GeoCoordinate;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+
+import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * Default implementation of a {@link MultifacetQuery}.

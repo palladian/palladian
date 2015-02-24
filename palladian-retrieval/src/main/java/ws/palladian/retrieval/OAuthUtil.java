@@ -15,7 +15,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**

@@ -6,9 +6,9 @@ import java.util.List;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.core.Token;
 import ws.palladian.core.Tagger;
 import ws.palladian.core.TextTokenizer;
+import ws.palladian.core.Token;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.token.WordTokenizer;

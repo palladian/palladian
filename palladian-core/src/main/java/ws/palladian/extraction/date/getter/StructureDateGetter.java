@@ -12,7 +12,6 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.XPathHelper;

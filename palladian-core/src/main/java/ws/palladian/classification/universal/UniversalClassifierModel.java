@@ -7,7 +7,6 @@ import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.core.Model;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class UniversalClassifierModel implements Model {
 
