@@ -63,7 +63,7 @@ public class SitemapAnalyzer {
     private int numThreads = 10;
 
     public SitemapAnalyzer() {
-        resultTable = new ConcurrentHashMap<String, Map<String, Object>>();
+        resultTable = new ConcurrentHashMap<>();
         internalInboundLinkMap = Bag.create();
     }
 
