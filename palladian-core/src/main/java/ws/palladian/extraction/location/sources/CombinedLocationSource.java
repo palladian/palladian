@@ -3,19 +3,22 @@ package ws.palladian.extraction.location.sources;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
- * {@link LocationSource} for combining multiple sources. Only retrieval by name is allowed, because ID retrieval makes
- * no sense over multiple sources.
+ * {@link LocationSource} for combining multiple sources. Only retrieval by name and coordinate is allowed, because ID
+ * retrieval makes no sense over multiple sources.
  * </p>
  * 
  * @author Philipp Katz
@@ -59,6 +62,20 @@ public final class CombinedLocationSource extends MultiQueryLocationSource {
     @Override
     public List<Location> getLocations(List<Integer> locationIds) {
         throw new UnsupportedOperationException("Getting by IDs is not supported by " + getClass().getName());
+    }
+    
+    @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        List<Location> result = new ArrayList<>();
+        for (LocationSource locationSource : locationSources) {
+            try {
+                result.addAll(locationSource.getLocations(coordinate, distance));
+            } catch (UnsupportedOperationException ignore) {
+                // no op.
+            }
+        }
+        Collections.sort(result, LocationExtractorUtils.distanceComparator(coordinate));
+        return result;
     }
 
     @Override

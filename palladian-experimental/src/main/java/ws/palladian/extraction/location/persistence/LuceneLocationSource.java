@@ -1,11 +1,19 @@
 package ws.palladian.extraction.location.persistence;
 
+import static ws.palladian.extraction.location.LocationFilters.radius;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -50,7 +58,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
-import ws.palladian.extraction.location.LocationFilters;
+import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
@@ -65,7 +73,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * A location source backed by a Lucene index.
- * 
+ *
  * @author pk
  */
 public class LuceneLocationSource extends SingleQueryLocationSource implements Closeable {
@@ -87,7 +95,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /**
      * This class collects search results; we need no scoring and accept the documents in any order here, which yields
      * in a great performance boost in contrast to Lucene's default hit-collecting logic.
-     * 
+     *
      * @author pk
      */
     private static final class SimpleCollector extends Collector {
@@ -166,7 +174,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /**
      * <p>
      * Create a new Lucene location source, where data is provided from the given {@link Directory}.
-     * 
+     *
      * @param directory The Lucene directory with the location data, not <code>null</code>.
      * @throws IllegalStateException In case setting up the Lucene readers fails.
      */
@@ -232,7 +240,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     /**
      * Use the analyzer for processing the location name.
-     * 
+     *
      * @param locationName The location name to process.
      * @return The processed location name (e.g. lower cased, depending on the actual {@link Analyzer} used.
      * @throws IOException In case something goes wrong.
@@ -254,7 +262,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     /**
      * Use the given query to find locations in the index.
-     * 
+     *
      * @param query The query.
      * @param searcher The Lucene searcher.
      * @param reader The Lucene reader.
@@ -278,7 +286,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     /**
      * Parse the Lucene {@link Document} and create a {@link Location} from the document's fields.
-     * 
+     *
      * @param document The Lucene document to convert.
      * @return The location instance with data from the document.
      */
@@ -340,13 +348,17 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         query.add(NumericRangeQuery.newDoubleRange(FIELD_LAT, box[0], box[2], true, true), Occur.MUST);
         query.add(NumericRangeQuery.newDoubleRange(FIELD_LNG, box[1], box[3], true, true), Occur.MUST);
         Collection<Location> retrievedLocations = queryLocations(query, searcher, reader);
-        return CollectionHelper.filterList(retrievedLocations, LocationFilters.radius(coordinate, distance));
+        // remove locations out of the box
+        List<Location> filtered = CollectionHelper.filterList(retrievedLocations, radius(coordinate, distance));
+        // sort them by distance to given coordinate
+        Collections.sort(filtered, LocationExtractorUtils.distanceComparator(coordinate));
+        return filtered;
     }
 
     /**
      * <p>
      * Import locations into Lucene from a different location source.
-     * 
+     *
      * @param source The {@link LocationSource} from which to import.
      * @param directory The destination {@link Directory}; will be closed after import.
      * @throws IOException In case, writing the index fails.
@@ -382,7 +394,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
                     document.add(new LongField(FIELD_POPULATION, location.getPopulation(), Field.Store.YES));
                 }
                 if (location.getAncestorIds() != null && location.getAncestorIds().size() > 0) {
-                    List<Integer> tempHierarchyIds = new ArrayList<Integer>(location.getAncestorIds());
+                    List<Integer> tempHierarchyIds = new ArrayList<>(location.getAncestorIds());
                     Collections.sort(tempHierarchyIds, Collections.reverseOrder());
                     String ancestorString = "/" + StringUtils.join(tempHierarchyIds, "/") + "/";
                     document.add(new StringField(FIELD_ANCESTOR_IDS, ancestorString, Field.Store.YES));
