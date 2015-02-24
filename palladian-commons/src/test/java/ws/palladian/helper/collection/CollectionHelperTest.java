@@ -154,12 +154,12 @@ public class CollectionHelperTest {
     }
 
     @Test
-    public void testGetFirst() {
+    public void testLimit() {
         List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c"));
 
         assertEquals("a", CollectionHelper.getFirst(items));
-        assertEquals("a,b", StringUtils.join(CollectionHelper.getFirst(items, 2), ","));
-        assertEquals("a,b,c", StringUtils.join(CollectionHelper.getFirst(items, 4), ","));
+        assertEquals("a,b", StringUtils.join(CollectionHelper.limit(items, 2), ","));
+        assertEquals("a,b,c", StringUtils.join(CollectionHelper.limit(items, 4), ","));
     }
 
     @Test
@@ -238,7 +238,6 @@ public class CollectionHelperTest {
 
     @Test
     public void testDistinct() {
-        @SuppressWarnings("unchecked")
         Set<String> values = CollectionHelper.distinct(Arrays.asList("a", "b", "c"), Arrays.asList("b", "c", "d"));
         assertEquals(4, values.size());
     }

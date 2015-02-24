@@ -13,7 +13,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.FileHelper;
@@ -91,8 +90,7 @@ public final class ClassFinder {
         for (final String classPathItem : classPathItems) {
             if (classPathItem.endsWith(JAR_FILE_EXTENSION)) { // we're in a JAR file
                 LOGGER.debug("Scanning JAR {}", classPathItem);
-                try {
-                    JarFile jar = new JarFile(new File(classPathItem));
+                try (JarFile jar = new JarFile(new File(classPathItem))) {
                     Enumeration<JarEntry> entries = jar.entries();
                     while (entries.hasMoreElements()) {
                         JarEntry currentEntry = entries.nextElement();

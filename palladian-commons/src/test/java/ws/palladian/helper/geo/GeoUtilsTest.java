@@ -14,7 +14,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class GeoUtilsTest {
 

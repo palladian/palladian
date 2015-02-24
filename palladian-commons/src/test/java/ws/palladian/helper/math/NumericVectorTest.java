@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 public class NumericVectorTest {
 
     @Test
