@@ -6,15 +6,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;

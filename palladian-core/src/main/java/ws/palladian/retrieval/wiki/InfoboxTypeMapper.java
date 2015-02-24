@@ -9,7 +9,6 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 

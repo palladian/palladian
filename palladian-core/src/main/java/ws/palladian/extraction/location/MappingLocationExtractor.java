@@ -1,6 +1,10 @@
 package ws.palladian.extraction.location;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -10,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.collection.CaseInsensitiveMap;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>

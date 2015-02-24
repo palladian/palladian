@@ -7,7 +7,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.classification.text.AbstractDictionaryModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;

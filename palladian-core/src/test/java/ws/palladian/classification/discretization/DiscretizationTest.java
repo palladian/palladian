@@ -17,7 +17,6 @@ import ws.palladian.classification.discretization.Binner.Interval;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class DiscretizationTest {
 

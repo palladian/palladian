@@ -2,16 +2,16 @@ package ws.palladian.extraction.content.evaluation;
 
 import java.io.File;
 
+import ws.palladian.extraction.content.BoilerpipeContentExtractor;
+import ws.palladian.extraction.content.PalladianContentExtractor;
+import ws.palladian.extraction.content.ReadabilityContentExtractor;
+import ws.palladian.extraction.content.evaluation.BoilerpipeDataset.Mode;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.ArticleSentencesExtractor;
 import de.l3s.boilerpipe.extractors.CanolaExtractor;
 import de.l3s.boilerpipe.extractors.DefaultExtractor;
 import de.l3s.boilerpipe.extractors.LargestContentExtractor;
 import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
-import ws.palladian.extraction.content.BoilerpipeContentExtractor;
-import ws.palladian.extraction.content.PalladianContentExtractor;
-import ws.palladian.extraction.content.ReadabilityContentExtractor;
-import ws.palladian.extraction.content.evaluation.BoilerpipeDataset.Mode;
 
 public class ContentExtractionEvaluationRunner {
     

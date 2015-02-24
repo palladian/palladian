@@ -3,8 +3,6 @@ package ws.palladian.retrieval.resources;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 /**
  * <p>
  * A {@link BasicWebContent} representing video links.

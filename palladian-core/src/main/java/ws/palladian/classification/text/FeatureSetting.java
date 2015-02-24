@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 /**
  * <p>
  * Save the settings which text features should be used for a classifier. Use the {@link FeatureSettingBuilder} to

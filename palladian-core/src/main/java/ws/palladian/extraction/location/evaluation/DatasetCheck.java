@@ -14,7 +14,6 @@ import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;

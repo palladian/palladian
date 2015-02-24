@@ -3,7 +3,6 @@ package ws.palladian.retrieval.wiki;
 import java.util.HashSet;
 import java.util.Set;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 
 public final class NamespaceFilter implements Filter<WikiPageReference> {

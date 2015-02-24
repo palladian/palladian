@@ -3,7 +3,12 @@ package ws.palladian.retrieval.search;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
@@ -24,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.resources.WebContent;

@@ -6,8 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.ImmutableToken;
-import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
+import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
 
 public final class CharacterNGramTokenizer implements TextTokenizer {

@@ -4,7 +4,12 @@ import static java.lang.Math.pow;
 import static ws.palladian.helper.math.MathHelper.log2;
 
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;

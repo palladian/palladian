@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 public class CoordinateTaggerTest {
 
     @Test

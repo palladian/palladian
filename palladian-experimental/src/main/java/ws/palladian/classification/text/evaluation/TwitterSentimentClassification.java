@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.IOException;
 
 import ws.palladian.classification.text.BayesScorer;
+import ws.palladian.classification.text.BayesScorer.Options;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.BayesScorer.Options;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;

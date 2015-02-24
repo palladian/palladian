@@ -10,7 +10,6 @@ import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
 import ws.palladian.extraction.entity.StringTagger;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
