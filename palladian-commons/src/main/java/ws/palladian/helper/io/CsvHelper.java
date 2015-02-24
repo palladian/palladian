@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 public final class CsvHelper {
 
     private CsvHelper() {

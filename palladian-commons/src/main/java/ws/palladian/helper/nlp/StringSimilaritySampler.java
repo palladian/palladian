@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.SetSimilarities;
 
 final class StringSimilaritySampler {

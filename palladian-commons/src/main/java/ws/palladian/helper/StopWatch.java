@@ -33,7 +33,6 @@ public class StopWatch {
 
     /** To which detail the output should be shown. */
     private TimeUnit outputDetail = TimeUnit.MILLISECONDS;
-    private int elapsedTimeStringAndIncrement;
 
     /**
      * The StopWatch starts running right after object creation.
