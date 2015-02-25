@@ -9,7 +9,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;

@@ -1,12 +1,12 @@
 package ws.palladian.helper.constants;
 
-import org.apache.commons.lang3.tuple.Pair;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.StringLengthComparator;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import ws.palladian.helper.collection.StringLengthComparator;
 
 /**
  * <p>

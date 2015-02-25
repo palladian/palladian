@@ -16,7 +16,6 @@ import ws.palladian.extraction.content.evaluation.ContentExtractionDataset.Conte
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.CharacterNGramSimilarity;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;

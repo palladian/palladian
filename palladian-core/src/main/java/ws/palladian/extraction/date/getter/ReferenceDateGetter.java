@@ -14,7 +14,6 @@ import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.rater.ContentDateRater;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 
 /**

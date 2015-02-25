@@ -13,7 +13,6 @@ import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.HeadDateRater;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateImpl;
 

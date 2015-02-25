@@ -14,7 +14,6 @@ import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.helper.math.NumericVector;

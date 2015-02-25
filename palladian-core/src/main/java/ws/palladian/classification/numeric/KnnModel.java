@@ -1,7 +1,12 @@
 package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.core.FeatureVector;
@@ -9,7 +14,6 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.Model;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.ImmutableNumericVector;
 import ws.palladian.helper.math.NumericVector;

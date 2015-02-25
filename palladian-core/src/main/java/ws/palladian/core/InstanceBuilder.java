@@ -13,7 +13,6 @@ import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.ImmutableTextValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**

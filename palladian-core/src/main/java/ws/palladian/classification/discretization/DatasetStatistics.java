@@ -6,7 +6,6 @@ import java.util.Set;
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class DatasetStatistics {
 

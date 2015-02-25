@@ -15,8 +15,8 @@ import opennlp.tools.util.Span;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.ImmutableToken;
-import ws.palladian.core.Token;
 import ws.palladian.core.TextTokenizer;
+import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.io.FileHelper;
 

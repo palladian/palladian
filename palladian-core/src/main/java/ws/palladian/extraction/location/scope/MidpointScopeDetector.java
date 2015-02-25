@@ -1,7 +1,7 @@
 package ws.palladian.extraction.location.scope;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
+import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 
 import java.util.Collection;
 import java.util.List;

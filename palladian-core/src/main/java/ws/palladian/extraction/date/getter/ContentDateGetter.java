@@ -1,6 +1,11 @@
 package ws.palladian.extraction.date.getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
@@ -17,7 +22,6 @@ import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;

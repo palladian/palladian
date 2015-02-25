@@ -6,12 +6,16 @@ import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultT
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR4;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 

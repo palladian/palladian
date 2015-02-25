@@ -19,9 +19,8 @@ import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 

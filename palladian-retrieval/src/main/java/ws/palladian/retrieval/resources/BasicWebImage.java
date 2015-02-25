@@ -3,7 +3,6 @@ package ws.palladian.retrieval.resources;
 import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.images.ImageType;
 

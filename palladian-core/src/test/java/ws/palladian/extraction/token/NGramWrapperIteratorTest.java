@@ -2,15 +2,12 @@ package ws.palladian.extraction.token;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
 
 import ws.palladian.core.Token;
-import ws.palladian.extraction.token.NGramWrapperIterator;
-import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class NGramWrapperIteratorTest {

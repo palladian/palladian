@@ -16,7 +16,6 @@ import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.retrieval.cooccurrence.CooccurrenceMatrix;
 
 public class PhraseProbabilityCalculator {
 

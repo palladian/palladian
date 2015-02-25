@@ -8,8 +8,6 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpEntity;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 public final class HttpRequest {
 
     public enum HttpMethod {

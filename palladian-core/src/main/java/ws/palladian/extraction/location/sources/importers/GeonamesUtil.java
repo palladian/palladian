@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>

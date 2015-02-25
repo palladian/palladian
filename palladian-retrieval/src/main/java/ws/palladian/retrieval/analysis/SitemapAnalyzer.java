@@ -21,7 +21,6 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;

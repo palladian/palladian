@@ -1,12 +1,15 @@
 package ws.palladian.classification;
 
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Instances;
 import ws.palladian.core.Model;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>

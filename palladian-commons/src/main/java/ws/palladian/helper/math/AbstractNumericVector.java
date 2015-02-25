@@ -9,7 +9,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 abstract class AbstractNumericVector<K> implements NumericVector<K> {
 
-    @SuppressWarnings("unchecked")
     @Override
     public NumericVector<K> add(NumericVector<K> other) {
         Validate.notNull(other, "other must not be null");
@@ -66,7 +65,6 @@ abstract class AbstractNumericVector<K> implements NumericVector<K> {
         return dotProduct != 0 ? dotProduct / (norm() * other.norm()) : 0;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public double euclidean(NumericVector<K> other) {
         Validate.notNull(other, "other must not be null");
