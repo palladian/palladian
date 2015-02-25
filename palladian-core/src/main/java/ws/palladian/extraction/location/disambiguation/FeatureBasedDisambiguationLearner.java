@@ -2,7 +2,11 @@ package ws.palladian.extraction.location.disambiguation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -22,7 +26,6 @@ import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CompositeIterator;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.geo.GeoCoordinate;

@@ -11,7 +11,6 @@ import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator;
 import ws.palladian.extraction.location.sources.importers.GeonamesUtil;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 

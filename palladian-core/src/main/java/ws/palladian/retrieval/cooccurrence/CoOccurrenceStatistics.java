@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>

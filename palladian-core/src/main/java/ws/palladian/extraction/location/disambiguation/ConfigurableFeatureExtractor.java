@@ -13,8 +13,14 @@ import static ws.palladian.helper.collection.CollectionHelper.coalesce;
 import static ws.palladian.helper.functional.Filters.equal;
 import static ws.palladian.helper.functional.Filters.not;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -26,7 +32,6 @@ import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationSet;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.scope.ScopeDetector;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.geo.GeoCoordinate;

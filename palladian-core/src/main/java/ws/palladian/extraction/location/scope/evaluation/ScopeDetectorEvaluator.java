@@ -29,7 +29,6 @@ import ws.palladian.extraction.location.scope.MidpointScopeDetector;
 import ws.palladian.extraction.location.scope.RankingScopeDetector;
 import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.io.FileHelper;

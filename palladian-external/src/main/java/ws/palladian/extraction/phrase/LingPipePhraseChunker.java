@@ -12,7 +12,6 @@ import java.util.Set;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 
 import com.aliasi.chunk.Chunk;

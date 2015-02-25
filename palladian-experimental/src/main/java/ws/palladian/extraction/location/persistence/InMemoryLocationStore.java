@@ -1,6 +1,11 @@
 package ws.palladian.extraction.location.persistence;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +20,6 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;

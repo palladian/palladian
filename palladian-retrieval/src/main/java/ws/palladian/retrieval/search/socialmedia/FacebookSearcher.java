@@ -1,7 +1,11 @@
 package ws.palladian.retrieval.search.socialmedia;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;

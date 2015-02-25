@@ -41,7 +41,6 @@ import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;

@@ -1,10 +1,13 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;

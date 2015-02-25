@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 /**
  * Default {@link Filter} implementations.
  * 

@@ -7,7 +7,12 @@ import static ws.palladian.helper.collection.CollectionHelper.filterSet;
 import static ws.palladian.helper.functional.Filters.equal;
 import static ws.palladian.helper.functional.Filters.not;
 
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 

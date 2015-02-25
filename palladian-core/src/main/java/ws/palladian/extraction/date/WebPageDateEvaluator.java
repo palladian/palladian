@@ -15,7 +15,6 @@ import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.ContentDateRater;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
