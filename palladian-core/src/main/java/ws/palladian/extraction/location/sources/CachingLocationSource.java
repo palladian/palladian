@@ -18,6 +18,7 @@ import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.LruMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
@@ -34,6 +35,8 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     private final LruMap<String, Collection<Location>> nameCache;
 
     private final LruMap<Integer, Location> idCache;
+    
+    private final LruMap<String, List<Location>> coordinateCache;
 
     private final LocationSource wrapped;
 
@@ -65,6 +68,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
         this.wrapped = wrapped;
         this.nameCache = LruMap.insertionOrder(size);
         this.idCache = LruMap.insertionOrder(size);
+        this.coordinateCache = LruMap.insertionOrder(size);
         this.size = size;
     }
 
@@ -159,6 +163,19 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     }
 
     @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        String identifier = coordinate.getLatitude() + "#" + coordinate.getLongitude() + "#" + distance;
+        List<Location> locations = coordinateCache.get(identifier);
+        requests++;
+        if (locations == null) {
+            locations = wrapped.getLocations(coordinate, distance);
+            coordinateCache.put(identifier, locations);
+            passedRequests++;
+        }
+        return locations;
+    }
+
+    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(CachingLocationSource.class.getSimpleName());
@@ -171,6 +188,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
         stringBuilder.append(", PassedRequests=").append(passedRequests);
         stringBuilder.append(", NameCacheSize=").append(nameCache.size());
         stringBuilder.append(", IdCacheSize=").append(idCache.size());
+        stringBuilder.append(", CoordinateCacheSize=").append(coordinateCache.size());
         stringBuilder.append(")");
         return stringBuilder.toString();
     }

@@ -33,7 +33,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * A {@link LocationSource} witch uses the <a href="http://www.geonames.org">Geonames</a> API. The services provides
  * 2,000 queries/hour, 30,000 queries/day for free accounts.
  * </p>
- * 
+ *
  * @see <a href="http://www.geonames.org/login">Account registration</a>
  * @see <a href="http://www.geonames.org/manageaccount">Account activation</a> (enable access to web services after
  *      registration)
@@ -51,13 +51,29 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
+    private boolean showLanguageWarning = true;
+
+    /**
+     * <p>
+     * Create a new {@link GeonamesLocationSource} which caches requests.
+     * </p>
+     *
+     * @param username The signed up user name, not <code>null</code> or empty.
+     * @return A new {@link GeonamesLocationSource} with caching.
+     */
+    public static LocationSource newCachedLocationSource(String username) {
+        return new CachingLocationSource(new GeonamesLocationSource(username));
+    }
+
     /**
      * <p>
      * Create a new {@link GeonamesLocationSource}.
      * </p>
-     * 
+     *
      * @param username The signed up user name, not <code>null</code> or empty.
+     * @deprecated Prefer using the cached variant, which can be obtained via {@link #newCachedLocationSource(String)}.
      */
+    @Deprecated
     public GeonamesLocationSource(String username) {
         Validate.notEmpty(username, "username must not be empty");
         this.username = username;
@@ -65,7 +81,10 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     @Override
     public List<Location> getLocations(String locationName, Set<Language> languages) {
-        LOGGER.warn("Language queries are not supported; ignoring language parameter.");
+        if (showLanguageWarning) {
+            LOGGER.warn("Language queries are not supported; ignoring language parameter.");
+            showLanguageWarning = false;
+        }
         try {
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=LONG&username=%s",
                     UrlHelper.encodeParameter(locationName), username);
@@ -75,7 +94,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             List<Location> retrievedLocations = parseLocations(document);
             for (Location retrievedLocation : retrievedLocations) {
                 List<Integer> hierarchy = getHierarchy(retrievedLocation.getId());
-                result.add(new ImmutableLocation(retrievedLocation, null, hierarchy));
+                result.add(new ImmutableLocation(retrievedLocation, retrievedLocation.getAlternativeNames(), hierarchy));
             }
             return result;
         } catch (Exception e) {
@@ -96,7 +115,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     /**
      * Check, whether the service sent an error (usually, when the quota has been exceeded).
-     * 
+     *
      * @param document
      */
     static void checkError(Document document) {
@@ -165,7 +184,28 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             List<Location> locations = parseLocations(document);
             Location location = CollectionHelper.getFirst(locations);
             List<Integer> hierarchy = getHierarchy(locationId);
-            return new ImmutableLocation(location, null, hierarchy);
+            return new ImmutableLocation(location, location.getAlternativeNames(), hierarchy);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        try {
+            String getUrl = String.format(
+                    "http://api.geonames.org/findNearby?lat=%s&lng=%s&radius=%s&username=%s&style=LONG&maxRows=100",
+                    coordinate.getLatitude(), coordinate.getLongitude(), distance, username);
+            LOGGER.debug("Retrieving {}", getUrl);
+            HttpResult httpResult = httpRetriever.httpGet(getUrl);
+            Document document = xmlParser.parse(httpResult);
+            List<Location> locations = parseLocations(document);
+            List<Location> result = new ArrayList<>();
+            for (Location location : locations) {
+                List<Integer> hierarchy = getHierarchy(location.getId());
+                result.add(new ImmutableLocation(location, location.getAlternativeNames(), hierarchy));
+            }
+            return result;
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -173,8 +213,10 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     public static void main(String[] args) {
         GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
-        Location location = locationSource.getLocation(7268814);
-        System.out.println(location);
+        // Location location = locationSource.getLocation(7268814);
+        // System.out.println(location);
+        List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(52.52, 13.41), 10);
+        CollectionHelper.print(locations);
     }
 
 }
