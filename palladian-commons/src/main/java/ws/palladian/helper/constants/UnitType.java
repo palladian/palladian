@@ -17,34 +17,30 @@ import ws.palladian.helper.collection.StringLengthComparator;
  */
 public enum UnitType {
 
-    NONE, //
-    TIME, //
-    DIGITAL, //
-    FREQUENCY, //
-    LENGTH, //
-    AREA, //
-    VOLUME, //
-    POWER_RATIO, //
-    WEIGHT, //
-    SPEED, //
-    TEMPERATURE, //
-    PIXEL, //
-    CURRENCY,
-    OTHER;
+    NONE(null), //
+    TIME("s"), //
+    DIGITAL("byte"), //
+    FREQUENCY("Hz"), //
+    LENGTH("cm"), //
+    AREA("m²"), //
+    VOLUME("cm³"), //
+    POWER_RATIO("dB"), //
+    WEIGHT("g"), //
+    SPEED("km/h"), //
+    TEMPERATURE(null), //
+    POWER("watt"), //
+    ENERGY("kilojoule"), //
+    PIXEL("pixel"), //
+    CURRENCY(null),
+    OTHER(null);
 
     private List<Pair<List<String>, Double>> units = new ArrayList<>();
     private List<String> sortedUnitNames = new ArrayList<>();
 
-    public boolean contains(String unit) {
-        for (Pair<List<String>, Double> entry : this.units) {
-            for (String unitName : entry.getLeft()) {
-                if (unitName.equalsIgnoreCase(unit)) {
-                    return true;
-                }
-            }
-        }
+    private String baseUnit;
 
-        return false;
+    UnitType(String baseUnit) {
+        setBaseUnit(baseUnit);
     }
 
     static {
@@ -79,6 +75,71 @@ public enum UnitType {
         unitList.add("perc");
         unitList.add("%");
         UnitType.NONE.units.add(Pair.of(unitList, 0.01));
+
+        // POWER units are normalized to 1 Watt
+        unitList = new ArrayList<>();
+        unitList.add("mega watts");
+        unitList.add("mega watt");
+        unitList.add("megawatts");
+        unitList.add("megawatt");
+        unitList.add("MW");
+        UnitType.POWER.units.add(Pair.of(unitList, 1000000.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("kilo watts");
+        unitList.add("kilo watt");
+        unitList.add("kilowatts");
+        unitList.add("kilowatt");
+        unitList.add("kw");
+        UnitType.POWER.units.add(Pair.of(unitList, 1000.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("watts");
+        unitList.add("watt");
+        unitList.add("w");
+        UnitType.POWER.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("milli watts");
+        unitList.add("milli watt");
+        unitList.add("milliwatts");
+        unitList.add("milliwatt");
+        unitList.add("mW");
+        UnitType.POWER.units.add(Pair.of(unitList, 0.001));
+
+        unitList = new ArrayList<>();
+        unitList.add("horsepower");
+        unitList.add("horses");
+        unitList.add("metric horsepower");
+        unitList.add("bhp");
+        unitList.add("hp");
+        UnitType.POWER.units.add(Pair.of(unitList, 745.699872));
+
+        // ENERGY units are normalized to 1 Joule
+        unitList = new ArrayList<>();
+        unitList.add("kilo joules");
+        unitList.add("kilo joule");
+        unitList.add("kilojoules");
+        unitList.add("kilojoule");
+        unitList.add("kj");
+        UnitType.ENERGY.units.add(Pair.of(unitList, 1000.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("joules");
+        unitList.add("joule");
+        unitList.add("j");
+        UnitType.ENERGY.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("kcal");
+        unitList.add("kilocalories");
+        UnitType.ENERGY.units.add(Pair.of(unitList, 4184.));
+
+        unitList = new ArrayList<>();
+        unitList.add("watt hours");
+        unitList.add("watt hour");
+        unitList.add("watt/h");
+        UnitType.ENERGY.units.add(Pair.of(unitList, 3600.));
 
         // PIXEL units are normalized to 1
         unitList = new ArrayList<>();
@@ -495,12 +556,14 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("kilometers per hour");
         unitList.add("kmh");
+        unitList.add("km/h");
         unitList.add("kph");
         UnitType.SPEED.units.add(Pair.of(unitList, 1.));
 
         // POWER_RATIO
         unitList = new ArrayList<>();
         unitList.add("db");
+        unitList.add("decibel");
         UnitType.POWER_RATIO.units.add(Pair.of(unitList, 1.));
 
         // CURRENCY units are not normalized
@@ -515,21 +578,6 @@ public enum UnitType {
         UnitType.CURRENCY.units.add(Pair.of(unitList, 1.));
 
         // OTHER units are normalized to different values
-        unitList = new ArrayList<>();
-        unitList.add("kilowatts");
-        unitList.add("kilowatt");
-        unitList.add("kw");
-        UnitType.OTHER.units.add(Pair.of(unitList, 1.3410));
-
-        unitList = new ArrayList<>();
-        unitList.add("horsepower");
-        unitList.add("horses");
-        unitList.add("kcal");
-        unitList.add("metric horsepower");
-        unitList.add("bhp");
-        unitList.add("hp");
-        UnitType.OTHER.units.add(Pair.of(unitList, 1.));
-
         unitList = new ArrayList<>();
         unitList.add("foot pounds");
         unitList.add("foot-pounds");
@@ -565,6 +613,26 @@ public enum UnitType {
             Collections.sort(unitType.sortedUnitNames, StringLengthComparator.INSTANCE);
         }
 
+    }
+
+    public boolean contains(String unit) {
+        for (Pair<List<String>, Double> entry : this.units) {
+            for (String unitName : entry.getLeft()) {
+                if (unitName.equalsIgnoreCase(unit)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public void setBaseUnit(String baseUnit) {
+        this.baseUnit = baseUnit;
+    }
+
+    public String getBaseUnit() {
+        return this.baseUnit;
     }
 
     public List<Pair<List<String>, Double>> getUnits() {
