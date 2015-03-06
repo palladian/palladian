@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +114,7 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
             }
 
             String jsonString = httpResult.getStringContent();
+            checkError(jsonString);
             try {
                 results.addAll(parse(jsonString));
             } catch (JsonException e) {
@@ -141,10 +143,58 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
 
     private String getLanguageCode(Language language) {
         switch (language) {
-            case GERMAN:
-                return "lang_de";
-            default:
-                return "lang_en";
+            case ARABIC: return "lang_ar";
+            case BULGARIAN: return "lang_bg";
+            case CATALAN: return "lang_ca";
+            case CZECH: return "lang_cs";
+            case DANISH: return "lang_da";
+            case GERMAN: return "lang_de";
+            case GREEK: return "lang_el";
+            case ENGLISH: return "lang_en";
+            case SPANISH: return "lang_es";
+            case ESTONIAN: return "lang_et";
+            case FINNISH: return "lang_fi";
+            case FRENCH: return "lang_fr";
+            case CROATIAN: return "lang_hr";
+            case HUNGARIAN: return "lang_hu";
+            case INDONESIAN: return "lang_id";
+            case ICELANDIC: return "lang_is";
+            case ITALIAN: return "lang_it";
+            case HEBREW: return "lang_iw";
+            case JAPANESE: return "lang_ja";
+            case KOREAN: return "lang_ko";
+            case LITHUANIAN: return "lang_lt";
+            case LATVIAN: return "lang_lv";
+            case DUTCH: return "lang_nl";
+            case NORWEGIAN: return "lang_no";
+            case POLISH: return "lang_pl";
+            case PORTUGUESE: return "lang_pt";
+            case ROMANIAN: return "lang_ro";
+            case RUSSIAN: return "lang_ru";
+            case SLOVAK: return "lang_sk";
+            case SLOVENE: return "lang_sl";
+            case SERBIAN: return "lang_sr";
+            case SWEDISH: return "lang_sv";
+            case TURKISH: return "lang_tr";
+            case CHINESE: return "lang_zh-CN";
+            default: throw new IllegalArgumentException("Unsupported language: " + language); 
+        }
+    }
+
+    static void checkError(String jsonString) throws SearcherException {
+        if (StringUtils.isBlank(jsonString)) {
+            throw new SearcherException("JSON response is empty.");
+        }
+        try {
+            JsonObject jsonObject = new JsonObject(jsonString);
+            JsonObject jsonError = jsonObject.getJsonObject("error");
+            if (jsonError != null) {
+                int errorCode = jsonError.getInt("code");
+                String message = jsonError.getString("message");
+                throw new SearcherException("Error from Google Custom Search API: " + message + " (" + errorCode + ").");
+            }
+        } catch (JsonException e) {
+            throw new SearcherException("Could not parse JSON response ('" + jsonString + "').", e);
         }
     }
 
