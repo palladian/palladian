@@ -31,7 +31,7 @@ public class GoogleCustomSearcherTest {
     }
     
     @Test
-    public void testParsinErrorResponse() throws IOException {
+    public void testParsingErrorResponse() throws IOException {
         String jsonString = FileHelper.readFileToString(ResourceHelper
                 .getResourceFile("/apiresponse/googleCustomSearchErrorResponse.json"));
         try {
