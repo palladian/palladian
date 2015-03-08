@@ -3,9 +3,7 @@ package ws.palladian.extraction.location.sources.importers;
 import static ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter.AlternativeNameExtraction.PAGE;
 import static ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter.AlternativeNameExtraction.REDIRECTS;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +18,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +27,13 @@ import org.xml.sax.SAXException;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.persistence.DatabaseManagerFactory;
+import ws.palladian.helper.io.ProgressReporterInputStream;
 import ws.palladian.retrieval.wiki.InfoboxTypeMapper;
 import ws.palladian.retrieval.wiki.MarkupCoordinate;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
@@ -80,6 +79,8 @@ public class WikipediaLocationImporter {
 
     private final Set<AlternativeNameExtraction> nameExtraction;
 
+    private final ProgressReporter progressReporter;
+
     /**
      * @param locationStore The {@link LocationStore} where to store the imported data.
      * @param idOffset The offset for the inserted IDs. This way, ID clashes with existing data can be avoided. Zero for
@@ -87,14 +88,15 @@ public class WikipediaLocationImporter {
      * @param nameExtraction Specify from where to extract alternative location names (see
      *            {@link AlternativeNameExtraction}).
      */
-    public WikipediaLocationImporter(LocationStore locationStore, int idOffset,
+    public WikipediaLocationImporter(LocationStore locationStore, int idOffset, ProgressReporter progressReporter,
             AlternativeNameExtraction... nameExtraction) {
         Validate.notNull(locationStore, "locationStore must not be null");
         Validate.isTrue(idOffset >= 0);
         this.locationStore = locationStore;
         this.idOffset = idOffset;
         this.locationNamesIds = new HashMap<>();
-        this.nameExtraction = new HashSet<AlternativeNameExtraction>(Arrays.asList(nameExtraction));
+        this.nameExtraction = new HashSet<>(Arrays.asList(nameExtraction));
+        this.progressReporter = progressReporter;
     }
 
     /**
@@ -117,17 +119,24 @@ public class WikipediaLocationImporter {
         }
 
         StopWatch stopWatch = new StopWatch();
+        progressReporter.startTask(null, -1);
+        locationStore.startImport();
 
         InputStream in = null;
         InputStream in2 = null;
         try {
 
-            in = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
+            boolean processRedirects = nameExtraction.contains(REDIRECTS);
+
+            in = new ProgressReporterInputStream(dumpXml,
+                    progressReporter.createSubProgress(processRedirects ? 0.5 : 1));
+            in = new MultiStreamBZip2InputStream(in);
             LOGGER.info("Reading location data from {}", dumpXml);
             importLocationPages(in);
 
-            if (nameExtraction.contains(REDIRECTS)) {
-                in2 = new MultiStreamBZip2InputStream(new BufferedInputStream(new FileInputStream(dumpXml)));
+            if (processRedirects) {
+                in2 = new ProgressReporterInputStream(dumpXml, progressReporter.createSubProgress(0.5));
+                in2 = new MultiStreamBZip2InputStream(in2);
                 LOGGER.info("Reading location alternative names from redirects in {}", dumpXml);
                 importAlternativeNames(in2);
             } else {
@@ -145,9 +154,11 @@ public class WikipediaLocationImporter {
         } finally {
             FileHelper.close(in, in2);
         }
+        locationStore.finishImport();
         LOGGER.info("Finished import in {}", stopWatch);
     }
 
+    /** Package-private for unit testing. */
     void importLocationPages(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         final int[] counter = new int[] {0};
         MediaWikiUtil.parseDump(inputStream, new Consumer<WikiPage>() {
@@ -210,7 +221,7 @@ public class WikipediaLocationImporter {
                         if (alternativeTitles.size() > 0) {
                             Set<AlternativeName> alternativeNames = new HashSet<>();
                             for (String name : alternativeTitles) {
-                                if (!name.equals(cleanArticleName)) {
+                                if (StringUtils.isNotBlank(name) && !name.equals(cleanArticleName)) {
                                     alternativeNames.add(new AlternativeName(name));
                                 }
                             }
@@ -225,7 +236,8 @@ public class WikipediaLocationImporter {
     }
 
     /**
-     * Import alternative names for the locations (which are given as Wikipedia redirects).
+     * Import alternative names for the locations (which are given as Wikipedia redirects). Package-private for unit
+     * testing.
      * 
      * @param inputStream
      * @throws SAXException
@@ -267,15 +279,6 @@ public class WikipediaLocationImporter {
             }
         });
         LOGGER.info("Finished importing {} alternative names", counter[0]);
-    }
-
-    public static void main(String[] args) throws Exception {
-        LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations2");
-        locationStore.truncate();
-
-        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore, 100000000, PAGE);
-        File dumpXml = new File("/Users/pk/Downloads/enwiki-latest-pages-articles.xml.bz2");
-        importer.importDumpBz2(dumpXml);
     }
 
 }
