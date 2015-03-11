@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,9 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -35,7 +38,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="http://www.google.com/cse">Google Custom Search settings</a>
  * @see <a href="http://support.google.com/customsearch/bin/answer.py?hl=en&answer=1210656">Search the entire web</a>
  */
-public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
+public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebContent> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCustomSearcher.class);
@@ -90,18 +93,19 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
     public String getName() {
         return SEARCHER_NAME;
     }
-
+    
     @Override
-    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
+    public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
 
         List<WebContent> results = new ArrayList<>();
+        Long resultCount = null;
 
         // Google Custom Search gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
-        double numChunks = Math.min(10, Math.ceil((double)resultCount / 10));
+        double numChunks = Math.min(10, Math.ceil((double)query.getResultCount() / 10));
 
         for (int start = 1; start <= numChunks; start++) {
 
-            String searchUrl = createRequestUrl(query, start, Math.min(10, resultCount - results.size()), language);
+            String searchUrl = createRequestUrl(query.getText(), start, Math.min(10, query.getResultCount() - results.size()), query.getLanguage());
             LOGGER.debug("Search with URL " + searchUrl);
 
             HttpResult httpResult;
@@ -113,15 +117,19 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
             }
 
             String jsonString = httpResult.getStringContent();
+            checkError(jsonString);
             try {
                 results.addAll(parse(jsonString));
+                if (resultCount == null) {
+                    resultCount = parseResultCount(jsonString);
+                }
             } catch (JsonException e) {
                 throw new SearcherException("Error parsing the response from URL \"" + searchUrl + "\" (JSON was: \""
                         + jsonString + "\"): " + e.getMessage(), e);
             }
         }
 
-        return results;
+        return new SearchResults<WebContent>(results, resultCount);
     }
 
     private String createRequestUrl(String query, int start, int num, Language language) {
@@ -141,10 +149,58 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
 
     private String getLanguageCode(Language language) {
         switch (language) {
-            case GERMAN:
-                return "lang_de";
-            default:
-                return "lang_en";
+            case ARABIC: return "lang_ar";
+            case BULGARIAN: return "lang_bg";
+            case CATALAN: return "lang_ca";
+            case CZECH: return "lang_cs";
+            case DANISH: return "lang_da";
+            case GERMAN: return "lang_de";
+            case GREEK: return "lang_el";
+            case ENGLISH: return "lang_en";
+            case SPANISH: return "lang_es";
+            case ESTONIAN: return "lang_et";
+            case FINNISH: return "lang_fi";
+            case FRENCH: return "lang_fr";
+            case CROATIAN: return "lang_hr";
+            case HUNGARIAN: return "lang_hu";
+            case INDONESIAN: return "lang_id";
+            case ICELANDIC: return "lang_is";
+            case ITALIAN: return "lang_it";
+            case HEBREW: return "lang_iw";
+            case JAPANESE: return "lang_ja";
+            case KOREAN: return "lang_ko";
+            case LITHUANIAN: return "lang_lt";
+            case LATVIAN: return "lang_lv";
+            case DUTCH: return "lang_nl";
+            case NORWEGIAN: return "lang_no";
+            case POLISH: return "lang_pl";
+            case PORTUGUESE: return "lang_pt";
+            case ROMANIAN: return "lang_ro";
+            case RUSSIAN: return "lang_ru";
+            case SLOVAK: return "lang_sk";
+            case SLOVENE: return "lang_sl";
+            case SERBIAN: return "lang_sr";
+            case SWEDISH: return "lang_sv";
+            case TURKISH: return "lang_tr";
+            case CHINESE: return "lang_zh-CN";
+            default: throw new IllegalArgumentException("Unsupported language: " + language); 
+        }
+    }
+
+    static void checkError(String jsonString) throws SearcherException {
+        if (StringUtils.isBlank(jsonString)) {
+            throw new SearcherException("JSON response is empty.");
+        }
+        try {
+            JsonObject jsonObject = new JsonObject(jsonString);
+            JsonObject jsonError = jsonObject.getJsonObject("error");
+            if (jsonError != null) {
+                int errorCode = jsonError.getInt("code");
+                String message = jsonError.getString("message");
+                throw new SearcherException("Error from Google Custom Search API: " + message + " (" + errorCode + ").");
+            }
+        } catch (JsonException e) {
+            throw new SearcherException("Could not parse JSON response ('" + jsonString + "').", e);
         }
     }
 
@@ -163,25 +219,6 @@ public final class GoogleCustomSearcher extends AbstractSearcher<WebContent> {
             result.add(builder.create());
         }
         return result;
-    }
-
-    @Override
-    public long getTotalResultCount(String query, Language language) throws SearcherException {
-        String requestUrl = createRequestUrl(query, 1, 1, language);
-        HttpResult httpResult;
-        try {
-            httpResult = retriever.httpGet(requestUrl);
-        } catch (HttpException e) {
-            throw new SearcherException("HTTP exception while accessing Google Custom Search with URL \"" + requestUrl
-                    + "\": " + e.getMessage(), e);
-        }
-        String jsonString = httpResult.getStringContent();
-        try {
-            return parseResultCount(jsonString);
-        } catch (JsonException e) {
-            throw new SearcherException("Error parsing the response from URL \"" + requestUrl + "\" (JSON was: \""
-                    + jsonString + "\"): " + e.getMessage(), e);
-        }
     }
 
     /** default visibility for unit testing. */
