@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.search.web;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +12,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.SearcherException;
 
 public class GoogleCustomSearcherTest {
 
@@ -26,6 +28,18 @@ public class GoogleCustomSearcherTest {
 
         long resultCount = GoogleCustomSearcher.parseResultCount(jsonString);
         assertEquals(147000, resultCount);
+    }
+    
+    @Test
+    public void testParsingErrorResponse() throws IOException {
+        String jsonString = FileHelper.readFileToString(ResourceHelper
+                .getResourceFile("/apiresponse/googleCustomSearchErrorResponse.json"));
+        try {
+            GoogleCustomSearcher.checkError(jsonString);
+            fail();
+        } catch (SearcherException e) {
+            assertEquals("Error from Google Custom Search API: Invalid Value (400).", e.getMessage());
+        }
     }
 
 }
