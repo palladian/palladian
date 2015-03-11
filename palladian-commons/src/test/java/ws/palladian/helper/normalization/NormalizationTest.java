@@ -72,6 +72,8 @@ public class NormalizationTest {
         assertEquals("miles", UnitNormalizer.detectUnit("1.5miles"));
         assertEquals("liters", UnitNormalizer.detectUnit("2 liters of milk"));
         assertEquals("g", UnitNormalizer.detectUnit("2g"));
+        assertEquals("hz", UnitNormalizer.detectUnit("100 hz"));
+        assertEquals("hz", UnitNormalizer.detectUnit("100 hz",UnitType.FREQUENCY));
     }
 
     @Test
