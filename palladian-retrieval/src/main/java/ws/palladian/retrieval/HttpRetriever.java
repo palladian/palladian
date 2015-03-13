@@ -409,7 +409,7 @@ public class HttpRetriever {
                 httpRequest = new HttpDelete(url);
                 break;
             case PUT:
-                url = createUrl(request);
+                url = request.getUrl();
                 HttpPut httpPut = new HttpPut(url);
 
                 if(request.getHttpEntity() != null){
