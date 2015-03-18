@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.search.web;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -119,7 +120,11 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
             String jsonString = httpResult.getStringContent();
             checkError(jsonString);
             try {
-                results.addAll(parse(jsonString));
+                List<WebContent> current = parse(jsonString);
+                if (current.isEmpty()) {
+                    break;
+                }
+                results.addAll(current);
                 if (resultCount == null) {
                     resultCount = parseResultCount(jsonString);
                 }
@@ -206,9 +211,13 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
 
     /** default visibility for unit testing. */
     static List<WebContent> parse(String jsonString) throws JsonException {
-        List<WebContent> result = new ArrayList<>();
         JsonObject jsonObject = new JsonObject(jsonString);
         JsonArray jsonItems = jsonObject.getJsonArray("items");
+        if (jsonItems == null) {
+            LOGGER.warn("JSON result did not contain an 'items' property. (JSON = '" + jsonString + "'.");
+            return Collections.emptyList();
+        }
+        List<WebContent> result = new ArrayList<>();
         for (int i = 0; i < jsonItems.size(); i++) {
             JsonObject jsonItem = jsonItems.getJsonObject(i);
             BasicWebContent.Builder builder = new BasicWebContent.Builder();

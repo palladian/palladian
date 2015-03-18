@@ -139,7 +139,17 @@ public enum UnitType {
         unitList.add("watt hours");
         unitList.add("watt hour");
         unitList.add("watt/h");
+        unitList.add("w/h");
+        unitList.add("wh");
         UnitType.ENERGY.units.add(Pair.of(unitList, 3600.));
+
+
+        unitList = new ArrayList<>();
+        unitList.add("kilo watt hours");
+        unitList.add("kilo watt hour");
+        unitList.add("kw/h");
+        unitList.add("kwh");
+        UnitType.ENERGY.units.add(Pair.of(unitList, 3600000.));
 
         // PIXEL units are normalized to 1
         unitList = new ArrayList<>();

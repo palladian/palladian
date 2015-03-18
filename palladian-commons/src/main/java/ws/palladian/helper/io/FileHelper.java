@@ -597,8 +597,8 @@ public final class FileHelper {
         Validate.notNull(lineAction, "lineAction must not be null");
 
         int lineNumber = 0;
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
             String line = null;
             while ((line = bufferedReader.readLine()) != null && lineAction.looping) {
                 lineAction.performAction(line, lineNumber++);
