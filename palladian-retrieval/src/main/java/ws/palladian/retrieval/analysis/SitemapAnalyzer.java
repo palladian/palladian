@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.SizeUnit;
@@ -85,10 +85,10 @@ public class SitemapAnalyzer {
 
         LOGGER.info("getting the page urls");
         List<String> urls = new SitemapRetriever().getUrls(sitemapUrl);
-        final int totalCount = urls.size();
 
         final AtomicInteger count = new AtomicInteger(1);
 
+        final ProgressMonitor progressMonitor = new ProgressMonitor(urls.size());
         Consumer<Document> retrieverCallback = new Consumer<Document>() {
 
             @Override
@@ -151,7 +151,7 @@ public class SitemapAnalyzer {
 
                 resultTable.put(document.getDocumentURI(), map);
 
-                ProgressHelper.printProgress(count.intValue(), totalCount, .2, stopWatch);
+                progressMonitor.incrementAndPrintProgress();
                 count.incrementAndGet();
             }
         };
