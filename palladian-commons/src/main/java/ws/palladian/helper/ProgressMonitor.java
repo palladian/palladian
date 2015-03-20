@@ -26,7 +26,9 @@ import ws.palladian.helper.date.DateHelper;
  * </pre>
  * 
  * </p>
- * 
+ *
+ * XXX think about deprecation and extensibility, see https://bitbucket.org/palladian/palladian/commits/4c5fc38de8adfd5bd17e00e34881fe9b69d11a12#general-comments
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -62,7 +64,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     /** Keep track of the last 3 iterations */
     private List<Long> lastIterationTimes;
-    private final int lastIterationWindow = 3;
+    private final static int LAST_ITERATION_WINDOW = 3;
 
     /** Prevents outputting the same percentage value again, as specified by showEveryPercent. */
     private int lastOutput = -1;
@@ -70,6 +72,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /**
      * <p>
      * Create a new {@link ProgressMonitor}.
+     * </p>
      * 
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      */
@@ -96,9 +99,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * </p>
      * 
      * @param totalSteps The total iterations to perform, greater/equal zero.
-     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    @Deprecated
     public ProgressMonitor(long totalSteps) {
         this(totalSteps, 1);
 
@@ -111,9 +112,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * 
      * @param totalSteps The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
-     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    @Deprecated
     public ProgressMonitor(long totalSteps, double showEveryPercent) {
         this(totalSteps, showEveryPercent, null);
     }
@@ -126,9 +125,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * @param totalSteps The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      * @param processName The name of the process, for identification purposes when outputting the bar.
-     * @deprecated Use {@link #ProgressMonitor(double)} instead.
      */
-    @Deprecated
     public ProgressMonitor(long totalSteps, double showEveryPercent, String processName) {
         this(showEveryPercent);
         Validate.isTrue(totalSteps >= 0, "totalSteps must be greater/equal zero");
@@ -140,9 +137,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * Increments the counter by one and prints the current progress to the System's standard output.
      * </p>
      * 
-     * @deprecated Use {@link #increment()} instead.
      */
-    @Deprecated
     public void incrementAndPrintProgress() {
         increment();
     }
@@ -154,9 +149,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * 
      * @param steps The number of steps to increment the counter with.
      * 
-     * @deprecated Use {@link #increment(long)} instead.
      */
-    @Deprecated
     public void incrementByAndPrintProgress(long steps) {
         increment(steps);
     }
@@ -251,7 +244,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     private double getAverageIterationTime() {
         double time = 0.;
-        int count = Math.min(lastIterationWindow, lastIterationTimes.size());
+        int count = Math.min(LAST_ITERATION_WINDOW, lastIterationTimes.size());
         for (int i = 0; i < count; i++) {
             time += lastIterationTimes.get(i);
         }

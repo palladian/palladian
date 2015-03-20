@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 
 public class LoremIpsumGenerator {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(LoremIpsumGenerator.class);
 
     public static final String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
@@ -28,7 +30,12 @@ public class LoremIpsumGenerator {
         StringBuilder text = new StringBuilder(length);
 
         for (int i = 0; i < length; i++) {
-            char randomCharacter = (char) (Math.random() * 26 + 97);
+            char randomCharacter;
+            if (Math.random() < 0.15) {
+                randomCharacter = ' ';
+            } else {
+                randomCharacter = (char) (Math.random() * 26 + 97);
+            }
             text.append(randomCharacter);
         }
 
@@ -39,8 +46,8 @@ public class LoremIpsumGenerator {
      * @param args
      */
     public static void main(String[] args) {
-        LOGGER.info(LoremIpsumGenerator.generateText(400));
-        LOGGER.info(LoremIpsumGenerator.getRandomText(5));
+        System.out.println(LoremIpsumGenerator.generateText(400));
+        System.out.println(LoremIpsumGenerator.getRandomText(50));
     }
 
 }
