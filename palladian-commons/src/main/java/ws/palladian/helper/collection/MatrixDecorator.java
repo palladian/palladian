@@ -26,13 +26,13 @@ public abstract class MatrixDecorator<K, V> implements Matrix<K, V>, Serializabl
     }
 
     @Override
-    public V get(K x, K y) {
-        return matrix.get(x, y);
+    public void set(K x, K y, V value) {
+        matrix.set(x, y, value);
     }
 
     @Override
-    public void set(K x, K y, V value) {
-        matrix.set(x, y, value);
+    public V get(K x, K y) {
+        return matrix.get(x, y);
     }
 
     @Override
