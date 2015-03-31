@@ -41,7 +41,7 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     @Override
     public MatrixVector<K, V> getRow(K y) {
         Map<K, V> row = matrix.get(y);
-        return row != null ? new MapMatrixVector<K, V>(y, row) : null;
+        return row != null ? new MapMatrixVector<>(y, row) : null;
     }
 
     @Override
@@ -55,14 +55,14 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
                 }
             }
         }
-        return column.size() > 0 ? new MapMatrixVector<K, V>(x, column) : null;
+        return column.size() > 0 ? new MapMatrixVector<>(x, column) : null;
     }
 
     @Override
     public void set(K x, K y, V value) {
         Map<K, V> row = matrix.get(y);
         if (row == null) {
-            row = new HashMap<K, V>();
+            row = new HashMap<>();
             matrix.put(y, row);
         }
         keysX.add(x);
