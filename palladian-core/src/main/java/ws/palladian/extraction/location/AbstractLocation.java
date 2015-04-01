@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 
 /**
  * <p>
@@ -88,6 +89,23 @@ public abstract class AbstractLocation implements Location {
             toStringParts.add(String.format("population=%s", getPopulation()));
         }
         return String.format("%s [%s]", getClass().getSimpleName(), StringUtils.join(toStringParts, ','));
+    }
+
+    @Override
+    public boolean hasName(String name, Set<Language> languages) {
+        Validate.notNull(name, "name must not be null");
+        Validate.notNull(languages, "languages must not be null");
+        if (getPrimaryName().equalsIgnoreCase(name)) {
+            return true;
+        }
+        for (AlternativeName alternativeName : getAlternativeNames()) {
+            String currentName = alternativeName.getName();
+            Language currentLang = alternativeName.getLanguage();
+            if (currentName.equalsIgnoreCase(name) && (currentLang == null || languages.contains(currentLang))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // hashCode and equals
