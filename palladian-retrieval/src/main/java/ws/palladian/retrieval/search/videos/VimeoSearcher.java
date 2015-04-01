@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +51,8 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     /** Pattern for parsing the returned date strings. */
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    /** The time zone used within the dates. Vimeo uses eastern time, see https://vimeo.com/forums/topic:45607 */
+    private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("US/Eastern");
 
     /** The identifier for the {@link Configuration} key with the OAuth consumer key. */
     public static final String CONFIG_CONSUMER_KEY = "api.vimeo.consumerKey";
@@ -200,6 +203,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     private static Date parseDate(String dateString) {
         DateFormat dateParser = new SimpleDateFormat(DATE_PATTERN);
+        dateParser.setTimeZone(TIME_ZONE);
         try {
             return dateParser.parse(dateString);
         } catch (ParseException e) {
