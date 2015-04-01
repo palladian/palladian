@@ -38,6 +38,7 @@ import ws.palladian.helper.normalization.UnitNormalizer;
  * @author Philipp Katz
  * @author Martin Gregor
  */
+@SuppressWarnings("UnusedDeclaration")
 public final class StringHelper {
 
     /** The logger for this class. */
@@ -238,7 +239,7 @@ public final class StringHelper {
             return Collections.emptyList();
         }
 
-        List<Integer> indices = new ArrayList<Integer>();
+        List<Integer> indices = new ArrayList<>();
         int lastPosition = 0;
         int position;
         while ((position = text.indexOf(search, lastPosition)) > -1) {
@@ -862,10 +863,7 @@ public final class StringHelper {
      */
     public static boolean startsUppercase(String testString) {
         String string = StringHelper.trim(testString);
-        if (string.length() == 0) {
-            return false;
-        }
-        return Character.isUpperCase(string.charAt(0));
+        return string.length() != 0 && Character.isUpperCase(string.charAt(0));
     }
 
     /**
@@ -994,7 +992,7 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~"};
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~","®"};
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
@@ -1014,7 +1012,7 @@ public final class StringHelper {
             Character last = string.charAt(string.length() - 1);
             // System.out.println(Character.getType(last));
             for (String element : unwanted) {
-                if (keepCharacters.indexOf(element) > -1) {
+                if (keepCharacters.contains(element)) {
                     continue;
                 }
 
@@ -1046,17 +1044,6 @@ public final class StringHelper {
 
             string = string.trim();
         }
-
-        // remove all control characters from string
-        // string = removeControlCharacters(string);
-
-        // string = replaceProtectedSpace(string);
-
-        // close spaces gap that might have arisen
-        // string = removeDoubleWhitespaces(string);
-
-        // string = string.replaceAll("'\\)\\)","").replaceAll("'\\)",""); //
-        // values are in javascript text sometimes e.g. ...('80GB')
 
         return string.trim();
     }
@@ -1237,14 +1224,7 @@ public final class StringHelper {
             return 0.0;
         }
 
-        double similarity = longestCommonStringLength / Math.min(string1.length(), string2.length()); // TODO
-        // changed
-        // without
-        // test
-        // 26/06/2009
-        // return similarity / Math.max(string1.length(), string2.length());
-        // return similarity / string2.length();
-        return similarity;
+        return longestCommonStringLength / Math.min(string1.length(), string2.length());
     }
 
     /**
@@ -1289,7 +1269,7 @@ public final class StringHelper {
             for (int startPosition = 0; startPosition < s2.length(); startPosition++) {
 
                 // check how many characters are in common for both strings
-                int index = 0;
+                int index;
                 for (index = startPosition; index < Math.min(s1.length() + startPosition, s2.length()); index++) {
                     if (s1.charAt(index - startPosition) != s2.charAt(index)) {
                         break;
@@ -1597,7 +1577,7 @@ public final class StringHelper {
      */
     // TODO move this method to HtmlHelper
     public static String stripNonValidXMLCharacters(String in) {
-        StringBuffer out = new StringBuffer(); // Used to hold the output.
+        StringBuilder out = new StringBuilder(); // Used to hold the output.
         char current; // Used to reference the current character.
 
         if (in == null || "".equals(in)) {
@@ -1872,7 +1852,7 @@ public final class StringHelper {
      * @param ch The char.
      * @return The case signature [Aa0 -] representing the given char.
      */
-    private static final char getCharSignature(char ch) {
+    private static char getCharSignature(char ch) {
         if (Character.isUpperCase(ch)) {
             return 'A';
         } else if (Character.isLowerCase(ch)) {
@@ -2065,7 +2045,7 @@ public final class StringHelper {
      * 
      * @param matcher The matcher, not <code>null</code>.
      */
-    public static final void printGroups(Matcher matcher) {
+    public static void printGroups(Matcher matcher) {
         Validate.notNull(matcher, "matcher must not be null");
         for (int i = 0; i <= matcher.groupCount(); i++) {
             System.out.println(i + ":" + matcher.group(i));
@@ -2080,7 +2060,7 @@ public final class StringHelper {
      * @param string The string, not <code>null</code>.
      * @return A list of sub-phrases (including the supplied phrase itself).
      */
-    public static final List<String> getSubPhrases(String string) {
+    public static List<String> getSubPhrases(String string) {
         Validate.notNull(string, "string must not be null");
         List<String> phrases = new ArrayList<>();
         String[] split = string.split("\\s");
