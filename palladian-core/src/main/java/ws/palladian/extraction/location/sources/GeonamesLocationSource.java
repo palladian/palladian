@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,14 +14,13 @@ import org.w3c.dom.Node;
 
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.LocationSource;
-import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.importers.GeonamesUtil;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -86,7 +86,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             showLanguageWarning = false;
         }
         try {
-            String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=LONG&username=%s",
+            String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=FULL&username=%s",
                     UrlHelper.encodeParameter(locationName), username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
@@ -136,20 +136,31 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     }
 
     static Location parseLocation(Node node) {
-        String primaryName = XPathHelper.getNode(node, "./toponymName").getTextContent();
+        LocationBuilder builder = new LocationBuilder();
+        builder.setPrimaryName(XPathHelper.getNode(node, "./toponymName").getTextContent());
         double latitude = Double.parseDouble(XPathHelper.getNode(node, "./lat").getTextContent());
         double longitude = Double.parseDouble(XPathHelper.getNode(node, "./lng").getTextContent());
-        int geonameId = Integer.parseInt(XPathHelper.getNode(node, "./geonameId").getTextContent());
+        builder.setCoordinate(latitude, longitude);
+        builder.setId(Integer.parseInt(XPathHelper.getNode(node, "./geonameId").getTextContent()));
         String featureClass = XPathHelper.getNode(node, "./fcl").getTextContent();
         String featureCode = XPathHelper.getNode(node, "./fcode").getTextContent();
+        builder.setType(GeonamesUtil.mapType(featureClass, featureCode));
         String populationString = XPathHelper.getNode(node, "./population").getTextContent();
-        long population = 0;
         if (!populationString.isEmpty()) {
-            population = Long.parseLong(populationString);
+            builder.setPopulation(Long.parseLong(populationString));
         }
-        LocationType locationType = GeonamesUtil.mapType(featureClass, featureCode);
-        GeoCoordinate coordinate = new ImmutableGeoCoordinate(latitude, longitude);
-        return new ImmutableLocation(geonameId, primaryName, locationType, coordinate, population);
+        List<Node> altNameNodes = XPathHelper.getNodes(node, "./alternateName");
+        for (Node altNameNode : altNameNodes) {
+            String altName = altNameNode.getTextContent();
+            NamedNodeMap attrs = altNameNode.getAttributes();
+            Node langAttr = attrs.getNamedItem("lang");
+            String altNameLang = langAttr.getTextContent();
+            Language language = Language.getByIso6391(altNameLang);
+            if (language != null) {
+                builder.addAlternativeName(altName, language);
+            }
+        }
+        return builder.create();
     }
 
     private List<Integer> getHierarchy(int locationId) {
@@ -177,7 +188,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     @Override
     public Location getLocation(int locationId) {
         try {
-            String getUrl = String.format("http://api.geonames.org/get?geonameId=%s&username=%s&style=LONG",
+            String getUrl = String.format("http://api.geonames.org/get?geonameId=%s&username=%s&style=FULL",
                     locationId, username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
@@ -194,7 +205,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         try {
             String getUrl = String.format(
-                    "http://api.geonames.org/findNearby?lat=%s&lng=%s&radius=%s&username=%s&style=LONG&maxRows=100",
+                    "http://api.geonames.org/findNearby?lat=%s&lng=%s&radius=%s&username=%s&style=FULL&maxRows=100",
                     coordinate.getLatitude(), coordinate.getLongitude(), distance, username);
             LOGGER.debug("Retrieving {}", getUrl);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
@@ -215,7 +226,8 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
         GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
         // Location location = locationSource.getLocation(7268814);
         // System.out.println(location);
-        List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(52.52, 13.41), 10);
+        // List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(52.52, 13.41), 10);
+        List<Location> locations = locationSource.getLocations("colombo", EnumSet.of(Language.ENGLISH));
         CollectionHelper.print(locations);
     }
 
