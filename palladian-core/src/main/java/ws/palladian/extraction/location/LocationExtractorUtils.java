@@ -85,6 +85,25 @@ public final class LocationExtractorUtils {
         };
     }
 
+//    /**
+//     * <p>
+//     * Create a filter matching locations by name and language.
+//     * 
+//     * @param name The name to match.
+//     * @param languages The languages to match (primary name and alternative name without specified language always
+//     *            match).
+//     * @return <code>true</code> in case the location matched for the name and language(s).
+//     * @see Location#hasName(String, Set)
+//     */
+//    public static Filter<Location> nameFilter(final String name, final Set<Language> languages) {
+//        return new Filter<Location>() {
+//            @Override
+//            public boolean accept(Location item) {
+//                return item.hasName(name, languages);
+//            }
+//        };
+//    }
+
     private LocationExtractorUtils() {
         // thou shalt not instantiate
     }

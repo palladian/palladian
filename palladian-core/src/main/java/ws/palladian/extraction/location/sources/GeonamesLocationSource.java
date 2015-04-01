@@ -51,7 +51,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
-    private boolean showLanguageWarning = true;
+//    private boolean showLanguageWarning = true;
 
     /**
      * <p>
@@ -81,10 +81,10 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     @Override
     public List<Location> getLocations(String locationName, Set<Language> languages) {
-        if (showLanguageWarning) {
-            LOGGER.warn("Language queries are not supported; ignoring language parameter.");
-            showLanguageWarning = false;
-        }
+//        if (showLanguageWarning) {
+//            LOGGER.warn("Language queries are not supported; ignoring language parameter.");
+//            showLanguageWarning = false;
+//        }
         try {
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=FULL&username=%s",
                     UrlHelper.encodeParameter(locationName), username);
@@ -94,7 +94,15 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             List<Location> retrievedLocations = parseLocations(document);
             for (Location retrievedLocation : retrievedLocations) {
                 List<Integer> hierarchy = getHierarchy(retrievedLocation.getId());
-                result.add(new ImmutableLocation(retrievedLocation, retrievedLocation.getAlternativeNames(), hierarchy));
+                Location location = new ImmutableLocation(retrievedLocation, retrievedLocation.getAlternativeNames(),
+                        hierarchy);
+                // post-filtering; only return those locations which actually match the specified languages;
+                // this is done here, because GeoNames does not allow to narrow down queries by (multiple) languages.
+                if (location.hasName(locationName, languages)) {
+                    result.add(location);
+                } else {
+                    LOGGER.debug("Dropping {} because name does not match", location);
+                }
             }
             return result;
         } catch (Exception e) {
@@ -227,7 +235,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
         // Location location = locationSource.getLocation(7268814);
         // System.out.println(location);
         // List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(52.52, 13.41), 10);
-        List<Location> locations = locationSource.getLocations("colombo", EnumSet.of(Language.ENGLISH));
+        List<Location> locations = locationSource.getLocations("monaco", EnumSet.of(Language.ENGLISH));
         CollectionHelper.print(locations);
     }
 
