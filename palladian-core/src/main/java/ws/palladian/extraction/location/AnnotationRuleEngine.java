@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -197,7 +198,7 @@ public class AnnotationRuleEngine {
     }
 
     public List<ClassifiedAnnotation> apply(String text, List<? extends Annotation> annotations) {
-        Map<Annotation, CategoryEntriesBuilder> probabilities = CollectionHelper.newLinkedHashMap();
+        Map<Annotation, CategoryEntriesBuilder> probabilities = new LinkedHashMap<>();
         for (Annotation annotation : annotations) {
             probabilities.put(annotation, new CategoryEntriesBuilder());
         }

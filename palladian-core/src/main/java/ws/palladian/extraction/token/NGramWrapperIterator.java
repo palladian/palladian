@@ -1,6 +1,7 @@
 package ws.palladian.extraction.token;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Queue;
 
 import org.apache.commons.lang3.Validate;
@@ -8,7 +9,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public final class NGramWrapperIterator extends AbstractIterator<Token> {
 
@@ -28,7 +28,7 @@ public final class NGramWrapperIterator extends AbstractIterator<Token> {
         this.wrapped = wrapped;
         this.minLength = minLength;
         this.maxLength = maxLength;
-        this.tokenQueue = CollectionHelper.newLinkedList();
+        this.tokenQueue = new LinkedList<>();
         this.currentLength = minLength;
     }
 

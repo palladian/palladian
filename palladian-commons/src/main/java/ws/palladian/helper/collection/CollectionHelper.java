@@ -1,7 +1,24 @@
 package ws.palladian.helper.collection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -208,22 +225,6 @@ public final class CollectionHelper {
         print(iterable.iterator());
     }
 
-    // /**
-    // * <p>
-    // * Concatenate two String arrays.
-    // * </p>
-    // *
-    // * @param array1
-    // * @param array2
-    // * @return The concatenated String array consisting of the first, then the second array's items.
-    // */
-    // public static String[] concat(String[] array1, String[] array2) {
-    // String[] helpArray = new String[array1.length + array2.length];
-    // System.arraycopy(array1, 0, helpArray, 0, array1.length);
-    // System.arraycopy(array2, 0, helpArray, array1.length, array2.length);
-    // return helpArray;
-    // }
-
     /**
      * <p>
      * Create a new {@link HashMap}. This method allows omitting the type parameter when creating the HashMap:
@@ -391,7 +392,7 @@ public final class CollectionHelper {
      */
     public static <E> HashSet<E> newHashSet(Iterator<? extends E> elements) {
         Validate.notNull(elements, "elements must not be null");
-        HashSet<E> set = newHashSet();
+        HashSet<E> set = new HashSet<>();
         while (elements.hasNext()) {
             set.add(elements.next());
         }
@@ -500,7 +501,7 @@ public final class CollectionHelper {
      * @see #filter(Iterable, Filter, Collection)
      */
     public static <T> List<T> filterList(Iterable<T> iterable, Filter<? super T> filter) {
-        return filter(iterable, filter, CollectionHelper.<T> newArrayList());
+        return filter(iterable, filter, new ArrayList<T>());
     }
 
     /**
@@ -514,7 +515,7 @@ public final class CollectionHelper {
      * @see #filter(Iterable, Filter, Collection)
      */
     public static <T> Set<T> filterSet(Iterable<T> iterable, Filter<? super T> filter) {
-        return filter(iterable, filter, CollectionHelper.<T> newHashSet());
+        return filter(iterable, filter, new HashSet<T>());
     }
 
     /**
@@ -606,14 +607,6 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
-        // List<T> result = new ArrayList<>();
-        // for (T t : iterable) {
-        // result.add(t);
-        // if (result.size() == num) {
-        // break;
-        // }
-        // }
-        // return result;
         return newArrayList(limit(iterable, num));
     }
 
@@ -948,7 +941,7 @@ public final class CollectionHelper {
     @SafeVarargs
     public static <T> Set<T> distinct(Collection<T>... collections) {
         Validate.notNull(collections, "collections must not be null");
-        Set<T> distinct = newHashSet();
+        Set<T> distinct = new HashSet<>();
         for (Collection<T> collection : collections) {
             distinct.addAll(collection);
         }

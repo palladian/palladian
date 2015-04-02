@@ -15,7 +15,6 @@ import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * Annotates a text based on a given dictionary.
@@ -35,7 +34,7 @@ public class DictionaryTagger implements Tagger {
     public DictionaryTagger(Set<String> dictionary, String tagName) {
         Validate.notNull(dictionary, "dictionary must not be null");
         Validate.notNull(tagName, "tagName must not be empty");
-        this.dictionary = CollectionHelper.newLinkedHashMap();
+        this.dictionary = new LinkedHashMap<>();
         for (String entry : dictionary) {
             this.dictionary.put(entry, tagName);
         }

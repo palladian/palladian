@@ -2,6 +2,7 @@ package ws.palladian.classification;
 
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import weka.core.Attribute;
 import weka.core.SparseInstance;
@@ -12,7 +13,6 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
@@ -32,7 +32,7 @@ public final class WekaClassifier implements Classifier<WekaModel> {
     public CategoryEntries classify(FeatureVector featureVector, WekaModel model) {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
-        SortedMap<Integer, Double> indices = CollectionHelper.newTreeMap();
+        SortedMap<Integer, Double> indices = new TreeMap<>();
         Map<String, Attribute> schema = model.getSchema();
         for (VectorEntry<String, Value> feature : featureVector) {
             Attribute attribute = schema.get(feature.key());

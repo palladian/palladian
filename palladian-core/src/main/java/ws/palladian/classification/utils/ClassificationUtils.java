@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -270,7 +271,7 @@ public final class ClassificationUtils {
     // XXX currently, only get from first item in the dataset
     public static Set<String> getFeatureNames(Iterable<? extends FeatureVector> dataset) {
         Validate.notNull(dataset, "dataset must not be null");
-        Set<String> featureNames = CollectionHelper.newTreeSet();
+        Set<String> featureNames = new TreeSet<>();
         FeatureVector featureVector = CollectionHelper.getFirst(dataset);
         for (VectorEntry<String, Value> entry : featureVector) {
             featureNames.add(entry.key());

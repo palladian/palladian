@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +21,6 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -128,7 +128,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
                 .create(new Factory<Map<Integer, GeoCoordinate>>() {
                     @Override
                     public Map<Integer, GeoCoordinate> create() {
-                        return CollectionHelper.newTreeMap();
+                        return new TreeMap<>();
                     }
                 });
         int lines = FileHelper.performActionOnEveryLine(coordinateFile, new LineAction() {
