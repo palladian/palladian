@@ -76,7 +76,7 @@ public interface FeatureExtractorSetting {
         int[] distanceValues;
         int[] populationValues;
         List<ScopeDetector> scopeDetectors = new ArrayList<>();
-        List<Searcher<?>> indexSearchers = CollectionHelper.newArrayList();
+        List<Searcher<?>> indexSearchers = new ArrayList<>();
         String[] locationMarkers = new String[0];
         boolean debug = false;
         HashSet<String> entityCategories = new HashSet<>();

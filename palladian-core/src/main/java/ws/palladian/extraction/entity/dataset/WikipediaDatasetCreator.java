@@ -19,6 +19,7 @@ import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,7 +61,7 @@ import ws.palladian.retrieval.wiki.WikiPageReference;
  * 
  * @author pk
  */
-@SuppressWarnings({"deprecation", "unused"})
+@SuppressWarnings({"deprecation"})
 class WikipediaDatasetCreator {
 
     /** The logger for this class. */
@@ -173,7 +174,7 @@ class WikipediaDatasetCreator {
     }
 
     private static Map<String, String> resolveLinkedEntities(MediaWikiDescriptor descriptor, List<WikiLink> links) {
-        Map<String, String> typeMapping = CollectionHelper.newLinkedHashMap();
+        Map<String, String> typeMapping = new LinkedHashMap<>();
         for (WikiLink link : links) {
             String destination = link.getDestination();
             if (typeMapping.containsKey(destination) || destination.isEmpty() || destination.startsWith("file")) {

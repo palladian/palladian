@@ -18,7 +18,6 @@ import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Learner;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Function;
 
 /**
@@ -198,7 +197,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
             Iterator<String> iterator = preprocessor.compute(textValue.getText());
-            Collection<String> terms = learnCounts ? Bag.<String> create() : CollectionHelper.<String> newHashSet();
+            Collection<String> terms = learnCounts ? Bag.<String> create() : new HashSet<String>();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
