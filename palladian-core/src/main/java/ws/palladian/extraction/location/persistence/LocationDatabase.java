@@ -212,6 +212,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
      * Delete the content in the location database.
      * </p>
      */
+    @SuppressWarnings("resource")
     public void truncate() {
         System.out.println("Really truncate the location database?");
         new Scanner(System.in).nextLine();

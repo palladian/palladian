@@ -77,7 +77,6 @@ public class DBSCAN<T> {
     }
 
     private Set<T> expandCluster(T d, Set<T> neighbors, Iterable<? extends T> data, Set<T> visited, Set<T> clustered) {
-        @SuppressWarnings("unchecked")
         Set<T> cluster = CollectionHelper.newHashSet(d);
         Queue<T> neighborQueue = new LinkedList<T>(neighbors);
         while (!neighborQueue.isEmpty()) {
