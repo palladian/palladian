@@ -93,18 +93,20 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             List<Location> result = new ArrayList<>();
             List<Location> retrievedLocations = parseLocations(document);
             for (Location retrievedLocation : retrievedLocations) {
-                List<Integer> hierarchy = getHierarchy(retrievedLocation.getId());
-                Location location = new ImmutableLocation(retrievedLocation, retrievedLocation.getAlternativeNames(),
-                        hierarchy);
                 // post-filtering; only return those locations which actually match the specified languages;
                 // this is done here, because GeoNames does not allow to narrow down queries by (multiple) languages.
-                if (location.hasName(locationName, languages)) {
+                if (retrievedLocation.hasName(locationName, languages)) {
+                    List<Integer> hierarchy = getHierarchy(retrievedLocation.getId());
+                    Location location = new ImmutableLocation(retrievedLocation,
+                            retrievedLocation.getAlternativeNames(), hierarchy);
                     result.add(location);
                 } else {
-                    LOGGER.debug("Dropping {} because name does not match", location);
+                    LOGGER.debug("Dropping {} because name does not match", retrievedLocation);
                 }
             }
             return result;
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -231,7 +233,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     }
 
     public static void main(String[] args) {
-        GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
+        GeonamesLocationSource locationSource = new GeonamesLocationSource("does_not_exist");
         // Location location = locationSource.getLocation(7268814);
         // System.out.println(location);
         // List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(52.52, 13.41), 10);
