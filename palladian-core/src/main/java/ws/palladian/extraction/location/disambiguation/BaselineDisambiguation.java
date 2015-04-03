@@ -33,7 +33,7 @@ public class BaselineDisambiguation implements LocationDisambiguation {
                 if (type == LocationType.CONTINENT || type == LocationType.COUNTRY) {
                     selectedLocation = location;
                     break;
-                } else if (location.getPopulation() >= maxPopulation) {
+                } else if (location.getPopulation() != null && location.getPopulation() >= maxPopulation) {
                     selectedLocation = location;
                     maxPopulation = location.getPopulation();
                 }
