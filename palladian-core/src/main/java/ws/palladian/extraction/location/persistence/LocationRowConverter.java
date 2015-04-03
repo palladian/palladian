@@ -66,7 +66,7 @@ public final class LocationRowConverter implements RowConverter<Location> {
                 LOGGER.warn("Illegal lat/lng range: (" + latitude + "," + longitude + ")");
             }
         }
-        builder.setPopulation(resultSet.getLong("population"));
+        builder.setPopulation(SqlHelper.getLong(resultSet, "population"));
         builder.setAncestorIds(resultSet.getString("ancestorIds"));
         return builder.create();
     }
