@@ -64,30 +64,4 @@ public interface RankingService {
      */
     RankingType getRankingType(String id);
 
-//    /**
-//     * <p>
-//     * Force a new check if this service is blocked due to excess of request limits. This updates the blocked-attribute
-//     * of this service.
-//     * </p>
-//     * 
-//     * @return <code>true</code> if the service is momentarily blocked, <code>false</code> otherwise
-//     */
-//    boolean checkBlocked();
-//
-//    /**
-//     * <p>
-//     * Returns if this service is momentarily blocked or not.
-//     * </p>
-//     * 
-//     * @return <code>true</code> if the service is momentarily blocked, <code>false</code> otherwise
-//     */
-//    boolean isBlocked();
-//
-//    /**
-//     * <p>
-//     * Sets this service blocked status to unblocked and resets the time of the last check to now.
-//     * </p>
-//     */
-//    void resetBlocked();
-
 }

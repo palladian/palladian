@@ -61,11 +61,6 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     /** All available ranking tpyes by {@link BibsonomyBookmarks}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(BOOKMARKS);
 
-//    /** Fields to check the service availability. */
-//    private static boolean blocked = false;
-//    private static long lastCheckBlocked;
-//    private final static int checkBlockedIntervall = 1000 * 60 * 1;
-
     /**
      * <p>
      * Create a new {@link BibsonomyBookmarks} ranking service.
@@ -96,9 +91,6 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Builder builder = new Ranking.Builder(this, url);
-//        if (isBlocked()) {
-//            return builder.create();
-//        }
 
         try {
 
@@ -126,60 +118,13 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
             }
 
         } catch (JsonException e) {
-//            checkBlocked();
             throw new RankingServiceException(e);
         } catch (IOException e) {
-//            checkBlocked();
             throw new RankingServiceException(e);
         }
 
         return builder.create();
     }
-
-//    @Override
-//    public boolean checkBlocked() {
-//        int status = -1;
-//        try {
-//            // authenticate via HTTP Auth and send GET request
-//            if (getLogin() == null || getApiKey() == null) {
-//                throw new IllegalStateException("login or api key is missing.");
-//            }
-//            String pass = getLogin() + ":" + getApiKey();
-//
-//            HttpRequest getRequest = new HttpRequest(HttpMethod.GET,
-//                    "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=999999&search=http://www.google.com/");
-//            getRequest.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(pass));
-//
-//            HttpResult getResult = retriever.execute(getRequest);
-//            status = getResult.getStatusCode();
-//        } catch (HttpException e) {
-//            LOGGER.error("HttpException " + e.getMessage());
-//        }
-//        if (status == 200) {
-//            blocked = false;
-//            lastCheckBlocked = new Date().getTime();
-//            return false;
-//        }
-//        blocked = true;
-//        lastCheckBlocked = new Date().getTime();
-//        LOGGER.error("Bibsonomy Ranking Service is momentarily blocked. Will check again in 1min.");
-//        return true;
-//    }
-
-//    @Override
-//    public boolean isBlocked() {
-//        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-//            return blocked;
-//        } else {
-//            return checkBlocked();
-//        }
-//    }
-//
-//    @Override
-//    public void resetBlocked() {
-//        blocked = false;
-//        lastCheckBlocked = new Date().getTime();
-//    }
 
     @Override
     public String getServiceId() {
