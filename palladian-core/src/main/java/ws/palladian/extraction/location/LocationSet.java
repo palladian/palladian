@@ -237,5 +237,19 @@ public class LocationSet extends AbstractSet<Location> {
     public Iterator<Location> iterator() {
         return locations.iterator();
     }
+    
+    /**
+     * @return The first location in this set (determined by {@link Location#getId()}, or <code>null</code> in case this
+     *         set was empty.
+     */
+    public Location first() {
+        Location first = null;
+        for (Location location : locations) {
+            if (first == null || first.getId() > location.getId()) {
+                first = location;
+            }
+        }
+        return first;
+    }
 
 }
