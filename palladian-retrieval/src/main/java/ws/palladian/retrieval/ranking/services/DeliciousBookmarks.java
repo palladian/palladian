@@ -45,17 +45,9 @@ public final class DeliciousBookmarks extends AbstractRankingService implements 
     /** All available ranking types by {@link DeliciousBookmarks}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(BOOKMARKS);
 
-//    /** Fields to check the service availability. */
-//    private static boolean blocked = false;
-//    private static long lastCheckBlocked;
-//    private final static int checkBlockedIntervall = 1000 * 60 * 1;
-
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-//        if (isBlocked()) {
-//            return builder.create();
-//        }
 
         Integer result = null;
 
@@ -79,46 +71,9 @@ public final class DeliciousBookmarks extends AbstractRankingService implements 
             throw new RankingServiceException(e);
         }
 
-//        checkBlocked();
         builder.add(BOOKMARKS, result);
         return builder.create();
     }
-
-//    @Override
-//    public boolean checkBlocked() {
-//        int status = -1;
-//        try {
-//            status = retriever.httpGet(
-//                    "http://feeds.delicious.com/v2/json/urlinfo/" + DigestUtils.md5Hex("http://www.google.com/"))
-//                    .getStatusCode();
-//        } catch (HttpException e) {
-//            LOGGER.error("HttpException " + e.getMessage());
-//        }
-//        if (status == 200) {
-//            blocked = false;
-//            lastCheckBlocked = new Date().getTime();
-//            return false;
-//        }
-//        blocked = true;
-//        lastCheckBlocked = new Date().getTime();
-//        LOGGER.error("Delicious Ranking Service is momentarily blocked. Will check again in 1min. Try changing your IP-Address.");
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean isBlocked() {
-//        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-//            return blocked;
-//        } else {
-//            return checkBlocked();
-//        }
-//    }
-//
-//    @Override
-//    public void resetBlocked() {
-//        blocked = false;
-//        lastCheckBlocked = new Date().getTime();
-//    }
 
     @Override
     public String getServiceId() {

@@ -40,9 +40,6 @@ public final class StumbleUponViews extends AbstractRankingService implements Ra
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-//        if (isBlocked()) {
-//            return builder.create();
-//        }
         String requestUrl = "http://www.stumbleupon.com/services/1.01/badge.getinfo?url="
                 + UrlHelper.encodeParameter(url);
         try {
