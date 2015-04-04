@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -39,17 +37,17 @@ public final class YandexCitationIndex extends AbstractRankingService implements
     /** All available ranking types by {@link YandexCitationIndex}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(CITATIONINDEX);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 1;
+//    /** Fields to check the service availability. */
+//    private static boolean blocked = false;
+//    private static long lastCheckBlocked;
+//    private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
+//        if (isBlocked()) {
+//            return builder.create();
+//        }
 
         Integer citationIndex = null;
         try {
@@ -75,7 +73,7 @@ public final class YandexCitationIndex extends AbstractRankingService implements
                 LOGGER.trace("Yandex Citation Index for " + url + " : " + citationIndex);
             }
         } catch (Exception e) {
-            checkBlocked();
+//            checkBlocked();
             throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
         return builder.add(CITATIONINDEX, citationIndex).create();
@@ -93,40 +91,40 @@ public final class YandexCitationIndex extends AbstractRankingService implements
         return "http://yaca.yandex.ru/yca/cy/ch/"+UrlHelper.getDomain(url).replace("http://", "");
     }
 
-    @Override
-    public boolean checkBlocked() {
-        int status = -1;
-        try {
-            String requestUrl = buildRequestUrl("http://yaca.yandex.ru/yca/cy/ch/www.google.com");
-            status = retriever.httpGet(requestUrl).getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (status == 200) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("Yandex Citation Index Ranking Service is momentarily blocked. Will check again in 1min. Try changing your IP-address.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
-    }
+//    @Override
+//    public boolean checkBlocked() {
+//        int status = -1;
+//        try {
+//            String requestUrl = buildRequestUrl("http://yaca.yandex.ru/yca/cy/ch/www.google.com");
+//            status = retriever.httpGet(requestUrl).getStatusCode();
+//        } catch (HttpException e) {
+//            LOGGER.error("HttpException " + e.getMessage());
+//        }
+//        if (status == 200) {
+//            blocked = false;
+//            lastCheckBlocked = new Date().getTime();
+//            return false;
+//        }
+//        blocked = true;
+//        lastCheckBlocked = new Date().getTime();
+//        LOGGER.error("Yandex Citation Index Ranking Service is momentarily blocked. Will check again in 1min. Try changing your IP-address.");
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isBlocked() {
+//        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
+//            return blocked;
+//        } else {
+//            return checkBlocked();
+//        }
+//    }
+//
+//    @Override
+//    public void resetBlocked() {
+//        blocked = false;
+//        lastCheckBlocked = new Date().getTime();
+//    }
 
     @Override
     public String getServiceId() {

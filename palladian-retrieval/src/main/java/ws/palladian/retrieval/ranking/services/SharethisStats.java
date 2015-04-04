@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -57,10 +56,10 @@ public final class SharethisStats extends AbstractRankingService implements Rank
     /** All available ranking types by {@link SharethisStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(SHARES);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 60;
+//    /** Fields to check the service availability. */
+//    private static boolean blocked = false;
+//    private static long lastCheckBlocked;
+//    private final static int checkBlockedIntervall = 1000 * 60 * 60;
 
     /**
      * <p>
@@ -92,9 +91,9 @@ public final class SharethisStats extends AbstractRankingService implements Rank
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
+//        if (isBlocked()) {
+//            return builder.create();
+//        }
 
         try {
             String encUrl = UrlHelper.encodeParameter(url);
@@ -105,57 +104,57 @@ public final class SharethisStats extends AbstractRankingService implements Rank
             builder.add(SHARES, total);
             LOGGER.trace("ShareThis stats for " + url + " : " + total);
         } catch (JsonException e) {
-            checkBlocked();
+//            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            checkBlocked();
+//            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         }
         return builder.create();
     }
 
-    @Override
-    public boolean checkBlocked() {
-        boolean error = false;
-        try {
-            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
-                    + getApiKey() + "&access_key=" + getSecret() + "&url=http://www.google.com/");
-            JsonObject json = new JsonObject(httpResult.getStringContent());
-            if (json.get("statusMessage") != null) {
-                if (json.get("statusMessage").equals("LIMIT_REACHED")) {
-                    error = true;
-                }
-            }
-        } catch (JsonException e) {
-            LOGGER.error("JSONException " + e.getMessage());
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (!error) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("ShareThis Ranking Service is momentarily blocked. Will check again in 1h. Try resetting your IP-Address.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
-    }
+//    @Override
+//    public boolean checkBlocked() {
+//        boolean error = false;
+//        try {
+//            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
+//                    + getApiKey() + "&access_key=" + getSecret() + "&url=http://www.google.com/");
+//            JsonObject json = new JsonObject(httpResult.getStringContent());
+//            if (json.get("statusMessage") != null) {
+//                if (json.get("statusMessage").equals("LIMIT_REACHED")) {
+//                    error = true;
+//                }
+//            }
+//        } catch (JsonException e) {
+//            LOGGER.error("JSONException " + e.getMessage());
+//        } catch (HttpException e) {
+//            LOGGER.error("HttpException " + e.getMessage());
+//        }
+//        if (!error) {
+//            blocked = false;
+//            lastCheckBlocked = new Date().getTime();
+//            return false;
+//        }
+//        blocked = true;
+//        lastCheckBlocked = new Date().getTime();
+//        LOGGER.error("ShareThis Ranking Service is momentarily blocked. Will check again in 1h. Try resetting your IP-Address.");
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isBlocked() {
+//        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
+//            return blocked;
+//        } else {
+//            return checkBlocked();
+//        }
+//    }
+//
+//    @Override
+//    public void resetBlocked() {
+//        blocked = false;
+//        lastCheckBlocked = new Date().getTime();
+//    }
 
     @Override
     public String getServiceId() {

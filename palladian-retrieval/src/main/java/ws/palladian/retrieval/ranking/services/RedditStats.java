@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -49,17 +48,17 @@ public final class RedditStats extends AbstractRankingService implements Ranking
     /** All available ranking types by {@link RedditStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(VOTES, COMMENTS);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 1;
+//    /** Fields to check the service availability. */
+//    private static boolean blocked = false;
+//    private static long lastCheckBlocked;
+//    private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
+//        if (isBlocked()) {
+//            return builder.create();
+//        }
 
         try {
 
@@ -84,48 +83,48 @@ public final class RedditStats extends AbstractRankingService implements Ranking
             LOGGER.trace("Reddit stats for " + url + " : " + builder);
 
         } catch (JsonException e) {
-            checkBlocked();
+//            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            checkBlocked();
+//            checkBlocked();
             throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }
         return builder.create();
     }
 
-    @Override
-    public boolean checkBlocked() {
-        int status = -1;
-        try {
-            status = retriever.httpGet(GET_INFO + "http://www.google.com/").getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (status == 200) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("Reddit Ranking Service is momentarily blocked. Will check again in 1min.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
-    }
+//    @Override
+//    public boolean checkBlocked() {
+//        int status = -1;
+//        try {
+//            status = retriever.httpGet(GET_INFO + "http://www.google.com/").getStatusCode();
+//        } catch (HttpException e) {
+//            LOGGER.error("HttpException " + e.getMessage());
+//        }
+//        if (status == 200) {
+//            blocked = false;
+//            lastCheckBlocked = new Date().getTime();
+//            return false;
+//        }
+//        blocked = true;
+//        lastCheckBlocked = new Date().getTime();
+//        LOGGER.error("Reddit Ranking Service is momentarily blocked. Will check again in 1min.");
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isBlocked() {
+//        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
+//            return blocked;
+//        } else {
+//            return checkBlocked();
+//        }
+//    }
+//
+//    @Override
+//    public void resetBlocked() {
+//        blocked = false;
+//        lastCheckBlocked = new Date().getTime();
+//    }
 
     @Override
     public String getServiceId() {

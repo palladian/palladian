@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -53,10 +52,10 @@ public final class PlurkPosts extends AbstractRankingService implements RankingS
     /** All available ranking types by {@link PlurkPosts}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(POSTS);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 1;
+//    /** Fields to check the service availability. */
+//    private static boolean blocked = false;
+//    private static long lastCheckBlocked;
+//    private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
     /**
      * <p>
@@ -85,9 +84,9 @@ public final class PlurkPosts extends AbstractRankingService implements RankingS
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
+//        if (isBlocked()) {
+//            return builder.create();
+//        }
 
         try {
             String encUrl = UrlHelper.encodeParameter(url);
@@ -99,50 +98,50 @@ public final class PlurkPosts extends AbstractRankingService implements RankingS
             LOGGER.trace("Plurk.com posts for " + url + " : " + plurks.size());
 
         } catch (JsonException e) {
-            checkBlocked();
+//            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            checkBlocked();
+//            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         }
         return builder.create();
     }
 
-    @Override
-    public boolean checkBlocked() {
-        int status = -1;
-        try {
-            status = retriever.httpGet(
-                    "http://www.plurk.com/API/PlurkSearch/search?api_key=" + getApiKey()
-                            + "&query=http://www.google.com/").getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (status == 200) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("Plurk Ranking Service is momentarily blocked. Will check again in 1min.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
-    }
+//    @Override
+//    public boolean checkBlocked() {
+//        int status = -1;
+//        try {
+//            status = retriever.httpGet(
+//                    "http://www.plurk.com/API/PlurkSearch/search?api_key=" + getApiKey()
+//                            + "&query=http://www.google.com/").getStatusCode();
+//        } catch (HttpException e) {
+//            LOGGER.error("HttpException " + e.getMessage());
+//        }
+//        if (status == 200) {
+//            blocked = false;
+//            lastCheckBlocked = new Date().getTime();
+//            return false;
+//        }
+//        blocked = true;
+//        lastCheckBlocked = new Date().getTime();
+//        LOGGER.error("Plurk Ranking Service is momentarily blocked. Will check again in 1min.");
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isBlocked() {
+//        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
+//            return blocked;
+//        } else {
+//            return checkBlocked();
+//        }
+//    }
+//
+//    @Override
+//    public void resetBlocked() {
+//        blocked = false;
+//        lastCheckBlocked = new Date().getTime();
+//    }
 
     @Override
     public String getServiceId() {

@@ -60,12 +60,12 @@ public abstract class AbstractRankingService implements RankingService {
     @Override
     public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
         Map<String, Ranking> results = new HashMap<String, Ranking>();
-        if (!isBlocked()) {
+//        if (!isBlocked()) {
             // iterate through urls and get ranking for each
             for (String url : urls) {
                 results.put(url, getRanking(url));
             }
-        }
+//        }
         return results;
     }
 
@@ -80,19 +80,19 @@ public abstract class AbstractRankingService implements RankingService {
         return null;
     }
 
-    @Override
-    public boolean checkBlocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        return false;
-    }
-
-    @Override
-    public void resetBlocked() {
-    }
+//    @Override
+//    public boolean checkBlocked() {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isBlocked() {
+//        return false;
+//    }
+//
+//    @Override
+//    public void resetBlocked() {
+//    }
     
     @Override
     public String toString() {

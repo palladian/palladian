@@ -40,9 +40,9 @@ public final class LinkedInShares extends AbstractRankingService implements Rank
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
+//        if (isBlocked()) {
+//            return builder.create();
+//        }
 
         Integer shares = null;
         String requestUrl = buildRequestUrl(url);

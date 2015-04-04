@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
