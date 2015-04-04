@@ -40,9 +40,9 @@ public final class SistrixVisibilityIndex extends AbstractRankingService impleme
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
+//        if (isBlocked()) {
+//            return builder.create();
+//        }
 
         url = UrlHelper.getDomain(url, false);
 

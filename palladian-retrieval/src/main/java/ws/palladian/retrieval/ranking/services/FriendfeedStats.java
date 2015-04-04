@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -50,22 +49,18 @@ public final class FriendfeedStats extends AbstractRankingService implements Ran
     /** All available ranking types by {@link FriendfeedStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(POSTS, LIKES, COMMENTS);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 1;
-
-    public FriendfeedStats() {
-        super();
-    }
+//    /** Fields to check the service availability. */
+//    private static boolean blocked = false;
+//    private static long lastCheckBlocked;
+//    private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
     @Override
     public Ranking getRanking(String url) {
 
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
+//        if (isBlocked()) {
+//            return builder.create();
+//        }
 
         try {
             String encUrl = UrlHelper.encodeParameter(url);
@@ -89,57 +84,57 @@ public final class FriendfeedStats extends AbstractRankingService implements Ran
             LOGGER.trace("FriendFeed stats for " + url + " : " + builder);
         } catch (JsonException e) {
             LOGGER.error("JSONException " + e.getMessage());
-            checkBlocked();
+//            checkBlocked();
         } catch (HttpException e) {
             LOGGER.error("HttpException " + e.getMessage());
-            checkBlocked();
+//            checkBlocked();
         }
         return builder.create();
     }
 
-    @Override
-    public boolean checkBlocked() {
-        boolean error = false;
-        try {
-            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.encodeParameter("http://www.google.com/"));
-            JsonObject json = new JsonObject(httpResult.getStringContent());
-            if (json != null) {
-                if (json.get("errorCode") != null) {
-                    if (json.get("errorCode").equals("limit-exceeded")) {
-                        error = true;
-                    }
-                }
-            }
-        } catch (JsonException e) {
-            LOGGER.error("JSONException " + e.getMessage());
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (!error) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("FriendFeed Ranking Service is momentarily blocked. Will check again in 1min.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
-    }
+//    @Override
+//    public boolean checkBlocked() {
+//        boolean error = false;
+//        try {
+//            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.encodeParameter("http://www.google.com/"));
+//            JsonObject json = new JsonObject(httpResult.getStringContent());
+//            if (json != null) {
+//                if (json.get("errorCode") != null) {
+//                    if (json.get("errorCode").equals("limit-exceeded")) {
+//                        error = true;
+//                    }
+//                }
+//            }
+//        } catch (JsonException e) {
+//            LOGGER.error("JSONException " + e.getMessage());
+//        } catch (HttpException e) {
+//            LOGGER.error("HttpException " + e.getMessage());
+//        }
+//        if (!error) {
+//            blocked = false;
+//            lastCheckBlocked = new Date().getTime();
+//            return false;
+//        }
+//        blocked = true;
+//        lastCheckBlocked = new Date().getTime();
+//        LOGGER.error("FriendFeed Ranking Service is momentarily blocked. Will check again in 1min.");
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isBlocked() {
+//        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
+//            return blocked;
+//        } else {
+//            return checkBlocked();
+//        }
+//    }
+//
+//    @Override
+//    public void resetBlocked() {
+//        blocked = false;
+//        lastCheckBlocked = new Date().getTime();
+//    }
 
     @Override
     public String getServiceId() {

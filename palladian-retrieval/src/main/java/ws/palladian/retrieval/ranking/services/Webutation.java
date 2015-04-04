@@ -40,9 +40,9 @@ public final class Webutation extends AbstractRankingService implements RankingS
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
+//        if (isBlocked()) {
+//            return builder.create();
+//        }
 
         double webutation = 0.;
         String requestUrl = buildRequestUrl(url);
