@@ -231,7 +231,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         // get prominent anchor locations; continents, countries and locations with very high population
         for (Location location : locations.allValues()) {
             LocationType type = location.getType();
-            long population = location.getPopulation() != null ? location.getPopulation() : 0;
+            Long population = CollectionHelper.coalesce(location.getPopulation(), 0l);
             if (type == CONTINENT || type == COUNTRY || population > anchorPopulationThreshold) {
                 LOGGER.debug("Prominent anchor location: {}", location);
                 anchorLocations.add(location);
