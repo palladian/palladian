@@ -253,6 +253,9 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
             if (group.largestDistance() < sameDistanceThreshold) {
                 Location location = group.biggest();
+                if (location == null) {
+                    location = group.first();
+                }
                 if (location != null) {
                     Long population = CollectionHelper.coalesce(location.getPopulation(), 0l);
                     if (population > lowerPopulationThreshold || name.split("\\s").length >= tokenThreshold) {
