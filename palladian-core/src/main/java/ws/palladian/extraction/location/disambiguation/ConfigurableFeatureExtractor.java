@@ -118,29 +118,35 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
 
                 builder.set("locationType", location.getType().toString());
                 builder.set("population", population);
-                builder.set("hierarchyDepth", location.getAncestorIds().size());
+                if (setting.useHierarchyFeatures()) {
+                    builder.set("hierarchyDepth", location.getAncestorIds().size());
+                }
                 builder.set("nameAmbiguity", nameAmbiguity);
 
-                builder.set("leaf", currentLocations.where(childOf(location)).size() == 0);
+                if (setting.useHierarchyFeatures()) {
+                    builder.set("leaf", currentLocations.where(childOf(location)).size() == 0);
+                }
                 builder.set("nameDiversity", 1. / location.collectAlternativeNames().size());
                 builder.set("geoDiversity", geoDiversity);
                 builder.set("unique", unique);
                 builder.set("altMention", mentions.get(location).size() > 1);
 
-                int numAncestors = otherLocations.where(ancestorOf(location)).size();
-                int numChildren = otherLocations.where(childOf(location)).size();
-                int numDescendants = otherLocations.where(descendantOf(location)).size();
-                int numParents = otherLocations.where(parentOf(location)).size();
-                int numSiblings = otherLocations.where(siblingOf(location)).size();
-                builder.set("contains(ancestor)", numAncestors > 0);
-                builder.set("contains(child)", numChildren > 0);
-                builder.set("contains(descendant)", numDescendants > 0);
-                builder.set("contains(parent)", numParents > 0);
-                builder.set("contains(sibling)", numSiblings > 0);
-                builder.set("num(ancestor)", numAncestors);
-                builder.set("num(child)", numChildren);
-                builder.set("num(descendant)", numDescendants);
-                builder.set("num(sibling)", numSiblings);
+                if (setting.useHierarchyFeatures()) {
+                    int numAncestors = otherLocations.where(ancestorOf(location)).size();
+                    int numChildren = otherLocations.where(childOf(location)).size();
+                    int numDescendants = otherLocations.where(descendantOf(location)).size();
+                    int numParents = otherLocations.where(parentOf(location)).size();
+                    int numSiblings = otherLocations.where(siblingOf(location)).size();
+                    builder.set("contains(ancestor)", numAncestors > 0);
+                    builder.set("contains(child)", numChildren > 0);
+                    builder.set("contains(descendant)", numDescendants > 0);
+                    builder.set("contains(parent)", numParents > 0);
+                    builder.set("contains(sibling)", numSiblings > 0);
+                    builder.set("num(ancestor)", numAncestors);
+                    builder.set("num(child)", numChildren);
+                    builder.set("num(descendant)", numDescendants);
+                    builder.set("num(sibling)", numSiblings);
+                }
 
                 for (int d : setting.getDistanceValues()) {
                     LocationSet otherInDist = otherLocations.where(radius(coordinate, d));
@@ -164,9 +170,11 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                     }
                 }
                 builder.set("primaryName", value.equalsIgnoreCase(location.getPrimaryName()));
-                builder.set("inContinent", continents.where(ancestorOf(location)).size() > 0);
-                builder.set("inCountry", countries.where(ancestorOf(location)).size() > 0);
-                builder.set("inUnit", units.where(ancestorOf(location)).size() > 0);
+                if (setting.useHierarchyFeatures()) {
+                    builder.set("inContinent", continents.where(ancestorOf(location)).size() > 0);
+                    builder.set("inCountry", countries.where(ancestorOf(location)).size() > 0);
+                    builder.set("inUnit", units.where(ancestorOf(location)).size() > 0);
+                }
 
                 CategoryEntries typeClassification = annotation.getCategoryEntries();
                 for (String categoryName : setting.getEntityCategories()) {

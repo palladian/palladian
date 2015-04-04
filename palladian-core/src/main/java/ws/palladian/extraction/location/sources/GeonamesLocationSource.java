@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +53,8 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
 //    private boolean showLanguageWarning = true;
+    
+    private final boolean retrieveHierarchy;
 
     /**
      * <p>
@@ -62,7 +65,24 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
      * @return A new {@link GeonamesLocationSource} with caching.
      */
     public static LocationSource newCachedLocationSource(String username) {
-        return new CachingLocationSource(new GeonamesLocationSource(username));
+        return newCachedLocationSource(username, true);
+    }
+    
+    /**
+     * <p>
+     * Create a new {@link GeonamesLocationSource} which caches requests.
+     * </p>
+     *
+     * @param username The signed up user name, not <code>null</code> or empty.
+     * @param retrieveHierarchy <code>true</code> to retrieve hierarchy information (which causes additional REST
+     *            requests).
+     * @return A new {@link GeonamesLocationSource} with caching.
+     */
+    public static LocationSource newCachedLocationSource(String username, boolean retrieveHierarchy) {
+        return new CachingLocationSource(
+               new ParallelizedRequestLocationSource(
+               new GeonamesLocationSource(username, retrieveHierarchy), 
+                   10));
     }
 
     /**
@@ -75,8 +95,23 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
      */
     @Deprecated
     public GeonamesLocationSource(String username) {
-        Validate.notEmpty(username, "username must not be empty");
+        this(username, true);
+    }
+    
+    /**
+     * <p>
+     * Create a new {@link GeonamesLocationSource}.
+     * </p>
+     *
+     * @param username The signed up user name, not <code>null</code> or empty.
+     * @param retrieveHierarchy <code>true</code> to retrieve hierarchy information (which causes additional REST
+     *            requests).
+     * @deprecated Prefer using the cached variant, which can be obtained via {@link #newCachedLocationSource(String)}.
+     */
+    public GeonamesLocationSource(String username, boolean retrieveHierarchy) {
+        Validate.notEmpty(username);
         this.username = username;
+        this.retrieveHierarchy = retrieveHierarchy;
     }
 
     @Override
@@ -174,6 +209,9 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     }
 
     private List<Integer> getHierarchy(int locationId) {
+        if (!retrieveHierarchy) {
+            return Collections.emptyList();
+        }
         try {
             String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&style=SHORT&username=%s",
                     locationId, username);
@@ -233,7 +271,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     }
 
     public static void main(String[] args) {
-        GeonamesLocationSource locationSource = new GeonamesLocationSource("does_not_exist");
+        GeonamesLocationSource locationSource = new GeonamesLocationSource("demo");
         // Location location = locationSource.getLocation(7268814);
         // System.out.println(location);
         // List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(52.52, 13.41), 10);
