@@ -217,13 +217,15 @@ public class PalladianSpellChecker {
         // and might cause incorrect corrections, we therefore split the compound and test its parts for misspellings
         boolean compoundCorrect = false;
         if (isGermanCompoundSupport()) {
-            compoundCorrect = true;
-            List<String> strings = WordTransformer.splitGermanCompoundWords(word);
-            for (String string : strings) {
-                if (words.get(string) == null) {
-                    String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
-                    if (words.get(key) == null) {
-                        compoundCorrect = false;
+            if (Collections.max(candidates.keySet()) < 10) {
+                compoundCorrect = true;
+                List<String> strings = WordTransformer.splitGermanCompoundWords(word);
+                for (String string : strings) {
+                    if (words.get(string) == null) {
+                        String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
+                        if (words.get(key) == null) {
+                            compoundCorrect = false;
+                        }
                     }
                 }
             }
