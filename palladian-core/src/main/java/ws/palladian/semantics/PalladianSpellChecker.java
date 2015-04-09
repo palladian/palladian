@@ -217,7 +217,7 @@ public class PalladianSpellChecker {
         // and might cause incorrect corrections, we therefore split the compound and test its parts for misspellings
         boolean compoundCorrect = false;
         if (isGermanCompoundSupport()) {
-            if (Collections.max(candidates.keySet()) < 10) {
+            if (candidates.keySet().isEmpty() || Collections.max(candidates.keySet()) < 10) {
                 compoundCorrect = true;
                 List<String> strings = WordTransformer.splitGermanCompoundWords(word);
                 for (String string : strings) {
