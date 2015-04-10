@@ -18,6 +18,12 @@
 			<groupId>edu.cmu.cs</groupId>
 			<artifactId>ark-tweet-nlp</artifactId>
 			<version>0.3.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>lucene-core</artifactId>
+					<groupId>org.apache.lucene</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>ws.palladian</groupId>
