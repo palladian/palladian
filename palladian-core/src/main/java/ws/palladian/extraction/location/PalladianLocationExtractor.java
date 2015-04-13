@@ -30,14 +30,23 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private final LocationDisambiguation disambiguation;
 
+    private final Set<Language> languages;
+
     private static final AddressTagger addressTagger = AddressTagger.INSTANCE;
 
     private static final CoordinateTagger coordinateTagger = CoordinateTagger.INSTANCE;
 
-    public PalladianLocationExtractor(LocationSource locationSource, ClassifyingTagger tagger, LocationDisambiguation disambiguation) {
+    public PalladianLocationExtractor(LocationSource locationSource, ClassifyingTagger tagger,
+            LocationDisambiguation disambiguation, Set<Language> languages) {
         this.locationSource = locationSource;
         this.tagger = tagger;
         this.disambiguation = disambiguation;
+        this.languages = languages;
+    }
+    
+    public PalladianLocationExtractor(LocationSource locationSource, ClassifyingTagger tagger,
+            LocationDisambiguation disambiguation) {
+        this(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation, EnumSet.of(Language.ENGLISH));
     }
 
     public PalladianLocationExtractor(LocationSource locationSource, LocationDisambiguation disambiguation) {
@@ -80,7 +89,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             valuesToRetrieve.add(entityValue);
         }
-        MultiMap<String, Location> lookup = source.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
+        MultiMap<String, Location> lookup = source.getLocations(valuesToRetrieve, languages);
         MultiMap<ClassifiedAnnotation, Location> result = DefaultMultiMap.createWithSet();
         for (ClassifiedAnnotation annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
