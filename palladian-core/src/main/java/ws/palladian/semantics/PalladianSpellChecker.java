@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.io.FileHelper;
@@ -56,6 +57,9 @@ public class PalladianSpellChecker {
 
         StopWatch stopWatch = new StopWatch();
 
+        int lines = FileHelper.getNumberOfLines(file);
+        final ProgressMonitor progressMonitor = new ProgressMonitor(lines,0.1,"Spell Checker Loading");
+
         // read the input file and create a P(w) model by counting the word occurrences
         final Set<String> uniqueWords = new HashSet<>();
         final Pattern p = Pattern.compile("[\\wöäüß-]+");
@@ -73,6 +77,8 @@ public class PalladianSpellChecker {
                     words.put(match, count + 1);
                     uniqueWords.add(match);
                 }
+
+                progressMonitor.incrementAndPrintProgress();
             }
 
         };
