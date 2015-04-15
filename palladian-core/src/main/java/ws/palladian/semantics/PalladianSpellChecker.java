@@ -58,7 +58,7 @@ public class PalladianSpellChecker {
         StopWatch stopWatch = new StopWatch();
 
         int lines = FileHelper.getNumberOfLines(file);
-        final ProgressMonitor progressMonitor = new ProgressMonitor(lines,0.1,"Spell Checker Loading");
+        final ProgressMonitor progressMonitor = new ProgressMonitor(lines,1,"Spell Checker Loading Dictionary");
 
         // read the input file and create a P(w) model by counting the word occurrences
         final Set<String> uniqueWords = new HashSet<>();

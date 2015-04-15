@@ -138,7 +138,7 @@ public class CollectionHelperTest {
     @Test
     public void sortByStringKeyLength() {
 
-        Map<String, String> hashMap = new HashMap<String, String>();
+        Map<String, String> hashMap = new HashMap<>();
         hashMap.put("A", "A");
         hashMap.put("BB", "B");
         hashMap.put("CCC", "C");
@@ -155,7 +155,7 @@ public class CollectionHelperTest {
 
     @Test
     public void testLimit() {
-        List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c"));
+        List<String> items = new ArrayList<>(Arrays.asList("a", "b", "c"));
 
         assertEquals("a", CollectionHelper.getFirst(items));
         assertEquals("a,b", StringUtils.join(CollectionHelper.limit(items, 2), ","));
@@ -164,7 +164,7 @@ public class CollectionHelperTest {
 
     @Test
     public void testGetSublist() {
-        List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c"));
+        List<String> items = new ArrayList<>(Arrays.asList("a", "b", "c"));
 
         assertEquals(1, CollectionHelper.getSublist(items, 1, 1).size());
         assertEquals(3, CollectionHelper.getSublist(items, 0, 3).size());
@@ -175,7 +175,7 @@ public class CollectionHelperTest {
 
     @Test
     public void testGetSubset() {
-        LinkedHashSet<String> items = new LinkedHashSet<String>(Arrays.asList("a", "b", "c"));
+        LinkedHashSet<String> items = new LinkedHashSet<>(Arrays.asList("a", "b", "c"));
 
         assertEquals(1, CollectionHelper.getSubset(items, 1, 1).size());
         assertThat(CollectionHelper.getSubset(items, 1, 1), Matchers.hasItem("b"));
@@ -187,7 +187,7 @@ public class CollectionHelperTest {
 
     @Test
     public void testRemove() {
-        List<String> items = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
+        List<String> items = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
         int filtered = CollectionHelper.remove(items, new Filter<String>() {
             @Override
             public boolean accept(String item) {
