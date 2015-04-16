@@ -39,9 +39,6 @@ public class DatabaseManager {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseManager.class);
 
-    /** The fetch size for the iterator. Larger fetch sizes require more memory but speed up iteration considerably. */
-    private int fetchSize = Integer.MIN_VALUE;
-
     /**
      * The {@link DataSource} providing Connection to the underlying database.
      */
@@ -706,10 +703,10 @@ public class DatabaseManager {
             connection = getConnection();
 
             // do not buffer the whole ResultSet in memory, but use streaming to save memory; see:
-            // http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html
+            // http://dev.mysql.com/doc/connector-j/en/connector-j-reference-implementation-notes.html
             ps = connection.prepareStatement(query.getSql(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             try {
-                ps.setFetchSize(fetchSize);
+                ps.setFetchSize(Integer.MIN_VALUE);
             } catch (SQLException e) {
                 LOGGER.warn("Exception at Statement#setFetchSize(Integer.MIN_VALUE). This is caused, when the database is not MySQL.");
             }
@@ -1117,14 +1114,6 @@ public class DatabaseManager {
                 LOGGER.error("Error while rollback: {}", e);
             }
         }
-    }
-
-    public int getFetchSize() {
-        return fetchSize;
-    }
-
-    public void setFetchSize(int fetchSize) {
-        this.fetchSize = fetchSize;
     }
 
 }
