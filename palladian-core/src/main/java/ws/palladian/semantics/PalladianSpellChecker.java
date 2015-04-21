@@ -41,12 +41,18 @@ public class PalladianSpellChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianSpellChecker.class);
     private static final Pattern SPLIT = Pattern.compile("\\s");
 
+    /** Support for correcting German compounds. */
     private boolean germanCompoundSupport = false;
+
+    /** The longer the words, the longer it takes to created the variations (edits). This is the maxium word length we allow for correction. */
+    private int maxWordLength = 20;
+    private int maxWordLengthDistanceTwo = 10;
+    private int minWordLength = 2;
 
     /**
      * Do not correct words that contain any of these characters.
      */
-    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/+") + "]");
+    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/+'") + "]");
 
     private Trie<Integer> words = new Trie<>();
 
@@ -118,15 +124,17 @@ public class PalladianSpellChecker {
                     + word.substring(i + 2));
         }
 
-        // alternations, 26n
+        // alternations, 29n
         for (int i = 0; i < n; ++i) {
             for (char c = 'a'; c <= 'z'; ++c) {
                 result.add(word.substring(0, i) + c + word.substring(i + 1));
             }
             // umlauts
-            result.add(word.substring(0, i) + 'ä' + word.substring(i + 1));
-            result.add(word.substring(0, i) + 'ö' + word.substring(i + 1));
-            result.add(word.substring(0, i) + 'ü' + word.substring(i + 1));
+            String substring0i = word.substring(0, i);
+            String substringi1 = word.substring(i + 1);
+            result.add(substring0i + 'ä' + substringi1);
+            result.add(substring0i + 'ö' + substringi1);
+            result.add(substring0i + 'ü' + substringi1);
         }
 
         // insertions, 26(n+1)
@@ -148,11 +156,27 @@ public class PalladianSpellChecker {
      * @return The auto-corrected text.
      */
     public String autoCorrect(String text) {
+        return autoCorrect(text, false);
+    }
+    public String autoCorrectCaseSensitive(String text) {
+        return autoCorrect(text, true);
+    }
+
+    /**
+     * <p>
+     * Automatically detect and correct spelling mistakes.
+     * </p>
+     *
+     * @param text The text to check for errors.
+     * @return The auto-corrected text.
+     */
+    public String autoCorrect(String text, boolean caseSensitive) {
         StringBuilder correctedText = new StringBuilder();
 
         String[] textWords = SPLIT.split(text);
         for (String word : textWords) {
-            if (word.length() < 2 || StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).length() > 0) {
+            int length = word.length();
+            if (length < minWordLength || length > maxWordLength || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
                 correctedText.append(word).append(" ");
                 continue;
             }
@@ -163,7 +187,11 @@ public class PalladianSpellChecker {
             if (type == Character.OTHER_PUNCTUATION) {
                 correctedText.append(startOfWord);
             }
-            correctedText.append(correctWord(word));
+            if (caseSensitive) {
+                correctedText.append(correctWordCaseSensitive(word));
+            } else {
+                correctedText.append(correctWord(word));
+            }
             type = Character.getType(endOfWord);
             if (type == Character.OTHER_PUNCTUATION) {
                 correctedText.append(endOfWord);
@@ -179,25 +207,44 @@ public class PalladianSpellChecker {
      * Automatically detect and correct spelling mistakes in a word.
      * </p>
      *
+     * <p>NOTE: The given word must be lowercase. This saves time in the process.</p>
+     *
+     * @param word The word to check for errors.
+     * @return The auto-corrected word.
+     */
+    public String correctWordCaseSensitive(String word) {
+        return correctWord(word, true);
+    }
+
+    /**
+     * <p>
+     * Automatically detect and correct spelling mistakes in a word.
+     * </p>
+     *
      * @param word The word to check for errors.
      * @return The auto-corrected word.
      */
     public String correctWord(String word) {
+        return correctWord(word, false);
+    }
+    public String correctWord(String word, boolean caseSensitive) {
 
-        int uppercaseCount = StringHelper.countUppercaseLetters(word);
-
-        // don't correct words with uppercase letters in the middle
-        if (uppercaseCount > 1) {
+        if (word.length() > maxWordLength) {
             return word;
         }
 
-        // don't correct words with apostrophe
-        if (word.contains("'")) {
-            return word;
-        }
+        boolean uppercase = false;
+        if (!caseSensitive) {
+            int uppercaseCount = StringHelper.countUppercaseLetters(word);
 
-        boolean uppercase = uppercaseCount == 1;
-        word = word.toLowerCase();
+            // don't correct words with uppercase letters in the middle
+            if (uppercaseCount > 1) {
+                return word;
+            }
+
+            uppercase = uppercaseCount == 1;
+            word = word.toLowerCase();
+        }
 
         // correct words don't need to be corrected
         if (words.get(word) != null) {
@@ -240,6 +287,9 @@ public class PalladianSpellChecker {
         // check for edit distance 2 if we haven't found anything, the first character must not change
         if (candidates.isEmpty() && !compoundCorrect) {
             for (String s : list) {
+                if (s.length() > maxWordLengthDistanceTwo) {
+                    continue;
+                }
                 for (String w : edits(s)) {
                     Integer count = words.get(w);
                     if (count != null && firstCharacterSame(w, word)) {
@@ -282,6 +332,30 @@ public class PalladianSpellChecker {
 
     public void setGermanCompoundSupport(boolean germanCompoundSupport) {
         this.germanCompoundSupport = germanCompoundSupport;
+    }
+
+    public int getMaxWordLength() {
+        return maxWordLength;
+    }
+
+    public void setMaxWordLength(int maxWordLength) {
+        this.maxWordLength = maxWordLength;
+    }
+
+    public int getMaxWordLengthDistanceTwo() {
+        return maxWordLengthDistanceTwo;
+    }
+
+    public void setMaxWordLengthDistanceTwo(int maxWordLengthDistanceTwo) {
+        this.maxWordLengthDistanceTwo = maxWordLengthDistanceTwo;
+    }
+
+    public int getMinWordLength() {
+        return minWordLength;
+    }
+
+    public void setMinWordLength(int minWordLength) {
+        this.minWordLength = minWordLength;
     }
 
     public static void main(String[] args) throws IOException {
