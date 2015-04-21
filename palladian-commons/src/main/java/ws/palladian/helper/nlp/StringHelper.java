@@ -57,6 +57,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
     private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
+    private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
     private StringHelper() {
         // utility class.
@@ -687,7 +688,7 @@ public final class StringHelper {
      * @return The string without brackets.
      */
     public static String removeBrackets(String bracketString) {
-        String string = bracketString;
+        String string;
         string = PATTERN_BRACKETS.matcher(bracketString).replaceAll("");
         string = removeDoubleWhitespaces(string);
         return string.trim();
@@ -905,10 +906,10 @@ public final class StringHelper {
      * @return The number of uppercase letters, 0 in case the string was empty or <code>null</code>.
      */
     public static int countUppercaseLetters(String string) {
-        if (string == null) {
+        if (string == null || string.isEmpty()) {
             return 0;
         }
-        return string.replaceAll("[^A-Z]", "").length();
+        return PATTERN_UPPERCASE.matcher(string).replaceAll("").length();
     }
 
     /**
@@ -1053,7 +1054,7 @@ public final class StringHelper {
      * Removes unwanted control characters from the specified string.
      * </p>
      * 
-     * @param string
+     * @param string The string with control characters.
      * @return
      */
     public static String removeControlCharacters(String string) {
@@ -1251,7 +1252,7 @@ public final class StringHelper {
         }
 
         // string length, string
-        TreeMap<Integer, String> commonStrings = new TreeMap<Integer, String>();
+        TreeMap<Integer, String> commonStrings = new TreeMap<>();
 
         // string s1 is shortened and shifts over string s2, s1 should be the
         // shorter string
@@ -1878,9 +1879,7 @@ public final class StringHelper {
     public static String getLongest(String... strings) {
         String ret = null;
         for (String string : strings) {
-            if (string == null) {
-                continue;
-            } else if (ret == null || string.length() > ret.length()) {
+            if (ret == null || string.length() > ret.length()) {
                 ret = string;
             }
         }
