@@ -16,7 +16,7 @@ public interface PalladianVersion {
     final String BUILD = "${timestamp}";
 
     /** Palladian copyright. */
-    final String COPYRIGHT = "Copyright 2009-2014 by David Urbansky, Philipp Katz, Klemens Muthmann";
+    final String COPYRIGHT = "Copyright 2009-2015 by David Urbansky, Philipp Katz, Klemens Muthmann";
 
     /** Palladian info. */
     final String INFO = "Palladian version " + VERSION + " (build " + BUILD + ")\n" + COPYRIGHT + "\n";
