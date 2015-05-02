@@ -58,6 +58,8 @@ final class DatasetCheck {
 
         int tokenCount = 0;
         int scopedDocCount = 0;
+        int warnCount = 0;
+        int errorCount = 0;
 
         for (File file : datasetFiles) {
             String filePath = file.getAbsolutePath();
@@ -87,37 +89,45 @@ final class DatasetCheck {
                 // closing tag does not start with slash
                 if (!"/".equals(closingSlash)) {
                     System.out.println("[error] " + closingTag + " does not start with '/' in " + fileName);
+                    errorCount++;
                 }
 
                 // opening does not match closing tag
                 if (!openingTag.equals(closingTag)) {
                     System.out.println("[error] " + openingTag + " does not match " + closingTag + " in " + fileName);
+                    errorCount++;
                 }
 
                 // unknown tag type
                 if (!allowedTags.contains(openingTag)) {
                     System.out.println("[error] unknown tag " + openingTag + " in " + fileName);
+                    errorCount++;
                 }
 
                 // check if text in between is rather long
                 if (content.length() > 50) {
                     System.out.println("[warn] " + content + " seems rather long for an annotation in " + fileName);
+                    warnCount++;
                 }
 
                 // annotation value should not start/end with punctuation
                 if (StringHelper.isPunctuation(content.charAt(0))) {
                     System.out.println("[warn] '" + content + "' starts with punctuation in " + fileName);
+                    warnCount++;
                 }
                 if (StringHelper.isPunctuation(content.charAt(content.length() - 1))) {
                     System.out.println("[warn] '" + content + "' ends with punctuation in " + fileName);
+                    warnCount++;
                 }
 
                 // annotation value should not start/end with white space
                 if (Character.isWhitespace(content.charAt(0))) {
                     System.out.println("[warn] '" + content + "' starts with white space in " + fileName);
+                    warnCount++;
                 }
                 if (Character.isWhitespace(content.charAt(content.length() - 1))) {
                     System.out.println("[warn] '" + content + "' ends with white space in " + fileName);
+                    warnCount++;
                 }
 
                 valueTags.get(content/* .toLowerCase() */).add(openingTag);
@@ -129,6 +139,7 @@ final class DatasetCheck {
             for (String value : valueTags.keySet()) {
                 if (valueTags.get(value).size() > 1) {
                     System.out.println("[warn] ambiguous annotations for " + value + ": " + valueTags.get(value) + " in " + fileName);
+                    warnCount++;
                 }
             }
 
@@ -142,15 +153,20 @@ final class DatasetCheck {
                         int end = matcher2.end();
                         String context = stringContent.substring(Math.max(0, start - 15), Math.min(stringContent.length(), end + 15)).replace('\n', ' ');
                         System.out.println("[warn] potentially missed annotation for '" + value + "' (context '" + context + "' in " + fileName);
+                        warnCount++;
                     }
                 }
             }
 
             if (valueTags.isEmpty()) {
                 System.out.println("[warn] no annotations in " + fileName);
+                warnCount++;
             }
 
         }
+        
+        System.out.println("# errors: " + errorCount);
+        System.out.println("# warnings: " + warnCount);
 
         System.out.println('\n');
         System.out.println("Assigned tags:");
@@ -220,9 +236,9 @@ final class DatasetCheck {
     }
 
     public static void main(String[] args) {
-        File datasetPath = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/0-all");
-        getNonDisambiguatedStatistics(datasetPath);
-        // performCheck(datasetPath);
+        File datasetPath = new File("/Users/pk/Documents/tud-loc-2015-de");
+        // getNonDisambiguatedStatistics(datasetPath);
+        performCheck(datasetPath);
     }
 
 }
