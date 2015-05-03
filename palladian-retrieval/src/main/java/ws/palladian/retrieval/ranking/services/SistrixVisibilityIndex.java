@@ -40,14 +40,11 @@ public final class SistrixVisibilityIndex extends AbstractRankingService impleme
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
 
         url = UrlHelper.getDomain(url, false);
 
         Double index = 0.;
-        String requestUrl = buildRequestUrl(url);
+        String requestUrl = "http://www.sichtbarkeitsindex.de/" + UrlHelper.encodeParameter(url);
 
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
@@ -62,18 +59,6 @@ public final class SistrixVisibilityIndex extends AbstractRankingService impleme
             throw new RankingServiceException("url:" + url, e);
         }
         return builder.add(INDEX, index).create();
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://www.sichtbarkeitsindex.de/" + UrlHelper.encodeParameter(url);
     }
 
     @Override

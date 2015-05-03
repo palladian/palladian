@@ -67,6 +67,11 @@ public interface FeatureExtractorSetting {
      *         <code>[PER, LOC, ORG, MISC]</code> here.
      */
     Set<String> getEntityCategories();
+    
+    /**
+     * @return <code>true</code> to extract hierarchy features.
+     */
+    boolean useHierarchyFeatures();
 
     class Builder implements Factory<FeatureExtractorSetting> {
 
@@ -80,6 +85,7 @@ public interface FeatureExtractorSetting {
         String[] locationMarkers = new String[0];
         boolean debug = false;
         HashSet<String> entityCategories = new HashSet<>();
+        boolean hierarchyFeatures = true;
 
         public Builder setEqualDistance(int equalDistance) {
             this.equalDistance = equalDistance;
@@ -118,6 +124,11 @@ public interface FeatureExtractorSetting {
 
         public Builder setEntityCategories(String... entityCategories) {
             this.entityCategories = CollectionHelper.newHashSet(entityCategories);
+            return this;
+        }
+        
+        public Builder setHierarchyFeatures(boolean enable) {
+            this.hierarchyFeatures = enable;
             return this;
         }
 

@@ -573,6 +573,12 @@ public enum UnitType {
         // POWER_RATIO
         unitList = new ArrayList<>();
         unitList.add("db");
+        unitList.add("db(a)");
+        unitList.add("db(b)");
+        unitList.add("db(c)");
+        unitList.add("dba");
+        unitList.add("dbb");
+        unitList.add("dbc");
         unitList.add("decibel");
         UnitType.POWER_RATIO.units.add(Pair.of(unitList, 1.));
 

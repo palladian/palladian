@@ -1,5 +1,9 @@
 package ws.palladian.helper;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.date.DateHelper;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -7,15 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.date.DateHelper;
-
 /**
  * <p>
  * The ProgressMonitor eases the progress visualization needed in many long-running processes. Usage example:
- * 
+ * <p>
  * <pre>
  * ProgressMonitor pm = new ProgressMonitor();
  * pm.startTask(&quot;fancy calculation&quot;, 10);
@@ -24,9 +23,9 @@ import ws.palladian.helper.date.DateHelper;
  *     pm.increment();
  * }
  * </pre>
- * 
+ * <p>
  * </p>
- *
+ * <p>
  * XXX think about deprecation and extensibility, see https://bitbucket.org/palladian/palladian/commits/4c5fc38de8adfd5bd17e00e34881fe9b69d11a12#general-comments
  *
  * @author David Urbansky
@@ -38,16 +37,24 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     private static final char PROGRESS_CHAR = '■';
 
-    /** Increments of percentages when the progress should be shown, e.g. every 1%. */
+    /**
+     * Increments of percentages when the progress should be shown, e.g. every 1%.
+     */
     private final double showEveryPercent;
 
-    /** Whether to output more progress information during each report. */
+    /**
+     * Whether to output more progress information during each report.
+     */
     private boolean enhancedStats = true;
 
-    /** Format of the percent output. */
+    /**
+     * Format of the percent output.
+     */
     private final NumberFormat percentFormat;
 
-    /** Format of the number of remaining items. */
+    /**
+     * Format of the number of remaining items.
+     */
     private final NumberFormat itemFormat;
 
     private String description;
@@ -62,18 +69,22 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     private double currentProgress;
 
-    /** Keep track of the last 3 iterations */
+    /**
+     * Keep track of the last 3 iterations
+     */
     private List<Long> lastIterationTimes;
     private final static int LAST_ITERATION_WINDOW = 3;
 
-    /** Prevents outputting the same percentage value again, as specified by showEveryPercent. */
+    /**
+     * Prevents outputting the same percentage value again, as specified by showEveryPercent.
+     */
     private int lastOutput = -1;
 
     /**
      * <p>
      * Create a new {@link ProgressMonitor}.
      * </p>
-     * 
+     *
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      */
     public ProgressMonitor(double showEveryPercent) {
@@ -97,7 +108,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * <p>
      * Create a new {@link ProgressMonitor} showing the current progress with each percent.
      * </p>
-     * 
+     *
      * @param totalSteps The total iterations to perform, greater/equal zero.
      */
     public ProgressMonitor(long totalSteps) {
@@ -109,8 +120,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * <p>
      * Create a new {@link ProgressMonitor}.
      * </p>
-     * 
-     * @param totalSteps The total iterations to perform, greater/equal zero.
+     *
+     * @param totalSteps       The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      */
     public ProgressMonitor(long totalSteps, double showEveryPercent) {
@@ -121,10 +132,10 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * <p>
      * Create a new {@link ProgressMonitor}.
      * </p>
-     * 
-     * @param totalSteps The total iterations to perform, greater/equal zero.
+     *
+     * @param totalSteps       The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
-     * @param processName The name of the process, for identification purposes when outputting the bar.
+     * @param processName      The name of the process, for identification purposes when outputting the bar.
      */
     public ProgressMonitor(long totalSteps, double showEveryPercent, String processName) {
         this(showEveryPercent);
@@ -136,7 +147,6 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * <p>
      * Increments the counter by one and prints the current progress to the System's standard output.
      * </p>
-     * 
      */
     public void incrementAndPrintProgress() {
         increment();
@@ -146,9 +156,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * <p>
      * Increments the counter by the step size and prints the current progress to the System's standard output.
      * </p>
-     * 
+     *
      * @param steps The number of steps to increment the counter with.
-     * 
      */
     public void incrementByAndPrintProgress(long steps) {
         increment(steps);
@@ -159,7 +168,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         this.description = description;
         this.totalSteps = totalSteps;
         this.startTime = System.currentTimeMillis();
-        this.lastPrintTime = startTime;
+        this.lastPrintTime = 0;
         lastIterationTimes = new ArrayList<>();
     }
 
@@ -167,7 +176,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     public void increment(long steps) {
         synchronized (this) {
             currentSteps += steps;
-            currentProgress = totalSteps > 0 ? (double)currentSteps / totalSteps : -1;
+            currentProgress = totalSteps > 0 ? (double) currentSteps / totalSteps : -1;
             printProgress();
         }
     }
@@ -198,14 +207,13 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * <p>
      * Prints the current progress.
      * </p>
-     * 
-     * @param counter Counter for current iteration in a loop.
      */
     private void printProgress() {
-        int output = (int)Math.floor(currentProgress * (100 / showEveryPercent));
+        int output = (int) Math.floor(currentProgress * (100 / showEveryPercent));
         if (showEveryPercent == 0 || output != lastOutput) {
             long elapsedTime = System.currentTimeMillis() - startTime;
-            double iterationsLeft = (100.*(1.0-currentProgress)) / showEveryPercent;
+            double percentLeft = 1.0 - currentProgress;
+            double iterationsLeft = Math.min(percentLeft * totalSteps, 100 * percentLeft / showEveryPercent);
             List<String> statistics = new ArrayList<>();
             if (currentProgress >= 0) {
                 statistics.add(percentFormat.format(100 * currentProgress) + "%");
@@ -217,7 +225,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
                 }
                 statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true).replaceAll(":\\d+ms", ""));
                 long iterationTime = elapsedTime - lastPrintTime;
-                lastIterationTimes.add(0,iterationTime);
+                lastIterationTimes.add(0, iterationTime);
                 if (isEnhancedStats()) {
                     statistics.add("iteration: "
                             + DateHelper.formatDuration(0, iterationTime, true).replaceAll(":\\d+ms", ""));
@@ -225,7 +233,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
                 if (currentProgress >= 0 && iterationsLeft > 0) {
                     double remainingTime = getAverageIterationTime() * iterationsLeft;
                     statistics.add("~remaining: "
-                            + DateHelper.formatDuration(0, (long)remainingTime, true).replaceAll(":\\d+ms", ""));
+                            + DateHelper.formatDuration(0, (long) remainingTime, true).replaceAll(":\\d+ms", ""));
                 }
             }
             StringBuilder progressString = new StringBuilder();
@@ -248,7 +256,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         for (int i = 0; i < count; i++) {
             time += lastIterationTimes.get(i);
         }
-        lastIterationTimes = lastIterationTimes.subList(0,count);
+        lastIterationTimes = lastIterationTimes.subList(0, count);
         return time / count;
     }
 
@@ -257,14 +265,14 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * <p>
      * Creates a progress bar.
      * </p>
-     * 
+     *
      * @param progress The progress in range [0,1]; negative values will lead to an empty progress bar.
      * @return The progress bar as string.
      */
     private static String createProgressBar(double progress) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
-        int scaledPercent = progress >= 0 ? (int)Math.round(progress * PROGRESS_BAR_LENGTH) : 0;
+        int scaledPercent = progress >= 0 ? (int) Math.round(progress * PROGRESS_BAR_LENGTH) : 0;
         stringBuilder.append(StringUtils.repeat(PROGRESS_CHAR, scaledPercent));
         stringBuilder.append(StringUtils.repeat(' ', Math.max(PROGRESS_BAR_LENGTH - scaledPercent, 0)));
         stringBuilder.append(']');
@@ -280,11 +288,19 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     }
 
     public static void main(String[] args) {
-        int totalSteps = 1700335346;
+//        int totalSteps = 1700335346;
+//        ProgressMonitor pm = new ProgressMonitor(0.1);
+//        pm.startTask("My Progress", totalSteps);
+//        for (int i = 1; i < totalSteps; i++) {
+//            pm.increment();
+//        }
+
+        int totalSteps = 10;
         ProgressMonitor pm = new ProgressMonitor(0.1);
         pm.startTask("My Progress", totalSteps);
-        for (int i = 1; i < totalSteps; i++) {
+        for (int i = 0; i < totalSteps; i++) {
             pm.increment();
+            ThreadHelper.deepSleep(250);
         }
     }
 

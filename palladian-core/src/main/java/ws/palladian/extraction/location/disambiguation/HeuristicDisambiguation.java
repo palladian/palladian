@@ -151,7 +151,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                         }
                     }
                     if (Arrays.asList(CITY, UNIT, COUNTRY).contains(anchor.getType())) {
-                        if (candidate.descendantOf(anchor) && candidate.getPopulation() > lowerPopulationThreshold) {
+                        Long population = CollectionHelper.coalesce(candidate.getPopulation(), 0l);
+                        if (candidate.descendantOf(anchor) && population > lowerPopulationThreshold) {
                             LOGGER.debug("{} is child of anchor '{}'", candidate, anchor.getPrimaryName());
                             preselection.add(candidate);
                             break;
@@ -230,7 +231,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         // get prominent anchor locations; continents, countries and locations with very high population
         for (Location location : locations.allValues()) {
             LocationType type = location.getType();
-            long population = location.getPopulation() != null ? location.getPopulation() : 0;
+            Long population = CollectionHelper.coalesce(location.getPopulation(), 0l);
             if (type == CONTINENT || type == COUNTRY || population > anchorPopulationThreshold) {
                 LOGGER.debug("Prominent anchor location: {}", location);
                 anchorLocations.add(location);
@@ -252,8 +253,14 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
             if (group.largestDistance() < sameDistanceThreshold) {
                 Location location = group.biggest();
-                if (location.getPopulation() > lowerPopulationThreshold || name.split("\\s").length >= tokenThreshold) {
-                    anchorLocations.add(location);
+                if (location == null) {
+                    location = group.first();
+                }
+                if (location != null) {
+                    Long population = CollectionHelper.coalesce(location.getPopulation(), 0l);
+                    if (population > lowerPopulationThreshold || name.split("\\s").length >= tokenThreshold) {
+                        anchorLocations.add(location);
+                    }
                 }
             } else {
                 LOGGER.debug("Ambiguous location: {} ({} candidates)", name, group.size());

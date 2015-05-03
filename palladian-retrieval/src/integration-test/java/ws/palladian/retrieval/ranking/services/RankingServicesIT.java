@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -63,7 +62,7 @@ public class RankingServicesIT {
         rankers.add(new Object[] {new PlurkPosts(configuration)});
         rankers.add(new Object[] {new RedditStats()});
         rankers.add(new Object[] {new SemRush()});
-        rankers.add(new Object[] {new SharedCount()});
+        rankers.add(new Object[] {new SharedCount(configuration)});
         rankers.add(new Object[] {new SharethisStats(configuration)});
         rankers.add(new Object[] {new SistrixVisibilityIndex()});
         rankers.add(new Object[] {new StumbleUponViews()});

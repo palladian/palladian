@@ -1,16 +1,13 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -23,7 +20,6 @@ import ws.palladian.retrieval.ranking.RankingType;
  * </p>
  * 
  * @author David Urbansky
- * 
  */
 public final class GooglePlusLikes extends AbstractRankingService implements RankingService {
 
@@ -40,17 +36,9 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
     /** All available ranking types by {@link GooglePlusLikes}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static long checkBlockedIntervall = TimeUnit.MINUTES.toMillis(1);
-
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
 
         Integer googlePlusLikes = null;
         try {
@@ -73,7 +61,6 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
             }
             
         } catch (Exception e) {
-            checkBlocked();
             throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
         return builder.add(LIKES, googlePlusLikes).create();
@@ -89,42 +76,6 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
      */
     private String buildRequestUrl(String url) {
         return "https://plusone.google.com/u/0/_/+1/fastbutton?url=" + UrlHelper.encodeParameter(url);
-    }
-
-    @Override
-    public boolean checkBlocked() {
-        int status = -1;
-        try {
-            String requestUrl = buildRequestUrl("http://www.google.com");
-            status = retriever.httpGet(requestUrl).getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (status == 200) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("Google Plus Likes Ranking Service is momentarily blocked. Will check again in "
-                + checkBlockedIntervall + " minute(s). Try changing your IP-address.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
     }
 
     @Override
