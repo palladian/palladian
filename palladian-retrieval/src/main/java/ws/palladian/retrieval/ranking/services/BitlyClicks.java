@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,11 +61,6 @@ public final class BitlyClicks extends AbstractRankingService {
     /** All available ranking types by {@link BitlyClicks}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(CLICKS);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 60;
-
     /**
      * <p>
      * Create a new {@link BitlyClicks} ranking service.
@@ -102,9 +96,6 @@ public final class BitlyClicks extends AbstractRankingService {
     @Override
     public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
         Map<String, Ranking> results = new HashMap<String, Ranking>();
-        if (isBlocked()) {
-            return results;
-        }
         // deduplicate provided URLs and create list
         List<String> urlList = new ArrayList<>(new HashSet<>(urls));
         // iterate through urls in batches of 15, since this is the maximum number we can send to bit.ly at once
@@ -126,10 +117,8 @@ public final class BitlyClicks extends AbstractRankingService {
                     results.put(url, new Ranking.Builder(this, url).add(CLICKS, clicks).create());
                 }
             } catch (JsonException e) {
-                checkBlocked();
                 throw new RankingServiceException(e);
             } catch (HttpException e) {
-                checkBlocked();
                 throw new RankingServiceException(e);
             }
         }
@@ -201,42 +190,6 @@ public final class BitlyClicks extends AbstractRankingService {
             }
         }
         return hashes;
-    }
-
-    @Override
-    public boolean checkBlocked() {
-        int status = -1;
-        try {
-            status = retriever.httpGet(
-                    "http://api.bit.ly/v3/lookup?login=" + login + "&apiKey=" + apiKey + "&url=http://www.google.com/")
-                    .getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (status == 200) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("Bit.ly Ranking Service is momentarily blocked. Will check again in 1h.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
     }
 
     @Override

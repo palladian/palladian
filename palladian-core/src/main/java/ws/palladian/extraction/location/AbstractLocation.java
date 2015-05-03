@@ -95,17 +95,23 @@ public abstract class AbstractLocation implements Location {
     public boolean hasName(String name, Set<Language> languages) {
         Validate.notNull(name, "name must not be null");
         Validate.notNull(languages, "languages must not be null");
-        if (getPrimaryName().equalsIgnoreCase(name)) {
+        if (equalName(getPrimaryName(), name)) {
             return true;
         }
         for (AlternativeName alternativeName : getAlternativeNames()) {
             String currentName = alternativeName.getName();
             Language currentLang = alternativeName.getLanguage();
-            if (currentName.equalsIgnoreCase(name) && (currentLang == null || languages.contains(currentLang))) {
+            if (equalName(currentName, name) && (currentLang == null || languages.contains(currentLang))) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static boolean equalName(String name1, String name2) {
+        String normalized1 = StringUtils.stripAccents(name1).toLowerCase();
+        String normalized2 = StringUtils.stripAccents(name2).toLowerCase();
+        return normalized1.equals(normalized2);
     }
 
     // hashCode and equals

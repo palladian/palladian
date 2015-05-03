@@ -18,6 +18,12 @@
 			<groupId>edu.cmu.cs</groupId>
 			<artifactId>ark-tweet-nlp</artifactId>
 			<version>0.3.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>lucene-core</artifactId>
+					<groupId>org.apache.lucene</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>ws.palladian</groupId>
@@ -63,7 +69,7 @@
 		<dependency>
 			<groupId>com.bericotech</groupId>
 			<artifactId>clavin</artifactId>
-			<version>1.0.0</version>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.illinois.cs.cogcomp</groupId>

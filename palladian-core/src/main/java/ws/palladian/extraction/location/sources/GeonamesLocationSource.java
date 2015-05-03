@@ -1,10 +1,12 @@
 package ws.palladian.extraction.location.sources;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
-//    private boolean showLanguageWarning = true;
+    private final boolean retrieveHierarchy;
 
     /**
      * <p>
@@ -62,7 +64,22 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
      * @return A new {@link GeonamesLocationSource} with caching.
      */
     public static LocationSource newCachedLocationSource(String username) {
-        return new CachingLocationSource(new GeonamesLocationSource(username));
+        return newCachedLocationSource(username, true);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link GeonamesLocationSource} which caches requests.
+     * </p>
+     *
+     * @param username The signed up user name, not <code>null</code> or empty.
+     * @param retrieveHierarchy <code>true</code> to retrieve hierarchy information (which causes additional REST
+     *            requests).
+     * @return A new {@link GeonamesLocationSource} with caching.
+     */
+    public static LocationSource newCachedLocationSource(String username, boolean retrieveHierarchy) {
+        return new CachingLocationSource(new ParallelizedRequestLocationSource(new GeonamesLocationSource(username,
+                retrieveHierarchy), 10));
     }
 
     /**
@@ -75,19 +92,31 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
      */
     @Deprecated
     public GeonamesLocationSource(String username) {
-        Validate.notEmpty(username, "username must not be empty");
+        this(username, true);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link GeonamesLocationSource}.
+     * </p>
+     *
+     * @param username The signed up user name, not <code>null</code> or empty.
+     * @param retrieveHierarchy <code>true</code> to retrieve hierarchy information (which causes additional REST
+     *            requests).
+     * @deprecated Prefer using the cached variant, which can be obtained via {@link #newCachedLocationSource(String)}.
+     */
+    public GeonamesLocationSource(String username, boolean retrieveHierarchy) {
+        Validate.notEmpty(username);
         this.username = username;
+        this.retrieveHierarchy = retrieveHierarchy;
     }
 
     @Override
     public List<Location> getLocations(String locationName, Set<Language> languages) {
-//        if (showLanguageWarning) {
-//            LOGGER.warn("Language queries are not supported; ignoring language parameter.");
-//            showLanguageWarning = false;
-//        }
         try {
+            String cleanName = StringUtils.stripAccents(locationName.toLowerCase());
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=FULL&username=%s",
-                    UrlHelper.encodeParameter(locationName), username);
+                    UrlHelper.encodeParameter(cleanName), username);
             HttpResult httpResult = httpRetriever.httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
             List<Location> result = new ArrayList<>();
@@ -166,7 +195,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             Node langAttr = attrs.getNamedItem("lang");
             String altNameLang = langAttr.getTextContent();
             Language language = Language.getByIso6391(altNameLang);
-            if (language != null) {
+            if (language != null || altNameLang.equalsIgnoreCase("abbr")) {
                 builder.addAlternativeName(altName, language);
             }
         }
@@ -174,6 +203,9 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     }
 
     private List<Integer> getHierarchy(int locationId) {
+        if (!retrieveHierarchy) {
+            return Collections.emptyList();
+        }
         try {
             String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&style=SHORT&username=%s",
                     locationId, username);
@@ -190,9 +222,12 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
                 result.add(geonameId);
             }
             return result;
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+
     }
 
     @Override
@@ -206,9 +241,12 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             Location location = CollectionHelper.getFirst(locations);
             List<Integer> hierarchy = getHierarchy(locationId);
             return new ImmutableLocation(location, location.getAlternativeNames(), hierarchy);
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+
     }
 
     @Override
@@ -227,17 +265,22 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
                 result.add(new ImmutableLocation(location, location.getAlternativeNames(), hierarchy));
             }
             return result;
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+
     }
 
     public static void main(String[] args) {
-        GeonamesLocationSource locationSource = new GeonamesLocationSource("does_not_exist");
+        GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
         // Location location = locationSource.getLocation(7268814);
         // System.out.println(location);
         // List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(52.52, 13.41), 10);
-        List<Location> locations = locationSource.getLocations("monaco", EnumSet.of(Language.ENGLISH));
+        // List<Location> locations = locationSource.getLocations("U.S.", EnumSet.of(Language.ENGLISH));
+        // List<Location> locations = locationSource.getLocations("Liége", EnumSet.of(Language.ENGLISH));
+        List<Location> locations = locationSource.getLocations("Ceske Budejovice", EnumSet.of(Language.ENGLISH));
         CollectionHelper.print(locations);
     }
 

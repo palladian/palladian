@@ -18,6 +18,7 @@ final class ImmutableFeatureExtractorSetting implements FeatureExtractorSetting 
     private final String[] locationMarkers;
     private final boolean debug;
     private final Set<String> entityCategories;
+    private final boolean hierarchyFeatures;
 
     public ImmutableFeatureExtractorSetting(Builder builder) {
         this.equalDistance = builder.equalDistance;
@@ -28,6 +29,7 @@ final class ImmutableFeatureExtractorSetting implements FeatureExtractorSetting 
         this.locationMarkers = builder.locationMarkers;
         this.debug = builder.debug;
         this.entityCategories = builder.entityCategories;
+        this.hierarchyFeatures = builder.hierarchyFeatures;
     }
 
     @Override
@@ -69,6 +71,11 @@ final class ImmutableFeatureExtractorSetting implements FeatureExtractorSetting 
     public Set<String> getEntityCategories() {
         return Collections.unmodifiableSet(entityCategories);
     }
+    
+    @Override
+    public boolean useHierarchyFeatures() {
+        return hierarchyFeatures;
+    }
 
     @Override
     public String toString() {
@@ -94,6 +101,9 @@ final class ImmutableFeatureExtractorSetting implements FeatureExtractorSetting 
         if (entityCategories.size() > 0) {
             builder.append(", entityCategories=");
             builder.append(entityCategories);
+        }
+        if (hierarchyFeatures) {
+            builder.append(", hierarchyFeatures");
         }
         if (debug) {
             builder.append(", debug");

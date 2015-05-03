@@ -2,6 +2,7 @@ package ws.palladian.extraction.location;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static ws.palladian.extraction.location.LocationFilters.childOf;
 import static ws.palladian.extraction.location.LocationFilters.descendantOf;
@@ -78,6 +79,15 @@ public class LocationSetTest {
         assertTrue(statsExcept.contains(l1));
         assertTrue(statsExcept.contains(l4));
         assertEquals(3, stats.where(not(equal(l1))).size());
+    }
+    
+    @Test
+    public void testFirst() {
+        LocationSet stats = new LocationSet(Arrays.asList(l1, l2, l3, l4));
+        assertEquals(2028461, stats.first().getId());
+        
+        stats = new LocationSet(Collections.<Location>emptySet());
+        assertNull(stats.first());
     }
 
 }
