@@ -518,7 +518,7 @@ public class HttpRetriever {
         for (Header header : headers) {
             List<String> list = result.get(header.getName());
             if (list == null) {
-                list = new ArrayList<String>();
+                list = new ArrayList<>();
                 result.put(header.getName(), list);
             }
             list.add(header.getValue());
