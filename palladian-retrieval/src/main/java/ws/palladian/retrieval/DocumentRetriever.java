@@ -154,13 +154,13 @@ public class DocumentRetriever {
 
         final ProgressMonitor progressMonitor = new ProgressMonitor(urls.size(), 0.5, "DocumentRetriever");
 
-        List<String> urlsList = new ArrayList<String>(urls);
+        List<String> urlsList = new ArrayList<>(urls);
         List<String> sublist;
         int num = 10000;
         for (int i = 0; i < urls.size(); i += num) {
             sublist = CollectionHelper.getSublist(urlsList, i, num);
 
-            final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(sublist);
+            final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<>(sublist);
 
             ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 
