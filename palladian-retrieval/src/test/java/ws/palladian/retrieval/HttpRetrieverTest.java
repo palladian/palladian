@@ -1,5 +1,7 @@
 package ws.palladian.retrieval;
 
+import static org.junit.Assert.assertFalse;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -15,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.retrieval.HttpRequest.HttpMethod;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -108,6 +111,32 @@ public class HttpRetrieverTest {
         HttpResult httpResult = httpRetriever.httpGet(url);
         System.out.println(httpResult.getStatusCode()); // is 200 :/
         System.out.println(httpResult.getStringContent()); // gives a description, that we need to enable cookies
+    }
+    
+    @Test
+    @Ignore
+    public void testCookies() throws HttpException {
+        // TODO write an actual test using a locally running HTTP server
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        DefaultCookieStore cookieStore = new DefaultCookieStore();
+        httpRetriever.setCookieStore(cookieStore);
+
+        // get the cookie
+        httpRetriever.httpGet("https://bitbucket.org/account/signin/?next=/");
+        String csrftoken = cookieStore.getCookies().get(0).getValue();
+
+        HttpRequest request = new HttpRequest(HttpMethod.POST, "https://bitbucket.org/account/signin/?next=/");
+        request.addHeader("Origin", "https://bitbucket.org");
+        request.addHeader("Referer", "https://bitbucket.org/account/signin/?next=/account/signin");
+        request.addParameter("username", "thats_me");
+        request.addParameter("password", "dont_wanna_tell");
+        request.addParameter("next", "/account/team_check/?next=/");
+        request.addParameter("csrfmiddlewaretoken", csrftoken);
+        HttpResult result = httpRetriever.execute(request);
+        // System.out.println(result.getStatusCode());
+        // System.out.println(result.getStringContent());
+        // CollectionHelper.print(result.getHeaders());
+        assertFalse(result.errorStatus());        
     }
 
 }
