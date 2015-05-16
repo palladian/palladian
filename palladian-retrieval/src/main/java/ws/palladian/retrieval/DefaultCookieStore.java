@@ -1,19 +1,22 @@
 package ws.palladian.retrieval;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class DefaultCookieStore implements CookieStore {
 
-    private final List<Cookie> cookies = new ArrayList<>();
+    private final Set<Cookie> cookies = new HashSet<>();
 
     @Override
-    public List<Cookie> getCookies() {
+    public Collection<Cookie> getCookies() {
         return cookies;
     }
 
     @Override
     public void addCookie(Cookie cookie) {
+        // remove old cookie first; value might have changed; not considered for #equals
+        cookies.remove(cookie);
         cookies.add(cookie);
     }
 

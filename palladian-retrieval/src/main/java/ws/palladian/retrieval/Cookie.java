@@ -8,17 +8,17 @@ package ws.palladian.retrieval;
 public interface Cookie {
 
     /**
-     * @return The name/key of this cookie.
+     * @return The name/key of this cookie, not <code>null</code>.
      */
     String getName();
 
     /**
-     * @return The value of this cookie.
+     * @return The value of this cookie, not <code>null</code>.
      */
     String getValue();
 
     /**
-     * @return The domain of this cookie.
+     * @return The domain of this cookie, not <code>null</code>.
      */
     String getDomain();
 
