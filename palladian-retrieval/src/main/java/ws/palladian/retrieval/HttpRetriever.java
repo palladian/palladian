@@ -47,7 +47,6 @@ import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
@@ -163,14 +162,14 @@ public class HttpRetriever {
     /** Password for authentication, or <code>null</code> if no authentication necessary. */
     private String password;
 
-    /** A map for cookie store. **/
-    private Map<String, String> cookieStore = new HashMap<String, String>();
-
     // ///////////// Misc. ////////
 
     /** Hook for http* methods. */
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
+    /** Store for cookies. */
+    private CookieStore cookieStore;
+    
     /** Any of these status codes will cause a removal of the used proxy. */
     private Set<Integer> proxyRemoveStatusCodes = new HashSet<>();
 
@@ -227,19 +226,6 @@ public class HttpRetriever {
         // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
         // httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
-    }
-
-    /**
-     * <p>
-     * Add a cookie to the header.
-     * </p>
-     * 
-     * @param key The name of the cookie.
-     * @param value The value of the cookie.
-     * 
-     */
-    public void addCookie(String key, String value) {
-        cookieStore.put(key, value);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -475,13 +461,17 @@ public class HttpRetriever {
 
         backend.getConnectionManager().getSchemeRegistry().register(httpsScheme);
 
-        // set the cookie store; this is scoped on *one* request and discarded after that;
-        // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        // "one request" actually means, that we have a e.g. a GET and receive several redirects,
-        // where cookies previously set cookies are necessary; this is not a typical case,
-        // and if we should encounter any issues by this change, remove this code (and the modification
-        // in the constructor) again.
-        backend.setCookieStore(new BasicCookieStore());
+        if (cookieStore != null) {
+            backend.setCookieStore(new ApacheCookieStoreAdapter(cookieStore));
+        } else {
+            // set the cookie store; this is scoped on *one* request and discarded after that;
+            // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
+            // "one request" actually means, that we have a e.g. a GET and receive several redirects,
+            // where cookies previously set cookies are necessary; this is not a typical case,
+            // and if we should encounter any issues by this change, remove this code (and the modification
+            // in the constructor) again.
+            backend.setCookieStore(new ApacheCookieStoreAdapter(new DefaultCookieStore()));
+        }
 
         return backend;
 
@@ -548,14 +538,6 @@ public class HttpRetriever {
         try {
 
             HttpContext context = new BasicHttpContext();
-            StringBuilder cookieText = new StringBuilder();
-            for (Entry<String, String> cookie : cookieStore.entrySet()) {
-                cookieText.append(cookie.getKey()).append("=").append(cookie.getValue()).append(";");
-            }
-            if (!cookieStore.isEmpty()) {
-                request.addHeader("Cookie", cookieText.toString());
-            }
-
             DecompressingHttpClient client = new DecompressingHttpClient(backend);
             HttpResponse response = client.execute(request, context);
             HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
@@ -847,9 +829,14 @@ public class HttpRetriever {
      * @param username The username for HTTP authentication, or <code>null</code>.
      * @param password The password for HTTP authentication, or <code>null</code>.
      */
+    // FIXME move this into the HttpRequest to avoid any accidental misuse (see warning in JavaDoc).
     public void setCredentials(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+    
+    public void setCookieStore(CookieStore cookieStore) {
+        this.cookieStore = cookieStore;
     }
 
     // ////////////////////////////////////////////////////////////////
