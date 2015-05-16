@@ -1,6 +1,6 @@
 package ws.palladian.retrieval;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -123,7 +123,7 @@ public class HttpRetrieverTest {
 
         // get the cookie
         httpRetriever.httpGet("https://bitbucket.org/account/signin/?next=/");
-        String csrftoken = cookieStore.getCookies().get(0).getValue();
+        String csrftoken = CollectionHelper.getFirst(cookieStore.getCookies()).getValue();
 
         HttpRequest request = new HttpRequest(HttpMethod.POST, "https://bitbucket.org/account/signin/?next=/");
         request.addHeader("Origin", "https://bitbucket.org");
@@ -136,7 +136,7 @@ public class HttpRetrieverTest {
         // System.out.println(result.getStatusCode());
         // System.out.println(result.getStringContent());
         // CollectionHelper.print(result.getHeaders());
-        assertFalse(result.errorStatus());        
+        assertEquals(302, result.getStatusCode());
     }
 
 }

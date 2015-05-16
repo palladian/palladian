@@ -1,6 +1,6 @@
 package ws.palladian.retrieval;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * A cookie store is responsible for storing cookies.
@@ -12,7 +12,7 @@ public interface CookieStore {
     /**
      * @return All cookies in this store, or an empty List.
      */
-    List<Cookie> getCookies();
+    Collection<Cookie> getCookies();
 
     /**
      * Adds a cookie to this cookie store.
