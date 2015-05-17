@@ -345,7 +345,7 @@ public class HttpRetriever {
         }
 
         // content name-value pairs
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
         for (Entry<String, String> param : content.entrySet()) {
             nameValuePairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
         }
@@ -504,7 +504,7 @@ public class HttpRetriever {
      * @return
      */
     private static Map<String, List<String>> convertHeaders(Header[] headers) {
-        Map<String, List<String>> result = new HashMap<String, List<String>>();
+        Map<String, List<String>> result = new HashMap<>();
         for (Header header : headers) {
             List<String> list = result.get(header.getName());
             if (list == null) {
@@ -638,7 +638,7 @@ public class HttpRetriever {
     public List<String> getRedirectUrls(String url) throws HttpException {
         Validate.notEmpty(url, "url must not be empty");
 
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
 
         // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
         // see: https://dev.twitter.com/docs/tco-redirection-behavior
