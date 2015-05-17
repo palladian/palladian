@@ -358,6 +358,8 @@ public class HttpRetriever {
         return execute(url, post);
     }
 
+    /** Replaced by {@link #execute(HttpRequest2)} */
+    @Deprecated
     public HttpResult execute(HttpRequest request) throws HttpException {
         Validate.notNull(request, "request must not be null");
 
@@ -420,6 +422,11 @@ public class HttpRetriever {
         }
 
         return execute(url, httpRequest);
+    }
+    
+    public HttpResult execute(HttpRequest2 request) throws HttpException {
+        Validate.notNull(request, "request must not be null");
+        return execute(request.getUrl(), new ApacheRequestAdapter(request));
     }
 
     // ////////////////////////////////////////////////////////////////

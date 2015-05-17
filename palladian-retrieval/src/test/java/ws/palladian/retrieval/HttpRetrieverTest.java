@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -122,21 +121,34 @@ public class HttpRetrieverTest {
         httpRetriever.setCookieStore(cookieStore);
 
         // get the cookie
-        httpRetriever.httpGet("https://bitbucket.org/account/signin/?next=/");
+        HttpRequest2Builder builder = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.GET,
+                "https://bitbucket.org/account/signin/?next=/");
+        httpRetriever.execute(builder.create());
         String csrftoken = CollectionHelper.getFirst(cookieStore.getCookies()).getValue();
 
-        HttpRequest request = new HttpRequest(HttpMethod.POST, "https://bitbucket.org/account/signin/?next=/");
-        request.addHeader("Origin", "https://bitbucket.org");
-        request.addHeader("Referer", "https://bitbucket.org/account/signin/?next=/account/signin");
-        request.addParameter("username", "thats_me");
-        request.addParameter("password", "dont_wanna_tell");
-        request.addParameter("next", "/account/team_check/?next=/");
-        request.addParameter("csrfmiddlewaretoken", csrftoken);
-        HttpResult result = httpRetriever.execute(request);
+        builder = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.POST,
+                "https://bitbucket.org/account/signin/?next=/");
+        builder.addHeader("Origin", "https://bitbucket.org");
+        builder.addHeader("Referer", "https://bitbucket.org/account/signin/?next=/account/signin");
+        FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+        entityBuilder.addData("username", "thats_me");
+        entityBuilder.addData("password", "dont_wanna_tell");
+        entityBuilder.addData("next", "/account/team_check/?next=/");
+        entityBuilder.addData("csrfmiddlewaretoken", csrftoken);
+        builder.setEntity(entityBuilder.create());
+        HttpResult result = httpRetriever.execute(builder.create());
         // System.out.println(result.getStatusCode());
         // System.out.println(result.getStringContent());
         // CollectionHelper.print(result.getHeaders());
         assertEquals(302, result.getStatusCode());
+    }
+    
+    @Test
+    @Ignore
+    public void testGetHttpRequest2() throws HttpException {
+        HttpRequest2 request = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.GET, "http://example.com").create();
+        HttpResult result = HttpRetrieverFactory.getHttpRetriever().execute(request);
+        System.out.println(result.getStringContent());
     }
 
 }
