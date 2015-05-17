@@ -29,7 +29,6 @@ import java.util.regex.PatternSyntaxException;
  * @author Philipp Katz
  * @author Martin Gregor
  */
-@SuppressWarnings("UnusedDeclaration")
 public final class StringHelper {
 
     /**
