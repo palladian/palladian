@@ -92,7 +92,7 @@ public interface ExtractedDate {
      * @return A positive difference, or <code>-1</code> in case of any error.
      */
     double getDifference(ExtractedDate date, TimeUnit unit);
-    
+
     Calendar getCalendar(DateExactness exactness);
 
 }
