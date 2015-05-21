@@ -1,29 +1,9 @@
 package ws.palladian.retrieval;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -36,6 +16,11 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * <p>
@@ -85,7 +70,9 @@ public class DocumentRetriever {
      */
     private int numThreads = DEFAULT_NUM_THREADS;
 
-    /** The filter for the retriever. */
+    /**
+     * The filter for the retriever.
+     */
     private Filter<? super String> downloadFilter;
 
     /**
@@ -94,7 +81,9 @@ public class DocumentRetriever {
      */
     private Map<String, String> globalHeaders = null;
 
-    /** The callbacks that are called after each parsed page. */
+    /**
+     * The callbacks that are called after each parsed page.
+     */
     private final List<Consumer<Document>> retrieverCallbacks;
 
     private List<String> userAgents;
@@ -122,7 +111,7 @@ public class DocumentRetriever {
         this.httpRetriever = httpRetriever;
         downloadFilter = Filters.ALL;
         this.initializeAgents();
-        retrieverCallbacks = new ArrayList<Consumer<Document>>();
+        retrieverCallbacks = new ArrayList<>();
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -187,7 +176,7 @@ public class DocumentRetriever {
             executor.shutdown();
 
             // wait until all threads are finish
-            LOGGER.info("waiting for all "+num+" threads to finish...");
+            LOGGER.info("waiting for all " + num + " threads to finish...");
             StopWatch sw = new StopWatch();
             try {
                 while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
@@ -213,7 +202,7 @@ public class DocumentRetriever {
      * not included.
      */
     public Set<Document> getWebDocuments(Collection<String> urls) {
-        final Set<Document> result = new HashSet<Document>();
+        final Set<Document> result = new HashSet<>();
         getWebDocuments(urls, new Consumer<Document>() {
             @Override
             public void process(Document document) {
@@ -271,6 +260,24 @@ public class DocumentRetriever {
         return null;
     }
 
+    public JsonObject getJsonObject(String url, Map<String,String> postParams) throws JsonException {
+        HttpRequest request = new HttpRequest(HttpRequest.HttpMethod.POST, url);
+
+        for (Map.Entry<String, String> postParam : postParams.entrySet()) {
+            request.addParameter(postParam.getKey(), postParam.getValue());
+        }
+
+        HttpResult result;
+        try {
+            result = HttpRetrieverFactory.getHttpRetriever().execute(request);
+        } catch (HttpException e) {
+            throw new IllegalStateException("HTTP exception while accessing: " + e.getMessage(), e);
+        }
+        String resultString = result.getStringContent();
+
+        return new JsonObject(resultString);
+    }
+
     public JsonObject tryGetJsonObject(String url) {
         JsonObject json = null;
 
@@ -308,8 +315,6 @@ public class DocumentRetriever {
                     HttpResult httpResult = httpRetriever.httpGet(url, globalHeaders);
                     contentString = new String(httpResult.getContent());
                 }
-            } catch (IOException e) {
-                LOGGER.error(url + ", " + e.getMessage());
             } catch (Exception e) {
                 LOGGER.error(url + ", " + e.getMessage());
             }
@@ -376,7 +381,7 @@ public class DocumentRetriever {
      * included.
      */
     public Set<String> getTexts(Collection<String> urls) {
-        final Set<String> result = new HashSet<String>();
+        final Set<String> result = new HashSet<>();
         getTexts(urls, new Consumer<String>() {
             @Override
             public void process(String text) {
@@ -427,13 +432,7 @@ public class DocumentRetriever {
 
                 callRetrieverCallback(document);
 
-            } catch (FileNotFoundException e) {
-                LOGGER.error(url + ", " + e.getMessage());
-            } catch (DOMException e) {
-                LOGGER.error(url + ", " + e.getMessage());
-            } catch (ParserException e) {
-                LOGGER.error(url + ", " + e.getMessage());
-            } catch (HttpException e) {
+            } catch (FileNotFoundException | DOMException | ParserException | HttpException e) {
                 LOGGER.error(url + ", " + e.getMessage());
             } finally {
                 FileHelper.close(inputStream);
@@ -445,7 +444,7 @@ public class DocumentRetriever {
 
     private static boolean isFile(String url) {
         boolean isFile = false;
-        if (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) {
+        if (!url.contains("http://") && !url.contains("https://")) {
             isFile = true;
         }
         return isFile;
@@ -461,7 +460,7 @@ public class DocumentRetriever {
      * @throws ParserException if parsing failed.
      */
     private Document parse(InputStream inputStream, boolean xml) throws ParserException {
-        Document document = null;
+        Document document;
         DocumentParser parser;
 
         if (xml) {
@@ -525,7 +524,7 @@ public class DocumentRetriever {
     }
 
     private void initializeAgents() {
-        userAgents = new ArrayList<String>();
+        userAgents = new ArrayList<>();
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0");
         userAgents
                 .add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1 Safari/534.50");
@@ -614,7 +613,7 @@ public class DocumentRetriever {
         retriever.addRetrieverCallback(crawlerCallback);
 
         // give the retriever a list of URLs to download
-        Set<String> urls = new HashSet<String>();
+        Set<String> urls = new HashSet<>();
         urls.add("http://www.cinefreaks.com");
         urls.add("http://www.imdb.com");
 
