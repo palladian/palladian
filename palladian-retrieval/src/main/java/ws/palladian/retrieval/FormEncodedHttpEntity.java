@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.functional.Factory;
@@ -23,7 +22,7 @@ public final class FormEncodedHttpEntity implements HttpEntity {
 
         @Override
         public FormEncodedHttpEntity create() {
-            return new FormEncodedHttpEntity(createContent(data));
+            return new FormEncodedHttpEntity(UrlHelper.createParameterString(data));
         }
 
     }
@@ -58,22 +57,6 @@ public final class FormEncodedHttpEntity implements HttpEntity {
         builder.append("FormEncodedHttpEntity [content=");
         builder.append(content);
         builder.append("]");
-        return builder.toString();
-    }
-
-    static String createContent(Map<String, String> data) {
-        StringBuilder builder = new StringBuilder();
-        boolean first = true;
-        for (Entry<String, String> pair : data.entrySet()) {
-            if (first) {
-                first = false;
-            } else {
-                builder.append('&');
-            }
-            builder.append(UrlHelper.encodeParameter(pair.getKey()));
-            builder.append('=');
-            builder.append(UrlHelper.encodeParameter(pair.getValue()));
-        }
         return builder.toString();
     }
 
