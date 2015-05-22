@@ -28,6 +28,7 @@ public enum UnitType {
     WEIGHT("g"), //
     SPEED("km/h"), //
     TEMPERATURE(null), //
+    PRESSURE("pascal"), //
     POWER("watt"), //
     ENERGY("kilojoule"), //
     PIXEL("pixel"), //
@@ -303,6 +304,28 @@ public enum UnitType {
         unitList.add("hertz");
         unitList.add("hz");
         UnitType.FREQUENCY.units.add(Pair.of(unitList, 1.0));
+
+        // PRESSURE units are normalized to pascal
+        unitList = new ArrayList<>();
+        unitList.add("pascals");
+        unitList.add("pascal");
+        unitList.add("pa");
+        UnitType.PRESSURE.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("kilobar");
+        unitList.add("kilo bar");
+        unitList.add("kbar");
+        UnitType.PRESSURE.units.add(Pair.of(unitList,  100000000.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("bar");
+        UnitType.PRESSURE.units.add(Pair.of(unitList,  100000.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("millibar");
+        unitList.add("mbar");
+        UnitType.PRESSURE.units.add(Pair.of(unitList,  100.0));
 
         // LENGTH units are normalized to centimeter
         unitList = new ArrayList<>();
