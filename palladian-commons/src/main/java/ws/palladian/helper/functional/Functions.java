@@ -1,8 +1,11 @@
 package ws.palladian.helper.functional;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 public final class Functions {
 

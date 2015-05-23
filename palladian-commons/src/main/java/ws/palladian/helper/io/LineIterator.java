@@ -50,7 +50,7 @@ public final class LineIterator extends AbstractIterator<String> implements Clos
 
     @Override
     public void close() throws IOException {
-        FileHelper.close(reader);
+        reader.close();
         closed = true;
     }
 

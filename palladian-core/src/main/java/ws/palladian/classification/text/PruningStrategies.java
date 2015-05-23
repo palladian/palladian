@@ -16,12 +16,24 @@ import ws.palladian.helper.functional.Filter;
  * @author pk
  */
 public final class PruningStrategies {
+    
+    // XXX make static methods
+    
+    public static Filter<CategoryEntries> none() {
+        return new TermCountPruningStrategy(0);
+    }
+    
+    public static Filter<CategoryEntries> termCount(int minCount) {
+        return new TermCountPruningStrategy(minCount);
+    }
 
     /**
      * Prune terms, which occur less than the given count.
      * 
      * @author pk
+     * @deprecated Use {@link PruningStrategies#termCount(int)} instead.
      */
+    @Deprecated
     public static final class TermCountPruningStrategy implements Filter<CategoryEntries> {
 
         private final int minCount;

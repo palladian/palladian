@@ -1,5 +1,7 @@
 package ws.palladian.retrieval.feeds;
 
+import ws.palladian.helper.functional.Factory;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
@@ -16,6 +18,7 @@ final class ImmutableFeedReaderSettings implements FeedReaderSettings {
     private long maximumAvgProcessingTime;
     private long maximumFeedSize;
     private long executionWarnTime;
+    private Factory<? extends FeedParser> parserFactory;
 
     ImmutableFeedReaderSettings(Builder builder) {
         store = builder.store;
@@ -29,6 +32,7 @@ final class ImmutableFeedReaderSettings implements FeedReaderSettings {
         maximumAvgProcessingTime = builder.maximumAvgProcessingTime;
         maximumFeedSize = builder.maximumFeedSize;
         executionWarnTime = builder.executionWarnTime;
+        parserFactory = builder.parserFactory;
     }
 
     @Override
@@ -84,6 +88,11 @@ final class ImmutableFeedReaderSettings implements FeedReaderSettings {
     @Override
     public long getExecutionWarnTime() {
         return executionWarnTime;
+    }
+
+    @Override
+    public Factory<? extends FeedParser> getParserFactory() {
+        return parserFactory;
     }
 
 }

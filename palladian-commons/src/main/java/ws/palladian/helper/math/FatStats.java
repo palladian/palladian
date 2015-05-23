@@ -1,6 +1,10 @@
 package ws.palladian.helper.math;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
@@ -191,7 +195,7 @@ public class FatStats implements Stats {
         }
         List<Double> temp = getDoubleValues();
         Collections.sort(temp);
-        double n = (double)(p / 100.) * temp.size();
+        double n = p / 100. * temp.size();
         if (n == (int)n) {
             return 0.5 * temp.get((int)n - 1) + 0.5 * temp.get((int)n);
         } else {

@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.wiki;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,10 +27,8 @@ public final class InfoboxTypeMapper {
     private static final Map<String, String> TUD_LOC = loadMapping(2);
 
     private static final Map<String, String> loadMapping(final int colIdx) {
-        InputStream inputStream = null;
-        try {
+        try (InputStream inputStream = WikipediaLocationImporter.class.getResourceAsStream(MAPPING_FILE)) {
             final Map<String, String> result = new HashMap<>();
-            inputStream = WikipediaLocationImporter.class.getResourceAsStream(MAPPING_FILE);
             int numLines = FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override
                 public void performAction(String line, int lineNumber) {
@@ -48,8 +47,8 @@ public final class InfoboxTypeMapper {
                 throw new IllegalStateException("Could not read any mappings from '" + MAPPING_FILE + "'.");
             }
             return result;
-        } finally {
-            FileHelper.close(inputStream);
+        } catch (IOException e) {
+            throw new IllegalStateException();
         }
     }
 

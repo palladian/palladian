@@ -30,7 +30,6 @@ import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ProgressReporterInputStream;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.CharStack;
@@ -705,14 +704,10 @@ public final class MediaWikiUtil {
         Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
         Validate.isTrue(wikipediaDump.isFile(), "wikipediaDump does not exist or is not a file");
         Validate.notNull(action, "action must not be null");
-        InputStream inputStream = null;
-        try {
-            ProgressReporter reporter = new ProgressMonitor();
-            inputStream = new ProgressReporterInputStream(wikipediaDump, reporter);
-            inputStream = new MultiStreamBZip2InputStream(inputStream);
+        ProgressReporter reporter = new ProgressMonitor();
+        try (InputStream inputStream = new MultiStreamBZip2InputStream(new ProgressReporterInputStream(wikipediaDump,
+                reporter))) {
             parseDump(inputStream, action);
-        } finally {
-            FileHelper.close(inputStream);
         }
     }
 

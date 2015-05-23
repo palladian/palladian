@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.web;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleScraperSearcher.class);
 
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private final DocumentParser parser;
 
@@ -83,7 +82,7 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
                 }
 
                 Document document = parser.parse(httpResult);
-                TOTAL_REQUEST_COUNT.incrementAndGet();
+//                TOTAL_REQUEST_COUNT.incrementAndGet();
                 
                 List<WebContent> webResults = parseHtml(document);
                 result.addAll(webResults);
@@ -167,17 +166,17 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
         return SEARCHER_NAME;
     }
 
-    /**
-     * <p>
-     * Gets the number of HTTP requests sent to Scroogle.
-     * </p>
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
-    }
-    
+//    /**
+//     * <p>
+//     * Gets the number of HTTP requests sent to Scroogle.
+//     * </p>
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.get();
+//    }
+//    
     @Override
     public boolean isDeprecated() {
         return true;

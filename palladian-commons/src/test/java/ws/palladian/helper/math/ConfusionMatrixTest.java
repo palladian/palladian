@@ -1,7 +1,9 @@
 package ws.palladian.helper.math;
 
-import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.closeTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 

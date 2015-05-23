@@ -90,7 +90,8 @@ public class PalladianPosTagger extends AbstractPosTagger {
         BrownCorpusIterator(String trainingDirectory) {
             File[] trainingFilesArray = FileHelper.getFiles(trainingDirectory);
             trainingFiles = new ArrayIterator<File>(trainingFilesArray);
-            progressMonitor = new ProgressMonitor(trainingFilesArray.length, 1);
+            progressMonitor = new ProgressMonitor();
+            progressMonitor.startTask(null, trainingFilesArray.length);
         }
 
         @Override
@@ -99,7 +100,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
                 return currentInstances.next();
             }
             if (trainingFiles.hasNext()) {
-                progressMonitor.incrementAndPrintProgress();
+                progressMonitor.increment();
                 currentInstances = createInstances(trainingFiles.next());
                 return currentInstances.next();
             }

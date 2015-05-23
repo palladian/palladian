@@ -49,10 +49,15 @@ public final class FacebookSearcher extends AbstractSearcher<WebContent> {
     /** Key of the {@link Configuration} entry with the access token. */
     public static final String CONFIG_ACCESS_TOKEN = "api.facebook.accesstoken";
 
-    /** Determine which results to return; URLs to exernal resources or URLs to posts within Facebook. */
+    /**
+     * Determine which results to return; URLs to exernal resources or URLs to posts within Facebook.
+     *
+     * @deprecated Will be removed, only {@link #FACEBOOK_URLS} will be kept.
+     */
+    @Deprecated
     public static enum ResultType {
         /** Provide URLs as result, which link to the Facebook posts. To access them, authentication is necessary. */
-        FACEBOOK_URLS, 
+        FACEBOOK_URLS,
         /** Provide resolved URLs as result, that means, links to external content referenced in the Facebook posts. */
         RESOLVED_URLS
     }
@@ -74,7 +79,7 @@ public final class FacebookSearcher extends AbstractSearcher<WebContent> {
     public FacebookSearcher(String accessToken) {
         this(accessToken, ResultType.FACEBOOK_URLS);
     }
-    
+
     /**
      * <p>
      * Create a new {@link FacebookSearcher}.
@@ -94,7 +99,10 @@ public final class FacebookSearcher extends AbstractSearcher<WebContent> {
      * 
      * @param accessToken The (user scoped) access token for Facebook, not <code>null</code>.
      * @param resultType The type of the results to deliver.
+     * @deprecated Use {@link #FacebookSearcher(String)} instead, {@link ResultType} will always be
+     *             {@link ResultType#FACEBOOK_URLS} in the future.
      */
+    @Deprecated
     public FacebookSearcher(String accessToken, ResultType resultType) {
         Validate.notEmpty(accessToken, "accessToken must not be empty");
         Validate.notNull(resultType, "resultType must not be null");

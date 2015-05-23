@@ -7,7 +7,7 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
+import ws.palladian.retrieval.search.AbstractWebKnoxSearcher;
 
 /**
  * <p>
@@ -19,17 +19,17 @@ import ws.palladian.retrieval.search.BaseWebKnoxSearcher;
  * @see http://webknox.com/api#!/index/search_GET
  * @author David Urbansky
  */
-public final class WebKnoxSearcher extends BaseWebKnoxSearcher {
+public final class WebKnoxSearcher extends AbstractWebKnoxSearcher {
 
     /**
-     * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(String)
+     * @see AbstractWebKnoxSearcher#BaseWebKnoxSearcher(String)
      */
     public WebKnoxSearcher(String apiKey) {
         super(apiKey);
     }
 
     /**
-     * @see BaseWebKnoxSearcher#BaseWebKnoxSearcher(Configuration)
+     * @see AbstractWebKnoxSearcher#BaseWebKnoxSearcher(Configuration)
      */
     public WebKnoxSearcher(Configuration configuration) {
         super(configuration);

@@ -1,10 +1,8 @@
 package ws.palladian.retrieval.search.events;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +16,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
@@ -32,7 +31,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * <p>
  * Search for events on <a href="http://www.eventful.com/">eventful</a>.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see <a href="http://api.eventful.com/docs/events/search">eventful event search API</a>
  */
@@ -48,44 +47,44 @@ public class EventfulSearcher extends EventSearcher {
 
     private final String apiKey;
 
-    private Map<EventType, Set<String>> eventTypeMapping;
+    private static final Map<EventType, Set<String>> EVENT_TYPE_MAPPING = createMapping();
 
-    /**
-     * <p>
-     * Creates a new eventful searcher.
-     * </p>
-     * 
-     * @param apiKey The API key for accessing eventful, not <code>null</code> or empty.
-     */
-    public EventfulSearcher(String apiKey) {
-        Validate.notEmpty(apiKey, "apiKey must not be empty");
-        this.apiKey = apiKey;
-        setup();
+    private static final Map<EventType, Set<String>> createMapping() {
+        Map<EventType, Set<String>> map = new HashMap<>();
+        map.put(EventType.CONCERT, CollectionHelper.newHashSet("music"));
+        map.put(EventType.COMEDY, CollectionHelper.newHashSet("movies_film", "performing_arts"));
+        map.put(EventType.SPORT, CollectionHelper.newHashSet("sports"));
+        map.put(EventType.THEATRE, CollectionHelper.newHashSet("performing_arts"));
+        map.put(EventType.MOVIE, CollectionHelper.newHashSet("movies_film"));
+        map.put(EventType.EXHIBITION, CollectionHelper.newHashSet("art"));
+        map.put(EventType.FESTIVAL, CollectionHelper.newHashSet("festivals_parades", "food"));
+        map.put(EventType.CONFERENCE, CollectionHelper.newHashSet("conference"));
+        return map;
     }
 
     /**
      * <p>
      * Creates a new eventful searcher.
      * </p>
-     * 
+     *
+     * @param apiKey The API key for accessing eventful, not <code>null</code> or empty.
+     */
+    public EventfulSearcher(String apiKey) {
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
+        this.apiKey = apiKey;
+    }
+
+    /**
+     * <p>
+     * Creates a new eventful searcher.
+     * </p>
+     *
      * @param configuration The configuration which must provide an API key for accessing eventful, which must be
      *            provided
      *            as string via key {@value EventfulSearcher#CONFIG_API_KEY} in the configuration.
      */
     public EventfulSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
-    }
-
-    private void setup() {
-        eventTypeMapping = new HashMap<>();
-        eventTypeMapping.put(EventType.CONCERT, new HashSet<String>(Arrays.asList("music")));
-        eventTypeMapping.put(EventType.COMEDY, new HashSet<String>(Arrays.asList("movies_film", "performing_arts")));
-        eventTypeMapping.put(EventType.SPORT, new HashSet<String>(Arrays.asList("sports")));
-        eventTypeMapping.put(EventType.THEATRE, new HashSet<String>(Arrays.asList("performing_arts")));
-        eventTypeMapping.put(EventType.MOVIE, new HashSet<String>(Arrays.asList("movies_film")));
-        eventTypeMapping.put(EventType.EXHIBITION, new HashSet<String>(Arrays.asList("art")));
-        eventTypeMapping.put(EventType.FESTIVAL, new HashSet<String>(Arrays.asList("festivals_parades", "food")));
-        eventTypeMapping.put(EventType.CONFERENCE, new HashSet<String>(Arrays.asList("conference")));
     }
 
     @Override
@@ -204,7 +203,7 @@ public class EventfulSearcher extends EventSearcher {
             }
         }
         if (eventType != null) {
-            Set<String> categoryIds = eventTypeMapping.get(eventType);
+            Set<String> categoryIds = EVENT_TYPE_MAPPING.get(eventType);
             if (categoryIds != null) {
                 url += "&category=" + StringUtils.join(categoryIds, ",");
             }

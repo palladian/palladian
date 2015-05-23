@@ -34,6 +34,12 @@ public abstract class SingleQueryLocationSource implements LocationSource {
     }
 
     @Override
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
+            GeoCoordinate coordinate, double distance) {
+        throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
+    }
+
+    @Override
     public final List<Location> getLocations(List<Integer> locationIds) {
         List<Location> locations = new ArrayList<>();
         for (Integer locationId : locationIds) {
