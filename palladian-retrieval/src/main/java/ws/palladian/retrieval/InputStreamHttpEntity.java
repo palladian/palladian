@@ -4,8 +4,6 @@ import java.io.InputStream;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.retrieval.HttpEntity;
-
 public final class InputStreamHttpEntity implements HttpEntity {
 
     private final InputStream inputStream;

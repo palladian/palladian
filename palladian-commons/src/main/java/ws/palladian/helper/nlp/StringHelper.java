@@ -1,23 +1,32 @@
 package ws.palladian.helper.nlp;
 
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;
-
-import java.security.MessageDigest;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * <p>

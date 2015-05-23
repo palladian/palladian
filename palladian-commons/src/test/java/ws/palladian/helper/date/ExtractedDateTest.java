@@ -3,7 +3,6 @@ package ws.palladian.helper.date;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
