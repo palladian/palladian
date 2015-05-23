@@ -35,7 +35,17 @@ public class EventlySearcher extends EventSearcher {
 
     private final String apiKey;
 
-    private Map<EventType, Integer> eventTypeMapping;
+    private static final Map<EventType, Integer> EVENT_TYPE_MAPPING = createMapping();
+
+    private static final Map<EventType, Integer> createMapping() {
+        Map<EventType, Integer> mapping = new HashMap<>();
+        mapping.put(EventType.CONCERT, 1);
+        mapping.put(EventType.COMEDY, 2);
+        mapping.put(EventType.THEATRE, 4);
+        mapping.put(EventType.EXHIBITION, 5);
+        mapping.put(EventType.FESTIVAL, 7);
+        return mapping;
+    }
 
     /**
      * <p>
@@ -47,7 +57,6 @@ public class EventlySearcher extends EventSearcher {
     public EventlySearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
-        setup();
     }
 
     /**
@@ -61,16 +70,6 @@ public class EventlySearcher extends EventSearcher {
      */
     public EventlySearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
-        setup();
-    }
-
-    private void setup() {
-        eventTypeMapping = new HashMap<>();
-        eventTypeMapping.put(EventType.CONCERT, 1);
-        eventTypeMapping.put(EventType.COMEDY, 2);
-        eventTypeMapping.put(EventType.THEATRE, 4);
-        eventTypeMapping.put(EventType.EXHIBITION, 5);
-        eventTypeMapping.put(EventType.FESTIVAL, 7);
     }
 
     @Override
@@ -128,7 +127,7 @@ public class EventlySearcher extends EventSearcher {
 
         String url = "http://api.event.ly/v3/";
 
-        Integer genreId = eventTypeMapping.get(eventType);
+        Integer genreId = EVENT_TYPE_MAPPING.get(eventType);
         if (genreId != null) {
             url += "genres/" + genreId + "/";
         }

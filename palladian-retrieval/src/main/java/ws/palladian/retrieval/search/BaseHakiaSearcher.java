@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -46,7 +45,7 @@ public abstract class BaseHakiaSearcher extends AbstractSearcher<WebContent> {
 
     private static final String DATE_PATTERN = "MM-dd-yyyy HH:mm:ss";
 
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private final String apiKey;
 
@@ -93,7 +92,7 @@ public abstract class BaseHakiaSearcher extends AbstractSearcher<WebContent> {
                     + "(request url: \"" + requestUrl + "\"): " + e.getMessage(), e);
         }
 
-        TOTAL_REQUEST_COUNT.incrementAndGet();
+//        TOTAL_REQUEST_COUNT.incrementAndGet();
         Document resultDocument;
         try {
             resultDocument = xmlParser.parse(httpResult);
@@ -193,14 +192,14 @@ public abstract class BaseHakiaSearcher extends AbstractSearcher<WebContent> {
 
     protected abstract String getEndpoint();
 
-    /**
-     * Gets the number of HTTP requests sent to Hakia.
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
-    }
+//    /**
+//     * Gets the number of HTTP requests sent to Hakia.
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.get();
+//    }
     
     @Override
     public boolean isDeprecated() {

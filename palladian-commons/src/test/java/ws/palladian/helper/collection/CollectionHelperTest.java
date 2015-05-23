@@ -1,7 +1,22 @@
 package ws.palladian.helper.collection;
 
-import java.util.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
@@ -10,8 +25,6 @@ import org.junit.Test;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Philipp Katz

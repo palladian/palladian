@@ -29,7 +29,6 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
-import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
@@ -126,7 +125,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                     feed.setLastETag(httpResult.getHeaderString("ETag"));
                     feed.setHttpLastModified(HttpHelper.getDateFromHeader(httpResult, "Last-Modified", false));
 
-                    FeedParser feedParser = new RomeFeedParser();
+                    FeedParser feedParser = settings.getParserFactory().create();
                     Feed downloadedFeed = null;
                     try {
                         // parse the feed and get all its entries, do that here since that takes some time and this is a

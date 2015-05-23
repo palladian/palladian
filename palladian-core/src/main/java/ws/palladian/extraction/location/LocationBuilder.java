@@ -28,6 +28,18 @@ public final class LocationBuilder implements Factory<Location> {
     private Long population;
     private List<Integer> ancestorIds;
     private GeoCoordinate coordinate;
+    
+//    public LocationBuilder setLocation(Location location) {
+//        Validate.notNull(location, "location must not be null");
+//        setId(location.getId());
+//        setPrimaryName(location.getPrimaryName());
+//        setAlternativeNames(location.getAlternativeNames());
+//        setType(location.getType());
+//        setPopulation(location.getPopulation());
+//        setAncestorIds(location.getAncestorIds());
+//        setCoordinate(location.getCoordinate());
+//        return this;
+//    }
 
     public LocationBuilder setId(int id) {
         this.id = id;
@@ -40,7 +52,7 @@ public final class LocationBuilder implements Factory<Location> {
     }
 
     public LocationBuilder setAlternativeNames(Collection<? extends AlternativeName> alternativeNames) {
-        this.alternativeNames = alternativeNames != null ? new HashSet<AlternativeName>(alternativeNames) : null;
+        this.alternativeNames = alternativeNames != null ? new HashSet<>(alternativeNames) : null;
         return this;
     }
 
@@ -82,6 +94,14 @@ public final class LocationBuilder implements Factory<Location> {
             }
 
         }
+        return this;
+    }
+    
+    public LocationBuilder addAncestorId(int ancestorId) {
+        if (ancestorIds == null) {
+            ancestorIds = new ArrayList<>();
+        }
+        ancestorIds.add(ancestorId);
         return this;
     }
 

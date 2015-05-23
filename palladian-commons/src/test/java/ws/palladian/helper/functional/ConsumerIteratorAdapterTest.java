@@ -7,9 +7,6 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
-import ws.palladian.helper.functional.ConsumerIteratorAdapter;
-import ws.palladian.helper.functional.Consumer;
-
 public class ConsumerIteratorAdapterTest {
 
     @Test

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -89,7 +88,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
 
     private static final String REQUEST_DATE_PATTERN = "yyyy-MM-dd";
 
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /**
      * Identifier for the raw JSON representation of a Tweet, which can be retrieved via
@@ -174,7 +173,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
 
     private HttpResult performHttpRequest(HttpRequest request) throws HttpException, SearcherException {
         HttpResult httpResult = retriever.execute(request);
-        TOTAL_REQUEST_COUNT.incrementAndGet();
+//        TOTAL_REQUEST_COUNT.incrementAndGet();
 
         int statusCode = httpResult.getStatusCode();
         String resetHeader = httpResult.getHeaderString("X-Rate-Limit-Reset");
@@ -306,7 +305,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
                     + getName() + ": " + e.getMessage() + " (JSON: '" + responseString + "')", e);
         }
 
-        LOGGER.debug("twitter requests: {}", TOTAL_REQUEST_COUNT.get());
+//        LOGGER.debug("twitter requests: {}", TOTAL_REQUEST_COUNT.get());
         return new SearchResults<WebContent>(webResults);
     }
 
@@ -343,13 +342,13 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         return result;
     }
 
-    /**
-     * Gets the number of HTTP requests sent to Twitter.
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
-    }
+//    /**
+//     * Gets the number of HTTP requests sent to Twitter.
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.get();
+//    }
 
 }

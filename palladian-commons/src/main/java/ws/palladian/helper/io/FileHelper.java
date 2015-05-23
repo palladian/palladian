@@ -1703,7 +1703,9 @@ public final class FileHelper {
      * </p>
      * 
      * @param closeables All objects which are closeable.
+     * @deprecated With Java 7, make use of the <i>try-with-resources</i> construct.
      */
+    @Deprecated
     public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {

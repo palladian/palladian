@@ -7,11 +7,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
-import ws.palladian.retrieval.search.web.BingSearcher;
-import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
-import ws.palladian.retrieval.search.web.GoogleSearcher;
-import ws.palladian.retrieval.search.web.HakiaSearcher;
 
 /**
  * <p>
@@ -87,58 +82,58 @@ public final class SearcherFactory {
         return searcher;
     }
 
-    /**
-     * <p>
-     * Create and configure a new {@link WebSearcher} of the specified type. If the Searcher requires a configuration
-     * (i.e., the Searcher implementation provides a constructor with a {@link Configuration} argument), the
-     * configuration of this factory is injected, else wise (i.e., the Searcher implementation provides a default,
-     * zero-argument constructor), it is simply instantiated without configuration.
-     * </p>
-     * 
-     * @param searcherTypeName The fully qualified class name of the Searcher to instantiate, not <code>null</code> or
-     *            empty.
-     * @param resultType The type of the result, the Searcher returns.
-     * @param config The {@link Configuration} to inject to the {@link WebSearcher}, not <code>null</code>.
-     * @return A configured {@link WebSearcher}.
-     * @throws IllegalStateException In case no searcher with the specified name could be found, or the instantiation
-     *             failed.
-     */
-    private static <S extends Searcher<R>, R extends WebContent> S createSearcher(String searcherTypeName,
-            Class<R> resultType, Configuration config) {
-        Validate.notEmpty(searcherTypeName, "searcherTypeName must not be empty");
-        Validate.notNull(config, "config must not be null");
-
-        try {
-            @SuppressWarnings("unchecked")
-            Class<S> searcherClass = (Class<S>)Class.forName(searcherTypeName);
-            return createSearcher(searcherClass, config);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Could not instantiate " + searcherTypeName, e);
-        }
-    }
-
-    /**
-     * <p>
-     * Create and configure a new {@link WebSearcher} of the specified type. If the Searcher requires a configuration
-     * (i.e., the Searcher implementation provides a constructor with a {@link Configuration} argument), the
-     * configuration of this factory is injected, else wise (i.e., the Searcher implementation provides a default,
-     * zero-argument constructor), it is simply instantiated without configuration.
-     * </p>
-     * 
-     * @param searcherTypeName The fully qualified class name of the Searcher to instantiate, not <code>null</code> or
-     *            empty.
-     * @param config The {@link Configuration} to inject to the {@link WebSearcher}, not <code>null</code>.
-     * @return A configured {@link WebSearcher}.
-     * @throws IllegalStateException In case no searcher with the specified name could be found, or the instantiation
-     *             failed.
-     */
-    public static Searcher<WebContent> createWebSearcher(String searcherTypeName, Configuration config) {
-        return SearcherFactory.<Searcher<WebContent>, WebContent> createSearcher(searcherTypeName, WebContent.class,
-                config);
-    }
+//    /**
+//     * <p>
+//     * Create and configure a new {@link WebSearcher} of the specified type. If the Searcher requires a configuration
+//     * (i.e., the Searcher implementation provides a constructor with a {@link Configuration} argument), the
+//     * configuration of this factory is injected, else wise (i.e., the Searcher implementation provides a default,
+//     * zero-argument constructor), it is simply instantiated without configuration.
+//     * </p>
+//     *
+//     * @param searcherTypeName The fully qualified class name of the Searcher to instantiate, not <code>null</code> or
+//     *            empty.
+//     * @param resultType The type of the result, the Searcher returns.
+//     * @param config The {@link Configuration} to inject to the {@link WebSearcher}, not <code>null</code>.
+//     * @return A configured {@link WebSearcher}.
+//     * @throws IllegalStateException In case no searcher with the specified name could be found, or the instantiation
+//     *             failed.
+//     */
+//    private static <S extends Searcher<R>, R extends WebContent> S createSearcher(String searcherTypeName,
+//            Class<R> resultType, Configuration config) {
+//        Validate.notEmpty(searcherTypeName, "searcherTypeName must not be empty");
+//        Validate.notNull(config, "config must not be null");
+//
+//        try {
+//            @SuppressWarnings("unchecked")
+//            Class<S> searcherClass = (Class<S>)Class.forName(searcherTypeName);
+//            return createSearcher(searcherClass, config);
+//        } catch (ClassNotFoundException e) {
+//            throw new IllegalStateException("Could not instantiate " + searcherTypeName, e);
+//        }
+//    }
 
 //    /**
-//     * 
+//     * <p>
+//     * Create and configure a new {@link WebSearcher} of the specified type. If the Searcher requires a configuration
+//     * (i.e., the Searcher implementation provides a constructor with a {@link Configuration} argument), the
+//     * configuration of this factory is injected, else wise (i.e., the Searcher implementation provides a default,
+//     * zero-argument constructor), it is simply instantiated without configuration.
+//     * </p>
+//     *
+//     * @param searcherTypeName The fully qualified class name of the Searcher to instantiate, not <code>null</code> or
+//     *            empty.
+//     * @param config The {@link Configuration} to inject to the {@link WebSearcher}, not <code>null</code>.
+//     * @return A configured {@link WebSearcher}.
+//     * @throws IllegalStateException In case no searcher with the specified name could be found, or the instantiation
+//     *             failed.
+//     */
+//    public static Searcher<WebContent> createWebSearcher(String searcherTypeName, Configuration config) {
+//        return SearcherFactory.<Searcher<WebContent>, WebContent> createSearcher(searcherTypeName, WebContent.class,
+//                config);
+//    }
+
+//    /**
+//     *
 //     * @param searcherTypeName
 //     * @param config
 //     * @return
@@ -148,24 +143,25 @@ public final class SearcherFactory {
 //                WebImageResult.class, config);
 //    }
 
-    /**
-     * <p>
-     * Get the number of requests for each search engine.
-     * </p>
-     * 
-     * @return A string with information about the number of requests by search engine.
-     */
-    public static String getLogs() {
-        StringBuilder logs = new StringBuilder();
-
-        logs.append("\n");
-        logs.append("Number of Bing requests: ").append(BingSearcher.getRequestCount()).append("\n");
-        logs.append("Number of Google requests: ").append(GoogleSearcher.getRequestCount()).append("\n");
-        logs.append("Number of Scroogle requests: ").append(GoogleScraperSearcher.getRequestCount()).append("\n");
-        logs.append("Number of Hakia requests: ").append(HakiaSearcher.getRequestCount()).append("\n");
-        logs.append("Number of Twitter requests: ").append(TwitterSearcher.getRequestCount()).append("\n");
-
-        return logs.toString();
-    }
+//    /**
+//     * <p>
+//     * Get the number of requests for each search engine.
+//     * </p>
+//     *
+//     * @return A string with information about the number of requests by search engine.
+//     */
+//    public static String getLogs() {
+//        StringBuilder logs = new StringBuilder();
+//
+//        logs.append("\n");
+//        logs.append("Number of Bing requests: ").append(BingSearcher.getRequestCount()).append("\n");
+//        logs.append("Number of Google requests: ").append(GoogleSearcher.getRequestCount()).append("\n");
+//        logs.append("Number of Scroogle requests: ").append(GoogleScraperSearcher.getRequestCount()).append("\n");
+//        logs.append("Number of Hakia requests: ").append(HakiaSearcher.getRequestCount()).append("\n");
+//        logs.append("Number of Blekko requests: ").append(BlekkoSearcher.getRequestCount()).append("\n");
+//        logs.append("Number of Twitter requests: ").append(TwitterSearcher.getRequestCount()).append("\n");
+//
+//        return logs.toString();
+//    }
 
 }

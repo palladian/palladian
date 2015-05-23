@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -44,7 +45,7 @@ import ws.palladian.persistence.RowConverters;
  * @author Philipp Katz
  * @author David Urbansky
  */
-public class LocationDatabase extends DatabaseManager implements LocationStore {
+public class LocationDatabase extends DatabaseManager implements LocationSource, LocationStore {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
@@ -53,12 +54,9 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     private static final int EXPECTED_GROUP_CONCAT_LENGTH = 1024 * 1024;
 
     // ////////////////// location prepared statements ////////////////////
-    private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?";
+    private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?, ancestorIds = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT IGNORE INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
     private static final String GET_LOCATIONS_BY_ID = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN(%s) GROUP BY id;";
-    private static final String ADD_HIERARCHY = "INSERT INTO locations SET id = ?, ancestorIds = ?, type = '', name = '' ON DUPLICATE KEY UPDATE ancestorIds = ?";
-    private static final String GET_ANCESTOR_IDS = "SELECT ancestorIds FROM locations WHERE id = ?";
-    private static final String UPDATE_HIERARCHY = "UPDATE locations SET ancestorIds = CONCAT(?, ancestorIds) WHERE ancestorIds LIKE ?";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
     private static final String GET_LOCATIONS_UNIVERSAL = "{call search_locations(?,?,?,?,?)}";
     private static final String GET_ALL_LOCATIONS = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
@@ -177,6 +175,15 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public void save(Location location) {
+
+        // create hierarchy string
+        String hierarchyString = null;
+        if (!location.getAncestorIds().isEmpty()) {
+            List<Integer> reverseAncestorIds = new ArrayList<>(location.getAncestorIds());
+            Collections.reverse(reverseAncestorIds);
+            hierarchyString = "/" + StringUtils.join(reverseAncestorIds, '/') + "/";
+        }
+
         List<Object> args = new ArrayList<>();
         GeoCoordinate coordinate = location.getCoordinate();
         args.add(location.getId());
@@ -185,6 +192,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
         args.add(coordinate != null ? coordinate.getLongitude() : null);
         args.add(coordinate != null ? coordinate.getLatitude() : null);
         args.add(location.getPopulation());
+        args.add(hierarchyString);
         int generatedLocationId = runInsertReturnId(ADD_LOCATION, args);
 
         if (generatedLocationId < 1) {
@@ -196,15 +204,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
         if (location.getAlternativeNames() != null) {
             addAlternativeNames(generatedLocationId, location.getAlternativeNames());
         }
-    }
 
-    @Override
-    public void addHierarchy(int childId, int parentId) {
-        String parentAncestorPath = runSingleQuery(RowConverters.STRING, GET_ANCESTOR_IDS, parentId);
-        String ancestorPath = (parentAncestorPath != null ? parentAncestorPath : "/") + parentId;
-        String addAncestorPath = ancestorPath + "/";
-        runUpdate(ADD_HIERARCHY, childId, addAncestorPath, addAncestorPath);
-        runUpdate(UPDATE_HIERARCHY, ancestorPath, "/" + childId + "/%");
     }
 
     /**
@@ -256,6 +256,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
         return new ArrayList<Location>(CollectionHelper.getFirst(result));
     }
 
+    @Override
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
             GeoCoordinate coordinate, double distance) {
         return getLocationsInternal(locationNames, languages, coordinate, distance);
@@ -276,6 +277,20 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     @Override
     public int size() {
         return runSingleQuery(RowConverters.INTEGER, GET_LOCATION_COUNT);
+    }
+
+    @Override
+    public void startImport() {
+        runUpdate("ALTER TABLE `locations` DISABLE KEYS");
+        runUpdate("ALTER TABLE `location_alternative_names` DISABLE KEYS");
+        LOGGER.info("Disabled keys");
+    }
+
+    @Override
+    public void finishImport() {
+        runUpdate("ALTER TABLE `locations` ENABLE KEYS");
+        runUpdate("ALTER TABLE `location_alternative_names` ENABLE KEYS");
+        LOGGER.info("Enabled keys");
     }
 
 }
