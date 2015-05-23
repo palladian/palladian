@@ -6,13 +6,13 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.core.Annotation;
 
 public class DateAndTimeTaggerTest {
 
     @Test
     public void testDateAndTimeTagging() {
-        DateAndTimeTagger tagger = new DateAndTimeTagger();
+        DateAndTimeTagger tagger = DateAndTimeTagger.DEFAULT;
         List<Annotation> annotations = tagger
                 .getAnnotations("The mayan calendar ends on 21.12.2012, nobody knows what happens after end of 12/2012.");
         assertEquals(2, annotations.size());

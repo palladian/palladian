@@ -1,6 +1,8 @@
 package ws.palladian.extraction.location;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -42,7 +46,7 @@ public class YahooLocationExtractor extends LocationExtractor {
 
     // http://developer.yahoo.com/geo/geoplanet/guide/concepts.html#placetypes
     static {
-        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        Map<String, LocationType> temp = new HashMap<>();
         temp.put("Continent", LocationType.CONTINENT);
         temp.put("Country", LocationType.COUNTRY);
         temp.put("Admin", LocationType.UNIT);
@@ -112,10 +116,10 @@ public class YahooLocationExtractor extends LocationExtractor {
 
         // for sorting the annotations, as the web service does not return them in order
         SortedMap<Integer, JsonObject> tempReferences = new TreeMap<Integer, JsonObject>();
-        Map<Integer, JsonObject> woeidDataMap = CollectionHelper.newHashMap();
+        Map<Integer, JsonObject> woeidDataMap = new HashMap<>();
 
         // first collect all matches; they are either in an Object or in an Array
-        List<JsonObject> tempMatches = CollectionHelper.newArrayList();
+        List<JsonObject> tempMatches = new ArrayList<>();
         if (jsonObject.get("match") instanceof JsonArray) {
             JsonArray jsonMatches = jsonObject.getJsonArray("match");
             for (int i = 0; i < jsonMatches.size(); i++) {
@@ -143,7 +147,7 @@ public class YahooLocationExtractor extends LocationExtractor {
             }
         }
 
-        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<LocationAnnotation> result = new ArrayList<>();
         for (JsonObject referenceJson : tempReferences.values()) {
 
             int woeId = referenceJson.getInt("woeIds"); // XXX there might acutally be multiple IDs

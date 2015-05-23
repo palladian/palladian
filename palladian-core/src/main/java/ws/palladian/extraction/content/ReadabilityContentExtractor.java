@@ -613,7 +613,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         Element articleContent = result.createElement("body");
         html.appendChild(articleContent);
 
-        float siblingScoreThreshold = Math.max(10, Float.valueOf(getReadability(topCandidate)) * (float) 0.2);
+        float siblingScoreThreshold = Math.max(10, getReadability(topCandidate) * 0.2f);
         NodeList siblingNodes = topCandidate.getParentNode().getChildNodes();
         for (int s = 0; s < siblingNodes.getLength(); s++) {
             if (!(siblingNodes.item(s).getNodeType() == Node.ELEMENT_NODE)) {
@@ -961,7 +961,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         if (!hasReadability(element)) {
             return 0;
         }
-        return Float.valueOf(element.getAttribute(READABILITY_ATTR));
+        return Float.parseFloat(element.getAttribute(READABILITY_ATTR));
     }
 
     /**

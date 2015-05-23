@@ -3,8 +3,10 @@ package ws.palladian.retrieval.search.videos;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +14,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -50,6 +51,8 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     /** Pattern for parsing the returned date strings. */
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    /** The time zone used within the dates. Vimeo uses eastern time, see https://vimeo.com/forums/topic:45607 */
+    private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("US/Eastern");
 
     /** The identifier for the {@link Configuration} key with the OAuth consumer key. */
     public static final String CONFIG_CONSUMER_KEY = "api.vimeo.consumerKey";
@@ -128,7 +131,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
             throw new SearcherException("The query must specify a search string (other parameters are not supported).");
         }
 
-        List<WebVideo> webResults = CollectionHelper.newArrayList();
+        List<WebVideo> webResults = new ArrayList<>();
         int requestedResults = query.getResultCount();
         Long availableResults = null;
         for (int page = 0; page < Math.ceil((double)requestedResults / 50); page++) {
@@ -161,9 +164,9 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     private static void checkRateLimits(HttpResult httpResult) throws RateLimitedException {
         // http://developer.vimeo.com/guidelines/rate-limiting
-        int rateLimit = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Limit"));
-        int rateLimitRemaining = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Remaining"));
-        int rateLimitReset = Integer.valueOf(httpResult.getHeaderString("X-RateLimit-Reset"));
+        int rateLimit = Integer.parseInt(httpResult.getHeaderString("X-RateLimit-Limit"));
+        int rateLimitRemaining = Integer.parseInt(httpResult.getHeaderString("X-RateLimit-Remaining"));
+        int rateLimitReset = Integer.parseInt(httpResult.getHeaderString("X-RateLimit-Reset"));
         LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
         if (rateLimitRemaining == 0) {
             int timeUntilReset = rateLimitReset - (int)(System.currentTimeMillis() / 1000);
@@ -172,7 +175,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
     }
 
     public static List<WebVideo> parseVideoResult(JsonObject json) throws JsonException {
-        List<WebVideo> result = CollectionHelper.newArrayList();
+        List<WebVideo> result = new ArrayList<>();
         JsonArray jsonVideos = json.queryJsonArray("videos/video");
         for (int i = 0; i < jsonVideos.size(); i++) {
             JsonObject jsonVideo = jsonVideos.getJsonObject(i);
@@ -183,7 +186,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
             builder.setSummary(jsonVideo.getString("description"));
             builder.setPublished(parseDate(uploadDateString));
             builder.setUrl(String.format("https://vimeo.com/%s", id));
-            builder.setDuration(jsonVideo.getLong("duration"));
+            builder.setDuration(jsonVideo.getInt("duration"));
             if (jsonVideo.get("tags") != null) {
                 JsonArray tagArray = jsonVideo.queryJsonArray("/tags/tag");
                 for (int j = 0; j < tagArray.size(); j++) {
@@ -200,6 +203,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     private static Date parseDate(String dateString) {
         DateFormat dateParser = new SimpleDateFormat(DATE_PATTERN);
+        dateParser.setTimeZone(TIME_ZONE);
         try {
             return dateParser.parse(dateString);
         } catch (ParseException e) {

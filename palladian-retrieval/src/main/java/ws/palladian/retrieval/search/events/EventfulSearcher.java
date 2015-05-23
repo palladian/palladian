@@ -1,7 +1,9 @@
 package ws.palladian.retrieval.search.events;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
@@ -76,7 +77,7 @@ public class EventfulSearcher extends EventSearcher {
     }
 
     private void setup() {
-        eventTypeMapping = CollectionHelper.newHashMap();
+        eventTypeMapping = new HashMap<>();
         eventTypeMapping.put(EventType.CONCERT, new HashSet<String>(Arrays.asList("music")));
         eventTypeMapping.put(EventType.COMEDY, new HashSet<String>(Arrays.asList("movies_film", "performing_arts")));
         eventTypeMapping.put(EventType.SPORT, new HashSet<String>(Arrays.asList("sports")));
@@ -91,7 +92,7 @@ public class EventfulSearcher extends EventSearcher {
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType, int maxResults) throws SearcherException {
 
-        List<Event> events = CollectionHelper.newArrayList();
+        List<Event> events = new ArrayList<>();
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
         requestUrl += "&page_number=PAGE_NUMBER";
@@ -134,8 +135,8 @@ public class EventfulSearcher extends EventSearcher {
                     event.setVenueCity(getField(eventNode, "city_name"));
                     event.setVenueRegion(getField(eventNode, "region_name"));
                     event.setVenueCountry(getField(eventNode, "country_name"));
-                    event.setVenueLatitude(Double.valueOf(getField(eventNode, "latitude")));
-                    event.setVenueLongitude(Double.valueOf(getField(eventNode, "longitude")));
+                    event.setVenueLatitude(Double.parseDouble(getField(eventNode, "latitude")));
+                    event.setVenueLongitude(Double.parseDouble(getField(eventNode, "longitude")));
 
                     boolean addEvent = isWithinTimeFrame(startDate, endDate, event);
 

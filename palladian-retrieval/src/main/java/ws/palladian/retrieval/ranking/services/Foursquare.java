@@ -1,14 +1,11 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.Validate;
 
-import ws.palladian.helper.ConfigHolder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
@@ -26,7 +23,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * @see <a href="https://developer.foursquare.com">foursquare for Developers</a>
  */
-public final class Foursquare extends BaseRankingService implements RankingService {
+public final class Foursquare extends AbstractRankingService implements RankingService {
 
     /** {@link Configuration} key for the client id. */
     public static final String CONFIG_CLIENT_ID = "api.foursquare.clientId";
@@ -80,10 +77,10 @@ public final class Foursquare extends BaseRankingService implements RankingServi
 
     @Override
     public Ranking getRanking(String venueId) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
+        Ranking.Builder builder = new Ranking.Builder(this, venueId);
 
-        double checkins = 0.;
-        double likes = 0.;
+        int checkins = 0;
+        int likes = 0;
         String requestUrl = buildRequestUrl(venueId);
 
         try {
@@ -92,16 +89,16 @@ public final class Foursquare extends BaseRankingService implements RankingServi
             JsonObject json = new JsonObject(httpGet.getStringContent());
 
             JsonObject venue = json.queryJsonObject("response/venue");
-            checkins = venue.queryDouble("stats/checkinsCount");
-            likes = venue.queryDouble("likes/count");
+            checkins = venue.queryInt("stats/checkinsCount");
+            likes = venue.queryInt("likes/count");
 
         } catch (Exception e) {
             throw new RankingServiceException(e);
         }
 
-        results.put(FOURSQUARE_CHECKINS, (float)checkins);
-        results.put(FOURSQUARE_LIKES, (float)likes);
-        return new Ranking(this, venueId, results);
+        builder.add(FOURSQUARE_CHECKINS, checkins);
+        builder.add(FOURSQUARE_LIKES, likes);
+        return builder.create();
     }
 
     /**
@@ -125,16 +122,6 @@ public final class Foursquare extends BaseRankingService implements RankingServi
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public static void main(String[] a) throws RankingServiceException {
-        Foursquare gpl = new Foursquare(ConfigHolder.getInstance().getConfig());
-        Ranking ranking = null;
-
-        ranking = gpl.getRanking("4d5314d8169bcbff48131cf9");
-        System.out.println(ranking);
-        System.out.println(ranking.getValues().get(Foursquare.FOURSQUARE_CHECKINS) + " -> Foursquare checkins");
-        System.out.println(ranking.getValues().get(Foursquare.FOURSQUARE_LIKES) + " -> Foursquare likes");
     }
 
 }

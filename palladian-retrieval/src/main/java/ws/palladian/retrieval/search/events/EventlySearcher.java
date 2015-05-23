@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.search.events;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +52,7 @@ public class EventlySearcher extends EventSearcher {
 
     /**
      * <p>
-     * FIXME Creates a new evently searcher.
+     * Creates a new evently searcher.
      * </p>
      * 
      * @param configuration The configuration which must provide an API key for accessing evently, which must be
@@ -63,7 +65,7 @@ public class EventlySearcher extends EventSearcher {
     }
 
     private void setup() {
-        eventTypeMapping = CollectionHelper.newHashMap();
+        eventTypeMapping = new HashMap<>();
         eventTypeMapping.put(EventType.CONCERT, 1);
         eventTypeMapping.put(EventType.COMEDY, 2);
         eventTypeMapping.put(EventType.THEATRE, 4);
@@ -74,7 +76,7 @@ public class EventlySearcher extends EventSearcher {
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType, int maxResults) throws SearcherException {
-        List<Event> events = CollectionHelper.newArrayList();
+        List<Event> events = new ArrayList<>();
 
         String requestUrl = buildRequest(keywords, location, eventType);
 
@@ -102,8 +104,8 @@ public class EventlySearcher extends EventSearcher {
                 event.setVenueCity(venueEntry.getString("city"));
                 event.setVenueRegion(venueEntry.getString("area"));
                 event.setVenueCountry(venueEntry.getString("country"));
-                event.setVenueLatitude(Double.valueOf(venueEntry.getString("lat")));
-                event.setVenueLongitude(Double.valueOf(venueEntry.getString("lng")));
+                event.setVenueLatitude(venueEntry.getDouble("lat"));
+                event.setVenueLongitude(venueEntry.getDouble("lng"));
 
                 // XXX the API does not consider the city when searching events
                 if (event.getVenueCity().equalsIgnoreCase(location)) {

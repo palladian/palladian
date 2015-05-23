@@ -1,260 +1,185 @@
 package ws.palladian.extraction.pos;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
-import ws.palladian.classification.text.PreprocessingPipeline;
+import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.universal.UniversalClassifier;
 import ws.palladian.classification.universal.UniversalClassifier.ClassifierSetting;
 import ws.palladian.classification.universal.UniversalClassifierModel;
-import ws.palladian.helper.Cache;
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.BasicFeatureVector;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
  * Palladian version of a text-classification-based part-of-speech tagger.
  * </p>
  * 
- * XXX this is a super use case for an universal classifier using different types of features + neighbors
- * 
  * @author David Urbansky
  */
-public class PalladianPosTagger extends BasePosTagger {
+public class PalladianPosTagger extends AbstractPosTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianPosTagger.class);
 
     private static final String TAGGER_NAME = "Palladian POS-Tagger";
 
-    private UniversalClassifier tagger;
-    private UniversalClassifierModel model;
+    private final UniversalClassifier tagger = getTagger();
+
+    private final UniversalClassifierModel model;
 
     public PalladianPosTagger(String modelFilePath) {
-        model = (UniversalClassifierModel)Cache.getInstance().getDataObject(modelFilePath);
-        if (model == null) {
-            try {
-                model = FileHelper.deserialize(modelFilePath);
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
-            Cache.getInstance().putDataObject(modelFilePath, model);
+        try {
+            model = FileHelper.deserialize(modelFilePath);
+        } catch (IOException e) {
+            throw new IllegalStateException();
         }
-        tagger = getTagger();
     }
 
-    public PalladianPosTagger() {
-        tagger = getTagger();
+    public PalladianPosTagger(UniversalClassifierModel model) {
+        this.model = model;
     }
 
     @Override
-    public void tag(List<PositionAnnotation> annotations) {
-
-        String previousTag = "";
-        for (PositionAnnotation annotation : annotations) {
-
-            FeatureVector featureVector = extractFeatures(previousTag, annotation.getValue());
-
+    protected List<String> getTags(List<String> tokens) {
+        List<String> tags = new ArrayList<>();
+        for (String token : tokens) {
+            FeatureVector featureVector = extractFeatures(token);
             CategoryEntries categoryEntries = tagger.classify(featureVector, model);
-            String tag = categoryEntries.getMostLikelyCategory();
-            assignTag(annotation, Arrays.asList(new String[] {tag}));
-            previousTag = tag;
+            tags.add(categoryEntries.getMostLikelyCategory());
         }
+        return tags;
     }
 
-    private UniversalClassifier getTagger() {
-        FeatureSetting featureSetting = new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 1, 7);
-        return new UniversalClassifier(EnumSet.of(ClassifierSetting.TEXT, ClassifierSetting.NOMINAL), featureSetting);
+    private static UniversalClassifier getTagger() {
+        FeatureSetting featureSetting = FeatureSettingBuilder.chars(1, 7).create();
+        return new UniversalClassifier(featureSetting, ClassifierSetting.TEXT, ClassifierSetting.BAYES);
     }
 
-    public UniversalClassifierModel trainModel(String folderPath, String modelFilePath) throws IOException {
+    /**
+     * An iterator for the Brown corpus dataset. Converts the individual documents to single token instances.
+     * 
+     * @author pk
+     */
+    private static final class BrownCorpusIterator extends AbstractIterator<Instance> {
 
-        StopWatch stopWatch = new StopWatch();
-        LOGGER.info("start training the tagger");
+        final ProgressMonitor progressMonitor;
+        final Iterator<File> trainingFiles;
+        Iterator<Instance> currentInstances;
 
-        List<Instance> trainingInstances = CollectionHelper.newArrayList();
+        BrownCorpusIterator(String trainingDirectory) {
+            File[] trainingFilesArray = FileHelper.getFiles(trainingDirectory);
+            trainingFiles = new ArrayIterator<File>(trainingFilesArray);
+            progressMonitor = new ProgressMonitor(trainingFilesArray.length, 1);
+        }
 
-        int c = 1;
-        File[] trainingFiles = FileHelper.getFiles(folderPath);
-        for (File file : trainingFiles) {
+        @Override
+        protected Instance getNext() throws Finished {
+            if (currentInstances != null && currentInstances.hasNext()) {
+                return currentInstances.next();
+            }
+            if (trainingFiles.hasNext()) {
+                progressMonitor.incrementAndPrintProgress();
+                currentInstances = createInstances(trainingFiles.next());
+                return currentInstances.next();
+            }
+            throw FINISHED;
+        }
 
-            String content = FileHelper.tryReadFileToString(file);
-
+        private Iterator<Instance> createInstances(File inputFile) {
+            String content;
+            try {
+                content = FileHelper.readFileToString(inputFile);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
             String[] wordsAndTagPairs = content.split("\\s");
-
-            String previousTag = "";
-
+            List<Instance> trainingInstances = new ArrayList<>();
             for (String wordAndTagPair : wordsAndTagPairs) {
-
-                if (wordAndTagPair.isEmpty()) {
-                    continue;
-                }
-
                 String[] wordAndTag = wordAndTagPair.split("/");
                 String word = wordAndTag[0];
-
                 if (wordAndTag.length < 2 || word.isEmpty()) {
                     continue;
                 }
-
-                FeatureVector featureVector = extractFeatures(previousTag, wordAndTag[0]);
-                Instance instance = new Instance(normalizeTag(wordAndTag[1]), featureVector);
-
-                trainingInstances.add(instance);
-
-                previousTag = wordAndTag[1];
+                String tag = normalizeTag(wordAndTag[1]);
+                if (tag.isEmpty()) {
+                    continue;
+                }
+                FeatureVector featureVector = extractFeatures(wordAndTag[0]);
+                trainingInstances.add(new InstanceBuilder().add(featureVector).create(tag));
             }
-
-            ProgressHelper.printProgress(c++, trainingFiles.length, 1);
+            return trainingInstances.iterator();
         }
 
-        LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
-        model = tagger.train(trainingInstances);
+    }
 
-        // classifier.learnClassifierWeightsByCategory(trainingInstances);
-
-        FileHelper.serialize(model, modelFilePath);
-        Cache.getInstance().putDataObject(modelFilePath, model);
-
-        LOGGER.info("finished training tagger in " + stopWatch.getElapsedTimeString());
-
+    public static UniversalClassifierModel trainModel(final String folderPath) {
+        Validate.notEmpty(folderPath, "folderPath must not be empty");
+        StopWatch stopWatch = new StopWatch();
+        LOGGER.info("start training the tagger");
+        UniversalClassifierModel model = getTagger().train(new Iterable<Instance>() {
+            @Override
+            public Iterator<Instance> iterator() {
+                return new BrownCorpusIterator(folderPath);
+            }
+        });
+        LOGGER.info("finished training tagger in {}", stopWatch.getElapsedTimeString());
         return model;
     }
 
-    private FeatureVector extractFeatures(String previousTag, String word) {
-
-        String lastTwo = "";
-        if (word.length() > 1) {
-            lastTwo = word.substring(word.length() - 2);
-        }
-
-        // instance.setTextFeature(word);
-
-        List<String> nominalFeatures = Arrays.asList(
-                // previousTag
-                String.valueOf(StringHelper.startsUppercase(word)), String.valueOf(word.length() == 1),
-                String.valueOf(word.length() == 2), String.valueOf(word.length() == 3), String.valueOf(word.length()),
-                String.valueOf(StringHelper.isNumberOrNumberWord(word)),
-                String.valueOf(StringHelper.isCompletelyUppercase(word)),
-                String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", "").length()), word.substring(word.length() - 1),
-                word.substring(0, 1), lastTwo, word);
-        // instance.setNumericFeatures(Arrays.asList((double)word.length()));
-        // instance.setNominalFeatures(Arrays.asList(word));
-
-        FeatureVector featureVector = new BasicFeatureVector();
-        for (String nominalFeature : nominalFeatures) {
-            String name = "nom" + featureVector.size();
-            featureVector.add(new NominalFeature(name.intern(), nominalFeature));
-        }
-
-        PreprocessingPipeline preprocessingPipeline = new PreprocessingPipeline(tagger.getFeatureSetting());
-        TextDocument textDocument = new TextDocument(word);
-        preprocessingPipeline.process(textDocument);
-        for (Feature<?> feature : textDocument.getFeatureVector()) {
-            featureVector.add(feature);
-        }
-
-        return featureVector;
+    private static FeatureVector extractFeatures(String word) {
+        int wordLength = word.length();
+        InstanceBuilder builder = new InstanceBuilder();
+        builder.set("startsUppercase", StringHelper.startsUppercase(word));
+        builder.set("length1", wordLength == 1);
+        builder.set("length2", wordLength == 2);
+        builder.set("length3", wordLength == 3);
+        builder.set("length", String.valueOf(wordLength));
+        builder.set("number", StringHelper.isNumberOrNumberWord(word));
+        builder.set("completelyUppercase", StringHelper.isCompletelyUppercase(word));
+        builder.set("normalizedLength", String.valueOf(word.replaceAll("[^`'\",.:;*\\(\\)]", EMPTY).length()));
+        builder.set("lastCharacter", word.substring(wordLength - 1));
+        builder.set("firstCharacter", word.substring(0, 1));
+        builder.set("lastTwoCharacters", wordLength > 1 ? word.substring(wordLength - 2) : EMPTY);
+        builder.set("word", word);
+        builder.setText(word);
+        return builder.create();
     }
 
-    public void evaluate(String folderPath, String modelFilePath) {
-
-        model = (UniversalClassifierModel)Cache.getInstance().getDataObject(modelFilePath, new File(modelFilePath));
-
-        StopWatch stopWatch = new StopWatch();
-        LOGGER.info("start evaluating the tagger");
-
-        ConfusionMatrix matrix = new ConfusionMatrix();
-
-        int c = 1;
-        int correct = 0;
-        int total = 0;
-
-        File[] testFiles = FileHelper.getFiles(folderPath);
-        for (File file : testFiles) {
-
-            String content = FileHelper.tryReadFileToString(file);
-
-            String[] wordsAndTagPairs = content.split("\\s");
-
-            String previousTag = "";
-
-            for (String wordAndTagPair : wordsAndTagPairs) {
-
-                if (wordAndTagPair.isEmpty()) {
-                    continue;
-                }
-
-                String[] wordAndTag = wordAndTagPair.split("/");
-                String word = wordAndTag[0];
-
-                if (wordAndTag.length < 2 || word.isEmpty()) {
-                    continue;
-                }
-
-                FeatureVector featureVector = extractFeatures(previousTag, wordAndTag[0]);
-                CategoryEntries categoryEntries = tagger.classify(featureVector, model);
-                String assignedTag = categoryEntries.getMostLikelyCategory();
-                String correctTag = normalizeTag(wordAndTag[1]).toLowerCase();
-
-                previousTag = assignedTag;
-                matrix.add(correctTag, assignedTag);
-
-                if (assignedTag.equals(correctTag)) {
-                    correct++;
-                }
-                total++;
+    public ConfusionMatrix evaluate(final String folderPath) {
+        Validate.notEmpty(folderPath, "folderPath must not be empty");
+        Iterable<Instance> testData = new Iterable<Instance>() {
+            @Override
+            public Iterator<Instance> iterator() {
+                return new BrownCorpusIterator(folderPath);
             }
-
-            ProgressHelper.printProgress(c++, testFiles.length, 1);
-        }
-
-        LOGGER.info("all files read in " + stopWatch.getElapsedTimeString());
-
-        LOGGER.info("Accuracy: " + MathHelper.round(100.0 * correct / total, 2) + "%");
-        LOGGER.info("\n" + matrix);
-
-        LOGGER.info("finished evaluating the tagger in " + stopWatch.getElapsedTimeString());
+        };
+        return ClassifierEvaluation.evaluate(tagger, testData, model);
     }
 
     @Override
     public String getName() {
         return TAGGER_NAME;
-    }
-
-    public static void main(String[] args) {
-        // PalladianPosTagger palladianPosTagger = new PalladianPosTagger();
-
-        // palladianPosTagger.trainModel("data/datasets/pos/all/", "ppos.gz");
-        // palladianPosTagger.trainModel("data/datasets/pos/train/", "ppos.gz");
-        // palladianPosTagger.evaluate("data/datasets/pos/test/", "ppos.gz");
-        // palladianPosTagger.trainModel("data/datasets/pos/trainSmall/", "ppos.gz");
-        // palladianPosTagger.evaluate("data/datasets/pos/testSmall/", "ppos.gz");
-
-        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog", "ppos_.gz")
-        // .getTaggedString());
-        // System.out.println(palladianPosTagger.tag("The quick brown fox jumps over the lazy dog").getTaggedString());
     }
 
 }

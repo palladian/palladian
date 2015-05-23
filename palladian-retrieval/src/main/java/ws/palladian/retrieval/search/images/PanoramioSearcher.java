@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.images;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -10,8 +11,8 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -49,7 +50,7 @@ public final class PanoramioSearcher extends AbstractMultifacetSearcher<WebImage
 
     @Override
     public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
-        List<WebImage> result = CollectionHelper.newArrayList();
+        List<WebImage> result = new ArrayList<>();
 
         Long totalResultCount = null;
         double[] boundingBox = query.getCoordinate().getBoundingBox(query.getRadius());

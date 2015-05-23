@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class SistrixVisibilityIndex extends BaseRankingService implements RankingService {
+public final class SistrixVisibilityIndex extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SistrixVisibilityIndex.class);
@@ -41,16 +39,12 @@ public final class SistrixVisibilityIndex extends BaseRankingService implements 
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         url = UrlHelper.getDomain(url, false);
 
         Double index = 0.;
-        String requestUrl = buildRequestUrl(url);
+        String requestUrl = "http://www.sichtbarkeitsindex.de/" + UrlHelper.encodeParameter(url);
 
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
@@ -64,21 +58,7 @@ public final class SistrixVisibilityIndex extends BaseRankingService implements 
         } catch (Exception e) {
             throw new RankingServiceException("url:" + url, e);
         }
-
-        results.put(INDEX, index.floatValue());
-        return ranking;
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://www.sichtbarkeitsindex.de/" + UrlHelper.encodeParameter(url);
+        return builder.add(INDEX, index).create();
     }
 
     @Override

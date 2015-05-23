@@ -18,22 +18,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
-import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.persistence.OneColumnRowConverter;
+import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
-import ws.palladian.persistence.RowConverter;
-import ws.palladian.persistence.helper.SqlHelper;
+import ws.palladian.persistence.RowConverters;
 
 /**
  * <p>
@@ -65,42 +61,8 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     private static final String UPDATE_HIERARCHY = "UPDATE locations SET ancestorIds = CONCAT(?, ancestorIds) WHERE ancestorIds LIKE ?";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
     private static final String GET_LOCATIONS_UNIVERSAL = "{call search_locations(?,?,?,?,?)}";
-
-    // ////////////////// row converts ////////////////////////////////////
-    private static final RowConverter<Location> LOCATION_CONVERTER = new RowConverter<Location>() {
-        @Override
-        public Location convert(ResultSet resultSet) throws SQLException {
-            int id = resultSet.getInt("id");
-            LocationType locationType = LocationType.map(resultSet.getString("type"));
-            String name = resultSet.getString("name");
-
-            List<AlternativeName> altNames = CollectionHelper.newArrayList();
-            String alternativesString = resultSet.getString("alternatives");
-            if (alternativesString != null) {
-                for (String nameLanguageString : alternativesString.split(",")) {
-                    String[] parts = nameLanguageString.split("#");
-                    if (parts.length == 0 || StringUtils.isBlank(parts[0]) || parts[0].equals("alternativeName")) {
-                        continue;
-                    }
-                    Language language = null;
-                    if (parts.length > 1) {
-                        language = Language.getByIso6391(parts[1]);
-                    }
-                    altNames.add(new AlternativeName(parts[0], language));
-                }
-            }
-
-            Double latitude = SqlHelper.getDouble(resultSet, "latitude");
-            Double longitude = SqlHelper.getDouble(resultSet, "longitude");
-            GeoCoordinate coordinate = null;
-            if (latitude != null && longitude != null) {
-                coordinate = new ImmutableGeoCoordinate(latitude, longitude);
-            }
-            Long population = resultSet.getLong("population");
-            List<Integer> ancestorIds = splitHierarchyPath(resultSet.getString("ancestorIds"));
-            return new ImmutableLocation(id, name, altNames, locationType, coordinate, population, ancestorIds);
-        }
-    };
+    private static final String GET_ALL_LOCATIONS = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
+    private static final String GET_LOCATION_COUNT = "SELECT COUNT(*) FROM locations";
 
     // //////////////////////////////////////////////////////////////////////
 
@@ -177,7 +139,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 String query = resultSet.getString("query");
-                result.add(query, LOCATION_CONVERTER.convert(resultSet));
+                result.add(query, LocationRowConverter.INSTANCE.convert(resultSet));
             }
         }, GET_LOCATIONS_UNIVERSAL, names, languageList, latitude, longitude, distance);
         return result;
@@ -200,7 +162,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
         // all used combinations will get and stay cached eventually.
 
         String prepStmt = String.format(GET_LOCATIONS_BY_ID, createMask(locationIds.size()));
-        List<Location> locations = runQuery(LOCATION_CONVERTER, prepStmt, locationIds);
+        List<Location> locations = runQuery(LocationRowConverter.INSTANCE, prepStmt, locationIds);
 
         // sort the returned list, so that we have the order of the given locations IDs
         Collections.sort(locations, new Comparator<Location>() {
@@ -215,7 +177,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public void save(Location location) {
-        List<Object> args = CollectionHelper.newArrayList();
+        List<Object> args = new ArrayList<>();
         GeoCoordinate coordinate = location.getCoordinate();
         args.add(location.getId());
         args.add(location.getType().toString());
@@ -238,7 +200,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public void addHierarchy(int childId, int parentId) {
-        String parentAncestorPath = runSingleQuery(OneColumnRowConverter.STRING, GET_ANCESTOR_IDS, parentId);
+        String parentAncestorPath = runSingleQuery(RowConverters.STRING, GET_ANCESTOR_IDS, parentId);
         String ancestorPath = (parentAncestorPath != null ? parentAncestorPath : "/") + parentId;
         String addAncestorPath = ancestorPath + "/";
         runUpdate(ADD_HIERARCHY, childId, addAncestorPath, addAncestorPath);
@@ -247,35 +209,10 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     /**
      * <p>
-     * Split up an hierarchy path into single IDs. An hierarchy path looks like
-     * "/6295630/6255148/2921044/2951839/2861322/3220837/6559171/" and is used to flatten the hierarchy relation in the
-     * database into one column per entry. In the database, to root node is at the beginning of the string; this method
-     * does a reverse ordering, so that result contains the root node as last element.
-     * </p>
-     * 
-     * @param hierarchyPath The hierarchy path.
-     * @return List with IDs, in reverse order. Empty {@link List}, if hierarchy path was <code>null</code> or empty.
-     */
-    protected static final List<Integer> splitHierarchyPath(String hierarchyPath) {
-        if (hierarchyPath == null) {
-            return Collections.emptyList();
-        }
-        List<Integer> ancestorIds = CollectionHelper.newArrayList();
-        String[] splitPath = hierarchyPath.split("/");
-        for (int i = splitPath.length - 1; i >= 0; i--) {
-            String ancestorId = splitPath[i];
-            if (StringUtils.isNotBlank(ancestorId)) {
-                ancestorIds.add(Integer.valueOf(ancestorId));
-            }
-        }
-        return ancestorIds;
-    }
-
-    /**
-     * <p>
      * Delete the content in the location database.
      * </p>
      */
+    @SuppressWarnings("resource")
     public void truncate() {
         System.out.println("Really truncate the location database?");
         new Scanner(System.in).nextLine();
@@ -309,7 +246,7 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
 
     @Override
     public int getHighestId() {
-        Integer id = runSingleQuery(OneColumnRowConverter.INTEGER, GET_HIGHEST_LOCATION_ID);
+        Integer id = runSingleQuery(RowConverters.INTEGER, GET_HIGHEST_LOCATION_ID);
         return id != null ? id : 0;
     }
 
@@ -322,6 +259,23 @@ public class LocationDatabase extends DatabaseManager implements LocationStore {
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
             GeoCoordinate coordinate, double distance) {
         return getLocationsInternal(locationNames, languages, coordinate, distance);
+    }
+
+    /**
+     * <p>
+     * Get all locations in the database.
+     * </p>
+     * 
+     * @return An iterator over all locations.
+     */
+    @Override
+    public ResultIterator<Location> getLocations() {
+        return runQueryWithIterator(LocationRowConverter.INSTANCE, GET_ALL_LOCATIONS);
+    }
+
+    @Override
+    public int size() {
+        return runSingleQuery(RowConverters.INTEGER, GET_LOCATION_COUNT);
     }
 
 }

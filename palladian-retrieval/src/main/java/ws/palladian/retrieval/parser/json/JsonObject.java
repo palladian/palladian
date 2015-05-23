@@ -21,11 +21,12 @@ package ws.palladian.retrieval.parser.json;
  */
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,7 +72,7 @@ import java.util.Set;
  * @author Philipp Katz
  * @version 2013-06-17
  */
-public class JsonObject extends AbstractMap<String, Object> implements Json {
+public class JsonObject extends AbstractMap<String, Object> implements Json, Serializable {
 
     /** The map where the JsonObject's properties are kept. */
     private final Map<String, Object> map;
@@ -82,7 +83,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * </p>
      */
     public JsonObject() {
-        map = new HashMap<String, Object>();
+        map = new LinkedHashMap<>();
     }
 
     JsonObject(JsonTokener x) throws JsonException {
@@ -140,7 +141,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json {
      * @throws JsonException
      */
     public JsonObject(Map<?, ?> map) {
-        this.map = new HashMap<String, Object>();
+        this.map = new LinkedHashMap<>();
         if (map != null) {
             for (Object key : map.keySet()) {
                 Object value = map.get(key);

@@ -3,6 +3,7 @@ package ws.palladian.retrieval.ranking.services;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
@@ -41,7 +41,7 @@ public class RankingServicesIT {
     @Parameters(name = "{0}")
     public static Collection<Object[]> rankers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
-        List<Object[]> rankers = CollectionHelper.newArrayList();
+        List<Object[]> rankers = new ArrayList<>();
         rankers.add(new Object[] {new AlexaRank()});
         rankers.add(new Object[] {new BibsonomyBookmarks(configuration)});
         rankers.add(new Object[] {new BitlyClicks(configuration)});
@@ -57,11 +57,14 @@ public class RankingServicesIT {
         rankers.add(new Object[] {new GooglePlusLikes()});
         rankers.add(new Object[] {new LinkedInShares()});
         rankers.add(new Object[] {new MajesticSeo(configuration)});
+        rankers.add(new Object[] {new OpenLinkProfiler()});
         rankers.add(new Object[] {new PinterestPins()});
         rankers.add(new Object[] {new PlurkPosts(configuration)});
         rankers.add(new Object[] {new RedditStats()});
         rankers.add(new Object[] {new SemRush()});
+        rankers.add(new Object[] {new SharedCount(configuration)});
         rankers.add(new Object[] {new SharethisStats(configuration)});
+        rankers.add(new Object[] {new SistrixVisibilityIndex()});
         rankers.add(new Object[] {new StumbleUponViews()});
         rankers.add(new Object[] {new TwitterTweets()});
         rankers.add(new Object[] {new WebOfTrust()});

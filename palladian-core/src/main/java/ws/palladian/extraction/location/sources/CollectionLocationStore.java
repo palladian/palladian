@@ -1,7 +1,10 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,15 +12,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.AbstractLocation;
-import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
@@ -35,7 +37,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
     private final MultiMap<String, LinkedLocation> namesLocations;
 
     public CollectionLocationStore() {
-        idLocation = CollectionHelper.newHashMap();
+        idLocation = new HashMap<>();
         namesLocations = DefaultMultiMap.createWithSet();
     }
 
@@ -124,7 +126,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
 
         final int id;
         String primaryName;
-        final Set<AlternativeName> alternativeNames = CollectionHelper.newHashSet();
+        final Set<AlternativeName> alternativeNames = new HashSet<>();
         LocationType type;
         GeoCoordinate coordinate;
         Long population;
@@ -166,7 +168,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
 
         @Override
         public List<Integer> getAncestorIds() {
-            List<Integer> parentIds = CollectionHelper.newArrayList();
+            List<Integer> parentIds = new ArrayList<>();
             if (parent != null) {
                 parent.collectAncestors(parentIds);
             }

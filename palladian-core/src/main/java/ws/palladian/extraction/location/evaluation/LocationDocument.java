@@ -15,6 +15,9 @@ import ws.palladian.extraction.location.LocationAnnotation;
  */
 public class LocationDocument {
 
+    /** Placeholder for an undetermined name (in case the scope location is only provided as coordinates, e.g.). */
+    public static final String UNDETERMINED = "undetermined";
+
     private final String fileName;
     private final String text;
     private final List<LocationAnnotation> annotations;
@@ -58,12 +61,21 @@ public class LocationDocument {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("LocationDocument [fileName=");
+        builder.append("LocationDocument [name=");
         builder.append(fileName);
-        builder.append(", annotations=");
-        builder.append(annotations != null ? annotations.size() : "null");
-        builder.append(", main=");
-        builder.append(main);
+        if (annotations != null) {
+            builder.append(", annotations=");
+            builder.append(annotations != null ? annotations.size() : "null");
+        }
+        if (main != null) {
+            builder.append(", main=");
+            if (main.getPrimaryName() != UNDETERMINED) {
+                builder.append(main.getPrimaryName());
+            }
+            if (main.getCoordinate() != null) {
+                builder.append(main.getCoordinate());
+            }
+        }
         builder.append("]");
         return builder.toString();
     }

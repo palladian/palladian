@@ -22,13 +22,12 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.ResultSetCallback;
@@ -38,9 +37,11 @@ import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedActivityPattern;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.evaluation.icwsm2011.FeedBenchmarkFileReader;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
+import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 
 /**
@@ -637,7 +638,8 @@ public class FeedStatisticCreator {
     public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
             throws IOException {
 
-        FeedReader fc = new FeedReader(feedStore, new DefaultFeedProcessingAction());
+        FeedReaderSettings settings = new FeedReaderSettings.Builder().setStore(feedStore).setAction(new DefaultFeedProcessingAction()).create();
+        FeedReader fc = new FeedReader(settings);
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE);
 
         FileWriter csv = new FileWriter(statisticOutputPath);
@@ -650,7 +652,7 @@ public class FeedStatisticCreator {
             // continue;
             // }
 
-            FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, new MavUpdateStrategy(-1, -1));
+            FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, new MavUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY));
             fbfr.updateEntriesFromDisk();
             if (feed.getItems() == null || feed.getItems().size() < 1) {
                 continue;
@@ -920,7 +922,7 @@ public class FeedStatisticCreator {
         colors.add("FF9900");
 
         // count number of feeds in each updateClass
-        CountMap<FeedActivityPattern> updateClassCounts = CountMap.create();
+        Bag<FeedActivityPattern> updateClassCounts = Bag.create();
 
         // number of unique domain names
         Set<String> uniqueDomains = new HashSet<String>();
@@ -946,9 +948,9 @@ public class FeedStatisticCreator {
         String chartDataLabels = "";
         String chartColors = "";
         for (FeedActivityPattern o : updateClassCounts.uniqueItems()) {
-            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.getCount(o))
+            stats.append("Number of feeds in update class ").append(o).append(":").append(updateClassCounts.count(o))
             .append("\n");
-            chartData += updateClassCounts.getCount(o) + ",";
+            chartData += updateClassCounts.count(o) + ",";
             chartDataLabels += o + "|";
             chartColors += colors.get(o.getIdentifier()) + "|";
         }

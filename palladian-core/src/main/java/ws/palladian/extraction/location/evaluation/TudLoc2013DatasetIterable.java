@@ -1,29 +1,30 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Factory;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.functional.Factory;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -127,7 +128,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
                 .create(new Factory<Map<Integer, GeoCoordinate>>() {
                     @Override
                     public Map<Integer, GeoCoordinate> create() {
-                        return CollectionHelper.newTreeMap();
+                        return new TreeMap<>();
                     }
                 });
         int lines = FileHelper.performActionOnEveryLine(coordinateFile, new LineAction() {
@@ -138,11 +139,11 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
                 }
                 String[] split = StringUtils.splitPreserveAllTokens(line, ";");
                 String documentName = split[0];
-                int offset = Integer.valueOf(split[2]);
+                int offset = Integer.parseInt(split[2]);
                 GeoCoordinate coordinate = null;
                 if (!split[3].isEmpty() && !split[4].isEmpty()) {
-                    double lat = Double.valueOf(split[3]);
-                    double lng = Double.valueOf(split[4]);
+                    double lat = Double.parseDouble(split[3]);
+                    double lng = Double.parseDouble(split[4]);
                     coordinate = new ImmutableGeoCoordinate(lat, lng);
                 }
                 coordinateMap.get(documentName).put(offset, coordinate);
@@ -155,9 +156,9 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
     }
 
     private static List<LocationAnnotation> getAnnotations(String rawText, Map<Integer, GeoCoordinate> coordinates) {
-        List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
-        Annotations<ContextAnnotation> xmlAnnotations = FileFormatParser.getAnnotationsFromXmlText(rawText);
-        for (ContextAnnotation xmlAnnotation : xmlAnnotations) {
+        List<LocationAnnotation> annotations = new ArrayList<>();
+        Annotations<Annotation> xmlAnnotations = FileFormatParser.getAnnotationsFromXmlText(rawText);
+        for (Annotation xmlAnnotation : xmlAnnotations) {
             int dummyId = xmlAnnotation.getValue().hashCode();
             String name = xmlAnnotation.getValue();
             GeoCoordinate coordinate = coordinates.get(xmlAnnotation.getStartPosition());

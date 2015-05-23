@@ -1,5 +1,6 @@
 package ws.palladian.helper.nlp;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -50,38 +51,38 @@ public class StringHelperTest {
     @Test
     public void testContainsWord() {
 
-        assertEquals(true, StringHelper.containsWord("ich", "das finde ich persönlich nicht weiter tragisch"));
+        assertTrue(StringHelper.containsWord("ich", "das finde ich persönlich nicht weiter tragisch"));
 
-        assertEquals(true, StringHelper.containsWord("test", "a test b"));
-        assertEquals(true, StringHelper.containsWord("test", "test"));
-        assertEquals(true, StringHelper.containsWord("yes", "Yes, he went there."));
-        assertEquals(true, StringHelper.containsWord("there", "Yes, he went there?"));
-        assertEquals(true, StringHelper.containsWord("there", "Yes, he went there!"));
-        assertEquals(true, StringHelper.containsWord("there", "Yes, he went there."));
-        assertEquals(true, StringHelper.containsWord("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
-        assertEquals(false, StringHelper.containsWord("cab", "Copacabana, he went there."));
+        assertTrue(StringHelper.containsWord("test", "a test b"));
+        assertTrue(StringHelper.containsWord("test", "test"));
+        assertTrue(StringHelper.containsWord("yes", "Yes, he went there."));
+        assertTrue(StringHelper.containsWord("there", "Yes, he went there?"));
+        assertTrue(StringHelper.containsWord("there", "Yes, he went there!"));
+        assertTrue(StringHelper.containsWord("there", "Yes, he went there."));
+        assertTrue(StringHelper.containsWord("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
+        assertFalse(StringHelper.containsWord("cab", "Copacabana, he went there."));
 
-        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "a test b"));
-        assertEquals(false, StringHelper.containsWordCaseSensitive("test", "a Test b"));
-        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "test"));
-        assertEquals(false, StringHelper.containsWordCaseSensitive("Test", "test"));
-        assertEquals(true, StringHelper.containsWordCaseSensitive("test", "abtester ist test"));
-        assertEquals(false, StringHelper.containsWordCaseSensitive("tester", "abtester ist test"));
+        assertTrue(StringHelper.containsWordCaseSensitive("test", "a test b"));
+        assertFalse(StringHelper.containsWordCaseSensitive("test", "a Test b"));
+        assertTrue(StringHelper.containsWordCaseSensitive("test", "test"));
+        assertFalse(StringHelper.containsWordCaseSensitive("Test", "test"));
+        assertTrue(StringHelper.containsWordCaseSensitive("test", "abtester ist test"));
+        assertFalse(StringHelper.containsWordCaseSensitive("tester", "abtester ist test"));
 
-        assertEquals(true, StringHelper.containsWordRegExp("test", "a test b"));
-        assertEquals(true, StringHelper.containsWordRegExp("test", "test"));
-        assertEquals(true, StringHelper.containsWordRegExp("yes", "Yes, he went there."));
-        assertEquals(true, StringHelper.containsWordRegExp("there", "Yes, he went there?"));
-        assertEquals(true, StringHelper.containsWordRegExp("there", "Yes, he went there!"));
-        assertEquals(true, StringHelper.containsWordRegExp("there", "Yes, he went there."));
-        assertEquals(true, StringHelper.containsWordRegExp("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
-        assertEquals(true, StringHelper.containsWordRegExp("Nokia N9", "hello, this [Nokia N9] is pretty cool."));
-        assertEquals(false, StringHelper.containsWordRegExp("cab", "Copacabana, he went there."));
-        assertEquals(true, StringHelper.containsWordRegExp("Deutsche.Bahn", "Die Deutsche Bahn"));
-        assertEquals(true, StringHelper.containsWordRegExp("Deutsche.Bahn", "Die Deutsche-Bahn"));
-        assertEquals(true, StringHelper.containsWordRegExp("Deutsche.Bahn", "Deutsche&Bahn"));
-        assertEquals(false, StringHelper.containsWordRegExp("Deutsche.Bahn", "DeutscheBahn"));
-        assertEquals(false, StringHelper.containsWordRegExp("Deutsche.Bahn", "Deutsche..Bahn"));
+        assertTrue(StringHelper.containsWordRegExp("test", "a test b"));
+        assertTrue(StringHelper.containsWordRegExp("test", "test"));
+        assertTrue(StringHelper.containsWordRegExp("yes", "Yes, he went there."));
+        assertTrue(StringHelper.containsWordRegExp("there", "Yes, he went there?"));
+        assertTrue(StringHelper.containsWordRegExp("there", "Yes, he went there!"));
+        assertTrue(StringHelper.containsWordRegExp("there", "Yes, he went there."));
+        assertTrue(StringHelper.containsWordRegExp("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
+        assertTrue(StringHelper.containsWordRegExp("Nokia N9", "hello, this [Nokia N9] is pretty cool."));
+        assertFalse(StringHelper.containsWordRegExp("cab", "Copacabana, he went there."));
+        assertTrue(StringHelper.containsWordRegExp("Deutsche.Bahn", "Die Deutsche Bahn"));
+        assertTrue(StringHelper.containsWordRegExp("Deutsche.Bahn", "Die Deutsche-Bahn"));
+        assertTrue(StringHelper.containsWordRegExp("Deutsche.Bahn", "Deutsche&Bahn"));
+        assertFalse(StringHelper.containsWordRegExp("Deutsche.Bahn", "DeutscheBahn"));
+        assertFalse(StringHelper.containsWordRegExp("Deutsche.Bahn", "Deutsche..Bahn"));
 
     }
 
@@ -181,10 +182,10 @@ public class StringHelperTest {
 
     @Test
     public void testContainsNumber() {
-        assertEquals(true, StringHelper.containsNumber("120"));
-        assertEquals(true, StringHelper.containsNumber("120.2 GB"));
-        assertEquals(false, StringHelper.containsNumber("A bc de2f GB"));
-        assertEquals(false, StringHelper.containsNumber("A-1 GB"));
+        assertTrue(StringHelper.containsNumber("120"));
+        assertTrue(StringHelper.containsNumber("120.2 GB"));
+        assertFalse(StringHelper.containsNumber("A bc de2f GB"));
+        assertFalse(StringHelper.containsNumber("A-1 GB"));
     }
 
     @Test
@@ -205,18 +206,9 @@ public class StringHelperTest {
         // assertEquals(StringHelper.trim("2\""),"2\"");
     }
 
-    //    @Deprecated
-    //    @Test
-    //    public void testEscapeForRegularExpression() {
-    //        assertEquals("\\(2008\\)", StringHelper.escapeForRegularExpression("(2008)"));
-    //        // String containing RegEx meta characters which need to be escaped
-    //        String s = "(the) [quick] {brown} fox$ ^jumps+ \n ov|er the? l-a\\zy ]dog[";
-    //        // test successful escape by matching escaped RegEx ...
-    //        assertTrue(s.matches(StringHelper.escapeForRegularExpression(s)));
-    //    }
-
     @Test
     public void testGetSubstringBetween() {
+        assertEquals("2", StringHelper.getSubstringBetween("A: 1\nB: 2%", "B: ", "%"));
         assertEquals("all the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", null, " in ohio"));
         assertEquals("the lilacs in ohio", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", null));
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
@@ -300,51 +292,51 @@ public class StringHelperTest {
 
     @Test
     public void testIsCompletelyUppercase() {
-        assertEquals(true, StringHelper.isCompletelyUppercase("ABC"));
-        assertEquals(false, StringHelper.isCompletelyUppercase("AbC"));
-        assertEquals(true, StringHelper.isCompletelyUppercase("A BC"));
+        assertTrue(StringHelper.isCompletelyUppercase("ABC"));
+        assertFalse(StringHelper.isCompletelyUppercase("AbC"));
+        assertTrue(StringHelper.isCompletelyUppercase("A BC"));
     }
 
     @Test
     public void testIsNumber() {
-        assertEquals(true, StringHelper.isNumber("-2,3"));
-        assertEquals(true, StringHelper.isNumber("100"));
-        assertEquals(false, StringHelper.isNumber("100.000.00"));
-        assertEquals(false, StringHelper.isNumber("44.000."));
-        assertEquals(false, StringHelper.isNumber("44 000"));
-        assertEquals(true, StringHelper.isNumber("44.000"));
-        assertEquals(true, StringHelper.isNumber("41"));
-        assertEquals(true, StringHelper.isNumber("-1"));
-        assertEquals(true, StringHelper.isNumber("-1.3"));
-        assertEquals(true, StringHelper.isNumber("-8787545,3"));
-        assertEquals(true, StringHelper.isNumber("-8787545.3"));
-        assertEquals(true, StringHelper.isNumber("-8787545,798435"));
-        assertEquals(true, StringHelper.isNumber("-8787545.798435"));
-        assertEquals(true, StringHelper.isNumber("3.4359738368E11"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("45"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("one"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("two"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("three"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("four"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("five"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("six"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("seven"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("eight"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("nine"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("ten"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("eleven"));
-        assertEquals(true, StringHelper.isNumberOrNumberWord("twelve"));
+        assertTrue(StringHelper.isNumber("-2,3"));
+        assertTrue(StringHelper.isNumber("100"));
+        assertFalse(StringHelper.isNumber("100.000.00"));
+        assertFalse(StringHelper.isNumber("44.000."));
+        assertFalse(StringHelper.isNumber("44 000"));
+        assertTrue(StringHelper.isNumber("44.000"));
+        assertTrue(StringHelper.isNumber("41"));
+        assertTrue(StringHelper.isNumber("-1"));
+        assertTrue(StringHelper.isNumber("-1.3"));
+        assertTrue(StringHelper.isNumber("-8787545,3"));
+        assertTrue(StringHelper.isNumber("-8787545.3"));
+        assertTrue(StringHelper.isNumber("-8787545,798435"));
+        assertTrue(StringHelper.isNumber("-8787545.798435"));
+        assertTrue(StringHelper.isNumber("3.4359738368E11"));
+        assertTrue(StringHelper.isNumberOrNumberWord("45"));
+        assertTrue(StringHelper.isNumberOrNumberWord("one"));
+        assertTrue(StringHelper.isNumberOrNumberWord("two"));
+        assertTrue(StringHelper.isNumberOrNumberWord("three"));
+        assertTrue(StringHelper.isNumberOrNumberWord("four"));
+        assertTrue(StringHelper.isNumberOrNumberWord("five"));
+        assertTrue(StringHelper.isNumberOrNumberWord("six"));
+        assertTrue(StringHelper.isNumberOrNumberWord("seven"));
+        assertTrue(StringHelper.isNumberOrNumberWord("eight"));
+        assertTrue(StringHelper.isNumberOrNumberWord("nine"));
+        assertTrue(StringHelper.isNumberOrNumberWord("ten"));
+        assertTrue(StringHelper.isNumberOrNumberWord("eleven"));
+        assertTrue(StringHelper.isNumberOrNumberWord("twelve"));
     }
 
     @Test
     public void testIsNumericExpression() {
-        assertEquals(false, StringHelper.isNumericExpression("44a000."));
-        assertEquals(false, StringHelper.isNumericExpression("44 000 also"));
-        assertEquals(true, StringHelper.isNumericExpression("44.000%"));
-        assertEquals(true, StringHelper.isNumericExpression("41 %"));
-        assertEquals(true, StringHelper.isNumericExpression("345,234,231"));
-        assertEquals(true, StringHelper.isNumericExpression("$12,21€"));
-        assertEquals(false, StringHelper.isNumericExpression("TBC"));
+        assertFalse(StringHelper.isNumericExpression("44a000."));
+        assertFalse(StringHelper.isNumericExpression("44 000 also"));
+        assertTrue(StringHelper.isNumericExpression("44.000%"));
+        assertTrue(StringHelper.isNumericExpression("41 %"));
+        assertTrue(StringHelper.isNumericExpression("345,234,231"));
+        assertTrue(StringHelper.isNumericExpression("$12,21€"));
+        assertFalse(StringHelper.isNumericExpression("TBC"));
 
     }
 
@@ -358,9 +350,9 @@ public class StringHelperTest {
 
     @Test
     public void testIsTimeExpression() {
-        assertEquals(true, StringHelper.isTimeExpression("3:22 pm"));
-        assertEquals(true, StringHelper.isTimeExpression("23:1am"));
-        assertEquals(false, StringHelper.isTimeExpression("abc 23:13!"));
+        assertTrue(StringHelper.isTimeExpression("3:22 pm"));
+        assertTrue(StringHelper.isTimeExpression("23:1am"));
+        assertFalse(StringHelper.isTimeExpression("abc 23:13!"));
     }
 
     @Test
@@ -392,9 +384,21 @@ public class StringHelperTest {
         assertEquals(
                 "This text's purpose is to test apostrophes normalized by StringHelper's normalizeQuotes",
                 StringHelper
-                .normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
+                        .normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
         assertEquals("This text contains longer dashes - like this - and this",
                 StringHelper.normalizeQuotes("This text contains longer dashes – like this — and this"));
+    }
+
+    @Test
+    public void testGetSubphrases() {
+        String text = "quick brown fox";
+        List<String> subphrases = StringHelper.getSubPhrases(text);
+        assertEquals(6, subphrases.size());
+        assertTrue(subphrases
+                .containsAll(asList("quick", "quick brown", "quick brown fox", "brown", "brown fox", "fox")));
+        text = "";
+        subphrases = StringHelper.getSubPhrases(text);
+        assertEquals(0, subphrases.size());
     }
 
 }

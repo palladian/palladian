@@ -38,7 +38,7 @@ public class PalladianContentExtractorTest {
 
         List<WebImage> images = extractor.getImages();
         assertEquals(2, images.size());
-        assertEquals(0, images.get(0).getWidth());
+        assertEquals(-1, images.get(0).getWidth());
 
         // TODO this should not access the web
         // extractor.analyzeImages();

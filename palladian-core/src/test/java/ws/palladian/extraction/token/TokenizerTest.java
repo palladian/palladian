@@ -1,19 +1,13 @@
 package ws.palladian.extraction.token;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.processing.TextDocument;
-import ws.palladian.processing.features.PositionAnnotation;
 
 /**
  * <p>
@@ -42,23 +36,6 @@ public class TokenizerTest {
         assertEquals(1, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 5).size());
         assertEquals(0, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 6).size());
         assertEquals(4, Tokenizer.calculateWordNGrams("all the lilacs\n\n\nin   ohio", 2).size());
-    }
-
-    /**
-     * <p>
-     * Test if extraction of spans works correctly or not
-     * </p>
-     */
-    @Test
-    public void testCalculateSpans() {
-        // CollectionHelper.print(Tokenizer.getAllSpans("a b c"));
-        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 3).size(), is(7));
-        // Test a value smaller than the amount of tokens
-        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 1).size(), is(3));
-        // Test a value below 1. Should return the same result as when using 1.
-        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, -10).size(), is(3));
-        // Test a value larger than the maximum amount of tokens. Should return the same result as when using 3.
-        assertThat(Tokenizer.getAllSpans(new String[] {"a", "b", "c"}, 20).size(), is(7));
     }
 
     @Test
@@ -319,15 +296,4 @@ public class TokenizerTest {
         // assertEquals(1, sentences.size());
     }
 
-    @Test
-    public void testSentenceOnTextWithMaskBetweenSentences() throws Exception {
-        String inputText = "Not the \"what happenend?\" :) But this problem is one of the worst mistakes we made (I did!) in a very long time.";
-        List<PositionAnnotation> sentences = Tokenizer.getSentences(new TextDocument(inputText), "testFeature");
-        // XXX uncomment as soon as regex is fixed
-        // assertEquals(2, sentences.size());
-
-        // String inputText = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/contribution04.txt"));
-        // List<PositionAnnotation> sentences = Tokenizer.getSentences(new TextDocument(inputText), "testFeature");
-        // System.out.println(sentences);
-    }
 }

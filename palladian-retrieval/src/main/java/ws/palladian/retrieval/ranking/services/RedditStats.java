@@ -1,10 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +30,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.reddit.com/
  * @see http://code.reddit.com/wiki/API
  */
-public final class RedditStats extends BaseRankingService implements RankingService {
+public final class RedditStats extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(RedditStats.class);
@@ -51,18 +48,9 @@ public final class RedditStats extends BaseRankingService implements RankingServ
     /** All available ranking types by {@link RedditStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(VOTES, COMMENTS);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 1;
-
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         try {
 
@@ -71,8 +59,8 @@ public final class RedditStats extends BaseRankingService implements RankingServ
             JsonObject json = new JsonObject(httpResult.getStringContent());
 
             JsonArray children = json.getJsonObject("data").getJsonArray("children");
-            float votes = 0;
-            float comments = 0;
+            int votes = 0;
+            int comments = 0;
             for (int i = 0; i < children.size(); i++) {
                 JsonObject child = children.getJsonObject(i);
                 // all post have "kind" : "t3" -- there is no documentation, what this means,
@@ -82,52 +70,16 @@ public final class RedditStats extends BaseRankingService implements RankingServ
                     comments += child.getJsonObject("data").getInt("num_comments");
                 }
             }
-            results.put(VOTES, votes);
-            results.put(COMMENTS, comments);
-            LOGGER.trace("Reddit stats for " + url + " : " + results);
+            builder.add(VOTES, votes);
+            builder.add(COMMENTS, comments);
+            LOGGER.trace("Reddit stats for " + url + " : " + builder);
 
         } catch (JsonException e) {
-            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            checkBlocked();
             throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }
-        return ranking;
-    }
-
-    @Override
-    public boolean checkBlocked() {
-        int status = -1;
-        try {
-            status = retriever.httpGet(GET_INFO + "http://www.google.com/").getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (status == 200) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("Reddit Ranking Service is momentarily blocked. Will check again in 1min.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
+        return builder.create();
     }
 
     @Override

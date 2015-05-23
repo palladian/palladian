@@ -3,14 +3,14 @@ package ws.palladian.classification.nominal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.InstanceBuilder;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 
 public class NominalClassifierTest {
 
@@ -19,7 +19,7 @@ public class NominalClassifierTest {
         NominalClassifier nominalClassifier = new NominalClassifier();
 
         // create an instance to classify
-        List<Instance> trainInstances = CollectionHelper.newArrayList();
+        List<Instance> trainInstances = new ArrayList<>();
         trainInstances.add(new InstanceBuilder().set("f", "f1").create("A"));
         trainInstances.add(new InstanceBuilder().set("f", "f1").create("B"));
         trainInstances.add(new InstanceBuilder().set("f", "f1").create("B"));

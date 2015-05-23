@@ -1,6 +1,8 @@
 package ws.palladian.extraction.location.disambiguation;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
+import static ws.palladian.extraction.location.LocationFilters.coordinate;
+import static ws.palladian.extraction.location.LocationFilters.type;
 import static ws.palladian.extraction.location.LocationType.CITY;
 import static ws.palladian.extraction.location.LocationType.CONTINENT;
 import static ws.palladian.extraction.location.LocationType.COUNTRY;
@@ -18,17 +20,17 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.GeoUtils;
+import ws.palladian.core.Annotation;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationExtractorUtils.LocationTypeFilter;
+import ws.palladian.extraction.location.LocationSet;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.processing.features.Annotation;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
 
 /**
  * <p>
@@ -114,7 +116,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         Set<Annotation> unlikelyLocations = getUnlikelyLocations(locations);
         locations.keySet().removeAll(unlikelyLocations);
 
-        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<LocationAnnotation> result = new ArrayList<>();
 
         Set<Location> anchors = getAnchors(locations);
 
@@ -131,7 +133,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             Collection<Location> currentAnchors = new HashSet<Location>(anchors);
             currentAnchors.removeAll(candidates);
 
-            Set<Location> preselection = CollectionHelper.newHashSet();
+            Set<Location> preselection = new HashSet<>();
 
             for (Location candidate : candidates) {
                 if (anchors.contains(candidate)) {
@@ -149,7 +151,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                         }
                     }
                     if (Arrays.asList(CITY, UNIT, COUNTRY).contains(anchor.getType())) {
-                        if (candidate.descendantOf(anchor) && candidate.getPopulation() > lowerPopulationThreshold) {
+                        Long population = CollectionHelper.coalesce(candidate.getPopulation(), 0l);
+                        if (candidate.descendantOf(anchor) && population > lowerPopulationThreshold) {
                             LOGGER.debug("{} is child of anchor '{}'", candidate, anchor.getPrimaryName());
                             preselection.add(candidate);
                             break;
@@ -166,16 +169,15 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     }
 
     private Set<Annotation> getUnlikelyLocations(MultiMap<ClassifiedAnnotation, Location> locations) {
-        Set<Annotation> unlikelyLocations = CollectionHelper.newHashSet();
+        Set<Annotation> unlikelyLocations = new HashSet<>();
         for (ClassifiedAnnotation annotation : locations.keySet()) {
-            Collection<Location> group = locations.get(annotation);
-            boolean likelyLocation = LocationExtractorUtils.containsType(group, COUNTRY, CONTINENT);
-            boolean bigLocation = LocationExtractorUtils.getHighestPopulation(group) > lowerUnlikelyPopulationThreshold;
+            LocationSet group = new LocationSet(locations.get(annotation));
+            boolean likelyLocation = group.where(type(COUNTRY, CONTINENT)).size() > 0;
+            boolean bigLocation = group.biggestPopulation() > lowerUnlikelyPopulationThreshold;
             if (likelyLocation || bigLocation) {
                 continue;
             }
-            double personProbability = annotation.getCategoryEntries().getProbability("PER");
-            if (personProbability == 1) {
+            if ("PER".equals(annotation.getCategoryEntries().getMostLikelyCategory())) {
                 LOGGER.debug("{} does not seem to be a location and will be dropped", annotation);
                 unlikelyLocations.add(annotation);
             }
@@ -187,7 +189,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     private static Location selectLocation(Collection<Location> selection) {
 
         // if we have a continent, take the continent
-        Set<Location> result = LocationExtractorUtils.filterConditionally(selection, new LocationTypeFilter(CONTINENT));
+        LocationSet result = new LocationSet(selection).whereConditionally(type(CONTINENT));
         if (result.size() == 1) {
             return CollectionHelper.getFirst(result);
         }
@@ -224,12 +226,12 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     }
 
     private Set<Location> getAnchors(MultiMap<? extends Annotation, Location> locations) {
-        Set<Location> anchorLocations = CollectionHelper.newHashSet();
+        Set<Location> anchorLocations = new HashSet<>();
 
         // get prominent anchor locations; continents, countries and locations with very high population
         for (Location location : locations.allValues()) {
             LocationType type = location.getType();
-            long population = location.getPopulation() != null ? location.getPopulation() : 0;
+            Long population = CollectionHelper.coalesce(location.getPopulation(), 0l);
             if (type == CONTINENT || type == COUNTRY || population > anchorPopulationThreshold) {
                 LOGGER.debug("Prominent anchor location: {}", location);
                 anchorLocations.add(location);
@@ -239,21 +241,26 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         // get unique and unambiguous locations; location whose name only occurs once, or which are very closely
         // together (because we might have multiple entries in the database with the same name which lie on a cluster)
         for (Annotation annotation : locations.keySet()) {
-            Collection<Location> group = locations.get(annotation);
-            if (group.isEmpty()) {
+            LocationSet group = new LocationSet(locations.get(annotation));
+            if (group.size() == 0) {
                 continue;
             }
             String name = annotation.getValue();
 
             // in case we have locations with same name, but once with and without coordinates in the DB, we drop those
             // without coordinates
-            group = LocationExtractorUtils.filterConditionally(group, LocationExtractorUtils.COORDINATE_FILTER);
-            Set<GeoCoordinate> coordinates = CollectionHelper.convertSet(group, LOCATION_COORDINATE_FUNCTION);
+            group = group.whereConditionally(coordinate());
 
-            if (LocationExtractorUtils.largestDistanceBelow(sameDistanceThreshold, coordinates)) {
-                Location location = LocationExtractorUtils.getBiggest(group);
-                if (location.getPopulation() > lowerPopulationThreshold || name.split("\\s").length >= tokenThreshold) {
-                    anchorLocations.add(location);
+            if (group.largestDistance() < sameDistanceThreshold) {
+                Location location = group.biggest();
+                if (location == null) {
+                    location = group.first();
+                }
+                if (location != null) {
+                    Long population = CollectionHelper.coalesce(location.getPopulation(), 0l);
+                    if (population > lowerPopulationThreshold || name.split("\\s").length >= tokenThreshold) {
+                        anchorLocations.add(location);
+                    }
                 }
             } else {
                 LOGGER.debug("Ambiguous location: {} ({} candidates)", name, group.size());
@@ -270,7 +277,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
         // if we could not get any anchor locations, just take the biggest one from the given candidates
         if (anchorLocations.isEmpty()) {
-            Location biggest = LocationExtractorUtils.getBiggest(locations.allValues());
+            Location biggest = new LocationSet(locations.allValues()).biggest();
             if (biggest != null) {
                 LOGGER.debug("No anchor found, took biggest location: {}", biggest);
                 anchorLocations.add(biggest);
@@ -321,7 +328,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         LOGGER.debug("Identified {} locations via lasso trick", lassoLocations.size());
 
         // add parents of the given locations
-        Set<Location> parents = CollectionHelper.newHashSet();
+        Set<Location> parents = new HashSet<>();
         for (Location location : lassoLocations) {
             for (Location other : locations.allValues()) {
                 if (location.descendantOf(other)) {

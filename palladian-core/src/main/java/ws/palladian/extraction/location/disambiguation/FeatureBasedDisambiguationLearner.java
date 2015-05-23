@@ -1,9 +1,9 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import static ws.palladian.extraction.location.PalladianLocationExtractor.LONG_ANNOTATION_SPLIT;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -12,17 +12,13 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import quickdt.randomForest.RandomForestBuilder;
-import ws.palladian.classification.Instance;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
-import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.extraction.location.AnnotationFilter;
-import ws.palladian.extraction.location.ContextClassifier;
-import ws.palladian.extraction.location.ContextClassifier.ClassificationMode;
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
-import ws.palladian.extraction.location.EntityPreprocessingTagger;
-import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.core.ClassifyingTagger;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
+import ws.palladian.extraction.location.DefaultCandidateExtractor;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationSource;
@@ -30,14 +26,12 @@ import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CompositeIterator;
 import ws.palladian.helper.collection.MultiMap;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -48,33 +42,31 @@ import ws.palladian.processing.features.Annotation;
  */
 public class FeatureBasedDisambiguationLearner {
 
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguationLearner.class);
 
     /** Maximum distance between train and candidate location to be considered positive. */
     private static final int MAX_DISTANCE = 50;
-    
-    private final QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
 
-    private final LocationFeatureExtractor featureExtraction = new LocationFeatureExtractor(
-            FeatureBasedDisambiguation.CONTEXT_SIZE);
+    private final QuickDtLearner learner;
 
-    private final EntityPreprocessingTagger tagger = new EntityPreprocessingTagger(LONG_ANNOTATION_SPLIT);
-
-    private final AnnotationFilter filter = new AnnotationFilter();
-
-    private final ContextClassifier contextClassifier = new ContextClassifier(ClassificationMode.PROPAGATION);
+    private final LocationFeatureExtractor featureExtraction;
 
     private final LocationSource locationSource;
 
-    public FeatureBasedDisambiguationLearner(LocationSource locationSource) {
+    private final ClassifyingTagger tagger;
+
+    public FeatureBasedDisambiguationLearner(LocationSource locationSource, ClassifyingTagger tagger, int numTrees,
+            LocationFeatureExtractor featureExtractor) {
         Validate.notNull(locationSource, "locationSource must not be null");
         this.locationSource = locationSource;
+        this.tagger = tagger;
+        this.learner = QuickDtLearner.randomForest(numTrees);
+        this.featureExtraction = featureExtractor;
     }
 
-    public void learn(File datasetDirectory) throws IOException {
-        learn(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
+    public QuickDtModel learn(File datasetDirectory) {
+        return learn(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
     }
 
     /**
@@ -83,64 +75,59 @@ public class FeatureBasedDisambiguationLearner {
      * </p>
      * 
      * @param datasetDirectories The directories to the training data sets, not <code>null</code>.
-     * @throws IOException 
+     * @return The model.
+     * @throws IOException
      */
-    public void learn(File... datasetDirectories) throws IOException {
+    public QuickDtModel learn(File... datasetDirectories) {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
-        List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
+        List<Iterator<LocationDocument>> datasetIterators = new ArrayList<>();
         for (File datasetDirectory : datasetDirectories) {
             datasetIterators.add(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
         }
-        learn(new CompositeIterator<LocationDocument>(datasetIterators));
+        return learn(new CompositeIterator<>(datasetIterators));
     }
 
-    public void learn(Iterator<LocationDocument> trainDocuments) throws IOException {
-        Set<Trainable> trainingData = createTrainingData(trainDocuments);
-        String baseFileName = String.format("data/temp/location_disambiguation_%s", System.currentTimeMillis());
-        ClassificationUtils.writeCsv(trainingData, new File(baseFileName + ".csv"));
-        QuickDtModel model = learner.train(trainingData);
-        String modelFileName = baseFileName + ".model";
-        FileHelper.serialize(model, modelFileName);
+    public QuickDtModel learn(Iterator<LocationDocument> trainDocuments) {
+        Set<Instance> trainingData = createTrainingData(trainDocuments);
+        return learner.train(trainingData);
     }
 
-    private Set<Trainable> createTrainingData(Iterator<LocationDocument> trainDocuments) {
-        Set<Trainable> trainingData = CollectionHelper.newHashSet();
+    public Set<Instance> createTrainingData(Iterator<LocationDocument> trainDocuments) {
+        Set<Instance> trainingData = new HashSet<>();
         while (trainDocuments.hasNext()) {
             LocationDocument trainDocument = trainDocuments.next();
             String text = trainDocument.getText();
             List<LocationAnnotation> trainAnnotations = trainDocument.getAnnotations();
-
-            List<Annotation> taggedEntities = tagger.getAnnotations(text);
-            taggedEntities = filter.filter(taggedEntities);
-            List<ClassifiedAnnotation> classifiedEntities = contextClassifier.classify(taggedEntities, text);
+            List<ClassifiedAnnotation> classifiedEntities = tagger.getAnnotations(text);
             MultiMap<ClassifiedAnnotation, Location> locations = PalladianLocationExtractor.fetchLocations(
                     locationSource, classifiedEntities);
 
-            Set<ClassifiableLocation> classifiableLocations = featureExtraction.extractFeatures(text, locations);
-            Set<Trainable> trainInstances = createTrainData(classifiableLocations, trainAnnotations);
+            Set<ClassifiableLocation> classifiableLocations = featureExtraction.extract(text, locations);
+            Set<Instance> trainInstances = createTrainData(classifiableLocations, trainAnnotations);
             trainingData.addAll(trainInstances);
         }
         return trainingData;
     }
 
-    private Set<Trainable> createTrainData(Set<ClassifiableLocation> classifiableLocations,
+    private Set<Instance> createTrainData(Set<ClassifiableLocation> classifiableLocations,
             List<LocationAnnotation> positiveLocations) {
-        Set<Trainable> result = CollectionHelper.newHashSet();
+        Set<Instance> result = new HashSet<>();
         int numPositive = 0;
-        for (ClassifiableLocation location : classifiableLocations) {
+        for (ClassifiableLocation classifiableLocation : classifiableLocations) {
             boolean positiveClass = false;
             for (LocationAnnotation trainAnnotation : positiveLocations) {
                 // we cannot determine the correct location, if the training data did not provide coordinates
-                if (location.getCoordinate() == null) {
+                Location actualLocation = classifiableLocation.getLocation();
+                if (actualLocation.getCoordinate() == null) {
                     continue;
                 }
                 Location trainLocation = trainAnnotation.getLocation();
                 GeoCoordinate trainCoordinate = trainLocation.getCoordinate();
                 // XXX offsets are not considered here; necessary?
                 boolean samePlace = trainCoordinate != null
-                        && location.getCoordinate().distance(trainCoordinate) < MAX_DISTANCE;
-                boolean sameName = location.commonName(trainLocation);
-                boolean sameType = location.getType().equals(trainLocation.getType());
+                        && actualLocation.getCoordinate().distance(trainCoordinate) < MAX_DISTANCE;
+                boolean sameName = actualLocation.commonName(trainLocation);
+                boolean sameType = actualLocation.getType().equals(trainLocation.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms
                 if (samePlace && sameName && sameType) {
                     numPositive++;
@@ -148,23 +135,26 @@ public class FeatureBasedDisambiguationLearner {
                     break;
                 }
             }
-            result.add(new Instance(positiveClass, location));
+            result.add(new InstanceBuilder().add(classifiableLocation.getFeatureVector()).create(positiveClass));
         }
         double positivePercentage = MathHelper.round((float)numPositive / classifiableLocations.size() * 100, 2);
-        LOGGER.info("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);
+        LOGGER.debug("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);
         return result;
     }
 
     public static void main(String[] args) throws IOException {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource);
+        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
+                DefaultCandidateExtractor.INSTANCE, 100, new ConfigurableFeatureExtractor());
         File datasetTud = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
         File datasetLgl = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
         File datasetClust = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/1-train");
-        learner.learn(datasetTud);
-        learner.learn(datasetLgl);
-        learner.learn(datasetClust);
-        learner.learn(datasetTud, datasetLgl, datasetClust);
+        QuickDtModel model;
+        model = learner.learn(datasetTud);
+        model = learner.learn(datasetLgl);
+        model = learner.learn(datasetClust);
+        model = learner.learn(datasetTud, datasetLgl, datasetClust);
+        FileHelper.serialize(model, "locationDisambiguationModel.ser.gz");
         // dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
         // learner.learn(dataset);
     }

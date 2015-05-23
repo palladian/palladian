@@ -2,6 +2,7 @@ package ws.palladian.classification.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,9 +10,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.Stats;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -32,10 +31,10 @@ public class MinMaxNormalizer extends AbstractStatsNormalizer {
         private static final long serialVersionUID = 7227377881428315427L;
 
         /** Hold the max value of each feature <featureIndex, maxValue> */
-        private final Map<String, Double> maxValues = CollectionHelper.newHashMap();
+        private final Map<String, Double> maxValues = new HashMap<>();
 
         /** Hold the min value of each feature <featureName, minValue> */
-        private final Map<String, Double> minValues = CollectionHelper.newHashMap();
+        private final Map<String, Double> minValues = new HashMap<>();
 
         MinMaxNormalization(Map<String, Stats> statsMap) {
             for (String featureName : statsMap.keySet()) {
@@ -44,27 +43,19 @@ public class MinMaxNormalizer extends AbstractStatsNormalizer {
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * @see
-         * ws.palladian.classification.utils.Normalization#normalize(ws.palladian.processing.features.NumericFeature)
-         */
         @Override
-        public NumericFeature normalize(NumericFeature numericFeature) {
-            Validate.notNull(numericFeature, "numericFeature must not be null");
-            String featureName = numericFeature.getName();
-            double featureValue = numericFeature.getValue();
+        public double normalize(String name, double value) {
+            Validate.notNull(name, "name must not be null");
 
-            Double min = minValues.get(featureName);
-            Double max = maxValues.get(featureName);
+            Double min = minValues.get(name);
+            Double max = maxValues.get(name);
             if (min == null || max == null) {
-                LOGGER.debug("No normalization information for \"{}\".", featureName);
-                return numericFeature;
+                LOGGER.debug("No normalization information for \"{}\".", name);
+                return value;
             }
 
             double diff = max - min;
-            double normalizedValue = diff != 0 ? (featureValue - min) / diff : featureValue - min;
-            return new NumericFeature(featureName, normalizedValue);
+            return diff != 0 ? (value - min) / diff : value - min;
         }
 
         @Override

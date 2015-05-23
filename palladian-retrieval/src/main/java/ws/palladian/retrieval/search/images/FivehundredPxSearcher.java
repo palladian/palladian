@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.search.images;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -10,9 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -127,7 +128,7 @@ public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebI
         int numPages = (int)Math.ceil((double)query.getResultCount() / MAX_RESULTS_PER_PAGE);
         LOGGER.debug("# necessary request for {} : {}", query.getResultCount(), numPages);
         Long totalItems = null;
-        List<WebImage> images = CollectionHelper.newArrayList();
+        List<WebImage> images = new ArrayList<>();
         for (int page = 1; page <= numPages; page++) {
             String requestUrl = createRequestUrl(query, page, MAX_RESULTS_PER_PAGE);
             LOGGER.debug("Request URL = {}", requestUrl);

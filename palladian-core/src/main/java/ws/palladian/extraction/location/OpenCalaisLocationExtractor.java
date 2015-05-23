@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -7,11 +9,13 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.collection.CaseInsensitiveMap;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -46,7 +50,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
     private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
     static {
-        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        Map<String, LocationType> temp = new HashMap<>();
         temp.put("continent", LocationType.CONTINENT);
         temp.put("city", LocationType.CITY);
         temp.put("country", LocationType.COUNTRY);
@@ -67,7 +71,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
     @Override
     public List<LocationAnnotation> getAnnotations(String inputText) {
 
-        List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
+        List<LocationAnnotation> annotations = new ArrayList<>();
 
         List<String> textChunks = NerHelper.createSentenceChunks(inputText, MAXIMUM_TEXT_LENGTH);
 

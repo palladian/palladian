@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.evaluation;
 
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.CORRECT;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR2;
@@ -16,6 +17,7 @@ import static ws.palladian.extraction.location.disambiguation.HeuristicDisambigu
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +31,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -38,16 +41,15 @@ import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
-import ws.palladian.extraction.location.YahooLocationExtractor;
+import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -58,10 +60,50 @@ import ws.palladian.processing.features.Annotation;
  */
 @SuppressWarnings(value="unused")
 public final class LocationExtractionEvaluator {
+    
+    // TODO combine all evaluation data (includes class GeoEvaluationResult)
+    public static final class LocationEvaluationResult {
+        
+        public final double mucPr;
+        public final double mucRc;
+        public final double mucF1;
+        public final double geoPr;
+        public final double geoRc;
+        public final double geoF1;
 
-    private final List<File> datasetPaths = CollectionHelper.newArrayList();
+        LocationEvaluationResult(double mucPr, double mucRc, double mucF1, double geoPr, double geoRc, double geoF1) {
+            this.mucPr = mucPr;
+            this.mucRc = mucRc;
+            this.mucF1 = mucF1;
+            this.geoPr = geoPr;
+            this.geoRc = geoRc;
+            this.geoF1 = geoF1;
+        }
 
-    private final List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("LocationEvaluationResult [mucPr=");
+            builder.append(mucPr);
+            builder.append(", mucRc=");
+            builder.append(mucRc);
+            builder.append(", mucF1=");
+            builder.append(mucF1);
+            builder.append(", geoPr=");
+            builder.append(geoPr);
+            builder.append(", geoRc=");
+            builder.append(geoRc);
+            builder.append(", geoF1=");
+            builder.append(geoF1);
+            builder.append("]");
+            return builder.toString();
+        }
+
+    }
+
+    private final List<File> datasetPaths = new ArrayList<>();
+
+    private final List<LocationExtractor> extractors = new ArrayList<>();
 
     /**
      * <p>
@@ -89,11 +131,12 @@ public final class LocationExtractionEvaluator {
 
     public void runAll(boolean detailedReport) {
         int numIterations = datasetPaths.size() * extractors.size();
-        ProgressMonitor monitor = new ProgressMonitor(numIterations, 0, "LocationExtractionEvaluation");
+        ProgressReporter progress = new ProgressMonitor();
+        progress.startTask("LocationExtractionEvaluation", numIterations);
         for (File datasetPath : datasetPaths) {
             for (LocationExtractor extractor : extractors) {
                 run(extractor, datasetPath, detailedReport);
-                monitor.incrementAndPrintProgress();
+                progress.increment();
             }
         }
     }
@@ -121,8 +164,9 @@ public final class LocationExtractionEvaluator {
      * @param datasetDirectory The directory with the dataset, not <code>null</code>.
      * @param detailedReport <code>true</code> to write detailed evaluation results (*_allErrors.csv, *_distances.csv),
      *            <code>false</code> to only write the _locations_summary.csv.
+     * @return Result with summary evaluation measures.
      */
-    public static void run(LocationExtractor extractor, File datasetDirectory, boolean detailedReport) {
+    public static LocationEvaluationResult run(LocationExtractor extractor, File datasetDirectory, boolean detailedReport) {
         Validate.notNull(extractor, "extractor must not be null");
         Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
 
@@ -227,18 +271,21 @@ public final class LocationExtractionEvaluator {
         // it correctly (i.e. tagging "New York" as COUNTRY is still correct) in this case.
         summary.append("============ recognition only ============\n\n");
 
-        int correctlyRecognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size();
-        int recognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
-                + micro.getAnnotations(ERROR1).size() + micro.getAnnotations(ERROR4).size()
-                + micro.getAnnotations(ERROR5).size();
-        int relevant = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
-                + micro.getAnnotations(ERROR2).size();
-        double recognitionPrecision = (double)correctlyRecognized / recognized;
-        double recognitionRecall = (double)correctlyRecognized / relevant;
+//        int correctlyRecognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size();
+//        int recognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
+//                + micro.getAnnotations(ERROR1).size() + micro.getAnnotations(ERROR4).size()
+//                + micro.getAnnotations(ERROR5).size();
+//        int relevant = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
+//                + micro.getAnnotations(ERROR2).size();
+        double recognitionPrecision = micro.getPrecision(EvaluationMode.RECOGNITION);
+        double recognitionRecall = micro.getRecall(EvaluationMode.RECOGNITION);
+//        double recognitionPrecision = (double)correctlyRecognized / recognized;
+//        double recognitionRecall = (double)correctlyRecognized / relevant;
         summary.append("Precision:").append(recognitionPrecision).append('\n');
         summary.append("Recall:").append(recognitionRecall).append('\n');
-        double recognitionF1 = 2 * recognitionPrecision * recognitionRecall
-                / (recognitionPrecision + recognitionRecall);
+        double recognitionF1 = micro.getF1(EvaluationMode.RECOGNITION);
+//        double recognitionF1 = 2 * recognitionPrecision * recognitionRecall
+//                / (recognitionPrecision + recognitionRecall);
         summary.append("F1:").append(recognitionF1).append("\n\n");
 
         summary.append("Elapsed time:").append(stopWatch.getTotalElapsedTimeString()).append('\n');
@@ -330,10 +377,13 @@ public final class LocationExtractionEvaluator {
         if (detailedReport) {
             geoResult.writeDetailedReport(new File("data/temp/" + timestamp + "_distances.csv"));
         }
+        
+        return new LocationEvaluationResult(micro.getPrecision(MUC), micro.getRecall(MUC), micro.getF1(MUC),
+                geoResult.getPrecision(), geoResult.getRecall(), geoResult.getF1());
     }
 
     private static List<LocationExtractor> createForParameterOptimization(LocationDatabase database) {
-        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+        List<LocationExtractor> extractors = new ArrayList<>();
         for (int anchorDistanceThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000)) {
             extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
                     anchorDistanceThreshold, //
@@ -408,25 +458,24 @@ public final class LocationExtractionEvaluator {
     }
 
     private static List<LocationExtractor> createForThresholdAnalysis(LocationDatabase database, QuickDtModel model) {
-        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
+        List<LocationExtractor> extractors = new ArrayList<>();
         for (int i = 0; i <= 10; i++) {
             double threshold = i / 10.;
-            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, threshold,
-                    FeatureBasedDisambiguation.CONTEXT_SIZE);
+            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, threshold, new ConfigurableFeatureExtractor());
             extractors.add(new PalladianLocationExtractor(database, disambiguation));
         }
         return extractors;
     }
 
-    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
-        List<LocationExtractor> extractors = CollectionHelper.newArrayList();
-        for (int i = 0; i <= 5000; i += 100) {
-            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
-                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);
-            extractors.add(new PalladianLocationExtractor(database, disambiguation));
-        }
-        return extractors;
-    }
+//    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
+//        List<LocationExtractor> extractors = new ArrayList<>();
+//        for (int i = 0; i <= 5000; i += 100) {
+//            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
+//                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);
+//            extractors.add(new PalladianLocationExtractor(database, disambiguation));
+//        }
+//        return extractors;
+//    }
 
     public static void main(String[] args) throws IOException {
 

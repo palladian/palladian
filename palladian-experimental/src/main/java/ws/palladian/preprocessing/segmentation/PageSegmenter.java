@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,11 +30,11 @@ import org.xml.sax.SAXException;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.math.SetSimilarities;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 
@@ -372,7 +373,7 @@ public class PageSegmenter {
      * @param length The length of the q-grams.
      * @return A map of q-grams and their quantity.
      */
-    public CountMap<String> createFingerprint(Document doc, int number, int length) {
+    public Bag<String> createFingerprint(Document doc, int number, int length) {
 
         String dText = HtmlHelper.xmlToString(doc, false);
 
@@ -381,8 +382,12 @@ public class PageSegmenter {
             tagList.append(" ").append(tag);
         }
 
-        CountMap<String> tagBag = CountMap.create(Tokenizer.calculateWordNGramsAsList(tagList.toString(), length));
-        return tagBag.getHighest(number);
+        Bag<String> tagBag = Bag.create(Tokenizer.calculateWordNGramsAsList(tagList.toString(), length));
+        Bag<String> highest = Bag.create();
+        for (Entry<String, Integer> entry : tagBag.unique()) {
+            highest.add(entry.getKey(), entry.getValue());
+        }
+        return highest;
     }
 
     /**
@@ -531,7 +536,7 @@ public class PageSegmenter {
             }
         }
 
-        CountMap<String> page1 = createFingerprint(d, qgramNumber, qgramLength);
+        Bag<String> page1 = createFingerprint(d, qgramNumber, qgramLength);
 
         DocumentRetriever urlDownloader2 = new DocumentRetriever();
 
@@ -553,11 +558,10 @@ public class PageSegmenter {
                     continue;
                 }
 
-                CountMap<String> page2 = createFingerprint(currentDocument, qgramNumber, qgramLength);
+                Bag<String> page2 = createFingerprint(currentDocument, qgramNumber, qgramLength);
 
                 Double vari = SimilarityCalculator.calculateSimilarity(page1, page2);
-                // Double jacc = SimilarityCalculator.calculateJaccard(page1, page2);
-                Double jacc = MathHelper.computeJaccardSimilarity(page1.uniqueItems(), page2.uniqueItems());
+                Double jacc = SetSimilarities.JACCARD.getSimilarity(page1.uniqueItems(), page2.uniqueItems());
 
                 String variString = ((Double)((1 - vari) * 100)).toString();
                 variString = variString.substring(0, Math.min(5, variString.length()));

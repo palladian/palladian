@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.ranking;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public interface RankingService {
      * @return A map of ranking values per URL
      * @throws RankingServiceException In case of an error while retrieving the ranking.
      */
-    Map<String, Ranking> getRanking(List<String> urls) throws RankingServiceException;
+    Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException;
 
     /**
      * <p>
@@ -62,31 +63,5 @@ public interface RankingService {
      * @return The ranking type for the given id, or <code>null</code> if no such {@link RankingType}
      */
     RankingType getRankingType(String id);
-
-    /**
-     * <p>
-     * Force a new check if this service is blocked due to excess of request limits. This updates the blocked-attribute
-     * of this service.
-     * </p>
-     * 
-     * @return <code>true</code> if the service is momentarily blocked, <code>false</code> otherwise
-     */
-    boolean checkBlocked();
-
-    /**
-     * <p>
-     * Returns if this service is momentarily blocked or not.
-     * </p>
-     * 
-     * @return <code>true</code> if the service is momentarily blocked, <code>false</code> otherwise
-     */
-    boolean isBlocked();
-
-    /**
-     * <p>
-     * Sets this service blocked status to unblocked and resets the time of the last check to now.
-     * </p>
-     */
-    void resetBlocked();
 
 }

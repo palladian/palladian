@@ -2,11 +2,11 @@ package ws.palladian.extraction.date.rater;
 
 import java.util.Arrays;
 
-import ws.palladian.classification.InstanceBuilder;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.processing.features.FeatureVector;
 
 /**
  * <p>

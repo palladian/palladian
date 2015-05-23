@@ -1,5 +1,7 @@
 package ws.palladian.helper.date;
 
+import ws.palladian.helper.constants.RegExp;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -9,17 +11,20 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import ws.palladian.helper.constants.RegExp;
-
 /**
  * <p>
  * This class helps to transform and help with dates.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Sandro Reichert
  */
 public class DateHelper {
+
+    /**
+     * Maximum allowed year for {@link #validateYear(Date)}.
+     */
+    private static final int MAX_YEAR = 9999;
 
     public static boolean containsDate(String searchString) {
         try {
@@ -59,10 +64,9 @@ public class DateHelper {
      * <p>
      * Get the number of hours, minutes, seconds, or milliseconds that passed on the given day from midnight.
      * </p>
-     * 
-     * @param date The date of the day including time.
+     *
+     * @param date       The date of the day including time.
      * @param resolution The resolution (Calendar.HOUR, Calendar.MINUTE, Calendar.SECOND or Calendar.MILLISECOND)
-     * 
      * @return A positive number of the passed time.
      */
     public static long getTimeOfDay(Date date, int resolution) {
@@ -95,7 +99,7 @@ public class DateHelper {
      * <p>
      * Return the current date as a string with the format "yyyy-MM-dd_HH-mm-ss".
      * </p>
-     * 
+     *
      * @return The date as a string.
      */
     public static String getCurrentDatetime() {
@@ -106,7 +110,7 @@ public class DateHelper {
      * <p>
      * Convert the supplied month name to a number.
      * </p>
-     * 
+     *
      * @param monthName The month name to convert to number, not <code>null</code>.
      * @return The number for the month name, or <code>-1</code> if no month was recognized.
      */
@@ -182,7 +186,7 @@ public class DateHelper {
      * <p>
      * Returns the time that passed since the start time.
      * </p>
-     * 
+     *
      * @param startTime A timestamp.
      * @return The passed time since the time of the timestamp. The format is Hh:Mm:Ss:YYYms.
      */
@@ -198,10 +202,10 @@ public class DateHelper {
      * <p>
      * Returns the time that passed since the start time.
      * </p>
-     * 
+     *
      * @param startTime A timestamp.
-     * @param compact Whether the output should be compact like "Hh:Mm:Ss:YYYms" or readable like
-     *            "3 hours and 32 minutes".
+     * @param compact   Whether the output should be compact like "Hh:Mm:Ss:YYYms" or readable like
+     *                  "3 hours and 32 minutes".
      * @return The passed time since the time of the timestamp.
      */
     public static String formatDuration(long startTime, long stopTime, boolean compact) {
@@ -288,9 +292,9 @@ public class DateHelper {
      * Get interval in millisecond between two dates. Dates are not checked correct order: in case intervalStartTime >
      * intervalStopTime, a negative value is returned. In case date(s) are <code>null</code>, 0 is returned.
      * </p>
-     * 
+     *
      * @param intervalStartTime the older date.
-     * @param intervalStopTime the newer date.
+     * @param intervalStopTime  the newer date.
      * @return interval in millisecond between two Dates. In case date(s) are <code>null</code>, 0 is returned.
      */
     public static long getIntervalLength(Date intervalStartTime, Date intervalStopTime) {
@@ -356,22 +360,31 @@ public class DateHelper {
      * Checks whether a date's year exceeds the given maximum. Useful to store a date in a mysql database since the
      * maximum value of the DATETIME type is the year 9999.
      * </p>
-     * 
+     *
      * @param date date to check.
-     * @param maxYear maximum year allowed.
      * @return The given date if it's year <= maxYear or <code>null</code> if date == null or its year > maxYear.
      */
-    public static Date validateYear(Date date, int maxYear) {
+    public static Date validateYear(Date date) {
         Date validatedDate = date;
         if (date != null) {
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTime(date);
             int year = cal.get(Calendar.YEAR);
-            if (year >= maxYear) {
+            if (year >= MAX_YEAR) {
                 validatedDate = null;
             }
         }
         return validatedDate;
+    }
+
+    public static long getMillisecondsToNextDay() {
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.DATE, 1);
+        instance.set(Calendar.HOUR_OF_DAY, 0);
+        instance.set(Calendar.MINUTE, 0);
+        instance.set(Calendar.SECOND, 0);
+        instance.set(Calendar.MILLISECOND, 0);
+        return instance.getTimeInMillis() - System.currentTimeMillis();
     }
 
     public static void main(String[] t) {

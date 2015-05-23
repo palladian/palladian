@@ -1,11 +1,13 @@
 package ws.palladian.helper.nlp;
 
+import java.util.EmptyStackException;
+
 /**
  * A character-based stack, implemented using a {@link StringBuilder}.
  * 
  * @author pk
  */
-public class CharStack {
+public class CharStack implements CharSequence {
 
     private final StringBuilder builder = new StringBuilder();
 
@@ -14,23 +16,37 @@ public class CharStack {
     }
 
     public char pop() {
-        int last = builder.length() - 1;
-        char c = builder.charAt(last);
-        builder.setLength(last);
+        char c = peek();
+        builder.setLength(builder.length() - 1);
         return c;
     }
 
     public char peek() {
-        return builder.charAt(builder.length() - 1);
-    }
-
-    public int size() {
-        return builder.length();
+        int last = builder.length() - 1;
+        if (last < 0) {
+            throw new EmptyStackException();
+        }
+        return builder.charAt(last);
     }
 
     @Override
     public String toString() {
         return builder.toString();
+    }
+
+    @Override
+    public char charAt(int index) {
+        return builder.charAt(index);
+    }
+
+    @Override
+    public int length() {
+        return builder.length();
+    }
+
+    @Override
+    public CharSequence subSequence(int start, int end) {
+        return builder.subSequence(start, end);
     }
 
 }

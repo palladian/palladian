@@ -6,17 +6,18 @@ import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultT
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR4;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -25,7 +26,7 @@ import ws.palladian.processing.features.Annotation;
  * 
  * @author Philipp Katz
  */
-class GeoEvaluationResult {
+public class GeoEvaluationResult {
 
     /** ignore other types than CITY and POI because they are too broad. */
     private static final List<String> CONSIDERED_TYPES = Arrays.asList("CITY", "POI");
@@ -83,7 +84,7 @@ class GeoEvaluationResult {
         }
     }
 
-    private final List<EvaluationItem> completeEvaluationList = CollectionHelper.newArrayList();
+    private final List<EvaluationItem> completeEvaluationList = new ArrayList<>();
 
     private int correct = 0;
 
@@ -129,9 +130,12 @@ class GeoEvaluationResult {
     }
 
     public void addResultFromDocument(LocationDocument document, List<LocationAnnotation> result) {
-        List<EvaluationItem> evaluationList = CollectionHelper.newArrayList();
-        Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
-        String fileName = document.getFileName();
+        addResultFromDocument(document.getFileName(), document.getAnnotations(), result);
+    }
+    
+    public void addResultFromDocument(String fileName, List<LocationAnnotation> gold, List<LocationAnnotation> result) {
+        List<EvaluationItem> evaluationList = new ArrayList<>();
+        Set<Annotation> taggedAnnotations = new HashSet<>();
 
         // evaluate
         for (LocationAnnotation assignedAnnotation : result) {
@@ -139,7 +143,7 @@ class GeoEvaluationResult {
             boolean taggedOverlap = false;
             int counter = 0;
 
-            for (LocationAnnotation goldAnnotation : document.getAnnotations()) {
+            for (LocationAnnotation goldAnnotation : gold) {
                 counter++;
 
                 GeoCoordinate goldCoordinate = goldAnnotation.getLocation().getCoordinate();
@@ -157,7 +161,7 @@ class GeoEvaluationResult {
                     evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR4, goldCoordinate,
                             assignedAnnotation.getLocation().getCoordinate()));
                 } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition()
-                        || counter == document.getAnnotations().size()) {
+                        || counter == gold.size()) {
                     if (!taggedOverlap) {
                         // false alarm
                         evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, ERROR1, null,
@@ -171,7 +175,7 @@ class GeoEvaluationResult {
         }
 
         // check which gold standard annotations have not been found by the NER (error2)
-        for (LocationAnnotation goldAnnotation : document.getAnnotations()) {
+        for (LocationAnnotation goldAnnotation : gold) {
             if (!taggedAnnotations.contains(goldAnnotation)) {
                 GeoCoordinate goldCooardinate = goldAnnotation.getLocation().getCoordinate();
                 evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR2, goldCooardinate, null));

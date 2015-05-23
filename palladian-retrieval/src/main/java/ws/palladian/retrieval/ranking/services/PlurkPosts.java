@@ -1,10 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -35,7 +32,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Julien Schmehl
  * @see http://www.plurk.com
  */
-public final class PlurkPosts extends BaseRankingService implements RankingService {
+public final class PlurkPosts extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PlurkPosts.class);
@@ -54,11 +51,6 @@ public final class PlurkPosts extends BaseRankingService implements RankingServi
             "The number of posts on plurk.com mentioning this url.");
     /** All available ranking types by {@link PlurkPosts}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(POSTS);
-
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 1;
 
     /**
      * <p>
@@ -86,69 +78,23 @@ public final class PlurkPosts extends BaseRankingService implements RankingServi
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         try {
-
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://www.plurk.com/API/PlurkSearch/search?api_key="
                     + getApiKey() + "&query=" + encUrl);
-
             JsonObject json = new JsonObject(httpResult.getStringContent());
-
             JsonArray plurks = json.getJsonArray("plurks");
-            float result = plurks.size();
-            results.put(POSTS, result);
-            LOGGER.trace("Plurk.com posts for " + url + " : " + result);
+            builder.add(POSTS, plurks.size());
+            LOGGER.trace("Plurk.com posts for " + url + " : " + plurks.size());
 
         } catch (JsonException e) {
-            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         }
-        return ranking;
-    }
-
-    @Override
-    public boolean checkBlocked() {
-        int status = -1;
-        try {
-            status = retriever.httpGet(
-                    "http://www.plurk.com/API/PlurkSearch/search?api_key=" + getApiKey()
-                            + "&query=http://www.google.com/").getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (status == 200) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("Plurk Ranking Service is momentarily blocked. Will check again in 1min.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
+        return builder.create();
     }
 
     @Override

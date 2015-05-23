@@ -1,34 +1,43 @@
 package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Test;
 
+import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class MathHelperTest {
 
-    private final Set<Integer> set1 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4));
-    private final Set<Integer> set2 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 6));
-    private final Set<Integer> set3 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4));
-    private final Set<Integer> set4 = new HashSet<Integer>(Arrays.asList(5, 6, 7, 8));
-    private final Set<Integer> set5 = new HashSet<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-    private final Set<Integer> emptySet = Collections.emptySet();
-
     @Test
     public void testRandomSample() {
-        Collection<Integer> collection = Arrays.asList(321, 98, 123, 965, 143, 328, 497, 73, 65);
-        assertEquals(5, MathHelper.randomSample(collection, 5).size());
-        assertEquals(1, MathHelper.randomSample(collection, 1).size());
+        Collection<Integer> numbers = CollectionHelper.newArrayList(new AbstractIterator<Integer>() {
+            int counter = 0;
+
+            @Override
+            protected Integer getNext() throws Finished {
+                if (counter >= 1000) {
+                    throw FINISHED;
+                }
+                return counter++;
+            }
+        });
+        assertEquals(1, MathHelper.sample(numbers, 1).size());
+        assertEquals(5, MathHelper.sample(numbers, 5).size());
+        assertEquals(1000, MathHelper.sample(numbers, 10000).size());
+        
+        // the two samples must be different
+        assertNotEquals(MathHelper.sample(numbers, 5), MathHelper.sample(numbers, 5));
+        assertNotEquals(MathHelper.sample(numbers, 1), MathHelper.sample(numbers, 1));
     }
 
     @Test
@@ -55,7 +64,7 @@ public class MathHelperTest {
     public void testComputeAllCombinations() {
 
         String[] items = {"a", "b", "c"};
-        Collection<List<Object>> allCombinations = MathHelper.computeAllCombinations(items);
+        Collection<List<String>> allCombinations = MathHelper.computeAllCombinations(items);
         // CollectionHelper.print(allCombinations);
         assertEquals(7, allCombinations.size());
 
@@ -65,30 +74,12 @@ public class MathHelperTest {
         assertEquals(1, allCombinations.size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testComputeCosineSimilarity() {
         Double[] vector1 = {10.0, 50.0};
         Double[] vector2 = {8.0, 66.0};
         assertEquals(0.997, MathHelper.round(MathHelper.computeCosineSimilarity(vector1, vector2), 3), 0);
-    }
-
-    @Test
-    public void testCalculateJaccardSimilarity() {
-        assertEquals(0.6, MathHelper.computeJaccardSimilarity(set1, set2), 0);
-        assertEquals(1.0, MathHelper.computeJaccardSimilarity(set1, set3), 0);
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, set4), 0);
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(emptySet, emptySet), 0);
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(emptySet, set1), 0);
-        assertEquals(0.0, MathHelper.computeJaccardSimilarity(set1, emptySet), 0);
-    }
-
-    @Test
-    public void testCalculateOverlapCoefficient() {
-        assertEquals(0.75, MathHelper.computeOverlapCoefficient(set1, set2), 0);
-        assertEquals(1, MathHelper.computeOverlapCoefficient(set1, set5), 0);
-        assertEquals(0.0, MathHelper.computeOverlapCoefficient(emptySet, emptySet), 0);
-        assertEquals(0.0, MathHelper.computeOverlapCoefficient(emptySet, set1), 0);
-        assertEquals(0.0, MathHelper.computeOverlapCoefficient(set1, emptySet), 0);
     }
 
     @Test
@@ -210,6 +201,37 @@ public class MathHelperTest {
     public void testRound() {
         assertEquals(0.333, MathHelper.round(1. / 3, 3), 0.);
         assertTrue(Double.isNaN(MathHelper.round(Double.NaN, 2)));
+    }
+
+    @Test
+    public void testConfidenceInterval() {
+        assertEquals(0.052, MathHelper.computeConfidenceInterval(1000, 0.999, 0.5), 0.001);
+        assertEquals(0.026, MathHelper.computeConfidenceInterval(1000, 0.9, 0.5), 0.001);
+        assertEquals(0.018, MathHelper.computeConfidenceInterval(1000, 0.75, 0.5), 0.001);
+    }
+
+    @Test
+    public void testAdd() {
+        assertEquals(46912, MathHelper.add(12345, 34567));
+        assertEquals(22222, MathHelper.add(34567, -12345));
+        try {
+            MathHelper.add(Integer.MAX_VALUE, 1);
+            fail();
+        } catch (ArithmeticException e) {
+            // expected
+        }
+        try {
+            MathHelper.add(1, Integer.MAX_VALUE);
+            fail();
+        } catch (ArithmeticException e) {
+            // expected
+        }
+        try {
+            MathHelper.add(Integer.MIN_VALUE, -1);
+            fail();
+        } catch (ArithmeticException e) {
+            // expected
+        }
     }
 
 }

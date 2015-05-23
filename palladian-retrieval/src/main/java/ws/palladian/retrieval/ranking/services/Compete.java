@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -30,7 +28,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author Philipp Katz
  * @see http://developer.compete.com/
  */
-public final class Compete extends BaseRankingService implements RankingService {
+public final class Compete extends AbstractRankingService implements RankingService {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Compete.class);
@@ -78,20 +76,16 @@ public final class Compete extends BaseRankingService implements RankingService 
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-
         String domain = UrlHelper.getDomain(url, false);
-
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        results.put(UNIQUE_VISITORS, getMetrics(domain, "uv"));
-        results.put(VISITS, getMetrics(domain, "vis"));
-        results.put(RANK, getMetrics(domain, "rank"));
-
-        Ranking ranking = new Ranking(this, url, results);
-        return ranking;
+        Ranking.Builder builder = new Ranking.Builder(this, url);
+        builder.add(UNIQUE_VISITORS, getMetrics(domain, "uv"));
+        builder.add(VISITS, getMetrics(domain, "vis"));
+        builder.add(RANK, getMetrics(domain, "rank"));
+        return builder.create();
     }
 
-    private Float getMetrics(String domain, String metricCode) throws RankingServiceException {
-        Float result = null;
+    private Integer getMetrics(String domain, String metricCode) throws RankingServiceException {
+        Integer result = null;
         String requestUrl = "http://apps.compete.com/sites/" + domain + "/trended/" + metricCode + "/?apikey=" + apiKey
                 + "&latest=1";
         try {
@@ -100,7 +94,7 @@ public final class Compete extends BaseRankingService implements RankingService 
             String status = jsonObject.getString("status");
             if ("OK".equals(status)) {
                 JsonArray metric = jsonObject.getJsonObject("data").getJsonObject("trends").getJsonArray(metricCode);
-                result = (float) metric.getJsonObject(0).getInt("value");
+                result = metric.getJsonObject(0).getInt("value");
                 LOGGER.debug("metric=" + metricCode + " value=" + result);
             } else {
                 LOGGER.warn("error: status = " + status);

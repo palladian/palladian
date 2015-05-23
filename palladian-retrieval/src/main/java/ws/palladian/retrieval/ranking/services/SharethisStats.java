@@ -1,10 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -35,7 +32,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.sharethis.com/
  * @see http://help.sharethis.com/api/sharing-api#social-destinations
  */
-public final class SharethisStats extends BaseRankingService implements RankingService {
+public final class SharethisStats extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SharethisStats.class);
@@ -58,11 +55,6 @@ public final class SharethisStats extends BaseRankingService implements RankingS
             "The number of shares via multiple services measured on sharethis.com.");
     /** All available ranking types by {@link SharethisStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(SHARES);
-
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 60;
 
     /**
      * <p>
@@ -93,71 +85,22 @@ public final class SharethisStats extends BaseRankingService implements RankingS
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         try {
             String encUrl = UrlHelper.encodeParameter(url);
             HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
                     + getApiKey() + "&access_key=" + getSecret() + "&url=" + encUrl);
             JsonObject json = new JsonObject(httpResult.getStringContent());
-            float total = json.getJsonObject("total").getInt("outbound");
-            results.put(SHARES, total);
+            int total = json.getJsonObject("total").getInt("outbound");
+            builder.add(SHARES, total);
             LOGGER.trace("ShareThis stats for " + url + " : " + total);
         } catch (JsonException e) {
-            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         }
-        return ranking;
-    }
-
-    @Override
-    public boolean checkBlocked() {
-        boolean error = false;
-        try {
-            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
-                    + getApiKey() + "&access_key=" + getSecret() + "&url=http://www.google.com/");
-            JsonObject json = new JsonObject(httpResult.getStringContent());
-            if (json.get("statusMessage") != null) {
-                if (json.get("statusMessage").equals("LIMIT_REACHED")) {
-                    error = true;
-                }
-            }
-        } catch (JsonException e) {
-            LOGGER.error("JSONException " + e.getMessage());
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (!error) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("ShareThis Ranking Service is momentarily blocked. Will check again in 1h. Try resetting your IP-Address.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
+        return builder.create();
     }
 
     @Override

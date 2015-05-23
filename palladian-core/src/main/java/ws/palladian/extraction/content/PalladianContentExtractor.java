@@ -127,8 +127,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         resultNode = null;
         outerResultNode = null;
-        sentences = new ArrayList<String>();
-        comments = new ArrayList<String>();
+        sentences = new ArrayList<>();
+        comments = new ArrayList<>();
         mainContentHtml = "";
         mainContentText = "";
         fullTextContent = "";
@@ -193,7 +193,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     private void parseDocument() throws PageContentExtractorException {
 
-        String content = "";
+        String content;
 
         // if true, we didn't find valid elements within the main content block and take the whole node text
         boolean useMainNodeText = false;
@@ -223,7 +223,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         // build xpaths to the sentences in the text, the more sentences we find in one area, the more likely it is the
         // main content
-        Set<String> uniqueSentences = new HashSet<String>(sentences);
+        Set<String> uniqueSentences = new HashSet<>(sentences);
         for (String sentence : uniqueSentences) {
             Set<String> xPaths = PageAnalyzer.constructAllXPaths(getDocument(), sentence);
             for (String xPath : xPaths) {
@@ -240,7 +240,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         int highestCount = xpathset.getCountOfXPath(highestCountXPath);
 
         // if we know the main content block, remove all xPath which are not in that block
-        Set<String> outOfMainContent = CollectionHelper.newHashSet();
+        Set<String> outOfMainContent = new HashSet<>();
         if (!resultNodeXPath.isEmpty()) {
             for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
                 if (!mapEntry.getKey().startsWith(resultNodeXPath)) {
@@ -292,7 +292,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
         if (resultNode == null) {
-            parentXpath = parentXpath.replaceAll("\\/[^x].*?\\:.*?\\/", "//");
+            parentXpath = parentXpath.replaceAll("/[^x].*?:.*?/", "//");
             resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
 
             if (resultNode == null) {
@@ -491,7 +491,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // document
         String imgXPath = ".//xhtml:img";
 
-        List<Node> imageNodes = CollectionHelper.newArrayList();
+        List<Node> imageNodes = new ArrayList<>();
 
         while (imageNodes.isEmpty() && imageParentNode != null) {
             imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
@@ -620,7 +620,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public void analyzeImages() {
 
-        List<WebImage> temp = CollectionHelper.newArrayList();
+        List<WebImage> temp = new ArrayList<>();
 
         for (WebImage webImage : getImages()) {
             if (webImage.getWidth() == 0 || webImage.getHeight() == 0) {

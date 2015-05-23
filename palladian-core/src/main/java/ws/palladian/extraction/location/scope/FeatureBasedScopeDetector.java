@@ -1,6 +1,10 @@
 package ws.palladian.extraction.location.scope;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
+import static ws.palladian.extraction.location.LocationFilters.ancestorOf;
+import static ws.palladian.extraction.location.LocationFilters.coordinate;
+import static ws.palladian.extraction.location.LocationFilters.descendantOf;
+import static ws.palladian.helper.collection.CollectionHelper.coalesce;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,53 +19,47 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.Learner;
-import ws.palladian.classification.Model;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.featureselection.BackwardFeatureElimination;
 import ws.palladian.classification.featureselection.BackwardFeatureElimination.FMeasureScorer;
 import ws.palladian.classification.featureselection.FeatureRanking;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.CsvDatasetReader;
-import ws.palladian.extraction.location.GeoCoordinate;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.Learner;
+import ws.palladian.core.Model;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
+import ws.palladian.extraction.location.LocationSet;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.ClassifiableLocation;
+import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
-import ws.palladian.helper.collection.RegexFilter;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVector;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
- * A {@link ScopeDetector} which uses various features to train a model, which is then used for predicting the scope.
- * The features are mainly influenced from the rule-based {@link ScopeDetector}s (see implementations).
+ * A {@link RankingScopeDetector} which uses various features to train a model, which is then used for predicting the
+ * scope. The features are mainly influenced from the rule-based {@link RankingScopeDetector}s (see implementations).
  * </p>
  * 
  * @author pk
- * @param <M> Type of the model, depending on the actual classifier.
  */
-public final class FeatureBasedScopeDetector implements ScopeDetector {
+public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetector {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedScopeDetector.class);
@@ -75,15 +73,15 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
 
     private final QuickDtClassifier classifier = new QuickDtClassifier();
 
-    public FeatureBasedScopeDetector(QuickDtModel scopeModel) {
+    public FeatureBasedScopeDetector(LocationExtractor extractor, QuickDtModel scopeModel) {
+        super(extractor);
         Validate.notNull(scopeModel, "scopeModel must not be null");
-        Validate.notNull(classifier, "classifier must not be null");
         this.scopeModel = scopeModel;
     }
 
     @Override
     public Location getScope(Collection<LocationAnnotation> annotations) {
-        Validate.notNull(annotations, "locations must not be null");
+        Validate.notNull(annotations, "annotations must not be null");
         if (annotations.isEmpty()) {
             return null;
         }
@@ -93,12 +91,12 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
         Location selectedLocation = null;
 
         for (ClassifiableLocation location : classifiableLocations) {
-            CategoryEntries classificationResult = classifier.classify(location, scopeModel);
+            CategoryEntries classificationResult = classifier.classify(location.getFeatureVector(), scopeModel);
             double score = classificationResult.getProbability("true");
-            LOGGER.trace("{} : {}", location.getPrimaryName(), score);
+            LOGGER.trace("{} : {}", location.getLocation().getPrimaryName(), score);
             if (selectedLocation == null || score > maximumScore) {
                 maximumScore = score;
-                selectedLocation = location;
+                selectedLocation = location.getLocation();
             }
         }
 
@@ -108,41 +106,23 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
     private static Set<ClassifiableLocation> extractFeatures(Collection<LocationAnnotation> annotations) {
 
         List<Location> locationList = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
-        LocationStats stats = new LocationStats(locationList);
-        Set<Location> locationSet = new HashSet<Location>(stats.getLocationsWithCoordinates());
-
-        List<GeoCoordinate> coordinates = stats.getCoordinates();
-        if (coordinates.isEmpty()) {
+        LocationSet allStats = new LocationSet(locationList);
+        LocationSet coordinateStats = allStats.where(coordinate());
+        if (coordinateStats.isEmpty()) {
             return Collections.emptySet();
         }
-        GeoCoordinate midpoint = stats.getMidpoint();
-        GeoCoordinate centerpoint = stats.getCenterOfMinimumDistance();
-        double maxDistanceMidpoint = stats.getMaxMidpointDistance();
-        double maxDistanceCenterpoint = stats.getMaxCenterDistance();
-        int maxHierarchyDepth = stats.getMaxHierarchyDepth();
-        long biggestLocationPopulation = stats.getBiggestPopulation();
+
+        GeoCoordinate midpoint = coordinateStats.midpoint();
+        GeoCoordinate centerpoint = coordinateStats.center();
         int maxOffset = 1;
         for (LocationAnnotation annotation : annotations) {
             maxOffset = Math.max(maxOffset, annotation.getStartPosition());
         }
-        double overallMaxDist = Math.max(1, stats.getLargestDistance());
+        int numLocations = annotations.size();
 
-        Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
-        for (Location location : locationSet) {
-            double midpointDistance = midpoint.distance(location.getCoordinate());
-            double normalizedMidpointDistance = midpointDistance / maxDistanceMidpoint;
-            double centerpointDistance = centerpoint.distance(location.getCoordinate());
-            double normalizeCenterpointDistance = centerpointDistance / maxDistanceCenterpoint;
-            int occurrenceCount = Collections.frequency(locationList, location);
-            int descendantCount = stats.countDescendants(location);
-            int ancestorCount = stats.countAncestors(location);
-            double occurenceFrequency = (double)occurrenceCount / annotations.size();
-            double childPercentage = (double)descendantCount / annotations.size();
-            double ancestorPercentage = (double)ancestorCount / annotations.size();
-            int hierarchyDepth = location.getAncestorIds().size();
-            double normalizedHierarchyDepth = (double)hierarchyDepth / maxHierarchyDepth;
-            long maxPopulation = Math.max(1, biggestLocationPopulation);
-            long population = location.getPopulation() != null ? location.getPopulation() : 0;
+        Set<ClassifiableLocation> instances = new HashSet<>();
+        for (Location location : allStats) {
+            GeoCoordinate coordinate = CollectionHelper.coalesce(location.getCoordinate(), GeoCoordinate.NULL);
             double maxDisambiguationTrust = 0;
             int firstPosition = Integer.MAX_VALUE;
             int lastPosition = Integer.MIN_VALUE;
@@ -153,42 +133,27 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
                     lastPosition = Math.max(lastPosition, annotation.getStartPosition());
                 }
             }
-            Stats distances = stats.getDistanceStats(location);
+            Stats distances = coordinateStats.distanceStats(location);
 
-            FeatureVector featureVector = new BasicFeatureVector();
-            featureVector.add(new NumericFeature("midpointDistance", midpointDistance));
-            featureVector.add(new NumericFeature("normalizedMidpointDistance", normalizedMidpointDistance));
-            featureVector.add(new NumericFeature("centerpointDistance", centerpointDistance));
-            featureVector.add(new NumericFeature("normalizedCenterpointDistance", normalizeCenterpointDistance));
-            featureVector.add(new NumericFeature("occurrenceCount", occurrenceCount));
-            featureVector.add(new NumericFeature("childCount", descendantCount));
-            featureVector.add(new NumericFeature("ancestorCount", ancestorCount));
-            featureVector.add(new NumericFeature("occurenceFrequency", occurenceFrequency));
-            featureVector.add(new NumericFeature("childPercentage", childPercentage));
-            featureVector.add(new NumericFeature("ancestorPercentage", ancestorPercentage));
-            featureVector.add(new NumericFeature("hierarchyDepth", hierarchyDepth));
-            featureVector.add(new NumericFeature("normalizedHierarchyDepth", normalizedHierarchyDepth));
-            featureVector.add(new NumericFeature("populationNorm", population / maxPopulation));
-            featureVector.add(new NumericFeature("populationMagnitude", MathHelper.getOrderOfMagnitude(population)));
-            featureVector.add(new NominalFeature("locationType", location.getType().toString()));
-            featureVector.add(new NumericFeature("disambiguationTrust", maxDisambiguationTrust));
-            featureVector.add(new NumericFeature("offsetFirst", (double)firstPosition / maxOffset));
-            featureVector.add(new NumericFeature("offsetLast", (double)lastPosition / maxOffset));
-            featureVector.add(new NumericFeature("offsetSpread", (double)(lastPosition - firstPosition) / maxOffset));
-            double minDistance = Double.isNaN(distances.getMin()) ? 0 : distances.getMin();
-            double maxDistance = Double.isNaN(distances.getMax()) ? 0 : distances.getMax();
-            double meanDistance = Double.isNaN(distances.getMean()) ? 0 : distances.getMean();
-            double medianDistance = Double.isNaN(distances.getMedian()) ? 0 : distances.getMedian();
-            featureVector.add(new NumericFeature("minDistanceToOthers", minDistance));
-            featureVector.add(new NumericFeature("maxDistanceToOthers", maxDistance));
-            featureVector.add(new NumericFeature("meanDistanceToOthers", meanDistance));
-            featureVector.add(new NumericFeature("medianDistanceToOthers", medianDistance));
-            featureVector.add(new NumericFeature("normalizedMinDistanceToOthers", minDistance / overallMaxDist));
-            featureVector.add(new NumericFeature("normalizedMaxDistanceToOthers", maxDistance / overallMaxDist));
-            featureVector.add(new NumericFeature("normalizedMeanDistanceToOthers", meanDistance / overallMaxDist));
-            featureVector.add(new NumericFeature("normalizedMedianDistanceToOthers", medianDistance / overallMaxDist));
+            InstanceBuilder builder = new InstanceBuilder();
+            builder.set("midpointDistance", midpoint.distance(coordinate));
+            builder.set("centerpointDistance", centerpoint.distance(coordinate));
+            builder.set("occurrenceFrequency", (double)Collections.frequency(locationList, location) / numLocations);
+            builder.set("descendantPercentage", (double)allStats.where(descendantOf(location)).size() / numLocations);
+            builder.set("ancestorPercentage", (double)allStats.where(ancestorOf(location)).size() / numLocations);
+            builder.set("hierarchyDepth", location.getAncestorIds().size());
+            builder.set("population", CollectionHelper.coalesce(location.getPopulation(), 0l));
+            builder.set("locationType", location.getType().toString());
+            builder.set("disambiguationTrust", maxDisambiguationTrust);
+            builder.set("offsetFirst", (double)firstPosition / maxOffset);
+            builder.set("offsetLast", (double)lastPosition / maxOffset);
+            builder.set("offsetSpread", (double)(lastPosition - firstPosition) / maxOffset);
+            builder.set("minDistanceToOthers", Double.isNaN(distances.getMin()) ? 0 : distances.getMin());
+            builder.set("maxDistanceToOthers", Double.isNaN(distances.getMax()) ? 0 : distances.getMax());
+            builder.set("meanDistanceToOthers", Double.isNaN(distances.getMean()) ? 0 : distances.getMean());
+            builder.set("medianDistanceToOthers", Double.isNaN(distances.getMedian()) ? 0 : distances.getMedian());
 
-            instances.add(new ClassifiableLocation(location, featureVector));
+            instances.add(new ClassifiableLocation(location, builder.create()));
         }
         return instances;
     }
@@ -205,22 +170,27 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
      * 
      * @param documentIterator The iterator representing the dataset, not <code>null</code>.
      * @param extractor The {@link LocationExtractor}, not <code>null</code>.
-     * @param modelFile The file path where the created model is to be stored, <code>null</code> to train no model.
-     * @param csvFile The file path where to write the CSV with the instances, <code>null</code> to write no CSV file.
-     * @param learner The {@link Learner}, in case a model is to be trained, <code>null</code> otherwise.
-     * @param featureFilter A filter to exclude specific features, not <code>null</code>. Set to {@link Filter#ACCEPT}
-     *            to remove no features.
-     * @throws IOException In case of an I/O exception when writing the model.
+     * @return The trained model.
      */
-    public static void train(Iterable<LocationDocument> documentIterator, LocationExtractor extractor, File modelFile,
-            File csvFile, Learner<? extends Model> learner, Filter<? super String> featureFilter) throws IOException {
+    public static QuickDtModel train(Iterable<LocationDocument> documentIterator, LocationExtractor extractor) {
         Validate.notNull(documentIterator, "documentIterator must not be null");
+        Validate.notNull(extractor, "extractor must not be null");
+        Collection<Instance> instances = createInstances(documentIterator, extractor);
+        StopWatch stopWatch = new StopWatch();
+        QuickDtModel scopeModel = QuickDtLearner.randomForest(100).train(instances);
+        LOGGER.info("Trained model in {}", stopWatch.getElapsedTimeString());
+        return scopeModel;
+    }
 
-        Collection<Trainable> instances = CollectionHelper.newHashSet();
-        for (LocationDocument trainDocument : documentIterator) {
+    public static Collection<Instance> createInstances(Iterable<LocationDocument> documents, LocationExtractor extractor) {
+        Validate.notNull(documents, "documents must not be null");
+        Validate.notNull(extractor, "extractor must not be null");
+
+        Collection<Instance> instances = new HashSet<>();
+        for (LocationDocument trainDocument : documents) {
             List<LocationAnnotation> annotations = extractor.getAnnotations(trainDocument.getText());
             Location mainLocation = trainDocument.getMainLocation();
-            if (annotations.isEmpty() || mainLocation == null) {
+            if (annotations.isEmpty() || mainLocation == null || mainLocation.getCoordinate() == null) {
                 continue;
             }
 
@@ -229,11 +199,13 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
             // 1) determine closest location to actual scope
             ClassifiableLocation positiveCandidate = null;
             double minDistance = Double.MAX_VALUE;
-            for (ClassifiableLocation location : classifiableLocations) {
-                double currentDistance = mainLocation.getCoordinate().distance(location.getCoordinate());
+            for (ClassifiableLocation classifiableLocation : classifiableLocations) {
+                GeoCoordinate coordinate = coalesce(classifiableLocation.getLocation().getCoordinate(),
+                        GeoCoordinate.NULL);
+                double currentDistance = mainLocation.getCoordinate().distance(coordinate);
                 if (currentDistance < minDistance) {
                     minDistance = currentDistance;
-                    positiveCandidate = location;
+                    positiveCandidate = classifiableLocation;
                 }
             }
 
@@ -249,27 +221,10 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
             // 3) create positive and negative training examples
             for (ClassifiableLocation location : classifiableLocations) {
                 boolean positive = location == positiveCandidate;
-                instances.add(new Instance(positive, location));
+                instances.add(new InstanceBuilder().add(location.getFeatureVector()).create(positive));
             }
         }
-
-        // maybe filter (some) features
-        if (featureFilter != null) {
-            instances = ClassificationUtils.filterFeatures(instances, featureFilter);
-        }
-        // write CSV file if requested
-        if (csvFile != null) {
-            ClassificationUtils.writeCsv(instances, csvFile);
-        }
-
-        // build the model
-        if (modelFile != null) {
-            StopWatch stopWatch = new StopWatch();
-            Model scopeModel = learner.train(instances);
-            FileHelper.serialize(scopeModel, modelFile.getPath());
-            LOGGER.info("Trained model with {} in {} and wrote to {}", learner, stopWatch.getElapsedTimeString(),
-                    modelFile);
-        }
+        return instances;
     }
 
     /**
@@ -284,23 +239,25 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
      */
     public static <M extends Model> void runFeatureElimination(File trainingCsv, File validationCsv,
             Learner<M> learner, Classifier<M> predictor) {
-        List<Trainable> trainSet = new CsvDatasetReader(trainingCsv).readAll();
-        List<Trainable> validationSet = new CsvDatasetReader(validationCsv).readAll();
+        List<Instance> trainSet = new CsvDatasetReader(trainingCsv).readAll();
+        List<Instance> validationSet = new CsvDatasetReader(validationCsv).readAll();
 
         FMeasureScorer scorer = new FMeasureScorer("true");
         BackwardFeatureElimination<M> featureElimination = new BackwardFeatureElimination<M>(learner, predictor, scorer);
-        FeatureRanking featureRanking = featureElimination.rankFeatures(trainSet, validationSet);
+        FeatureRanking featureRanking = featureElimination.rankFeatures(trainSet, validationSet, NoProgress.INSTANCE);
         CollectionHelper.print(featureRanking.getAll());
     }
 
     public static void main(String[] args) throws IOException {
-        QuickDtModel model = FileHelper.deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
+        QuickDtModel model = FileHelper
+                .deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // note that we are using a zero confidence threshold here; experiments showed, that it's better to go for high
         // recall here, and let the classifier scope detection's classifier decide about each candidate (this is at
         // least the case in the Wikipedia dataset; on the TUD-Loc-2013, it actually harms performance, but we have much
         // less data here for making a definite statement).
-        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0, 1000);
+        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0,
+                new ConfigurableFeatureExtractor());
         LocationExtractor extractor = new PalladianLocationExtractor(database, disambiguation);
 
         // Wikipedia scope dataset //////////////////////////////////////////////////////////////////////////////
@@ -328,12 +285,9 @@ public final class FeatureBasedScopeDetector implements ScopeDetector {
         // feature set was determined using backward feature elimination, using train + validation set on Wikipedia set
 
         // QuickDt model
-        Filter<String> featureFilter = new RegexFilter(
-                "normalizedMidpointDistance|normalizedMedianDistanceToOthers|normalizedMinDistanceToOthers|normalizedCenterpointDistance|"
-                        + "disambiguationTrust|ancestorCount|normalizedMeanDistanceToOthers|occurenceFrequency|minDistanceToOthers|"
-                        + "populationMagnitude|offsetFirst|locationType|hierarchyDepth");
         File modelOutput = new File("scopeDetection_tud-loc_quickDt.model");
-        train(trainingSet, extractor, modelOutput, null, QuickDtLearner.randomForest(), featureFilter);
+        QuickDtModel scopeModel = train(trainingSet, extractor);
+        FileHelper.serialize(scopeModel, modelOutput.getPath());
     }
 
 }

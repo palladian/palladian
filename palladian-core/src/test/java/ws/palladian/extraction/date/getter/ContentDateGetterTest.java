@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 
 import ws.palladian.extraction.date.dates.ContentDate;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
@@ -62,7 +62,7 @@ public class ContentDateGetterTest {
         List<ContentDate> dates = ContentDateGetter.findAllDates(text);
         assertEquals(142, dates.size());
 
-        Set<String> stringPos = CollectionHelper.newHashSet();
+        Set<String> stringPos = new HashSet<>();
         for (ContentDate date : dates) {
             stringPos.add(date.getDateString() + date.get(ContentDate.DATEPOS_IN_DOC));
         }

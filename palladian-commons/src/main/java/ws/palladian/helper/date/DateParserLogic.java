@@ -2,6 +2,7 @@ package ws.palladian.helper.date;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -271,7 +272,7 @@ final class DateParserLogic {
             setTimeValues(stringBuilder.toString());
             set24h(meridiem);
         } else if (format.equals(RegExp.DATE_CONTEXT_YYYY)) {
-            year = Integer.valueOf(dateString);
+            year = Integer.parseInt(dateString);
         } else if (format.equals(RegExp.DATE_MMMM_DD_HH_MM_SS_TZ_YYYY)) {
             String[] parts = dateString.split("\\s");
             setDateValues(parts, 3, 0, 1);
@@ -683,6 +684,14 @@ final class DateParserLogic {
             return "-";
         }
         return null;
+    }
+
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
     }
 
     @Override

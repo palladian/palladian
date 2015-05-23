@@ -23,6 +23,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedProcessingAction;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.MavStrategyDatasetCreation;
@@ -155,7 +156,7 @@ public class DatasetCreator {
 
                     // check whether timestamp is valid, that is, not newer than current timestamp or smaller than
                     // 946684800 (01/01/2000)
-                    long timestamp = Long.valueOf(entry.substring(0, entry.indexOf(";")));
+                    long timestamp = Long.parseLong(entry.substring(0, entry.indexOf(";")));
                     if (timestamp > System.currentTimeMillis() || timestamp < 946684800000l) {
                         LOGGER.info("timestamp " + timestamp + " is invalid, skip cleaning this entry");
                         continue;
@@ -262,7 +263,7 @@ public class DatasetCreator {
                 continue;
             }
 
-            int feedID = Integer.valueOf(file.getName().substring(0, file.getName().indexOf("_"))) + 97650;
+            int feedID = Integer.parseInt(file.getName().substring(0, file.getName().indexOf("_"))) + 97650;
 
             String fileNameRealID = feedID + file.getName().substring(file.getName().indexOf("_"));
             LOGGER.info(fileNameRealID);
@@ -302,7 +303,11 @@ public class DatasetCreator {
         // feedChecker.filterFeeds(updateClasses);
 
         FeedProcessingAction fpa = new DatasetProcessingAction(feedStore);
-        FeedReader feedReader = new FeedReader(feedStore, fpa, updateStrategy);
+        FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+        settingsBuilder.setStore(feedStore);
+        settingsBuilder.setAction(fpa);
+        settingsBuilder.setUpdateStrategy(updateStrategy);
+        FeedReader feedReader = new FeedReader(settingsBuilder.create());
 
         LOGGER.debug("start reading feeds");
         feedReader.start();
@@ -434,7 +439,7 @@ public class DatasetCreator {
             // get thread pool size
             int threadPoolSize = 0;
             if (config != null) {
-                threadPoolSize = config.getInteger("feedReader.threadPoolSize", FeedReader.DEFAULT_NUM_THREADS);
+                threadPoolSize = config.getInteger("feedReader.threadPoolSize", FeedReaderSettings.DEFAULT_NUM_THREADS);
             }
 
             /**

@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.ConstantFactory;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
+import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -38,7 +38,7 @@ public final class DateParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateParser.class);
 
     // XXX for performance optimizations to check speed of each regex, remove later. See issue #162
-    private static final Map<DateFormat, Long> HALL_OF_SHAME = LazyMap.create(ConstantFactory.create(0l));
+    private static final Map<DateFormat, Long> HALL_OF_SHAME = LazyMap.create(Factories.constant(0l));
 
     private DateParser() {
         // utility class, no instances.
@@ -53,11 +53,15 @@ public final class DateParser {
      * @return The {@link ExtractedDate}, nor <code>null</code> if no date could be parsed.
      */
     public static ExtractedDate parseDate(String date) {
+        return parseDateWithTimeZone(date, null);
+    }
+
+    public static ExtractedDate parseDateWithTimeZone(String date, String timeZone) {
         for (DateFormat format : RegExp.ALL_DATE_FORMATS) {
             Pattern pattern = format.getPattern();
             Matcher matcher = pattern.matcher(date);
             if (matcher.matches()) {
-                return parseDate(date, format);
+                return parseDate(date, format, timeZone);
             }
         }
         return null;
@@ -73,8 +77,13 @@ public final class DateParser {
      * @return The {@link ExtractedDate}.
      */
     public static ExtractedDate parseDate(String date, DateFormat format) {
+        return parseDate(date, format, null);
+    }
+
+    public static ExtractedDate parseDate(String date, DateFormat format, String timeZone) {
         DateParserLogic parseLogic = new DateParserLogic(date, format);
         try {
+            parseLogic.setTimeZone(timeZone);
             parseLogic.parse();
         } catch (Exception e) {
             LOGGER.error("Exception while parsing date string \"{}\" with format \"{}\": {}", new Object[] {date,
@@ -132,27 +141,27 @@ public final class DateParser {
      *         matched by the given {@link DateFormat}.
      */
     public static ExtractedDate findDate(String text, DateFormat format) {
-        //        text = StringHelper.removeDoubleWhitespaces(text);
-        //        ExtractedDate result = null;
-        //        Matcher matcher = format.getPattern().matcher(text);
-        //        if (matcher.find()) {
-        //            // Determine, if the found potential date string is directly surrounded by digits.
-        //            // In this case, we skip the pattern and advance to the next one.
-        //            boolean digitNeighbor = false;
-        //            int start = matcher.start();
-        //            if (start > 0) {
-        //                digitNeighbor = Character.isDigit(text.charAt(start - 1));
-        //            }
-        //            int end = matcher.end();
-        //            // if last character is "/" no check for number is needed.
-        //            if (end < text.length() && text.charAt(end - 1) != '/') {
-        //                digitNeighbor = Character.isDigit(text.charAt(end));
-        //            }
-        //            if (!digitNeighbor) {
-        //                result = parseDate(matcher.group(), format);
-        //            }
-        //        }
-        //        return result;
+        // text = StringHelper.removeDoubleWhitespaces(text);
+        // ExtractedDate result = null;
+        // Matcher matcher = format.getPattern().matcher(text);
+        // if (matcher.find()) {
+        // // Determine, if the found potential date string is directly surrounded by digits.
+        // // In this case, we skip the pattern and advance to the next one.
+        // boolean digitNeighbor = false;
+        // int start = matcher.start();
+        // if (start > 0) {
+        // digitNeighbor = Character.isDigit(text.charAt(start - 1));
+        // }
+        // int end = matcher.end();
+        // // if last character is "/" no check for number is needed.
+        // if (end < text.length() && text.charAt(end - 1) != '/') {
+        // digitNeighbor = Character.isDigit(text.charAt(end));
+        // }
+        // if (!digitNeighbor) {
+        // result = parseDate(matcher.group(), format);
+        // }
+        // }
+        // return result;
         List<ExtractedDate> extractedDates = findDates(text, format);
         if (extractedDates.isEmpty()) {
             return null;
@@ -185,7 +194,7 @@ public final class DateParser {
      *         never <code>null</code>.
      */
     public static List<ExtractedDate> findDates(String text, DateFormat... formats) {
-        List<ExtractedDate> result = new ArrayList<ExtractedDate>();
+        List<ExtractedDate> result = new ArrayList<>();
         for (DateFormat format : formats) {
             List<ExtractedDate> dates = findDates(text, format);
             for (ExtractedDate date : dates) {
@@ -211,7 +220,7 @@ public final class DateParser {
     public static List<ExtractedDate> findDates(String text, DateFormat format) {
         StopWatch stopWatch = new StopWatch();
         text = StringHelper.removeDoubleWhitespaces(text);
-        List<ExtractedDate> result = new ArrayList<ExtractedDate>();
+        List<ExtractedDate> result = new ArrayList<>();
         Matcher matcher = format.getPattern().matcher(text);
         while (matcher.find()) {
 
@@ -257,7 +266,7 @@ public final class DateParser {
             Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
                 String relativeTime = matcher.group();
-                long number = Long.valueOf(relativeTime.split(" ")[0]);
+                long number = Long.parseLong(relativeTime.split(" ")[0]);
 
                 String format = dateFormat.getFormat();
                 long diffTime = 0;

@@ -19,9 +19,8 @@ import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
@@ -69,13 +68,9 @@ public class Crawler {
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
     private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
-    private final Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
 
-    /** All urls that have been visited or extracted. */
-    private final Set<String> seenUrls = new HashSet<String>();
-
-    private final Set<String> urlRules = new HashSet<String>();
-    private final Set<String> urlDump = new HashSet<String>();
+    private Set<String> urlRules = new HashSet<String>();
 
     /** If true, all query params in the URL ?= will be stripped. */
     private boolean stripQueryParams = true;
@@ -100,30 +95,22 @@ public class Crawler {
 
         LOGGER.info("catch from stack: {}", currentURL);
 
-        // System.out.println("process "+currentURL+" \t stack size: "+urlStack.size()+" dump size: "+urlDump.size());
         Document document = documentRetriever.getWebDocument(currentURL);
 
-        Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain);
+        if (document != null) {
+            Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain);
 
-        if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
-            LOGGER.info("retrieved {} links from {} || stack size: {} dump size: {}, visited: {}",
-                    new Object[] {links.size(), currentURL, urlStack.size(), urlDump.size(), visitedUrls.size()});
+            if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
+                LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[] {links.size(),
+                        currentURL, urlStack.size(), visitedUrls.size()});
+            }
+
+            addUrlsToStack(links, currentURL);
+        } else {
+            LOGGER.error("could not get " + currentURL + ", putting it back on the stack for later");
+            addUrlToStack(currentURL, currentURL);
         }
 
-        addUrlsToStack(links, currentURL);
-    }
-
-    /**
-     * Save the crawled URLs.
-     * 
-     * @param filename The path where the URLs should be saved to.
-     */
-    public final void saveUrlDump(String filename) {
-        String urlDumpString = "URL crawl from " + DateHelper.getCurrentDatetime("dd.MM.yyyy") + " at "
-                + DateHelper.getCurrentDatetime("HH:mm:ss") + "\n";
-        urlDumpString += "Number of urls: " + urlDump.size() + "\n\n";
-
-        FileHelper.writeToFile(filename, urlDump);
     }
 
     /**
@@ -317,29 +304,9 @@ public class Crawler {
 
             if (follow) {
                 urlStack.add(url);
-            } else if (!seenUrls.contains(url)) {
-                sourceUrl = sourceUrl.replace("/", " ").trim();
-                if (checkUrlRules(sourceUrl)) {
-                    urlDump.add(url + " " + sourceUrl);
-                }
             }
 
-            seenUrls.add(url);
         }
-    }
-
-    private boolean checkUrlRules(String url) {
-        boolean valid = false;
-
-        for (String rule : urlRules) {
-            url = url.replace("/", " ");
-            if (url.indexOf(rule) > 0) {
-                valid = true;
-                break;
-            }
-        }
-
-        return valid;
     }
 
     public int getMaxThreads() {
@@ -363,7 +330,7 @@ public class Crawler {
         this.crawlerCallbackOnFinish = crawlerCallbackOnFinish;
     }
 
-    public void addCrawlerCallback(RetrieverCallback<Document> crawlerCallback) {
+    public void addCrawlerCallback(Consumer<Document> crawlerCallback) {
         documentRetriever.addRetrieverCallback(crawlerCallback);
     }
 
@@ -383,6 +350,22 @@ public class Crawler {
         this.stripQueryParams = stripQueryParams;
     }
 
+    public Set<String> getUrlStack() {
+        return urlStack;
+    }
+
+    public void setUrlStack(Set<String> urlStack) {
+        this.urlStack = urlStack;
+    }
+
+    public Set<String> getVisitedUrls() {
+        return visitedUrls;
+    }
+
+    public void setVisitedUrls(Set<String> visitedUrls) {
+        this.visitedUrls = visitedUrls;
+    }
+
     public static void main(String[] args) {
 
         // ///////////////// simple usage ///////////////////
@@ -390,11 +373,10 @@ public class Crawler {
         Crawler crawler = new Crawler();
 
         // create a callback that is triggered for every crawled page
-        RetrieverCallback<Document> crawlerCallback = new RetrieverCallback<Document>() {
-
+        Consumer<Document> crawlerCallback = new Consumer<Document>() {
             @Override
-            public void onFinishRetrieval(Document document) {
-                LOGGER.info("downloaded the page " + document.getDocumentURI());
+            public void process(Document item) {
+                LOGGER.info("downloaded the page " + item.getDocumentURI());
             }
         };
         crawler.addCrawlerCallback(crawlerCallback);

@@ -7,6 +7,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.BaseTopsySearcher;
+import ws.palladian.retrieval.search.socialmedia.MultifacetTopsySearcher;
 
 /**
  * <p>
@@ -14,7 +15,9 @@ import ws.palladian.retrieval.search.BaseTopsySearcher;
  * </p>
  * 
  * @author Philipp KAtz
+ * @deprecated Use {@link MultifacetTopsySearcher} instead.
  */
+@Deprecated
 public final class TopsyUrlSearcher extends BaseTopsySearcher {
 
     private static final String SEARCHER_NAME = "Topsy Links";

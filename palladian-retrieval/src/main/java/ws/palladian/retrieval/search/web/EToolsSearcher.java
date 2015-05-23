@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Document;
@@ -63,7 +64,7 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
         }
 
         List<Node> records = XPathHelper.getNodes(document, "/result/records/record");
-        List<WebContent> results = CollectionHelper.newArrayList();
+        List<WebContent> results = new ArrayList<>();
 
         for (Node record : records) {
             BasicWebContent.Builder builder = new BasicWebContent.Builder();

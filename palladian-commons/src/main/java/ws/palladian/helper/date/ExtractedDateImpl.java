@@ -3,6 +3,7 @@ package ws.palladian.helper.date;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Validate;
@@ -36,11 +37,11 @@ public class ExtractedDateImpl implements ExtractedDate {
 
     // FIXME is this considered?
     private String timeZone = null;
-    
+
     public ExtractedDateImpl() {
         this(System.currentTimeMillis());
     }
-    
+
     public ExtractedDateImpl(long milliseconds) {
         Calendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(milliseconds);
@@ -89,7 +90,7 @@ public class ExtractedDateImpl implements ExtractedDate {
         this.month = parseLogic.month;
         this.day = parseLogic.day;
         this.hour = parseLogic.hour;
-        this.minute= parseLogic.minute;
+        this.minute = parseLogic.minute;
         this.second = parseLogic.second;
         this.timeZone = parseLogic.timeZone;
         this.dateString = parseLogic.originalDateString;
@@ -116,6 +117,9 @@ public class ExtractedDateImpl implements ExtractedDate {
         int second = this.second == -1 ? 0 : this.second;
 
         Calendar cal = new GregorianCalendar();
+        if (timeZone != null) {
+            cal.setTimeZone(TimeZone.getTimeZone(timeZone));
+        }
         cal.set(year, month, day, hour, minute, second);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTimeInMillis();
@@ -154,20 +158,16 @@ public class ExtractedDateImpl implements ExtractedDate {
 
         return normalizedDate.toString();
     }
-    
+
     /**
      * Adds a leading zero for numbers less then ten. <br>
      * E.g.: 3 ->"03"; 12 -> "12"; 386 -> "376" ...
      * 
-     * @param number
-     * @return a minimum two digit number
+     * @param number The number of which we want two digits.
+     * @return A minimum two digit number.
      */
     static String get2Digits(int number) {
-        String numberString = String.valueOf(number);
-        if (number < 10) {
-            numberString = "0" + number;
-        }
-        return numberString;
+        return String.format("%02d", number);
     }
 
     @Override
@@ -205,7 +205,7 @@ public class ExtractedDateImpl implements ExtractedDate {
         }
         return value;
     }
-    
+
     @Override
     public String getTimeZone() {
         return timeZone;

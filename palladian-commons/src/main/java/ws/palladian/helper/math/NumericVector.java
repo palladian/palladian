@@ -1,7 +1,5 @@
 package ws.palladian.helper.math;
 
-import java.util.Set;
-
 import ws.palladian.helper.collection.Vector;
 
 /**
@@ -72,15 +70,5 @@ public interface NumericVector<K> extends Vector<K, Double> {
      * @return The euclidean distance between this and the given vector.
      */
     double euclidean(NumericVector<K> other);
-
-    /**
-     * @return The keys in this vector.
-     */
-    Set<K> keys();
-
-    /**
-     * @return The number of elements in this vector.
-     */
-    int size();
 
 }

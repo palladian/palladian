@@ -113,7 +113,7 @@ public final class UrlHelper {
      * header.
      * </p>
      * 
-     * @param document
+     * @param document The document.
      * @return The base URL, if present, <code>null</code> otherwise.
      */
     public static String getBaseUrl(Document document) {
@@ -203,7 +203,7 @@ public final class UrlHelper {
      * <code>http://www.example.com</code>.
      * </p>
      * 
-     * @param url
+     * @param url The url.
      * @param includeProtocol include protocol prefix, e.g. "http://"
      * @return root URL, or empty String if URL cannot be determined, never <code>null</code>
      */
@@ -233,7 +233,7 @@ public final class UrlHelper {
      * <code>http://www.example.com</code>.
      * </p>
      * 
-     * @param url
+     * @param url The URL.
      * @return root URL, or empty String if URL cannot be determined, never <code>null</code>
      */
     public static String getDomain(String url) {
@@ -246,7 +246,7 @@ public final class UrlHelper {
      * parameters are sorted alphabetically in ascending order, fragments (i.e. "anchor" parts) are removed.
      * </p>
      * 
-     * @param url
+     * @param url The URL.
      * @return canonical URL, or empty String if URL cannot be determined, never <code>null</code>
      * 
      */
@@ -325,8 +325,8 @@ public final class UrlHelper {
      * Decode a String which was used as URL parameter.
      * </p>
      * 
-     * @param string
-     * @return
+     * @param string The string to be decoded.
+     * @return The decoded string.
      */
     public static String decodeParameter(String string) {
         try {
@@ -341,8 +341,8 @@ public final class UrlHelper {
      * Encode a String to be used as URL parameter.
      * </p>
      * 
-     * @param string
-     * @return
+     * @param string The string to be encoded.
+     * @return The encoded string.
      */
     public static String encodeParameter(String string) {
         try {
@@ -357,7 +357,7 @@ public final class UrlHelper {
      * Extracts all recognizable URLs from a given text.
      * </p>
      * 
-     * @param text
+     * @param text The text from which URLs should be extracted.
      * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
      */
     public static List<String> extractUrls(String text) {

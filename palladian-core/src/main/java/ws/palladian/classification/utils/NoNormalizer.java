@@ -1,7 +1,6 @@
 package ws.palladian.classification.utils;
 
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.features.NumericFeature;
+import ws.palladian.core.FeatureVector;
 
 /**
  * <p>
@@ -12,24 +11,24 @@ import ws.palladian.processing.features.NumericFeature;
  * @author Philipp Katz
  */
 public final class NoNormalizer implements Normalizer {
-    
+
     private static final Normalization NOP = new AbstractNormalization() {
 
         private static final long serialVersionUID = 1L;
 
         @Override
-        public NumericFeature normalize(NumericFeature numericFeature) {
-            return numericFeature;
+        public double normalize(String name, double value) {
+            return value;
         }
-        
+
         public String toString() {
             return "<no normalization>";
-        };
+        }
 
     };
 
     @Override
-    public Normalization calculate(Iterable<? extends Classifiable> instances) {
+    public Normalization calculate(Iterable<? extends FeatureVector> featureVectors) {
         return NOP;
     }
 

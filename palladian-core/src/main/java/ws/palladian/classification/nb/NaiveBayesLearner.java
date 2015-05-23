@@ -1,21 +1,18 @@
 package ws.palladian.classification.nb;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.javatuples.Pair;
-import org.javatuples.Triplet;
-
-import ws.palladian.classification.Learner;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
-import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Learner;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NumericValue;
+import ws.palladian.core.value.Value;
+import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.collection.LazyMatrix;
+import ws.palladian.helper.collection.MapMatrix;
+import ws.palladian.helper.collection.Matrix;
+import ws.palladian.helper.collection.Matrix.MatrixVector;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.SlimStats;
 import ws.palladian.helper.math.Stats;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.NominalFeature;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -30,44 +27,46 @@ import ws.palladian.processing.features.NumericFeature;
 public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
 
     @Override
-    public NaiveBayesModel train(Iterable<? extends Trainable> trainables) {
+    public NaiveBayesModel train(Iterable<? extends Instance> instances) {
 
         // store the counts of different categories
-        CountMap<String> categories = CountMap.create();
+        Bag<String> categories = Bag.create();
         // store the counts of nominal features (name, value, category)
-        CountMap<Triplet<String, String, String>> nominalCounts = CountMap.create();
+        LazyMatrix<String, Bag<String>> nominalCounts = LazyMatrix.create(new Bag.BagFactory<String>());
         // store mean and standard deviation for numeric features (name, category)
-        Map<Pair<String, String>, Stats> stats = LazyMap.create(SlimStats.FACTORY);
+        Matrix<String, Stats> stats = LazyMatrix.create(SlimStats.FACTORY);
 
-        for (Trainable trainable : trainables) {
-            String category = trainable.getTargetClass();
+        for (Instance instance : instances) {
+            String category = instance.getCategory();
             categories.add(category);
 
-            for (Feature<?> feature : trainable.getFeatureVector()) {
-                String featureName = feature.getName();
+            for (VectorEntry<String, Value> entry : instance.getVector()) {
+                String featureName = entry.key();
+                Value value = entry.value();
 
-                if (feature instanceof NominalFeature) {
-                    String nominalValue = ((NominalFeature)feature).getValue();
-                    nominalCounts.add(new Triplet<String, String, String>(featureName, nominalValue, category));
-                }
-
-                if (feature instanceof NumericFeature) {
-                    Stats stat = stats.get(new Pair<String, String>(featureName, category));
-                    Double numericValue = ((NumericFeature)feature).getValue();
-                    stat.add(numericValue);
+                if (value instanceof NominalValue) {
+                    String nominalValue = ((NominalValue)value).getString();
+                    nominalCounts.get(featureName, nominalValue).add(category);
+                } else if (value instanceof NumericValue) {
+                    double numericValue = ((NumericValue)value).getDouble();
+                    stats.get(featureName, category).add(numericValue);
                 }
             }
         }
 
-        Map<Pair<String, String>, Double> sampleMeans = CollectionHelper.newHashMap();
-        Map<Pair<String, String>, Double> standardDeviations = CollectionHelper.newHashMap();
+        Matrix<String, Double> sampleMeans = MapMatrix.create();
+        Matrix<String, Double> standardDeviations = MapMatrix.create();
 
-        for (Entry<Pair<String, String>, Stats> entry : stats.entrySet()) {
-            sampleMeans.put(entry.getKey(), entry.getValue().getMean());
-            standardDeviations.put(entry.getKey(), entry.getValue().getStandardDeviation());
+        for (MatrixVector<String, Stats> row : stats.rows()) {
+            String category = row.key();
+            for (VectorEntry<String, Stats> cell : row) {
+                String featureName = cell.key();
+                sampleMeans.set(featureName, category, cell.value().getMean());
+                standardDeviations.set(featureName, category, cell.value().getStandardDeviation());
+            }
         }
 
-        return new NaiveBayesModel(nominalCounts, categories, sampleMeans, standardDeviations);
+        return new NaiveBayesModel(nominalCounts.getMatrix(), categories, sampleMeans, standardDeviations);
     }
 
 }

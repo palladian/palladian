@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.processing.ClassifiedTextDocument;
-import ws.palladian.processing.Trainable;
 
 /**
  * <p>
@@ -17,7 +17,7 @@ import ws.palladian.processing.Trainable;
  * 
  * @author Philipp Katz
  */
-public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
+public class TextDatasetIterator implements Iterable<Instance> {
 
     private final String name;
     private final List<String> fileLines;
@@ -45,12 +45,13 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
     }
 
     @Override
-    public Iterator<ClassifiedTextDocument> iterator() {
+    public Iterator<Instance> iterator() {
         final Iterator<String> lineIterator = fileLines.iterator();
         final int totalLines = fileLines.size();
-        final ProgressMonitor progressMonitor = new ProgressMonitor(totalLines, 1, "Dataset: " + name);
+        final ProgressMonitor progressMonitor = new ProgressMonitor();
+        progressMonitor.startTask("Dataset: " + name, totalLines);
 
-        return new Iterator<ClassifiedTextDocument>() {
+        return new Iterator<Instance>() {
 
             @Override
             public boolean hasNext() {
@@ -58,7 +59,7 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
             }
 
             @Override
-            public ClassifiedTextDocument next() {
+            public Instance next() {
                 String nextLine = lineIterator.next();
                 String[] parts = nextLine.split(separationString);
                 if (parts.length != 2) {
@@ -72,8 +73,8 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
                     learningText = new String(parts[0]);
                 }
                 String instanceCategory = new String(parts[1]);
-                progressMonitor.incrementAndPrintProgress();
-                return new ClassifiedTextDocument(instanceCategory, learningText);
+                progressMonitor.increment();
+                return new InstanceBuilder().setText(learningText).create(instanceCategory);
             }
 
             @Override
@@ -81,19 +82,6 @@ public class TextDatasetIterator implements Iterable<ClassifiedTextDocument> {
                 throw new UnsupportedOperationException("Modifications are not allowed.");
             }
         };
-    }
-
-    public static void main(String[] args) {
-        String JRC_TRAIN_FILE = "/Users/pk/Dropbox/Uni/Datasets/Wikipedia76Languages/languageDocumentIndex_random1000_train.txt";
-        Dataset dataset = new Dataset("JRC");
-        dataset.setFirstFieldLink(true);
-        dataset.setSeparationString(" ");
-        dataset.setPath(JRC_TRAIN_FILE);
-
-        TextDatasetIterator datasetIterator = new TextDatasetIterator(dataset);
-        for (Trainable trainable : datasetIterator) {
-            assert (trainable != null);
-        }
     }
 
 }

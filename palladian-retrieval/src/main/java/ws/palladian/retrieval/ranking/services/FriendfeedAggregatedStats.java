@@ -1,10 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +31,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @see http://www.friendfeed.com/
  * @see http://friendfeed.com/api/services
  */
-public final class FriendfeedAggregatedStats extends BaseRankingService implements RankingService {
+public final class FriendfeedAggregatedStats extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FriendfeedAggregatedStats.class);
@@ -44,11 +41,9 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
     /**
      * The external services users can have in their feed that we don't want to
      * count since we have seperate RankingService classes for them.
-     * */
+     */
     private static final String[] EXCLUDE_SERVICES = { "internal", "feed", "blog", "delicious", "digg", "facebook",
             "plurk", "reddit", "twitter" };
-
-    /** No config values. */
 
     /** The id of this service. */
     private static final String SERVICE_ID = "friendfeed_external";
@@ -66,22 +61,13 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
     /** All available ranking types by {@link FriendfeedAggregatedStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(ENTRIES, LIKES, COMMENTS);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 1;
-
     public FriendfeedAggregatedStats() {
         super();
     }
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         try {
             String encUrl = UrlHelper.encodeParameter(url);
@@ -89,9 +75,9 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
             JsonObject json = new JsonObject(httpResult.getStringContent());
 
             JsonArray entriesArray = json.getJsonArray("entries");
-            float entries = 0;
-            float likes = 0;
-            float comments = 0;
+            int entries = 0;
+            int likes = 0;
+            int comments = 0;
             for (int i = 0; i < entriesArray.size(); i++) {
                 JsonObject post = entriesArray.getJsonObject(i);
                 if (!Arrays.asList(EXCLUDE_SERVICES).contains(post.getJsonObject("service").getString("id"))) {
@@ -100,61 +86,17 @@ public final class FriendfeedAggregatedStats extends BaseRankingService implemen
                     comments += post.getJsonArray("comments").size();
                 }
             }
-            results.put(ENTRIES, entries);
-            results.put(LIKES, likes);
-            results.put(COMMENTS, comments);
-            LOGGER.trace("FriendFeed stats for " + url + " : " + results);
+            builder.add(ENTRIES, entries);
+            builder.add(LIKES, likes);
+            builder.add(COMMENTS, comments);
+            LOGGER.trace("FriendFeed stats for " + url + " : " + builder);
 
         } catch (JsonException e) {
-            checkBlocked();
             throw new RankingServiceException("JSONException " + e.getMessage(), e);
         } catch (HttpException e) {
-            checkBlocked();
             throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }
-        return ranking;
-    }
-
-    @Override
-    public boolean checkBlocked() {
-        boolean error = false;
-        try {
-            HttpResult httpResult = retriever.httpGet(GET_ENTRIES + UrlHelper.encodeParameter("http://www.google.com/"));
-            JsonObject json = new JsonObject(httpResult.getStringContent());
-            if (json.get("errorCode") != null) {
-                if (json.get("errorCode").equals("limit-exceeded")) {
-                    error = true;
-                }
-            }
-        } catch (JsonException e) {
-            LOGGER.error("JSONException " + e.getMessage());
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (!error) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("FriendFeed Aggregated Stats Ranking Service is momentarily blocked. Will check again in 1min.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
+        return builder.create();
     }
 
     @Override

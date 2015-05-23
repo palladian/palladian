@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -27,11 +28,9 @@ import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoCoordinate;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.ClueWebSearcher.ClueWebResult;
 
@@ -66,7 +65,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
             this.content = content;
             this.score = score;
         }
-        
+
         @Override
         public int getId() {
             return -1;
@@ -110,7 +109,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         public Set<String> getTags() {
             return Collections.emptySet();
         }
-        
+
         @Override
         public String getSource() {
             return SEARCHER_NAME;
@@ -126,6 +125,12 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
     /** The Lucene directory instance. */
     private final Directory directory;
 
+    /** The reader; keep it open for the lifetime of this instance for performance reasons. */
+    private final IndexReader indexReader;
+
+    /** The searcher; keep it open for the lifetime of this instance for performance reasons. */
+    private final IndexSearcher indexSearcher;
+
     /**
      * <p>
      * Create a new {@link ClueWebSearcher} for the specified Lucene index.
@@ -138,6 +143,8 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         Validate.notNull(indexPath, "indexPath must not be null");
         try {
             directory = new SimpleFSDirectory(indexPath);
+            indexReader = DirectoryReader.open(directory);
+            indexSearcher = new IndexSearcher(indexReader);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -146,11 +153,8 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
     @Override
     public List<ClueWebResult> search(String query, int resultCount, Language language) throws SearcherException {
         StopWatch stopWatch = new StopWatch();
-        List<ClueWebResult> rankedDocuments = CollectionHelper.newArrayList();
-        IndexReader indexReader = null;
+        List<ClueWebResult> rankedDocuments = new ArrayList<>();
         try {
-            indexReader = DirectoryReader.open(directory);
-            IndexSearcher indexSearcher = new IndexSearcher(indexReader);
             Query luceneQuery = createQuery(query);
             TopScoreDocCollector collector = TopScoreDocCollector.create(resultCount, false);
             indexSearcher.search(luceneQuery, collector);
@@ -169,7 +173,6 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         } catch (IOException e) {
             throw new SearcherException(e);
         } finally {
-            FileHelper.close(indexReader);
             LOGGER.debug("search took {}", stopWatch);
         }
         return rankedDocuments;
@@ -188,10 +191,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
     @Override
     public long getTotalResultCount(String query, Language language) throws SearcherException {
         StopWatch stopWatch = new StopWatch();
-        IndexReader indexReader = null;
         try {
-            indexReader = DirectoryReader.open(directory);
-            IndexSearcher indexSearcher = new IndexSearcher(indexReader);
             Query luceneQuery = createQuery(query);
             TotalHitCountCollector collector = new TotalHitCountCollector();
             indexSearcher.search(luceneQuery, collector);
@@ -201,13 +201,13 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
         } catch (IOException e) {
             throw new SearcherException(e);
         } finally {
-            FileHelper.close(indexReader);
             LOGGER.debug("getTotalResultCount took {}", stopWatch);
         }
     }
 
     @Override
     public void close() throws IOException {
+        indexReader.close();
         directory.close();
     }
 

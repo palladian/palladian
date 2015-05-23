@@ -1,7 +1,9 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,8 +11,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -18,6 +18,8 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -38,7 +40,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleLocationSource.class);
 
-    private static final Map<String, LocationType> TYPE_MAPPING = CollectionHelper.newHashMap();
+    private static final Map<String, LocationType> TYPE_MAPPING = new HashMap<>();
 
     private final HttpRetriever httpRetriever;
 
@@ -105,7 +107,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
 
     private List<Location> parseLocations(JsonObject jsonResponse) throws JsonException {
         List<Location> locations;
-        locations = CollectionHelper.newArrayList();
+        locations = new ArrayList<>();
         if (jsonResponse.get("results") != null) {
             JsonArray result = jsonResponse.getJsonArray("results");
             for (int i = 0; i < result.size(); i++) {

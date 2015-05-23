@@ -3,7 +3,7 @@ package ws.palladian.classification.text;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
-import ws.palladian.helper.collection.Factory;
+import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>
@@ -21,6 +21,8 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     int maxNGramLength = FeatureSetting.DEFAULT_MAX_NGRAM_LENGTH;
     int minTermLength = FeatureSetting.DEFAULT_MIN_TERM_LENGTH;
     int maxTermLength = FeatureSetting.DEFAULT_MAX_TERM_LENGTH;
+    boolean caseSensitive = FeatureSetting.DEFAULT_CASE_SENSITIVE;
+    boolean characterPadding = FeatureSetting.DEFAULT_CHARACTER_PADDING;
 
     /**
      * <p>
@@ -66,7 +68,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * @return The builder.
      */
     public static FeatureSettingBuilder words() {
-        return new FeatureSettingBuilder(TextFeatureType.WORD_NGRAMS);
+        return new FeatureSettingBuilder(TextFeatureType.WORD_NGRAMS).nGramLength(1);
     }
 
     /**
@@ -118,6 +120,8 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         this.maxNGramLength = other.getMaxNGramLength();
         this.minTermLength = other.getMinimumTermLength();
         this.maxTermLength = other.getMaximumTermLength();
+        this.caseSensitive = other.isCaseSensitive();
+        this.characterPadding = other.isCharacterPadding();
     }
 
     /**
@@ -136,8 +140,8 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
 
     /**
      * <p>
-     * Set the lengths of n-grams which are extracted (depending on the {@link #setFeatureType(TextFeatureType)}, the
-     * length is either in characters or words).
+     * Set the lengths of n-grams which are extracted (depending on the feature type, the length is either in characters
+     * or words).
      * </p>
      * 
      * @param min The minimum n-gram length, must be greater zero.
@@ -155,8 +159,8 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
 
     /**
      * <p>
-     * Set the length of n-grams which are extracted (depending on the {@link #setFeatureType(TextFeatureType)}, the
-     * length is either in characters or words).
+     * Set the length of n-grams which are extracted (depending on the feature type, the length is either in characters
+     * or words).
      * </p>
      * 
      * @param length The n-gram length, must be greater zero.
@@ -172,10 +176,8 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
 
     /**
      * <p>
-     * Set the minimum and maximum length of terms to extract. This is only effective in case the
-     * {@link #setFeatureType(TextFeatureType)} was set to {@link TextFeatureType#WORD_NGRAMS} and
-     * {@link #nGramLength(int)} was set to a value of one (in case it is not, it will be set to one automatically, when
-     * invoking this method).
+     * Set the minimum and maximum length of terms to extract. This is only effective in case of word-1-grams (in case
+     * it is not, it will be set to one automatically, when invoking this method).
      * </p>
      * 
      * @param min The minimum term length, must be greater zero.
@@ -184,13 +186,43 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      */
     public FeatureSettingBuilder termLength(int min, int max) {
         if (featureType != TextFeatureType.WORD_NGRAMS) {
-            throw new UnsupportedOperationException("This is only supported for WORD_NGRAMS mode.");
+            throw new UnsupportedOperationException("This is only supported for " + TextFeatureType.WORD_NGRAMS
+                    + " mode.");
         }
         Validate.isTrue(min > 0, "min must be greater zero");
         Validate.isTrue(max >= min, "max must be greater/equal min");
         this.minTermLength = min;
         this.maxTermLength = max;
         nGramLength(1);
+        return this;
+    }
+
+    /**
+     * <p>
+     * Make the feature extraction case sensitive (as opposed to the default setting, where case does not matter).
+     * 
+     * @return The builder, to allow method chaining.
+     */
+    public FeatureSettingBuilder caseSensitive() {
+        this.caseSensitive = true;
+        return this;
+    }
+
+    /**
+     * <p>
+     * Enable character padding, this way, the boundaries of the text are filled with padding characters to create
+     * additional features which explicitly model the text boundaries. (e.g. for a token 'The' occurring at the
+     * documents beginning and n-gram length 3, we additionally create features the '##T', ''#Th') This setting can
+     * improve accuracy when classifying very short phrases. This only works in case of character n-grams.
+     * 
+     * @return The builder, to allow method chaining.
+     */
+    public FeatureSettingBuilder characterPadding() {
+        if (featureType != TextFeatureType.CHAR_NGRAMS) {
+            throw new UnsupportedOperationException("Character padding is only supported for "
+                    + TextFeatureType.CHAR_NGRAMS + " mode.");
+        }
+        this.characterPadding = true;
         return this;
     }
 

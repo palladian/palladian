@@ -6,7 +6,7 @@ import org.apache.commons.configuration.Configuration;
 
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 
 /**
  * TUDCS6 specific.<br />
@@ -37,7 +37,7 @@ public class SessionIdFixer {
     public void removeFalseMisses() {
 
         Configuration config = ConfigHolder.getInstance().getConfig();
-        FeedDatabase feedStore = DatabaseManagerFactory.create(FeedDatabase.class, config);
+        EvaluationFeedDatabase feedStore = DatabaseManagerFactory.create(EvaluationFeedDatabase.class, config);
         SessionIdFixProcessingAction fpa = new SessionIdFixProcessingAction(feedStore);
         GzScheduler gzScheduler = new GzScheduler(feedStore, fpa);
         checkScheduler.schedule(gzScheduler, 0, wakeUpInterval);

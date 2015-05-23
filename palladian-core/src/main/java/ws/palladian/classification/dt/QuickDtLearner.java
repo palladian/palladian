@@ -1,10 +1,14 @@
 package ws.palladian.classification.dt;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import quickdt.HashMapAttributes;
 import quickdt.Instance;
@@ -12,11 +16,12 @@ import quickdt.PredictiveModel;
 import quickdt.PredictiveModelBuilder;
 import quickdt.TreeBuilder;
 import quickdt.randomForest.RandomForestBuilder;
-import ws.palladian.classification.Learner;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.Feature;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Learner;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NumericValue;
+import ws.palladian.core.value.Value;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -28,6 +33,9 @@ import ws.palladian.processing.features.Feature;
  * @author Philipp Katz
  */
 public final class QuickDtLearner implements Learner<QuickDtModel> {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuickDtLearner.class);
 
     /** The builder used for creating the predictive mode. */
     private final PredictiveModelBuilder<? extends PredictiveModel> builder;
@@ -76,23 +84,31 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
     }
 
     @Override
-    public QuickDtModel train(Iterable<? extends Trainable> trainables) {
-        Set<Instance> trainingInstances = CollectionHelper.newHashSet();
-        Set<String> classes = CollectionHelper.newHashSet();
-        for (Trainable instance : trainables) {
-            Serializable[] input = getInput(instance);
-            trainingInstances.add(HashMapAttributes.create(input).classification(instance.getTargetClass()));
-            classes.add(instance.getTargetClass());
+    public QuickDtModel train(Iterable<? extends ws.palladian.core.Instance> instances) {
+        Set<Instance> trainingInstances = new HashSet<>();
+        Set<String> classes = new HashSet<>();
+        for (ws.palladian.core.Instance instance : instances) {
+            Serializable[] input = getInput(instance.getVector());
+            trainingInstances.add(HashMapAttributes.create(input).classification(instance.getCategory()));
+            classes.add(instance.getCategory());
         }
         PredictiveModel tree = builder.buildPredictiveModel(trainingInstances);
         return new QuickDtModel(tree, classes);
     }
 
-    static Serializable[] getInput(Classifiable classifiable) {
-        List<Serializable> inputs = CollectionHelper.newArrayList();
-        for (Feature<?> feature : classifiable.getFeatureVector()) {
-            inputs.add(feature.getName());
-            inputs.add((Serializable)feature.getValue());
+    static Serializable[] getInput(FeatureVector featureVector) {
+        List<Serializable> inputs = new ArrayList<>();
+        for (VectorEntry<String, Value> feature : featureVector) {
+            Value value = feature.value();
+            if (value instanceof NominalValue) {
+                inputs.add(feature.key());
+                inputs.add(((NominalValue)value).getString());
+            } else if (value instanceof NumericValue) {
+                inputs.add(feature.key());
+                inputs.add(((NumericValue)value).getDouble());
+            } else {
+                LOGGER.trace("Unsupported type for {}: {}", feature.key(), value.getClass().getName());
+            }
         }
         return inputs.toArray(new Serializable[inputs.size()]);
     }

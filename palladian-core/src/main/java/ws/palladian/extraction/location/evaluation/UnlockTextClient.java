@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -14,7 +15,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpException;
@@ -97,7 +97,7 @@ class UnlockTextClient {
      * @param textPath The local path to the directory, used for obtaining the file names.
      */
     public void addDocuments(String jobName, String baseUrl, File textsPath) {
-        List<String> documentUrls = CollectionHelper.newArrayList();
+        List<String> documentUrls = new ArrayList<>();
         File[] files = FileHelper.getFiles(textsPath.getPath());
         for (File file : files) {
             if (file.getName().startsWith("text")) {

@@ -10,12 +10,14 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.retrieval.feeds.DefaultFeedProcessingAction;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.evaluation.ChartCreator;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.AdaptiveTTLUpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.IndHistTTLUpdateStrategy;
@@ -117,8 +119,12 @@ public class DatasetEvaluator {
         FeedReaderEvaluator.setBenchmarkPolicy(benchmarkPolicy);
         FeedReaderEvaluator.setBenchmarkMode(benchmarkMode);
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSampleSize;
-        feedReader = new FeedReader(feedStore, new DefaultFeedProcessingAction(), updateStrategy,
-                FeedReader.DEFAULT_NUM_THREADS, wakeUpInterval);
+        FeedReaderSettings.Builder settingsBuilder = new FeedReaderSettings.Builder();
+        settingsBuilder.setStore(feedStore);
+        settingsBuilder.setAction(new DefaultFeedProcessingAction());
+        settingsBuilder.setUpdateStrategy(updateStrategy);
+        settingsBuilder.setWakeUpInterval(wakeUpInterval);
+        feedReader = new FeedReader(settingsBuilder.create());
 
         String timestamp = DateHelper.getCurrentDatetime();
 
@@ -201,24 +207,24 @@ public class DatasetEvaluator {
                     LOGGER.error("Defined fixInterval and interval bounds have conflict! "
                             + "Make sure minInterval <= fixInterval <= maxInterval.");
                 }
-                updateStrategy = new FixUpdateStrategy(minInterval, maxInterval, fixInterval);
+                updateStrategy = new FixUpdateStrategy(minInterval, maxInterval, fixInterval, FeedUpdateMode.MIN_DELAY);
                 logMsg.append(updateStrategy.getName());
             }
             // Fix Learned
             else if (strategy.equalsIgnoreCase("FixLearned")) {
                 int fixLearnedMode = config.getInt("datasetEvaluator.fixLearnedMode");
-                updateStrategy = new FixLearnedUpdateStrategy(minInterval, maxInterval, fixLearnedMode);
+                updateStrategy = new FixLearnedUpdateStrategy(minInterval, maxInterval, fixLearnedMode, FeedUpdateMode.MIN_DELAY);
                 logMsg.append(updateStrategy.getName());
             }
             // Adaptive TTL
             else if (strategy.equalsIgnoreCase("AdaptiveTTL")) {
                 double weightM = config.getDouble("datasetEvaluator.adaptiveTTLweightM");
-                updateStrategy = new AdaptiveTTLUpdateStrategy(minInterval, maxInterval, weightM);
+                updateStrategy = new AdaptiveTTLUpdateStrategy(minInterval, maxInterval, weightM, FeedUpdateMode.MIN_DELAY);
                 logMsg.append(updateStrategy.getName());
             }
             // LRU-2
             else if (strategy.equalsIgnoreCase("LRU2")) {
-                updateStrategy = new LRU2UpdateStrategy(-1, -1);
+                updateStrategy = new LRU2UpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY);
                 logMsg.append(updateStrategy.getName());
             }
             // MAVSync
@@ -244,7 +250,7 @@ public class DatasetEvaluator {
                 int timeWindowHours = config.getInt("datasetEvaluator.indHistTTLtimeWindowHours");
                 double weightM = config.getDouble("datasetEvaluator.adaptiveTTLweightM");
                 updateStrategy = new IndHistTTLUpdateStrategy(minInterval, maxInterval, indHistTheta, feedStore,
-                        tBurst, timeWindowHours, weightM);
+                        tBurst, timeWindowHours, weightM, FeedUpdateMode.MIN_DELAY);
                 logMsg.append(updateStrategy.getName());
 
             }

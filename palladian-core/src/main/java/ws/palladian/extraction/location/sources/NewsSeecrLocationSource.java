@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -10,16 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -95,7 +95,7 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
     }
 
     private List<Location> parseResultArray(JsonArray resultArray) throws JsonException {
-        List<Location> locations = CollectionHelper.newArrayList();
+        List<Location> locations = new ArrayList<>();
         for (int i = 0; i < resultArray.size(); i++) {
             JsonObject resultObject = resultArray.getJsonObject(i);
             Location location = parseSingleResult(resultObject);
@@ -115,7 +115,7 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
         String primaryName = resultObject.getString("primaryName");
         String typeString = resultObject.getString("type");
         Long population = resultObject.getLong("population");
-        List<AlternativeName> altNames = CollectionHelper.newArrayList();
+        List<AlternativeName> altNames = new ArrayList<>();
         JsonArray jsonArray = resultObject.getJsonArray("alternativeNames");
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject altLanguageJson = jsonArray.getJsonObject(i);
@@ -128,7 +128,7 @@ public final class NewsSeecrLocationSource extends MultiQueryLocationSource {
             altNames.add(new AlternativeName(nameValue, language));
         }
         LocationType type = LocationType.valueOf(typeString);
-        List<Integer> ancestors = CollectionHelper.newArrayList();
+        List<Integer> ancestors = new ArrayList<>();
         JsonArray ancestorIds = resultObject.getJsonArray("ancestorIds");
         for (int i = 0; i < ancestorIds.size(); i++) {
             ancestors.add(ancestorIds.getInt(i));

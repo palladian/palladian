@@ -1,7 +1,7 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +15,7 @@ import java.util.Set;
  * 
  * @param <V> The type of values in the map.
  */
-public class CaseInsensitiveMap<V> implements Map<String, V>, Serializable {
+public class CaseInsensitiveMap<V> extends AbstractMap<String, V> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,7 +38,7 @@ public class CaseInsensitiveMap<V> implements Map<String, V>, Serializable {
      * @param map
      */
     public CaseInsensitiveMap(Map<String, V> map) {
-        this.map = new HashMap<String, V>();
+        this();
         putAll(map);
     }
 
@@ -47,23 +47,8 @@ public class CaseInsensitiveMap<V> implements Map<String, V>, Serializable {
     }
 
     @Override
-    public int size() {
-        return map.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return map.isEmpty();
-    }
-
-    @Override
     public boolean containsKey(Object key) {
         return map.containsKey(key.toString().toLowerCase());
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        return map.containsValue(value);
     }
 
     @Override
@@ -79,28 +64,6 @@ public class CaseInsensitiveMap<V> implements Map<String, V>, Serializable {
     @Override
     public V remove(Object key) {
         return map.remove(key.toString().toLowerCase());
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends V> m) {
-        for (String key : m.keySet()) {
-            map.put(key.toLowerCase(), m.get(key));
-        }
-    }
-
-    @Override
-    public void clear() {
-        map.clear();
-    }
-
-    @Override
-    public Set<String> keySet() {
-        return map.keySet();
-    }
-
-    @Override
-    public Collection<V> values() {
-        return map.values();
     }
 
     @Override

@@ -1,11 +1,11 @@
 package ws.palladian.helper;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -13,9 +13,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
-import ws.palladian.helper.io.Action;
+import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -83,7 +82,7 @@ public final class ClassFinder {
         Validate.notNull(type, "type must not be null");
         Validate.notNull(namespaceFilter, "namespaceFilter must not be null");
 
-        final Collection<Class<? extends T>> result = CollectionHelper.newHashSet();
+        final Collection<Class<? extends T>> result = new HashSet<>();
         final ConcreteClassFilter classFilter = new ConcreteClassFilter(type);
 
         LOGGER.debug("Classpath = {}", CLASSPATH);
@@ -91,8 +90,7 @@ public final class ClassFinder {
         for (final String classPathItem : classPathItems) {
             if (classPathItem.endsWith(JAR_FILE_EXTENSION)) { // we're in a JAR file
                 LOGGER.debug("Scanning JAR {}", classPathItem);
-                try {
-                    JarFile jar = new JarFile(new File(classPathItem));
+                try (JarFile jar = new JarFile(new File(classPathItem))) {
                     Enumeration<JarEntry> entries = jar.entries();
                     while (entries.hasMoreElements()) {
                         JarEntry currentEntry = entries.nextElement();
@@ -117,7 +115,7 @@ public final class ClassFinder {
                     LOGGER.error("IOException when trying to read {}", classPathItem, e);
                 }
             } else { // we're checking .class files
-                FileHelper.traverseFiles(new File(classPathItem), new FileFilter() {
+                FileHelper.traverseFiles(new File(classPathItem), new Filter<File>() {
                     @Override
                     public boolean accept(File pathname) {
                         String namespaceName = pathname.getPath().substring(classPathItem.length() + 1);
@@ -125,7 +123,7 @@ public final class ClassFinder {
                         return pathname.getName().endsWith(CLASS_FILE_EXTENSION)
                                 && namespaceFilter.accept(namespaceName);
                     }
-                }, new Action<File>() {
+                }, new Consumer<File>() {
                     @Override
                     public void process(File file) {
                         String className = pathToClassName(file.getPath().substring(classPathItem.length() + 1));

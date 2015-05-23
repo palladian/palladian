@@ -1,9 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * @author David Urbansky
  * 
  */
-public final class LinkedInShares extends BaseRankingService implements RankingService {
+public final class LinkedInShares extends AbstractRankingService implements RankingService {
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkedInShares.class);
@@ -41,14 +39,11 @@ public final class LinkedInShares extends BaseRankingService implements RankingS
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> results = new HashMap<RankingType, Float>();
-        Ranking ranking = new Ranking(this, url, results);
-        if (isBlocked()) {
-            return ranking;
-        }
+        Ranking.Builder builder = new Ranking.Builder(this, url);
 
         Integer shares = null;
-        String requestUrl = buildRequestUrl(url);
+        String requestUrl = "http://www.linkedin.com/countserv/count/share?format=json&url="
+                + UrlHelper.encodeParameter(url);
 
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
@@ -64,21 +59,7 @@ public final class LinkedInShares extends BaseRankingService implements RankingS
         } catch (Exception e) {
             throw new RankingServiceException(e);
         }
-
-        results.put(SHARES, (float)shares);
-        return ranking;
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://www.linkedin.com/countserv/count/share?format=json&url=" + UrlHelper.encodeParameter(url);
+        return builder.add(SHARES, shares).create();
     }
 
     @Override

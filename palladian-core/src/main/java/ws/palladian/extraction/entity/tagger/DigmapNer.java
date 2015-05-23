@@ -1,17 +1,19 @@
 package ws.palladian.extraction.entity.tagger;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.processing.features.Annotation;
-import ws.palladian.processing.features.ImmutableAnnotation;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -35,6 +37,9 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @author Philipp Katz
  */
 public class DigmapNer extends NamedEntityRecognizer {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(DigmapNer.class);
 
     /** The name of this {@link NamedEntityRecognizer}. */
     private static final String NER_NAME = "Digmap NER";
@@ -45,7 +50,7 @@ public class DigmapNer extends NamedEntityRecognizer {
     /** Mapping for the XML namespace. */
     private static final Map<String, String> NAMESPACE_MAPPING;
     static {
-        NAMESPACE_MAPPING = CollectionHelper.newHashMap();
+        NAMESPACE_MAPPING = new HashMap<>();
         NAMESPACE_MAPPING.put("gp", "http://www.opengis.net/gp");
     }
 
@@ -97,8 +102,8 @@ public class DigmapNer extends NamedEntityRecognizer {
                     String tag = XPathHelper.getNode(entry, "./gp:Label/text()", NAMESPACE_MAPPING).getTextContent();
                     Node startNode = XPathHelper.getNode(entry, "./gp:Ocurrence/gp:Range/@start", NAMESPACE_MAPPING);
                     Node endNode = XPathHelper.getNode(entry, "./gp:Ocurrence/gp:Range/@end", NAMESPACE_MAPPING);
-                    int start = Integer.valueOf(startNode.getTextContent());
-                    int end = Integer.valueOf(endNode.getTextContent());
+                    int start = Integer.parseInt(startNode.getTextContent());
+                    int end = Integer.parseInt(endNode.getTextContent());
                     String entityName = textChunk.substring(start, end);
                     annotations.add(new ImmutableAnnotation(start, entityName, tag));
                 }

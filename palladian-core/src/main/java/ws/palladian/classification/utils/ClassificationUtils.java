@@ -1,5 +1,7 @@
 package ws.palladian.classification.utils;
 
+import static ws.palladian.helper.math.MathHelper.log2;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,32 +9,35 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
-import ws.palladian.classification.Classifier;
-import ws.palladian.classification.Instance;
-import ws.palladian.classification.Model;
+import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.Model;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NumericValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Filter;
+import ws.palladian.helper.collection.Vector.VectorEntry;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ImmutableNumericVector;
 import ws.palladian.helper.math.NumericVector;
-import ws.palladian.processing.Classifiable;
-import ws.palladian.processing.Trainable;
-import ws.palladian.processing.features.BasicFeatureVector;
-import ws.palladian.processing.features.Feature;
-import ws.palladian.processing.features.FeatureVector;
-import ws.palladian.processing.features.NumericFeature;
 
 /**
  * <p>
@@ -65,7 +70,7 @@ public final class ClassificationUtils {
      * @deprecated Use dedicated {@link CsvDatasetReader}.
      */
     @Deprecated
-    public static List<Trainable> readCsv(String filePath) {
+    public static List<Instance> readCsv(String filePath) {
         return readCsv(filePath, true, DEFAULT_SEPARATOR);
     }
 
@@ -82,7 +87,7 @@ public final class ClassificationUtils {
      * @deprecated Use dedicated {@link CsvDatasetReader}.
      */
     @Deprecated
-    public static List<Trainable> readCsv(String filePath, boolean readHeader) {
+    public static List<Instance> readCsv(String filePath, boolean readHeader) {
         return readCsv(filePath, readHeader, DEFAULT_SEPARATOR);
     }
 
@@ -103,70 +108,7 @@ public final class ClassificationUtils {
      * @deprecated Use dedicated {@link CsvDatasetReader}.
      */
     @Deprecated
-    public static List<Trainable> readCsv(String filePath, final boolean readHeader, final String fieldSeparator) {
-//        if (!new File(filePath).canRead()) {
-//            throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
-//        }
-//
-//        final StopWatch stopWatch = new StopWatch();
-//        final List<Trainable> instances = CollectionHelper.newArrayList();
-//
-//        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
-//
-//            String[] headNames;
-//            int expectedColumns;
-//
-//            @Override
-//            public void performAction(String line, int lineNumber) {
-//                String[] parts = line.split(fieldSeparator);
-//
-//                if (parts.length < 2) {
-//                    throw new IllegalStateException("Separator '" + fieldSeparator
-//                            + "'was not found, lines cannot be split ('" + line + "').");
-//                }
-//
-//                if (lineNumber == 0) {
-//                    expectedColumns = parts.length;
-//                    if (readHeader) {
-//                        headNames = parts;
-//                        return;
-//                    }
-//                } else {
-//                    if (expectedColumns != parts.length) {
-//                        throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
-//                                + parts.length + ", but should be " + expectedColumns + ")");
-//                    }
-//                }
-//
-//                FeatureVector featureVector = new BasicFeatureVector();
-//
-//                for (int f = 0; f < parts.length - 1; f++) {
-//                    String name = headNames == null ? String.valueOf(f) : headNames[f];
-//                    String value = parts[f];
-//                    // FIXME make better.
-//                    if (value.equals("?")) {
-//                        // missing value, TODO maybe rethink what to do here and how
-//                        // to handle missing values in general.
-//                        continue;
-//                    }
-//                    try {
-//                        Double doubleValue = Double.valueOf(value);
-//                        featureVector.add(new NumericFeature(name, doubleValue));
-//                    } catch (NumberFormatException e) {
-//                        featureVector.add(new NominalFeature(name, value));
-//                    }
-//                }
-//                String targetClass = parts[parts.length - 1];
-//                instances.add(new Instance(targetClass, featureVector));
-//
-//                if (lineNumber % 10000 == 0) {
-//                    LOGGER.debug("Read {} lines", lineNumber);
-//                }
-//            }
-//        });
-//        LOGGER.info("Read {} instances from {} in {}", instances.size(), filePath, stopWatch);
-//        return instances;
-        
+    public static List<Instance> readCsv(String filePath, final boolean readHeader, final String fieldSeparator) {
         return new CsvDatasetReader(new File(filePath),readHeader,fieldSeparator).readAll();
     }
 
@@ -179,8 +121,8 @@ public final class ClassificationUtils {
      * @param data The instances to write, not <code>null</code>.
      * @param filePath The path specifying the CSV file, not <code>null</code>.
      */
-    public static void writeCsv(Iterable<? extends Classifiable> data, File outputFile) {
-        Validate.notNull(data, "trainData must not be null");
+    public static void writeCsv(Iterable<? extends Instance> data, File outputFile) {
+        Validate.notNull(data, "data must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
 
         Writer writer = null;
@@ -191,8 +133,8 @@ public final class ClassificationUtils {
             boolean writeHeader = true;
             int count = 0;
             int featureCount = 0;
-            for (Classifiable trainable : data) {
-                featureCount = writeLine(trainable, writer, writeHeader);
+            for (Instance instance : data) {
+                featureCount = writeLine(instance, writer, writeHeader);
                 writeHeader = false;
                 count++;
             }
@@ -204,26 +146,27 @@ public final class ClassificationUtils {
         }
     }
 
-    private static int writeLine(Classifiable trainable, Writer writer, boolean writeHeader) throws IOException {
+    private static int writeLine(Instance instance, Writer writer, boolean writeHeader) throws IOException {
         if (writeHeader) {
-            for (Feature<?> feature : trainable.getFeatureVector()) {
-                writer.write(feature.getName());
+            for (VectorEntry<String, Value> feature : instance.getVector()) {
+                writer.write(feature.key());
                 writer.write(DEFAULT_SEPARATOR);
             }
-            if (trainable instanceof Trainable) {
-                writer.write("targetClass");
-            }
+            writer.write("targetClass");
             writer.write(FileHelper.NEWLINE_CHARACTER);
         }
         int featureCount = 0;
-        for (Feature<?> feature : trainable.getFeatureVector()) {
-            writer.write(feature.getValue().toString());
+        for (VectorEntry<String, Value> feature : instance.getVector()) {
+            Value value = feature.value();
+            if (value instanceof NominalValue) {
+                writer.write(((NominalValue)value).getString());
+            } else if (value instanceof NumericValue) {
+                writer.write(String.valueOf(((NumericValue)value).getDouble()));
+            }
             writer.write(DEFAULT_SEPARATOR);
             featureCount++;
         }
-        if (trainable instanceof Trainable) {
-            writer.write(((Trainable)trainable).getTargetClass());
-        }
+        writer.write(instance.getCategory());
         writer.write(FileHelper.NEWLINE_CHARACTER);
         return featureCount;
     }
@@ -239,8 +182,8 @@ public final class ClassificationUtils {
      * @param outputFile The output file to which to append, or which to create in case it does not exist. Not
      *            <code>null</code>.
      */
-    public static void appendCsv(Classifiable data, File outputFile) {
-        Validate.notNull(data, "data must not be null");
+    public static void appendCsv(Instance instance, File outputFile) {
+        Validate.notNull(instance, "instance must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
 
         Writer writer = null;
@@ -248,46 +191,12 @@ public final class ClassificationUtils {
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile, true),
                     FileHelper.DEFAULT_ENCODING));
-            writeLine(data, writer, writeHeader);
+            writeLine(instance, writer, writeHeader);
         } catch (IOException e) {
             throw new IllegalStateException("Encountered " + e + " while writing to '" + outputFile + "'", e);
         } finally {
             FileHelper.close(writer);
         }
-    }
-
-    /**
-     * <p>
-     * Draws a fraction of the provided list by random.
-     * </p>
-     * 
-     * @param list The {@code List} to draw from.
-     * @param fraction The fraction to draw from the list.
-     * @return The random subset from {@code list}.
-     */
-    public static <T> List<T> drawRandomSubset(final List<T> list, final int fraction) {
-        Random rnd = new Random(System.currentTimeMillis());
-//        int m = (fraction * list.size()) / 100;
-//        for (int i = 0; i < list.size(); i++) {
-//            int pos = i + rnd.nextInt(list.size() - i);
-//            T tmp = list.get(pos);
-//            list.set(pos, list.get(i));
-//            list.set(i, tmp);
-//        }
-//        return list.subList(0, m);
-        
-        // http://stackoverflow.com/questions/136474/best-way-to-pick-a-random-subset-from-a-collection
-        
-        List<T> result = new ArrayList<T>(list);
-        int count = (fraction * list.size()) / 100;
-        
-        for (int n = 0; n < count; n++) {
-            int k = rnd.nextInt(result.size() - n) + n;
-            T tmp = result.get(n);
-            result.set(n, result.get(k));
-            result.set(k, tmp);
-        }
-        return new ArrayList<T>(result.subList(0, count));
     }
 
     /**
@@ -300,16 +209,19 @@ public final class ClassificationUtils {
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return The FeatureVector without the features filtered out by the nameFilter.
      */
-    public static FeatureVector filterFeatures(Classifiable classifiable, Filter<? super String> nameFilter) {
-        Validate.notNull(classifiable, "classifiable must not be null");
+    public static FeatureVector filterFeatures(FeatureVector featureVector, Filter<? super String> nameFilter) {
+        Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
-        FeatureVector newFeatureVector = new BasicFeatureVector();
-        for (Feature<?> feature : classifiable.getFeatureVector()) {
-            if (nameFilter.accept(feature.getName())) {
-                newFeatureVector.add(feature);
+        InstanceBuilder builder = new InstanceBuilder();
+        for (VectorEntry<String, Value> entry : featureVector) {
+            if (nameFilter.accept(entry.key())) {
+                builder.set(entry.key(), entry.value());
             }
         }
-        LOGGER.trace("Reduced from {} to {}", classifiable.getFeatureVector().size(), newFeatureVector.size());
+        FeatureVector newFeatureVector = builder.create();
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Reduced from {} to {}", featureVector.size(), newFeatureVector.size());
+        }
         return newFeatureVector;
     }
 
@@ -324,12 +236,12 @@ public final class ClassificationUtils {
      * @see #filterFeaturesIterable(Iterable, Filter) which does the same on an iterable, without loading the whole
      *      dataset in memory.
      */
-    public static List<Trainable> filterFeatures(Iterable<? extends Trainable> instances,
+    public static List<Instance> filterFeatures(Iterable<? extends Instance> instances,
             Filter<? super String> nameFilter) {
-        List<Trainable> result = CollectionHelper.newArrayList();
-        for (Trainable instance : instances) {
-            FeatureVector featureVector = ClassificationUtils.filterFeatures(instance, nameFilter);
-            result.add(new Instance(instance.getTargetClass(), featureVector));
+        List<Instance> result = new ArrayList<>();
+        for (Instance instance : instances) {
+            FeatureVector featureVector = ClassificationUtils.filterFeatures(instance.getVector(), nameFilter);
+            result.add(new InstanceBuilder().add(featureVector).create(instance.getCategory()));
         }
         return result;
     }
@@ -343,7 +255,7 @@ public final class ClassificationUtils {
      * @param nameFilter The filter specifying which features to ignore, not <code>null</code>.
      * @return A new {@link Iterable} providing the filtered feature set.
      */
-    public static Iterable<Trainable> filterFeaturesIterable(Iterable<? extends Trainable> dataset,
+    public static Iterable<Instance> filterFeaturesIterable(Iterable<? extends Instance> dataset,
             Filter<? super String> nameFilter) {
         return new DatasetFeatureFilter(dataset, nameFilter);
     }
@@ -357,28 +269,28 @@ public final class ClassificationUtils {
      * @return
      */
     // XXX currently, only get from first item in the dataset
-    public static Set<String> getFeatureNames(Collection<? extends Trainable> dataset) {
+    public static Set<String> getFeatureNames(Iterable<? extends FeatureVector> dataset) {
         Validate.notNull(dataset, "dataset must not be null");
-        Set<String> featureNames = CollectionHelper.newTreeSet();
-        Trainable instance = CollectionHelper.getFirst(dataset);
-        for (Feature<?> feature : instance.getFeatureVector()) {
-            featureNames.add(feature.getName());
+        Set<String> featureNames = new TreeSet<>();
+        FeatureVector featureVector = CollectionHelper.getFirst(dataset);
+        for (VectorEntry<String, Value> entry : featureVector) {
+            featureNames.add(entry.key());
         }
         return featureNames;
     }
 
     // XXX nice would be to have this code as Classifier taking multiple models
-    public static <M extends Model, T extends Classifiable> CategoryEntries classifyWithMultipleModels(
+    public static <M extends Model, T extends FeatureVector> CategoryEntries classifyWithMultipleModels(
             Classifier<M> classifier, T classifiable, M... models) {
 
         // merge the results
-        CategoryEntries mergedCategoryEntries = new CategoryEntriesMap();
+        CategoryEntriesBuilder mergedCategoryEntries = new CategoryEntriesBuilder();
         for (M model : models) {
             CategoryEntries categoryEntries = classifier.classify(classifiable, model);
-            mergedCategoryEntries = CategoryEntriesMap.merge(categoryEntries, mergedCategoryEntries);
+            mergedCategoryEntries.add(categoryEntries);
         }
 
-        return mergedCategoryEntries;
+        return mergedCategoryEntries.create();
     }
 
     /**
@@ -390,13 +302,45 @@ public final class ClassificationUtils {
      * @param classifiable The classifiable, not <code>null</code>.
      * @return A {@link NumericVector} with all numeric features from the {@link Classifiable}'s {@link FeatureVector}.
      */
-    public static NumericVector<String> getNumericVector(Classifiable classifiable) {
-        Validate.notNull(classifiable, "classifiable must not be null");
-        Map<String, Double> values = CollectionHelper.newHashMap();
-        for (NumericFeature numericFeature : classifiable.getFeatureVector().getAll(NumericFeature.class)) {
-            values.put(numericFeature.getName(), numericFeature.getValue());
+    public static NumericVector<String> getNumericVector(FeatureVector featureVector) {
+        Validate.notNull(featureVector, "featureVector must not be null");
+        Map<String, Double> values = new HashMap<>();
+        for (VectorEntry<String, Value> entry : featureVector) {
+            Value value = entry.value();
+            if (value instanceof NumericValue) {
+                values.put(entry.key(), ((NumericValue)value).getDouble());
+            }
         }
         return new ImmutableNumericVector<String>(values);
+    }
+
+    public static Iterable<FeatureVector> unwrapInstances(Iterable<? extends Instance> instances) {
+        Validate.notNull(instances, "learnables must not be null");
+        return CollectionHelper.convert(instances, new Function<Instance, FeatureVector>() {
+            @Override
+            public FeatureVector compute(Instance input) {
+                return input.getVector();
+            }
+        });
+    }
+    
+    public static CategoryEntries getCategoryCounts(Iterable<? extends Instance> instances) {
+        CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
+        for (Instance instance : instances) {
+            builder.add(instance.getCategory(), 1);
+        }
+        return builder.create();
+    }
+
+    public static double entropy(CategoryEntries categoryEntries) {
+        double entropy = 0;
+        for (Category category : categoryEntries) {
+            double probability = category.getProbability();
+            if (probability > 0) {
+                entropy -= probability * log2(probability);
+            }
+        }
+        return entropy;
     }
 
 }

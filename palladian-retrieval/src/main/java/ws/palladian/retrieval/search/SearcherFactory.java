@@ -9,7 +9,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
 import ws.palladian.retrieval.search.web.BingSearcher;
-import ws.palladian.retrieval.search.web.BlekkoSearcher;
 import ws.palladian.retrieval.search.web.GoogleScraperSearcher;
 import ws.palladian.retrieval.search.web.GoogleSearcher;
 import ws.palladian.retrieval.search.web.HakiaSearcher;
@@ -164,7 +163,6 @@ public final class SearcherFactory {
         logs.append("Number of Google requests: ").append(GoogleSearcher.getRequestCount()).append("\n");
         logs.append("Number of Scroogle requests: ").append(GoogleScraperSearcher.getRequestCount()).append("\n");
         logs.append("Number of Hakia requests: ").append(HakiaSearcher.getRequestCount()).append("\n");
-        logs.append("Number of Blekko requests: ").append(BlekkoSearcher.getRequestCount()).append("\n");
         logs.append("Number of Twitter requests: ").append(TwitterSearcher.getRequestCount()).append("\n");
 
         return logs.toString();

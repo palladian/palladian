@@ -14,14 +14,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.impl.cookie.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpRequest;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
@@ -31,8 +29,6 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
-import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 /**
@@ -51,42 +47,23 @@ class FeedTask implements Callable<FeedTaskResult> {
     /** The logger for this class. */
     private final static Logger LOGGER = LoggerFactory.getLogger(FeedTask.class);
 
-    /**
-     * The maximum file size (1 MB) which is accepted for each feed being checked. If this size is exceeded, the
-     * download is stopped.
-     */
-    public static final long MAXIMUM_FEED_SIZE = SizeUnit.MEGABYTES.toBytes(1);
-
-    /** Warn if processing of a feed takes longer than this. */
-    public static final long EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
-
     /** The feed retrieved by this task. */
     private final Feed feed;
-
-    /** The store providing persistence for the feeds. */
-    private final FeedStore store;
-
-    /** Callback for the actions to perform when processing a feed (and various other cases). */
-    private final FeedProcessingAction action;
-
-    /** The strategy to determine a feed's update behaviour. */
-    private final UpdateStrategy updateStrategy;
 
     /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
     private final Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
 
+    private final FeedReaderSettings settings;
+
     /**
      * Creates a new retrieval task for a provided feed.
      * 
+     * @param settings The configuration.
      * @param feed The feed retrieved by this task.
-     * @param action
-     * @param updateStrategy
      */
-    public FeedTask(Feed feed, FeedStore store, FeedProcessingAction action, UpdateStrategy updateStrategy) {
+    FeedTask(FeedReaderSettings settings, Feed feed) {
+        this.settings = settings;
         this.feed = feed;
-        this.store = store;
-        this.action = action;
-        this.updateStrategy = updateStrategy;
     }
 
     @Override
@@ -99,7 +76,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             HttpResult httpResult = null;
             try {
                 HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-                httpRetriever.setMaxFileSize(MAXIMUM_FEED_SIZE);
+                httpRetriever.setMaxFileSize(settings.getMaximumFeedSize());
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
                 // download the document (not necessarily a feed)
@@ -123,7 +100,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 resultSet.add(UNREACHABLE);
 
                 try {
-                    action.onError(feed, httpResult);
+                    settings.getAction().onError(feed, httpResult);
                 } catch (Exception e) {
                     resultSet.add(ERROR);
                 }
@@ -136,7 +113,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                     updateCheckIntervals(feed);
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     try {
-                        action.onUnmodified(feed, httpResult);
+                        settings.getAction().onUnmodified(feed, httpResult);
                     } catch (Exception e) {
                         resultSet.add(ERROR);
                     }
@@ -161,7 +138,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                         LOGGER.debug("Performing action on exception on feed: " + feed.getId() + "("
                                 + feed.getFeedUrl() + ")");
                         try {
-                            action.onException(feed, httpResult);
+                            settings.getAction().onException(feed, httpResult);
                         } catch (Exception e2) {
                             resultSet.add(ERROR);
                         }
@@ -169,8 +146,6 @@ class FeedTask implements Callable<FeedTaskResult> {
                         doFinalStuff(timer);
                         return getResult();
                     }
-                    Date httpDate = HttpHelper.getDateFromHeader(httpResult, "Date", true);
-                    feed.setHttpDateLastPoll(httpDate);
                     feed.setItems(downloadedFeed.getItems());
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     feed.setWindowSize(downloadedFeed.getItems().size());
@@ -189,7 +164,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                     // perform actions on this feeds entries.
                     LOGGER.debug("Performing action on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
                     try {
-                        action.onModified(feed, httpResult);
+                        settings.getAction().onModified(feed, httpResult);
                     } catch (Exception e) {
                         resultSet.add(ERROR);
                     }
@@ -224,7 +199,7 @@ class FeedTask implements Callable<FeedTaskResult> {
      * @param storeMetadata Specify whether metadata should be updated in database.
      */
     private void doFinalStuff(StopWatch timer) {
-        if (timer.getElapsedTime() > EXECUTION_WARN_TIME) {
+        if (timer.getElapsedTime() > settings.getExecutionWarnTime()) {
             LOGGER.warn("Processing feed id " + feed.getId() + " took very long: " + timer.getElapsedTimeString());
             resultSet.add(EXECUTION_TIME_WARNING);
         }
@@ -300,11 +275,9 @@ class FeedTask implements Callable<FeedTaskResult> {
 
     /**
      * Save the feed back to the database. In case of database errors, add error to {@link #resultSet}.
-     * 
-     * @param storeMetadata
      */
     private void updateFeed() {
-        boolean dbSuccess = store.updateFeed(feed, feed.hasNewItem());
+        boolean dbSuccess = settings.getStore().updateFeed(feed, feed.hasNewItem());
         if (!dbSuccess) {
             resultSet.add(FeedTaskResult.ERROR);
         }
@@ -316,7 +289,7 @@ class FeedTask implements Callable<FeedTaskResult> {
      * @param feed The feed to update.
      */
     private void updateCheckIntervals(Feed feed) {
-        updateStrategy.update(feed, new FeedPostStatistics(feed), false);
+        settings.getUpdateStrategy().update(feed, new FeedPostStatistics(feed), false);
         feed.increaseChecks();
     }
 

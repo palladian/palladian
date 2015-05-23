@@ -2,12 +2,13 @@ package ws.palladian.retrieval.feeds.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 
 import ws.palladian.persistence.RowConverter;
 
 /**
  * @author Sandro Reichert
- * 
+ * @author pk
  */
 public class FeedCacheItemRowConverter implements RowConverter<CachedItem> {
 
@@ -19,11 +20,9 @@ public class FeedCacheItemRowConverter implements RowConverter<CachedItem> {
 
     @Override
     public CachedItem convert(ResultSet resultSet) throws SQLException {
-        CachedItem cachedItem = new CachedItem();
-        cachedItem.setId(resultSet.getInt("id"));
-        cachedItem.setHash(resultSet.getString("itemHash"));
-        cachedItem.setCorrectedPublishDate(resultSet.getTimestamp("correctedPollTime"));
-        return cachedItem;
+        int id = resultSet.getInt("id");
+        String itemHash = resultSet.getString("itemHash");
+        Date correctedPollTime = resultSet.getTimestamp("correctedPollTime");
+        return new CachedItem(id, itemHash, correctedPollTime);
     }
-
 }

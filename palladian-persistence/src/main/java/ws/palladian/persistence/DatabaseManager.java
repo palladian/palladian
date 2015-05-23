@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -294,7 +294,7 @@ public class DatabaseManager {
      */
     public final Integer runAggregateQuery(String sql) {
         Validate.notEmpty(sql, "sql must not be empty");
-        return runSingleQuery(OneColumnRowConverter.INTEGER, sql);
+        return runSingleQuery(RowConverters.INTEGER, sql);
     }
 
     /**
@@ -516,6 +516,21 @@ public class DatabaseManager {
 
     /**
      * <p>
+     * Run a query operation on the database, process the result using a callback.
+     * </p>
+     * 
+     * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
+     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @return Number of processed results.
+     */
+    public final int runQuery(ResultSetCallback callback, Query query) {
+        Validate.notNull(callback, "callback must not be null");
+        Validate.notNull(query, "query must not be null");
+        return runQuery(callback, NopRowConverter.INSTANCE, query);
+    }
+
+    /**
+     * <p>
      * Run a query operation on the database, return the result as List.
      * </p>
      * 
@@ -581,7 +596,7 @@ public class DatabaseManager {
 
     /**
      * <p>
-     * Run a query operation on the database, return the result as set.
+     * Run a query operation on the database, return the result as set keeping the order determined by the SQL query.
      * </p>
      * 
      * @param <T> Type of the processed objects.
@@ -591,12 +606,12 @@ public class DatabaseManager {
      * @return Set with results.
      */
     public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, String sql, Object... args) {
-        return new HashSet<T>(runQuery(converter, new BasicQuery(sql, args)));
+        return new LinkedHashSet<>(runQuery(converter, new BasicQuery(sql, args)));
     }
 
     /**
      * <p>
-     * Run a query operation on the database, return the result as set.
+     * Run a query operation on the database, return the result as set keeping the order determined by the SQL query.
      * </p>
      * 
      * @param <T> Type of the processed objects.
@@ -605,7 +620,7 @@ public class DatabaseManager {
      * @return Set with results.
      */
     public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, Query query) {
-        return new HashSet<T>(runQuery(converter, query));
+        return new LinkedHashSet<>(runQuery(converter, query));
     }
 
     /**
@@ -681,14 +696,14 @@ public class DatabaseManager {
         ResultIterator<T> result = ResultIterator.NULL_ITERATOR;
         Connection connection = null;
         PreparedStatement ps = null;
-        ResultSet resultSet = null;
+        ResultSet resultSet;
 
         try {
 
             connection = getConnection();
 
             // do not buffer the whole ResultSet in memory, but use streaming to save memory; see:
-            // http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html
+            // http://dev.mysql.com/doc/connector-j/en/connector-j-reference-implementation-notes.html
             ps = connection.prepareStatement(query.getSql(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             try {
                 ps.setFetchSize(Integer.MIN_VALUE);
@@ -699,11 +714,11 @@ public class DatabaseManager {
             fillPreparedStatement(ps, query.getArgs());
 
             resultSet = ps.executeQuery();
-            result = new ResultIterator<T>(connection, ps, resultSet, converter);
+            result = new ResultIterator<>(connection, ps, resultSet, converter);
 
         } catch (SQLException e) {
             logError(e, query.getSql(), query.getArgs());
-            close(connection, ps, resultSet);
+            close(connection, ps);
         }
 
         return result;
@@ -722,7 +737,7 @@ public class DatabaseManager {
      */
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<? extends Object> args) {
         Validate.notNull(converter, "converter must not be null");
-        Validate.notNull(sql, "sql must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
         return runSingleQuery(converter, new BasicQuery(sql, args));
     }
@@ -787,7 +802,15 @@ public class DatabaseManager {
         return runUpdate(new BasicQuery(sql, args));
     }
 
-
+    /**
+     * <p>
+     * Run an update operation and return the number of affected rows.
+     * </p>
+     * 
+     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args (Optional) arguments for parameter markers in updateStatement.
+     * @return The number of affected rows, or -1 if an error occurred.
+     */
     public final int runUpdate(String sql, Object... args) {
         return runUpdate(null, sql, args);
     }
@@ -883,6 +906,47 @@ public class DatabaseManager {
         return affectedRows;
     }
 
+    /**
+     * Run an update by directly modifying the rows of the ResultSet. <b>Note:</b> The callback needs to invoke
+     * {@link ResultSet#updateRow()} explicitly, in case a row was updated. Example:
+     * 
+     * <pre>
+     * ResultSetCallback callback = new ResultSetCallback() {
+     *     &#064;Override
+     *     public void processResult(ResultSet resultSet, int number) throws SQLException {
+     *         int value = resultSet.getInt(&quot;value&quot;);
+     *         resultSet.updateInt(&quot;value2&quot;, value + 42);
+     *         resultSet.updateRow();
+     *     }
+     * };
+     * </pre>
+     * 
+     * @param callback The callback which receives the ResultSet for each matching row, not <code>null</code>.
+     * @param sql The query.
+     * @return Number of rows returned by the query.
+     */
+    public final int runUpdate(ResultSetCallback callback, String sql) {
+        Validate.notNull(callback, "callback must not be null");
+        Validate.notEmpty(sql, "sql must not be empty");
+        Connection connection = null;
+        Statement s = null;
+        ResultSet rs = null;
+        int counter = 0;
+        try {
+            connection = getConnection();
+            s = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            rs = s.executeQuery(sql);
+            while (rs.next() && callback.isLooping()) {
+                callback.processResult(rs, ++counter);
+            }
+        } catch (SQLException e) {
+            logError(e, sql);
+        } finally {
+            close(connection, s, rs);
+        }
+        return counter;
+    }
+
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods
     // //////////////////////////////////////////////////////////////////////////////
@@ -897,9 +961,9 @@ public class DatabaseManager {
      * @param sql The executed SQL statement, not <code>null</code>.
      * @param args The arguments for the SQL statement, may be <code>null</code>.
      */
-    protected static final void logError(SQLException exception, String sql, Object... args) {
+    protected static void logError(SQLException exception, String sql, Object... args) {
         StringBuilder errorLog = new StringBuilder();
-        errorLog.append("Exception " + exception.getMessage() + " when performing SQL \"" + sql + "\"");
+        errorLog.append("Exception ").append(exception.getMessage()).append(" when performing SQL \"").append(sql).append("\"");
         if (args != null && args.length > 0) {
             errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
         }
@@ -915,7 +979,7 @@ public class DatabaseManager {
      * 
      * @param connection The {@link Connection}, or <code>null</code>.
      */
-    protected static final void close(Connection connection) {
+    protected static void close(Connection connection) {
         close(connection, null, null);
     }
 
@@ -927,7 +991,7 @@ public class DatabaseManager {
      * 
      * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
-    protected static final void close(ResultSet resultSet) {
+    protected static void close(ResultSet resultSet) {
         close(null, null, resultSet);
     }
 
@@ -939,7 +1003,7 @@ public class DatabaseManager {
      * 
      * @param statement The {@link Statement}, or <code>null</code>.
      */
-    protected static final void close(Statement statement) {
+    protected static void close(Statement statement) {
         close(null, statement, null);
     }
 
@@ -952,7 +1016,7 @@ public class DatabaseManager {
      * @param connection The {@link Connection}, or <code>null</code>.
      * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
-    protected static final void close(Connection connection, ResultSet resultSet) {
+    protected static void close(Connection connection, ResultSet resultSet) {
         close(connection, null, resultSet);
     }
 
@@ -965,7 +1029,7 @@ public class DatabaseManager {
      * @param connection The {@link Connection}, or <code>null</code>.
      * @param statement The {@link Statement}, or <code>null</code>.
      */
-    protected static final void close(Connection connection, Statement statement) {
+    protected static void close(Connection connection, Statement statement) {
         close(connection, statement, null);
     }
 
@@ -979,7 +1043,7 @@ public class DatabaseManager {
      * @param statement The {@link Statement}, or <code>null</code>.
      * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
-    protected static final void close(Connection connection, Statement statement, ResultSet resultSet) {
+    protected static void close(Connection connection, Statement statement, ResultSet resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();
@@ -1012,7 +1076,7 @@ public class DatabaseManager {
      * @param args {@link List} of parameters to set.
      * @throws SQLException In case setting the parameters failed.
      */
-    protected static final void fillPreparedStatement(PreparedStatement ps, List<? extends Object> args)
+    protected static void fillPreparedStatement(PreparedStatement ps, List<? extends Object> args)
             throws SQLException {
         fillPreparedStatement(ps, args.toArray());
     }
@@ -1026,8 +1090,7 @@ public class DatabaseManager {
      * @param args The parameters to set.
      * @throws SQLException In case setting the parameters failed.
      */
-    protected static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
-
+    protected static void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
         // do we need a special treatment for NULL values here?
         // if you should stumble across this comment while debugging,
         // the answer is likely: yes, we do!
@@ -1043,7 +1106,7 @@ public class DatabaseManager {
      * 
      * @param connection The connection, or <code>null</code>.
      */
-    protected static final void rollback(Connection connection) {
+    protected static void rollback(Connection connection) {
         if (connection != null) {
             try {
                 connection.rollback();

@@ -1,6 +1,8 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,15 +11,14 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtModel;
-import ws.palladian.extraction.location.ContextClassifier.ClassifiedAnnotation;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
@@ -33,9 +34,6 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeatureBasedDisambiguation.class);
 
     public static final double PROBABILITY_THRESHOLD = 0.15;
-    
-    /** The size of the disambiguation context. See {@link DisambiguationContext}. */
-    public static final int CONTEXT_SIZE = 1000;
 
     private final double probabilityThreshold;
 
@@ -45,34 +43,37 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
 
     private final QuickDtModel model;
 
-    private final int contextSize;
-
     public FeatureBasedDisambiguation(QuickDtModel model) {
-        this(model, PROBABILITY_THRESHOLD, CONTEXT_SIZE);
+        this(model, PROBABILITY_THRESHOLD);
     }
 
-    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold, int contextSize) {
+    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold) {
+        this(model, probabilityThreshold, new ConfigurableFeatureExtractor());
+    }
+
+    public FeatureBasedDisambiguation(QuickDtModel model, double probabilityThreshold,
+            LocationFeatureExtractor featureExtractor) {
         Validate.notNull(model, "model must not be null");
         Validate.inclusiveBetween(0., 1., probabilityThreshold,
                 "probabilityThreshold must be between inclusive 0 and 1.");
+        Validate.notNull(featureExtractor, "featureExtractor must not be null");
         this.model = model;
         this.probabilityThreshold = probabilityThreshold;
-        this.contextSize = contextSize;
-        this.featureExtractor = new LocationFeatureExtractor(contextSize);
+        this.featureExtractor = featureExtractor;
     }
 
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
-        Set<ClassifiableLocation> classifiableLocations = featureExtractor.extractFeatures(text, locations);
-        Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
+        Set<ClassifiableLocation> classifiableLocations = featureExtractor.extract(text, locations);
+        Map<Integer, Double> scoredLocations = new HashMap<>();
 
-        for (ClassifiableLocation location : classifiableLocations) {
-            CategoryEntries classification = classifier.classify(location, model);
-            scoredLocations.put(location.getId(), classification.getProbability("true"));
+        for (ClassifiableLocation classifiableLocation : classifiableLocations) {
+            CategoryEntries classification = classifier.classify(classifiableLocation.getFeatureVector(), model);
+            scoredLocations.put(classifiableLocation.getLocation().getId(), classification.getProbability("true"));
         }
 
-        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<LocationAnnotation> result = new ArrayList<>();
         for (Annotation annotation : locations.keySet()) {
             Collection<Location> candidates = locations.get(annotation);
 
@@ -103,8 +104,8 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
         StringBuilder builder = new StringBuilder();
         builder.append("FeatureBasedDisambiguation [probabilityThreshold=");
         builder.append(probabilityThreshold);
-        builder.append(", contextSize=");
-        builder.append(contextSize);
+        builder.append(", featureExtractor=");
+        builder.append(featureExtractor);
         builder.append("]");
         return builder.toString();
     }

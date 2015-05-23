@@ -23,7 +23,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  * @author Philipp Katz
  */
-public final class CompositeRankingService extends BaseRankingService implements RankingService {
+public final class CompositeRankingService extends AbstractRankingService implements RankingService {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CompositeRankingService.class);
@@ -43,17 +43,17 @@ public final class CompositeRankingService extends BaseRankingService implements
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        Map<RankingType, Float> rankings = new HashMap<RankingType, Float>();
+        Ranking.Builder builder = new Ranking.Builder(this, url);
         for (RankingService rankingService : rankingServices) {
             try {
                 Ranking ranking = rankingService.getRanking(url);
                 LOGGER.debug("retrieved " + ranking);
-                rankings.putAll(ranking.getValues());
+                builder.addAll(ranking);
             } catch (RankingServiceException e) {
                 LOGGER.warn("Exception for {}", rankingService);
             }
         }
-        return new Ranking(this, url, rankings);
+        return builder.create();
     }
 
     public Map<RankingService, Ranking> getRankings(String url) throws RankingServiceException {

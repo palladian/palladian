@@ -1,7 +1,9 @@
 package ws.palladian.retrieval.search.events;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +71,7 @@ public class EventbriteSearcher extends EventSearcher {
     }
 
     private void setup() {
-        eventTypeMapping = CollectionHelper.newHashMap();
+        eventTypeMapping = new HashMap<>();
         eventTypeMapping.put(EventType.CONCERT, new HashSet<String>(Arrays.asList("music")));
         eventTypeMapping.put(EventType.SPORT, new HashSet<String>(Arrays.asList("sports")));
         eventTypeMapping.put(EventType.THEATRE, new HashSet<String>(Arrays.asList("performances")));
@@ -82,7 +84,7 @@ public class EventbriteSearcher extends EventSearcher {
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType, int maxResults) throws SearcherException {
-        List<Event> events = CollectionHelper.newArrayList();
+        List<Event> events = new ArrayList<>();
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
 

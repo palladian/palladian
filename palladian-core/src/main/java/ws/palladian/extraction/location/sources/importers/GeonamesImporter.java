@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,18 +19,19 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
-import ws.palladian.helper.collection.EqualsFilter;
-import ws.palladian.helper.collection.Function;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Function;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -58,7 +61,7 @@ public final class GeonamesImporter {
     private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
 
     static {
-        Map<String, Integer> temp = CollectionHelper.newHashMap();
+        Map<String, Integer> temp = new HashMap<>();
         temp.put("PCLI", 0);
         temp.put("PCLD", 0);
         temp.put("TERR", 0);
@@ -94,12 +97,12 @@ public final class GeonamesImporter {
         Validate.notNull(locationStore, "locationStore must not be null");
 
         this.locationStore = locationStore;
-        this.countryMapping = CollectionHelper.newHashMap();
-        this.admin1Mapping = CollectionHelper.newHashMap();
-        this.admin2Mapping = CollectionHelper.newHashMap();
-        this.admin3Mapping = CollectionHelper.newHashMap();
-        this.admin4Mapping = CollectionHelper.newHashMap();
-        this.hierarchyMappings = CollectionHelper.newHashMap();
+        this.countryMapping = new HashMap<>();
+        this.admin1Mapping = new HashMap<>();
+        this.admin2Mapping = new HashMap<>();
+        this.admin3Mapping = new HashMap<>();
+        this.admin4Mapping = new HashMap<>();
+        this.hierarchyMappings = new HashMap<>();
     }
 
     /**
@@ -118,7 +121,7 @@ public final class GeonamesImporter {
         checkIsFileOfType(alternateNamesFile, "zip");
 
         // read the hierarchy first
-        EqualsFilter<String> hierarchyFilter = EqualsFilter.create(HIERARCHY_FILE_NAME);
+        Filter<String> hierarchyFilter = Filters.equal(HIERARCHY_FILE_NAME);
         final int numLinesHierarchy = ZipUtil.doWithZipEntry(hierarchyFile, hierarchyFilter, ZipUtil.LINE_COUNTER);
         ZipUtil.doWithZipEntry(hierarchyFile, hierarchyFilter, new Function<InputStream, Void>() {
             @Override
@@ -129,7 +132,7 @@ public final class GeonamesImporter {
         });
 
         // read the alternate names file
-        EqualsFilter<String> alternateFilter = EqualsFilter.create(ALTERNATE_FILE_NAME);
+        Filter<String> alternateFilter = Filters.equal(ALTERNATE_FILE_NAME);
         final int numLinesAltNames = ZipUtil.doWithZipEntry(alternateNamesFile, alternateFilter, ZipUtil.LINE_COUNTER);
         ZipUtil.doWithZipEntry(alternateNamesFile, alternateFilter, new Function<InputStream, Void>() {
             @Override
@@ -141,7 +144,7 @@ public final class GeonamesImporter {
 
         // read the actual location data
         LOGGER.info("Checking size of countries file");
-        EqualsFilter<String> countryFilter = EqualsFilter.create(COUNTRIES_FILE_NAME);
+        Filter<String> countryFilter = Filters.equal(COUNTRIES_FILE_NAME);
         final int numLinesCountries = ZipUtil.doWithZipEntry(locationFile, countryFilter, ZipUtil.LINE_COUNTER);
 
         LOGGER.info("Starting import, {} items in total", numLinesCountries);
@@ -400,8 +403,8 @@ public final class GeonamesImporter {
                 if (split.length < 2) {
                     return;
                 }
-                int parentId = Integer.valueOf(split[0]);
-                int childId = Integer.valueOf(split[1]);
+                int parentId = Integer.parseInt(split[0]);
+                int childId = Integer.parseInt(split[1]);
                 String type = null;
                 if (split.length > 2) {
                     type = split[2];
@@ -409,10 +412,7 @@ public final class GeonamesImporter {
                 if (type == null || type.equals("ADM")) {
                     childParents.add(childId, parentId);
                 }
-                String progress = monitor.incrementAndGetProgress();
-                if (!progress.isEmpty()) {
-                    LOGGER.info(progress);
-                }
+                monitor.incrementAndPrintProgress();
             }
         });
         // only add relation, if unambiguous
@@ -422,7 +422,7 @@ public final class GeonamesImporter {
                 hierarchyMappings.put(childId, CollectionHelper.getFirst(parentIds));
             }
         }
-        LOGGER.info("Finished importing hierarchy in {}", monitor.getTotalElapsedTimeString());
+        LOGGER.info("Finished importing hierarchy.");
     }
 
     /**
@@ -439,15 +439,12 @@ public final class GeonamesImporter {
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
-                String progress = monitor.incrementAndGetProgress();
-                if (!progress.isEmpty()) {
-                    LOGGER.info(progress);
-                }
+                monitor.incrementAndPrintProgress();
                 String[] split = line.split("\\t");
                 if (split.length < 4) {
                     return;
                 }
-                int geonameid = Integer.valueOf(split[1]);
+                int geonameid = Integer.parseInt(split[1]);
                 String isoLanguage = split[2];
                 String alternateName = split[3];
                 Language language = null;
@@ -462,7 +459,7 @@ public final class GeonamesImporter {
                 locationStore.addAlternativeNames(geonameid, Collections.singletonList(name));
             }
         });
-        LOGGER.info("Finished importing alternative names in {}", monitor.getTotalElapsedTimeString());
+        LOGGER.info("Finished importing alternative names.");
     }
 
     /**
@@ -493,13 +490,10 @@ public final class GeonamesImporter {
                 }
                 GeonameLocation geonameLocation = new GeonameLocation(line);
                 callback.readLocation(geonameLocation);
-                String progress = monitor.incrementAndGetProgress();
-                if (progress.length() > 0) {
-                    LOGGER.info(progress);
-                }
+                monitor.incrementAndPrintProgress();
             }
         });
-        LOGGER.debug("Finished processing, took {}", monitor.getTotalElapsedTimeString());
+        LOGGER.debug("Finished processing.");
     }
 
     /**
@@ -551,12 +545,12 @@ public final class GeonamesImporter {
                 throw new IllegalStateException("Exception while parsing, expected 19 elements, but was " + parts.length
                         + "('" + line + "')");
             }
-            this.geonamesId = Integer.valueOf(parts[0]);
-            double longitude = Double.valueOf(parts[5]);
-            double latitude = Double.valueOf(parts[4]);
+            this.geonamesId = Integer.parseInt(parts[0]);
+            double longitude = Double.parseDouble(parts[5]);
+            double latitude = Double.parseDouble(parts[4]);
             this.coordinate = new ImmutableGeoCoordinate(latitude, longitude);
             this.primaryName = stringOrNull(parts[1]);
-            this.population = Long.valueOf(parts[14]);
+            this.population = Long.parseLong(parts[14]);
             this.featureClass = stringOrNull(parts[6]);
             this.featureCode = stringOrNull(parts[7]);
             this.countryCode = stringOrNull(parts[8]);
@@ -571,7 +565,7 @@ public final class GeonamesImporter {
         }
 
         List<String> getCodeParts() {
-            List<String> ret = CollectionHelper.newArrayList();
+            List<String> ret = new ArrayList<>();
 
             int level = getLevel();
             if (level >= 0) {

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
-import ws.palladian.extraction.entity.tagger.OpenNlpNer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -118,8 +117,8 @@ public class NerEvaluator {
         // IllinoisLbjNER in = new IllinoisLbjNER();
         // nerList.add(in);
 
-        OpenNlpNer on = new OpenNlpNer();
-        nerList.add(on);
+        // OpenNlpNer on = new OpenNlpNer();
+        // nerList.add(on);
 
         // PalladianNer tn = new PalladianNer();
         // nerList.add(tn);

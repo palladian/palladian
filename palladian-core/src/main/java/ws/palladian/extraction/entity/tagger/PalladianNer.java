@@ -1,244 +1,149 @@
 package ws.palladian.extraction.entity.tagger;
 
+import static ws.palladian.core.Annotation.TAG_CONVERTER;
+import static ws.palladian.core.Token.VALUE_CONVERTER;
+import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
+import static ws.palladian.helper.functional.Filters.not;
+
 import java.io.IOException;
-import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
+import ws.palladian.classification.text.DictionaryBuilder;
 import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
+import ws.palladian.classification.text.DictionaryTrieModel;
+import ws.palladian.classification.text.ExperimentalScorers;
 import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
+import ws.palladian.classification.text.PruningStrategies;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.AnnotationFilters;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
+import ws.palladian.core.ClassifyingTagger;
+import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.Tagger;
+import ws.palladian.core.Token;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.FileFormatParser;
+import ws.palladian.extraction.entity.RegExTagger;
 import ws.palladian.extraction.entity.StringTagger;
-import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.entity.UrlTagger;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
-import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
+import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.ProgressHelper;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.extraction.token.WordTokenizer;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
-import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.constants.RegExp;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.processing.ClassifiedTextDocument;
-import ws.palladian.processing.features.Annotation;
 
 /**
  * <p>
- * This is the Named Entity Recognizer from Palladian. It is based on rule-based entity delimination (for English
- * texts), a text classification approach, and analyzes the contexts around annotations. The major different to other
- * NERs is that it can be learned on seed entities (just the names) or classically using supervised learning on a tagged
- * dataset.
- * </p>
+ * Palladian's Named Entity Recognizer. It is based on rule-based entity delimitation (for English texts), a text
+ * classification approach, and analyzes the contexts around annotations. The major difference to other NERs is that it
+ * can be learned on seed entities (just the names) or classically using supervised learning on a tagged dataset.
  * 
  * <p>
  * Palladian NER provides two language modes:
+ * 
  * <ol>
- * <li>TUDLI => token-based, language independent, that is you can learn any language, the performance is rather poor
- * though. Consider using another recognizer.</li>
- * <li>TUDEng => NED + NEC, English only, this recognizer has shown to reach similar performance on the CoNLL 2003
- * dataset as the state-of-the-art. It works on English texts only.</li>
- * </p>
+ * <li>{@link LanguageMode#LanguageIndependent}: token-based, that is you can learn any language, the performance is
+ * rather poor though. Consider using another recognizer.
+ * <li>{@link LanguageMode#English}: NED + NEC, English only, this recognizer has shown to reach similar performance on
+ * the CoNLL 2003 dataset as the state-of-the-art. It works on English texts only.
+ * </ol>
  * 
  * <p>
  * Palladian NER provides two learning modes:
+ * 
  * <ol>
- * <li>Complete => you must have a tagged corpus in column format where the first colum is the token and the second
- * column (separated by a tabstop) is the entity type.</li>
- * <li>Sparse => you just need a set of seed entities per concept (the same number per concept is preferred) and you can
- * learn a sparse training file with the {@link DatasetCreator} to learn on. Alternatively you can also learn on the
- * seed entities alone but no context information can be learned which results in a slightly worse performance.</li>
- * </p>
+ * <li>{@link TrainingMode#Complete}: You must have a tagged corpus in column format where the first column is the token
+ * and the second column (separated by a tabstop) is the entity type.
+ * <li>{@link TrainingMode#Sparse}: You just need a set of seed entities per concept (the same number per concept is
+ * preferred) and you can learn a sparse training file with the {@link DatasetCreator} to learn on. Alternatively you
+ * can also learn on the seed entities alone but no context information can be learned which results in a slightly worse
+ * performance.
+ * </ol>
  * 
  * <p>
  * Parameters for performance tuning:
  * <ul>
- * <li>n-gram size of the entity classifier (2-8 seems good)</li>
- * <li>n-gram size of the context classifier (4-6 seems good)</li>
- * <li>window size of the Annotation: {@link Annotation.WINDOW_SIZE}</li>
- * </p>
+ * <li>n-gram size of the entity classifier (2-8 seems good)
+ * <li>n-gram size of the context classifier (4-6 seems good)
+ * <li>window size of the Annotation: {@link #WINDOW_SIZE}
+ * </ul>
  * 
  * @author David Urbansky
- * 
+ * @author Philipp Katz
  */
-public class PalladianNer extends TrainableNamedEntityRecognizer implements Serializable {
+public class PalladianNer extends TrainableNamedEntityRecognizer implements ClassifyingTagger {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianNer.class);
 
-    /** The serial version id. */
-    private static final long serialVersionUID = -8793232373094322955L;
-
-    private transient PalladianTextClassifier entityClassifier;
-
-    private transient PalladianTextClassifier contextClassifier;
-
-    /** This dictionary contains the entity terms as they are. */
-    private DictionaryModel entityDictionary;
-
-    /** A list containing the order of likelihood of the concepts. */
-    private List<String> conceptLikelihoodOrder = new ArrayList<String>();
-
-    /** This dictionary contains the n-grams of the entity terms, create by the text classifier. */
-    private DictionaryModel annotationModel;
-
-    /** Context classifier for the left and right context around the annotations. */
-    private DictionaryModel contextModel;
-
-    private DictionaryModel caseDictionary;
-
-    private CountMap<String> leftContextMap = CountMap.create();
-
-    private CountMatrix<String> patternProbabilityMatrix = CountMatrix.create();
-
-    private Set<String> removeAnnotations = CollectionHelper.newHashSet();
-
-    // learning features
-    private boolean removeDates = true;
-    private boolean removeDateEntries = true;
-    private boolean removeIncorrectlyTaggedInTraining = true;
-    private boolean removeSentenceStartErrorsCaseDictionary = false;
-    private boolean switchTagAnnotationsUsingPatterns = true;
-    private boolean switchTagAnnotationsUsingDictionary = true;
-    private boolean unwrapEntities = true;
-    private boolean unwrapEntitiesWithContext = true;
-    private final boolean retraining = true;
-
-    /** Whether the tagger should tag URLs. */
-    private boolean tagUrls = true;
-
-    /** Whether the tagger should tag dates. */
-    private boolean tagDates = true;
-
     private final static String NO_ENTITY = "###NO_ENTITY###";
 
-    /**
-     * The language mode, language independent uses more generic regexp to detect entities, while there are more
-     * specific ones for English texts.
-     * 
-     * @author David Urbansky
-     * 
-     */
-    public enum LanguageMode {
-        LanguageIndependent, English
-    }
+    private PalladianNerTrainingSettings trainingSettings;
+
+    private PalladianNerModel model;
+
+    private PalladianNerTaggingSettings taggingSettings;
 
     /**
-     * The two possible learning modes. Complete requires fully tagged data, sparse needs only some entities tagged in
-     * the training file.
+     * Create a new {@link PalladianNer} for training.
      * 
-     * @author David Urbansky
-     * 
+     * @param trainingSettings The training settings, not <code>null</code>.
      */
-    public enum TrainingMode {
-        Complete, Sparse
+    public PalladianNer(PalladianNerTrainingSettings trainingSettings) {
+        Validate.notNull(trainingSettings, "trainingSettings must not be null");
+        this.trainingSettings = trainingSettings;
+        this.taggingSettings = new PalladianNerTaggingSettings(trainingSettings.getLanguageMode(),
+                trainingSettings.getTrainingMode());
     }
 
-    private static final LanguageMode DEFAULT_LANGUAGE_MODE = LanguageMode.English;
-
-    private static final TrainingMode DEFAULT_TRAINING_MODE = TrainingMode.Complete;
-
-    /** The language mode. */
-    private final LanguageMode languageMode;
-
-    /** The training mode. */
-    private final TrainingMode trainingMode;
-
-    // /////////////////// Constructors /////////////////////
-    public PalladianNer(LanguageMode languageMode, TrainingMode trainingMode) {
-        Validate.notNull(languageMode, "languageMode must not be null");
-        Validate.notNull(trainingMode, "trainingMode must not be null");
-
-        // hold entities in a dictionary that are learned from the training data
-        entityDictionary = new DictionaryModel(null);
-
-        // keep the case dictionary from the training data
-        caseDictionary = new DictionaryModel(null);
-
-        // the n-gram settings for the entity classifier should be tuned, they do not have a big influence on the size
-        // of the model (3-5 to 2-8 => 2MB)
-        entityClassifier = new PalladianTextClassifier(new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 2, 8));
-
-        // be careful with the n-gram sizes, they heavily influence the model size
-        contextClassifier = new PalladianTextClassifier(new FeatureSetting(TextFeatureType.CHAR_NGRAMS, 4, 5));
-
-        conceptLikelihoodOrder = CollectionHelper.newArrayList();
-
-        // with entity 2-8 and context 4-7: 173MB model
-        // precision MUC: 79.93%, recall MUC: 85.55%, F1 MUC: 82.64%
-        // precision exact: 70.66%, recall exact: 75.63%, F1 exact: 73.06%
-
-        // with entity 3-5 and context 4-5: 25MB model
-        // with entity 3-5 and context 4-6: 43MB model
-        // precision MUC: 74.94%, recall MUC: 80.58%, F1 MUC: 77.66%
-        // precision exact: 62.08%, recall exact: 66.76%, F1 exact: 64.34%
-        // with entity 2-8 and context 4-6: 45MB model
-        // precision MUC: 75.09%, recall MUC: 81.12%, F1 MUC: 77.98%
-        // precision exact: 62.39%, recall exact: 67.4%, F1 exact: 64.8%
-        // with entity 2-8 and context 2-6: 46MB model
-        // precision MUC: 74.71%, recall MUC: 80.71%, F1 MUC: 77.59%
-        // precision exact: 61.68%, recall exact: 66.64%, F1 exact: 64.06%
-        // with entity 2-8 and context 4-7: 66MB model
-        // precision MUC: 75.04%, recall MUC: 81.06%, F1 MUC: 77.93%
-        // precision exact: 62.33%, recall exact: 67.33%, F1 exact: 64.73%
-        // with entity 2-8 and context 4-5: 29MB model
-        // precision MUC: 75.05%, recall MUC: 81.08%, F1 MUC: 77.95%
-        // precision exact: 62.36%, recall exact: 67.37%, F1 exact: 64.77%
-        // with entity 2-8 and context 4-5, window size 40 was 120 in previous tests: 23MB model
-        // precision MUC: 75.17%, recall MUC: 81.2%, F1 MUC: 78.07%
-        // precision exact: 62.54%, recall exact: 67.56%, F1 exact: 64.95%
-
-        this.languageMode = languageMode;
-        this.trainingMode = trainingMode;
-    }
-
-    public PalladianNer(LanguageMode languageMode) {
-        this(languageMode, DEFAULT_TRAINING_MODE);
-    }
-
-    public PalladianNer(TrainingMode trainingMode) {
-        this(DEFAULT_LANGUAGE_MODE, trainingMode);
-    }
-
-    public PalladianNer() {
-        this(DEFAULT_LANGUAGE_MODE, DEFAULT_TRAINING_MODE);
-    }
-
-    // //////////////////////////////////////////////////////
-
-    public static String getModelFileEndingStatic() {
-        return "model.gz";
+    /**
+     * Create a new {@link PalladianNer} instance by loading a given model.
+     * 
+     * @param modelFilePath The path to the existing model, not <code>null</code>.
+     */
+    public PalladianNer(String modelFilePath) {
+        loadModel(modelFilePath);
     }
 
     @Override
     public String getModelFileEnding() {
-        return getModelFileEndingStatic();
+        return "model.gz";
     }
 
     @Override
@@ -248,130 +153,78 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
 
     @Override
     public boolean loadModel(String configModelFilePath) {
-        StopWatch stopWatch = new StopWatch();
-
-        if (!configModelFilePath.endsWith(getModelFileEnding())) {
-            configModelFilePath += "." + getModelFileEnding();
-        }
-
-        // set current variables null to save memory otherwise we have those things twice in memory when deserializing
-        this.entityDictionary = null;
-        this.caseDictionary = null;
-        this.leftContextMap = null;
-        this.patternProbabilityMatrix = null;
-        this.removeAnnotations = null;
-
-        PalladianNer n;
+        Validate.notEmpty(configModelFilePath, "configModelFilePath must not be empty");
+        model = null; // save memory
         try {
-            n = (PalladianNer)FileHelper.deserialize(configModelFilePath);
+            model = FileHelper.deserialize(configModelFilePath);
+            taggingSettings = model.getTaggingSettings();
         } catch (IOException e) {
             throw new IllegalStateException("Error while loading model from \"" + configModelFilePath + "\".", e);
         }
-
-        // assign all properties from the loaded model to the current instance
-        this.entityDictionary = n.entityDictionary;
-        this.conceptLikelihoodOrder = n.conceptLikelihoodOrder;
-        this.annotationModel = n.annotationModel;
-        this.caseDictionary = n.caseDictionary;
-        this.leftContextMap = n.leftContextMap;
-        this.contextModel = n.contextModel;
-        this.patternProbabilityMatrix = n.patternProbabilityMatrix;
-        this.removeAnnotations = n.removeAnnotations;
-
-        // assign the learning features
-        this.removeDates = n.removeDates;
-        this.removeDateEntries = n.removeDateEntries;
-        this.removeIncorrectlyTaggedInTraining = n.removeIncorrectlyTaggedInTraining;
-        this.removeSentenceStartErrorsCaseDictionary = n.removeSentenceStartErrorsCaseDictionary;
-        this.switchTagAnnotationsUsingPatterns = n.switchTagAnnotationsUsingPatterns;
-        this.switchTagAnnotationsUsingDictionary = n.switchTagAnnotationsUsingDictionary;
-        this.unwrapEntities = n.unwrapEntities;
-        this.unwrapEntitiesWithContext = n.unwrapEntitiesWithContext;
-
-        // assign tagging options
-        this.tagDates = n.tagDates;
-        this.tagUrls = n.tagUrls;
-
-        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
-
+        LOGGER.info("Model {} successfully loaded", configModelFilePath);
         return true;
     }
 
-
     /**
-     * <p>
      * Save the tagger to the specified file.
-     * </p>
      * 
      * @param modelFilePath The file where the tagger should be saved to. You do not need to add the file ending but if
      *            you do, it should be "model.gz".
      */
-    protected void saveModel(String modelFilePath) {
-
-        LOGGER.info("entity dictionary contains " + entityDictionary.getNumTerms() + " entities");
-        // entityDictionary.saveAsCSV();
-
-        LOGGER.info("case dictionary contains " + caseDictionary.getNumTerms() + " entities");
-        // caseDictionary.saveAsCSV();
-
-        LOGGER.info("serializing Palladian NER to " + modelFilePath);
-        if (!modelFilePath.endsWith(getModelFileEnding())) {
-            modelFilePath = modelFilePath + "." + getModelFileEnding();
-        }
+    private void saveModel(String modelFilePath) {
+        LOGGER.info(model.toString());
         try {
-            FileHelper.serialize(this, modelFilePath);
+            FileHelper.serialize(model, modelFilePath);
         } catch (IOException e) {
             throw new IllegalStateException("Error while serializing to \"" + modelFilePath + "\".", e);
         }
-
-        LOGGER.info("dictionary size: " + annotationModel.getNumTerms());
-
-        // write model meta information
-        LOGGER.info("write model meta information");
-        StringBuilder supportedConcepts = new StringBuilder();
-        for (String c : annotationModel.getCategories()) {
-            supportedConcepts.append(c).append("\n");
-        }
-        FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
-                + "_meta.txt", supportedConcepts);
-
-        LOGGER.info("all Palladian NER files written");
+        LOGGER.info("Serialized Palladian NER to {}", modelFilePath);
     }
 
     /**
-     * Save training entities in a dedicated dictionary.
+     * Build a case dictionary. For the giving training text, the upper/lowercase statistics of all tokens within
+     * sentences (i.e. of all tokens not at sentence beginning) are analyzed.
      * 
-     * @param annotation The complete annotation from the training data.
+     * @param text The text from which to build the case dictionary.
+     * @return The dictionary model with categories <code>A</code> and <code>a</code> for each token.
      */
-    private void addToEntityDictionary(Annotation annotation) {
-        addToEntityDictionary(annotation.getValue(), annotation.getTag());
-    }
-
-    private void addToEntityDictionary(String entity, String concept) {
-        entityDictionary.updateTerm(entity, concept);
-    }
-
-    /**
-     * <p>
-     * Add a token to the case dictionary.
-     * </p>
-     * 
-     * @param token The token to add.
-     */
-    private void addToCaseDictionary(String token) {
-        token = StringHelper.trim(token);
-        if (token.length() < 2) {
-            return;
+    Set<String> buildCaseDictionary(String text) {
+        LOGGER.info("Building case dictionary");
+        DictionaryBuilder builder = createDictionaryBuilder();
+        Iterator<Token> tokens = new WordTokenizer().iterateTokens(text);
+        boolean skip = true; // skip the first, and tokens after a new sentence start
+        while (tokens.hasNext()) {
+            String token = tokens.next().getValue();
+            if (skip) {
+                skip = false;
+            } else if (token.matches("[.?!]")) {
+                skip = true;
+            } else {
+                String trimmedToken = token.trim();
+                if (trimmedToken.length() > 1) {
+                    String caseSignature = StringHelper.getCaseSignature(trimmedToken);
+                    if (caseSignature.toLowerCase().startsWith("a")) {
+                        builder.addDocument(Collections.singleton(trimmedToken.toLowerCase()),
+                                caseSignature.substring(0, 1));
+                    }
+                }
+            }
         }
-        String caseSignature = StringHelper.getCaseSignature(token);
-        if (caseSignature.equals("Aa") || caseSignature.equals("A") || caseSignature.equals("a")) {
-            caseDictionary.updateTerm(token.toLowerCase(), caseSignature);
+        DictionaryModel temp = builder.create();
+        Set<String> lowerCaseDictionary = new HashSet<>();
+        for (DictionaryEntry entry : temp) {
+            String token = entry.getTerm();
+            if (entry.getCategoryEntries().getProbability("a") > 0.5) {
+                lowerCaseDictionary.add(token);
+            }
         }
+        return lowerCaseDictionary;
     }
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
-        return train(trainingFilePath, new Annotations<ContextAnnotation>(), modelFilePath);
+        train(trainingFilePath, Collections.<Annotation> emptyList(), modelFilePath);
+        return true;
     }
 
     /**
@@ -384,22 +237,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param annotations A set of annotations which are used for learning: Improving the text classifier AND adding
      *            them to the entity dictionary.
      * @param modelFilePath The path where the model should be saved to.
-     * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
-    public boolean train(String trainingFilePath, List<? extends Annotation> annotations, String modelFilePath) {
-
-        LOGGER.info("Start creating {} annotations for training", annotations.size());
-
-        // save training entities in a dedicated dictionary
-        for (Annotation annotation : annotations) {
-            addToEntityDictionary(annotation);
-        }
-
-        if (languageMode.equals(LanguageMode.English)) {
-            return trainEnglish(trainingFilePath, modelFilePath, annotations);
+    public void train(String trainingFilePath, List<Annotation> annotations, String modelFilePath) {
+        LOGGER.info("Training with settings: {}", trainingSettings);
+        if (trainingSettings.getLanguageMode() == LanguageIndependent) {
+            trainLanguageIndependent(trainingFilePath, annotations);
         } else {
-            return trainLanguageIndependent(trainingFilePath, modelFilePath);
+            trainEnglish(trainingFilePath, annotations);
         }
+        saveModel(modelFilePath);
     }
 
     /**
@@ -431,31 +277,35 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * @param filePath The path to the dictionary file.
      */
     public void setEntityDictionary(String filePath) {
-        this.entityDictionary = new DictionaryModel(null);
-
-        StopWatch stopWatch = new StopWatch();
-        List<String> dictionaryEntries = FileHelper.readFileToArray(filePath);
-
-        int i = 1;
-        for (String dictionaryEntry : dictionaryEntries) {
-
-            // fill the likelihood list
-            if (i == 1) {
-                conceptLikelihoodOrder = CollectionHelper.newArrayList();
-                conceptLikelihoodOrder.addAll(Arrays.asList(dictionaryEntry.split("\\>")));
-                i++;
-                continue;
+        final DictionaryBuilder entityDictionaryBuilder = createDictionaryBuilder(); // FIXME not here?
+        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                if (lineNumber == 0) {
+                    model.conceptLikelihoodOrder = CollectionHelper.newArrayList(line.split("\\>"));
+                    return;
+                }
+                String[] split = line.split("###");
+                if (split.length == 2) {
+                    entityDictionaryBuilder.addDocument(Collections.singleton(split[1]), split[0]);
+                }
             }
+        });
+        model.entityDictionary = entityDictionaryBuilder.create();
+        LOGGER.info("Added {} entities to the dictionary", model.entityDictionary.getNumTerms());
+    }
 
-            String[] split = dictionaryEntry.split("###");
-            if (split.length < 2) {
-                continue;
-            }
-            addToEntityDictionary(split[1], split[0]);
-            ProgressHelper.printProgress(i++, dictionaryEntries.size(), 1, stopWatch);
+    private DictionaryBuilder createDictionaryBuilder() {
+        DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
+        int minCount = 1;
+        // FIXME what's going on here, why can this be null?
+        if (trainingSettings != null) {
+            minCount = trainingSettings.getMinDictionaryCount();
         }
-
-        LOGGER.info("Added {} entities to the dictionary in {}", i - 2, stopWatch.getElapsedTimeString());
+        if (minCount > 1) {
+            builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(minCount));
+        }
+        return builder;
     }
 
     /**
@@ -466,731 +316,502 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
      * 
      * @param annotations A set of annotations which are used for learning.
      * @param modelFilePath The path where the model should be saved to.
-     * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
-    public boolean train(Annotations<ContextAnnotation> annotations, String modelFilePath) {
-        return trainLanguageIndependent(annotations, annotations, modelFilePath);
-    }
-
-    public boolean trainLanguageIndependent(Annotations<ContextAnnotation> annotations,
-            Annotations<ContextAnnotation> combinedAnnotations, String modelFilePath) {
-
-        List<ClassifiedTextDocument> textInstances = CollectionHelper.newArrayList();
-
-        LOGGER.info("Start creating {} annotations for training", annotations.size());
-        for (Annotation annotation : annotations) {
-            ClassifiedTextDocument document = new ClassifiedTextDocument(annotation.getTag(), annotation.getValue());
-            textInstances.add(document);
-        }
-
-        // save training entities in a dedicated dictionary
-        for (Annotation annotation : combinedAnnotations) {
-            addToEntityDictionary(annotation);
-        }
-
-        // train the text classifier
-        trainAnnotationClassifier(textInstances);
-
+    public void train(List<Annotation> annotations, String modelFilePath) {
+        model.entityDictionary = buildEntityDictionary(annotations);
+        model.annotationDictionary = buildAnnotationDictionary(annotations);
         saveModel(modelFilePath);
-
-        return true;
     }
 
-    private void trainAnnotationClassifier(List<ClassifiedTextDocument> textInstances) {
-        LOGGER.info("start training classifiers now...");
-        annotationModel = entityClassifier.train(textInstances);
+    private DictionaryModel buildEntityDictionary(Iterable<Annotation> annotations) {
+        LOGGER.info("Building entity dictionary");
+        DictionaryBuilder entityDictionaryBuilder = createDictionaryBuilder();
+        for (Annotation annotation : annotations) {
+            entityDictionaryBuilder.addDocument(Collections.singleton(annotation.getValue()), annotation.getTag());
+        }
+        return entityDictionaryBuilder.create();
+    }
+
+    private DictionaryModel buildAnnotationDictionary(Iterable<Annotation> annotations) {
+        LOGGER.info("Building annotation dictionary");
+        DictionaryBuilder builder = createDictionaryBuilder();
+        PalladianTextClassifier textClassifier = new PalladianTextClassifier(PalladianNerTrainingSettings.ANNOTATION_FEATURE_SETTING, builder );
+        Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation, Instance>() {
+            @Override
+            public Instance compute(Annotation input) {
+                return new InstanceBuilder().setText(input.getValue()).create(input.getTag());
+            }
+        });
+        return textClassifier.train(instances);
     }
 
     /**
-     * <p>
      * Train the tagger in language independent mode.
-     * </p>
-     * 
-     * @param trainingFilePath The apther of the training file.
-     * @param modelFilePath The path where the model should be saved to.
-     * @param additionalTrainingAnnotations Additional annotations that can be used for training.
-     * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
-     */
-    private boolean trainLanguageIndependent(String trainingFilePath, String modelFilePath,
-            List<ContextAnnotation> additionalTrainingAnnotations) {
-
-        // get all training annotations
-        Annotations<ContextAnnotation> annotations = FileFormatParser
-                .getAnnotationsFromColumnTokenBased(trainingFilePath);
-
-        // get annotations combined, e.g. "Phil Simmons", not "Phil" and "Simmons"
-        Annotations<ContextAnnotation> combinedAnnotations = FileFormatParser
-                .getAnnotationsFromColumn(trainingFilePath);
-
-        // add the additional training annotations, they will be used for the context analysis too
-        annotations.addAll(additionalTrainingAnnotations);
-        combinedAnnotations.addAll(additionalTrainingAnnotations);
-
-        analyzeContexts(trainingFilePath, annotations);
-
-        return trainLanguageIndependent(annotations, combinedAnnotations, modelFilePath);
-    }
-
-    private boolean trainLanguageIndependent(String trainingFilePath, String modelFilePath) {
-        return trainLanguageIndependent(trainingFilePath, modelFilePath, Collections.<ContextAnnotation> emptyList());
-    }
-
-    /**
-     * <p>
-     * Train the tagger in English mode.
-     * </p>
      * 
      * @param trainingFilePath The path of the training file.
-     * @param modelFilePath The path where the model should be saved to.
      * @param additionalTrainingAnnotations Additional annotations that can be used for training.
-     * @return <tt>True</tt>, if all training worked, <tt>false</tt> otherwise.
      */
-    private boolean trainEnglish(String trainingFilePath, String modelFilePath,
-            List<? extends Annotation> additionalTrainingAnnotations) {
+    private void trainLanguageIndependent(String trainingFilePath, List<Annotation> additionalTrainingAnnotations) {
+        String text = FileFormatParser.getText(trainingFilePath, COLUMN);
 
         // get all training annotations
-        LOGGER.info("get annotations from column-formatted training file");
-        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+        Annotations<Annotation> tokenAnnotations = FileFormatParser
+                .getAnnotationsFromColumnTokenBased(trainingFilePath);
+        tokenAnnotations.addAll(additionalTrainingAnnotations);
 
-        // add the additional training annotations, they will be used for the context analysis too
-        // annotations.addAll(additionalTrainingAnnotations);
-        for (Annotation annotation : additionalTrainingAnnotations) {
-            annotations.add(new ContextAnnotation(annotation));
+        // get annotations combined, e.g. "Phil Simmons", not "Phil" and "Simmons"
+        Annotations<Annotation> combinedAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+        combinedAnnotations.addAll(additionalTrainingAnnotations);
+
+        model = new PalladianNerModel();
+        model.languageMode = LanguageIndependent;
+        model.trainingMode = trainingSettings.getTrainingMode();
+        model.leftContexts = buildLeftContexts(text, combinedAnnotations);
+        model.contextDictionary = buildContextDictionary(text, combinedAnnotations);
+        model.entityDictionary = buildEntityDictionary(combinedAnnotations);
+        model.annotationDictionary = buildAnnotationDictionary(tokenAnnotations);
+    }
+
+    /**
+     * Train the tagger in English mode.
+     * 
+     * @param trainingFilePath The path of the training file.
+     * @param additionalTrainingAnnotations Additional annotations that can be used for training.
+     */
+    private void trainEnglish(String trainingFilePath, List<Annotation> additionalTrainingAnnotations) {
+        String text = FileFormatParser.getText(trainingFilePath, COLUMN);
+        Annotations<Annotation> fileAnnotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+
+        model = new PalladianNerModel();
+        model.languageMode = LanguageMode.English;
+        model.trainingMode = trainingSettings.getTrainingMode();
+        model.lowerCaseDictionary = buildCaseDictionary(text);
+
+        if (trainingSettings.isEqualizeTypeCounts()) {
+            // XXX also add to trainLanguageIndependent?
+            Bag<String> typeCounts = Bag.create(CollectionHelper.convert(fileAnnotations, TAG_CONVERTER));
+            int minCount = typeCounts.getMin().getValue();
+            Annotations<Annotation> equalizedSampling = new Annotations<Annotation>();
+            for (String type : typeCounts.uniqueItems()) {
+                Iterable<Annotation> currentType = CollectionHelper
+                        .filter(fileAnnotations, AnnotationFilters.tag(type));
+                Collection<Annotation> sampled = MathHelper.sample(currentType, minCount);
+                equalizedSampling.addAll(new HashSet<>(sampled));
+            }
+            LOGGER.info("Original distribution {}; reduced from {} to {} for equalization", typeCounts,
+                    fileAnnotations.size(), equalizedSampling.size());
+            fileAnnotations = equalizedSampling;
         }
 
-        // create instances with nominal and numeric features
-        List<ClassifiedTextDocument> textInstances = CollectionHelper.newArrayList();
+        model.leftContexts = buildLeftContexts(text, fileAnnotations);
+        model.contextDictionary = buildContextDictionary(text, fileAnnotations);
 
-        LOGGER.info("add additional training annotations");
-        int c = 1;
-        for (ContextAnnotation annotation : annotations) {
-            ClassifiedTextDocument textInstance = new ClassifiedTextDocument(annotation.getTag(), annotation.getValue());
-            textInstances.add(textInstance);
-            addToEntityDictionary(annotation);
-            ProgressHelper.printProgress(c++, annotations.size(), 1);
+        Annotations<Annotation> annotations = new Annotations<Annotation>(fileAnnotations);
+        if (additionalTrainingAnnotations.size() > 0) {
+            annotations.addAll(additionalTrainingAnnotations);
+            LOGGER.info("Add {} additional training annotations", additionalTrainingAnnotations.size());
         }
-        LOGGER.info("add {} additional training annotations", c);
 
-        // fill the case dictionary
-        List<String> tokens = Tokenizer.tokenize(FileFormatParser.getText(trainingFilePath, TaggingFormat.COLUMN));
-        for (String token : tokens) {
-            addToCaseDictionary(token);
-        }
+        model.entityDictionary = buildEntityDictionary(annotations);
+        model.annotationDictionary = buildAnnotationDictionary(annotations);
 
         // in complete training mode, the tagger is learned twice on the training data
-        if (retraining) {
-            LOGGER.info("start retraining (because of complete dataset, no sparse annotations)");
-
-            // //////////////////////////////////////////// wrong entities //////////////////////////////////////
-            trainAnnotationClassifier(textInstances);
-            saveModel(modelFilePath);
-
-            removeAnnotations.clear();
-            EvaluationResult evaluationResult = evaluate(trainingFilePath, TaggingFormat.COLUMN);
-            Annotations<ContextAnnotation> goldStandard = FileFormatParser.getAnnotations(trainingFilePath,
-                    TaggingFormat.COLUMN);
-            goldStandard.sort();
-
+        if (trainingSettings.getTrainingMode() == Complete) {
+            LOGGER.info("Start retraining (because of complete dataset, no sparse annotations)");
+            model.removeAnnotations = new HashSet<>();
+            EvaluationResult evaluationResult = evaluate(trainingFilePath, COLUMN);
+            Set<String> goldAnnotations = CollectionHelper.convertSet(fileAnnotations, VALUE_CONVERTER);
             // get only those annotations that were incorrectly tagged and were never a real entity that is they have to
             // be in ERROR1 set and NOT in the gold standard
-            for (Annotation wrongAnnotation : evaluationResult.getAnnotations(ResultType.ERROR1)) {
-
-                // for the numeric classifier it is better if only annotations are removed that never appeared in the
-                // gold standard for the text classifier it is better to remove annotations that are just wrong even
-                // when they were correct in the gold standard at some point
-                boolean addAnnotation = true;
-
+            for (Annotation wrongAnnotation : evaluationResult.getAnnotations(ERROR1)) {
+                String wrongValue = wrongAnnotation.getValue();
+                annotations.add(new ImmutableAnnotation(wrongAnnotation.getStartPosition(), wrongValue, NO_ENTITY));
                 // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
-                String wrongName = wrongAnnotation.getValue().toLowerCase();
-                for (Annotation gsAnnotation : goldStandard) {
-                    if (wrongName.equals(gsAnnotation.getValue().toLowerCase())) {
-                        addAnnotation = false;
-                        break;
-                    }
-                }
-
-                ClassifiedTextDocument textInstance = new ClassifiedTextDocument(NO_ENTITY, wrongAnnotation.getValue());
-                textInstances.add(textInstance);
-
-                if (addAnnotation) {
-                    removeAnnotations.add(wrongAnnotation.getValue());
+                if (!goldAnnotations.contains(wrongValue)) {
+                    model.removeAnnotations.add(wrongValue.toLowerCase());
                 }
             }
-            LOGGER.info(removeAnnotations.size() + " annotations need to be completely removed");
-            // //////////////////////////////////////////////////////////////////////////////////////////////////
+            LOGGER.info("{} annotations need to be completely removed", model.removeAnnotations.size());
+            model.annotationDictionary = buildAnnotationDictionary(annotations);
         }
 
-        trainAnnotationClassifier(textInstances);
-
-        analyzeContexts(trainingFilePath, annotations);
-
-        saveModel(modelFilePath);
-
-        return true;
-    }
-
-    private boolean hasAssignedType(CategoryEntries ces) {
-        String mostLikelyCategoryEntry = ces.getMostLikelyCategory();
-        if (mostLikelyCategoryEntry == null) {
-            return false;
-        }
-        return !mostLikelyCategoryEntry.equalsIgnoreCase(NO_ENTITY);
     }
 
     /**
-     * Classify candidate annotations in English mode.
+     * Classify candidate annotations.
      * 
      * @param entityCandidates The annotations to be classified.
      * @return Classified annotations.
      */
-    private Annotations<ContextAnnotation> classifyCandidatesEnglish(List<ContextAnnotation> entityCandidates) {
-        Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
-        int i = 1;
-        for (ContextAnnotation annotation : entityCandidates) {
-
-            List<ContextAnnotation> wrappedAnnotations = new Annotations<ContextAnnotation>();
-
-            if (unwrapEntities) {
-                wrappedAnnotations = unwrapAnnotations(annotation, annotations);
+    private Annotations<ClassifiedAnnotation> classifyCandidates(Collection<Annotation> entityCandidates) {
+        PalladianTextClassifier classifier = new PalladianTextClassifier(model.annotationDictionary.getFeatureSetting());
+        Annotations<ClassifiedAnnotation> annotations = new Annotations<ClassifiedAnnotation>();
+        for (Annotation annotation : entityCandidates) {
+            CategoryEntries categoryEntries = classifier.classify(annotation.getValue(), model.annotationDictionary);
+            if (categoryEntries.getProbability(NO_ENTITY) < 0.5) {
+                annotations.add(new ClassifiedAnnotation(annotation, categoryEntries));
             }
-
-            if (!wrappedAnnotations.isEmpty()) {
-                for (ContextAnnotation annotation2 : wrappedAnnotations) {
-                    if (hasAssignedType(annotation2.getTags())) {
-                        annotations.add(annotation2);
-                    }
-                }
-            } else {
-                CategoryEntries results = entityClassifier.classify(annotation.getValue(), annotationModel);
-                if (hasAssignedType(results)) {
-                    annotation.setTags(results);
-                    annotations.add(annotation);
-                }
-            }
-
-            ProgressHelper.printProgress(i++, entityCandidates.size(), 1);
         }
-
-        return annotations;
-    }
-
-    /**
-     * Classify candidate annotations in language independent mode.
-     * 
-     * @param entityCandidates The annotations to be classified.
-     * @return Classified annotations.
-     */
-    private Annotations<ContextAnnotation> classifyCandidatesLanguageIndependent(
-            List<ContextAnnotation> entityCandidates) {
-        Annotations<ContextAnnotation> annotations = new Annotations<ContextAnnotation>();
-
-        int i = 1;
-        for (ContextAnnotation annotation : entityCandidates) {
-
-            CategoryEntries results = entityClassifier.classify(annotation.getValue(), annotationModel);
-            if (hasAssignedType(results)) {
-                annotation.setTags(results);
-                annotations.add(annotation);
-            }
-
-            ProgressHelper.printProgress(i++, entityCandidates.size(), 1);
-        }
-
         return annotations;
     }
 
     @Override
-    public List<Annotation> getAnnotations(String inputText) {
-        StopWatch stopWatch = new StopWatch();
-
-        Annotations<Annotation> annotations = new Annotations<Annotation>();
-
-        if (languageMode.equals(LanguageMode.English)) {
-            annotations.addAll(getAnnotationsEnglish(inputText));
-        } else {
-            annotations.addAll(getAnnotationsLanguageIndependent(inputText));
-        }
-
+    public List<ClassifiedAnnotation> getAnnotations(String inputText) {
+        Annotations<ClassifiedAnnotation> annotations = getAnnotationsInternal(inputText);
         // recognize and add URLs, remove annotations that were part of a URL
-        if (isTagUrls()) {
-            UrlTagger urlTagger = new UrlTagger();
-            annotations.addAll(urlTagger.getAnnotations(inputText));
-            annotations.removeNested();
+        if (taggingSettings.isTagUrls()) {
+            LOGGER.info("Tagging URLs");
+            annotations.addAll(getAnnotations(UrlTagger.INSTANCE, inputText));
         }
-
         // recognize and add dates, remove annotations that were part of a date
-        if (isTagDates()) {
-            DateAndTimeTagger datTagger = new DateAndTimeTagger();
-            annotations.addAll(datTagger.getAnnotations(inputText));
-            annotations.removeNested();
+        if (taggingSettings.isTagDates()) {
+            LOGGER.info("Tagging dates");
+            annotations.addAll(getAnnotations(DateAndTimeTagger.DEFAULT, inputText));
         }
-
-        // FileHelper.writeToFile("data/temp/ner/palladianNerOutput.txt", tagText(inputText, annotations));
-
         annotations.removeNested();
-        annotations.sort();
-
-        LOGGER.info("Got {} annotations in {}", annotations.size(), stopWatch.getElapsedTimeString());
-
         return annotations;
+    }
+
+    private static List<ClassifiedAnnotation> getAnnotations(Tagger tagger, String inputText) {
+        List<ClassifiedAnnotation> result = new ArrayList<>();
+        for (Annotation annotation : tagger.getAnnotations(inputText)) {
+            CategoryEntries categoryEntries = new CategoryEntriesBuilder().set(annotation.getTag(), 1).create();
+            result.add(new ClassifiedAnnotation(annotation, categoryEntries));
+        }
+        return result;
     }
 
     /**
      * <p>
      * Here all classified annotations are processed again. Depending on the learning settings different actions are
-     * performed. These are for example, removing date entries, unwrapping entities, using context patterns to switch
-     * annotations or remove possibly incorrect annotations with the case dictionary.
-     * </p>
+     * performed: Entities are re-classified by their contexts or by a dictionary.
      * 
+     * @param text The text.
      * @param annotations The classified annotations to process
+     * @return The processed (and potentially re-classified) annotations.
      */
-    private void postProcessAnnotations(List<ContextAnnotation> annotations) {
-
-        LOGGER.debug("start post processing annotations");
-
-        StopWatch stopWatch = new StopWatch();
-
-        Annotations<ContextAnnotation> toRemove = new Annotations<ContextAnnotation>();
-
-        // remove dates
-        if (removeDates) {
-            stopWatch.start();
-            int c = 0;
-            for (ContextAnnotation annotation : annotations) {
-                if (containsDateFragment(annotation.getValue())) {
-                    toRemove.add(annotation);
-                    c++;
-                }
-            }
-            LOGGER.debug("removed " + c + " purely date annotations in " + stopWatch.getElapsedTimeString());
-        }
-
-        // remove date entries in annotations, such as "July Peter Jackson" => "Peter Jackson"
-        if (removeDateEntries) {
-            stopWatch.start();
-            int c = 0;
-            for (ContextAnnotation annotation : annotations) {
-
-                Pair<String, Integer> result = removeDateFragment(annotation.getValue());
-                String entity = result.getLeft();
-
-                annotation.setValue(entity);
-                annotation.setStartPosition(annotation.getStartPosition() + result.getRight());
-
-                if (result.getRight() > 0) {
-                    c++;
-                }
-            }
-            LOGGER.debug("removed " + c + " partial date annotations in " + stopWatch.getElapsedTimeString());
-        }
-
-        // remove annotations that were found to be incorrectly tagged in the training data
-        if (removeIncorrectlyTaggedInTraining) {
-            stopWatch.start();
-            for (String removeAnnotation : removeAnnotations) {
-                String removeName = removeAnnotation.toLowerCase();
-                for (ContextAnnotation annotation : annotations) {
-                    if (removeName.equals(annotation.getValue().toLowerCase())) {
-                        toRemove.add(annotation);
-                    }
-                }
-            }
-            LOGGER.debug("removed " + removeAnnotations.size() + " incorrectly tagged entities in training data in "
-                    + stopWatch.getElapsedTimeString());
-        }
-
-        // similar to removeSentenceStartErrorsPos but we use a learned case dictionary to remove possibly incorrectly
-        // tagged sentence starts. For example ". This" is removed since "this" is usually spelled using lowercase
-        // characters only. This is done NOT only for words at sentence start but all single token words.
-        int c = 0;
-        if (removeSentenceStartErrorsCaseDictionary) {
-            stopWatch.start();
-
-            for (ContextAnnotation annotation : annotations) {
-
-                if (annotation.getValue().indexOf(" ") == -1) {
-
-                    double upperCaseToLowerCaseRatio = 2;
-
-                    // CategoryEntries ces = caseDictionary.get(tokenTermMap.get(annotation.getValue().toLowerCase()));
-                    CategoryEntries ces = caseDictionary.getCategoryEntries(annotation.getValue().toLowerCase());
-                    if (ces != null && ces.iterator().hasNext()) {
-                        double allUpperCase = 0.0;
-                        double upperCase = 0.0;
-                        double lowerCase = 0.0;
-
-                        if (ces.getProbability("A") > 0) {
-                            allUpperCase = ces.getProbability("A");
-                        }
-
-                        if (ces.getProbability("Aa") > 0) {
-                            upperCase = ces.getProbability("Aa");
-                        }
-
-                        if (ces.getProbability("a") > 0) {
-                            lowerCase = ces.getProbability("a");
-                        }
-
-                        if (lowerCase > 0) {
-                            upperCaseToLowerCaseRatio = upperCase / lowerCase;
-                        }
-                        if (allUpperCase > upperCase && allUpperCase > lowerCase) {
-                            upperCaseToLowerCaseRatio = 2;
-                        }
-                    }
-
-                    if (upperCaseToLowerCaseRatio <= 1) {
-                        c++;
-                        toRemove.add(annotation);
-                        LOGGER.debug("remove word using the case signature: " + annotation.getValue() + " (ratio:"
-                                + upperCaseToLowerCaseRatio + ") | " + annotation.getRightContext());
-                    }
-
-                }
-            }
-
-            LOGGER.debug("removed " + c + " words at beginning of sentence in " + stopWatch.getElapsedTimeString());
-        }
-
-        LOGGER.debug("remove " + toRemove.size() + " entities");
-        annotations.removeAll(toRemove);
-
+    private Annotations<ClassifiedAnnotation> postProcessAnnotations(String text,
+            Annotations<ClassifiedAnnotation> annotations) {
+        LOGGER.debug("Start post processing annotations");
+        NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
         // switch using pattern information
-        int changed = 0;
-        if (switchTagAnnotationsUsingPatterns) {
-            stopWatch.start();
-
-            for (ContextAnnotation annotation : annotations) {
-
-                String tagNameBefore = annotation.getTag();
-
-                applyContextAnalysis(annotation);
-
-                if (!annotation.getTag().equalsIgnoreCase(tagNameBefore)) {
-                    LOGGER.debug("changed " + annotation.getValue() + " from " + tagNameBefore + " to "
-                            + annotation.getTag() + ", left context: " + annotation.getLeftContext() + "____"
-                            + annotation.getRightContext());
+        if (taggingSettings.isSwitchTagAnnotationsUsingContext() && model.contextDictionary != null) {
+            Annotations<ClassifiedAnnotation> switched = new Annotations<ClassifiedAnnotation>();
+            int changed = 0;
+            for (ClassifiedAnnotation annotation : annotations) {
+                ClassifiedAnnotation result = applyContextAnalysis(annotation, text);
+                if (!result.sameTag(annotation)) {
+                    LOGGER.debug("Changed {} from {} to {}, context: {}", annotation.getValue(), annotation.getTag(),
+                            result.getTag(), NerHelper.getCharacterContext(annotation, text, PalladianNerTrainingSettings.WINDOW_SIZE));
                     changed++;
                 }
-
+                switched.add(result);
             }
-            LOGGER.debug("changed " + MathHelper.round(100 * changed / (annotations.size() + 0.000000000001), 2)
-                    + "% of the entities using patterns in " + stopWatch.getElapsedTimeString());
-
+            double percentage = changed > 0 ? 100. * changed / annotations.size() : 0;
+            LOGGER.debug("Changed {} % using patterns", format.format(percentage));
+            annotations = switched;
         }
-
         // switch annotations that are in the dictionary
-        changed = 0;
-        if (switchTagAnnotationsUsingDictionary) {
-            stopWatch.start();
-
-            for (ContextAnnotation annotation : annotations) {
-
-                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(annotation.getValue());
-                if (categoryEntries != null && categoryEntries.iterator().hasNext()) {
-
+        if (taggingSettings.isSwitchTagAnnotationsUsingDictionary()) {
+            Annotations<ClassifiedAnnotation> switched = new Annotations<ClassifiedAnnotation>();
+            int changed = 0;
+            for (ClassifiedAnnotation annotation : annotations) {
+                CategoryEntries categoryEntries = model.entityDictionary.getCategoryEntries(annotation.getValue());
+                if (categoryEntries.size() > 0) {
                     // get only the most likely concept
-                    CategoryEntriesMap mostLikelyCes = new CategoryEntriesMap();
-                    if (conceptLikelihoodOrder != null) {
-                        ol: for (String conceptName : conceptLikelihoodOrder) {
-                            for (String categoryEntry : categoryEntries) {
-                                if (categoryEntries.getProbability(categoryEntry) > 0
-                                        && categoryEntry.equalsIgnoreCase(conceptName)) {
-                                    mostLikelyCes.set(categoryEntry, categoryEntries.getProbability(categoryEntry));
-                                    break ol;
-                                }
-                            }
-                        }
-                        if (mostLikelyCes.iterator().hasNext()) {
-                            categoryEntries = mostLikelyCes;
-                        }
-                    }
-
-                    annotation.setTags(categoryEntries);
-                    changed++;
-                }
-
-            }
-            LOGGER.debug("changed with entity dictionary "
-                    + MathHelper.round(100 * changed / (annotations.size() + 0.000000000001), 2)
-                    + "% of the entities (total entities: " + annotations.size() + ") in "
-                    + stopWatch.getElapsedTimeString());
-        }
-
-        Annotations<ContextAnnotation> toAdd = new Annotations<ContextAnnotation>();
-
-        stopWatch.start();
-        Map<String, Integer> sortedMap = leftContextMap.getSortedMapDescending();
-
-        for (ContextAnnotation annotation : annotations) {
-
-            // remove all annotations with "DOCSTART- " in them because that is for format purposes
-            if (annotation.getValue().toLowerCase().indexOf("docstart") > -1) {
-                toRemove.add(annotation);
-                continue;
-            }
-
-            // if all uppercase, try to find known annotations
-            // if (StringHelper.isCompletelyUppercase(annotation.getValue().substring(10,
-            // Math.min(12, annotation.getValue().length())))) {
-
-            if (unwrapEntities) {
-                Annotations<ContextAnnotation> wrappedAnnotations = unwrapAnnotations(annotation, annotations);
-
-                if (!wrappedAnnotations.isEmpty()) {
-                    for (ContextAnnotation annotation2 : wrappedAnnotations) {
-                        if (hasAssignedType(annotation2.getTags())) {
-                            toAdd.add(annotation2);
-                            // LOGGER.debug("add " + annotation2.getValue());
-                        }
-                    }
-                    String debugString = "tried to unwrap again " + annotation.getValue();
-                    for (ContextAnnotation wrappedAnnotation : wrappedAnnotations) {
-                        debugString += " | " + wrappedAnnotation.getValue();
-                    }
-                    LOGGER.debug(debugString);
-                }
-            }
-
-            // unwrap annotations containing context patterns, e.g. "President Obama" => "President" is known left
-            // context for people
-            // XXX move this up?
-            if (unwrapEntitiesWithContext) {
-                for (Entry<String, Integer> leftContextEntry : sortedMap.entrySet()) {
-
-                    String leftContext = leftContextEntry.getKey();
-
-                    // 0 means the context appears more often inside an entity than outside so we should not delete it
-                    if (leftContextEntry.getValue() == 0) {
-                        // the map is sorted by number of occurrences so we can break as soon as the threshold is
-                        // reached
-                        break;
-                    }
-
-                    if (!StringHelper.startsUppercase(leftContext)) {
-                        continue;
-                    }
-
-                    String entity = annotation.getValue();
-
-                    int index1 = entity.indexOf(leftContext + " ");
-                    int index2 = entity.indexOf(" " + leftContext + " ");
-                    int length = -1;
-                    int index = -1;
-                    if (index1 == 0) {
-                        length = leftContext.length() + 1;
-                        index = index1;
-                    } else if (index2 > -1) {
-                        length = leftContext.length() + 2;
-                        index = index2;
-                    }
-                    if (index1 == 0 || index2 > -1) {
-
-                        // get the annotation after the index
-                        ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition()
-                                + index + length, annotation.getValue().substring(index + length), annotation.getTag());
-                        toAdd.add(wrappedAnnotation);
-
-                        // search for a known instance in the prefix
-                        // go through the entity dictionary
-                        for (String term : entityDictionary.getTerms()) {
-
-                            int indexPrefix = annotation.getValue().substring(0, index + length).indexOf(term + " ");
-                            if (indexPrefix > -1 && term.length() > 2) {
-                                ContextAnnotation wrappedAnnotation2 = new ContextAnnotation(
-                                        annotation.getStartPosition() + indexPrefix, term, entityDictionary
-                                                .getCategoryEntries(term).getMostLikelyCategory());
-                                toAdd.add(wrappedAnnotation2);
-
-                                LOGGER.debug("add from prefix " + wrappedAnnotation2.getValue());
+                    if (model.conceptLikelihoodOrder != null) {
+                        for (String conceptName : model.conceptLikelihoodOrder) {
+                            double probability = categoryEntries.getProbability(conceptName);
+                            if (probability > 0) {
+                                categoryEntries = new CategoryEntriesBuilder().set(conceptName, 1).create();
                                 break;
                             }
-
                         }
-
-                        toRemove.add(annotation);
-                        LOGGER.debug("add " + wrappedAnnotation.getValue() + ", delete " + annotation.getValue()
-                                + " (left context:" + leftContext + ", " + leftContextEntry.getValue() + ")");
-
-                        break;
                     }
-
+                    if (!annotation.getTag().equals(categoryEntries.getMostLikelyCategory())) {
+                        LOGGER.debug("Changed {} from {} to {} with dictionary", annotation.getValue(),
+                                annotation.getTag(), categoryEntries.getMostLikelyCategory());
+                        changed++;
+                    }
+                    annotation = new ClassifiedAnnotation(annotation, categoryEntries);
                 }
+                switched.add(annotation);
             }
+            double percentage = changed > 0 ? 100. * changed / annotations.size() : 0;
+            LOGGER.debug("Changed {} % using entity dictionary", format.format(percentage));
+            annotations = switched;
         }
-        LOGGER.debug("Unwrapped entities in {}", stopWatch.getElapsedTimeString());
-
-        LOGGER.debug("Add {} entities", toAdd.size());
-        annotations.addAll(toAdd);
-
-        LOGGER.debug("Remove {} entities", toRemove.size());
-        annotations.removeAll(toRemove);
-    }
-
-    public Annotations<ContextAnnotation> getAnnotationsEnglish(String inputText) {
-
-        // use the the string tagger to tag entities in English mode
-        Annotations<ContextAnnotation> entityCandidates = StringTagger.getTaggedEntities(inputText);
-
-        // classify annotations with the UniversalClassifier
-        Annotations<ContextAnnotation> annotations = classifyCandidatesEnglish(entityCandidates);
-
-        postProcessAnnotations(annotations);
-
         return annotations;
     }
 
-    public Annotations<ContextAnnotation> getAnnotationsLanguageIndependent(String inputText) {
-
-        removeDates = false;
-        removeDateEntries = false;
-        removeIncorrectlyTaggedInTraining = false;
-        switchTagAnnotationsUsingPatterns = false;
-        switchTagAnnotationsUsingDictionary = true;
-        unwrapEntities = false;
-        unwrapEntitiesWithContext = false;
-
-        // get the candates, every token is potentially a (part of) an entity
-        Annotations<ContextAnnotation> annotations = StringTagger.getTaggedEntities(inputText,
-                Tokenizer.TOKEN_SPLIT_REGEX);
-
-        // classify annotations with the UniversalClassifier
-        annotations = classifyCandidatesLanguageIndependent(annotations);
-
-        // filter annotations
-        postProcessAnnotations(annotations);
-
-        // combine annotations that are right next to each other having the same tag
-        Annotations<ContextAnnotation> combinedAnnotations = new Annotations<ContextAnnotation>();
-        annotations.sort();
-        // Annotated lastAnnotation = new Annotation(-2, "", "");
-        Annotation lastAnnotation = null;
-        int lastAnnotationEndPosition = -2;
-        String lastAnnotationTag = "";
-        Annotation lastCombinedAnnotation = null;
-
-        for (ContextAnnotation annotation : annotations) {
-            if (!annotation.getTag().equalsIgnoreCase("o") && annotation.getTag().equalsIgnoreCase(lastAnnotationTag)
-                    && annotation.getStartPosition() == lastAnnotationEndPosition + 1) {
-
-                if (lastCombinedAnnotation == null) {
-                    lastCombinedAnnotation = lastAnnotation;
-                }
-
-                ContextAnnotation combinedAnnotation = new ContextAnnotation(lastCombinedAnnotation.getStartPosition(),
-                        lastCombinedAnnotation.getValue() + " " + annotation.getValue(), annotation.getTag());
-                combinedAnnotations.add(combinedAnnotation);
-                lastCombinedAnnotation = combinedAnnotation;
-                combinedAnnotations.remove(lastCombinedAnnotation);
-            } else {
-                combinedAnnotations.add(annotation);
-                lastCombinedAnnotation = null;
-            }
-
-            lastAnnotation = annotation;
-            lastAnnotationEndPosition = annotation.getEndPosition();
-            lastAnnotationTag = annotation.getTag();
+    private Annotations<ClassifiedAnnotation> getAnnotationsInternal(String inputText) {
+        Tagger tagger;
+        if (model.languageMode == LanguageIndependent) {
+            // get the candidates, every token is potentially a (part of) an entity
+            tagger = new RegExTagger(Tokenizer.TOKEN_SPLIT_REGEX, StringTagger.CANDIDATE_TAG);
+        } else {
+            // use the the string tagger to tag entities in English mode
+            tagger = StringTagger.INSTANCE;
         }
-
-        // remove all "O"
-        Annotations<ContextAnnotation> cleanAnnotations = new Annotations<ContextAnnotation>();
-        for (ContextAnnotation annotation : combinedAnnotations) {
-            if (!annotation.getTag().equalsIgnoreCase("o") && annotation.getValue().length() > 1) {
-                cleanAnnotations.add(annotation);
-            }
+        Set<Annotation> annotations = new HashSet<>(tagger.getAnnotations(inputText));
+        preProcessAnnotations(annotations);
+        Annotations<ClassifiedAnnotation> classifiedAnnotations = classifyCandidates(annotations);
+        classifiedAnnotations = postProcessAnnotations(inputText, classifiedAnnotations);
+        CollectionHelper.remove(classifiedAnnotations, not(AnnotationFilters.tag(NO_ENTITY)));
+        if (model.languageMode == LanguageIndependent) {
+            classifiedAnnotations = combineAnnotations(classifiedAnnotations);
         }
-
-        return cleanAnnotations;
-    }
-
-    private void applyContextAnalysis(ContextAnnotation annotation) {
-
-        // get the left and right context patterns and merge them into one context pattern list
-        String[] leftContexts = annotation.getLeftContexts();
-        String[] rightContexts = annotation.getRightContexts();
-
-        List<String> contexts = new ArrayList<String>();
-        for (String pattern : leftContexts) {
-            contexts.add(pattern);
-        }
-        for (String pattern : rightContexts) {
-            contexts.add(pattern);
-        }
-
-        // the probability map holds the probability for the pattern(s) and a certain entity type
-        Map<String, Double> probabilityMap = new HashMap<String, Double>();
-
-        // initialize all entity types with one
-        for (String string : patternProbabilityMatrix.getColumnKeys()) {
-            probabilityMap.put(string, 0.0);
-        }
-
-        // check all context patterns left and right
-        for (String contextPattern : contexts) {
-
-            contextPattern = contextPattern.toLowerCase();
-
-            // skip empty patterns
-            if (contextPattern.length() == 0) {
-                continue;
-            }
-
-            // count the number of matching patterns per entity type
-            CountMap<String> matchingPatternMap = CountMap.create();
-
-            int sumOfMatchingPatterns = 0;
-            for (String string : patternProbabilityMatrix.getColumnKeys()) {
-
-                Integer matches = patternProbabilityMatrix.get(string, contextPattern);
-                if (matches == null) {
-                    matchingPatternMap.set(string, 0);
-                } else {
-                    matchingPatternMap.add(string, matches);
-                    sumOfMatchingPatterns += matches;
-                }
-
-            }
-
-            if (sumOfMatchingPatterns == 0) {
-                continue;
-            }
-
-            for (String string : patternProbabilityMatrix.getColumnKeys()) {
-                Double probability = probabilityMap.get(string);
-                probability += matchingPatternMap.getCount(string) / (double)sumOfMatchingPatterns;
-                probabilityMap.put(string, probability);
-            }
-        }
-
-        CategoryEntriesMap ce = new CategoryEntriesMap();
-
-        double sum = 0;
-
-        for (String string : patternProbabilityMatrix.getColumnKeys()) {
-            sum += probabilityMap.get(string);
-        }
-        if (sum == 0) {
-            sum = 1;
-        }
-        for (String string : patternProbabilityMatrix.getColumnKeys()) {
-            ce.set(string, probabilityMap.get(string) / sum);
-        }
-
-        CategoryEntries ceMerge = CategoryEntriesMap.merge(ce, annotation.getTags());
-        annotation.setTags(ceMerge);
+        return classifiedAnnotations;
     }
 
     /**
-     * <p>
-     * Check whether the given text contains a date fragment. For example "June John Hiatt" would return true.
-     * </p>
+     * Combine annotations that are right next to each other having the same tag.
      * 
-     * @param text The text to check for date fragments.
-     * @return <tt>True</tt>, if the text contains a date fragment, <tt>false</tt> otherwise.
+     * @param annotations The annotations to combine.
+     * @return The combined annotations.
      */
-    private boolean containsDateFragment(String text) {
-        for (String regExp : RegExp.DATE_FRAGMENTS) {
-            if (text.toLowerCase().replaceAll(regExp.toLowerCase(), "").trim().isEmpty()) {
+    private static Annotations<ClassifiedAnnotation> combineAnnotations(Annotations<ClassifiedAnnotation> annotations) {
+        Annotations<ClassifiedAnnotation> combinedAnnotations = new Annotations<ClassifiedAnnotation>();
+        annotations.sort();
+        ClassifiedAnnotation previous = null;
+        ClassifiedAnnotation previousCombined = null;
+        for (ClassifiedAnnotation current : annotations) {
+            if (current.getTag().equalsIgnoreCase("o")) {
+                continue;
+            }
+            if (previous != null && current.sameTag(previous)
+                    && current.getStartPosition() == previous.getEndPosition() + 1) {
+                if (previousCombined == null) {
+                    previousCombined = previous;
+                }
+                int startPosition = previousCombined.getStartPosition();
+                String value = previousCombined.getValue() + " " + current.getValue();
+                ClassifiedAnnotation combined = new ClassifiedAnnotation(startPosition, value,
+                        previous.getCategoryEntries());
+                combinedAnnotations.add(combined);
+                previousCombined = combined;
+                combinedAnnotations.remove(previousCombined);
+            } else {
+                combinedAnnotations.add(current);
+                previousCombined = null;
+            }
+            previous = current;
+        }
+        return combinedAnnotations;
+    }
+
+    private void preProcessAnnotations(Set<Annotation> annotations) {
+        LOGGER.debug("Start pre processing annotations");
+        if (taggingSettings.isRemoveIncorrectlyTaggedInTraining()) {
+            removeIncorrectlyTaggedInTraining(annotations);
+        }
+        if (taggingSettings.isUnwrapEntities()) {
+            unwrapEntities(annotations);
+        }
+        if (taggingSettings.isUnwrapEntitiesWithContext() && model.leftContexts != null) {
+            unwrapWithContext(annotations);
+        }
+        if (taggingSettings.isRemoveDateFragments()) {
+            removeDateFragments(annotations);
+        }
+        if (taggingSettings.isFixStartErrorsCaseDictionary() && model.lowerCaseDictionary != null) {
+            fixStartErrorsWithCaseDictionary(annotations);
+        }
+        if (taggingSettings.isRemoveSentenceStartErrorsCaseDictionary() && model.lowerCaseDictionary != null) {
+            removeSentenceStartErrors(annotations);
+        }
+        if (taggingSettings.isRemoveDates()) {
+            removeDates(annotations);
+        }
+    }
+
+    private void fixStartErrorsWithCaseDictionary(Set<Annotation> annotations) {
+        Set<Annotation> toAdd = new HashSet<>();
+        Set<Annotation> toRemove = new HashSet<>();
+        for (Annotation annotation : annotations) {
+            String value = annotation.getValue();
+            String[] parts = value.split("\\s");
+            if (parts.length == 1) {
+                continue;
+            }
+            int offsetCut = 0;
+            String newValue = value;
+            for (String token : parts) {
+                if (model.entityDictionaryContains(newValue)) {
+                    LOGGER.trace("'{}' is in entity dictionary, stop correcting", newValue);
+                    break;
+                }
+                if (!model.lowerCaseDictionary.contains(token.toLowerCase())) {
+                    LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}", new Object[] {value,
+                            newValue, model.lowerCaseDictionary.contains(token.toLowerCase())});
+                    break;
+                }
+                offsetCut += token.length() + 1;
+                if (offsetCut >= value.length()) {
+                    break;
+                }
+                newValue = value.substring(offsetCut);
+            }
+            if (offsetCut >= value.length()) {
+                LOGGER.debug("Drop '{}' completely because of lc/uc ratio", value);
+                toRemove.add(annotation);
+            } else if (offsetCut > 0) { // annotation start was corrected
+                LOGGER.debug("Correct '{}' to '{}' because of lc/uc ratios", value, newValue);
+                int newStart = annotation.getStartPosition() + offsetCut;
+                toRemove.add(annotation);
+                toAdd.add(new ImmutableAnnotation(newStart, newValue));
+            }
+        }
+        LOGGER.debug("Adding {}, removing {} through case dictionary unwrapping", toAdd.size(), toRemove.size());
+        annotations.removeAll(toRemove);
+        annotations.addAll(toAdd);
+    }
+
+    private static void removeDateFragments(Set<Annotation> annotations) {
+        Set<Annotation> toAdd = new HashSet<>();
+        Set<Annotation> toRemove = new HashSet<>();
+        for (Annotation annotation : annotations) {
+            Annotation result = removeDateFragment(annotation);
+            if (result != null) {
+                toRemove.add(annotation);
+                toAdd.add(result);
+            }
+        }
+        LOGGER.debug("Removed {} partial date annotations", toRemove.size());
+        annotations.addAll(toAdd);
+        annotations.removeAll(toRemove);
+    }
+
+    private static void removeDates(Set<Annotation> annotations) {
+        int numRemoved = CollectionHelper.remove(annotations, new Filter<Annotation>() {
+            @Override
+            public boolean accept(Annotation annotation) {
+                return !isDateFragment(annotation.getValue());
+            }
+        });
+        LOGGER.debug("Removed {} purely date annotations", numRemoved);
+    }
+
+    private void unwrapWithContext(Set<Annotation> annotations) {
+        Set<Annotation> toAdd = new HashSet<>();
+        Set<Annotation> toRemove = new HashSet<>();
+        for (Annotation annotation : annotations) {
+            String entity = annotation.getValue();
+            // do not unwrap, in case we have the value in the entity dictionary
+            if (model.entityDictionary.getCategoryEntries(entity).getTotalCount() > 0) {
+                continue;
+            }
+            for (String leftContext : model.leftContexts) {
+                int index1 = entity.indexOf(leftContext + " ");
+                int index2 = entity.indexOf(" " + leftContext + " ");
+                int length = -1;
+                int index = -1;
+                if (index1 == 0) {
+                    length = leftContext.length() + 1;
+                    index = index1;
+                } else if (index2 > -1) {
+                    length = leftContext.length() + 2;
+                    index = index2;
+                }
+                if (index != -1) {
+                    // get the annotation after the index
+                    int startPosition = annotation.getStartPosition() + index + length;
+                    String value = annotation.getValue().substring(index + length);
+                    toAdd.add(new ImmutableAnnotation(startPosition, value, annotation.getTag()));
+                    // search for a known instance in the prefix by going through the entity dictionary
+                    String prefix = annotation.getValue().substring(0, index + length);
+                    List<String> parts = StringHelper.getSubPhrases(prefix);
+                    for (String part : parts) {
+                        if (model.entityDictionaryContains(part)) {
+                            int prefixStart = annotation.getStartPosition() + prefix.indexOf(part);
+                            toAdd.add(new ImmutableAnnotation(prefixStart, part));
+                            LOGGER.debug("Add from prefix {}", part);
+                        }
+                    }
+                    toRemove.add(annotation);
+                    LOGGER.debug("Add {}, delete {} (left context: {})", value, annotation.getValue(), leftContext);
+                    break;
+                }
+            }
+        }
+        annotations.addAll(toAdd);
+        annotations.removeAll(toRemove);
+    }
+
+    /**
+     * Use a learned case dictionary to remove possibly incorrectly tagged sentence starts. For example ". This" is
+     * removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
+     * sentence start but all single token words.
+     * 
+     * @param annotations The annotations.
+     */
+    private void removeSentenceStartErrors(Set<Annotation> annotations) {
+        int removed = CollectionHelper.remove(annotations, new Filter<Annotation>() {
+            @Override
+            public boolean accept(Annotation annotation) {
+                if (annotation.getValue().indexOf(" ") == -1) {
+                    if (model.lowerCaseDictionary.contains(annotation.getValue().toLowerCase())) {
+                        LOGGER.debug("Remove by case signature: {}", annotation.getValue());
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+        LOGGER.debug("Removed {} words using case dictionary", removed);
+    }
+
+    private void removeIncorrectlyTaggedInTraining(Set<Annotation> annotations) {
+        int removed = CollectionHelper.remove(annotations, new Filter<Annotation>() {
+            @Override
+            public boolean accept(Annotation annotation) {
+                return !model.removeAnnotations.contains(annotation.getValue().toLowerCase());
+            }
+        });
+        LOGGER.debug("Removed {} incorrectly tagged entities in training data", removed);
+    }
+
+    private void unwrapEntities(Set<Annotation> annotations) {
+        Set<Annotation> toAdd = new HashSet<>();
+        Set<Annotation> toRemove = new HashSet<>();
+        for (Annotation annotation : annotations) {
+            boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
+            if (isAllUppercase) {
+                Set<Annotation> unwrapped = unwrapAnnotations(annotation, annotations);
+                if (unwrapped.size() > 0) {
+                    toAdd.addAll(unwrapped);
+                    toRemove.add(annotation);
+                }
+            }
+        }
+        annotations.removeAll(toRemove);
+        annotations.addAll(toAdd);
+        LOGGER.debug("Unwrapping removed {}, added {} entities", toRemove.size(), toAdd.size());
+    }
+
+    private ClassifiedAnnotation applyContextAnalysis(ClassifiedAnnotation annotation, String text) {
+        CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
+        builder.add(annotation.getCategoryEntries());
+        FeatureSetting featureSetting = model.contextDictionary.getFeatureSetting();
+        Scorer scorer = new ExperimentalScorers.CategoryEqualizationScorer();
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, scorer);
+        String context = NerHelper.getCharacterContext(annotation, text, PalladianNerTrainingSettings.WINDOW_SIZE);
+        if (context.trim().length() > 2) {
+            CategoryEntries contextClassification = classifier.classify(context, model.contextDictionary);
+            builder.add(contextClassification);
+        }
+        return new ClassifiedAnnotation(annotation, builder.create());
+    }
+
+    /**
+     * Check whether the given text is a date fragment, e.g. "June".
+     * 
+     * @param value The value to check.
+     * @return <code>true</code> in case the text is a date fragment.
+     */
+    static boolean isDateFragment(String value) {
+        for (String dateFragment : RegExp.DATE_FRAGMENTS) {
+            if (StringUtils.isBlank(value.replaceAll(dateFragment, " "))) {
                 return true;
             }
         }
@@ -1198,570 +819,137 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Seri
     }
 
     /**
-     * <p>
-     * Remove date fragments from the given text.
-     * </p>
+     * Try to remove date fragments from the given annotation, e.g. "June John Hiatt" becomes "John Hiatt".
      * 
-     * @param text The text to be cleased of date fragments.
-     * @return An object array containing the new cleased text on position 0 and the offset which was caused by the
-     *         removal on position 1.
+     * @param annotation The annotation to process.
+     * @return A new annotation with removed date fragments and fixed offsets, or <code>null</code> in case the given
+     *         annotation did not contain a date fragment.
      */
-    private Pair<String, Integer> removeDateFragment(String text) {
-        String[] regExps = RegExp.DATE_FRAGMENTS;
-
-        int offsetChange = 0;
-
-        for (String regExp : regExps) {
-            regExp = "(?:" + regExp + ")";
-            int textLength = text.length();
-
-            // for example "Apr John Hiatt"
-            if (StringHelper.countRegexMatches(text, "^" + regExp + " ") > 0) {
-                text = text.replaceAll("^" + regExp + " ", "").trim();
-                offsetChange += textLength - text.length();
+    static Annotation removeDateFragment(Annotation annotation) {
+        String newValue = annotation.getValue();
+        int newOffset = annotation.getStartPosition();
+        for (String dateFragment : RegExp.DATE_FRAGMENTS) {
+            String regExp = "(?:" + dateFragment + ")\\.?";
+            String beginRegExp = "^" + regExp + " ";
+            String endRegExp = " " + regExp + "$";
+            int textLength = newValue.length();
+            if (StringHelper.countRegexMatches(newValue, beginRegExp) > 0) {
+                newValue = newValue.replaceAll(beginRegExp, " ").trim();
+                newOffset += textLength - newValue.length();
             }
-            if (StringHelper.countRegexMatches(text, " " + regExp + "$") > 0) {
-                text = text.replaceAll(" " + regExp + "$", "").trim();
-            }
-
-            // for example "Apr. John Hiatt"
-            if (StringHelper.countRegexMatches(text, "^" + regExp + "\\. ") > 0) {
-                text = text.replaceAll("^" + regExp + "\\. ", "").trim();
-                offsetChange += textLength - text.length();
-            }
-            if (StringHelper.countRegexMatches(text, " " + regExp + "\\.$") > 0) {
-                text = text.replaceAll(" " + regExp + "\\.$", "").trim();
+            if (StringHelper.countRegexMatches(newValue, endRegExp) > 0) {
+                newValue = newValue.replaceAll(endRegExp, " ").trim();
             }
         }
+        if (annotation.getValue().equals(newValue)) {
+            return null;
+        }
+        LOGGER.debug("Removed date fragment from '{}' gives '{}'", annotation.getValue(), newValue);
+        return new ImmutableAnnotation(newOffset, newValue, annotation.getTag());
+    }
 
-        return Pair.of(text, offsetChange);
+    /**
+     * Build a set with left contexts. These are tokens which appear to the left of an entity, e.g.
+     * "President Barack Obama". From the available annotations we determine, whether "President" belongs to the entity,
+     * or to the context. This information can be used later, to fix the boundaries of an annotation.
+     *
+     * @param text The text.
+     * @param annotations The annotations.
+     * @return A set with tokens which appear more often in the context, than within an entity (e.g. "President").
+     */
+    private Set<String> buildLeftContexts(String text, Annotations<Annotation> annotations) {
+        LOGGER.info("Building left contexts");
+        Bag<String> leftContextCounts = Bag.create();
+        Bag<String> insideAnnotationCounts = Bag.create();
+        for (Annotation annotation : annotations) {
+            leftContextCounts.addAll(NerHelper.getLeftContexts(annotation, text, 3));
+            String[] split = annotation.getValue().split("\\s");
+            StringBuilder partBuilder = new StringBuilder();
+            for (int i = 0; i < split.length; i++) {
+                if (i > 0) {
+                    partBuilder.append(' ');
+                }
+                partBuilder.append(split[i]);
+                insideAnnotationCounts.add(partBuilder.toString());
+            }
+        }
+        Set<String> leftContexts = new HashSet<>();
+        int minCount = trainingSettings.getMinDictionaryCount();
+        for (Entry<String, Integer> entry : leftContextCounts.unique()) {
+            String leftContext = entry.getKey();
+            if (StringHelper.startsUppercase(leftContext)) {
+                int outside = entry.getValue();
+                int inside = insideAnnotationCounts.count(leftContext);
+                if (outside + inside >= minCount) {
+                    double ratio = (double)inside / outside;
+                    if (ratio < 1 && outside >= 2) {
+                        leftContexts.add(leftContext);
+                    }
+                }
+            }
+        }
+        return leftContexts;
+    }
+
+    private DictionaryModel buildContextDictionary(final String text, Iterable<Annotation> annotations) {
+        LOGGER.info("Building context dictionary");
+        DictionaryBuilder builder = createDictionaryBuilder();
+        PalladianTextClassifier contextClassifier = new PalladianTextClassifier(PalladianNerTrainingSettings.CONTEXT_FEATURE_SETTING, builder );
+        Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation, Instance>() {
+            @Override
+            public Instance compute(Annotation input) {
+                return new InstanceBuilder().setText(NerHelper.getCharacterContext(input, text, PalladianNerTrainingSettings.WINDOW_SIZE)).create(
+                        input.getTag());
+            }
+        });
+        return contextClassifier.train(instances);
+    }
+
+    public PalladianNerModel getModel() {
+        return model;
     }
 
     /**
      * <p>
-     * Analyze the context around the annotations. The context classifier will be trained and left context patterns will
-     * be stored.
-     * </p>
-     * 
-     * @param trainingFilePath The path to the training data.
-     * @param trainingAnnotations The training annotations.
-     */
-    private void analyzeContexts(String trainingFilePath, List<? extends Annotation> trainingAnnotations) {
-
-        LOGGER.debug("start analyzing contexts");
-
-        Map<String, CountMap<String>> contextMap = new TreeMap<String, CountMap<String>>();
-        CountMap<String> leftContextMapCountMap = CountMap.create();
-        leftContextMap = CountMap.create();
-        CountMap<String> tagCounts = CountMap.create();
-
-        // get all training annotations including their features
-        Annotations<ContextAnnotation> annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
-
-        List<ClassifiedTextDocument> trainingInstances = CollectionHelper.newArrayList();
-
-        // iterate over all annotations and analyze their left and right contexts for patterns
-        int c = 1;
-        for (ContextAnnotation annotation : annotations) {
-
-            String tag = annotation.getTag();
-
-            // the left patterns containing 1-3 words
-            String[] leftContexts = annotation.getLeftContexts();
-
-            // the right patterns containing 1-3 words
-            String[] rightContexts = annotation.getRightContexts();
-
-            if (contextMap.get(tag) == null) {
-                contextMap.put(tag, CountMap.<String> create());
-            }
-
-            // add the left contexts to the map
-            contextMap.get(tag).add(leftContexts[0]);
-            contextMap.get(tag).add(leftContexts[1]);
-            contextMap.get(tag).add(leftContexts[2]);
-
-            leftContextMapCountMap.add(leftContexts[0]);
-            leftContextMapCountMap.add(leftContexts[1]);
-            leftContextMapCountMap.add(leftContexts[2]);
-
-            // add the right contexts to the map
-            contextMap.get(tag).add(rightContexts[0]);
-            contextMap.get(tag).add(rightContexts[1]);
-            contextMap.get(tag).add(rightContexts[2]);
-
-            tagCounts.add(tag);
-
-            String text = annotation.getLeftContext() + "__" + annotation.getRightContext();
-            ClassifiedTextDocument trainingInstance = new ClassifiedTextDocument(tag, text);
-            trainingInstances.add(trainingInstance);
-
-            ProgressHelper.printProgress(c++, annotations.size(), 1);
-        }
-
-        // fill the leftContextMap with the context and the ratio of inside annotation / outside annotation
-        for (String leftContext : leftContextMapCountMap.uniqueItems()) {
-            int outside = leftContextMapCountMap.getCount(leftContext);
-            int inside = 0;
-
-            for (ContextAnnotation annotation : annotations) {
-                if (annotation.getValue().startsWith(leftContext + " ") || annotation.getValue().equals(leftContext)) {
-                    inside++;
-                }
-            }
-
-            double ratio = (double)inside / (double)outside;
-            if (ratio >= 1 || outside < 2) {
-                leftContextMap.add(leftContext, 0);
-            } else {
-                leftContextMap.add(leftContext, 1);
-            }
-
-        }
-
-        trainContextClassifier(trainingInstances);
-
-        StringBuilder csv = new StringBuilder();
-        for (Entry<String, CountMap<String>> entry : contextMap.entrySet()) {
-
-            int tagCount = tagCounts.getCount(entry.getKey());
-            CountMap<String> patterns = contextMap.get(entry.getKey());
-            Map<String, Integer> sortedMap = patterns.getSortedMap();
-
-            csv.append(entry.getKey()).append("###").append(tagCount).append("\n");
-
-            // print the patterns and their count for the current tag
-            for (Entry<String, Integer> patternEntry : sortedMap.entrySet()) {
-                if (patternEntry.getValue() > 0) {
-                    csv.append(patternEntry.getKey()).append("###").append(patternEntry.getValue()).append("\n");
-                }
-            }
-
-            csv.append("++++++++++++++++++++++++++++++++++\n\n");
-        }
-
-        // tagMap to matrix
-        for (Entry<String, CountMap<String>> patternEntry : contextMap.entrySet()) {
-
-            for (String tagEntry : patternEntry.getValue().uniqueItems()) {
-                int count = patternEntry.getValue().getCount(tagEntry);
-                patternProbabilityMatrix.set(patternEntry.getKey(), tagEntry.toLowerCase(), count);
-            }
-
-        }
-
-        // FileHelper.writeToFile("data/temp/tagPatternAnalysis.csv", csv);
-    }
-
-    private void trainContextClassifier(List<ClassifiedTextDocument> trainingInstances) {
-        contextModel = contextClassifier.train(trainingInstances);
-    }
-
-    public LanguageMode getLanguageMode() {
-        return languageMode;
-    }
-
-    // public void setLanguageMode(LanguageMode languageMode) {
-    // this.languageMode = languageMode;
-    // }
-    //
-    // public void setTrainingMode(TrainingMode trainingMode) {
-    // this.trainingMode = trainingMode;
-    // if (trainingMode == TrainingMode.Sparse) {
-    // removeDates = true;
-    // removeDateEntries = true;
-    // removeIncorrectlyTaggedInTraining = false;
-    // removeSentenceStartErrorsCaseDictionary = true;
-    // switchTagAnnotationsUsingPatterns = true;
-    // switchTagAnnotationsUsingDictionary = true;
-    // unwrapEntities = true;
-    // unwrapEntitiesWithContext = true;
-    // retraining = false;
-    // }
-    // }
-
-    public TrainingMode getTrainingMode() {
-        return trainingMode;
-    }
-
-    // ////////////// accessors for testing only. /////////////////////
-
-    public DictionaryModel getEntityDictionary() {
-        return entityDictionary;
-    }
-
-    DictionaryModel getCaseDictionary() {
-        return caseDictionary;
-    }
-
-    CountMap<String> getLeftContextMap() {
-        return leftContextMap;
-    }
-
-    Set<String> getRemoveAnnotations() {
-        return removeAnnotations;
-    }
-
-    DictionaryModel getContextModel() {
-        return contextModel;
-    }
-
-    DictionaryModel getAnnotationModel() {
-        return annotationModel;
-    }
-
-    // /////////////////////////////////////////////////////////////////////
-
-    public void setTagUrls(boolean tagUrls) {
-        this.tagUrls = tagUrls;
-    }
-
-    public boolean isTagUrls() {
-        return tagUrls;
-    }
-
-    public void setTagDates(boolean tagDates) {
-        this.tagDates = tagDates;
-    }
-
-    public boolean isTagDates() {
-        return tagDates;
-    }
-
-    /**
-     * <p>
-     * Try to find which of the given annotation are part of this entity. For example: "New York City and Dresden"
-     * contains two entities that might be in the given annotation set. If so, we return the found annotations.
-     * </p>
+     * If the annotation is completely upper case, like "NEW YORK CITY AND DRESDEN", try to find which of the given
+     * annotation are part of this entity. The given example contains two entities that might be in the given annotation
+     * set. If so, we return the found annotations.
      * 
      * @param annotation The annotation to check.
      * @param annotations The annotations we are searching for in this entity.
      * @return A set of annotations found in this annotation.
      */
-    private Annotations<ContextAnnotation> unwrapAnnotations(Annotation annotation, List<ContextAnnotation> annotations) {
-        Annotations<ContextAnnotation> unwrappedAnnotations = new Annotations<ContextAnnotation>();
-
-        boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
-
-        if (!isAllUppercase) {
-            return unwrappedAnnotations;
-        }
-
-        String entityName = annotation.getValue().toLowerCase();
-        int length = entityName.length();
-
+    private Set<Annotation> unwrapAnnotations(Annotation annotation, Set<Annotation> annotations) {
+        Set<String> otherValues = new HashSet<>();
         for (Annotation currentAnnotation : annotations) {
-            if (currentAnnotation.getValue().length() < length) {
-                int index = entityName.indexOf(" " + currentAnnotation.getValue().toLowerCase() + " ");
-                if (index > -1 && currentAnnotation.getValue().length() > 2) {
-                    ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition() + index
-                            + 1, currentAnnotation.getValue(), currentAnnotation.getTag());
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-
-                index = entityName.indexOf(currentAnnotation.getValue().toLowerCase() + " ");
-                if (index == 0 && currentAnnotation.getValue().length() > 2) {
-                    ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition() + index,
-                            currentAnnotation.getValue(), currentAnnotation.getTag());
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-
-                index = entityName.indexOf(" " + currentAnnotation.getValue().toLowerCase());
-                if (index == entityName.length() - currentAnnotation.getValue().length() - 1
-                        && currentAnnotation.getValue().length() > 2) {
-                    ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition() + index
-                            + 1, currentAnnotation.getValue(), currentAnnotation.getTag());
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
+            if (!currentAnnotation.equals(annotation)) {
+                otherValues.add(currentAnnotation.getValue().toLowerCase());
             }
         }
-
-        // go through the entity dictionary
-        for (String term : entityDictionary.getTerms()) {
-            if (term.length() < length) {
-                int index = entityName.indexOf(" " + term.toLowerCase() + " ");
-                CategoryEntries categoryEntries = entityDictionary.getCategoryEntries(term);
-                String mostLikelyCategory = categoryEntries.getMostLikelyCategory();
-                if (index > -1 && term.length() > 2) {
-                    ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition() + index
-                            + 1, term, mostLikelyCategory);
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-
-                index = entityName.indexOf(term.toLowerCase() + " ");
-                if (index == 0 && term.length() > 2) {
-                    ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition() + index,
-                            term, mostLikelyCategory);
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
-
-                index = entityName.indexOf(" " + term.toLowerCase());
-                if (index == entityName.length() - term.length() - 1 && term.length() > 2) {
-                    ContextAnnotation wrappedAnnotation = new ContextAnnotation(annotation.getStartPosition() + index
-                            + 1, term, mostLikelyCategory);
-                    unwrappedAnnotations.add(wrappedAnnotation);
-                }
+        Set<Annotation> unwrappedAnnotations = new HashSet<>();
+        String annotationValue = annotation.getValue();
+        List<String> parts = StringHelper.getSubPhrases(annotationValue);
+        for (String part : parts) {
+            String partValue = part.toLowerCase();
+            if (otherValues.contains(partValue) || model.entityDictionaryContains(partValue)) {
+                int startPosition = annotation.getStartPosition() + annotationValue.toLowerCase().indexOf(partValue);
+                unwrappedAnnotations.add(new ImmutableAnnotation(startPosition, part));
             }
         }
-
+        if (LOGGER.isDebugEnabled() && unwrappedAnnotations.size() > 0) {
+            List<String> unwrappedParts = CollectionHelper.convertList(unwrappedAnnotations, VALUE_CONVERTER);
+            LOGGER.debug("Unwrapped {} in {} parts: {}", annotationValue, unwrappedAnnotations.size(), unwrappedParts);
+        }
         return unwrappedAnnotations;
     }
 
     @Override
     public String getName() {
-        return "Palladian NER (" + languageMode + "," + trainingMode + ")";
+        return "Palladian NER";
     }
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-
-        PalladianNer tagger = new PalladianNer();
-
-        // ################################# HOW TO USE #################################
-
-        // set mode (English or language independent)
-        // set type of training set (complete supervised or sparse semi-supervised)
-        tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
-
-        /**
-         * ained = data/models/palladian/ner/palladianNerTudCs4Annotations
-         * models.palladian.nerWebTrained = data/models/palladian/ner/
-         */
-
-        // // training the tagger
-        // needs to point to a column separated file
-        String trainingPath = "data/datasets/ner/conll/training.txt";
-        // trainingPath = "data/temp/seedsTest100.txt";
-        trainingPath = "data/datasets/ner/tud/tud2011_train.txt";
-        String modelPath = "data/temp/palladianNerTudCs4Annotations";
-        modelPath = "data/temp/palladianNerTudCs4";
-        // modelPath = "data/temp/palladianNerConllAnnotations";
-        // modelPath = "data/temp/palladianNerConll";
-        // modelPath = "data/temp/palladianNerWebTrained100Annotations";
-
-        // set whether to tag dates
-        tagger.setTagDates(false);
-        // tagger.setTagDates(true);
-
-        // set whether to tag URLs
-        tagger.setTagUrls(false);
-        // tagger.setTagUrls(true);
-
-        // create a dictionary from a dictionary txt file
-        // tagger.makeDictionary("mergedDictComplete.csv");
-
-        // we can add annotations without any context to the tagger to improve internal evidence features
-        String trainingSeedFilePath = PalladianNer.class.getResource("/nerSeeds.txt").getFile();
-        List<ContextAnnotation> trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
-
-        // train the tagger on the training file (with or without additional training annotations)
-        // tagger.train(trainingPath, trainingAnnotations, modelPath);
-        tagger.train(trainingPath, modelPath);
-
-        System.exit(0);
-
-        // // using a trained tagger
-        // load a trained tagger
-        tagger.loadModel(modelPath);
-
-        // load an additional entity dictionary
-        // StopWatch sw2 = new StopWatch();
-        // Dictionary dict = FileHelper.deserialize("dict.ser.gz");
-        // LOGGER.info(sw2.getTotalElapsedTimeString());
-        // tagger.setEntityDictionary(dict);
-
-        // tag a sentence
-        String inputText = "Peter J. Johnson lives in New York City in the U.S.A.";
-        String taggedText = tagger.tag(inputText);
-        System.out.println(taggedText);
-
-        CollectionHelper.print(tagger.getAnnotations(inputText));
-
-        System.exit(0);
-
-        // // evaluate a tagger
-        String testPath = "data/datasets/ner/conll/test_final.txt";
-        testPath = "data/datasets/ner/tud/tud2011_test.txt";
-        EvaluationResult evr = tagger.evaluate(testPath, TaggingFormat.COLUMN);
-        System.out.println(evr.getMUCResultsReadable());
-        System.out.println(evr.getExactMatchResultsReadable());
-
-        // CoNLL
-        // without the dictionary
-        // precision MUC: 76.19%, recall MUC: 82.25%, F1 MUC: 79.1%
-        // precision exact: 64.54%, recall exact: 69.67%, F1 exact: 67.01%
-
-        // with the dbpedia dictionary BUT the types of conll and dbpedia do not match therefore a worse result
-        // precision MUC: 57.09%, recall MUC: 62.96%, F1 MUC: 59.88%
-        // precision exact: 30.41%, recall exact: 33.54%, F1 exact: 31.9%
-
-        // TUDCS4
-        // without the dictionary
-        // precision MUC: 52.12%, recall MUC: 53.36%, F1 MUC: 52.73%
-        // precision exact: 29.4%, recall exact: 30.11%, F1 exact: 29.75%
-
-        // with additional training annotations (src/main/resources/nerSeeds.txt)
-        // precision MUC: 51.92%, recall MUC: 64.46%, F1 MUC: 57.52%
-        // precision exact: 31.95%, recall exact: 39.66%, F1 exact: 35.39%
-
-        // learned from automatically generated training data, sparse (100 seeds)
-        // precision MUC: 42.56%, recall MUC: 51.76%, F1 MUC: 46.71%
-        // precision exact: 16.49%, recall exact: 20.05%, F1 exact: 18.09%
-
-        System.exit(0);
-
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
-        // "data/temp/tudner.model",
-        // TaggingFormat.COLUMN);
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "", TaggingFormat.COLUMN);
-        // EvaluationResult er = tagger.evaluate(testFilePath, "", TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-        //
-        // System.out.println(stopWatch.getElapsedTimeString());
-        //
-        // HashSet<String> trainingTexts = new HashSet<String>();
-        // trainingTexts
-        // .add("Australia is a country and a continent at the same time. New Zealand is also a country but not a continent");
-        // trainingTexts
-        // .add("Many countries, such as Germany and Great Britain, have a strong economy. Other countries such as Iceland and Norway are in the north and have a smaller population");
-        // trainingTexts.add("In south Europe, a nice country named Italy is formed like a boot.");
-        // trainingTexts.add("In the western part of Europe, the is a country named Spain which is warm.");
-        // trainingTexts
-        // .add("Bruce Willis is an actor, Jim Carrey is an actor too, but Trinidad is a country name and and actor name as well.");
-        // trainingTexts.add("In west Europe, a warm country named Spain has good seafood.");
-        // trainingTexts.add("Another way of thinking of it is to drive to another coutry and have some fun.");
-        //
-        // // possible tags
-        // CollectionHelper.print(tagger.getModelTags("data/models/tudner/tudner.model"));
-        //
-        // // train
-        // tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner/tudner.model");
-        //
-        // // tag
-        // tagger.loadModel("data/models/tudner/tudner.model");
-        // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
-        //
-        // tagger.tag(
-        // "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
-        // "data/models/tudner/tudner.model");
-        //
-        // // evaluate
-        // tagger.evaluate("data/datasets/ner/sample/testingColumn.tsv", "data/models/tudner/tudner.model",
-        // TaggingFormat.COLUMN);
-
-        // /////////////////////////// train and test /////////////////////////////
-        // tagger.train("data/datasets/ner/politician/text/training.tsv", "data/models/tudner/tudner.model");
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
-        // "data/models/tudner/tudner.model", TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-
-        // using a column trainig and testing file
-        String trainingFilePath = "data/temp/autoGeneratedDataConll/seedsTest1.txt";
-        // trainingFilePath = "data/temp/autoGeneratedDataTUD2/seedsTest1.txt";
-        // trainingFilePath = "data/temp/autoGeneratedDataTUD4/seedsTest50.txt";
-        // trainingFilePath = "data/datasets/ner/conll/training_small.txt";
-        // trainingFilePath = "data/temp/seedsTest100.txt";
-
-        String testFilePath = "data/datasets/ner/conll/test_final.txt";
-        testFilePath = "data/datasets/ner/tud/tud2011_test.txt";
-
-        String seedFilePath = "data/datasets/ner/conll/training.txt";
-        seedFilePath = "data/datasets/ner/tud/manuallyPickedSeeds/seedListC.txt";
-
-        StopWatch stopWatch = new StopWatch();
-
-        // /////////////////////// evaluation purposes //////////////////////////
-        StringBuilder evaluationResults = new StringBuilder();
-        // Annotations ignoreAnnotations = FileFormatParser.getSeedAnnotations(trainingFilePath, -1);
-        Set<String> ignoreAnnotations = new HashSet<String>();
-        for (ContextAnnotation annotation : FileFormatParser.getSeedAnnotations(trainingFilePath, -1)) {
-            ignoreAnnotations.add(annotation.getValue());
-        }
-        String datasetFolder = "data/temp/autoGeneratedDataTUD4/";
-        datasetFolder = "data/temp/autoGeneratedDataConll/";
-        datasetFolder = "data/temp/autoGeneratedDataTUD/";
-
-        // for (int i = 1; i <= 100; i += 10) {
-        for (int i = 1; i <= 5; i++) {
-
-            int j = i;
-            if (j > 1) {
-                j *= 10;
-            }
-            j = 10;
-            trainingFilePath = datasetFolder + "newDataset" + j + ".txt";
-
-            tagger = new PalladianNer(LanguageMode.English, TrainingMode.Sparse);
-
-            // Annotations annotations = FileFormatParser.getSeedAnnotations(seedFilePath, i);
-            // tagger.train(trainingFilePath, annotations, "data/temp/tudner2.model");
-            tagger.train(trainingFilePath, "data/temp/tudner");
-            // tagger.train(annotations, "data/temp/tudner2.model");
-            tagger.loadModel("data/temp/tudner");
-
-            EvaluationResult er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN, ignoreAnnotations);
-
-            evaluationResults.append(er.getPrecision(EvaluationMode.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getRecall(EvaluationMode.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getF1(EvaluationMode.EXACT_MATCH)).append(";");
-            evaluationResults.append(er.getPrecision(EvaluationMode.MUC)).append(";");
-            evaluationResults.append(er.getRecall(EvaluationMode.MUC)).append(";");
-            evaluationResults.append(er.getF1(EvaluationMode.MUC)).append(";");
-
-            evaluationResults.append("\n");
-            FileHelper.writeToFile("results.txt", evaluationResults);
-        }
-        System.exit(0);
-        // 2-8, 4-5, 040: 0.3912314995811226;
-        // 2-8, 4-5, 040, seedsText2: 0.40139470013947
-        // 2-8, 4-5, 120: 0.39039374476403244;
-        // 2-8, 4-7, 040: 0.3937447640323932;
-        // 2-8, 4-5, 040, leftContext 31 count: 0.41089385474860335
-        // 2-8, 4-5, 040: seedsText50, 0.44447560291643295
-        // 2-8, 4-5, 040: no seed text, 0.33059735522115824
-        // //////////////////////////////////////////////////////////////////////
-
-        // tagger.setTrainingMode(TrainingMode.Complete);
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
-        // tagger.train("data/temp/nerEvaluation/www_eval_2_cleansed/allColumn.txt", "data/temp/tudner.model");
-
-        tagger = new PalladianNer(LanguageMode.English, TrainingMode.Complete);
-
-        List<ContextAnnotation> annotations = FileFormatParser.getSeedAnnotations(
-                "data/datasets/ner/tud/manuallyPickedSeeds/seedListC.txt", 50);
-        // tagger.train(annotations, "data/temp/tudner");
-        tagger.train(trainingFilePath, "data/temp/tudner");
-        // tagger.train(trainingFilePath, annotations, "data/temp/tudner2.model");
-        // System.exit(0);
-        // TUDNER.remove = true;
-        tagger.loadModel("data/temp/tudner");
-        // System.exit(0);
-
-        // tagger = TUDNER.load("data/temp/tudner.model");
-
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
-        // "data/temp/tudner.model",
-        // TaggingFormat.COLUMN);
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "", TaggingFormat.COLUMN);
-        EvaluationResult er = tagger.evaluate(testFilePath, TaggingFormat.COLUMN);
-        System.out.println(er.getMUCResultsReadable());
-        System.out.println(er.getExactMatchResultsReadable());
-
-        System.out.println(stopWatch.getElapsedTimeString());
-
-        // Dataset trainingDataset = new Dataset();
-        // trainingDataset.setPath("data/datasets/ner/www_test2/index_split1.txt");
-        // tagger.train(trainingDataset, "data/models/tudner/tudner.model");
-        //
-        // Dataset testingDataset = new Dataset();
-        // testingDataset.setPath("data/datasets/ner/www_test2/index_split2.txt");
-        // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/tudner/tudner.model");
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
+    public PalladianNerTaggingSettings getTaggingSettings() {
+        return taggingSettings;
     }
 
 }

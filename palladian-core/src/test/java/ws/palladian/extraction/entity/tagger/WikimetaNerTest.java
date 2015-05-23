@@ -12,9 +12,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
+import ws.palladian.core.Annotation;
+import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.processing.features.Annotation;
 import ws.palladian.retrieval.parser.ParserException;
 
 public class WikimetaNerTest {
@@ -51,7 +52,8 @@ public class WikimetaNerTest {
         List<Annotation> annotations = wikimetaNer.parseXml(inputSource, ORIGINAL_TEXT);
         // make sure this stupid alignment error doesn't show up, it should throw an exception though
         // (see NamedEntityRecognizer, line 282)
-        wikimetaNer.tagText(ORIGINAL_TEXT, annotations);
+        // wikimetaNer.tagText(ORIGINAL_TEXT, annotations);
+        NerHelper.tag(ORIGINAL_TEXT, annotations, TaggingFormat.XML);
     }
 
 }

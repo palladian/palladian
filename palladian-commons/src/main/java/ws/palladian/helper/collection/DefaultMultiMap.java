@@ -1,15 +1,10 @@
 package ws.palladian.helper.collection;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>
@@ -35,10 +30,10 @@ public class DefaultMultiMap<K, V> extends AbstractMap<K,Collection<V>> implemen
      * @return A new instance of MultiMap.
      */
     public static <K, V> MultiMap<K, V> createWithList() {
-        return new DefaultMultiMap<K, V>(new Factory<Collection<V>>() {
+        return new DefaultMultiMap<>(new Factory<Collection<V>>() {
             @Override
             public Collection<V> create() {
-                return CollectionHelper.newArrayList();
+                return new ArrayList<>();
             }
         });
     }
@@ -51,10 +46,10 @@ public class DefaultMultiMap<K, V> extends AbstractMap<K,Collection<V>> implemen
      * @return A new instance of MultiMap.
      */
     public static <K, V> MultiMap<K, V> createWithSet() {
-        return new DefaultMultiMap<K, V>(new Factory<Collection<V>>() {
+        return new DefaultMultiMap<>(new Factory<Collection<V>>() {
             @Override
             public Collection<V> create() {
-                return CollectionHelper.newHashSet();
+                return new HashSet<>();
             }
         });
     }
@@ -70,7 +65,7 @@ public class DefaultMultiMap<K, V> extends AbstractMap<K,Collection<V>> implemen
      */
     public DefaultMultiMap(Factory<Collection<V>> collectionFactory) {
         Validate.notNull(collectionFactory, "collectionFactory must not be null");
-        this.map = new HashMap<K, Collection<V>>();
+        this.map = new HashMap<>();
         this.collectionFactory = collectionFactory;
     }
 

@@ -7,8 +7,8 @@ import java.util.Collections;
 
 import org.junit.Test;
 
+import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.ContextAnnotation;
 import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
@@ -21,8 +21,8 @@ public class EvaluationResultTest {
     public void testEvaluationResult() throws FileNotFoundException {
         String goldFile = ResourceHelper.getResourcePath("/ner/evaluation/goldStandardXml.txt");
         String resultFile = ResourceHelper.getResourcePath("/ner/evaluation/nerResultXml.txt");
-        Annotations<ContextAnnotation> goldStandard = FileFormatParser.getAnnotationsFromXmlFile(goldFile);
-        Annotations<ContextAnnotation> nerResult = FileFormatParser.getAnnotationsFromXmlFile(resultFile);
+        Annotations<Annotation> goldStandard = FileFormatParser.getAnnotationsFromXmlFile(goldFile);
+        Annotations<Annotation> nerResult = FileFormatParser.getAnnotationsFromXmlFile(resultFile);
 
         EvaluationResult result = NamedEntityRecognizer.evaluate(goldStandard, nerResult,
                 Collections.<String> emptySet());
@@ -119,7 +119,12 @@ public class EvaluationResultTest {
         assertEquals(4. / 6, result.getRecallFor("COUNTRY", EvaluationMode.MUC), 0);
         assertEquals(2. / 4, result.getRecallFor("CITY", EvaluationMode.MUC), 0);
 
-        // System.out.println(result.getEvaluationDetails());
+        // recognition mode
+        assertEquals(6. / 15, result.getPrecision(EvaluationMode.RECOGNITION), 0);
+        assertEquals(6. / 14, result.getRecall(EvaluationMode.RECOGNITION), 0);
+        
+        assertEquals(2. / 6, result.getPrecisionFor("COUNTRY", EvaluationMode.RECOGNITION), 0);
+        assertEquals(2. / 3, result.getRecallFor("COUNTRY", EvaluationMode.RECOGNITION), 0);
     }
 
 }

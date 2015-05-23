@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-import static ws.palladian.extraction.location.LocationExtractorUtils.COORDINATE_FILTER;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,11 +12,17 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractor;
+import ws.palladian.extraction.location.LocationFilters;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public final class HighestTrustScopeDetector implements ScopeDetector {
+public final class HighestTrustScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "Trust";
+
+    public HighestTrustScopeDetector(LocationExtractor extractor) {
+        super(extractor);
+    }
 
     @Override
     public Location getScope(Collection<LocationAnnotation> locations) {
@@ -43,7 +48,7 @@ public final class HighestTrustScopeDetector implements ScopeDetector {
         });
         List<Location> locationList = CollectionHelper.convertList(temp, ANNOTATION_LOCATION_FUNCTION);
         CollectionHelper.removeNulls(locationList);
-        CollectionHelper.remove(locationList, COORDINATE_FILTER);
+        CollectionHelper.remove(locationList, LocationFilters.coordinate());
         return CollectionHelper.getFirst(locationList);
     }
 

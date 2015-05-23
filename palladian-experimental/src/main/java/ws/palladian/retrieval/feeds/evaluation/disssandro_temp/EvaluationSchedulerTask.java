@@ -11,15 +11,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ConfigHolder;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedReader;
+import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.FeedTaskResult;
 import ws.palladian.retrieval.feeds.evaluation.EvaluationFeedDatabase;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
@@ -75,7 +76,7 @@ public class EvaluationSchedulerTask extends TimerTask {
 
     private Long lastWakeUpTime = null;
 
-    private final HashBag<FeedTaskResult> feedResults = new HashBag<FeedTaskResult>();
+    private final Bag<FeedTaskResult> feedResults = Bag.create();
 
     private final EvaluationFeedDatabase database;
 
@@ -110,7 +111,7 @@ public class EvaluationSchedulerTask extends TimerTask {
      *            collection of feeds to check.
      */
     public EvaluationSchedulerTask(FeedReader feedReader, EvaluationFeedDatabase database, UpdateStrategy updateStrategy) {
-        threadPool = Executors.newFixedThreadPool(FeedReader.DEFAULT_NUM_THREADS);
+        threadPool = Executors.newFixedThreadPool(FeedReaderSettings.DEFAULT_NUM_THREADS);
         this.feedReader = feedReader;
         scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
         this.database = database;
@@ -129,7 +130,7 @@ public class EvaluationSchedulerTask extends TimerTask {
 
         // on average, one thread has 5 minutes to process a feed. This is very long but in some algorithms we simulate
         // more than 10k polls
-        HIGH_LOAD_THROUGHPUT = (int)(0.2 * FeedReader.DEFAULT_NUM_THREADS * (FeedReader.DEFAULT_WAKEUP_INTERVAL / TimeUnit.MINUTES
+        HIGH_LOAD_THROUGHPUT = (int)(0.2 * FeedReaderSettings.DEFAULT_NUM_THREADS * (FeedReaderSettings.DEFAULT_WAKEUP_INTERVAL / TimeUnit.MINUTES
                 .toMillis(1)));
     }
 
@@ -172,12 +173,12 @@ public class EvaluationSchedulerTask extends TimerTask {
             wakeupInterval = DateHelper.formatDuration(lastWakeUpTime, currentWakeupTime);
         }
 
-        int success = feedResults.getCount(FeedTaskResult.SUCCESS);
-        int misses = feedResults.getCount(FeedTaskResult.MISS);
-        int unreachable = feedResults.getCount(FeedTaskResult.UNREACHABLE);
-        int unparsable = feedResults.getCount(FeedTaskResult.UNPARSABLE);
-        int slow = feedResults.getCount(FeedTaskResult.EXECUTION_TIME_WARNING);
-        int errors = feedResults.getCount(FeedTaskResult.ERROR);
+        int success = feedResults.count(FeedTaskResult.SUCCESS);
+        int misses = feedResults.count(FeedTaskResult.MISS);
+        int unreachable = feedResults.count(FeedTaskResult.UNREACHABLE);
+        int unparsable = feedResults.count(FeedTaskResult.UNPARSABLE);
+        int slow = feedResults.count(FeedTaskResult.EXECUTION_TIME_WARNING);
+        int errors = feedResults.count(FeedTaskResult.ERROR);
 
         String logMsg = String.format("Newly scheduled: %6d, delayed: %6d, queue size: %6d, processed: %4d, "
                 + "success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, "

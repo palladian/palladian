@@ -1,9 +1,12 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.functional.Function;
 
 /**
  * <p>
@@ -16,27 +19,82 @@ import org.apache.commons.lang3.Validate;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serializable {
+public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Serializable {
 
     /** The serial version id. */
     private static final long serialVersionUID = -3624991964111312886L;
-    
-    public static interface NumberVector<K> extends Vector<K, Integer> {
-        
+
+    private final class EntryConverter implements Function<MatrixVector<K, Integer>, IntegerMatrixVector<K>> {
+        @Override
+        public IntegerMatrixVector<K> compute(MatrixVector<K, Integer> input) {
+            return new IntegerMatrixVector<K>(input);
+        }
+    }
+
+    /**
+     * A {@link MatrixVector} decorator, which returns {@link IntegerVector}s.
+     * 
+     * @author pk
+     * 
+     * @param <K>
+     */
+    public static final class IntegerMatrixVector<K> implements MatrixVector<K, Integer> {
+
+        private final MatrixVector<K, Integer> vector;
+        final int sum;
+
+        public IntegerMatrixVector(MatrixVector<K, Integer> vector) {
+            this.vector = vector;
+            int sum = 0;
+            for (VectorEntry<K, Integer> entry : vector) {
+                sum += entry.value();
+            }
+            this.sum = sum;
+        }
+
+        /**
+         * <p>
+         * In contrast to what is stated in the interface, this methods returns zero, in case the specified column does
+         * not exist for your convenience.
+         * </p>
+         */
+        @Override
+        public Integer get(K k) {
+            Integer result = vector.get(k);
+            return result != null ? result : 0;
+        }
+
+        @Override
+        public int size() {
+            return vector.size();
+        }
+
+        @Override
+        public Set<K> keys() {
+            return vector.keys();
+        }
+
+        @Override
+        public Iterator<VectorEntry<K, Integer>> iterator() {
+            return vector.iterator();
+        }
+
+        @Override
+        public K key() {
+            return vector.key();
+        }
+
         /**
          * @return The sum of all values in this {@link Vector}.
          */
-        public int getSum();
-        
+        public int getSum() {
+            return sum;
+        }
+
     }
 
-    private final Matrix<K, Integer> matrix;
-
-    /**
-     * @param matrix
-     */
     public CountMatrix(Matrix<K, Integer> matrix) {
-        this.matrix = matrix;
+        super(matrix);
     }
 
     /**
@@ -77,11 +135,7 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
         Validate.notNull(x, "x must not be null");
         Validate.notNull(y, "y must not be null");
         Integer count = get(x, y);
-        if (count == null) {
-            count = 0;
-        }
-        count += value;
-        set(x, y, count);
+        set(x, y, count += value);
     }
 
     /**
@@ -97,6 +151,12 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
         return get(x, y);
     }
 
+    /**
+     * <p>
+     * In contrast to what is stated in the interface, this methods returns zero, in case the specified cell does not
+     * exist.
+     * </p>
+     */
     @Override
     public Integer get(K x, K y) {
         Integer result = matrix.get(x, y);
@@ -104,71 +164,50 @@ public class CountMatrix<K> extends AbstractMatrix<K, Integer> implements Serial
     }
 
     @Override
-    public void set(K x, K y, Integer value) {
-        matrix.set(x, y, value);
+    public Iterable<IntegerMatrixVector<K>> rows() {
+        return CollectionHelper.convert(matrix.rows(), new EntryConverter());
     }
 
     @Override
-    public Set<K> getColumnKeys() {
-        return matrix.getColumnKeys();
+    public Iterable<IntegerMatrixVector<K>> columns() {
+        return CollectionHelper.convert(matrix.columns(), new EntryConverter());
     }
 
+    /**
+     * <p>
+     * In contrast to what is stated in the interface, this methods returns an empty number vector, in case the
+     * specified row does not exist for your convenience.
+     * </p>
+     */
     @Override
-    public Set<K> getRowKeys() {
-        return matrix.getRowKeys();
-    }
-
-    @Override
-    public void clear() {
-        matrix.clear();
-    }
-
-    @Override
-    public NumberVector<K> getRow(final K y) {
+    public IntegerMatrixVector<K> getRow(K y) {
         Validate.notNull(y, "y must not be null");
-        return new NumberVector<K>() {
-            @Override
-            public Integer get(K x) {
-                return CountMatrix.this.get(x, y);
-            }
-
-            @Override
-            public int getSum() {
-                int sum = 0;
-                for (K x : getColumnKeys()) {
-                    sum += get(x);
-                }
-                return sum;
-            }
-        };
+        MatrixVector<K, Integer> row = matrix.getRow(y);
+        return new IntegerMatrixVector<K>(row != null ? row : new NullMatrixVector<K, Integer>(y));
     }
 
+    /**
+     * <p>
+     * In contrast to what is stated in the interface, this methods returns an empty number vector, in case the
+     * specified column does not exist for your convenience.
+     * </p>
+     */
     @Override
-    public NumberVector<K> getColumn(final K x) {
+    public IntegerMatrixVector<K> getColumn(K x) {
         Validate.notNull(x, "x must not be null");
-        return new NumberVector<K>() {
-            @Override
-            public Integer get(K y) {
-                return CountMatrix.this.get(x, y);
-            }
-
-            @Override
-            public int getSum() {
-                int sum = 0;
-                for (K y : getRowKeys()) {
-                    sum += get(y);
-                }
-                return sum;
-            }
-        };
+        MatrixVector<K, Integer> column = matrix.getColumn(x);
+        return new IntegerMatrixVector<K>(column != null ? column : new NullMatrixVector<K, Integer>(x));
     }
 
+    /**
+     * @return The sum of all entries in this matrix.
+     */
     public int getSum() {
         int totalSize = 0;
-        for (K y : getRowKeys()) {
-            totalSize += getRow(y).getSum();
+        for (IntegerMatrixVector<K> row : rows()) {
+            totalSize += row.getSum();
         }
         return totalSize;
-    };
+    }
 
 }

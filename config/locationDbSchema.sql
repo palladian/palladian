@@ -5,9 +5,9 @@
 # http://www.sequelpro.com/
 # http://code.google.com/p/sequel-pro/
 #
-# Host: 127.0.0.1 (MySQL 5.5.25)
+# Host: 127.0.0.1 (MySQL 5.5.34)
 # Datenbank: locations
-# Erstellungsdauer: 2013-06-13 22:13:13 +0000
+# Erstellungsdauer: 2014-09-01 21:41:01 +0000
 # ************************************************************
 
 
@@ -27,12 +27,10 @@ DROP TABLE IF EXISTS `location_alternative_names`;
 
 CREATE TABLE `location_alternative_names` (
   `locationId` int(11) unsigned NOT NULL COMMENT 'The id of the location.',
-  `alternativeName` varchar(200) DEFAULT NULL COMMENT 'An alternative name used for the location.',
+  `alternativeName` varchar(200) NOT NULL DEFAULT '' COMMENT 'An alternative name used for the location.',
   `language` char(2) DEFAULT NULL COMMENT 'The language for this alternative name, in ISO 639-1 format. NULL means no specified language.',
   UNIQUE KEY `idNameLangUnique` (`locationId`,`alternativeName`,`language`),
-  KEY `locationId` (`locationId`),
-  KEY `alternativeName` (`alternativeName`),
-  KEY `language` (`language`)
+  KEY `alternativeName` (`alternativeName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
@@ -44,15 +42,14 @@ DROP TABLE IF EXISTS `locations`;
 
 CREATE TABLE `locations` (
   `id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'The id of the location.',
-  `type` varchar(20) NOT NULL DEFAULT '' COMMENT 'The type of the location.',
-  `name` varchar(255) NOT NULL COMMENT 'The primary name of the location.',
-  `latitude` double(8,5) DEFAULT NULL COMMENT 'The latitude of the location.',
-  `longitude` double(8,5) DEFAULT NULL COMMENT 'The longitude of the location.',
+  `type` enum('CITY','CONTINENT','COUNTRY','LANDMARK','POI','REGION','STREET','UNDETERMINED','UNIT') NOT NULL DEFAULT 'UNDETERMINED',
+  `name` varchar(200) NOT NULL DEFAULT '' COMMENT 'The primary name of the location.',
+  `latitude` float(8,5) DEFAULT NULL,
+  `longitude` float(8,5) DEFAULT NULL,
   `population` bigint(15) unsigned DEFAULT NULL COMMENT 'If applicable, the population of the location.',
-  `ancestorIds` varchar(255) DEFAULT NULL COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes, starting with the root ancestor. String must start and end with slash character.',
+  `ancestorIds` varchar(100) DEFAULT NULL COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes, starting with the root ancestor. String must start and end with slash character.',
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
-  KEY `type` (`type`),
   KEY `ancestorIds` (`ancestorIds`),
   KEY `latitudeLongitude` (`latitude`,`longitude`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -65,6 +62,30 @@ CREATE TABLE `locations` (
 --
 DELIMITER ;;
 
+# Dump of PROCEDURE delete_misleading_abbreviations
+# ------------------------------------------------------------
+
+/*!50003 DROP PROCEDURE IF EXISTS `delete_misleading_abbreviations` */;;
+/*!50003 SET SESSION SQL_MODE=""*/;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`root`@`localhost`*/ /*!50003 PROCEDURE `delete_misleading_abbreviations`()
+BEGIN
+-- This procedure removes abbreviations from the database, which have shown to be
+-- misleading for location extraction. A prominent example is the abbrevation 'CNN',
+-- which was present for the location 'Canonbury Railway Station', its usual
+-- meaning however is obviously different. After some empiric analysis of the data, 
+-- we found, misclassifications through abbrevations happen frequently for railway
+-- stations and Maxican states (e.g. 'Estado de Sinaloa' with abbreviation 'SIN'),
+-- that's why we remove abbreviations for those two types of locations.
+	DELETE lan 
+	FROM `location_alternative_names` lan 
+	INNER JOIN `locations` l ON lan.`locationId` = l.`id` 
+	WHERE (l.`name` LIKE "estado de %" OR l.`name` LIKE "% station")
+		AND lan.`alternativeName` = BINARY UPPER(lan.`alternativeName`)
+		AND CHAR_LENGTH(lan.`alternativeName`) < 4
+		AND lan.`language` IS NULL;
+END */;;
+
+/*!50003 SET SESSION SQL_MODE=@OLD_SQL_MODE */;;
 # Dump of PROCEDURE search_locations
 # ------------------------------------------------------------
 

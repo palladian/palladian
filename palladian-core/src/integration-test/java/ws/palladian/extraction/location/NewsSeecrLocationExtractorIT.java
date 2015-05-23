@@ -5,16 +5,23 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
+
+import ws.palladian.integrationtests.ITHelper;
 
 public class NewsSeecrLocationExtractorIT {
 
-    // XXX move to properties
-    private static final String MASHAPE_TEST_KEY = "tr1dn3mc0bdhzzjngkvzahqloxph0e";
+    private static String mashapeTestKey = getMashapeTestKey();
+
+    private static String getMashapeTestKey() {
+        Configuration config = ITHelper.getTestConfig();
+        return config.getString("api.newsseecr.mashapeKey");
+    }
 
     @Test
     public void testNewsSeecrLocationExtractor() {
-        LocationExtractor extractor = new NewsSeecrLocationExtractor(MASHAPE_TEST_KEY);
+        LocationExtractor extractor = new NewsSeecrLocationExtractor(mashapeTestKey);
         String text = "It's an odd thing, but anyone who disappears is said to be seen in San Francisco. (Oscar Wilde)";
         List<LocationAnnotation> annotations = extractor.getAnnotations(text);
         assertEquals(1, annotations.size());

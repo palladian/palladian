@@ -1,16 +1,19 @@
 package ws.palladian.retrieval.resources;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Factory;
+import org.apache.commons.lang3.StringUtils;
+
+import ws.palladian.helper.functional.Factory;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
 /**
  * <p>
@@ -38,9 +41,9 @@ public class BasicWebContent implements WebContent {
         protected Date published;
         protected GeoCoordinate coordinate;
         protected String identifier;
-        protected Set<String> tags = CollectionHelper.newHashSet();
+        protected Set<String> tags = new HashSet<>();
         protected String source;
-        protected Map<String, Object> additionalData = CollectionHelper.newHashMap();
+        protected Map<String, Object> additionalData = new HashMap<>();
 
         public Builder setId(int id) {
             this.id = id;
@@ -220,47 +223,46 @@ public class BasicWebContent implements WebContent {
     }
 
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("WebContent [");
+    public final String toString() {
+        List<String> toStringParts = getToStringParts();
+        String className = getClass().getSimpleName();
+        return String.format("%s [%s]", className, StringUtils.join(toStringParts, ','));
+    }
+
+    /**
+     * @return All attributes to return in the {@link #toString()} method. Take care to invoke the super method when
+     *         overriding this in sub classes.
+     */
+    protected List<String> getToStringParts() {
+        List<String> toStringParts = new ArrayList<>();
         if (id != -1) {
-            builder.append("id=");
-            builder.append(id);
+            toStringParts.add(String.format("id=%s", id));
         }
         if (url != null) {
-            builder.append("url=");
-            builder.append(url);
+            toStringParts.add(String.format("url=%s", url));
         }
         if (title != null) {
-            builder.append(", title=");
-            builder.append(title);
+            toStringParts.add(String.format("title=%s", title));
         }
-        if (summary != null) {
-            builder.append(", summary=");
-            builder.append(summary);
-        }
+//        if (summary != null) {
+//            toStringParts.add(String.format("summary=%s", StringHelper.shortenEllipsis(summary, 100)));
+//        }
         if (published != null) {
-            builder.append(", published=");
-            builder.append(published);
+            toStringParts.add(String.format("published=%s", published));
         }
         if (coordinate != null) {
-            builder.append(", coordinate=");
-            builder.append(coordinate);
+            toStringParts.add(String.format("coordinate=%s", coordinate));
         }
         if (identifier != null) {
-            builder.append(", identifier=");
-            builder.append(identifier);
+            toStringParts.add(String.format("identifier=%s", identifier));
         }
         if (tags != null && tags.size() > 0) {
-            builder.append(", tags=");
-            builder.append(tags);
+            toStringParts.add(String.format("tags=%s", tags));
         }
         if (source != null) {
-            builder.append(", source=");
-            builder.append(source);
+            toStringParts.add(String.format("source=%s", source));
         }
-        builder.append("]");
-        return builder.toString();
+        return toStringParts;
     }
 
     @Override

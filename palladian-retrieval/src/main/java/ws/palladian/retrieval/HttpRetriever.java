@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -64,7 +65,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.HttpHelper;
@@ -172,7 +172,7 @@ public class HttpRetriever {
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
     /** Any of these status codes will cause a removal of the used proxy. */
-    private Set<Integer> proxyRemoveStatusCodes = CollectionHelper.newHashSet();
+    private Set<Integer> proxyRemoveStatusCodes = new HashSet<>();
 
     /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
     private ProxyRemoverCallback proxyRemoveCallback = null;
@@ -376,40 +376,54 @@ public class HttpRetriever {
         Validate.notNull(request, "request must not be null");
 
         HttpUriRequest httpRequest;
+        String url;
         switch (request.getMethod()) {
             case GET:
-                httpRequest = new HttpGet(createUrl(request));
+                url = createUrl(request);
+                httpRequest = new HttpGet(url);
                 break;
             case POST:
-                HttpPost httpPost = new HttpPost(request.getUrl());
+                url = request.getUrl();
+                HttpPost httpPost = new HttpPost(url);
                 HttpEntity entity;
 
                 if(request.getHttpEntity() != null){
                     entity = request.getHttpEntity();
                 }else{
-                    List<NameValuePair> postParams = CollectionHelper.newArrayList();
+                    List<NameValuePair> postParams = new ArrayList<>();
                     for (Entry<String, String> param : request.getParameters().entrySet()) {
                         postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                     }
-                    try {
-                        entity = new UrlEncodedFormEntity(postParams);
-                    } catch (UnsupportedEncodingException e) {
-                        throw new IllegalStateException(e);
-                    }
+                        entity = new UrlEncodedFormEntity(postParams,request.getCharset());
                 }
 
                 httpPost.setEntity(entity);
-
                 httpRequest = httpPost;
                 break;
             case HEAD:
-                httpRequest = new HttpHead(createUrl(request));
+                url = createUrl(request);
+                httpRequest = new HttpHead(url);
                 break;
             case DELETE:
-                httpRequest = new HttpDelete(createUrl(request));
+                url = createUrl(request);
+                httpRequest = new HttpDelete(url);
                 break;
             case PUT:
-                httpRequest = new HttpPut(createUrl(request));
+                url = request.getUrl();
+                HttpPut httpPut = new HttpPut(url);
+
+                if(request.getHttpEntity() != null){
+                    entity = request.getHttpEntity();
+                }else{
+                    List<NameValuePair> postParams = new ArrayList<>();
+                    for (Entry<String, String> param : request.getParameters().entrySet()) {
+                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                    }
+                    entity = new UrlEncodedFormEntity(postParams,request.getCharset());
+                }
+
+                httpPut.setEntity(entity);
+                httpRequest = httpPut;
                 break;
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
@@ -419,7 +433,7 @@ public class HttpRetriever {
             httpRequest.setHeader(header.getKey(), header.getValue());
         }
 
-        return execute(request.getUrl(), httpRequest);
+        return execute(url, httpRequest);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -504,7 +518,7 @@ public class HttpRetriever {
         for (Header header : headers) {
             List<String> list = result.get(header.getName());
             if (list == null) {
-                list = new ArrayList<String>();
+                list = new ArrayList<>();
                 result.put(header.getName(), list);
             }
             list.add(header.getValue());

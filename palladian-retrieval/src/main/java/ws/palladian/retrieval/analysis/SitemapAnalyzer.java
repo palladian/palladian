@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,11 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -29,7 +30,6 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.RetrieverCallback;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.services.SemRush;
@@ -56,14 +56,14 @@ public class SitemapAnalyzer {
     private final ConcurrentHashMap<String, Map<String, Object>> resultTable;
 
     /** We need to keep track of the internal links while crawling all pages from the sitemap. */
-    private final CountMap<String> internalInboundLinkMap;
+    private final Bag<String> internalInboundLinkMap;
 
     /** The number of threads that will be used to crawl the documents from the sitemap. */
     private int numThreads = 10;
 
     public SitemapAnalyzer() {
-        resultTable = new ConcurrentHashMap<String, Map<String, Object>>();
-        internalInboundLinkMap = CountMap.create();
+        resultTable = new ConcurrentHashMap<>();
+        internalInboundLinkMap = Bag.create();
     }
 
     public int getNumThreads() {
@@ -85,15 +85,15 @@ public class SitemapAnalyzer {
 
         LOGGER.info("getting the page urls");
         List<String> urls = new SitemapRetriever().getUrls(sitemapUrl);
-        final int totalCount = urls.size();
 
         final AtomicInteger count = new AtomicInteger(1);
 
-        RetrieverCallback<Document> retrieverCallback = new RetrieverCallback<Document>() {
+        final ProgressMonitor progressMonitor = new ProgressMonitor(urls.size());
+        Consumer<Document> retrieverCallback = new Consumer<Document>() {
 
             @Override
-            public void onFinishRetrieval(Document document) {
-                Map<String, Object> map = CollectionHelper.newHashMap();
+            public void process(Document document) {
+                Map<String, Object> map = new HashMap<>();
 
                 Set<String> outInt = HtmlHelper.getLinks(document, true, false);
                 Set<String> outExt = HtmlHelper.getLinks(document, false, true);
@@ -117,7 +117,7 @@ public class SitemapAnalyzer {
                 int wordCount = StringHelper.countWords(noHtml);
 
                 // int indexed = 0;
-                // List<WebResult> searchResults = CollectionHelper.newArrayList();
+                // List<WebResult> searchResults = new ArrayList<>();
                 // try {
                 // searchResults = googleSearcher.search("\"" + document.getDocumentURI().replace("http://", "")
                 // + "\"", 1);
@@ -132,7 +132,7 @@ public class SitemapAnalyzer {
                 // LOGGER.error(e.getMessage());
                 // indexed = -1;
                 // }
-                Float inExt = null;
+                Number inExt = null;
                 try {
                     SemRush semRush = new SemRush();
                     Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
@@ -151,7 +151,7 @@ public class SitemapAnalyzer {
 
                 resultTable.put(document.getDocumentURI(), map);
 
-                ProgressHelper.printProgress(count.intValue(), totalCount, .2, stopWatch);
+                progressMonitor.incrementAndPrintProgress();
                 count.incrementAndGet();
             }
         };
@@ -170,7 +170,7 @@ public class SitemapAnalyzer {
         for (String url : urls) {
             Map<String, Object> map = resultTable.get(url);
             if (map != null) {
-                Integer value = internalInboundLinkMap.getCount(url);
+                Integer value = internalInboundLinkMap.count(url);
                 map.put("in-int", value);
             }
         }

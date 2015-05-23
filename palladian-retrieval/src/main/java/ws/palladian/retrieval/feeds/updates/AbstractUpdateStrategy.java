@@ -10,14 +10,15 @@ package ws.palladian.retrieval.feeds.updates;
 public abstract class AbstractUpdateStrategy implements UpdateStrategy {
 
     /**
+     * <p>
      * What is the lowest allowed interval (in minutes) in which feeds should be read (independent of checking mode). -1
-     * = no lowest
-     * interval. For example, 10 means that the feed reading frequency is maximum every 10 minutes, so it can never be
-     * read every 9 minutes or lower.
+     * = no lowest interval. For example, 10 means that the feed reading frequency is maximum every 10 minutes, so it
+     * can never be read every 9 minutes or lower.
      */
     private final int lowestInterval;
 
     /**
+     * <p>
      * What is the highest allowed interval in which feeds should be read (independent of checking mode). -1 = no
      * highest interval. For example, 100 means that the feed reading frequency is minimum every 100 minutes, so it can
      * never be read every 101 minutes or higher (at least every 100 minutes).

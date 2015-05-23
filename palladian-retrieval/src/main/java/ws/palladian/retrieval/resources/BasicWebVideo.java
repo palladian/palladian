@@ -1,5 +1,8 @@
 package ws.palladian.retrieval.resources;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * A {@link BasicWebContent} representing video links.
@@ -21,7 +24,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
 
         protected String videoUrl;
         protected String thumbnailUrl;
-        protected Long duration;
+        protected Integer duration;
         protected Integer views;
         protected Double rating;
 
@@ -35,7 +38,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
             return this;
         }
 
-        public Builder setDuration(Long duration) {
+        public Builder setDuration(Integer duration) {
             this.duration = duration;
             return this;
         }
@@ -69,7 +72,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
 
     private final String videoUrl;
     private final String thumbnailUrl;
-    private final Long duration;
+    private final Integer duration;
     private final Integer views;
     private final Double rating;
 
@@ -88,7 +91,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     }
 
     @Override
-    public Long getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
@@ -108,51 +111,24 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     }
 
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("WebVideo [");
+    protected List<String> getToStringParts() {
+        List<String> toStringParts = new ArrayList<>(super.getToStringParts());
         if (videoUrl != null) {
-            builder.append("videoUrl=");
-            builder.append(videoUrl);
+            toStringParts.add(String.format("videoUrl=%s", videoUrl));
         }
         if (thumbnailUrl != null) {
-            builder.append(", thumbnailUrl=");
-            builder.append(thumbnailUrl);
+            toStringParts.add(String.format("thumbnailUrl=%s", thumbnailUrl));
         }
         if (duration != null) {
-            builder.append(", duration=");
-            builder.append(duration);
+            toStringParts.add(String.format("duration=%s", duration));
         }
         if (views != null) {
-            builder.append(", views=");
-            builder.append(views);
+            toStringParts.add(String.format("views=%s", views));
         }
         if (rating != null) {
-            builder.append(", rating=");
-            builder.append(rating);
+            toStringParts.add(String.format("rating=%s", rating));
         }
-        if (getUrl() != null) {
-            builder.append(", url=");
-            builder.append(getUrl());
-        }
-        if (getTitle() != null) {
-            builder.append(", title=");
-            builder.append(getTitle());
-        }
-        if (getSummary() != null) {
-            builder.append(", summary=");
-            builder.append(getSummary());
-        }
-        if (getPublished() != null) {
-            builder.append(", published=");
-            builder.append(getPublished());
-        }
-        if (getCoordinate() != null) {
-            builder.append(", coordinate=");
-            builder.append(getCoordinate());
-        }
-        builder.append("]");
-        return builder.toString();
+        return toStringParts;
     }
 
     @Override

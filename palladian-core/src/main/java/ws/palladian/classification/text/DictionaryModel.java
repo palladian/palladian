@@ -1,114 +1,104 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
-import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
-import ws.palladian.classification.CategoryEntries;
-import ws.palladian.classification.CategoryEntriesMap;
-import ws.palladian.classification.Model;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CountMap;
-import ws.palladian.helper.collection.CountMatrix;
-import ws.palladian.helper.collection.Vector;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Model;
 
 /**
- * <p>
- * The model implementation for the {@link PalladianTextClassifier}.
- * </p>
+ * A term-category dictionary used for classification with the text classifier.
  * 
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class DictionaryModel implements Model {
-
-    private static final long serialVersionUID = 1L;
-
-    /** The optional name of the model. */
-    private String name = "NONAME";
-
-    /** Term-category combinations with their counts. */
-    private final CountMatrix<String> termCategories = CountMatrix.create();
-
-    /** Categories with their counts. */
-    private final CountMap<String> categories = CountMap.create();
-
-    /** Configuration for the feature extraction. */
-    private final FeatureSetting featureSetting;
+public interface DictionaryModel extends Model, Iterable<DictionaryModel.DictionaryEntry> {
 
     /**
-     * @param featureSetting
-     * @param classificationTypeSetting
+     * Category entries associated with a specific term.
+     * 
+     * @author pk
      */
-    public DictionaryModel(FeatureSetting featureSetting) {
-        this.featureSetting = featureSetting;
+    interface DictionaryEntry {
+        /**
+         * @return The term.
+         */
+        String getTerm();
+
+        /**
+         * @return The category entries.
+         */
+        CategoryEntries getCategoryEntries();
+
     }
 
-    public String getName() {
-        return name;
-    }
+    /** Default, when no name is assigned. */
+    final String NO_NAME = "NONAME";
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    /**
+     * @return The name of this model, or {@value #NO_NAME} in case no name was specified.
+     */
+    String getName();
 
-    public FeatureSetting getFeatureSetting() {
-        return featureSetting;
-    }
+    /**
+     * @return The feature setting which was used for extracting the features in this model, or <code>null</code> in
+     *         case not specified.
+     */
+    FeatureSetting getFeatureSetting();
 
-    public void updateTerm(String term, String category) {
-        termCategories.add(category, new String(term));
-    }
+    /**
+     * <p>
+     * Get the probabilities for the given term in different categories.
+     * </p>
+     * 
+     * @param term The term, not <code>null</code>.
+     * @return The category probabilities for the specified term, or an empty {@link DictionaryEntry} instance, in
+     *         case the term is not present in this model. Never <code>null</code>.
+     */
+    CategoryEntries getCategoryEntries(String term);
 
-    public CategoryEntries getCategoryEntries(String term) {
-        CategoryEntriesMap categoryFrequencies = new CategoryEntriesMap();
-        Vector<String, Integer> termRow = termCategories.getRow(term);
-        int sum = termCategories.getRow(term).getSum();
-        if (sum > 0) {
-            for (String category : termCategories.getColumnKeys()) {
-                categoryFrequencies.set(category, (double)termRow.get(category) / sum);
-            }
-        }
-        return categoryFrequencies;
-    }
+    /**
+     * @return The number of distinct terms in this model.
+     */
+    int getNumUniqTerms();
 
-    public int getTermCount(String term) {
-        return termCategories.getRow(term).getSum();
-    }
+    /**
+     * @return The number of terms in this model.
+     */
+    int getNumTerms();
 
-    public int getNumTerms() {
-        return termCategories.rowCount();
-    }
+    /**
+     * @return The number of distinct categories in this model.
+     */
+    int getNumCategories();
 
-    public int getNumCategories() {
-        return termCategories.columnCount();
-    }
+    /**
+     * @return The number of (non-zero) term-category entries in this model.
+     */
+    int getNumEntries();
 
-    public Set<String> getCategories() {
-        return termCategories.getColumnKeys();
-    }
+    /**
+     * @return The number of documents in this model.
+     */
+    int getNumDocuments();
 
-    public Set<String> getTerms() {
-        return termCategories.getRowKeys();
-    }
+    /**
+     * <p>
+     * Get the counts/probabilities for the individual categories based on the documents in the training set. (e.g.
+     * there were 10 category "A" documents, 15 category "B" documents during training, this would make a prior
+     * probability 10/25=0.4 for category "A").
+     * 
+     * @return The counts for the trained categories based on the documents.
+     */
+    CategoryEntries getDocumentCounts();
 
-    public void addCategory(String catgegory) {
-        categories.add(catgegory);
-    }
-
-    public double getPrior(String category) {
-        return (double)categories.getCount(category) / categories.totalSize();
-    }
-
-    public Map<String, Double> getPriors() {
-        Map<String, Double> result = CollectionHelper.newHashMap();
-        for (String category : categories) {
-            result.put(category, (double)categories.getCount(category) / categories.totalSize());
-        }
-        return result;
-    }
+    /**
+     * <p>
+     * Get the counts/probabilities for the individual categories based on the terms in the training set, in other
+     * words, this represents the count of all terms within the individual categories.
+     * 
+     * @return The counts for the trained categories measured trough the terms.
+     */
+    CategoryEntries getTermCounts();
 
     /**
      * <p>
@@ -116,60 +106,8 @@ public final class DictionaryModel implements Model {
      * invoking {@link #toString()} as the dictionary can be written directly to a file or console.
      * </p>
      * 
-     * @param printStream
+     * @param printStream The print stream to which to write the model, not <code>null</code>.
      */
-    public void toCsv(PrintStream printStream) {
-
-        // create the file head
-        printStream.print("Term,");
-        printStream.print(StringUtils.join(categories, ","));
-        printStream.print("\n");
-
-        // one word per line with term frequencies per category
-        for (String term : termCategories.getRowKeys()) {
-            printStream.print(term);
-            printStream.print(",");
-            // get word frequency for each category and current term
-            CategoryEntries frequencies = getCategoryEntries(term);
-            boolean first = true;
-            for (String category : categories) {
-                Double probability = frequencies.getProbability(category);
-                if (!first) {
-                    printStream.print(",");
-                } else {
-                    first = false;
-                }
-                if (probability == null) {
-                    printStream.print("0.0");
-                } else {
-                    printStream.print(probability);
-                }
-            }
-            printStream.print("\n");
-        }
-        printStream.flush();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-
-        // ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        // toCsv(new PrintStream(stream));
-        // return stream.toString();
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("DictionaryModel [featureSetting=");
-        builder.append(featureSetting);
-        builder.append(", numTerms=");
-        builder.append(getNumTerms());
-        builder.append(", numCategories=");
-        builder.append(getNumCategories());
-        builder.append("]");
-        return builder.toString();
-    }
+    void toCsv(PrintStream printStream);
 
 }

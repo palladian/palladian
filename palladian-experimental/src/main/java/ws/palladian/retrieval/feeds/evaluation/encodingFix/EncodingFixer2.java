@@ -4,12 +4,13 @@
 package ws.palladian.retrieval.feeds.evaluation.encodingFix;
 
 import java.io.File;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections15.buffer.BoundedFifoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,9 +47,11 @@ public class EncodingFixer2 extends Thread {
 
     private int windowSize = 0;
 
-    private BoundedFifoBuffer windowBuffer = null;
+    private Deque<String[]> windowBuffer = null;
 
     private List<String[]> deduplicatedItems = new ArrayList<String[]>();
+
+    private int windowBufferMaxSize;
 
     public static final String BACKUP_FILE_EXTENSION = ".original";
 
@@ -142,7 +145,8 @@ public class EncodingFixer2 extends Thread {
         }
 
         // buffer size = window size + 1 to store 1 MISS in buffer
-        windowBuffer = new BoundedFifoBuffer(windowSize + 1);
+        windowBuffer = new ArrayDeque<String[]>();
+        windowBufferMaxSize = windowSize + 1;
 
         boolean recentLineWasMiss = false;
 
@@ -218,7 +222,7 @@ public class EncodingFixer2 extends Thread {
 
     private void addToBuffer(String[] itemToAdd) {
         // if full, store last element
-        if (windowBuffer.maxSize() == windowBuffer.size()) {
+        if (windowBufferMaxSize == windowBuffer.size()) {
             String[] leastRecentItem = (String[]) (windowBuffer.remove());
             deduplicatedItems.add(leastRecentItem);
             LOGGER.trace("adding to deduplicated items: " + restoreCSVString(leastRecentItem));

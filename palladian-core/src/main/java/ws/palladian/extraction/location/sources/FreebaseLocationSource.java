@@ -1,7 +1,9 @@
 package ws.palladian.extraction.location.sources;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,15 +11,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.extraction.location.GeoCoordinate;
-import ws.palladian.extraction.location.ImmutableGeoCoordinate;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -34,7 +34,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @author David Urbansky
  * @see <a href="http://wiki.freebase.com/wiki/How_to_obtain_an_API_key">How to obtain an API key</a>
  */
-public class FreebaseLocationSource extends SingleQueryLocationSource implements LocationSource {
+public class FreebaseLocationSource extends SingleQueryLocationSource {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FreebaseLocationSource.class);
@@ -42,7 +42,7 @@ public class FreebaseLocationSource extends SingleQueryLocationSource implements
     private static final Map<String, LocationType> LOCATION_MAPPING;
 
     static {
-        Map<String, LocationType> temp = CollectionHelper.newHashMap();
+        Map<String, LocationType> temp = new HashMap<>();
         temp.put("Continent", LocationType.CONTINENT);
         temp.put("Country", LocationType.COUNTRY);
         temp.put("Neighborhood", LocationType.UNIT);
@@ -80,7 +80,7 @@ public class FreebaseLocationSource extends SingleQueryLocationSource implements
     @Override
     public List<Location> getLocations(String locationName, Set<Language> languages) {
         LOGGER.warn("getLocations(String,EnumSet<Language>) is not supported, ignoring language parameter");
-        List<Location> locations = CollectionHelper.newArrayList();
+        List<Location> locations = new ArrayList<>();
 
         String url = String.format(
                 "https://www.googleapis.com/freebase/v1/search?query=%s&filter=(any%%20type:/location/)&key=%s",
