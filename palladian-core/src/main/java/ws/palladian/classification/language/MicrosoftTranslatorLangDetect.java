@@ -8,9 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
+import ws.palladian.retrieval.FormEncodedHttpEntity.Builder;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -79,11 +81,11 @@ public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
             LOGGER.debug("Text was longer than 10000 characters, and was shortened.");
         }
 
-        HttpRequest request = new HttpRequest(HttpMethod.GET, "http://api.microsofttranslator.com/V2/Http.svc/Detect");
-        request.addParameter("text", shortenedText);
-        request.addHeader("Authorization", "Bearer " + accessToken);
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.GET, "http://api.microsofttranslator.com/V2/Http.svc/Detect");
+        builder.addUrlParam("text", shortenedText);
+        builder.addHeader("Authorization", "Bearer " + accessToken);
         try {
-            HttpResult result = httpRetriever.execute(request);
+            HttpResult result = httpRetriever.execute(builder.create());
             String langString = StringHelper.getSubstringBetween(result.getStringContent(), ">", "<");
             return Language.getByIso6391(langString);
         } catch (HttpException e) {
@@ -113,15 +115,17 @@ public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
      * @throws IllegalStateException in case of any error.
      */
     private String obtainAccessToken() {
-        HttpRequest request = new HttpRequest(HttpMethod.POST,
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.POST,
                 "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13");
-        request.addParameter("client_id", clientId);
-        request.addParameter("client_secret", clientSecret);
-        request.addParameter("scope", "http://api.microsofttranslator.com");
-        request.addParameter("grant_type", "client_credentials");
+        Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+        entityBuilder.addData("client_id", clientId);
+        entityBuilder.addData("client_secret", clientSecret);
+        entityBuilder.addData("scope", "http://api.microsofttranslator.com");
+        entityBuilder.addData("grant_type", "client_credentials");
+        builder.setEntity(entityBuilder.create());
         HttpResult result;
         try {
-            result = httpRetriever.execute(request);
+            result = httpRetriever.execute(builder.create());
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP error while trying to obtain access token: " + e, e);
         }
