@@ -38,10 +38,10 @@ public enum UnitType {
     private List<Pair<List<String>, Double>> units = new ArrayList<>();
     private List<String> sortedUnitNames = new ArrayList<>();
 
-    private String baseUnit;
+    private final String baseUnit;
 
     UnitType(String baseUnit) {
-        setBaseUnit(baseUnit);
+        this.baseUnit = baseUnit;
     }
 
     static {
@@ -664,10 +664,6 @@ public enum UnitType {
         }
 
         return false;
-    }
-
-    public void setBaseUnit(String baseUnit) {
-        this.baseUnit = baseUnit;
     }
 
     public String getBaseUnit() {
