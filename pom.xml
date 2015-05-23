@@ -4,7 +4,7 @@
 	<artifactId>palladian</artifactId>
 	<packaging>pom</packaging>
 	<name>Palladian: TUD Information Retrieval Toolkit</name>
-	<version>0.5.0-SNAPSHOT</version>
+	<version>0.6.0-SNAPSHOT</version>
 	<description>Palladian is the Internet Information Retrieval (IIR) Toolkit currently developed and maintained by David Urbansky, Philipp Katz and Klemens Muthmann.</description>
 	<developers>
 		<developer>
@@ -86,7 +86,7 @@
 				<version>2.8</version>
 			</plugin>
 			<plugin>
-				<!-- Integration tests are skipped by default, and should only run if 
+				<!-- Integration tests are skipped by default, and should only run if
 					explicitly requested; see profile integration-test -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -98,7 +98,7 @@
 							<goal>verify</goal>
 						</goals>
 						<configuration>
-							<!-- Skips integration tests if the value of skip.integration.test 
+							<!-- Skips integration tests if the value of skip.integration.test
 								property is true -->
 							<skipTests>${skip.integration.test}</skipTests>
 							<argLine>-Xms256m -Xmx1024m</argLine>
@@ -111,7 +111,7 @@
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<version>1.7</version>
 				<executions>
-					<!-- States that the plugin's add-test-source goal is executed at generate-test-sources 
+					<!-- States that the plugin's add-test-source goal is executed at generate-test-sources
 						phase. -->
 					<execution>
 						<id>add-integration-test-sources</id>
@@ -131,7 +131,7 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
+				<!--This plugin's configuration is used to store Eclipse m2e settings
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
