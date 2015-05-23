@@ -16,9 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
@@ -102,10 +103,12 @@ public final class FacebookLinkStats extends AbstractRankingService {
         LOGGER.debug("FQL = {}", fqlQuery);
         HttpResult response;
         try {
-            HttpRequest postRequest = new HttpRequest(HttpMethod.POST, "https://api.facebook.com/method/fql.query");
-            postRequest.addParameter("format", "json");
-            postRequest.addParameter("query", fqlQuery);
-            response = retriever.execute(postRequest);
+            HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, "https://api.facebook.com/method/fql.query");
+            FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+            entityBuilder.addData("format", "json");
+            entityBuilder.addData("query", fqlQuery);
+            requestBuilder.setEntity(entityBuilder.create());
+            response = retriever.execute(requestBuilder.create());
         } catch (HttpException e) {
             throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }

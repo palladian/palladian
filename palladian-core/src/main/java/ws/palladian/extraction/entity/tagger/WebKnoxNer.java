@@ -12,8 +12,9 @@ import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -51,13 +52,13 @@ public class WebKnoxNer extends NamedEntityRecognizer {
     @Override
     public List<Annotation> getAnnotations(String inputText) {
 
-        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
-        request.addParameter("text", inputText);
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, "http://46.4.89.232:8080/text/entities?apiKey=" + apiKey);
+        requestBuilder.setEntity(new FormEncodedHttpEntity.Builder().addData("text", inputText).create());
 
         List<Annotation> annotations = new ArrayList<>();
         String content;
         try {
-            HttpResult httpResult = httpRetriever.execute(request);
+            HttpResult httpResult = httpRetriever.execute(requestBuilder.create());
             content = httpResult.getStringContent();
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP error while accessing the service: " + e.getMessage(), e);

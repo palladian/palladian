@@ -6,10 +6,14 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -118,10 +122,7 @@ public final class UrlHelper {
      */
     public static String getBaseUrl(Document document) {
         Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
-        if (baseNode != null) {
-            return baseNode.getTextContent();
-        }
-        return null;
+        return baseNode != null ? baseNode.getTextContent() : null;
     }
 
     /**
@@ -372,4 +373,56 @@ public final class UrlHelper {
 
         return "file".equalsIgnoreCase(protocol) && !hasHost;
     }
+    
+    /**
+     * <p>
+     * Creates an encoded key-value parameter string, which can e.g. be appended to a URL.
+     * 
+     * @param parameters Map with key-value params, not <code>null</code>.
+     * @return The key-value string.
+     */
+    public static String createParameterString(Map<String, String> parameters) {
+        Validate.notNull(parameters, "parameters must not be null");
+        StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        for (Entry<String, String> pair : parameters.entrySet()) {
+            if (first) {
+                first = false;
+            } else {
+                builder.append('&');
+            }
+            builder.append(encodeParameter(pair.getKey()));
+            builder.append('=');
+            builder.append(encodeParameter(pair.getValue()));
+        }
+        return builder.toString();
+    }
+
+    /**
+     * <p>
+     * Parses an encoded key-value string, which can e.g. be present as a query string appended to a URL.
+     * 
+     * @param parameterString The key-value parameter string.
+     * @return A map with parsed params.
+     */
+    public static Map<String, String> parseParams(String parameterString) {
+        Validate.notNull(parameterString, "parameterString must not be null");
+        Map<String, String> params = new HashMap<>();
+
+        int questionIdx = parameterString.indexOf("?");
+        if (questionIdx == -1) { // no parameters in URL
+            return params;
+        }
+
+        String paramSubString = parameterString.substring(questionIdx + 1);
+        String[] paramSplit = paramSubString.split("&");
+        for (String param : paramSplit) {
+            String[] keyValue = param.split("=");
+            String key = decodeParameter(keyValue[0]);
+            String value = decodeParameter(keyValue[1]);
+            params.put(key, value);
+        }
+        return params;
+    }
+
 }

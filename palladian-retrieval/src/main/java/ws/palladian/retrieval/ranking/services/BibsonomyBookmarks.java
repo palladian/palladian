@@ -9,10 +9,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -94,16 +92,13 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
 
         try {
 
-            String encUrl = UrlHelper.encodeParameter(url);
             // authenticate via HTTP Auth and send GET request
-            String pass = getLogin() + ":" + getApiKey();
+            HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET,
+                    "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=1000");
+            requestBuilder.setBasicAuth(login, apiKey);
+            requestBuilder.addUrlParam("search", url);
 
-            HttpRequest getRequest = new HttpRequest(HttpMethod.GET,
-                    "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=1000&search="
-                            + encUrl);
-            getRequest.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(pass));
-
-            HttpResult getResult = retriever.execute(getRequest);
+            HttpResult getResult = retriever.execute(requestBuilder.create());
             String response = getResult.getStringContent();
 
             // create JSON-Object from response
@@ -134,14 +129,6 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public String getApiKey() {
-        return apiKey;
     }
     
     public static void main(String[] args) throws RankingServiceException {

@@ -17,9 +17,10 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -491,17 +492,19 @@ public class AlchemyNer extends NamedEntityRecognizer {
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
-        HttpRequest request = new HttpRequest(HttpMethod.POST,
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST,
                 "http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities");
-        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        request.addHeader("Accept", "application/json");
-        request.addParameter("text", inputText);
-        request.addParameter("apikey", apiKey);
-        request.addParameter("outputMode", "json");
-        request.addParameter("disambiguate", "1");
-        request.addParameter("maxRetrieve", "500");
-        request.addParameter("coreference", coreferenceResolution ? "1" : "0");
-        return httpRetriever.execute(request);
+        requestBuilder.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        requestBuilder.addHeader("Accept", "application/json");
+        FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+        entityBuilder.addData("text", inputText);
+        entityBuilder.addData("apikey", apiKey);
+        entityBuilder.addData("outputMode", "json");
+        entityBuilder.addData("disambiguate", "1");
+        entityBuilder.addData("maxRetrieve", "500");
+        entityBuilder.addData("coreference", coreferenceResolution ? "1" : "0");
+        requestBuilder.setEntity(entityBuilder.create());
+        return httpRetriever.execute(requestBuilder.create());
     }
 
     public static void main(String[] args) {
