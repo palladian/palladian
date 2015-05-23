@@ -8,9 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -116,15 +117,17 @@ public final class SharedCount extends AbstractRankingService {
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Validate.notEmpty(url, "url must not be empty");
-        HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, serviceUrl);
-        httpRequest.addParameter("url", url);
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, serviceUrl);
+        FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+        entityBuilder.addData("url", url);
         if (StringUtils.isNotBlank(apiKey)) {
-            httpRequest.addParameter("apikey", apiKey);
+            entityBuilder.addData("apikey", apiKey);
         }
-        retriever.setUserAgent("test");
+        requestBuilder.setEntity(entityBuilder.create());
+//        retriever.setUserAgent("test");
         HttpResult httpResult;
         try {
-            httpResult = retriever.execute(httpRequest);
+            httpResult = retriever.execute(requestBuilder.create());
             checkForError(httpResult);
         } catch (HttpException e) {
             throw new RankingServiceException(e);

@@ -3,10 +3,12 @@ package ws.palladian.retrieval;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.functional.Factory;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * Builder for {@link HttpRequest2} instances.
@@ -46,6 +48,15 @@ public final class HttpRequest2Builder implements Factory<HttpRequest2> {
     public HttpRequest2Builder setEntity(HttpEntity entity) {
         this.entity = entity;
         return this;
+    }
+
+    public HttpRequest2Builder setBasicAuth(String username, String password) {
+        StringBuilder temp = new StringBuilder();
+        temp.append(username != null ? username : StringUtils.EMPTY);
+        temp.append(':');
+        temp.append(password != null ? password : StringUtils.EMPTY);
+        String authString = "Basic " + StringHelper.encodeBase64(temp.toString());
+        return addHeader("Authorization", authString);
     }
 
     @Override
