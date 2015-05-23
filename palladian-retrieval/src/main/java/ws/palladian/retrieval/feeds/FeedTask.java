@@ -21,8 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -80,7 +81,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
                 // download the document (not necessarily a feed)
-                HttpRequest request = createRequest();
+                HttpRequest2 request = createRequest();
                 httpResult = httpRetriever.execute(request);
             } catch (HttpException e) {
                 LOGGER.error("Could not get Document for feed id " + feed.getId() + " , " + e.getMessage());
@@ -219,19 +220,19 @@ class FeedTask implements Callable<FeedTaskResult> {
      * Update http request headers to use conditional requests (head requests). This is done only in case the last
      * FeedTaskResult was success, miss or execution time warning. In all other cases, no conditional header is build.
      */
-    private HttpRequest createRequest() {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, feed.getFeedUrl());
-        request.addHeader("cache-control", "no-cache");
+    private HttpRequest2 createRequest() {
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, feed.getFeedUrl());
+        requestBuilder.addHeader("cache-control", "no-cache");
 
         if (Arrays.asList(SUCCESS, MISS, EXECUTION_TIME_WARNING).contains(feed.getLastFeedTaskResult())) {
             if (feed.getLastETag() != null && !feed.getLastETag().isEmpty()) {
-                request.addHeader("If-None-Match", feed.getLastETag());
+                requestBuilder.addHeader("If-None-Match", feed.getLastETag());
             }
             if (feed.getHttpLastModified() != null) {
-                request.addHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
+                requestBuilder.addHeader("If-Modified-Since", DateUtils.formatDate(feed.getHttpLastModified()));
             }
         }
-        return request;
+        return requestBuilder.create();
     }
 
     /**

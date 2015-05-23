@@ -6,7 +6,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -209,6 +211,25 @@ public class UrlHelperTest {
         NodeList aNodes = document.getElementsByTagName("a");
         Node aNode = aNodes.item(8);
         assertEquals("http://www.w3.org/TR/xhtml1/xhtml1-diff.html", aNode.getAttributes().getNamedItem("href").getTextContent());
+    }
+    
+    @Test
+    public void testParseParams() {
+        String url = "http://de.wikipedia.org/wiki/Spezial:Search?search=San%20Francisco&go=Artikel";
+        Map<String, String> params = UrlHelper.parseParams(url);
+        assertEquals(2, params.size());
+        assertEquals("San Francisco", params.get("search"));
+        assertEquals("Artikel", params.get("go"));
+        // CollectionHelper.print(params);
+    }
+    
+    @Test
+    public void testCreateParameterString() {
+        Map<String, String> params = new HashMap<>();
+        params.put("search", "San Francisco");
+        params.put("go", "Artikel");
+        String fullUrl = UrlHelper.createParameterString(params);
+        assertEquals("search=San+Francisco&go=Artikel", fullUrl);
     }
 
 }

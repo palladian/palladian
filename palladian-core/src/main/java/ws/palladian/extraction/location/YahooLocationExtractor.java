@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import static ws.palladian.retrieval.HttpMethod.POST;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -77,10 +79,10 @@ public class YahooLocationExtractor extends LocationExtractor {
 
     @Override
     public List<LocationAnnotation> getAnnotations(String inputText) {
-
-        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://query.yahooapis.com/v1/public/yql");
-        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        request.addHeader("Accept", "application/json");
+        
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(POST, "http://query.yahooapis.com/v1/public/yql");
+        requestBuilder.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        requestBuilder.addHeader("Accept", "application/json");
 
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT * FROM geo.placemaker ");
@@ -89,13 +91,15 @@ public class YahooLocationExtractor extends LocationExtractor {
         queryBuilder.append("\"");
         queryBuilder.append(" AND documentType=\"text/plain\"");
 
-        request.addParameter("q", queryBuilder.toString());
-        request.addParameter("format", "json");
+        FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+        entityBuilder.addData("q", queryBuilder.toString());
+        entityBuilder.addData("format", "json");
+        requestBuilder.setEntity(entityBuilder.create());
 
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         HttpResult postResult;
         try {
-            postResult = retriever.execute(request);
+            postResult = retriever.execute(requestBuilder.create());
         } catch (HttpException e) {
             throw new IllegalStateException("HTTP error when accessing the service", e);
         }

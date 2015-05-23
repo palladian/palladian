@@ -1,5 +1,7 @@
 package ws.palladian.retrieval;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -108,6 +110,45 @@ public class HttpRetrieverTest {
         HttpResult httpResult = httpRetriever.httpGet(url);
         System.out.println(httpResult.getStatusCode()); // is 200 :/
         System.out.println(httpResult.getStringContent()); // gives a description, that we need to enable cookies
+    }
+    
+    @Test
+    @Ignore
+    public void testCookies() throws HttpException {
+        // TODO write an actual test using a locally running HTTP server
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        DefaultCookieStore cookieStore = new DefaultCookieStore();
+        httpRetriever.setCookieStore(cookieStore);
+
+        // get the cookie
+        HttpRequest2Builder builder = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.GET,
+                "https://bitbucket.org/account/signin/?next=/");
+        httpRetriever.execute(builder.create());
+        String csrftoken = CollectionHelper.getFirst(cookieStore.getCookies()).getValue();
+
+        builder = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.POST,
+                "https://bitbucket.org/account/signin/?next=/");
+        builder.addHeader("Origin", "https://bitbucket.org");
+        builder.addHeader("Referer", "https://bitbucket.org/account/signin/?next=/account/signin");
+        FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+        entityBuilder.addData("username", "thats_me");
+        entityBuilder.addData("password", "dont_wanna_tell");
+        entityBuilder.addData("next", "/account/team_check/?next=/");
+        entityBuilder.addData("csrfmiddlewaretoken", csrftoken);
+        builder.setEntity(entityBuilder.create());
+        HttpResult result = httpRetriever.execute(builder.create());
+        // System.out.println(result.getStatusCode());
+        // System.out.println(result.getStringContent());
+        // CollectionHelper.print(result.getHeaders());
+        assertEquals(302, result.getStatusCode());
+    }
+    
+    @Test
+    @Ignore
+    public void testGetHttpRequest2() throws HttpException {
+        HttpRequest2 request = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.GET, "http://example.com").create();
+        HttpResult result = HttpRetrieverFactory.getHttpRetriever().execute(request);
+        System.out.println(result.getStringContent());
     }
 
 }

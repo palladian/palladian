@@ -15,10 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -169,10 +168,9 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
      * @throws SearcherException In case of an error HTTP status code.
      */
     private String getResponseData(String requestUrl) throws HttpException, SearcherException {
-        String basicAuthentication = "Basic " + StringHelper.encodeBase64(":" + accountKey);
-        HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, requestUrl);
-        httpRequest.addHeader("Authorization", basicAuthentication);
-        HttpResult httpResult = retriever.execute(httpRequest);
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.GET, requestUrl);
+        builder.setBasicAuth(null, accountKey);
+        HttpResult httpResult = retriever.execute(builder.create());
         if (httpResult.errorStatus()) {
             throw new SearcherException("Encountered HTTP status " + httpResult.getStatusCode() + ": "
                     + httpResult.getStringContent());
