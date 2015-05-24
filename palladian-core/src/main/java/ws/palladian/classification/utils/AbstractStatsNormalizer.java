@@ -15,7 +15,7 @@ import ws.palladian.helper.math.Stats;
 /**
  * Common code for normalizers which calculate their {@link Normalization} based on {@link Stats} data.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 abstract class AbstractStatsNormalizer implements Normalizer {
 

@@ -17,7 +17,7 @@ import ws.palladian.helper.functional.Distance;
  * "A density-based algorithm for discovering clusters in large spatial databases with noise", Martin Ester, Hans-Peter
  * Kriegel, Jörg Sander, Xiaowei Xu, 1996.
  * 
- * @author pk
+ * @author Philipp Katz
  * @param <T> Type of the objects to cluster.
  * @see <a href="http://en.wikipedia.org/wiki/DBSCAN">Wikipedia: DBSCAN</a>
  */

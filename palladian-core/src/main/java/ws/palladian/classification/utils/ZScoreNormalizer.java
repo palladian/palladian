@@ -18,7 +18,7 @@ import ws.palladian.helper.math.Stats;
  * </p>
  * 
  * @see <a href="http://www.utdallas.edu/~herve/abdi-Normalizing2010-pretty.pdf">Normalizing Data; Hervé Abdi</a>
- * @author pk
+ * @author Philipp Katz
  */
 public final class ZScoreNormalizer extends AbstractStatsNormalizer {
 

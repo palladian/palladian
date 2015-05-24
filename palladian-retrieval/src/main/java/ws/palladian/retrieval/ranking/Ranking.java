@@ -15,7 +15,7 @@ import ws.palladian.helper.functional.Factory;
  * </p>
  *
  * @author Julien Schmehl
- * @author pk
+ * @author Philipp Katz
  */
 public class Ranking {
 

@@ -57,7 +57,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
  * scope. The features are mainly influenced from the rule-based {@link RankingScopeDetector}s (see implementations).
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetector {
 

@@ -19,7 +19,7 @@ import ws.palladian.helper.geo.GeoUtils;
  * </p>
  * 
  * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
- * @author katz
+ * @author Philipp Katz
  */
 public class WikiTemplate {
     

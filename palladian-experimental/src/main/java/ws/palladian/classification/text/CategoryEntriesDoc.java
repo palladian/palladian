@@ -20,7 +20,7 @@ import ws.palladian.helper.collection.AbstractIterator;
  * This class serves as adapter between a {@link CategoryEntries} instance and {@link Iterable} {@link IndexableField}s
  * which are given to the Lucene {@link IndexWriter}.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 class CategoryEntriesDoc implements Iterable<IndexableField> {
 

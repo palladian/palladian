@@ -14,7 +14,7 @@ import ws.palladian.helper.StopWatch;
 /**
  * Micro benchmark for Set operations.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 class CollectionHelperBenchmark {
 

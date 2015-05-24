@@ -30,7 +30,7 @@ public class BasicWebContent implements WebContent {
      * Builder for creating new instances of {@link WebContent}.
      * </p>
      * 
-     * @author katz
+     * @author Philipp Katz
      */
     public static class Builder implements Factory<WebContent> {
 

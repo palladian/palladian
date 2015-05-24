@@ -14,7 +14,7 @@ import ws.palladian.retrieval.resources.WebContent;
  * using {@link #getResultCount()}.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * @param <R>
  */
 public class SearchResults<R extends WebContent> implements Iterable<R> {

@@ -36,7 +36,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * </p>
  * 
  * @author Julien Schmehl
- * @author pk
+ * @author Philipp Katz
  */
 public final class FacebookLinkStats extends AbstractRankingService {
 

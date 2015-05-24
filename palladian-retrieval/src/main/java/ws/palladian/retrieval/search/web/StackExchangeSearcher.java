@@ -28,7 +28,7 @@ import ws.palladian.retrieval.search.SearcherException;
 /**
  * Searcher for the <a href="http://stackexchange.com">Stack Exchange network</a>.
  * 
- * @author pk
+ * @author Philipp Katz
  * @see <a href="http://api.stackexchange.com">Stack Exchange API</a>
  */
 public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebContent> {

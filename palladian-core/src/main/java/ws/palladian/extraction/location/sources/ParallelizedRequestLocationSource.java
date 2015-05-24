@@ -27,7 +27,7 @@ import ws.palladian.helper.geo.GeoCoordinate;
  * <p>
  * Wrapper around another {@link LocationSource} which parallelizes requests.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class ParallelizedRequestLocationSource extends MultiQueryLocationSource {
 

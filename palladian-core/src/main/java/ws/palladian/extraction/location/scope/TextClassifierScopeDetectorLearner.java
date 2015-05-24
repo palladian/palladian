@@ -9,7 +9,7 @@ import ws.palladian.extraction.location.scope.DictionaryScopeDetector.Dictionary
  * A learner which learns a text-classification-based model from located text documents. The model can then be used by
  * the corresponding scope detectors to peform predictions.
  * 
- * @author pk
+ * @author Philipp Katz
  * @see DictionaryScopeDetectorLearner
  * @see NearestNeighborScopeDetectorLearner
  */

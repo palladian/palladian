@@ -20,7 +20,7 @@ import ws.palladian.helper.io.ResourceHelper;
 /**
  * Helper methods for integration testing.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class ITHelper {
 

@@ -23,7 +23,7 @@ import ws.palladian.retrieval.wiki.WikiPage;
  * Iterator for the Wikipedia scope location dataset.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class WikipediaLocationScopeIterator implements Iterable<LocationDocument> {
 

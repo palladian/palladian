@@ -32,7 +32,7 @@ import ws.palladian.helper.io.LineAction;
 /**
  * {@link Iterable} TUD-Loc-2013 dataset (and datasets which have been converted to this format).
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class TudLoc2013DatasetIterable implements Iterable<LocationDocument> {
 

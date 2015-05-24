@@ -76,7 +76,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * A scorer using F1 measure for the specified class name.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class FMeasureScorer implements Function<ConfusionMatrix, Double> {
 

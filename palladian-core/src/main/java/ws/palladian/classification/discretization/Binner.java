@@ -88,7 +88,7 @@ public final class Binner implements Iterable<Binner.Interval> {
     /**
      * Comparator to sort {@link Instance}s based on a {@link NumericValue}.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private static final class ValueComparator implements Comparator<Instance> {
         private final String featureName;

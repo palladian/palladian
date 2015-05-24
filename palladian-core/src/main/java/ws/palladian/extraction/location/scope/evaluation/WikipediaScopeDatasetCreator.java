@@ -20,7 +20,7 @@ import ws.palladian.retrieval.wiki.WikiPageReference;
  * Create a scope detection dataset from random Wikipedia articles.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public class WikipediaScopeDatasetCreator {

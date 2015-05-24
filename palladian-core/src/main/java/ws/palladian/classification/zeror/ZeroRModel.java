@@ -14,7 +14,7 @@ import ws.palladian.helper.collection.CollectionHelper.Order;
  * Model for ZeroR classification. Just keeps class counts from training.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class ZeroRModel implements Model {
 

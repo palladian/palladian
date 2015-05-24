@@ -15,7 +15,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 /**
  * Default {@link Filter} implementations.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class Filters {
 
@@ -178,7 +178,7 @@ public final class Filters {
      * contained filters, to be accepted by the chain.
      * 
      * @param <T> Type of items to be processed.
-     * @author pk
+     * @author Philipp Katz
      */
     private static final class AndFilter<T> implements Filter<T> {
 

@@ -35,7 +35,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
  * test must be run with a local database and the following database dump, in order to produce meaningful results:
  * <code>locations_2013-08-05.sql.gz</code>.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class PalladianLocationExtractorIT {
 

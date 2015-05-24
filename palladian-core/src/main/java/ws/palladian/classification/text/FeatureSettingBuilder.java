@@ -11,7 +11,7 @@ import ws.palladian.helper.functional.Factory;
  * {@link PalladianTextClassifier}.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
 

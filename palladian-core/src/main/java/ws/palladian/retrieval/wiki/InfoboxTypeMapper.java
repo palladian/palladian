@@ -16,7 +16,7 @@ import ws.palladian.helper.io.LineAction;
 /**
  * Maps infobox types from the Wikipedia to CoNLL or TUD-Loc-2013 entity types.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class InfoboxTypeMapper {
 

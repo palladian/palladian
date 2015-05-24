@@ -59,7 +59,7 @@ import ws.palladian.retrieval.wiki.WikiPageReference;
  * method is, that we do not need any manually selected seed entities, however we need a type mapping from the infobox
  * types (which is provided through Palladian's {@link InfoboxTypeMapper}).
  * 
- * @author pk
+ * @author Philipp Katz
  */
 @SuppressWarnings({"deprecation"})
 class WikipediaDatasetCreator {

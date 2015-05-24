@@ -16,7 +16,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 /**
  * Settings for the {@link FeedReader}. Use the {@link Builder} to instantiate.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface FeedReaderSettings {
 
@@ -115,7 +115,7 @@ public interface FeedReaderSettings {
      * <p>
      * A builder for {@link FeedReaderSettings} instances.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     static class Builder implements Factory<FeedReaderSettings> {
         FeedStore store;

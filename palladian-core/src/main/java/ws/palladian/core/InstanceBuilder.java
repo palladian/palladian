@@ -18,7 +18,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
 /**
  * A builder for conveniently creating {@link Instance}s and {@link FeatureVector}s.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class InstanceBuilder {
 

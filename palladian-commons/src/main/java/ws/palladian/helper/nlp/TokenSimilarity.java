@@ -14,7 +14,7 @@ import ws.palladian.helper.math.SetSimilarity;
  * {@link StringMetric} which measures the similarity between two strings by applying a {@link SetSimilarity}
  * measure (such as Jaccard, Overlap, etc. See {@link SetSimilarities} for available implementations.)
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class TokenSimilarity extends AbstractStringMetric {
 

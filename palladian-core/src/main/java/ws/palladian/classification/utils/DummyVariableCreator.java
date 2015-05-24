@@ -33,7 +33,7 @@ import ws.palladian.helper.nlp.StringPool;
  * regression e.g.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * @see <a href="http://de.slideshare.net/jtneill/multiple-linear-regression/15">Dummy variables</a>
  * @see <a href="http://en.wikiversity.org/wiki/Dummy_variable_(statistics)">Dummy variable (statistics)</a>
  */

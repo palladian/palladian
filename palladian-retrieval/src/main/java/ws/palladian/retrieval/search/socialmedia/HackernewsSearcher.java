@@ -31,7 +31,7 @@ import ws.palladian.retrieval.search.SearcherException;
 /**
  * Searcher for Hacker News via <a href="https://hn.algolia.com/api">HN Search API</a>.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebContent> {
 

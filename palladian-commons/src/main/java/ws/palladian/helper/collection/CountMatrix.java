@@ -34,7 +34,7 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
     /**
      * A {@link MatrixVector} decorator, which returns {@link IntegerVector}s.
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <K>
      */

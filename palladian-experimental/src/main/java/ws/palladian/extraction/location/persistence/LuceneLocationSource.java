@@ -54,7 +54,7 @@ import ws.palladian.helper.geo.GeoCoordinate;
 /**
  * A location source backed by a Lucene index.
  *
- * @author pk
+ * @author Philipp Katz
  */
 public class LuceneLocationSource extends SingleQueryLocationSource implements Closeable {
 

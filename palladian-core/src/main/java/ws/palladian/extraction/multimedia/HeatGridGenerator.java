@@ -24,7 +24,7 @@ public final class HeatGridGenerator {
     /**
      * A ColorCoder maps a given intensity to a Color.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static interface ColorCoder {
         /**

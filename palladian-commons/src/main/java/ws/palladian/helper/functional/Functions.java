@@ -45,7 +45,7 @@ public final class Functions {
     /**
      * {@link Function} which maps values as determined by a {@link Map}.
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <I> Input type.
      * @param <O> Output type.

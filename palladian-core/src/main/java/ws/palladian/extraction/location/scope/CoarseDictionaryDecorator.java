@@ -28,7 +28,7 @@ import ws.palladian.helper.functional.Function;
 /**
  * Decorator for a fine grid dictionary to "simulate" a coarse grid dictionary.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
 

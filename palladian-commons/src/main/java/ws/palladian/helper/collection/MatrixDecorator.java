@@ -9,7 +9,7 @@ import org.apache.commons.lang3.Validate;
  * Abstract super class for {@link Matrix} implementations which delegates all functionality to a wrapped {@link Matrix}
  * . This way, only the actually changed functionality must be overridden.
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K>
  * @param <V>

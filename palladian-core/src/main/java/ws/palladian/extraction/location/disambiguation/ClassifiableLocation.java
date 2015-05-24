@@ -10,7 +10,7 @@ import ws.palladian.extraction.location.Location;
  * A {@link Location} with extracted features represented by a {@link FeatureVector}.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class ClassifiableLocation {
 

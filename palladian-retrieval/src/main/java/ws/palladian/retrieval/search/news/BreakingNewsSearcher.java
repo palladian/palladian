@@ -32,7 +32,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * reverse-engineered JSON API and is therefore not intended to be used publicly, e.g. in the KNIME nodes distribution.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public final class BreakingNewsSearcher extends AbstractMultifacetSearcher<WebContent> {

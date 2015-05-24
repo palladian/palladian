@@ -7,7 +7,7 @@ import ws.palladian.helper.functional.Filter;
 /**
  * Filters for {@link Annotation}s and {@link Token}s.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class AnnotationFilters {
 

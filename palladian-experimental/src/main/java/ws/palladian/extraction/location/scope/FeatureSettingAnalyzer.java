@@ -28,7 +28,7 @@ import ws.palladian.helper.io.FileHelper;
 /**
  * A Lucene {@link Analyzer} which can be configured using a Palladian {@link FeatureSetting}.
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public class FeatureSettingAnalyzer extends Analyzer {

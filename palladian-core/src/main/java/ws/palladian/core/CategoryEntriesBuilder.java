@@ -20,7 +20,7 @@ import ws.palladian.helper.functional.Factory;
  * values are "inverted". NaN/infinity values are not allowed and trigger an {@link IllegalArgumentException}.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
 

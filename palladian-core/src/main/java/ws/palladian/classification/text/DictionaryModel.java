@@ -16,7 +16,7 @@ public interface DictionaryModel extends Model, Iterable<DictionaryModel.Diction
     /**
      * Category entries associated with a specific term.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     interface DictionaryEntry {
         /**

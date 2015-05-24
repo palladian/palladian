@@ -33,7 +33,7 @@ import ws.palladian.helper.math.NumericMatrix;
  * to the following convention: Accessing rows (using {@link #getRow(Object)} or {@link #rows()} ) should always be the
  * <b>faster</b> operation, than accessing columns (using {@link #getColumn(Object)} or {@link #columns()}).
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K> Type of the indices.
  * @param <V> Type of the data.
@@ -46,7 +46,7 @@ public interface Matrix<K, V> extends Serializable {
     /**
      * An row or column within a {@link Matrix}.
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <K>
      * @param <V>

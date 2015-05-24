@@ -16,7 +16,7 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 /**
  * See doc-files/GridCreator.png for an explanation.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class GridCreator implements Iterable<GridCell> {
 

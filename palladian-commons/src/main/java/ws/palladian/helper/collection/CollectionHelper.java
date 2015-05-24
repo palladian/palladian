@@ -55,7 +55,7 @@ public final class CollectionHelper {
      * Iterator, which stops after the specified limit.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <T>
      */

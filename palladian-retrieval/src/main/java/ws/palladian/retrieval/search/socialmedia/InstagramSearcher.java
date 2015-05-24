@@ -63,7 +63,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * images in all locations. This gives in general more results, but also results in considerably more API requests
      * for each query.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static enum DeepCoordinateRetrieval implements Facet {
         DEEP;
@@ -80,7 +80,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * Facet, which allows searching Instagram by a Instagram-specific location ID.
      * 
      * @see <a href="http://instagram.com/developer/endpoints/locations/">Location Endpoints</a>
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class LocationId implements Facet {
         private static final String INSTAGRAM_LOCATION_ID = "instagram.locationId";

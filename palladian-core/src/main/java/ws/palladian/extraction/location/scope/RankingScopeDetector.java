@@ -16,7 +16,7 @@ import ws.palladian.extraction.location.LocationExtractor;
  * which are given as {@link LocationAnnotation}s (and extracted by a {@link LocationExtractor}).
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface RankingScopeDetector extends ScopeDetector {
 

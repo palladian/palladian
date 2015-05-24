@@ -9,7 +9,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 /**
  * Predefined {@link SetSimilarity} implementations.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class SetSimilarities {
 

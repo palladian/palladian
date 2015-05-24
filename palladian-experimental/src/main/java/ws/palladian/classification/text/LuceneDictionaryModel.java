@@ -41,7 +41,7 @@ import ws.palladian.helper.functional.Filter;
  * permanently updating the Lucene index is terribly slow), and creating the dictionary use
  * {@link #index(DictionaryModel, File)} to transfer the dictionary to the Lucene index.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 @SuppressWarnings("serial")
 public final class LuceneDictionaryModel extends AbstractDictionaryModel implements Closeable {
@@ -50,7 +50,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
      * Builder for a {@link LuceneDictionaryModel} which creates an in-memory trie first, which is then written to a
      * Lucene index.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class Builder implements DictionaryBuilder {
 

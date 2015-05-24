@@ -12,7 +12,7 @@ import ws.palladian.helper.functional.Factory;
 /**
  * Factory for different feature setting combinations.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class FeatureSettingGenerator implements Factory<Set<FeatureSetting>> {
 

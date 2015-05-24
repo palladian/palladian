@@ -21,7 +21,7 @@ import ws.palladian.persistence.helper.SqlHelper;
  * statement as defined in the database schema). {@link #SIMPLE} on the other hand only converts the locations table,
  * omitting the alternative names.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class LocationRowConverter implements RowConverter<Location> {
 

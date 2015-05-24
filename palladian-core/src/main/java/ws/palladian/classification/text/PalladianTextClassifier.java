@@ -47,7 +47,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
      * <p>
      * <img src="doc-files/DictionaryExample.png" />
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static interface Scorer {
         /**
@@ -95,7 +95,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     /**
      * Default scorer implementation which scores a term-category-pair using the squared term-category probability.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static class DefaultScorer implements Scorer {
         @Override

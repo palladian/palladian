@@ -35,7 +35,7 @@ import ws.palladian.helper.geo.GeoCoordinate;
  * potential classes. This approach is similar to the one described in
  * "Simple Supervised Document Geolocation with Geodesic Grids", Benjamin P. Wing and Jason Baldridge, 2011.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class DictionaryScopeDetector implements ScopeDetector {
 
@@ -45,7 +45,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
     /**
      * A scope model which contains a dictionary for the text classifier and grid information.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class DictionaryScopeModel implements TextClassifierScopeModel, Serializable {
         private static final long serialVersionUID = 1L;
@@ -72,7 +72,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
      * {@link PalladianTextClassifier}. The function converts to the grid, as specified by the grid size in the
      * constructor.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     static final class GridConverter implements Function<LocationDocument, Instance> {
         
@@ -123,7 +123,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
     /**
      * Filter out such {@link LocationDocument}s which have no coordinates.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     static final class CoordinateFilter implements Filter<LocationDocument> {
         @Override

@@ -17,7 +17,7 @@ import ws.palladian.helper.ProgressReporter;
  * Input stream which gives feedback using a {@link ProgressMonitor}. Use this, when reading large files and you want to
  * give progress updates to the user.
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public final class ProgressReporterInputStream extends FilterInputStream {

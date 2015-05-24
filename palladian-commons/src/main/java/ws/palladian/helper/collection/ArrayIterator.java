@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate;
 /**
  * Iterator for an (object) array.
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <T>
  */

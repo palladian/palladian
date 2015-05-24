@@ -7,7 +7,7 @@ package ws.palladian.helper.geo;
  * 
  * @see <a href="http://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">Wikipedia: Universal
  *      Transverse Mercator coordinate system</a>
- * @author pk
+ * @author Philipp Katz
  */
 public class UtmCoordinate {
 

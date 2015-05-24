@@ -37,7 +37,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="https://github.com/500px/api-documentation/blob/master/endpoints/photo/GET_photos_search.md">API: Photo
  *      Resources</a>
  * @see <a href="http://developers.500px.com">500px / Developer</a>
- * @author pk
+ * @author Philipp Katz
  */
 public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebImage> {
 
@@ -61,7 +61,7 @@ public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebI
      * Order parameter for result list.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static enum OrderBy implements Facet {
         /** Default: sort by time of upload, most recent first */

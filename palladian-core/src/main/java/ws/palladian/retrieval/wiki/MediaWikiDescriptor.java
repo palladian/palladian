@@ -9,7 +9,7 @@ import ws.palladian.helper.functional.Factory;
  * <p>
  * Denotes a specific MediaWiki platform, identified by its API endpoint. Use the {@link Builder} to instantiate.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface MediaWikiDescriptor {
     /**

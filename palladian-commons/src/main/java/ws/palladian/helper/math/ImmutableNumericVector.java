@@ -18,7 +18,7 @@ import ws.palladian.helper.collection.Vector;
  * A {@link NumericVector} storing data in a {@link Map}.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K>
  */
