@@ -15,7 +15,7 @@ import java.util.Set;
  * the latter case, all entries need to be iterated.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K> Type of the keys.
  * @param <V> Type of the values.

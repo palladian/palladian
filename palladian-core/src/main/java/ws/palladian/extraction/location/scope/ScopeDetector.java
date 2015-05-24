@@ -9,7 +9,7 @@ import ws.palladian.helper.geo.GeoCoordinate;
  * interface is for some experimental purposes.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface ScopeDetector {
 

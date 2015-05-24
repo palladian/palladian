@@ -17,7 +17,7 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 /**
  * Builder for {@link Location}s. The created instances are immutable.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class LocationBuilder implements Factory<Location> {
 

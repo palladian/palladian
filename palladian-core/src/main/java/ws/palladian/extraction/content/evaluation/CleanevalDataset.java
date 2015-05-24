@@ -20,7 +20,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * downloaded from <a href="http://nlp.fi.muni.cz/~xpomikal/cleaneval/">here</a>; necessary are the files
  * 'GoldStandard.tar.gz' and 'finalrun-input.tar.gz'.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class CleanevalDataset implements ContentExtractionDataset {
 

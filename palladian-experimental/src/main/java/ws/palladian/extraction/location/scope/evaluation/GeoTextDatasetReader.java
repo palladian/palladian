@@ -27,14 +27,14 @@ import ws.palladian.helper.nlp.StringHelper;
  * for Geographic Lexical Variation.</a>" Jacob Eisenstein, Brendan O'Connor, Noah A. Smith, and Eric P. Xing.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
 
     /**
      * Subset of the dataset as defined by the authors (see README.txt in dataset directory.)
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static enum SubSet {
         TRAIN(1, 2, 3), DEV(4), TEST(5);
@@ -158,7 +158,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
     /**
      * Combine all Tweets of a user to one document (Tweets must be ordered by user, which is the case for the dataset).
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private static final class CombininingIterator extends AbstractIterator<LocationDocument> {
 

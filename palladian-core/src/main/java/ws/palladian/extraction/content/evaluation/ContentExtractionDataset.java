@@ -7,7 +7,7 @@ public interface ContentExtractionDataset extends Iterable<ContentExtractionData
     /**
      * An evaluation page within the dataset.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     interface ContentExtractionPage {
 

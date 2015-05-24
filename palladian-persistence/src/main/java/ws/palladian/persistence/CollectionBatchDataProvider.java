@@ -12,7 +12,7 @@ import org.apache.commons.lang3.Validate;
  * one cares about the inserted IDs, optionally implement {@link #insertedItem(int, int)}.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <T>
  */

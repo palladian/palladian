@@ -32,7 +32,7 @@ import ws.palladian.retrieval.wiki.WikiPage;
  * Use {@link DictionaryScopeDetector#train(Iterable, ws.palladian.classification.text.FeatureSetting, double)} to
  * create a model.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class MultiStepDictionaryScopeDetector implements ScopeDetector {
 

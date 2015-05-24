@@ -11,7 +11,7 @@ import org.apache.commons.lang3.Validate;
  * benefit, see interface documentation for more information).
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * @param <K> key.
  * @param <V> value.
  */
@@ -20,7 +20,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
     /**
      * Iterator over a {@link Matrix} rows.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private final class RowIterator implements Iterator<MatrixVector<K, V>> {
         final Iterator<K> rowNameIterator = new LinkedHashSet<K>(getRowKeys()).iterator();
@@ -46,7 +46,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
     /**
      * Iterator over a {@link Matrix} columns.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private final class ColumnIterator implements Iterator<MatrixVector<K, V>> {
         final Iterator<K> columnNameIterator = new LinkedHashSet<K>(getColumnKeys()).iterator();

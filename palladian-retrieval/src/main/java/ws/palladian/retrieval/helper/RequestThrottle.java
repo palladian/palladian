@@ -6,7 +6,7 @@ package ws.palladian.retrieval.helper;
  * to avoid being blocked because of rate limits.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public interface RequestThrottle {

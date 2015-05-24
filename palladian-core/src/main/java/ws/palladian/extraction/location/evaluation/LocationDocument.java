@@ -11,7 +11,7 @@ import ws.palladian.extraction.location.LocationAnnotation;
  * evaluation and for training.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class LocationDocument {
 

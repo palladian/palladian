@@ -20,7 +20,7 @@ import ws.palladian.helper.functional.Filter;
  * are considerably smaller than a set.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <T> Type of the items in this Bloom filter.
  * @see <a href="http://pages.cs.wisc.edu/~cao/papers/summary-cache/node9.html">Bloom Filters as Summaries</a>

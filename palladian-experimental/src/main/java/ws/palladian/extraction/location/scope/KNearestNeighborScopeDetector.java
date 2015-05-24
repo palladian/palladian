@@ -50,7 +50,7 @@ import ws.palladian.helper.io.FileHelper;
  * Nearest Neighbor taken literally; geo-tagged training documents are stored in an index. For extraction, we look up
  * similar document(s) and assign the coordinate of the similar document as scope.
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
@@ -144,7 +144,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
     /**
      * Learner, which is used for creating the necessary {@link NearestNeighborScopeModel}.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class NearestNeighborScopeDetectorLearner implements TextClassifierScopeDetectorLearner {
 

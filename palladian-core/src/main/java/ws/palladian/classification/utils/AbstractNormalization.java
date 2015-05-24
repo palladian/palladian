@@ -13,7 +13,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * Abstract {@link Normalization} functionality.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public abstract class AbstractNormalization implements Normalization {
 

@@ -5,7 +5,7 @@ import java.util.Collection;
 /**
  * A cookie store is responsible for storing cookies.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface CookieStore {
 

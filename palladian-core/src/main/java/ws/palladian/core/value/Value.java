@@ -60,7 +60,7 @@ package ws.palladian.core.value;
  * @see BooleanValue
  * @see TextValue
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public interface Value {

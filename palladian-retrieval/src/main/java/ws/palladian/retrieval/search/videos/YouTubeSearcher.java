@@ -68,7 +68,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
      * Order parameter for result list.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static enum OrderBy implements Facet {
         /** Resources are sorted in reverse chronological order based on the date they were created. */

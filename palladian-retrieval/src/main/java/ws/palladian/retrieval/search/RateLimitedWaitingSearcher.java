@@ -15,7 +15,7 @@ import ws.palladian.retrieval.resources.WebContent;
  * Searcher must throw dedicated {@link RateLimitedException}s, in case it is blocked because of rate limits.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * @param <R> Concrete type of search results.
  */
 public final class RateLimitedWaitingSearcher<R extends WebContent> extends AbstractMultifacetSearcher<R> {

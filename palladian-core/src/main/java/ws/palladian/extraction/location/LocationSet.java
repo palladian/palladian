@@ -26,7 +26,7 @@ import ws.palladian.helper.math.Stats;
 /**
  * Provides various statistics for sets of {@link Location}s.
  *
- * @author pk
+ * @author Philipp Katz
  */
 public class LocationSet extends AbstractSet<Location> {
 

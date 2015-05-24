@@ -31,7 +31,7 @@ import ws.palladian.retrieval.wiki.WikiPage;
 /**
  * Evaluation script for the text-based scope detection using the big Wikipedia dump.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 @SuppressWarnings("unused")
 public class WikipediaBigDatasetEvaluation {

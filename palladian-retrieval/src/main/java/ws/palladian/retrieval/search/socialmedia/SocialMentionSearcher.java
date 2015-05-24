@@ -31,7 +31,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * <p>
  * Searcher for <a href="http://socialmention.com">Social Mention</a>. The API free access allows max. 100 queries/day.
  * 
- * @author pk
+ * @author Philipp Katz
  * @see <a href="https://code.google.com/p/socialmention-api/wiki/APIDocumentation">API Documentation</a>
  */
 public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebContent> {

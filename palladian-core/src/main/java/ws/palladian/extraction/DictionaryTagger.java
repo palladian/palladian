@@ -19,7 +19,7 @@ import ws.palladian.extraction.entity.Annotations;
 /**
  * Annotates a text based on a given dictionary.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class DictionaryTagger implements Tagger {
 

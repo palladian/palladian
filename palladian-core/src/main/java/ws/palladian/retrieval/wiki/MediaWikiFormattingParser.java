@@ -11,7 +11,7 @@ import org.apache.commons.lang3.Validate;
  * href="http://www.mediawiki.org/wiki/Markup_spec/BNF/Inline_text">here</a> for an explanation of the syntax, which
  * also served as foundation for this implementation.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class MediaWikiFormattingParser {
 
@@ -27,7 +27,7 @@ public final class MediaWikiFormattingParser {
     /**
      * Callback, which is triggered during parsing.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static interface ParserCallback {
 

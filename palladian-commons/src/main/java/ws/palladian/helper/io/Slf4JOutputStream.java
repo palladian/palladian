@@ -13,7 +13,7 @@ import org.slf4j.Logger;
  * <code>System.setOut(new PrintStream(new Slf4JOutputStream(logger, Level.INFO), true));</code>.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class Slf4JOutputStream extends OutputStream {
 

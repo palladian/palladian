@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Various predefined {@link RowConverter}s.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class RowConverters {
 

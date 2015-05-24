@@ -34,7 +34,7 @@ import org.apache.commons.lang3.Validate;
  * 
  * @param <I> Input type.
  * @param <O> Output type.
- * @author pk
+ * @author Philipp Katz
  */
 public final class ReflectionFunction<I, O> implements Function<I, O> {
 

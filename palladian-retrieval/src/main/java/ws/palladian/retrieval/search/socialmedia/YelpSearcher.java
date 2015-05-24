@@ -36,7 +36,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * <p>
  * Searcher for locations on <a href="http://www.yelp.com">Yelp</a>.
  * 
- * @author pk
+ * @author Philipp Katz
  * @see <a href="http://www.yelp.com/developers/documentation/v2/search_api">API overview</a>
  */
 public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
@@ -54,7 +54,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
      *         .addFacet(new CategoryFilter(&quot;theater&quot;, &quot;ticketsales&quot;)).create();
      * </pre>
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class CategoryFilter implements Facet {
         private static final String YELP_CATEGORY_FACET = "yelp.categories";

@@ -12,7 +12,7 @@ import org.apache.lucene.search.Scorer;
  * This class collects search results; we need no scoring and accept the documents in any order here, which yields
  * in a great performance boost in contrast to Lucene's default hit-collecting logic.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 final class SimpleCollector extends Collector {
     final Set<Integer> docs = new HashSet<>();

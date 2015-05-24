@@ -4,7 +4,7 @@ package ws.palladian.core;
  * A category with name and probability, and an optional absolute count. Comparison should be implemented in such a way,
  * that Categories are sorted by probability in descending order (ie. high probability categories first).
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public interface Category extends Comparable<Category> {

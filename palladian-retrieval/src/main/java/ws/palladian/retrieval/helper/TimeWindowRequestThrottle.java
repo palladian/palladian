@@ -15,7 +15,7 @@ import ws.palladian.helper.date.DateHelper;
  * Request throttle for controlling window-based policies, e.g. maximum 1000 requests/5 minutes.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public class TimeWindowRequestThrottle implements RequestThrottle {

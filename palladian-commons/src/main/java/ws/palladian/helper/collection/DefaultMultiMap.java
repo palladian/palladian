@@ -20,7 +20,7 @@ import ws.palladian.helper.functional.Factory;
  * one using a {@link Set} to store values; see the two static factory methods. If you need a different {@link Collection} type to store values, use the constructor and provide a {@link Factory} to create the desired collection.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K> Type of key.
  * @param <V> Type of values.

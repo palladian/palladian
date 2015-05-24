@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * A HTTP request.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface HttpRequest2 {
 

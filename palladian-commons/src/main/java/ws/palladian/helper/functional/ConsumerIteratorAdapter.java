@@ -10,7 +10,7 @@ import ws.palladian.helper.collection.AbstractIterator;
 /**
  * Adapter between a producer which uses a {@link Consumer} callback and an {@link Iterator}.
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <T>
  */

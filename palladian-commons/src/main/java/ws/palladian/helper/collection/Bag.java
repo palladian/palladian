@@ -53,7 +53,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * A factory for creating {@link Bag}s.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <T>
      */

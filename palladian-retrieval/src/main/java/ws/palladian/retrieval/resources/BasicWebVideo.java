@@ -18,7 +18,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
      * Builder for creating new instances of {@link WebVideo}.
      * </p>
      * 
-     * @author katz
+     * @author Philipp Katz
      */
     public static class Builder extends BasicWebContent.Builder {
 

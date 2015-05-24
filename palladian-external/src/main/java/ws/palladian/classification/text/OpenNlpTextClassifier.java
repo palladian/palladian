@@ -30,7 +30,7 @@ import ws.palladian.helper.constants.Language;
 /**
  * Text classifier which uses Open NLP's {@link DocumentCategorizerME}.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class OpenNlpTextClassifier implements Learner<OpenNlpTextClassifier.OpenNlpTextClassifierModel>,
         Classifier<OpenNlpTextClassifier.OpenNlpTextClassifierModel> {

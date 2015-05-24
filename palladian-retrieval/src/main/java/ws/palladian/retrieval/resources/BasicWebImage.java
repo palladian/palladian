@@ -22,7 +22,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
      * Builder for creating new instances of {@link WebImage}.
      * </p>
      * 
-     * @author katz
+     * @author Philipp Katz
      */
     public static class Builder extends BasicWebContent.Builder {
 

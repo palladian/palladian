@@ -25,7 +25,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * Wolfgang Nejdl; 'Boilerplate Detection using Shallow Text Features', WSDM 2010: Third ACM International Conference on
  * Web Search and Data Mining New York City, NY USA.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class BoilerpipeDataset implements ContentExtractionDataset {
 

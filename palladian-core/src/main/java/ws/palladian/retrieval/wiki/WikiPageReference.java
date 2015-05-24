@@ -14,7 +14,7 @@ import ws.palladian.retrieval.resources.WebContent;
  * additionally contains the text.
  * </p>
  * 
- * @author katz
+ * @author Philipp Katz
  */
 public class WikiPageReference implements WebContent {
 

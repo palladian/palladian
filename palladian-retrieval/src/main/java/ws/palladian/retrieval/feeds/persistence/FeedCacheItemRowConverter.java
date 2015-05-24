@@ -8,7 +8,7 @@ import ws.palladian.persistence.RowConverter;
 
 /**
  * @author Sandro Reichert
- * @author pk
+ * @author Philipp Katz
  */
 public class FeedCacheItemRowConverter implements RowConverter<CachedItem> {
 

@@ -21,7 +21,7 @@ import ws.palladian.helper.functional.Function;
  * This decorator for a {@link DictionaryModel} only classifies into a given (sub)set of categories. This way, a little
  * speedup during classification can be achieved.
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 final class FocusDictionaryDecorator extends AbstractDictionaryModel implements DictionaryModel {

@@ -26,7 +26,7 @@ import ws.palladian.helper.functional.Factories;
  * a desired class distribution, using the {@link #ClassDistributionResampler(Iterable, Map)} constructor.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class ClassDistributionResampler implements Iterable<Instance> {
 

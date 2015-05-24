@@ -5,7 +5,7 @@ package ws.palladian.helper.math;
  * Mathematical statistics about a series of numbers.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public interface Stats {

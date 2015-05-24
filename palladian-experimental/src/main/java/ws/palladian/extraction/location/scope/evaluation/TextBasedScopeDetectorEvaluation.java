@@ -17,7 +17,7 @@ import ws.palladian.extraction.location.scope.DictionaryScopeDetector.Dictionary
 /**
  * Evaluation script for text-based scope detectors; runs different feature settings to determine the optimal config.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 @SuppressWarnings("unused")
 public final class TextBasedScopeDetectorEvaluation {

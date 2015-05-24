@@ -24,7 +24,7 @@ import ws.palladian.helper.io.FileHelper;
  * in edge cases with non-standard class loading mechanisms (WAR files, application containers, OSGi etc.).
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public final class ClassFinder {

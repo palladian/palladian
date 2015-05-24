@@ -14,7 +14,7 @@ public final class ExperimentalScorers {
      * Scorer, which normalizes the result scores by the prior category probability. This may improve classification
      * results for data with skewed class counts.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static class CategoryEqualizationScorer extends DefaultScorer {
         @Override
@@ -29,7 +29,7 @@ public final class ExperimentalScorers {
      * Scorer for the text classifier which weights the squared term-category probabilities additionally with the TF-IDF
      * score determined from the model.
      * 
-     * @author pk
+     * @author Philipp Katz
      * @deprecated Best results were achieved using the {@link BayesScorer}.
      */
     @Deprecated
@@ -54,7 +54,7 @@ public final class ExperimentalScorers {
      * of documents in the dictionary, which contain the term. This way, we weight terms with more observations in the
      * training data higher than those with only few observations.
      * 
-     * @author pk
+     * @author Philipp Katz
      * @deprecated Best results were achieved using the {@link BayesScorer}.
      */
     @Deprecated
@@ -78,7 +78,7 @@ public final class ExperimentalScorers {
      * divergence</a>. Basically, it measures the similarity between the probability distributions of the document to
      * score and each category in the model based on the term frequencies (including some backoff).
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class KLScorer implements Scorer {
 

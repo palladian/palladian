@@ -11,7 +11,7 @@ import ws.palladian.helper.geo.GeoUtils;
  * 
  * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">WikiProject Geographical
  *      coordinates</a>
- * @author pk
+ * @author Philipp Katz
  */
 public final class MarkupCoordinate extends AbstractGeoCoordinate {
 

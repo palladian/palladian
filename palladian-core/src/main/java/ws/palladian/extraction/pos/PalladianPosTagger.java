@@ -79,7 +79,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
     /**
      * An iterator for the Brown corpus dataset. Converts the individual documents to single token instances.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private static final class BrownCorpusIterator extends AbstractIterator<Instance> {
 

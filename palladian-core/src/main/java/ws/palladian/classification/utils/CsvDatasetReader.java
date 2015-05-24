@@ -27,7 +27,7 @@ import ws.palladian.helper.nlp.StringPool;
  * {@link CloseableIterator#close()} the iterator!
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class CsvDatasetReader implements Iterable<Instance> {
 

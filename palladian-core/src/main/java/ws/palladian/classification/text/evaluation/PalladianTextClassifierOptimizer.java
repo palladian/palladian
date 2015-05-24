@@ -32,7 +32,7 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * Simple, brute force optimizer for {@link FeatureSetting}s. This mechanism determines the best feature settings in
  * combination with the best classification threshold (this means, that it currently only works for binary data).
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public final class PalladianTextClassifierOptimizer {

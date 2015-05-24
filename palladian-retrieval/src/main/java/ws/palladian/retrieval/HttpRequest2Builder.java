@@ -13,7 +13,7 @@ import ws.palladian.helper.nlp.StringHelper;
 /**
  * Builder for {@link HttpRequest2} instances.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class HttpRequest2Builder implements Factory<HttpRequest2> {
 

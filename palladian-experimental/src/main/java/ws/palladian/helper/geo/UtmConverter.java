@@ -25,7 +25,7 @@ import org.apache.commons.lang3.Validate;
  * @see <a
  *      href="http://gis.stackexchange.com/questions/13291/is-there-a-simple-way-to-compute-the-utm-zone-from-a-lat-long-point">Stack
  *      Exchange: Is there a simple way to compute the UTM Zone from a lat/long point?</a>
- * @author pk
+ * @author Philipp Katz
  */
 public final class UtmConverter {
 

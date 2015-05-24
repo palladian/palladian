@@ -31,7 +31,7 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
  * In-memory location store; location lookup by name is pretty fast; ID lookup is slow, because the underlying array
  * needs to be iterated (this functionality is no commonly used though).
  * 
- * @author pk
+ * @author Philipp Katz
  * @see <a href="http://stackoverflow.com/questions/10064422/java-on-memory-efficient-key-value-store">Foundation for
  *      code: Stack Overflow: Java On-Memory Efficient Key-Value Store</a>
  */
@@ -164,7 +164,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
      * More memory efficient storage than a {@link Location}. Avoids memory intensive collection and wrapper objects and
      * uses primitive data types as far as possible.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private static final class LocationContainer {
 

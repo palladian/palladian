@@ -112,7 +112,7 @@ public final class FileFormatParser {
     /**
      * {@link LineAction} to convert from XML tagged format to column format.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private static final class XmlToColumnAction extends LineAction {
         private final String columnSeparator;

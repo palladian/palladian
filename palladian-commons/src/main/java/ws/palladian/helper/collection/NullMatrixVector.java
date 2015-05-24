@@ -11,7 +11,7 @@ import ws.palladian.helper.collection.Matrix.MatrixVector;
  * A vector which can be used instead of <code>null</code> (null object pattern).
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K>
  * @param <V>
