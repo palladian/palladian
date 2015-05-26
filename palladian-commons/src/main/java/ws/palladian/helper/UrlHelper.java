@@ -6,7 +6,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -407,7 +407,7 @@ public final class UrlHelper {
      */
     public static Map<String, String> parseParams(String parameterString) {
         Validate.notNull(parameterString, "parameterString must not be null");
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new LinkedHashMap<>();
 
         int questionIdx = parameterString.indexOf("?");
         if (questionIdx == -1) { // no parameters in URL
@@ -419,7 +419,15 @@ public final class UrlHelper {
         for (String param : paramSplit) {
             String[] keyValue = param.split("=");
             String key = decodeParameter(keyValue[0]);
-            String value = decodeParameter(keyValue[1]);
+            String value;
+            if (keyValue.length == 1) {
+                value = StringUtils.EMPTY;
+            } else if (keyValue.length == 2) {
+                value = decodeParameter(keyValue[1]);
+            } else {
+                throw new IllegalArgumentException("Could not parse parameter part \"" + param + "\" of string \""
+                        + parameterString + "\".");
+            }
             params.put(key, value);
         }
         return params;
