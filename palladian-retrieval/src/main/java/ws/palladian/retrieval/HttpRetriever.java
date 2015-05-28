@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,8 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.SSLContext;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +45,9 @@ import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -131,7 +133,7 @@ public class HttpRetriever {
     // ///////////// Apache HttpComponents ////////
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
-    private static final PoolingClientConnectionManager CONNECTION_MANAGER = new PoolingClientConnectionManager();
+    private static final PoolingClientConnectionManager CONNECTION_MANAGER;
 
     /** Various parameters for the Apache HttpClient. */
     private final HttpParams httpParams = new SyncBasicHttpParams();
@@ -176,25 +178,26 @@ public class HttpRetriever {
     /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
     private ProxyRemoverCallback proxyRemoveCallback = null;
 
-    private static final Scheme httpsScheme;
-
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
 
     static {
-        setNumConnections(DEFAULT_NUM_CONNECTIONS);
-        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
+        SchemeRegistry registry = new SchemeRegistry();
         try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, null, null);
-            SSLSocketFactory sf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            httpsScheme = new Scheme("https", 443, sf);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        } catch (KeyManagementException e) {
+            // consider self-signed certificates as trusted; this is generally not a good idea,
+            // however we use the HttpRetriever basically only for web scraping and data extraction,
+            // therefore we may argue that it's okayish. At least do not point your finger at me
+            // for doing so!
+            SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustSelfSignedStrategy(),
+                    SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            registry.register(new Scheme("https", 443, socketFactory));
+        } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | KeyStoreException e) {
             throw new IllegalStateException(e);
         }
+        CONNECTION_MANAGER = new PoolingClientConnectionManager(registry);
+        setNumConnections(DEFAULT_NUM_CONNECTIONS);
+        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
     }
 
     /**
@@ -465,8 +468,6 @@ public class HttpRetriever {
             Credentials credentials = new UsernamePasswordCredentials(username, password);
             backend.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
         }
-
-        backend.getConnectionManager().getSchemeRegistry().register(httpsScheme);
 
         if (cookieStore != null) {
             backend.setCookieStore(new ApacheCookieStoreAdapter(cookieStore));
