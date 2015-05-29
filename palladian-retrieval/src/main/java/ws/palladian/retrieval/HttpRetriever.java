@@ -4,10 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,17 +39,12 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -125,16 +116,10 @@ public class HttpRetriever {
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 1;
 
-    /** The default number of connections in the connection pool. */
-    public static final int DEFAULT_NUM_CONNECTIONS = 100;
-
-    /** The default number of connections per route. */
-    public static final int DEFAULT_NUM_CONNECTIONS_PER_ROUTE = 10;
-
     // ///////////// Apache HttpComponents ////////
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
-    private static final PoolingClientConnectionManager CONNECTION_MANAGER;
+    private final ClientConnectionManager connectionManager;
 
     /** Various parameters for the Apache HttpClient. */
     private final HttpParams httpParams = new SyncBasicHttpParams();
@@ -182,48 +167,10 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
-
-    static {
-        SchemeRegistry registry = new SchemeRegistry();
-        try {
-            // consider self-signed certificates as trusted; this is generally not a good idea,
-            // however we use the HttpRetriever basically only for web scraping and data extraction,
-            // therefore we may argue that it's okayish. At least do not point your finger at me
-            // for doing so!
-            SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustSelfSignedStrategy(),
-                    SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            registry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-            registry.register(new Scheme("https", 443, socketFactory));
-        } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | KeyStoreException e) {
-            throw new IllegalStateException(e);
-        }
-        CONNECTION_MANAGER = new PoolingClientConnectionManager(registry);
-        setNumConnections(DEFAULT_NUM_CONNECTIONS);
-        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
-    }
-
-    /**
-     * <p>
-     * Creates a new HTTP retriever using default values for the parameters:
-     * </p>
-     * <table>
-     * <tr>
-     * <td>connection timeout</td>
-     * <td>10 seconds</td>
-     * </tr>
-     * <tr>
-     * <td>socket timeout</td>
-     * <td>180 seconds</td>
-     * </tr>
-     * <tr>
-     * <td>retries</td>
-     * <td>0</td>
-     * </tr>
-     * </table>
-     * </p>
-     **/
-    // TODO visibility should be set to protected, as instances are created by the factory
-    public HttpRetriever() {
+    
+    public HttpRetriever(ClientConnectionManager connectionManager) {
+        Validate.notNull(connectionManager, "connectionManager must not be null");
+        this.connectionManager = connectionManager;
         setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
@@ -441,7 +388,7 @@ public class HttpRetriever {
     private AbstractHttpClient createHttpClient() {
 
         // initialize the HttpClient
-        DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, httpParams);
+        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
 
         HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
         backend.setHttpRequestRetryHandler(retryHandler);
@@ -659,7 +606,7 @@ public class HttpRetriever {
         HttpConnectionParams.setSoTimeout(params, socketTimeoutRedirects);
         HttpConnectionParams.setConnectionTimeout(params, connectionTimeoutRedirects);
 
-        DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, params);
+        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, params);
         DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
         for (;;) {
@@ -805,12 +752,18 @@ public class HttpRetriever {
         this.numRetries = numRetries;
     }
 
+    /** @deprecated Moved setting to {@link DefaultHttpRetrieverFactory#DefaultHttpRetrieverFactory(int, int, boolean)}. */
+    @Deprecated
     public static void setNumConnections(int numConnections) {
-        CONNECTION_MANAGER.setMaxTotal(numConnections);
+//        CONNECTION_MANAGER.setMaxTotal(numConnections);
+        throw new UnsupportedOperationException("Setting moved to DefaultHttpRetrieverFactory.");
     }
 
+    /** @deprecated Moved setting to {@link DefaultHttpRetrieverFactory#DefaultHttpRetrieverFactory(int, int, boolean)}. */
+    @Deprecated
     public static void setNumConnectionsPerRoute(int numConnectionsPerRoute) {
-        CONNECTION_MANAGER.setDefaultMaxPerRoute(numConnectionsPerRoute);
+//        CONNECTION_MANAGER.setDefaultMaxPerRoute(numConnectionsPerRoute);
+        throw new UnsupportedOperationException("Setting moved to DefaultHttpRetrieverFactory.");
     }
 
     public void setUserAgent(String userAgent) {

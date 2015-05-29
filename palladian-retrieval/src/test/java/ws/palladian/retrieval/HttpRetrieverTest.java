@@ -152,8 +152,9 @@ public class HttpRetrieverTest {
     }
     
     @Test
-    @Ignore
+    // @Ignore
     public void testSelfSignedCertificate() throws HttpException {
+        HttpRetrieverFactory.setFactory(new DefaultHttpRetrieverFactory(true));
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("https://jira.contasa.net");
         System.out.println(result);
     }
