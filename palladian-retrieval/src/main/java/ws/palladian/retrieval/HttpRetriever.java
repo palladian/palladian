@@ -44,6 +44,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -191,6 +192,7 @@ public class HttpRetriever {
             // for doing so!
             SSLSocketFactory socketFactory = new SSLSocketFactory(new TrustSelfSignedStrategy(),
                     SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            registry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
             registry.register(new Scheme("https", 443, socketFactory));
         } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | KeyStoreException e) {
             throw new IllegalStateException(e);

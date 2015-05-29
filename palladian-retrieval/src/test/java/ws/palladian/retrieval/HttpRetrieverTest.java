@@ -157,5 +157,11 @@ public class HttpRetrieverTest {
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("https://jira.contasa.net");
         System.out.println(result);
     }
+    
+    @Test
+    public void testGetExample() throws HttpException {
+        HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://example.com");
+        System.out.println(result);
+    }
 
 }
