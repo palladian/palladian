@@ -4,7 +4,6 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.functional.Factory;
 
-
 /**
  * <p>
  * Factory for creating {@link HttpRetriever} instances. Can be customized via {@link #setFactory(Factory)}.
@@ -14,12 +13,7 @@ import ws.palladian.helper.functional.Factory;
  */
 public final class HttpRetrieverFactory {
 
-    private static Factory<HttpRetriever> _factory = new Factory<HttpRetriever>() {
-        @Override
-        public HttpRetriever create() {
-            return new HttpRetriever();
-        }
-    };
+    private static Factory<HttpRetriever> _factory = new DefaultHttpRetrieverFactory();
 
     /**
      * <p>
