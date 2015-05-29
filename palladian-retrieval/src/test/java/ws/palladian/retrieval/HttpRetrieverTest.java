@@ -150,5 +150,12 @@ public class HttpRetrieverTest {
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().execute(request);
         System.out.println(result.getStringContent());
     }
+    
+    @Test
+    @Ignore
+    public void testCookieWarning() throws HttpException {
+        HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://www.home24.de/arte-m/gallery-kommode-buche-2");
+        System.out.println(result);
+    }
 
 }
