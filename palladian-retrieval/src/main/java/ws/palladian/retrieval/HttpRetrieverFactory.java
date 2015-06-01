@@ -82,19 +82,22 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
     public HttpRetrieverFactory(int numConnections, int numConnectionsPerRoute, boolean acceptSelfSignedCerts) {
         SchemeRegistry registry = new SchemeRegistry();
         registry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+        SchemeSocketFactory socketFactory;
         if (acceptSelfSignedCerts) {
             try {
                 // consider self-signed certificates as trusted; this is generally not a good idea,
                 // however we use the HttpRetriever basically only for web scraping and data extraction,
                 // therefore we may argue that it's okayish. At least do not point your finger at me
                 // for doing so!
-                SchemeSocketFactory socketFactory = new SSLSocketFactory(new TrustSelfSignedStrategy(),
+                socketFactory = new SSLSocketFactory(new TrustSelfSignedStrategy(),
                         SSLSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
-                registry.register(new Scheme("https", 443, socketFactory));
             } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | KeyStoreException e) {
                 throw new IllegalStateException("Exception when creating SSLSocketFactory", e);
             }
+        } else {
+            socketFactory = SSLSocketFactory.getSocketFactory();
         }
+        registry.register(new Scheme("https", 443, socketFactory));
         connectionManager = new PoolingClientConnectionManager(registry);
         connectionManager.setMaxTotal(numConnections);
         connectionManager.setDefaultMaxPerRoute(numConnectionsPerRoute);
