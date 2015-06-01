@@ -154,7 +154,23 @@ public class HttpRetrieverTest {
     @Test
     @Ignore
     public void testCookieWarning() throws HttpException {
-        HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://www.home24.de/arte-m/gallery-kommode-buche-2");
+        HttpRetrieverFactory.getHttpRetriever().httpGet("http://www.home24.de/arte-m/gallery-kommode-buche-2");
+    }
+
+    @Test
+    @Ignore
+    public void testSelfSignedCertificate() throws HttpException {
+        try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
+            HttpRetriever retriever = factory.create();
+            HttpResult result = retriever.httpGet("https://jira.contasa.net");
+            System.out.println(result);
+        }
+    }
+    
+    @Test
+    @Ignore
+    public void testGetExample() throws HttpException {
+        HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://example.com");
         System.out.println(result);
     }
 
