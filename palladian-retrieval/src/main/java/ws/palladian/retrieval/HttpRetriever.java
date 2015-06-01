@@ -752,18 +752,18 @@ public class HttpRetriever {
         this.numRetries = numRetries;
     }
 
-    /** @deprecated Moved setting to {@link DefaultHttpRetrieverFactory#DefaultHttpRetrieverFactory(int, int, boolean)}. */
+    /** @deprecated Moved setting to {@link HttpRetrieverFactory#HttpRetrieverFactory(int, int, boolean)}. */
     @Deprecated
     public static void setNumConnections(int numConnections) {
 //        CONNECTION_MANAGER.setMaxTotal(numConnections);
-        throw new UnsupportedOperationException("Setting moved to DefaultHttpRetrieverFactory.");
+        throw new UnsupportedOperationException("Setting moved to HttpRetrieverFactory.");
     }
 
-    /** @deprecated Moved setting to {@link DefaultHttpRetrieverFactory#DefaultHttpRetrieverFactory(int, int, boolean)}. */
+    /** @deprecated Moved setting to {@link HttpRetrieverFactory#HttpRetrieverFactory(int, int, boolean)}. */
     @Deprecated
     public static void setNumConnectionsPerRoute(int numConnectionsPerRoute) {
 //        CONNECTION_MANAGER.setDefaultMaxPerRoute(numConnectionsPerRoute);
-        throw new UnsupportedOperationException("Setting moved to DefaultHttpRetrieverFactory.");
+        throw new UnsupportedOperationException("Setting moved to HttpRetrieverFactory.");
     }
 
     public void setUserAgent(String userAgent) {
