@@ -246,5 +246,50 @@ public class FeatureSetting implements Serializable {
         map.put(PROPERTY_CHARACTER_PADDING, String.valueOf(characterPadding));
         return map;
     }
+    
+    // hashCode + equals
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (caseSensitive ? 1231 : 1237);
+        result = prime * result + (characterPadding ? 1231 : 1237);
+        result = prime * result + maxNGramLength;
+        result = prime * result + maxTerms;
+        result = prime * result + maximumTermLength;
+        result = prime * result + minNGramLength;
+        result = prime * result + minimumTermLength;
+        result = prime * result + ((textFeatureType == null) ? 0 : textFeatureType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FeatureSetting other = (FeatureSetting)obj;
+        if (caseSensitive != other.caseSensitive)
+            return false;
+        if (characterPadding != other.characterPadding)
+            return false;
+        if (maxNGramLength != other.maxNGramLength)
+            return false;
+        if (maxTerms != other.maxTerms)
+            return false;
+        if (maximumTermLength != other.maximumTermLength)
+            return false;
+        if (minNGramLength != other.minNGramLength)
+            return false;
+        if (minimumTermLength != other.minimumTermLength)
+            return false;
+        if (textFeatureType != other.textFeatureType)
+            return false;
+        return true;
+    }
 
 }
