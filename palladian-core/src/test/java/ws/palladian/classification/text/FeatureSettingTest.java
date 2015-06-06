@@ -1,6 +1,8 @@
 package ws.palladian.classification.text;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,6 +20,10 @@ public class FeatureSettingTest {
         FeatureSetting deserializedFeatureSetting = FileHelper.deserialize(ResourceHelper
                 .getResourcePath("/model/testFeatureSetting_v1.ser"));
         assertEquals(featureSetting, deserializedFeatureSetting);
+        // properties added later, should be null / false
+        assertNull(deserializedFeatureSetting.getLanguage());
+        assertFalse(deserializedFeatureSetting.isStem());
+        assertFalse(deserializedFeatureSetting.isRemoveStopwords());
     }
 
 }
