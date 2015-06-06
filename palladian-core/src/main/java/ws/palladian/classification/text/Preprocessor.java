@@ -7,6 +7,8 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.core.Token;
+import ws.palladian.extraction.feature.Stemmer;
+import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.token.CharacterNGramTokenizer;
 import ws.palladian.extraction.token.NGramWrapperIterator;
 import ws.palladian.extraction.token.WordTokenizer;
@@ -61,7 +63,16 @@ public class Preprocessor implements Function<String, Iterator<String>> {
                 return !StringHelper.containsAny(value, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(value);
             }
         });
-        return CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
+        Iterator<String> tokenStringIterator = CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
+        if (featureSetting.isRemoveStopwords()) {
+            tokenStringIterator = CollectionHelper.filter(tokenStringIterator,
+                    new StopWordRemover(featureSetting.getLanguage()));
+        }
+        if (featureSetting.isStem()) {
+            tokenStringIterator = CollectionHelper.convert(tokenStringIterator,
+                    new Stemmer(featureSetting.getLanguage()));
+        }
+        return tokenStringIterator;
     }
 
 }

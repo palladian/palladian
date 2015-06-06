@@ -11,7 +11,6 @@ import org.tartarus.snowball.ext.germanStemmer;
 import org.tartarus.snowball.ext.hungarianStemmer;
 import org.tartarus.snowball.ext.italianStemmer;
 import org.tartarus.snowball.ext.norwegianStemmer;
-import org.tartarus.snowball.ext.porterStemmer;
 import org.tartarus.snowball.ext.portugueseStemmer;
 import org.tartarus.snowball.ext.romanianStemmer;
 import org.tartarus.snowball.ext.russianStemmer;
@@ -27,28 +26,7 @@ import ws.palladian.helper.functional.Function;
  */
 public final class Stemmer implements Function<String, String> {
 
-    private final SnowballStemmer stemmer;
-
-    /**
-     * <p>
-     * Create a new {@link Stemmer} using the default Porter stemmer.
-     * </p>
-     */
-    public Stemmer() {
-        this(new porterStemmer());
-    }
-
-    /**
-     * <p>
-     * Create a new {@link Stemmer} using the provided {@link SnowballStemmer} instance.
-     * </p>
-     * 
-     * @param stemmer
-     */
-    public Stemmer(SnowballStemmer stemmer) {
-        Validate.notNull(stemmer, "stemmer must not be null");
-        this.stemmer = stemmer;
-    }
+    private final ThreadLocal<SnowballStemmer> stemmer;
 
     /**
      * <p>
@@ -57,9 +35,14 @@ public final class Stemmer implements Function<String, String> {
      * 
      * @param language
      */
-    public Stemmer(Language language) {
+    public Stemmer(final Language language) {
         Validate.notNull(language, "language must not be null");
-        this.stemmer = createStemmer(language);
+        this.stemmer = new ThreadLocal<SnowballStemmer>() {
+            @Override
+            protected SnowballStemmer initialValue() {
+                return createStemmer(language);
+            }
+        };
     }
 
     /**
@@ -106,7 +89,7 @@ public final class Stemmer implements Function<String, String> {
                 throw new IllegalArgumentException("No stemmer for language '" + language.toString() + "' available.");
         }
     }
-    
+
     @Override
     public String compute(String input) {
         return stem(input);
@@ -121,11 +104,10 @@ public final class Stemmer implements Function<String, String> {
      * @return The stemmed word.
      */
     public String stem(String word) {
-        synchronized (stemmer) {
-            stemmer.setCurrent(word);
-            stemmer.stem();
-            return stemmer.getCurrent().toLowerCase();
-        }
+        SnowballStemmer st = stemmer.get();
+        st.setCurrent(word);
+        st.stem();
+        return st.getCurrent();
     }
 
     @Override
@@ -136,6 +118,5 @@ public final class Stemmer implements Function<String, String> {
         builder.append("]");
         return builder.toString();
     }
-
 
 }

@@ -15,6 +15,7 @@ import ws.palladian.classification.text.PalladianTextClassifier.DefaultScorer;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.integrationtests.ITHelper;
@@ -92,8 +93,9 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");
         ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
-        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.81, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).language(Language.ENGLISH).stem()
+                .removeStopwords().create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.85, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
 
     @Test
@@ -137,8 +139,9 @@ public class PalladianTextClassifierIT {
         String trainFile = config.getString("dataset.imdb.train");
         String testFile = config.getString("dataset.imdb.test");
         ITHelper.assumeFile("IMDB", trainFile, testFile);
-        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.76, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
+        FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).language(Language.ENGLISH).stem()
+                .removeStopwords().create();
+        assertAccuracy(trainFile, testFile, featureSetting, 0.79, new BayesScorer(LAPLACE, PRIORS, COMPLEMENT));
     }
 
     /**
