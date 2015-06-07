@@ -6,10 +6,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -221,15 +223,38 @@ public class UrlHelperTest {
         assertEquals("San Francisco", params.get("search"));
         assertEquals("Artikel", params.get("go"));
         // CollectionHelper.print(params);
+        
+        url = "https://xxxxxxxx.de/gp/associates/network/reports/report.html?__mk_de_DE=xxxxxxtag=&reportType=earningsReport&program=all&deviceType=all&periodTyp";
+        params = UrlHelper.parseParams(url);
+        // CollectionHelper.print(params);
+        assertEquals(5, params.size());
+        assertEquals("xxxxxxtag", params.get("__mk_de_DE"));
+        assertEquals("earningsReport", params.get("reportType"));
+        assertEquals("all", params.get("program"));
+        assertEquals("all", params.get("deviceType"));
+        assertEquals(StringUtils.EMPTY, params.get("periodTyp"));
+        // should have same order as input string
+        Iterator<String> paramSetIterator = params.keySet().iterator();
+        assertEquals("__mk_de_DE", paramSetIterator.next());
+        assertEquals("reportType", paramSetIterator.next());
+        assertEquals("program", paramSetIterator.next());
+        assertEquals("deviceType", paramSetIterator.next());
+        assertEquals("periodTyp", paramSetIterator.next());
     }
     
     @Test
     public void testCreateParameterString() {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new LinkedHashMap<>();
         params.put("search", "San Francisco");
         params.put("go", "Artikel");
-        String fullUrl = UrlHelper.createParameterString(params);
-        assertEquals("search=San+Francisco&go=Artikel", fullUrl);
+        String parameterString = UrlHelper.createParameterString(params);
+        assertEquals("search=San+Francisco&go=Artikel", parameterString);
+        
+        params = new LinkedHashMap<>();
+        params.put("param", "value");
+        params.put("emptyParam", StringUtils.EMPTY);
+        parameterString = UrlHelper.createParameterString(params);
+        assertEquals("param=value&emptyParam=", parameterString);
     }
 
 }
