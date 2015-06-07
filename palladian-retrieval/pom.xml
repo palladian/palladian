@@ -21,6 +21,15 @@
 			</plugin>
 		</plugins>
 	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>99-empty</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>	
 	<dependencies>
 		<dependency>
 			<groupId>ws.palladian</groupId>
@@ -47,5 +56,17 @@
 			<artifactId>htmlparser</artifactId>
 			<version>1.4</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.7.7</version>
+		</dependency>		
 	</dependencies>
+	<repositories>
+		<!-- http://www.slf4j.org/faq.html#excludingJCL -->
+		<repository>
+			<id>version99</id>
+			<url>http://version99.qos.ch/</url>
+		</repository>
+	</repositories>	
 </project>

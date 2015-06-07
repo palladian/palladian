@@ -533,6 +533,15 @@ public class WordTransformer {
         return stemmedString.toString().trim();
     }
 
+    public static String stemWord(String word, Language language) {
+            if (language == Language.GERMAN) {
+                return stemGermanWord(word);
+            } else if (language == Language.ENGLISH) {
+                return stemEnglishWord(word);
+            }
+        return word;
+    }
+
     public static String stemGermanWord(String word) {
         // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
         String exception = GERMAN_STEMMING_EXCEPTIONS.get(word.toLowerCase());

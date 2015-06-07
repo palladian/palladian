@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -20,6 +22,9 @@ import ws.palladian.retrieval.HttpResult;
  * @author Philipp Katz
  */
 public abstract class BaseDocumentParser implements DocumentParser {
+    
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseDocumentParser.class);
 
     @Override
     public Document parse(InputStream inputStream) throws ParserException {
@@ -36,13 +41,33 @@ public abstract class BaseDocumentParser implements DocumentParser {
 
         // detect the encoding in advance, this avoids wrongly interpreted documents
         String charset = httpResult.getCharset();
-        if (charset != null && Charset.isSupported(charset)) {
+        boolean supportedCharset = isSupportedCharset(charset);
+        if (supportedCharset) {
             inputSource.setEncoding(charset);
         }
+        LOGGER.debug("Encoding of HttpResult: {}, is supported: {}", charset, supportedCharset);
 
         Document document = parse(inputSource);
         document.setDocumentURI(httpResult.getUrl());
         return document;
+    }
+
+    /**
+     * Determine, whether the charset is supported, and catch exceptions thrown by {@link Charset#isSupported(String)}.
+     * 
+     * @param charset The charset.
+     * @return <code>true</code> in case the charset is supported, false otherwise.
+     */
+    private static boolean isSupportedCharset(String charset) {
+        if (charset == null) {
+            return false;
+        }
+        try {
+            Charset.isSupported(charset);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

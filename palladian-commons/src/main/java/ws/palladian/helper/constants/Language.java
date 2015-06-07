@@ -216,4 +216,20 @@ public enum Language {
         return null;
     }
 
+    /**
+     * <p>
+     * Retrieve a {@link Language} by name.
+     * 
+     * @param name The name, case insensitive.
+     * @return The {@link Language}, or <code>null</code> if no matching language was found.
+     */
+    public static Language getByName(String name) {
+        for (Language language : values()) {
+            if (language.getName().equalsIgnoreCase(name)) {
+                return language;
+            }
+        }
+        return null;
+    }
+
 }
