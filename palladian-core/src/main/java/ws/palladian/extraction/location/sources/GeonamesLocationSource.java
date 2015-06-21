@@ -209,18 +209,19 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
         // In addition to the alternateName tag, alternative names are also provided through on alternateNames (notice
         // plural!) as comma-separated list. Here we only add, what was not already added through the single
         // alternateName tags.
-        Node altNamesNode = XPathHelper.getNode(node, "./alternateNames");
-        if (altNamesNode != null) {
-            String altNamesString = altNamesNode.getTextContent();
-            if (!altNamesString.isEmpty()) {
-                String[] altNamesSplit = altNamesString.split(",");
-                for (String altName : altNamesSplit) {
-                    if (!catchedNames.contains(altName)) {
-                        builder.addAlternativeName(altName, null);
-                    }
-                }
-            }
-        }
+//        Node altNamesNode = XPathHelper.getNode(node, "./alternateNames");
+//        if (altNamesNode != null) {
+//            String altNamesString = altNamesNode.getTextContent();
+//            if (!altNamesString.isEmpty()) {
+//                String[] altNamesSplit = altNamesString.split(",");
+//                for (String altName : altNamesSplit) {
+//                    if (!catchedNames.contains(altName)) {
+//                    System.out.println("+ " + altName);
+//                        builder.addAlternativeName(altName, null);
+//                    }
+//                }
+//            }
+//        }
         return builder.create();
     }
 
