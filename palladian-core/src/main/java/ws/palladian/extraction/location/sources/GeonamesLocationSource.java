@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.sources;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -189,14 +190,35 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             builder.setPopulation(Long.parseLong(populationString));
         }
         List<Node> altNameNodes = XPathHelper.getNodes(node, "./alternateName");
+        Set<String> catchedNames = new HashSet<>();
         for (Node altNameNode : altNameNodes) {
             String altName = altNameNode.getTextContent();
+            catchedNames.add(altName);
             NamedNodeMap attrs = altNameNode.getAttributes();
             Node langAttr = attrs.getNamedItem("lang");
-            String altNameLang = langAttr.getTextContent();
-            Language language = Language.getByIso6391(altNameLang);
-            if (language != null || altNameLang.equalsIgnoreCase("abbr")) {
+            String altNameLang = null;
+            Language language = null;
+            if (langAttr != null) {
+                altNameLang = langAttr.getTextContent();
+                language = Language.getByIso6391(altNameLang);
+            }
+            if (altNameLang == null || language != null || "abbr".equalsIgnoreCase(altNameLang)) {
                 builder.addAlternativeName(altName, language);
+            }
+        }
+        // In addition to the alternateName tag, alternative names are also provided through on alternateNames (notice
+        // plural!) as comma-separated list. Here we only add, what was not already added through the single
+        // alternateName tags.
+        Node altNamesNode = XPathHelper.getNode(node, "./alternateNames");
+        if (altNamesNode != null) {
+            String altNamesString = altNamesNode.getTextContent();
+            if (!altNamesString.isEmpty()) {
+                String[] altNamesSplit = altNamesString.split(",");
+                for (String altName : altNamesSplit) {
+                    if (!catchedNames.contains(altName)) {
+                        builder.addAlternativeName(altName, null);
+                    }
+                }
             }
         }
         return builder.create();

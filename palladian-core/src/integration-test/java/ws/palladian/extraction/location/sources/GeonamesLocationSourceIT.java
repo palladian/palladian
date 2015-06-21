@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.sources;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +32,20 @@ public class GeonamesLocationSourceIT {
     public void testGeonamesLocationSource() {
         Collection<Location> locations = source.getLocations("monaco", EnumSet.of(Language.ENGLISH));
         assertTrue("result from " + source.getClass().getName() + " did not give any results", locations.size() > 0);
+    }
+
+    @Test
+    public void testGeonamesLocationSourceAlternateNames() {
+        Location location = source.getLocation(4030939);
+        assertEquals("London Village", location.getPrimaryName());
+        assertTrue(location.getAlternativeNames().size() > 0);
+        assertTrue(location.hasName("London", EnumSet.of(Language.ENGLISH)));
+    }
+
+    @Test
+    public void testGeonamesLocationSourceAlternateNames2() {
+        Collection<Location> locations = source.getLocations("Ceske Budejovice", EnumSet.of(Language.ENGLISH));
+        assertTrue(locations.size() > 0);
     }
 
     @Test(expected = IllegalStateException.class)
