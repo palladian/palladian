@@ -157,7 +157,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
             httpRequest.addParameter("category_filter", categoryFilter.getCategories());
         }
 
-        HttpRequest signedRequest = OAuthUtil.createSignedRequest(httpRequest, oAuthParams);
+        HttpRequest signedRequest = new OAuthUtil(oAuthParams).createSignedRequest(httpRequest);
         LOGGER.debug("Request = {}", signedRequest);
         HttpResult result;
         try {

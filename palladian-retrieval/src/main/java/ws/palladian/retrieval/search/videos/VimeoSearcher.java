@@ -121,7 +121,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
         request.addParameter("format", "json");
         request.addParameter("page", page);
         request.addParameter("per_page", resultCount);
-        return OAuthUtil.createSignedRequest(request, oAuthParams);
+        return new OAuthUtil(oAuthParams).createSignedRequest(request);
     }
 
     @Override

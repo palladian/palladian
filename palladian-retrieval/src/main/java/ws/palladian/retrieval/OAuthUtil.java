@@ -28,10 +28,13 @@ import ws.palladian.helper.nlp.StringHelper;
  * @see <a href="http://hueniverse.com/oauth/guide/authentication/">The OAuth 1.0 Guide</a>
  * @see <a href="https://dev.twitter.com/docs/auth/authorizing-request">Twitter: Authorizing a request</a>
  */
-public final class OAuthUtil {
+public class OAuthUtil {
 
-    private OAuthUtil() {
-        // utility class, no instances.
+    private final OAuthParams params;
+
+    public OAuthUtil(OAuthParams params) {
+        Validate.notNull(params, "oAuthParams must not be null");
+        this.params = params;
     }
 
     /**
@@ -42,18 +45,22 @@ public final class OAuthUtil {
      * </p>
      * 
      * @param httpRequest The HttpRequest to sign, not <code>null</code>.
-     * @param oAuthParams The OAuth parameters for signing the request, not <code>null</code>.
-     * @return
+     * @return The signed HttpRequest.
      */
-    public static HttpRequest createSignedRequest(HttpRequest httpRequest, OAuthParams oAuthParams) {
+    public HttpRequest createSignedRequest(HttpRequest httpRequest) {
         Validate.notNull(httpRequest, "httpRequest must not be null");
-        Validate.notNull(oAuthParams, "oAuthParams must not be null");
+        Map<String, String> newHeaders = new HashMap<>();
+        newHeaders.putAll(httpRequest.getHeaders());
+        newHeaders.put("Authorization", createAuthorization(httpRequest, params));
+        return new HttpRequest(httpRequest.getMethod(), httpRequest.getUrl(), newHeaders, httpRequest.getParameters());
+    }
 
+    String createAuthorization(HttpRequest httpRequest, OAuthParams oAuthParams) {
         Map<String, String> oAuthHeader = new HashMap<>();
         oAuthHeader.put("oauth_consumer_key", oAuthParams.getConsumerKey());
         oAuthHeader.put("oauth_nonce", createRandomString());
         oAuthHeader.put("oauth_signature_method", "HMAC-SHA1");
-        oAuthHeader.put("oauth_timestamp", String.valueOf(System.currentTimeMillis() / 1000));
+        oAuthHeader.put("oauth_timestamp", createTimestamp());
         oAuthHeader.put("oauth_token", oAuthParams.getAccessToken());
         oAuthHeader.put("oauth_version", "1.0");
 
@@ -77,11 +84,7 @@ public final class OAuthUtil {
             String value = oAuthHeader.get(key);
             authorization.append(String.format("%s=\"%s\"", urlEncode(key), urlEncode(value)));
         }
-
-        Map<String, String> newHeaders = new HashMap<>();
-        newHeaders.putAll(httpRequest.getHeaders());
-        newHeaders.put("Authorization", authorization.toString());
-        return new HttpRequest(httpRequest.getMethod(), httpRequest.getUrl(), newHeaders, httpRequest.getParameters());
+        return authorization.toString();
     }
 
     static String createParameterString(Map<String, String> allParameters) {
@@ -109,8 +112,14 @@ public final class OAuthUtil {
         return signature.toString();
     }
 
-    private static String createRandomString() {
+    /** Package private so that it can be overridden by Unit-Test. */
+    String createRandomString() {
         return StringHelper.sha1(String.valueOf(System.currentTimeMillis()));
+    }
+
+    /** Package private so that it can be overridden by Unit-Test. */
+    String createTimestamp() {
+        return String.valueOf(System.currentTimeMillis() / 1000);
     }
 
     static String urlEncode(String string) {
