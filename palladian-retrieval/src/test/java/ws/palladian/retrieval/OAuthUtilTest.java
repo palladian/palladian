@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
 
 /**
  * @author Philipp Katz
@@ -31,7 +31,7 @@ public class OAuthUtilTest {
         PARAMS.put("oauth_token", TOKEN);
         PARAMS.put("oauth_version", "1.0");
     }
-    static final private HttpRequest HTTP_REQUEST = new HttpRequest(HTTP_METHOD, BASE_URL);
+    static final private HttpRequest2 HTTP_REQUEST = new HttpRequest2Builder(HTTP_METHOD, BASE_URL).create();
     static final private OAuthParams OAUTH_PARAMS = new OAuthParams(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET);
     static final private OAuthUtil OATH_UTIL_UNDER_TEST = new OAuthUtil(OAUTH_PARAMS) {
         @Override
@@ -84,7 +84,7 @@ public class OAuthUtilTest {
 
     @Test
     public void testCreateSignedRequest() {
-        HttpRequest signedRequest = OATH_UTIL_UNDER_TEST.createSignedRequest(HTTP_REQUEST);
+        HttpRequest2 signedRequest = OATH_UTIL_UNDER_TEST.createSignedRequest(HTTP_REQUEST);
         assertEquals(BASE_URL, signedRequest.getUrl());
         assertEquals(HTTP_METHOD, signedRequest.getMethod());
         assertEquals(1, signedRequest.getHeaders().size());

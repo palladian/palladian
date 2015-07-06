@@ -256,5 +256,11 @@ public class UrlHelperTest {
         parameterString = UrlHelper.createParameterString(params);
         assertEquals("param=value&emptyParam=", parameterString);
     }
+    
+    @Test
+    public void testGetBaseUrl() {
+        String url = "https://api.twitter.com/1/statuses/update.json?include_entities=true";
+        assertEquals("https://api.twitter.com/1/statuses/update.json", UrlHelper.parseBaseUrl(url));
+    }
 
 }

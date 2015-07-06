@@ -433,4 +433,17 @@ public final class UrlHelper {
         return params;
     }
 
+    /**
+     * <p>
+     * Get the base URL from the given URL (i.e. removing all query and hash params).
+     * 
+     * @param url The URL, not <code>null</code>.
+     * @return The base URL.
+     */
+    public static String parseBaseUrl(String url) {
+        Validate.notNull(url, "url must not be null");
+        int questionIdx = url.indexOf("?");
+        return questionIdx != -1 ? url.substring(0, questionIdx) : url;
+    }
+
 }
