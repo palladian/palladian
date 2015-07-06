@@ -57,7 +57,7 @@ public class OAuthUtil {
     }
 
     String createAuthorization(HttpRequest2 httpRequest, OAuthParams oAuthParams) {
-        Map<String, String> oAuthHeader = new HashMap<>();
+        SortedMap<String, String> oAuthHeader = new TreeMap<>();
         oAuthHeader.put("oauth_consumer_key", oAuthParams.getConsumerKey());
         oAuthHeader.put("oauth_nonce", createRandomString());
         oAuthHeader.put("oauth_signature_method", "HMAC-SHA1");
@@ -89,7 +89,7 @@ public class OAuthUtil {
     }
 
     static String createParameterString(Map<String, String> allParameters) {
-        SortedMap<String, String> alphabeticallySorted = new TreeMap<String, String>(allParameters);
+        SortedMap<String, String> alphabeticallySorted = new TreeMap<>(allParameters);
         StringBuilder parameterString = new StringBuilder();
         boolean first = true;
         for (String key : alphabeticallySorted.keySet()) {
