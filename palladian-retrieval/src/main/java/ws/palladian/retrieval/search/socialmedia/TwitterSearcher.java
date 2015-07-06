@@ -245,7 +245,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
                 request.addParameter("max_id", maxId);
             }
         }
-        HttpRequest signedRequest = OAuthUtil.createSignedRequest(request, oAuthParams);
+        HttpRequest signedRequest = new OAuthUtil(oAuthParams).createSignedRequest(request);
         LOGGER.debug("Request: {}", request);
         return signedRequest;
     }
