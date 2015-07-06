@@ -14,8 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -131,33 +132,33 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
         Validate.notNull(query, "query must not be null");
 
-        HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, "http://api.yelp.com/v2/search");
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, "http://api.yelp.com/v2/search");
         if (StringUtils.isNotBlank(query.getText())) {
-            httpRequest.addParameter("term", query.getText());
+            requestBuilder.addUrlParam("term", query.getText());
         }
-        httpRequest.addParameter("limit", Math.min(20, query.getResultCount()));
+        requestBuilder.addUrlParam("limit", String.valueOf(Math.min(20, query.getResultCount())));
         if (query.getResultPage() > 0) {
-            httpRequest.addParameter("offset", query.getResultPage() * query.getResultCount());
+            requestBuilder.addUrlParam("offset", String.valueOf(query.getResultPage() * query.getResultCount()));
         }
         // TODO sort
         GeoCoordinate coordinate = query.getCoordinate();
         if (coordinate != null) {
             String latLng = coordinate.getLatitude() + "," + coordinate.getLongitude();
-            httpRequest.addParameter("ll", latLng);
+            requestBuilder.addUrlParam("ll", latLng);
             if (query.getRadius() != null) {
                 int radius = Math.min((int)(query.getRadius() * 1000), 40000);
-                httpRequest.addParameter("radius_filter", radius);
+                requestBuilder.addUrlParam("radius_filter", String.valueOf(radius));
             }
         }
         if (query.getLanguage() != null) {
-            httpRequest.addParameter("lang", query.getLanguage().getIso6391());
+            requestBuilder.addUrlParam("lang", query.getLanguage().getIso6391());
         }
         if (query.getFacet(CategoryFilter.YELP_CATEGORY_FACET) != null) {
             CategoryFilter categoryFilter = (CategoryFilter)query.getFacet(CategoryFilter.YELP_CATEGORY_FACET);
-            httpRequest.addParameter("category_filter", categoryFilter.getCategories());
+            requestBuilder.addUrlParam("category_filter", categoryFilter.getCategories());
         }
 
-        HttpRequest signedRequest = new OAuthUtil(oAuthParams).createSignedRequest(httpRequest);
+        HttpRequest2 signedRequest = new OAuthUtil(oAuthParams).createSignedRequest(requestBuilder.create());
         LOGGER.debug("Request = {}", signedRequest);
         HttpResult result;
         try {

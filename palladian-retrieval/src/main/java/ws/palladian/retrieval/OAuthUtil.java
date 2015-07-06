@@ -39,23 +39,24 @@ public class OAuthUtil {
 
     /**
      * <p>
-     * Sign the given {@link HttpRequest} using the specified {@link OAuthParams}. The signed request is returned as new
+     * Sign the given {@link HttpRequest2} using the specified {@link OAuthParams}. The signed request is returned as new
      * instance. After the request has been signed, no changes must be made to the request, or the authentication is
      * void.
      * </p>
      * 
-     * @param httpRequest The HttpRequest to sign, not <code>null</code>.
-     * @return The signed HttpRequest.
+     * @param httpRequest The HttpRequest2 to sign, not <code>null</code>.
+     * @return The signed HttpRequest2.
      */
-    public HttpRequest createSignedRequest(HttpRequest httpRequest) {
+    public HttpRequest2 createSignedRequest(HttpRequest2 httpRequest) {
         Validate.notNull(httpRequest, "httpRequest must not be null");
-        Map<String, String> newHeaders = new HashMap<>();
-        newHeaders.putAll(httpRequest.getHeaders());
-        newHeaders.put("Authorization", createAuthorization(httpRequest, params));
-        return new HttpRequest(httpRequest.getMethod(), httpRequest.getUrl(), newHeaders, httpRequest.getParameters());
+        HttpRequest2Builder builder = new HttpRequest2Builder(httpRequest.getMethod(), httpRequest.getUrl());
+        builder.addHeaders(httpRequest.getHeaders());
+        builder.addHeader("Authorization", createAuthorization(httpRequest, params));
+        builder.setEntity(httpRequest.getEntity());
+        return builder.create();
     }
 
-    String createAuthorization(HttpRequest httpRequest, OAuthParams oAuthParams) {
+    String createAuthorization(HttpRequest2 httpRequest, OAuthParams oAuthParams) {
         Map<String, String> oAuthHeader = new HashMap<>();
         oAuthHeader.put("oauth_consumer_key", oAuthParams.getConsumerKey());
         oAuthHeader.put("oauth_nonce", createRandomString());
@@ -65,7 +66,7 @@ public class OAuthUtil {
         oAuthHeader.put("oauth_version", "1.0");
 
         Map<String, String> allParams = new HashMap<>();
-        allParams.putAll(httpRequest.getParameters());
+        allParams.putAll(UrlHelper.parseParams(httpRequest.getUrl()));
         allParams.putAll(oAuthHeader);
 
         String sigBaseString = createSignatureBaseString(httpRequest, allParams);
@@ -103,11 +104,11 @@ public class OAuthUtil {
         return parameterString.toString();
     }
 
-    static String createSignatureBaseString(HttpRequest httpRequest, Map<String, String> allParameters) {
+    static String createSignatureBaseString(HttpRequest2 httpRequest, Map<String, String> allParameters) {
         StringBuilder signature = new StringBuilder();
         String methodName = httpRequest.getMethod().toString().toUpperCase();
         signature.append(methodName).append('&');
-        signature.append(urlEncode(httpRequest.getUrl())).append('&');
+        signature.append(urlEncode(UrlHelper.parseBaseUrl(httpRequest.getUrl()))).append('&');
         signature.append(urlEncode(createParameterString(allParameters)));
         return signature.toString();
     }

@@ -37,4 +37,19 @@ public class ImmutableHttpRequest2 implements HttpRequest2 {
         return entity;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ImmutableHttpRequest2 [url=");
+        builder.append(url);
+        builder.append(", method=");
+        builder.append(method);
+        builder.append(", headers=");
+        builder.append(headers);
+        builder.append(", entity=");
+        builder.append(entity);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }
