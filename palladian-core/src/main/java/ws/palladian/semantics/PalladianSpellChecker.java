@@ -317,8 +317,12 @@ public class PalladianSpellChecker {
                 for (String string : strings) {
                     if (words.get(string) == null) {
                         String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
+//                        if (words.get(key) == null && strings.size() > 1) {
+//                            key = autoCorrect(key, true);
+//                        }
                         if (words.get(key) == null) {
                             compoundCorrect = false;
+                            break;
                         }
                     }
                 }

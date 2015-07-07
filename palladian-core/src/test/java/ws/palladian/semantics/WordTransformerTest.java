@@ -23,13 +23,19 @@ public class WordTransformerTest {
     public void testSplitGermanCompounds() {
         List<String> words;
 
+        // also separate misspelled words
+        words = WordTransformer.splitGermanCompoundWords("platouschuhe");
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("platou", words.get(0));
+        assertEquals("schuh", words.get(1));
+
         words = WordTransformer.splitGermanCompoundWords("hadny");
         CollectionHelper.print(words);
         assertEquals(1, words.size());
         assertEquals("hadny", words.get(0));
 
         words = WordTransformer.splitGermanCompoundWords("Teaktische");
-        CollectionHelper.print(words);
         assertEquals(2, words.size());
         assertEquals("teak", words.get(0));
         assertEquals("tisch", words.get(1));
@@ -38,11 +44,6 @@ public class WordTransformerTest {
         assertEquals(2, words.size());
         assertEquals("kunststoff", words.get(0));
         assertEquals("tisch", words.get(1));
-
-        words = WordTransformer.splitGermanCompoundWords("Goldketten");
-        assertEquals(2, words.size());
-        assertEquals("gold", words.get(0));
-        assertEquals("kette", words.get(1));
     }
 
     @Test
