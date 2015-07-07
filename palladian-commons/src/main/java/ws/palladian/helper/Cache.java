@@ -23,7 +23,7 @@ public class Cache {
     private static final Logger LOGGER = LoggerFactory.getLogger(Cache.class);
 
     /** List of objects in the cache. */
-    private Map<String, Object> dataObjects = new HashMap<String, Object>();
+    private Map<String, Object> dataObjects = new HashMap<>();
 
     /**
      * Size of the objects in the cache. This is a lower estimate and only works if the sizes are given when a new

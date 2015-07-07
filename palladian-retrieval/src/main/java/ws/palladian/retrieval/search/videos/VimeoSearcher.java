@@ -15,8 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -113,15 +114,15 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
         return SEARCHER_NAME;
     }
 
-    private HttpRequest buildRequest(MultifacetQuery query, int page, int resultCount) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, "http://vimeo.com/api/rest/v2");
-        request.addParameter("method", "vimeo.videos.search");
-        request.addParameter("query", query.getText());
-        request.addParameter("full_response", "true");
-        request.addParameter("format", "json");
-        request.addParameter("page", page);
-        request.addParameter("per_page", resultCount);
-        return OAuthUtil.createSignedRequest(request, oAuthParams);
+    private HttpRequest2 buildRequest(MultifacetQuery query, int page, int resultCount) {
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.GET, "http://vimeo.com/api/rest/v2");
+        builder.addUrlParam("method", "vimeo.videos.search");
+        builder.addUrlParam("query", query.getText());
+        builder.addUrlParam("full_response", "true");
+        builder.addUrlParam("format", "json");
+        builder.addUrlParam("page", String.valueOf(page));
+        builder.addUrlParam("per_page", String.valueOf(resultCount));
+        return new OAuthUtil(oAuthParams).createSignedRequest(builder.create());
     }
 
     @Override
@@ -136,7 +137,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
         Long availableResults = null;
         for (int page = 0; page < Math.ceil((double)requestedResults / 50); page++) {
             int itemsToGet = Math.min(50, requestedResults - page * 50);
-            HttpRequest request = buildRequest(query, page, itemsToGet);
+            HttpRequest2 request = buildRequest(query, page, itemsToGet);
             LOGGER.debug("request = " + request);
             HttpResult httpResult;
             try {
