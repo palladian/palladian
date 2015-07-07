@@ -94,7 +94,7 @@ public class StockXchngSearcher extends AbstractSearcher<WebImage> {
 
     private String buildRequest(String searchTerms, int page) {
         String[] terms = searchTerms.split("\\s");
-        String q1 = "";
+        String q1;
         String q2 = "";
         String q3 = "";
         q1 = UrlHelper.encodeParameter(terms[0]);
@@ -118,7 +118,7 @@ public class StockXchngSearcher extends AbstractSearcher<WebImage> {
     }
 
     /**
-     * @param args
+     * @param args arguments
      * @throws SearcherException
      */
     public static void main(String[] args) throws SearcherException {
