@@ -17,6 +17,7 @@ import ws.palladian.core.Annotation;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.pos.AbstractPosTagger;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
@@ -338,7 +339,7 @@ public class WordTransformer {
         for (int i = 0; i < GERMAN_WORDS.size(); i++) {
             String word2 = GERMAN_WORDS.get(i);
 
-            if (lcSingular.endsWith(word2) && (word2.length() < lcSingular.length() || !words.isEmpty())) {
+            if ((word2.length() > 3 && (word2.length() <= lcSingular.length() || !words.isEmpty())) && lcSingular.endsWith(word2)) {
                 words.add(0,word2);
                 lcSingular = lcSingular.replace(word2, "");
                 if (lcSingular.isEmpty()) {
@@ -350,9 +351,12 @@ public class WordTransformer {
         }
 
         // if we could not completely split the word we leave it
+//        if (!lcSingular.isEmpty()) {
+//            words.clear();
+//            words.add(word);
+//        }
         if (!lcSingular.isEmpty()) {
-            words.clear();
-            words.add(word);
+            words.add(0, lcSingular);
         }
 
         return words;
