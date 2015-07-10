@@ -31,7 +31,7 @@ public final class HttpRequest2Builder implements Factory<HttpRequest2> {
         Validate.notNull(method, "method must not be null");
         Validate.notEmpty(url, "url must not be empty");
         this.method = method;
-        this.baseUrl = parseBaseUrl(url);
+        this.baseUrl = UrlHelper.parseBaseUrl(url);
         this.urlParams = UrlHelper.parseParams(url);
     }
 
@@ -42,6 +42,12 @@ public final class HttpRequest2Builder implements Factory<HttpRequest2> {
 
     public HttpRequest2Builder addHeader(String key, String value) {
         headers.put(key, value);
+        return this;
+    }
+
+    public HttpRequest2Builder addHeaders(Map<String, String> headers) {
+        Validate.notNull(headers, "headers must not be null");
+        this.headers.putAll(headers);
         return this;
     }
 
@@ -68,13 +74,6 @@ public final class HttpRequest2Builder implements Factory<HttpRequest2> {
             urlBuilder.append(UrlHelper.createParameterString(urlParams));
         }
         return new ImmutableHttpRequest2(urlBuilder.toString(), method, headers, entity);
-    }
-
-    // utility methods
-
-    static String parseBaseUrl(String url) {
-        int questionIdx = url.indexOf("?");
-        return questionIdx != -1 ? url.substring(0, questionIdx) : url;
     }
 
 }
