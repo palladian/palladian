@@ -50,8 +50,6 @@ public class Scheduler {
                 while (true) {
                     Date currentDate = new Date();
 
-                    System.out.println("check " + tasks.size() + " tasks");
-
                     // check all tasks
                     for (Pair<Runnable, Schedule> task : tasks) {
                         if (task.getRight().onSchedule(currentDate)) {
