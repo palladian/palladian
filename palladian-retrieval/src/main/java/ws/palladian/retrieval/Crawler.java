@@ -57,20 +57,20 @@ public class Crawler {
     private boolean outDomain = true;
 
     /** Only follow domains that have one or more of these regexps in their URL. */
-    private final Set<Pattern> whiteListUrlRegexps = new HashSet<Pattern>();
+    private final Set<Pattern> whiteListUrlRegexps = new HashSet<>();
 
     /** Regexps that must not be contained in the URLs or they won't be followed. */
-    private final Set<Pattern> blackListUrlRegexps = new HashSet<Pattern>();
+    private final Set<Pattern> blackListUrlRegexps = new HashSet<>();
 
     /** Remove those parts from every retrieved URL. */
-    private final Set<Pattern> urlModificationRegexps = new HashSet<Pattern>();
+    private final Set<Pattern> urlModificationRegexps = new HashSet<>();
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
     private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
     private Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
 
-    private Set<String> urlRules = new HashSet<String>();
+    private Set<String> urlRules = new HashSet<>();
 
     /** If true, all query params in the URL ?= will be stripped. */
     private boolean stripQueryParams = true;
@@ -89,26 +89,26 @@ public class Crawler {
     /**
      * Visit a certain web page and grab URLs.
      * 
-     * @param currentURL A URL.
+     * @param currentUrl A URL.
      */
-    protected void crawl(String currentURL) {
+    protected void crawl(String currentUrl) {
 
-        LOGGER.info("catch from stack: {}", currentURL);
+        LOGGER.info("catch from stack: {}", currentUrl);
 
-        Document document = documentRetriever.getWebDocument(currentURL);
+        Document document = documentRetriever.getWebDocument(currentUrl);
 
         if (document != null) {
             Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain);
 
             if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
                 LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[] {links.size(),
-                        currentURL, urlStack.size(), visitedUrls.size()});
+                        currentUrl, urlStack.size(), visitedUrls.size()});
             }
 
-            addUrlsToStack(links, currentURL);
-        } else {
-            LOGGER.error("could not get " + currentURL + ", putting it back on the stack for later");
-            addUrlToStack(currentURL, currentURL);
+            addUrlsToStack(links, currentUrl);
+        } else if (documentRetriever.getDownloadFilter().accept(currentUrl)){
+            LOGGER.error("could not get " + currentUrl + ", putting it back on the stack for later");
+            addUrlToStack(currentUrl, currentUrl);
         }
 
     }
@@ -279,7 +279,7 @@ public class Crawler {
         url = cleanUrl(url);
 
         // check URL first
-        if (url != null && url.length() < 400 && !visitedUrls.contains(url)) {
+        if (url != null && url.length() < 400 && !visitedUrls.contains(url) && documentRetriever.getDownloadFilter().accept(url)) {
 
             boolean follow = true;
 
