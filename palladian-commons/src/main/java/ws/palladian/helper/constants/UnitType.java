@@ -1,12 +1,11 @@
 package ws.palladian.helper.constants;
 
+import org.apache.commons.lang3.tuple.Pair;
+import ws.palladian.helper.collection.StringLengthComparator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import ws.palladian.helper.collection.StringLengthComparator;
 
 /**
  * <p>
@@ -18,6 +17,7 @@ import ws.palladian.helper.collection.StringLengthComparator;
 public enum UnitType {
 
     NONE(null), //
+    BANDWIDTH("bit/s"), //
     TIME("s"), //
     DIGITAL("byte"), //
     FREQUENCY("Hz"), //
@@ -76,6 +76,40 @@ public enum UnitType {
         unitList.add("perc");
         unitList.add("%");
         UnitType.NONE.units.add(Pair.of(unitList, 0.01));
+
+        // BANDWIDTH units are normalized to 1 bit/s
+        unitList = new ArrayList<>();
+        unitList.add("bit/s");
+        unitList.add("Bit/s");
+        UnitType.BANDWIDTH.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("byte/s");
+        unitList.add("Byte/s");
+        UnitType.BANDWIDTH.units.add(Pair.of(unitList, 8.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("kbit/s");
+        unitList.add("kbps");
+        unitList.add("kBit/s");
+        UnitType.BANDWIDTH.units.add(Pair.of(unitList, 1000.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("kbyte/s");
+        unitList.add("kByte/s");
+        UnitType.BANDWIDTH.units.add(Pair.of(unitList, 8000.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("mbit/s");
+        unitList.add("mbps");
+        unitList.add("mBit/s");
+        UnitType.BANDWIDTH.units.add(Pair.of(unitList, 1000000.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("gbit/s");
+        unitList.add("gbps");
+        unitList.add("gBit/s");
+        UnitType.BANDWIDTH.units.add(Pair.of(unitList, 1000000000.0));
 
         // POWER units are normalized to 1 Watt
         unitList = new ArrayList<>();
@@ -316,16 +350,16 @@ public enum UnitType {
         unitList.add("kilobar");
         unitList.add("kilo bar");
         unitList.add("kbar");
-        UnitType.PRESSURE.units.add(Pair.of(unitList,  100000000.0));
+        UnitType.PRESSURE.units.add(Pair.of(unitList, 100000000.0));
 
         unitList = new ArrayList<>();
         unitList.add("bar");
-        UnitType.PRESSURE.units.add(Pair.of(unitList,  100000.0));
+        UnitType.PRESSURE.units.add(Pair.of(unitList, 100000.0));
 
         unitList = new ArrayList<>();
         unitList.add("millibar");
         unitList.add("mbar");
-        UnitType.PRESSURE.units.add(Pair.of(unitList,  100.0));
+        UnitType.PRESSURE.units.add(Pair.of(unitList, 100.0));
 
         // LENGTH units are normalized to centimeter
         unitList = new ArrayList<>();

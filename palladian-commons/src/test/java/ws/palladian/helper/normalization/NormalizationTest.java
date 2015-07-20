@@ -79,6 +79,9 @@ public class NormalizationTest {
     @Test
     public void testGetNormalizedNumber() {
 
+        assertEquals(25000, UnitNormalizer.getNormalizedNumber("25kbps"), 0.1);
+        assertEquals(3000000, UnitNormalizer.getNormalizedNumber("3mBit/s"), 0.1);
+
         assertEquals(8.89, UnitNormalizer.getNormalizedNumber("3.5\""), 0.1);
         assertEquals(20.0, UnitNormalizer.getNormalizedNumber("2cl"), 2);
         assertEquals(1600000000.0, UnitNormalizer.getNormalizedNumber(1.6, " GHz, 1024MB RAM"), 2);
