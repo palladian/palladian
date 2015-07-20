@@ -1,33 +1,30 @@
 package ws.palladian.helper.normalization;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.constants.UnitType;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * The UnitNormalizer normalizes units.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class UnitNormalizer {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(UnitNormalizer.class);
 
     private final static List<String> ALL_UNITS = new ArrayList<>();
@@ -37,6 +34,10 @@ public class UnitNormalizer {
             ALL_UNITS.addAll(unitType.getUnitNames());
         }
         Collections.sort(ALL_UNITS, StringLengthComparator.INSTANCE);
+    }
+
+    private static boolean isBandwidthUnit(String unit) {
+        return UnitType.BANDWIDTH.contains(unit);
     }
 
     private static boolean isTimeUnit(String unit) {
@@ -99,7 +100,7 @@ public class UnitNormalizer {
      * Return a collection of units that are of the same type, e.g. if "cm" is given, all other length units are
      * returned.
      * </p>
-     * 
+     *
      * @param unit The input unit.
      * @return A collection of units of the same type.
      */
@@ -107,6 +108,9 @@ public class UnitNormalizer {
 
         if (isDigitalUnit(unit)) {
             return UnitType.DIGITAL.getUnitNames();
+        }
+        if (isBandwidthUnit(unit)) {
+            return UnitType.BANDWIDTH.getUnitNames();
         }
         if (isTimeUnit(unit)) {
             return UnitType.TIME.getUnitNames();
@@ -140,7 +144,7 @@ public class UnitNormalizer {
      * <p>
      * Returns true if unitB is bigger than units. e.g. hours > minutes and GB > MB
      * </p>
-     * 
+     *
      * @param unitB The bigger unit.
      * @param unitS The smaller unit.
      * @return True if unitB is bigger than unitS.
@@ -154,7 +158,7 @@ public class UnitNormalizer {
      * Returns true if units are the same unit type (time,distance etc.). e.g. MB and GB are digital size, hours and
      * minutes are time units.
      * </p>
-     * 
+     *
      * @param unit1 The first unit.
      * @param unit2 The second unit.
      * @return True if both units are the same type.
@@ -163,6 +167,11 @@ public class UnitNormalizer {
 
         unit1 = unit1.toLowerCase().trim();
         unit2 = unit2.toLowerCase().trim();
+
+        // check bandwidth units
+        if (isBandwidthUnit(unit1) && isBandwidthUnit(unit2)) {
+            return true;
+        }
 
         // check time units
         if (isTimeUnit(unit1) && isTimeUnit(unit2)) {
@@ -215,7 +224,7 @@ public class UnitNormalizer {
     /**
      * <p>
      * </p>
-     * 
+     *
      * @param unit The source unit.
      * @return The unit to which all values are normalized to, e.g. "second" for time units.
      */
@@ -238,7 +247,7 @@ public class UnitNormalizer {
      * Find the multiplier to normalize values with the given unit. For example, "kg" gets a multiplier of 1,000 as we
      * normalize to grams.
      * </p>
-     * 
+     *
      * @param unit The unit string, e.g. "kg".
      * @return The multiplier.
      */
@@ -253,7 +262,8 @@ public class UnitNormalizer {
         // a result)
         double multiplier = -1.0;
 
-        ol: for (UnitType unitType : UnitType.values()) {
+        ol:
+        for (UnitType unitType : UnitType.values()) {
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
                 for (String unitTypeUnit : pair.getLeft()) {
                     if (unit.equals(unitTypeUnit)) {
@@ -276,7 +286,7 @@ public class UnitNormalizer {
      * <p>
      * Find special formats for combined values (well formed as "1 min 4 sec" are handled by getNormalizedNumber).
      * </p>
-     * 
+     * <p/>
      * <pre>
      * 1m20s => 80s
      * 1h2m20s => 3740s (1m:20s => 80s)
@@ -285,8 +295,8 @@ public class UnitNormalizer {
      * 5'9" => 175.26cm
      * 5'9'' => 175.26cm
      * </pre>
-     * 
-     * @param number The number.
+     *
+     * @param number   The number.
      * @param unitText The text after the unit.
      * @return The combined value or -1 if number is not part of special format.
      */
@@ -380,9 +390,9 @@ public class UnitNormalizer {
      * <p>
      * Transforms a normalized value to the target unit.
      * </p>
-     * 
+     *
      * @param unitTo The unit to transform.
-     * @param value The value to transform.
+     * @param value  The value to transform.
      * @return The transformed value.
      */
     public static double transorm(String unitTo, double value) {
@@ -460,7 +470,7 @@ public class UnitNormalizer {
     }
 
     public static double getNormalizedNumber(double number, String unitText, int decimals,
-            String combinedSearchPreviousUnit) {
+                                             String combinedSearchPreviousUnit) {
 
         boolean combinedSearch = false;
         if (combinedSearchPreviousUnit.length() > 0) {
@@ -517,7 +527,7 @@ public class UnitNormalizer {
                 // e.g. 1 hour 23 minutes (minutes < hour) otherwise 2GB 80GB causes problems
                 if (combinedSearch
                         && !(unitsSameType(combinedSearchPreviousUnit, wordSequence) && isBigger(
-                                combinedSearchPreviousUnit, wordSequence))) {
+                        combinedSearchPreviousUnit, wordSequence))) {
                     return 0.0;
                 }
                 break;
@@ -563,9 +573,9 @@ public class UnitNormalizer {
      * Transforms a given <b>normalized</b> value and transforms it to the most readable unit for its unit type. E.g.
      * "0.5" with LENGTH will become "5mm".
      * </p>
-     * 
+     *
      * @param normalizedValue The value, normalized to its base value in its unit type.
-     * @param unitType The unit type of the normalized value.
+     * @param unitType        The unit type of the normalized value.
      * @return A pair with the transformed value and the used unit.
      */
     public static Pair<Double, List<String>> smartTransform(Double normalizedValue, UnitType unitType) {
