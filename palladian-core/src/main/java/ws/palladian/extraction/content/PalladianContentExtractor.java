@@ -1,20 +1,10 @@
 package ws.palladian.extraction.content;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.multimedia.ImageHandler;
@@ -34,31 +24,41 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
+import java.awt.image.BufferedImage;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * The PalladianContentExtractor extracts clean sentences from (English) texts. That is, short phrases are not included
  * in the output. Consider the {@link ReadabilityContentExtractor} for general content. The main difference is that this
  * class also finds sentences in comment sections of web pages.
  * </p>
- * 
+ * <p/>
  * <p>
  * Score on boilerplate dataset: 0.76088387 (r1505);
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class PalladianContentExtractor extends WebPageContentExtractor {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianContentExtractor.class);
 
     private static final List<String> MAIN_NODE_HINTS = new ArrayList<String>();
 
-    /** The entire document. */
+    /**
+     * The entire document.
+     */
     private Document document;
 
-    /** The detected main content node. */
+    /**
+     * The detected main content node.
+     */
     private Node resultNode;
 
     /**
@@ -67,19 +67,29 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     private Node outerResultNode;
 
-    /** All sentences in the main content. */
-    private List<String> sentences = new ArrayList<String>();
+    /**
+     * All sentences in the main content.
+     */
+    private List<String> sentences = new ArrayList<>();
 
-    /** Detected comments on the page. */
-    private List<String> comments = new ArrayList<String>();
+    /**
+     * Detected comments on the page.
+     */
+    private List<String> comments = new ArrayList<>();
 
-    /** The html text of the main content node. */
+    /**
+     * The html text of the main content node.
+     */
     private String mainContentHtml = "";
 
-    /** The readable text of the main content node. */
+    /**
+     * The readable text of the main content node.
+     */
     private String mainContentText = "";
 
-    /** The cleansed entire text content of the page. */
+    /**
+     * The cleansed entire text content of the page.
+     */
     private String fullTextContent = "";
 
     /**
@@ -179,7 +189,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * <p>
      * This does not only contain the main content but also comments etc.
      * </p>
-     * 
+     *
      * @return
      */
     public String getEntireTextContent() {
@@ -432,7 +442,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * <p>
      * Several elements are allowed to be siblings to the main text nodes (such as lists etc.)
      * </p>
-     * 
+     *
      * @param xPath The xPath that points to the main content nodes.
      * @return An xpath that also targets the siblings of the main text nodes.
      */
@@ -457,7 +467,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     public List<WebImage> getImages(String fileType) {
 
-        List<WebImage> filteredImages = new ArrayList<WebImage>();
+        List<WebImage> filteredImages = new ArrayList<>();
         String ftSmall = fileType.toLowerCase();
         for (WebImage webImage : getImages()) {
             if (webImage.getFileType().toLowerCase().equalsIgnoreCase(ftSmall)) {
@@ -468,20 +478,35 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return filteredImages;
     }
 
-    public List<WebImage> getImages() {
-        if (outerResultNode != null) {
-            return getImages(outerResultNode);
+    public void filter(List<WebImage> images, String... imageFormats) {
+        List<WebImage> filteredImages = new ArrayList<>();
+
+        for (WebImage webImage : getImages()) {
+            for (String imageFormat : imageFormats) {
+                if (webImage.getFileType().equalsIgnoreCase(imageFormat)) {
+                    filteredImages.add(webImage);
+                }
+            }
         }
-        return getImages(resultNode);
+
+        images.clear();
+        images.addAll(filteredImages);
     }
 
-    public List<WebImage> getImages(Node imageParentNode) {
+    public List<WebImage> getImages() {
+        if (outerResultNode != null) {
+            return getImages(outerResultNode,getDocument());
+        }
+        return getImages(resultNode,getDocument());
+    }
+
+    public List<WebImage> getImages(Node imageParentNode, Document webDocument) {
 
         if (imageUrls != null) {
             return imageUrls;
         }
 
-        imageUrls = new ArrayList<WebImage>();
+        imageUrls = new ArrayList<>();
 
         if (imageParentNode == null) {
             return imageUrls;
@@ -506,7 +531,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 String imageUrl = nnm.getNamedItem("src").getTextContent();
 
                 if (!imageUrl.startsWith("http")) {
-                    imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
+                    imageUrl = UrlHelper.makeFullUrl(webDocument.getDocumentURI(), null, imageUrl);
                 }
                 builder.setImageUrl(imageUrl);
                 builder.setFileType(FileHelper.getFileType(imageUrl));
@@ -525,7 +550,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     String h = nnm.getNamedItem("height").getTextContent();
                     builder.setHeight(getImageSize(h));
                 }
-                
+
                 imageUrls.add(builder.create());
 
             } catch (NumberFormatException e) {
@@ -543,10 +568,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         int size = -1;
         attributeText = attributeText.replace(",*", "");
 
-        if (attributeText.indexOf("%") > -1) {
+        if (attributeText.contains("%")) {
             attributeText = attributeText.replace("%", "");
             attributeText = StringHelper.trim(attributeText);
-            size = (int)(0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
+            size = (int) (0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
         } else {
             attributeText = attributeText.replace("px", "");
             attributeText = StringHelper.trim(attributeText);
@@ -647,7 +672,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * <p>
      * Get the author of the article using the WebKnox API.
      * </p>
-     * 
+     *
      * @param apiKey The WebKnox API key.
      * @return The detected author name.
      */
@@ -671,7 +696,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * <p>
      * Get the publish date of the Web page.
      * </p>
-     * 
+     *
      * @return The extracted date.
      */
     public ExtractedDate getPublishDate() {
@@ -779,4 +804,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         System.out.println("Full Text: " + pe.getEntireTextContent());
         // CollectionHelper.print(pe.getSentences());
     }
+
+
 }
