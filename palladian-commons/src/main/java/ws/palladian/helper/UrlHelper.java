@@ -5,15 +5,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -381,11 +380,11 @@ public final class UrlHelper {
      * @param parameters Map with key-value params, not <code>null</code>.
      * @return The key-value string.
      */
-    public static String createParameterString(Map<String, String> parameters) {
+    public static String createParameterString(List<Pair<String, String>> parameters) {
         Validate.notNull(parameters, "parameters must not be null");
         StringBuilder builder = new StringBuilder();
         boolean first = true;
-        for (Entry<String, String> pair : parameters.entrySet()) {
+        for (Pair<String, String> pair : parameters) {
             if (first) {
                 first = false;
             } else {
@@ -393,7 +392,8 @@ public final class UrlHelper {
             }
             builder.append(encodeParameter(pair.getKey()));
             builder.append('=');
-            builder.append(encodeParameter(pair.getValue()));
+            String value = pair.getValue();
+            builder.append(encodeParameter(value != null ? value : StringUtils.EMPTY));
         }
         return builder.toString();
     }
@@ -403,11 +403,11 @@ public final class UrlHelper {
      * Parses an encoded key-value string, which can e.g. be present as a query string appended to a URL.
      * 
      * @param parameterString The key-value parameter string.
-     * @return A map with parsed params.
+     * @return A list with parsed params.
      */
-    public static Map<String, String> parseParams(String parameterString) {
+    public static List<Pair<String, String>> parseParams(String parameterString) {
         Validate.notNull(parameterString, "parameterString must not be null");
-        Map<String, String> params = new LinkedHashMap<>();
+        List<Pair<String, String>> params = new ArrayList<>();
 
         int questionIdx = parameterString.indexOf("?");
         if (questionIdx == -1) { // no parameters in URL
@@ -428,7 +428,7 @@ public final class UrlHelper {
                 throw new IllegalArgumentException("Could not parse parameter part \"" + param + "\" of string \""
                         + parameterString + "\".");
             }
-            params.put(key, value);
+            params.add(Pair.of(key, value));
         }
         return params;
     }

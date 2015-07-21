@@ -6,12 +6,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -218,41 +217,39 @@ public class UrlHelperTest {
     @Test
     public void testParseParams() {
         String url = "http://de.wikipedia.org/wiki/Spezial:Search?search=San%20Francisco&go=Artikel";
-        Map<String, String> params = UrlHelper.parseParams(url);
+        List<Pair<String, String>> params = UrlHelper.parseParams(url);
         assertEquals(2, params.size());
-        assertEquals("San Francisco", params.get("search"));
-        assertEquals("Artikel", params.get("go"));
+        assertEquals(Pair.of("search","San Francisco"), params.get(0));
+        assertEquals(Pair.of("go", "Artikel"), params.get(1));
         // CollectionHelper.print(params);
         
         url = "https://xxxxxxxx.de/gp/associates/network/reports/report.html?__mk_de_DE=xxxxxxtag=&reportType=earningsReport&program=all&deviceType=all&periodTyp";
         params = UrlHelper.parseParams(url);
         // CollectionHelper.print(params);
         assertEquals(5, params.size());
-        assertEquals("xxxxxxtag", params.get("__mk_de_DE"));
-        assertEquals("earningsReport", params.get("reportType"));
-        assertEquals("all", params.get("program"));
-        assertEquals("all", params.get("deviceType"));
-        assertEquals(StringUtils.EMPTY, params.get("periodTyp"));
-        // should have same order as input string
-        Iterator<String> paramSetIterator = params.keySet().iterator();
-        assertEquals("__mk_de_DE", paramSetIterator.next());
-        assertEquals("reportType", paramSetIterator.next());
-        assertEquals("program", paramSetIterator.next());
-        assertEquals("deviceType", paramSetIterator.next());
-        assertEquals("periodTyp", paramSetIterator.next());
+        assertEquals(Pair.of("__mk_de_DE", "xxxxxxtag"), params.get(0));
+        assertEquals(Pair.of("reportType", "earningsReport"), params.get(1));
+        assertEquals(Pair.of("program", "all"), params.get(2));
+        assertEquals(Pair.of("deviceType", "all"), params.get(3));
+        assertEquals(Pair.of("periodTyp", StringUtils.EMPTY), params.get(4));
+        
+        // https://tech.knime.org/forum/palladian/http-retriever-problem-with-some-urls
+        url = "https://idw-online.de/de/pressreleasesrss?country_ids=35&country_ids=36&country_ids=46&country_ids=188&country_ids=65&country_ids=66&country_ids=68&country_ids=95&country_ids=97&country_ids=121&country_ids=126&country_ids=146&country_ids=147&country_ids=180&category_ids=10&category_ids=7&field_ids=100&field_ids=101&field_ids=401&field_ids=603&field_ids=600&field_ids=400&field_ids=606&field_ids=204&field_ids=102&field_ids=306&langs=de_DE&langs=en_US";
+        params = UrlHelper.parseParams(url);
+        assertEquals(28, params.size());
     }
     
     @Test
     public void testCreateParameterString() {
-        Map<String, String> params = new LinkedHashMap<>();
-        params.put("search", "San Francisco");
-        params.put("go", "Artikel");
+        List<Pair<String, String>> params = new ArrayList<>();
+        params.add(Pair.of("search", "San Francisco"));
+        params.add(Pair.of("go", "Artikel"));
         String parameterString = UrlHelper.createParameterString(params);
         assertEquals("search=San+Francisco&go=Artikel", parameterString);
         
-        params = new LinkedHashMap<>();
-        params.put("param", "value");
-        params.put("emptyParam", StringUtils.EMPTY);
+        params = new ArrayList<>();
+        params.add(Pair.of("param", "value"));
+        params.add(Pair.of("emptyParam", StringUtils.EMPTY));
         parameterString = UrlHelper.createParameterString(params);
         assertEquals("param=value&emptyParam=", parameterString);
     }
