@@ -1,10 +1,12 @@
 package ws.palladian.retrieval;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.functional.Factory;
@@ -21,7 +23,7 @@ public final class HttpRequest2Builder implements Factory<HttpRequest2> {
 
     private final String baseUrl;
 
-    private final Map<String, String> urlParams;
+    private final List<Pair<String, String>> urlParams;
 
     private final Map<String, String> headers = new HashMap<>();
 
@@ -36,7 +38,8 @@ public final class HttpRequest2Builder implements Factory<HttpRequest2> {
     }
 
     public HttpRequest2Builder addUrlParam(String key, String value) {
-        urlParams.put(key, value);
+        Validate.notNull(key, "key must not be null");
+        urlParams.add(Pair.of(key, value));
         return this;
     }
 
