@@ -437,8 +437,11 @@ public class DocumentRetriever {
                     document = parse(inputStream, xml);
                     document.setDocumentURI(file.toURI().toString());
                 } else {
-                    HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, cleanUrl).addHeaders(globalHeaders)
-                            .create();
+                    HttpRequest2Builder httpRequest2Builder = new HttpRequest2Builder(HttpMethod.GET, cleanUrl);
+                    if (globalHeaders != null) {
+                        httpRequest2Builder.addHeaders(globalHeaders);
+                    }
+                    HttpRequest2 request = httpRequest2Builder.create();
                     HttpResult httpResult = httpRetriever.execute(request);
                     document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
                     document.setDocumentURI(cleanUrl);
