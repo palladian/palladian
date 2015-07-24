@@ -866,7 +866,7 @@ public final class MathHelper {
         double value = 0.;
 
         // find fraction characters
-        Set<String> remove = new HashSet<String>();
+        Set<String> remove = new HashSet<>();
         if (stringNumber.contains("¼")) {
             value += 1 / 4.;
             remove.add("¼");
@@ -950,6 +950,7 @@ public final class MathHelper {
             try {
                 value += Double.parseDouble(stringNumber);
             } catch (Exception e) {
+                // ccl
             }
         }
 
