@@ -136,17 +136,20 @@ public class Crawler {
             try {
                 final String url = getUrlFromStack();
 
-                Thread ct = new Thread("CrawlThread-" + url) {
-                    @Override
-                    public void run() {
-                        crawl(url);
-                        lastCrawlTime.set(System.currentTimeMillis());
-                    }
-                };
+                if (url != null) {
+                    Thread ct = new Thread("CrawlThread-" + url) {
+                        @Override
+                        public void run() {
+                            crawl(url);
+                            lastCrawlTime.set(System.currentTimeMillis());
+                        }
+                    };
 
-                if (!executor.isShutdown()) {
-                    executor.submit(ct);
+                    if (!executor.isShutdown()) {
+                        executor.submit(ct);
+                    }
                 }
+
                 ThreadHelper.deepSleep(1000);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
