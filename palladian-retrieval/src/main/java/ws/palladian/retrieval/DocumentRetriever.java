@@ -275,11 +275,9 @@ public class DocumentRetriever {
     }
 
     public JsonObject getJsonObject(String url, Map<String,String> postParams) throws JsonException {
-        HttpRequest request = new HttpRequest(HttpRequest.HttpMethod.POST, url);
-
-        for (Map.Entry<String, String> postParam : postParams.entrySet()) {
-            request.addParameter(postParam.getKey(), postParam.getValue());
-        }
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.POST, url);
+        builder.setEntity(new FormEncodedHttpEntity.Builder().addData(postParams).create());
+        HttpRequest2 request = builder.create();
 
         HttpResult result;
         try {
@@ -326,7 +324,8 @@ public class DocumentRetriever {
                 if (isFile(url)) {
                     contentString = FileHelper.readFileToString(url);
                 } else {
-                    HttpResult httpResult = httpRetriever.httpGet(url, globalHeaders);
+                    HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(globalHeaders).create();
+                    HttpResult httpResult = httpRetriever.execute(request);
                     contentString = new String(httpResult.getContent());
                 }
             } catch (Exception e) {
@@ -438,7 +437,12 @@ public class DocumentRetriever {
                     document = parse(inputStream, xml);
                     document.setDocumentURI(file.toURI().toString());
                 } else {
-                    HttpResult httpResult = httpRetriever.httpGet(cleanUrl, globalHeaders);
+                    HttpRequest2Builder httpRequest2Builder = new HttpRequest2Builder(HttpMethod.GET, cleanUrl);
+                    if (globalHeaders != null) {
+                        httpRequest2Builder.addHeaders(globalHeaders);
+                    }
+                    HttpRequest2 request = httpRequest2Builder.create();
+                    HttpResult httpResult = httpRetriever.execute(request);
                     document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
                     document.setDocumentURI(cleanUrl);
                     document.setUserData(HTTP_RESULT_KEY, httpResult, null);

@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -59,7 +61,7 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
 
             while (!success) {
 
-                HttpResult httpHead = retriever.httpHead(requestUrl);
+                HttpResult httpHead = retriever.execute(new HttpRequest2Builder(HttpMethod.HEAD, requestUrl).create());
 
                 success = true;
 

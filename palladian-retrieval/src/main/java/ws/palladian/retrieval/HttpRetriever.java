@@ -3,7 +3,6 @@ package ws.palladian.retrieval;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -144,12 +143,6 @@ public class HttpRetriever {
     /** Number of retries for one request, if error occurs. */
     private int numRetries = DEFAULT_NUM_RETRIES;
 
-    /** Username for authentication, or <code>null</code> if no authentication necessary. */
-    private String username;
-
-    /** Password for authentication, or <code>null</code> if no authentication necessary. */
-    private String password;
-
     // ///////////// Misc. ////////
 
     /** Hook for http* methods. */
@@ -176,7 +169,6 @@ public class HttpRetriever {
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
         // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        // httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
     }
 
@@ -194,120 +186,7 @@ public class HttpRetriever {
      * @throws HttpException in case the GET fails, or the supplied URL is not valid.
      */
     public HttpResult httpGet(String url) throws HttpException {
-        return httpGet(url, Collections.<String, String> emptyMap());
-    }
-
-    /**
-     * <p>
-     * Performs an HTTP GET operation.
-     * </p>
-     * 
-     * @param url the URL for the GET, not <code>null</code> or empty.
-     * @param headers map with key-value pairs of request headers.
-     * @return response for the GET.
-     * @throws HttpException in case the GET fails, or the supplied URL is not valid.
-     * @deprecated Use {@link #execute(HttpRequest)} instead.
-     */
-    @Deprecated
-    public HttpResult httpGet(String url, Map<String, String> headers) throws HttpException {
-        Validate.notEmpty(url, "url must not be empty");
-
-        HttpGet get;
-        try {
-            get = new HttpGet(url);
-        } catch (IllegalArgumentException e) {
-            throw new HttpException("invalid URL: " + url, e);
-        }
-
-        if (headers != null) {
-            for (Entry<String, String> header : headers.entrySet()) {
-                get.setHeader(header.getKey(), header.getValue());
-            }
-        }
-
-        return execute(url, get);
-    }
-
-    /**
-     * <p>
-     * Performs an HTTP HEAD operation.
-     * </p>
-     * 
-     * @param url the URL for the HEAD, not <code>null</code> or empty.
-     * @return response for the HEAD.
-     * @throws HttpException in case the HEAD fails, or the supplied URL is not valid.
-     */
-    public HttpResult httpHead(String url) throws HttpException {
-        Validate.notEmpty(url, "url must not be empty");
-
-        HttpHead head;
-        try {
-            head = new HttpHead(url);
-        } catch (Exception e) {
-            throw new HttpException("invalid URL: " + url, e);
-        }
-        return execute(url, head);
-    }
-
-    /**
-     * <p>
-     * Performs an HTTP POST operation with the specified name-value pairs as content.
-     * </p>
-     * 
-     * @param url the URL for the POST, not <code>null</code> or empty.
-     * @param content name-value pairs for the POST.
-     * @return response for the POST.
-     * @throws HttpException in case the POST fails, or the supplied URL is not valid.
-     * @deprecated Use {@link #execute(HttpRequest)} instead.
-     */
-    @Deprecated
-    public HttpResult httpPost(String url, Map<String, String> content) throws HttpException {
-        return httpPost(url, Collections.<String, String> emptyMap(), content);
-    }
-
-    /**
-     * <p>
-     * Performs an HTTP POST operation with the specified name-value pairs as content.
-     * </p>
-     * 
-     * @param url the URL for the POST, not <code>null</code> or empty.
-     * @param headers map with key-value pairs of request headers.
-     * @param content name-value pairs for the POST.
-     * @return response for the POST.
-     * @throws HttpException in case the POST fails, or the supplied URL is not valid.
-     * @deprecated Use {@link #execute(HttpRequest)} instead.
-     */
-    @Deprecated
-    public HttpResult httpPost(String url, Map<String, String> headers, Map<String, String> content)
-            throws HttpException {
-        Validate.notEmpty(url, "url must not be empty");
-
-        HttpPost post;
-        try {
-            post = new HttpPost(url);
-        } catch (Exception e) {
-            throw new HttpException("invalid URL: " + url, e);
-        }
-
-        // HTTP headers
-        if (headers != null) {
-            for (Entry<String, String> header : headers.entrySet()) {
-                post.setHeader(header.getKey(), header.getValue());
-            }
-        }
-
-        // content name-value pairs
-        List<NameValuePair> nameValuePairs = new ArrayList<>();
-        for (Entry<String, String> param : content.entrySet()) {
-            nameValuePairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
-        }
-        try {
-            post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Unexpected UnsupportedEncodingException");
-        }
-
-        return execute(url, post);
+        return execute(new HttpRequest2Builder(HttpMethod.GET, url).create());
     }
 
     /** Replaced by {@link #execute(HttpRequest2)} */
@@ -411,12 +290,6 @@ public class HttpRetriever {
 
         backend.addResponseInterceptor(metricsSaver);
         // end edit
-
-        // set the credentials, if they were provided
-        if (StringUtils.isNotEmpty(username)) {
-            Credentials credentials = new UsernamePasswordCredentials(username, password);
-            backend.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
-        }
 
         if (cookieStore != null) {
             backend.setCookieStore(new ApacheCookieStoreAdapter(cookieStore));
@@ -716,7 +589,8 @@ public class HttpRetriever {
 
         boolean result = false;
         try {
-            HttpResult httpResult = httpGet(url, requestHeaders);
+            HttpResult httpResult = execute(new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(requestHeaders)
+                    .create());
             if (httpResult.getStatusCode() != 200) {
                 throw new HttpException("status code != 200 for " + url);
             }
@@ -752,20 +626,6 @@ public class HttpRetriever {
         this.numRetries = numRetries;
     }
 
-    /** @deprecated Moved setting to {@link HttpRetrieverFactory#HttpRetrieverFactory(int, int, boolean)}. */
-    @Deprecated
-    public static void setNumConnections(int numConnections) {
-//        CONNECTION_MANAGER.setMaxTotal(numConnections);
-        throw new UnsupportedOperationException("Setting moved to HttpRetrieverFactory.");
-    }
-
-    /** @deprecated Moved setting to {@link HttpRetrieverFactory#HttpRetrieverFactory(int, int, boolean)}. */
-    @Deprecated
-    public static void setNumConnectionsPerRoute(int numConnectionsPerRoute) {
-//        CONNECTION_MANAGER.setDefaultMaxPerRoute(numConnectionsPerRoute);
-        throw new UnsupportedOperationException("Setting moved to HttpRetrieverFactory.");
-    }
-
     public void setUserAgent(String userAgent) {
         HttpProtocolParams.setUserAgent(httpParams, userAgent);
     }
@@ -779,23 +639,6 @@ public class HttpRetriever {
      */
     public void setMaxFileSize(long maxFileSize) {
         this.maxFileSize = maxFileSize;
-    }
-
-    /**
-     * <p>
-     * Set credentials for all requests performed by this {@link HttpRetriever}. <b>Attention</b>: When requesting from
-     * multiple sources, take care of not to sent credentials to the wrong source. Either set credentials to
-     * <code>null</code> when finished with a specific source, or create multiple instances of {@link HttpRetriever} for
-     * every source.
-     * </p>
-     * 
-     * @param username The username for HTTP authentication, or <code>null</code>.
-     * @param password The password for HTTP authentication, or <code>null</code>.
-     */
-    // FIXME move this into the HttpRequest to avoid any accidental misuse (see warning in JavaDoc).
-    public void setCredentials(String username, String password) {
-        this.username = username;
-        this.password = password;
     }
     
     public void setCookieStore(CookieStore cookieStore) {
