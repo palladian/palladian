@@ -500,6 +500,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return getImages(resultNode,getDocument());
     }
 
+    public List<WebImage> getImages(Node imageParentNode) {
+        return getImages(imageParentNode, document);
+    }
     public List<WebImage> getImages(Node imageParentNode, Document webDocument) {
 
         if (imageUrls != null) {
