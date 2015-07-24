@@ -2,12 +2,11 @@ package ws.palladian.retrieval;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-
-import ws.palladian.retrieval.HttpMethod;
 
 /**
  * @author Philipp Katz
@@ -20,16 +19,16 @@ public class OAuthUtilTest {
     static final private String TOKEN = "370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb";
     static final private String CONSUMER_SECRET = "kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw";
     static final private String TOKEN_SECRET = "LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE";
-    static final private Map<String, String> PARAMS = new HashMap<>();
+    static final private List<Pair<String, String>> PARAMS = new ArrayList<>();
     static {
-        PARAMS.put("status", "Hello Ladies + Gentlemen, a signed OAuth request!");
-        PARAMS.put("include_entities", "true");
-        PARAMS.put("oauth_consumer_key", CONSUMER_KEY);
-        PARAMS.put("oauth_nonce", "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg");
-        PARAMS.put("oauth_signature_method", "HMAC-SHA1");
-        PARAMS.put("oauth_timestamp", "1318622958");
-        PARAMS.put("oauth_token", TOKEN);
-        PARAMS.put("oauth_version", "1.0");
+        PARAMS.add(Pair.of("status", "Hello Ladies + Gentlemen, a signed OAuth request!"));
+        PARAMS.add(Pair.of("include_entities", "true"));
+        PARAMS.add(Pair.of("oauth_consumer_key", CONSUMER_KEY));
+        PARAMS.add(Pair.of("oauth_nonce", "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg"));
+        PARAMS.add(Pair.of("oauth_signature_method", "HMAC-SHA1"));
+        PARAMS.add(Pair.of("oauth_timestamp", "1318622958"));
+        PARAMS.add(Pair.of("oauth_token", TOKEN));
+        PARAMS.add(Pair.of("oauth_version", "1.0"));
     }
     static final private HttpRequest2 HTTP_REQUEST = new HttpRequest2Builder(HTTP_METHOD, BASE_URL).create();
     static final private OAuthParams OAUTH_PARAMS = new OAuthParams(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET);

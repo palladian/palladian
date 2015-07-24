@@ -73,14 +73,14 @@ public class PhotoXpressSearcher extends AbstractSearcher<WebImage> {
         System.out.println(request);
         content.put("content", request);
         HttpResult httpPost;
-        try {
-            httpPost = HttpRetrieverFactory.getHttpRetriever().httpPost("http://www.photoxpress.com/Xmlrpc", content);
-            String resultContent = httpPost.getStringContent();
-            System.out.println(resultContent);
-        } catch (HttpException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+//        try {
+//            httpPost = HttpRetrieverFactory.getHttpRetriever().httpPost("http://www.photoxpress.com/Xmlrpc", content);
+//            String resultContent = httpPost.getStringContent();
+//            System.out.println(resultContent);
+//        } catch (HttpException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
 
         // JsonObjectWrapper json = new JsonObjectWrapper(documentRetriever.getText(request));
         // JSONArray jsonArray = json.getJSONArray("hits");
