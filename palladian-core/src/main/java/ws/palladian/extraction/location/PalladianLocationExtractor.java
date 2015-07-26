@@ -62,7 +62,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
         MultiMap<ClassifiedAnnotation, Location> locations = fetchLocations(locationSource, classifiedEntities);
 
-        Annotations<LocationAnnotation> result = new Annotations<LocationAnnotation>();
+        Annotations<LocationAnnotation> result = new Annotations<>();
 
         List<LocationAnnotation> locationEntities = disambiguation.disambiguate(text, locations);
         result.addAll(locationEntities);

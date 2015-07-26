@@ -58,7 +58,7 @@ public final class XPathHelper {
     private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
 
     private static class MyNamespaceContext implements NamespaceContext {
-        private final Map<String, String> namespaces = new HashMap<String, String>();
+        private final Map<String, String> namespaces = new HashMap<>();
 
         @Override
         public String getNamespaceURI(String prefix) {
@@ -102,7 +102,7 @@ public final class XPathHelper {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
-        List<Node> ret = new ArrayList<Node>();
+        List<Node> ret = new ArrayList<>();
 
         XPathFactory factory = XPathFactory.newInstance();
         XPath xPathObject = factory.newXPath();
