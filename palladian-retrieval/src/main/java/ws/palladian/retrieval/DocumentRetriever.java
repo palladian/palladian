@@ -324,7 +324,11 @@ public class DocumentRetriever {
                 if (isFile(url)) {
                     contentString = FileHelper.readFileToString(url);
                 } else {
-                    HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(globalHeaders).create();
+                    HttpRequest2Builder httpRequest2Builder = new HttpRequest2Builder(HttpMethod.GET, url);
+                    if (globalHeaders != null) {
+                        httpRequest2Builder.addHeaders(globalHeaders);
+                    }
+                    HttpRequest2 request = httpRequest2Builder.create();
                     HttpResult httpResult = httpRetriever.execute(request);
                     contentString = new String(httpResult.getContent());
                 }
@@ -347,7 +351,7 @@ public class DocumentRetriever {
      */
     public void getTexts(Collection<String> urls, final Consumer<String> callback) {
 
-        final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>(urls);
+        final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<>(urls);
 
         Thread[] threads = new Thread[numThreads];
         for (int i = 0; i < numThreads; i++) {
