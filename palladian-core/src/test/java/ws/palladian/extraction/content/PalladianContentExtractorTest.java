@@ -1,6 +1,7 @@
 package ws.palladian.extraction.content;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -51,6 +52,22 @@ public class PalladianContentExtractorTest {
         palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("https://spoonacular.com"));
         language = palladianContentExtractor.detectLanguage();
         assertEquals(Language.ENGLISH, language);
+
+    }
+
+    @Test
+    public void testDominantImageExtraction() throws PageContentExtractorException, FileNotFoundException {
+
+        PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
+        WebImage image;
+
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://themeforest.net/item/techwise-drag-drop-magazine-w-comparisons/11149718"));
+        image = palladianContentExtractor.getDominantImage();
+        assertTrue(image.getImageUrl().contains("130306592/01.__large_preview.jpg"));
+
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://realhousemoms.com/root-beer-chicken-wings/"));
+        image = palladianContentExtractor.getDominantImage();
+        assertTrue(image.getImageUrl().contains("Root-Beer-Chicken-Wings-for-Real-Housemoms-Horizontal-Photo-e1422767540265.jpg"));
 
     }
 
