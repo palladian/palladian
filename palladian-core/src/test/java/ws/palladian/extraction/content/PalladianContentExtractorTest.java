@@ -9,7 +9,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.resources.WebImage;
 
 public class PalladianContentExtractorTest {
@@ -25,6 +27,30 @@ public class PalladianContentExtractorTest {
         // System.out.println(DigestUtils.md5Hex(text));
 
         assertEquals("80eff9d14c83b529212bd64e78bc1fe4", DigestUtils.md5Hex(text));
+
+    }
+
+    @Test
+    public void testLanguageExtraction() throws PageContentExtractorException, FileNotFoundException {
+
+        PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
+        Language language;
+
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.cinefreaks.com"));
+        language = palladianContentExtractor.detectLanguage();
+        assertEquals(Language.GERMAN, language);
+
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        language = palladianContentExtractor.detectLanguage();
+        assertEquals(Language.PORTUGUESE, language);
+
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.spiegel.de/"));
+        language = palladianContentExtractor.detectLanguage();
+        assertEquals(Language.GERMAN, language);
+
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("https://spoonacular.com"));
+        language = palladianContentExtractor.detectLanguage();
+        assertEquals(Language.ENGLISH, language);
 
     }
 
