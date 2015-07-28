@@ -138,6 +138,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public PalladianContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        setDocumentOnly(document);
+        parseDocument();
+        return this;
+    }
+
+    public PalladianContentExtractor setDocumentOnly(Document document) throws PageContentExtractorException {
         this.document = document;
         imageUrls = null;
 
@@ -149,7 +155,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         mainContentText = "";
         fullTextContent = "";
 
-        parseDocument();
         return this;
     }
 
