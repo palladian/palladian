@@ -11,6 +11,7 @@ import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
@@ -25,6 +26,7 @@ import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
 import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -707,10 +709,67 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     /**
+     * <p>Use several indicators in the site's HTML to detect its language.</p>
+     * @return
+     */
+    public Language detectLanguage() {
+
+        // use TLDs first
+        String uri = getDocument().getDocumentURI();
+
+        String domain = UrlHelper.getDomain(uri);
+        if (domain.endsWith(".de")) {
+            return Language.GERMAN;
+        } else if (domain.endsWith(".fr")) {
+            return Language.FRENCH;
+        } else if (domain.endsWith(".es")) {
+            return Language.SPANISH;
+        } else if (domain.endsWith(".it")) {
+            return Language.ITALIAN;
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ie")) {
+            return Language.ENGLISH;
+        } else if (domain.endsWith(".pt")) {
+            return Language.PORTUGUESE;
+        }
+
+        // look in HTML lang attribute <html lang="de">
+        String innerXml = HtmlHelper.getInnerXml(getDocument());
+        innerXml = innerXml.toLowerCase();
+        String substringBetween = StringHelper.getSubstringBetween(innerXml, " lang=\"", "\"");
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, " xml:lang=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, " xmlU00003Alang=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"content-language\" content=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"language\" content=\"", "\"");
+        }
+        if (substringBetween != null && !substringBetween.isEmpty() && substringBetween.length() < 6) {
+            // remove country, e.g. en-US
+            String[] parts = substringBetween.split("[-:]");
+            return Language.getByIso6391(parts[0]);
+        }
+
+        return null;
+    }
+
+    /**
      * @param args
      * @throws PageContentExtractorException
      */
     public static void main(String[] args) throws PageContentExtractorException {
+
+        PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        Language language = palladianContentExtractor.detectLanguage();
+
+
+        System.out.println(language);
+        System.exit(0);
 
         // ////////////////////////////////////
         // Document webDocument = new DocumentRetriever().getWebDocument("C:\\Workspace\\data\\GoldStandard\\98.html");
@@ -807,6 +866,5 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         System.out.println("Full Text: " + pe.getEntireTextContent());
         // CollectionHelper.print(pe.getSentences());
     }
-
 
 }
