@@ -37,19 +37,19 @@ public class PalladianContentExtractorTest {
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         Language language;
 
-        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.cinefreaks.com"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.cinefreaks.com"));
         language = palladianContentExtractor.detectLanguage();
         assertEquals(Language.GERMAN, language);
 
-        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
         language = palladianContentExtractor.detectLanguage();
         assertEquals(Language.PORTUGUESE, language);
 
-        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.spiegel.de/"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.spiegel.de/"));
         language = palladianContentExtractor.detectLanguage();
         assertEquals(Language.GERMAN, language);
 
-        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("https://spoonacular.com"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://spoonacular.com"));
         language = palladianContentExtractor.detectLanguage();
         assertEquals(Language.ENGLISH, language);
 
@@ -61,11 +61,11 @@ public class PalladianContentExtractorTest {
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         WebImage image;
 
-        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://themeforest.net/item/techwise-drag-drop-magazine-w-comparisons/11149718"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://themeforest.net/item/techwise-drag-drop-magazine-w-comparisons/11149718"));
         image = palladianContentExtractor.getDominantImage();
         assertTrue(image.getImageUrl().contains("130306592/01.__large_preview.jpg"));
 
-        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://realhousemoms.com/root-beer-chicken-wings/"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://realhousemoms.com/root-beer-chicken-wings/"));
         image = palladianContentExtractor.getDominantImage();
         assertTrue(image.getImageUrl().contains("Root-Beer-Chicken-Wings-for-Real-Housemoms-Horizontal-Photo-e1422767540265.jpg"));
 
