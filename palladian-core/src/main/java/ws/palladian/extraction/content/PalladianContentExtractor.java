@@ -11,20 +11,26 @@ import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.ImageSizeComparator;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.search.License;
+import ws.palladian.retrieval.search.images.ImageType;
 
 import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -132,6 +138,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public PalladianContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        setDocumentOnly(document);
+        parseDocument();
+        return this;
+    }
+
+    public PalladianContentExtractor setDocumentOnly(Document document) throws PageContentExtractorException {
         this.document = document;
         imageUrls = null;
 
@@ -143,7 +155,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         mainContentText = "";
         fullTextContent = "";
 
-        parseDocument();
         return this;
     }
 
@@ -707,10 +718,119 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     /**
+     * <p>Use several indicators in the site's HTML to detect its language.</p>
+     * @return
+     */
+    public Language detectLanguage() {
+
+        // use TLDs first
+        String uri = getDocument().getDocumentURI();
+
+        String domain = UrlHelper.getDomain(uri);
+        if (domain.endsWith(".de")) {
+            return Language.GERMAN;
+        } else if (domain.endsWith(".fr")) {
+            return Language.FRENCH;
+        } else if (domain.endsWith(".es")) {
+            return Language.SPANISH;
+        } else if (domain.endsWith(".it")) {
+            return Language.ITALIAN;
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ie")) {
+            return Language.ENGLISH;
+        } else if (domain.endsWith(".pt")) {
+            return Language.PORTUGUESE;
+        }
+
+        // look in HTML lang attribute <html lang="de">
+        String innerXml = HtmlHelper.getInnerXml(getDocument());
+        innerXml = innerXml.toLowerCase();
+        String substringBetween = StringHelper.getSubstringBetween(innerXml, " lang=\"", "\"");
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, " xml:lang=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, " xmlU00003Alang=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"content-language\" content=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"language\" content=\"", "\"");
+        }
+        if (substringBetween != null && !substringBetween.isEmpty() && substringBetween.length() < 6) {
+            // remove country, e.g. en-US
+            String[] parts = substringBetween.split("[-:]");
+            return Language.getByIso6391(parts[0]);
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>Try to find the dominant image of the site.</p>
+     * @param contentIncludeXPath An xPath that hints to where the image must be found.
+     * @return The dominant image.
+     */
+    public WebImage getDominantImage(String contentIncludeXPath) {
+
+        // check meta property first
+        Node xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//meta[@property=\"og:image\"]//@content");
+        if (xhtmlNode != null) {
+            return new BasicWebImage.Builder().setImageUrl(xhtmlNode.getTextContent().trim()).create();
+        }
+
+        // look for itemprop image
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//*[@itemprop='image' or @itemprop='photo']//@src");
+        if (xhtmlNode != null) {
+            String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
+            return new BasicWebImage.Builder().setImageUrl(url).create();
+        }
+
+        // look for "main image"
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//img[contains(@class,'main-photo') or contains(@class,'main-image')]//@src");
+        if (xhtmlNode != null) {
+            String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
+            return new BasicWebImage.Builder().setImageUrl(url).create();
+        }
+
+        // try something else
+        Node mainContentNode = getDocument();
+        if (contentIncludeXPath != null && !contentIncludeXPath.isEmpty()) {
+            mainContentNode = XPathHelper.getXhtmlNode(getDocument(), contentIncludeXPath);
+        }
+
+        WebImage image = null;
+        List<WebImage> images = getImages(mainContentNode, getDocument());
+        filter(images, "jpeg", "png", "jpg");
+        if (!images.isEmpty()) {
+            // only sort by size if the first one is below a certain size
+            image = CollectionHelper.getFirst(images);
+            if (image != null && image.getSize() < 10000) {
+                Collections.sort(images, new ImageSizeComparator());
+                image = CollectionHelper.getFirst(images);
+            }
+        }
+
+        return image;
+    }
+
+    public WebImage getDominantImage() {
+        return getDominantImage(null);
+    }
+
+    /**
      * @param args
      * @throws PageContentExtractorException
      */
     public static void main(String[] args) throws PageContentExtractorException {
+
+        PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        Language language = palladianContentExtractor.detectLanguage();
+
+
+        System.out.println(language);
+        System.exit(0);
 
         // ////////////////////////////////////
         // Document webDocument = new DocumentRetriever().getWebDocument("C:\\Workspace\\data\\GoldStandard\\98.html");
@@ -807,6 +927,5 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         System.out.println("Full Text: " + pe.getEntireTextContent());
         // CollectionHelper.print(pe.getSentences());
     }
-
 
 }
