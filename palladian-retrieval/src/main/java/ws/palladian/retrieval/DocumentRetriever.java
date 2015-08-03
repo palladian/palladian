@@ -608,8 +608,6 @@ public class DocumentRetriever {
         // Set<String> webTexts = retriever.getTexts(urls1);
         // System.out.println("downloaded in " + sw.getElapsedTimeString());
         // System.out.println("total: " + sw.getTotalElapsedTimeString());
-        Document webDocument = retriever.getWebDocument("https://dashingdish.com/recipe/1-minute-cookie-dough-greek-yogurt/");
-        System.out.println(webDocument.getDocumentURI());
         System.exit(0);
 
         // HttpResult result = retriever.httpGet(url);
