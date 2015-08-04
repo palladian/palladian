@@ -173,5 +173,15 @@ public class HttpRetrieverTest {
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://example.com");
         System.out.println(result);
     }
+    
+    @Test
+    @Ignore
+    public void testUnknownCertificate() throws HttpException {
+        try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
+            HttpRetriever retriever = factory.create();
+            HttpResult result = retriever.httpGet("https://dashingdish.com/recipe/1-minute-cookie-dough-greek-yogurt/");
+            System.out.println(result);
+        }
+    }
 
 }
