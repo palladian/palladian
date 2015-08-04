@@ -750,7 +750,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             substringBetween = StringHelper.getSubstringBetween(innerXml, " xml:lang=\"", "\"");
         }
         if (substringBetween.isEmpty()) {
-            substringBetween = StringHelper.getSubstringBetween(innerXml, " xmlU00003Alang=\"", "\"");
+            substringBetween = StringHelper.getSubstringBetween(innerXml, " xmlu00003alang=\"", "\"");
         }
         if (substringBetween.isEmpty()) {
             substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"content-language\" content=\"", "\"");

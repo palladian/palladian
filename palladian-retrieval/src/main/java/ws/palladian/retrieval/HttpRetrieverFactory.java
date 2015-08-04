@@ -2,9 +2,14 @@ package ws.palladian.retrieval;
 
 import java.io.Closeable;
 import java.security.KeyManagementException;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -12,7 +17,6 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.scheme.SchemeSocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 
 import ws.palladian.helper.functional.Factory;
@@ -64,11 +68,11 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
     /**
      * Create a new instance.
      * 
-     * @param acceptSelfSignedCerts <code>true</code> to accept self-signed SSL certificates. <b>Attention:</b> You must
+     * @param acceptAllCerts <code>true</code> to accept all SSL certificates. <b>Attention:</b> You must
      *            have Internetführerschein advanced level before messing around with these functionalities.
      */
-    public HttpRetrieverFactory(boolean acceptSelfSignedCerts) {
-        this(DEFAULT_NUM_CONNECTIONS, DEFAULT_NUM_CONNECTIONS_PER_ROUTE, acceptSelfSignedCerts);
+    public HttpRetrieverFactory(boolean acceptAllCerts) {
+        this(DEFAULT_NUM_CONNECTIONS, DEFAULT_NUM_CONNECTIONS_PER_ROUTE, acceptAllCerts);
     }
 
     /**
@@ -76,22 +80,23 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
      * 
      * @param numConnections The maximum number of simultaneous connections for the connection pool.
      * @param numConnectionsPerRoute The maximum number of simultaneous connections per route for the connection pool.
-     * @param acceptSelfSignedCerts <code>true</code> to accept self-signed SSL certificates. <b>Attention:</b> You must
+     * @param acceptAllCerts <code>true</code> to accept all SSL certificates. <b>Attention:</b> You must
      *            have Internetführerschein advanced level before messing around with these functionalities.
      */
-    public HttpRetrieverFactory(int numConnections, int numConnectionsPerRoute, boolean acceptSelfSignedCerts) {
+    public HttpRetrieverFactory(int numConnections, int numConnectionsPerRoute, boolean acceptAllCerts) {
         SchemeRegistry registry = new SchemeRegistry();
         registry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
         SchemeSocketFactory socketFactory;
-        if (acceptSelfSignedCerts) {
+        if (acceptAllCerts) {
             try {
-                // consider self-signed certificates as trusted; this is generally not a good idea,
+                // consider all certificates as trusted; this is generally not a good idea,
                 // however we use the HttpRetriever basically only for web scraping and data extraction,
                 // therefore we may argue that it's okayish. At least do not point your finger at me
                 // for doing so!
-                socketFactory = new SSLSocketFactory(new TrustSelfSignedStrategy(),
-                        SSLSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
-            } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | KeyStoreException e) {
+                SSLContext sslContext = SSLContext.getInstance("SSL");
+                sslContext.init(null, new TrustManager[] {new ShadyTrustManager()}, new SecureRandom());
+                socketFactory = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            } catch (NoSuchAlgorithmException | KeyManagementException e) {
                 throw new IllegalStateException("Exception when creating SSLSocketFactory", e);
             }
         } else {
@@ -136,6 +141,24 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
     public static void setFactory(Factory<HttpRetriever> factory) {
         Validate.notNull(factory, "factory must not be null");
         _factory = factory;
+    }
+
+    /** A trust manager which is actually not trustful at all, but accepts all kinds of certificates. */
+    private static final class ShadyTrustManager implements X509TrustManager {
+        @Override
+        public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+            // no op.
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+            // no op.
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
     }
 
 }
