@@ -97,7 +97,7 @@ public final class FileHelper {
     private static volatile File tempDirectory = null;
 
     static {
-        List<String> binaryFileExtensions = new ArrayList<String>();
+        List<String> binaryFileExtensions = new ArrayList<>();
         binaryFileExtensions.add("pdf");
         binaryFileExtensions.add("doc");
         binaryFileExtensions.add("ppt");
@@ -599,7 +599,7 @@ public final class FileHelper {
         int lineNumber = 0;
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
-            String line = null;
+            String line;
             while ((line = bufferedReader.readLine()) != null && lineAction.looping) {
                 lineAction.performAction(line, lineNumber++);
             }
@@ -931,7 +931,7 @@ public final class FileHelper {
             serialize(object, filePath);
             return true;
         } catch (IOException e) {
-            // ignore.
+            // ccl
         }
 
         return false;
@@ -1218,7 +1218,7 @@ public final class FileHelper {
         File folder = new File(folderPath);
         if (folder.exists() && folder.isDirectory()) {
             File[] files = folder.listFiles();
-            List<File> matchingFiles = new ArrayList<File>();
+            List<File> matchingFiles = new ArrayList<>();
 
             for (File file : files) {
                 if (file.isDirectory()) {
