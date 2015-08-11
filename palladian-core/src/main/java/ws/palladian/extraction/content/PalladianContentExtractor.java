@@ -55,7 +55,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianContentExtractor.class);
 
-    private static final List<String> MAIN_NODE_HINTS = new ArrayList<String>();
+    private static final List<String> MAIN_NODE_HINTS = new ArrayList<>();
 
     /**
      * The entire document.
@@ -622,8 +622,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getResultTitle() {
-        // try to get it from the biggest headline
-        Node h1Node = XPathHelper.getXhtmlNode(getDocument(), "//h1");
+        // try to get it from the biggest headline, take last one as we assume this to be the most specific
+        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1");
+        Node h1Node = CollectionHelper.getLast(xhtmlNodes);
 
         String resultTitle = "";
         if (h1Node != null) {
