@@ -274,8 +274,8 @@ public class DocumentRetriever {
         return null;
     }
 
-    public JsonObject getJsonObject(String url, Map<String,String> postParams) throws JsonException {
-        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.POST, url);
+    public JsonObject getJsonObject(String url, Map<String,String> postParams, HttpMethod method) throws JsonException {
+        HttpRequest2Builder builder = new HttpRequest2Builder(method, url);
         builder.setEntity(new FormEncodedHttpEntity.Builder().addData(postParams).create());
         HttpRequest2 request = builder.create();
 
@@ -288,6 +288,10 @@ public class DocumentRetriever {
         String resultString = result.getStringContent();
 
         return new JsonObject(resultString);
+    }
+
+    public JsonObject getJsonObject(String url, Map<String,String> postParams) throws JsonException {
+        return getJsonObject(url, postParams, HttpMethod.POST);
     }
 
     public JsonObject tryGetJsonObject(String url) {
