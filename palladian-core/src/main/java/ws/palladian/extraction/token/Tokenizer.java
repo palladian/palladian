@@ -1,10 +1,7 @@
 package ws.palladian.extraction.token;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import ws.palladian.core.Token;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
@@ -103,7 +100,9 @@ public final class Tokenizer {
      * Calculate all n-grams for a string for different n on a character level. The size of the set can be calculated
      * as: Size = SUM_n(n1,n2) (stringLength - n + 1)
      * </p>
-     * 
+     *
+     * XXX this method is about 25% slower than previous implementations (see https://bitbucket.org/palladian/palladian/src/c10127a1b4ba1c98a9f51ba866e509bcae379d68/palladian-core/src/main/java/ws/palladian/extraction/token/Tokenizer.java?at=master)
+     *
      * @param string The string the n-grams should be calculated for.
      * @param n1 The smallest n-gram size.
      * @param n2 The greatest n-gram size.
