@@ -1,9 +1,6 @@
 package ws.palladian.retrieval;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +60,7 @@ public class Crawler {
     private final Set<Pattern> blackListUrlRegexps = new HashSet<>();
 
     /** Remove those parts from every retrieved URL. */
-    private final Set<Pattern> urlModificationRegexps = new HashSet<>();
+    private final LinkedHashSet<Pattern> urlModificationRegexps = new LinkedHashSet<>();
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
@@ -249,7 +246,7 @@ public class Crawler {
         return urlModificationRegexps;
     }
 
-    public void addUrlModificationRegexps(Set<String> urlModificationRegexps) {
+    public void addUrlModificationRegexps(LinkedHashSet<String> urlModificationRegexps) {
         for (String string : urlModificationRegexps) {
             this.urlModificationRegexps.add(Pattern.compile(string));
         }
