@@ -112,14 +112,14 @@ public class PalladianSpellChecker {
 
         List<String> strings = FileHelper.readFileToArray(mappingFile);
         for (String string : strings) {
-            String[] split = string.toLowerCase().split("=");
+            String[] split = string.split("=");
             if (split.length != 2) {
                 continue;
             }
             if (split[0].trim().contains(" ")) {
-                manualPhraseMappings.put(split[0], split[1]);
+                manualPhraseMappings.put(split[0].toLowerCase(), split[1]);
             } else {
-                manualWordMappings.put(split[0], split[1]);
+                manualWordMappings.put(split[0].toLowerCase(), split[1]);
             }
         }
 
@@ -272,13 +272,9 @@ public class PalladianSpellChecker {
         }
 
         boolean uppercase = false;
+        int uppercaseCount = 0;
         if (!caseSensitive) {
-            int uppercaseCount = StringHelper.countUppercaseLetters(word);
-
-            // don't correct words with uppercase letters in the middle
-            if (uppercaseCount > 1) {
-                return word;
-            }
+            uppercaseCount = StringHelper.countUppercaseLetters(word);
 
             uppercase = uppercaseCount == 1;
             word = word.toLowerCase();
@@ -291,6 +287,11 @@ public class PalladianSpellChecker {
                 return StringHelper.upperCaseFirstLetter(s1);
             }
             return s1;
+        }
+
+        // don't correct words with uppercase letters in the middle
+        if (!caseSensitive && uppercaseCount > 1) {
+            return word;
         }
 
         // correct words don't need to be corrected
