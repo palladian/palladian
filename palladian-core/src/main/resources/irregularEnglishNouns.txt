@@ -1143,6 +1143,7 @@ mass_media mass_medium
 masses mass masse
 masters-at-arms master-at-arms
 matrices matrix
+slices slice
 matzoth matzo
 mausolea mausoleum
 maxillae maxilla

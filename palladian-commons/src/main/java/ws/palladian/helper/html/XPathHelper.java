@@ -298,7 +298,7 @@ public final class XPathHelper {
     public static List<Node> getPreviousSiblings(Node node) {
         Validate.notNull(node, "node must not be null");
         Node parentNode = node.getParentNode();
-        List<Node> previousSiblings = new ArrayList<Node>();
+        List<Node> previousSiblings = new ArrayList<>();
         NodeList childNodes = parentNode.getChildNodes();
 
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -385,7 +385,7 @@ public final class XPathHelper {
             node = document.getLastChild().getAttributes().getNamedItem("xmlns");
         }
 
-        if (node != null && node.getTextContent().toLowerCase().indexOf("xhtml") > -1) {
+        if (node != null && node.getTextContent().toLowerCase().contains("xhtml")) {
             result = true;
         }
         return result;
@@ -422,7 +422,7 @@ public final class XPathHelper {
     public static String addXhtmlNsToXPath(String xPath) {
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
-        if (xPath.toLowerCase(Locale.ENGLISH).indexOf("xhtml:") > -1) {
+        if (xPath.toLowerCase(Locale.ENGLISH).contains("xhtml:")) {
             return xPath;
         }
         // return xPath.replaceAll("/(?=\\w)","/xhtml:");
@@ -439,7 +439,7 @@ public final class XPathHelper {
         // for tests achieved a more accurate transformation. If you discover any inaccuracies, please try to fix the
         // existing code below and add tests. Philipp, 2012-08-08
 
-        List<String> xPathParts = new ArrayList<String>();
+        List<String> xPathParts = new ArrayList<>();
         StringBuilder buf = new StringBuilder();
         List<Character> split = Arrays.asList('/', ' ', '[', ']', '|', ')');
 
