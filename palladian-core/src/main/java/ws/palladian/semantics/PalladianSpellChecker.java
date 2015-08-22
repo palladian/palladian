@@ -48,9 +48,10 @@ public class PalladianSpellChecker {
     private int minWordLength = 2;
 
     /**
-     * Manual spelling mappings.
+     * Manual spelling mappings. Word, e.g. "cov" => "cow" and phrase, e.g. "i pad" => "ipad"
      */
-    private Map<String, String> manualMappings = new HashMap<>();
+    private Map<String, String> manualWordMappings = new HashMap<>();
+    private Map<String, String> manualPhraseMappings = new HashMap<>();
 
     /**
      * Do not correct words that contain any of these characters.
@@ -111,17 +112,17 @@ public class PalladianSpellChecker {
 
         List<String> strings = FileHelper.readFileToArray(mappingFile);
         for (String string : strings) {
-            String[] split = string.toLowerCase().split("=");
+            String[] split = string.split("=");
             if (split.length != 2) {
                 continue;
             }
-            manualMappings.put(split[0], split[1]);
+            if (split[0].trim().contains(" ")) {
+                manualPhraseMappings.put(split[0].toLowerCase(), split[1]);
+            } else {
+                manualWordMappings.put(split[0].toLowerCase(), split[1]);
+            }
         }
 
-    }
-
-    public void setManualMappings(Map<String, String> mappings) {
-        manualMappings = mappings;
     }
 
     /**
@@ -204,6 +205,11 @@ public class PalladianSpellChecker {
     public String autoCorrect(String text, boolean caseSensitive) {
         StringBuilder correctedText = new StringBuilder();
 
+        String s = StringHelper.containsWhichWord(manualPhraseMappings.keySet(), text);
+        if (s != null) {
+            text = text.replace(s, manualPhraseMappings.get(s));
+        }
+
         String[] textWords = SPLIT.split(text);
         for (String word : textWords) {
             int length = word.length();
@@ -266,25 +272,26 @@ public class PalladianSpellChecker {
         }
 
         boolean uppercase = false;
+        int uppercaseCount = 0;
         if (!caseSensitive) {
-            int uppercaseCount = StringHelper.countUppercaseLetters(word);
-
-            // don't correct words with uppercase letters in the middle
-            if (uppercaseCount > 1) {
-                return word;
-            }
+            uppercaseCount = StringHelper.countUppercaseLetters(word);
 
             uppercase = uppercaseCount == 1;
             word = word.toLowerCase();
         }
 
         // check whether a manual mapping exists
-        String s1 = manualMappings.get(word);
+        String s1 = manualWordMappings.get(word);
         if (s1 != null) {
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(s1);
             }
             return s1;
+        }
+
+        // don't correct words with uppercase letters in the middle
+        if (!caseSensitive && uppercaseCount > 1) {
+            return word;
         }
 
         // correct words don't need to be corrected

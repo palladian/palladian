@@ -39,8 +39,8 @@ public class SitemapRetriever {
             sitemapUrl = normalizeUrl(sitemapUrl);
 
             // download
-            String downloadPath = "data/temp/sitemap" + i + ".xml.gz";
-            String unzippedPath = downloadPath.replace(".gz", "");
+            String downloadPath = "data/temp/sitemap" + i + ".xml.gzipped";
+            String unzippedPath = downloadPath.replace(".gzipped", "");
             httpRetriever.downloadAndSave(sitemapUrl, downloadPath);
 
             // unzip
