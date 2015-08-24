@@ -48,6 +48,7 @@ public class WordTransformerTest {
 
     @Test
     public void testWordToSingularEnglish() {
+        assertEquals("slice", WordTransformer.wordToSingular("slices", Language.ENGLISH));
         assertEquals("elephant", WordTransformer.wordToSingular("elephants", Language.ENGLISH));
         assertEquals("city", WordTransformer.wordToSingular("cities", Language.ENGLISH));
         assertEquals("enemy", WordTransformer.wordToSingular("enemies", Language.ENGLISH));
@@ -113,6 +114,7 @@ public class WordTransformerTest {
         assertEquals("computer keys", WordTransformer.wordToPlural("computer key", Language.ENGLISH));
 
         // http://www.esldesk.com/vocabulary/irregular-nouns
+        assertEquals("slices", WordTransformer.wordToPlural("slice", Language.ENGLISH));
         assertEquals("addenda", WordTransformer.wordToPlural("addendum", Language.ENGLISH));
         assertEquals("algae", WordTransformer.wordToPlural("alga", Language.ENGLISH));
         assertEquals("alumnae", WordTransformer.wordToPlural("alumna", Language.ENGLISH));
