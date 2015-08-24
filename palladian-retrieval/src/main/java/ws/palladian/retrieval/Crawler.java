@@ -18,6 +18,9 @@ import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
+import ws.palladian.retrieval.helper.NoThrottle;
+import ws.palladian.retrieval.helper.RequestThrottle;
 
 /**
  * <p>
@@ -42,6 +45,9 @@ public class Crawler {
     private AtomicInteger threadCount = new AtomicInteger(0);
 
     private ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
+
+    /** The number of milliseconds each host gets between two requests. */
+    private RequestThrottle requestThrottle = NoThrottle.INSTANCE;
 
     // ///////////////////////////////////////////////////////
     // ////////////////// crawl settings ////////////////////
@@ -83,6 +89,14 @@ public class Crawler {
         this.documentRetriever = documentRetriever;
     }
 
+    public RequestThrottle getRequestThrottle() {
+        return requestThrottle;
+    }
+
+    public void setRequestThrottle(RequestThrottle requestThrottle) {
+        this.requestThrottle = requestThrottle;
+    }
+
     /**
      * Visit a certain web page and grab URLs.
      * 
@@ -91,6 +105,8 @@ public class Crawler {
     protected void crawl(String currentUrl) {
 
         LOGGER.info("catch from stack: {}", currentUrl);
+
+        requestThrottle.hold();
 
         Document document = documentRetriever.getWebDocument(currentUrl);
 
