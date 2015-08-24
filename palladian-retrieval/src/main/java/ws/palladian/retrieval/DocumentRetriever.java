@@ -1,22 +1,8 @@
 package ws.palladian.retrieval;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +16,8 @@ import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.retrieval.helper.NoThrottle;
+import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -62,31 +50,24 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  */
 public class DocumentRetriever {
 
-    /**
-     * The logger for this class.
-     */
+    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentRetriever.class);
 
-    /**
-     * The {@link HttpRetriever} used for HTTP operations.
-     */
+    /** The {@link HttpRetriever} used for HTTP operations. */
     private final HttpRetriever httpRetriever;
 
-    /**
-     * The number of threads for downloading in parallel.
-     */
+    /** The number of threads for downloading in parallel. */
     public static final int DEFAULT_NUM_THREADS = 10;
 
     public static final String HTTP_RESULT_KEY = "httpResult";
 
-    /**
-     * The maximum number of threads to use.
-     */
+    /** The maximum number of threads to use. */
     private int numThreads = DEFAULT_NUM_THREADS;
 
-    /**
-     * The filter for the retriever.
-     */
+    /** The number of milliseconds each host gets between two requests. */
+    private RequestThrottle requestThrottle = NoThrottle.INSTANCE;
+
+    /** The filter for the retriever. */
     private Filter<? super String> downloadFilter;
 
     /**
@@ -150,7 +131,7 @@ public class DocumentRetriever {
      * simultaneous threads for downloading and parsing can be defined using {@link #setNumThreads(int)}.
      * </p>
      *
-     * @param urls     the URLs to download.
+     * @param urls the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
     public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
@@ -173,6 +154,7 @@ public class DocumentRetriever {
                 Thread ct = new Thread("Retrieving: " + url) {
                     @Override
                     public void run() {
+                        requestThrottle.hold();
                         Document document = getWebDocument(url);
                         if (document != null) {
                             callback.process(document);
@@ -213,7 +195,7 @@ public class DocumentRetriever {
      *
      * @param urls the URLs to download.
      * @return set with the downloaded documents, documents which could not be downloaded or parsed successfully, are
-     * not included.
+     *         not included.
      */
     public Set<Document> getWebDocuments(Collection<String> urls) {
         final Set<Document> result = new HashSet<>();
@@ -274,7 +256,8 @@ public class DocumentRetriever {
         return null;
     }
 
-    public JsonObject getJsonObject(String url, Map<String,String> postParams, HttpMethod method) throws JsonException {
+    public JsonObject getJsonObject(String url, Map<String, String> postParams, HttpMethod method)
+            throws JsonException {
         HttpRequest2Builder builder = new HttpRequest2Builder(method, url);
         builder.setEntity(new FormEncodedHttpEntity.Builder().addData(postParams).create());
         HttpRequest2 request = builder.create();
@@ -290,7 +273,7 @@ public class DocumentRetriever {
         return new JsonObject(resultString);
     }
 
-    public JsonObject getJsonObject(String url, Map<String,String> postParams) throws JsonException {
+    public JsonObject getJsonObject(String url, Map<String, String> postParams) throws JsonException {
         return getJsonObject(url, postParams, HttpMethod.POST);
     }
 
@@ -317,7 +300,7 @@ public class DocumentRetriever {
      *
      * @param url The URL of the desired contents.
      * @return The contents as a string, or <code>null</code> if contents could no be retrieved. See the error log for
-     * possible errors.
+     *         possible errors.
      */
     public String getText(String url) {
 
@@ -350,7 +333,7 @@ public class DocumentRetriever {
      * simultaneous threads for downloading and parsing can be defined using {@link #setNumThreads(int)}.
      * </p>
      *
-     * @param urls     The URLs to download.
+     * @param urls The URLs to download.
      * @param callback The callback to be called for each finished download.
      */
     public void getTexts(Collection<String> urls, final Consumer<String> callback) {
@@ -399,7 +382,7 @@ public class DocumentRetriever {
      *
      * @param urls The URLs to download.
      * @return Set with the downloaded texts. Texts which could not be downloaded or parsed successfully, are not
-     * included.
+     *         included.
      */
     public Set<String> getTexts(Collection<String> urls) {
         final Set<String> result = new HashSet<>();
@@ -427,7 +410,7 @@ public class DocumentRetriever {
      * @param url the URL of the document to retriever or the file path.
      * @param xml indicate whether the document is well-formed XML or needs to be processed using an (X)HTML parser.
      * @return the parsed document, or <code>null</code> if any kind of error occurred or the document was filtered by
-     * {@link DownloadFilter}.
+     *         {@link DownloadFilter}.
      */
     private Document getDocument(String url, boolean xml) {
 
@@ -482,7 +465,7 @@ public class DocumentRetriever {
      * </p>
      *
      * @param inputStream the stream to parse.
-     * @param xml         <code>true</code> if this document is an XML document, <code>false</code> if HTML document.
+     * @param xml <code>true</code> if this document is an XML document, <code>false</code> if HTML document.
      * @throws ParserException if parsing failed.
      */
     private Document parse(InputStream inputStream, boolean xml) throws ParserException {
@@ -549,41 +532,49 @@ public class DocumentRetriever {
         this.globalHeaders = globalHeaders;
     }
 
+    public RequestThrottle getRequestThrottle() {
+        return requestThrottle;
+    }
+
+    public void setRequestThrottle(RequestThrottle requestThrottle) {
+        this.requestThrottle = requestThrottle;
+    }
+
     private void initializeAgents() {
         userAgents = new ArrayList<>();
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0");
-        userAgents
-                .add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1 Safari/534.50");
+        userAgents.add(
+                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1 Safari/534.50");
         userAgents.add("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)");
-        userAgents
-                .add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5");
+        userAgents.add(
+                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5");
         userAgents.add("Opera/9.80 (Windows NT 6.1; U; en) Presto/2.2.15 Version/10.10");
 
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.1");
-        userAgents
-                .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; InfoPath.2; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 1.1.4322)");
+        userAgents.add(
+                "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; InfoPath.2; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 1.1.4322)");
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; rv:5.0) Gecko/20100101 Firefox/5.0");
-        userAgents
-                .add("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1");
+        userAgents.add(
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1");
         userAgents.add("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.1");
         userAgents.add("Mozilla/5.0 (X11; Linux i686) AppleWebKit/534.34 (KHTML, like Gecko) rekonq Safari/534.34");
-        userAgents
-                .add("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB6; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; OfficeLiveConnector.1.4; OfficeLivePatch.1.3)");
-        userAgents
-                .add("IE 7 ? Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30)");
-        userAgents
-                .add("Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.23) Gecko/20110920 Firefox/3.6.23 SearchToolbar/1.2");
-        userAgents
-                .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; .NET CLR 1.1.4322; InfoPath.2; .NET CLR 3.5.21022)");
-        userAgents
-                .add("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET CLR 1.1.4322; Tablet PC 2.0; OfficeLiveConnector.1.3; OfficeLivePatch.1.3; MS-RTC LM 8; InfoPath.3)");
-        userAgents
-                .add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)");
+        userAgents.add(
+                "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB6; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; OfficeLiveConnector.1.4; OfficeLivePatch.1.3)");
+        userAgents.add(
+                "IE 7 ? Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30)");
+        userAgents.add(
+                "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.23) Gecko/20110920 Firefox/3.6.23 SearchToolbar/1.2");
+        userAgents.add(
+                "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; .NET CLR 1.1.4322; InfoPath.2; .NET CLR 3.5.21022)");
+        userAgents.add(
+                "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET CLR 1.1.4322; Tablet PC 2.0; OfficeLiveConnector.1.3; OfficeLivePatch.1.3; MS-RTC LM 8; InfoPath.3)");
+        userAgents.add(
+                "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)");
     }
 
     public void switchAgent() {
-        int index = (int) (Math.random() * userAgents.size());
+        int index = (int)(Math.random() * userAgents.size());
         String s = userAgents.get(index);
         httpRetriever.setUserAgent(s);
     }
