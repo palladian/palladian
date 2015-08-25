@@ -144,25 +144,36 @@ public class PalladianSpellChecker {
 
         int n = word.length();
 
+        // caching substrings is about 2x performance boost
+        Map<Integer, String> zeroToNSubstrings = new HashMap<>();
+        zeroToNSubstrings.put(n, word);
+        Map<Integer, String> i1ToEndSubstrings = new HashMap<>();
+
         // deletes, n
         for (int i = 0; i < n; ++i) {
-            result.add(word.substring(0, i) + word.substring(i + 1));
+            String substring = word.substring(0, i);
+            zeroToNSubstrings.put(i, substring);
+            String substring1 = word.substring(i + 1);
+            i1ToEndSubstrings.put(i, substring1);
+            result.add(substring + substring1);
         }
 
         // transpositions, n-1
         for (int i = 0; i < n - 1; ++i) {
-            result.add(word.substring(0, i) + word.substring(i + 1, i + 2) + word.substring(i, i + 1)
+            result.add(zeroToNSubstrings.get(i) + word.substring(i + 1, i + 2) + word.substring(i, i + 1)
                     + word.substring(i + 2));
         }
 
         // alternations, 29n
         for (int i = 0; i < n; ++i) {
+            String substring0i = zeroToNSubstrings.get(i);
+            String substringi1 = i1ToEndSubstrings.get(i);
+
             for (char c = 'a'; c <= 'z'; ++c) {
-                result.add(word.substring(0, i) + c + word.substring(i + 1));
+                result.add(substring0i + c + substringi1);
             }
+
             // umlauts
-            String substring0i = word.substring(0, i);
-            String substringi1 = word.substring(i + 1);
             result.add(substring0i + 'ä' + substringi1);
             result.add(substring0i + 'ö' + substringi1);
             result.add(substring0i + 'ü' + substringi1);
@@ -171,7 +182,7 @@ public class PalladianSpellChecker {
         // insertions, 26(n+1)
         for (int i = 0; i <= n; ++i) {
             for (char c = 'a'; c <= 'z'; ++c) {
-                result.add(word.substring(0, i) + c + word.substring(i));
+                result.add(zeroToNSubstrings.get(i) + c + word.substring(i));
             }
         }
 
