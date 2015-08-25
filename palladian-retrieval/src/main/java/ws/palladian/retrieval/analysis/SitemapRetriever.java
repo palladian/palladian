@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.analysis;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -38,17 +39,36 @@ public class SitemapRetriever {
             // clean url
             sitemapUrl = normalizeUrl(sitemapUrl);
 
+            // is it gzipped?
+            boolean gzipped = false;
+            if (FileHelper.getFileType(sitemapUrl).equalsIgnoreCase("gz")) {
+                gzipped = true;
+            }
+
             // download
             String downloadPath = "data/temp/sitemap" + i + ".xml.gzipped";
             String unzippedPath = downloadPath.replace(".gzipped", "");
             httpRetriever.downloadAndSave(sitemapUrl, downloadPath);
 
             // unzip
-            FileHelper.ungzipFile(downloadPath, unzippedPath);
+            if (gzipped) {
+                FileHelper.ungzipFile(downloadPath, unzippedPath);
+            } else {
+                FileHelper.copyFile(downloadPath, unzippedPath);
+            }
 
             // read
             String sitemapText = FileHelper.tryReadFileToString(unzippedPath);
-            List<String> sitemapUrls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapText);
+            if (sitemapText == null) {
+                continue;
+            }
+
+            String[] lines = sitemapText.split("\n");
+            List<String> sitemapUrls = new ArrayList<>();
+            for (String line : lines) {
+                List<String> regexpMatches = StringHelper.getRegexpMatches(LOC_PATTERN, line);
+                sitemapUrls.addAll(regexpMatches);
+            }
 
             // clean
             List<String> cleanSitemapUrls = new ArrayList<>();
@@ -57,6 +77,10 @@ public class SitemapRetriever {
             }
 
             pageUrls.addAll(cleanSitemapUrls);
+
+            // clean up files
+            FileHelper.delete(downloadPath);
+            FileHelper.delete(unzippedPath);
 
             i++;
         }
