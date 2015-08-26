@@ -77,6 +77,19 @@ public class UnitNormalizer {
         return UnitType.TEMPERATURE.contains(unit);
     }
 
+    private static boolean isVoltageUnit(String unit) {
+        return UnitType.VOLTAGE.contains(unit);
+    }
+    private static boolean isEnergyUnit(String unit) {
+        return UnitType.ENERGY.contains(unit);
+    }
+    private static boolean isPowerUnit(String unit) {
+        return UnitType.POWER.contains(unit);
+    }
+    private static boolean isTorqueUnit(String unit) {
+        return UnitType.TORQUE.contains(unit);
+    }
+
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
             if (Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|-|\\s)").matcher(text).find()) {
@@ -136,6 +149,18 @@ public class UnitNormalizer {
         }
         if (isTemperatureUnit(unit)) {
             return UnitType.TEMPERATURE.getUnitNames();
+        }
+        if (isVoltageUnit(unit)) {
+            return UnitType.VOLTAGE.getUnitNames();
+        }
+        if (isPowerUnit(unit)) {
+            return UnitType.POWER.getUnitNames();
+        }
+        if (isEnergyUnit(unit)) {
+            return UnitType.ENERGY.getUnitNames();
+        }
+        if (isTorqueUnit(unit)) {
+            return UnitType.TORQUE.getUnitNames();
         }
 
         return new HashSet<>();
