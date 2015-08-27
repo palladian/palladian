@@ -119,7 +119,7 @@ public enum UnitType {
         unitList.add("mega watt");
         unitList.add("megawatts");
         unitList.add("megawatt");
-        unitList.add("MW");
+        unitList.add("mw");
         UnitType.POWER.units.add(Pair.of(unitList, 1000000.0));
 
         unitList = new ArrayList<>();
@@ -141,6 +141,7 @@ public enum UnitType {
         unitList.add("milli watt");
         unitList.add("milliwatts");
         unitList.add("milliwatt");
+        unitList.add("mw");
         unitList.add("mW");
         UnitType.POWER.units.add(Pair.of(unitList, 0.001));
 
@@ -190,6 +191,7 @@ public enum UnitType {
         // TORQUE units are normalized to 1 Volt
         unitList = new ArrayList<>();
         unitList.add("Nm");
+        unitList.add("nm");
         UnitType.TORQUE.units.add(Pair.of(unitList, 1.0));
 
         unitList = new ArrayList<>();
@@ -218,22 +220,27 @@ public enum UnitType {
         // VOLTAGE units are normalized to 1 Volt
         unitList = new ArrayList<>();
         unitList.add("V");
+        unitList.add("v");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 1.0));
 
         unitList = new ArrayList<>();
         unitList.add("µV");
+        unitList.add("µv");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 0.000001));
 
         unitList = new ArrayList<>();
         unitList.add("mV");
+        unitList.add("mv");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 0.001));
 
         unitList = new ArrayList<>();
         unitList.add("kV");
+        unitList.add("kv");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000.));
 
         unitList = new ArrayList<>();
         unitList.add("MV");
+        unitList.add("mv");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000000.));
 
         // PIXEL units are normalized to 1
