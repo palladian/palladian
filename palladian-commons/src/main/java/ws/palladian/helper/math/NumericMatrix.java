@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
     private final class NumericEntryConverter implements Function<MatrixVector<K, Double>, NumericMatrixVector<K>> {
         @Override
         public NumericMatrixVector<K> compute(MatrixVector<K, Double> input) {
-            return new NumericMatrixVector<K>(input);
+            return new NumericMatrixVector<>(input);
         }
     }
 
@@ -45,6 +46,11 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
         @Override
         public Set<K> keys() {
             return vector.keys();
+        }
+
+        @Override
+        public Collection<Double> values() {
+            return vector.values();
         }
 
         @Override
@@ -77,7 +83,7 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
         Validate.notNull(other, "other must not be null");
         Validate.isTrue(isCompatible(other), "matrices must be compatible");
 
-        NumericMatrix<K> result = new NumericMatrix<K>();
+        NumericMatrix<K> result = new NumericMatrix<>();
         for (K yKey : getRowKeys()) {
             NumericVector<K> thisRow = this.getRow(yKey);
             NumericVector<K> otherRow = other.getRow(yKey);

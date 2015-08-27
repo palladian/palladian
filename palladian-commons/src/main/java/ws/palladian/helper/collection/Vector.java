@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import java.util.Collection;
 import java.util.Set;
 
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -51,4 +52,8 @@ public interface Vector<K, V> extends Iterable<VectorEntry<K, V>> {
      */
     Set<K> keys();
 
+    /**
+     * @return The values in this vector.
+     */
+    Collection<V> values();
 }
