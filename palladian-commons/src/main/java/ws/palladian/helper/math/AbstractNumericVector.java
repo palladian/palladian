@@ -18,7 +18,7 @@ abstract class AbstractNumericVector<K> implements NumericVector<K> {
             double otherValue = other.get(key);
             addedVector.put(key, thisValue + otherValue);
         }
-        return new ImmutableNumericVector<K>(addedVector);
+        return new ImmutableNumericVector<>(addedVector);
     }
 
     @Override
