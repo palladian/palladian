@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -20,7 +21,7 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
  */
 public class SitemapRetriever {
 
-    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=<loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE);
 
     public List<String> getUrls(String sitemapIndexUrl) {
         List<String> pageUrls = new ArrayList<>();
