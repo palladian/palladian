@@ -549,7 +549,6 @@ public class HttpRetriever {
      * @param filePath the path where the downloaded contents should be saved to.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
-    @Deprecated
     public boolean downloadAndSave(String url, String filePath) {
         return downloadAndSave(url, filePath, Collections.<String, String> emptyMap(), false);
     }
@@ -565,7 +564,6 @@ public class HttpRetriever {
      *            content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
-    @Deprecated
     public boolean downloadAndSave(String url, String filePath, boolean includeHttpResponseHeaders) {
         return downloadAndSave(url, filePath, Collections.<String, String> emptyMap(), includeHttpResponseHeaders);
     }
@@ -583,7 +581,6 @@ public class HttpRetriever {
      *            content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
-    @Deprecated
     public boolean downloadAndSave(String url, String filePath, Map<String, String> requestHeaders,
             boolean includeHttpResponseHeaders) {
 
