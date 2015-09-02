@@ -1,11 +1,7 @@
 package ws.palladian.helper.math;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -36,7 +32,7 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
      * @return An empty {@link ImmutableNumericVector}.
      */
     public static <K> ImmutableNumericVector<K> empty() {
-        return new ImmutableNumericVector<K>(Collections.<K, Double> emptyMap());
+        return new ImmutableNumericVector<>(Collections.<K, Double>emptyMap());
     }
 
     /**
@@ -49,7 +45,7 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
      */
     public ImmutableNumericVector(Map<K, Double> valueMap) {
         Validate.notNull(valueMap, "valueMap must not be null");
-        this.valueMap = new HashMap<K, Double>(valueMap);
+        this.valueMap = new HashMap<>(valueMap);
     }
 
     /**
@@ -61,7 +57,7 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
      */
     public ImmutableNumericVector(Vector<K, Double> vector) {
         Validate.notNull(vector, "vector must not be null");
-        valueMap = new HashMap<K, Double>();
+        valueMap = new HashMap<>();
         for (VectorEntry<K, Double> entry : vector) {
             valueMap.put(entry.key(), entry.value());
         }
@@ -77,6 +73,12 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
     @Override
     public Set<K> keys() {
         return Collections.unmodifiableSet(valueMap.keySet());
+    }
+
+
+    @Override
+    public Collection<Double> values() {
+        return valueMap.values();
     }
 
     @Override

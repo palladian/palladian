@@ -51,7 +51,7 @@ public interface Matrix<K, V> extends Serializable {
      * @param <K>
      * @param <V>
      */
-    public interface MatrixVector<K, V> extends Vector<K, V> {
+    interface MatrixVector<K, V> extends Vector<K, V> {
 
         /**
          * @return Key of the row/column.

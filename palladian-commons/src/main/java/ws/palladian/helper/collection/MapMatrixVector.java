@@ -1,10 +1,7 @@
 package ws.palladian.helper.collection;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -46,6 +43,11 @@ final class MapMatrixVector<K, V> implements MatrixVector<K, V> {
     @Override
     public Set<K> keys() {
         return Collections.unmodifiableSet(map.keySet());
+    }
+
+    @Override
+    public Collection<V> values() {
+        return map.values();
     }
 
     @Override
