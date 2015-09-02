@@ -1,5 +1,6 @@
 package ws.palladian.core;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +14,7 @@ import ws.palladian.helper.collection.EntryConverter;
 
 final class ImmutableFeatureVector implements FeatureVector {
 
-    private static final EntryConverter<String, Value> CONVERTER = new EntryConverter<String, Value>();
+    private static final EntryConverter<String, Value> CONVERTER = new EntryConverter<>();
 
     private final Map<String, Value> valueMap;
 
@@ -42,6 +43,11 @@ final class ImmutableFeatureVector implements FeatureVector {
     @Override
     public Set<String> keys() {
         return valueMap.keySet();
+    }
+
+    @Override
+    public Collection<Value> values() {
+        return valueMap.values();
     }
 
     @Override

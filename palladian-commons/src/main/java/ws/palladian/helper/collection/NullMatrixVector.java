@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -51,6 +52,11 @@ final class NullMatrixVector<K, V> implements MatrixVector<K, V> {
 
     @Override
     public Set<K> keys() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Collection<V> values() {
         return Collections.emptySet();
     }
 

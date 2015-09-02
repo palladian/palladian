@@ -81,7 +81,7 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * </p>
      */
     public JsonArray() {
-        this.list = new ArrayList<Object>();
+        this.list = new ArrayList<>();
     }
 
     JsonArray(JsonTokener x) throws JsonException {
@@ -136,7 +136,7 @@ public class JsonArray extends AbstractList<Object> implements Json {
      * @param collection A Collection.
      */
     public JsonArray(Collection<?> collection) {
-        list = new ArrayList<Object>();
+        list = new ArrayList<>();
         if (collection != null) {
             Iterator<?> iter = collection.iterator();
             while (iter.hasNext()) {

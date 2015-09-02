@@ -30,7 +30,9 @@ public enum UnitType {
     TEMPERATURE(null), //
     PRESSURE("pascal"), //
     POWER("watt"), //
+    VOLTAGE("volt"), //
     ENERGY("kilojoule"), //
+    TORQUE("Nm"), //
     PIXEL("pixel"), //
     CURRENCY(null),
     OTHER(null);
@@ -117,7 +119,7 @@ public enum UnitType {
         unitList.add("mega watt");
         unitList.add("megawatts");
         unitList.add("megawatt");
-        unitList.add("MW");
+        unitList.add("mw");
         UnitType.POWER.units.add(Pair.of(unitList, 1000000.0));
 
         unitList = new ArrayList<>();
@@ -139,6 +141,7 @@ public enum UnitType {
         unitList.add("milli watt");
         unitList.add("milliwatts");
         unitList.add("milliwatt");
+        unitList.add("mw");
         unitList.add("mW");
         UnitType.POWER.units.add(Pair.of(unitList, 0.001));
 
@@ -178,13 +181,67 @@ public enum UnitType {
         unitList.add("wh");
         UnitType.ENERGY.units.add(Pair.of(unitList, 3600.));
 
-
         unitList = new ArrayList<>();
         unitList.add("kilo watt hours");
         unitList.add("kilo watt hour");
         unitList.add("kw/h");
         unitList.add("kwh");
         UnitType.ENERGY.units.add(Pair.of(unitList, 3600000.));
+
+        // TORQUE units are normalized to 1 Volt
+        unitList = new ArrayList<>();
+        unitList.add("Nm");
+        unitList.add("nm");
+        UnitType.TORQUE.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("mkgf");
+        unitList.add("m kgf");
+        UnitType.TORQUE.units.add(Pair.of(unitList, 9.80665));
+
+        unitList = new ArrayList<>();
+        unitList.add("in lbf");
+        unitList.add("inlbf");
+        unitList.add("in-lbf");
+        UnitType.TORQUE.units.add(Pair.of(unitList, 0.1129848290276167));
+
+        unitList = new ArrayList<>();
+        unitList.add("ft pdl");
+        unitList.add("ftpdl");
+        unitList.add("ft-pdl");
+        UnitType.TORQUE.units.add(Pair.of(unitList, 0.0421401100938048));
+
+        unitList = new ArrayList<>();
+        unitList.add("ft lbf");
+        unitList.add("ftlbf");
+        unitList.add("ft-lbf");
+        UnitType.TORQUE.units.add(Pair.of(unitList, 1.3558179483314004));
+
+        // VOLTAGE units are normalized to 1 Volt
+        unitList = new ArrayList<>();
+        unitList.add("V");
+        unitList.add("v");
+        UnitType.VOLTAGE.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("µV");
+        unitList.add("µv");
+        UnitType.VOLTAGE.units.add(Pair.of(unitList, 0.000001));
+
+        unitList = new ArrayList<>();
+        unitList.add("mV");
+        unitList.add("mv");
+        UnitType.VOLTAGE.units.add(Pair.of(unitList, 0.001));
+
+        unitList = new ArrayList<>();
+        unitList.add("kV");
+        unitList.add("kv");
+        UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000.));
+
+        unitList = new ArrayList<>();
+        unitList.add("MV");
+        unitList.add("mv");
+        UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000000.));
 
         // PIXEL units are normalized to 1
         unitList = new ArrayList<>();
