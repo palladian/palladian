@@ -22,6 +22,7 @@ public class FileHelperTest {
         assertEquals("abc", FileHelper.getFileName("data/temp/abc.jpg"));
         assertEquals("abc", FileHelper.getFileName("abc.jpg"));
         assertEquals("abc", FileHelper.getFileName("abc"));
+        assertEquals("abc", FileHelper.getFileName("http://images/abc"));
     }
 
     @Test
