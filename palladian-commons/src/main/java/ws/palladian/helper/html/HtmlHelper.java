@@ -773,7 +773,7 @@ public final class HtmlHelper {
     // past)
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
 
-        Set<String> pageLinks = new HashSet<String>();
+        Set<String> pageLinks = new HashSet<>();
 
         if (document == null) {
             return pageLinks;
@@ -782,7 +782,7 @@ public final class HtmlHelper {
         // remove anchors from url
         String url = document.getDocumentURI();
         url = UrlHelper.removeAnchors(url);
-        String domain = UrlHelper.getDomain(url, false);
+        String domain = UrlHelper.getDomain(url, false).toLowerCase();
 
         // get value of base element, if present
         Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
@@ -812,7 +812,7 @@ public final class HtmlHelper {
             String currentDomain = UrlHelper.getDomain(currentLink, false);
             // currentDomain = currentDomain.replaceFirst("[a-zA-Z-_]+\\.(?=[a-z]+\\.)", "");
 
-            boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
+            boolean inDomainLink = currentDomain.toLowerCase().endsWith(domain);
 
             if ((inDomainLink && inDomain || !inDomainLink && outDomain) && currentLink.startsWith(prefix)) {
                 pageLinks.add(currentLink);
