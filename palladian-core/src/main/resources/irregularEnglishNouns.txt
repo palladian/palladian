@@ -1144,6 +1144,7 @@ masses mass masse
 masters-at-arms master-at-arms
 matrices matrix
 slices slice
+cloves clove
 matzoth matzo
 mausolea mausoleum
 maxillae maxilla

@@ -166,7 +166,7 @@ public final class FileHelper {
      * @return The file name part of the path.
      */
     public static String getFileName(String path) {
-        String fileName = path;
+        String fileName;
         int lastDot = path.lastIndexOf(".");
         int lastSeparator = path.lastIndexOf("/") + 1;
         if (lastSeparator == 0) {
@@ -174,6 +174,8 @@ public final class FileHelper {
         }
         if (lastDot > -1) {
             fileName = path.substring(lastSeparator, lastDot);
+        } else {
+            fileName = path.substring(lastSeparator);
         }
         return fileName;
     }
