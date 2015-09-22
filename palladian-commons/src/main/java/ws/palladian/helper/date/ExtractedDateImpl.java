@@ -35,7 +35,6 @@ public class ExtractedDateImpl implements ExtractedDate {
     private int minute = -1;
     private int second = -1;
 
-    // FIXME is this considered?
     private String timeZone = null;
 
     public ExtractedDateImpl() {
