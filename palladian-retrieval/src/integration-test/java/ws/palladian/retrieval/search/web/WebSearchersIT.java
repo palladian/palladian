@@ -60,7 +60,6 @@ public class WebSearchersIT {
         // web page searchers
         searchers.add(new Object[] {new BingSearcher(configuration)});
         // searchers.add(new Object[] {new DuckDuckGoSearcher()});
-        // searchers.add(new Object[] {new FarooSearcher()}); // FIXME
         searchers.add(new Object[] {new GoogleSearcher()});
         // searchers.add(new Object[] {new GoogleImageSearcher()});
         // searchers.add(new Object[] {new GoogleBlogsSearcher()});
@@ -68,7 +67,6 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new GooglePlusSearcher(configuration)});
         // searchers.add(new Object[] {new GoogleCustomSearcher(configuration)});
         searchers.add(new Object[] {new GoogleScraperSearcher()});
-        // searchers.add(new Object[] {new HakiaSearcher(configuration)}); // FIXME
         searchers.add(new Object[] {new TopsySearcher(configuration)});
         // searchers.add(new Object[] {new TopsyUrlSearcher(configuration)});
         searchers.add(new Object[] {new WebKnoxSearcher(configuration)});
