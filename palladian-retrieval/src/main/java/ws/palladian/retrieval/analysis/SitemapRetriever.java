@@ -1,11 +1,9 @@
 package ws.palladian.retrieval.analysis;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -29,8 +27,24 @@ public class SitemapRetriever {
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
 
-        // get sitemap index page
-        String sitemapIndex = documentRetriever.getText(sitemapIndexUrl);
+        String sitemapIndex;
+
+        // is the sitemap gzipped?
+        if (FileHelper.getFileType(sitemapIndexUrl).equalsIgnoreCase("gz")) {
+
+            String tempPath = "data/temp/sitemapIndex.xml";
+            httpRetriever.downloadAndSave(sitemapIndexUrl, tempPath+".gzipped");
+            FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
+            sitemapIndex = documentRetriever.getText(tempPath);
+            FileHelper.delete(tempPath);
+            FileHelper.delete(tempPath+".gzipped");
+
+        } else {
+
+            // get sitemap index page
+            sitemapIndex = documentRetriever.getText(sitemapIndexUrl);
+
+        }
 
         List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapIndex);
 
@@ -123,4 +137,5 @@ public class SitemapRetriever {
     protected String normalizeUrl(String url) {
         return url.replace("<![CDATA[", "").replace("]]>", "").trim();
     }
+
 }

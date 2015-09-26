@@ -46,7 +46,7 @@ public class FeedSizeCalculationScheduler extends TimerTask {
 
     /** Count the number of processed feeds per scheduler iteration. */
     private int processedCounter = 0;
-    
+
     private final EvaluationFeedDatabase feedDatabase;
 
     /**
@@ -59,7 +59,7 @@ public class FeedSizeCalculationScheduler extends TimerTask {
     public FeedSizeCalculationScheduler(EvaluationFeedDatabase feedDatabase, int numThreads) {
         threadPool = Executors.newFixedThreadPool(numThreads);
         this.feedDatabase = feedDatabase;
-        scheduledTasks = new TreeMap<Integer, Future<FeedTaskResult>>();
+        scheduledTasks = new TreeMap<>();
     }
 
     /*
@@ -76,13 +76,8 @@ public class FeedSizeCalculationScheduler extends TimerTask {
         for (Feed feed : feedDatabase.getFeeds()) {
             if (firstRun) {
 
-                // FIXME: remove dbug filter
-                // if (feed.getId() == 1074) {
-                    scheduledTasks.put(feed.getId(),
-                            threadPool.submit(new FeedSizeCalculationTask(feed, feedDatabase)));
-                    newlyScheduledFeedsCount++;
-                // }
-
+                scheduledTasks.put(feed.getId(), threadPool.submit(new FeedSizeCalculationTask(feed, feedDatabase)));
+                newlyScheduledFeedsCount++;
 
             } else {
                 removeFeedTaskIfDone(feed.getId());
@@ -99,8 +94,9 @@ public class FeedSizeCalculationScheduler extends TimerTask {
         int slow = feedResults.count(FeedTaskResult.EXECUTION_TIME_WARNING);
         int errors = feedResults.count(FeedTaskResult.ERROR);
 
-        String logMsg = String.format("Newly scheduled: %6d, queue size: %6d, processed: %4d, "
-                + "success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, ",
+        String logMsg = String.format(
+                "Newly scheduled: %6d, queue size: %6d, processed: %4d, "
+                        + "success: %4d, misses: %4d, unreachable: %4d, unparsable: %4d, slow: %4d, errors: %4d, ",
                 newlyScheduledFeedsCount, scheduledTasks.size(), processedCounter, success, misses, unreachable,
                 unparsable, slow, errors);
 
