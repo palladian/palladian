@@ -120,6 +120,7 @@ public class StringHelperTest {
 
     @Test
     public void testClean() {
+        assertEquals("Länge", StringHelper.clean("L\u00e4nge"));
         assertEquals("", StringHelper.clean(""));
         assertEquals("There is nothing to clean here", StringHelper.clean("There is nothing to clean here"));
         assertEquals("This is crözy text", StringHelper.clean("' This is crözy    text"));
