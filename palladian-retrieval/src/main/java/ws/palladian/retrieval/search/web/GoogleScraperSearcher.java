@@ -108,16 +108,16 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, LINK_XPATH);
         List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, INFORMATION_XPATH);
 
-        if (linkNodes.size() != infoNodes.size()) {
-            throw new SearcherException(
-                    "The returned document structure is not as expected, most likely the scraping implementation needs to be updated. (number of info items ["
-                            + infoNodes.size() + "] should be equal to number of links [" + linkNodes.size() + "])");
-        }
+//        if (linkNodes.size() != infoNodes.size()) {
+//            throw new SearcherException(
+//                    "The returned document structure is not as expected, most likely the scraping implementation needs to be updated. (number of info items ["
+//                            + infoNodes.size() + "] should be equal to number of links [" + linkNodes.size() + "])");
+//        }
 
         Iterator<Node> linkIterator = linkNodes.iterator();
         Iterator<Node> infoIterator = infoNodes.iterator();
 
-        while (linkIterator.hasNext()) {
+        while (linkIterator.hasNext() && infoIterator.hasNext()) {
             Node linkNode = linkIterator.next();
             Node infoNode = infoIterator.next();
 

@@ -81,7 +81,7 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
     @Override
     public SearchResults<R> search(MultifacetQuery query) throws SearcherException {
 
-        List<R> webResults = new ArrayList<R>();
+        List<R> webResults = new ArrayList<>();
 
         int necessaryPages = (int)Math.ceil((double)query.getResultCount() / getDefaultFetchSize());
         int offset = 0;
