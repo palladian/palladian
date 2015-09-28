@@ -58,8 +58,8 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        List<WebContent> result = new ArrayList<WebContent>();
-        Set<String> urlDeduplication = new HashSet<String>();
+        List<WebContent> result = new ArrayList<>();
+        Set<String> urlDeduplication = new HashSet<>();
 
         paging: for (int page = 0; page <= 999; page++) {
 
