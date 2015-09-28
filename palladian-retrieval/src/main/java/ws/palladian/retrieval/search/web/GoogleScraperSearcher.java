@@ -72,7 +72,7 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
 
             for (int page = 0; page <= numPages; page++) {
 
-                String requestUrl = "http://www.google.com/search?hl=en&safe=off&output=search&start="
+                String requestUrl = "https://www.google.com/search?hl="+language.getIso6391()+"&safe=off&output=search&start="
                         + RESULTS_PER_PAGE * page + "&q=" + UrlHelper.encodeParameter(query);
                 LOGGER.debug("GET " + requestUrl);
                 HttpResult httpResult = httpRetriever.httpGet(requestUrl);
