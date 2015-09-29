@@ -183,5 +183,15 @@ public class HttpRetrieverTest {
             System.out.println(result);
         }
     }
+    
+    @Test
+    @Ignore
+    public void testSSLPeerUnverified() throws HttpException {
+        try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
+            HttpRetriever retriever = factory.create();
+            HttpResult result = retriever.httpGet("https://api.cilabs.net/v1/conferences/ws15/info/attendees");
+            System.out.println(result);
+        }
+    }
 
 }
