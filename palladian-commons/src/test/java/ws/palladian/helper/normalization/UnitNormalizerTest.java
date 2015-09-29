@@ -15,12 +15,14 @@ public class UnitNormalizerTest {
 
         String input;
 
+        input = "230 Volt";
+        collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("Volt"));
+
         input = "39 hours";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("hours"));
 
         input = "filter_groess # filter_groess # gross # 39";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.nullValue());
-
 
     }
 }

@@ -221,6 +221,10 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("V");
         unitList.add("v");
+        unitList.add("Volts");
+        unitList.add("Volt");
+        unitList.add("volts");
+        unitList.add("volt");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 1.0));
 
         unitList = new ArrayList<>();
