@@ -23,7 +23,7 @@ import ws.palladian.retrieval.resources.WebContent;
  * Base implementation for WebKnox searchers.
  * </p>
  * 
- * @see <a href="http://webknox.com/api">WebKnox API</a>
+ * @see <a href="https://webknox.com/api">WebKnox API</a>
  * @author David Urbansky
  */
 public abstract class AbstractWebKnoxSearcher extends AbstractMultifacetSearcher<WebContent> {
@@ -32,7 +32,7 @@ public abstract class AbstractWebKnoxSearcher extends AbstractMultifacetSearcher
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWebKnoxSearcher.class);
 
     /** The base URL endpoint of the WebKnox service. */
-    protected static final String BASE_SERVICE_URL = "http://webknox.com/api/";
+    protected static final String BASE_SERVICE_URL = "https://webknox.com:8443/";
 
     /** Key of the {@link Configuration} key for the API key. */
     public static final String CONFIG_API_KEY = "api.webknox.apiKey";
@@ -69,14 +69,10 @@ public abstract class AbstractWebKnoxSearcher extends AbstractMultifacetSearcher
     @Override
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
 
-        if (query.getLanguage() != null && query.getLanguage() != Language.ENGLISH) {
-            throw new SearcherException("Only English langauge is supported by " + getName() + ".");
-        }
-
         List<WebContent> webResults = new ArrayList<>();
 
         try {
-            String requestUrl = buildRequestUrl(query.getText(), 0, query.getResultCount());
+            String requestUrl = buildRequestUrl(query.getText(), 0, query.getResultCount(), query.getLanguage());
             LOGGER.debug("URL = {}", requestUrl);
 
             HttpResult httpResult = retriever.httpGet(requestUrl);
@@ -87,9 +83,7 @@ public abstract class AbstractWebKnoxSearcher extends AbstractMultifacetSearcher
             String jsonString = httpResult.getStringContent();
             LOGGER.debug("JSON = {}", jsonString);
 
-            JsonObject jsonObject = new JsonObject(jsonString);
-            JsonArray jsonResults = jsonObject.getJsonArray("results");
-            long numResults = jsonObject.getLong("totalResults");
+            JsonArray jsonResults = new JsonArray(jsonString);
 
             for (int j = 0; j < jsonResults.size(); j++) {
                 JsonObject currentResult = jsonResults.getJsonObject(j);
@@ -100,7 +94,7 @@ public abstract class AbstractWebKnoxSearcher extends AbstractMultifacetSearcher
                 }
             }
 
-            return new SearchResults<WebContent>(webResults, numResults);
+            return new SearchResults<>(webResults, (long) jsonResults.size());
 
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
@@ -114,12 +108,12 @@ public abstract class AbstractWebKnoxSearcher extends AbstractMultifacetSearcher
 
     /**
      * <p>
-     * Parse the {@link JSONObject} to an instance of {@link WebContent}.
+     * Parse the {@link JsonObject} to an instance of {@link WebContent}.
      * </p>
      * 
      * @param currentResult The current JSON item.
      * @return A parsed WebContent.
-     * @throws JSONException In case, parsing fails.
+     * @throws JsonException In case, parsing fails.
      */
     protected abstract WebContent parseResult(JsonObject currentResult) throws JsonException;
 
@@ -128,11 +122,12 @@ public abstract class AbstractWebKnoxSearcher extends AbstractMultifacetSearcher
      * Build a search request URL based on the supplied parameters.
      * </p>
      * 
-     * @param query the raw query, no escaping necessary.
-     * @param offset the paging offset, 0 for no offset.
-     * @param count the number of results to retrieve.
+     * @param query The raw query, no escaping necessary.
+     * @param offset The offset.
+     * @param count The number of results to retrieve.
+     * @param language The language of the results.
      * @return
      */
-    protected abstract String buildRequestUrl(String query, int offset, int count);
+    protected abstract String buildRequestUrl(String query, int offset, int count, Language language);
 
 }
