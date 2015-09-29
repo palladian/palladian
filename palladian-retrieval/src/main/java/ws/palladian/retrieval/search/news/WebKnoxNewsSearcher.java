@@ -5,6 +5,7 @@ import java.sql.Date;
 import org.apache.commons.configuration.Configuration;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
@@ -13,12 +14,12 @@ import ws.palladian.retrieval.search.AbstractWebKnoxSearcher;
 
 /**
  * <p>
- * {@link WebSearcher} implementation for webknox news.
+ * {@link AbstractWebKnoxSearcher} implementation for webknox news.
  * </p>
  * 
  * 
- * @see http://www.webknox.com/
- * @see http://webknox.com/api#!/news/search_GET
+ * @see https://webknox.com/
+ * @see https://webknox.com/api#!/news/search_GET
  * @author David Urbansky
  */
 public final class WebKnoxNewsSearcher extends AbstractWebKnoxSearcher {
@@ -31,7 +32,7 @@ public final class WebKnoxNewsSearcher extends AbstractWebKnoxSearcher {
      * @param onlyExactMatchesInTitle If true, only news are returned, that contain the search term exactly as given in
      *            their titles.
      * 
-     * @see AbstractWebKnoxSearcher#BaseWebKnoxSearcher(String)
+     * @see AbstractWebKnoxSearcher#AbstractWebKnoxSearcher(String)
      */
     public WebKnoxNewsSearcher(String apiKey, boolean onlyExactMatchesInTitle) {
         super(apiKey);
@@ -43,7 +44,7 @@ public final class WebKnoxNewsSearcher extends AbstractWebKnoxSearcher {
      *            {@value AbstractWebKnoxSearcher#CONFIG_API_KEY}, not <code>null</code>.
      * @param onlyExactMatchesInTitle If true, only news are returned, that contain the search term exactly as given in
      *            their titles.
-     * @see AbstractWebKnoxSearcher#BaseWebKnoxSearcher(Configuration)
+     * @see AbstractWebKnoxSearcher#AbstractWebKnoxSearcher(Configuration)
      */
     public WebKnoxNewsSearcher(Configuration configuration, boolean onlyExactMatchesInTitle) {
         super(configuration);
@@ -74,7 +75,7 @@ public final class WebKnoxNewsSearcher extends AbstractWebKnoxSearcher {
     }
 
     @Override
-    protected String buildRequestUrl(String query, int offset, int count) {
+    protected String buildRequestUrl(String query, int offset, int count, Language language) {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(BASE_SERVICE_URL).append("news/search");
         urlBuilder.append("?query=").append(UrlHelper.encodeParameter(query));
