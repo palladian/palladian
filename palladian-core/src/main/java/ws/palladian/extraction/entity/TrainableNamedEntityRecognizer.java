@@ -74,7 +74,7 @@ public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecogniz
 
     public boolean train(Dataset dataset, String modelFilePath) {
 
-        if (dataset.isColumnNER()) {
+        if (dataset.isColumnNer()) {
             return train(dataset.getPath(), modelFilePath);
         }
 

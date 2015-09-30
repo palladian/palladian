@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.ProgressMonitor;
@@ -18,6 +20,9 @@ import ws.palladian.helper.io.FileHelper;
  * @author Philipp Katz
  */
 public class TextDatasetIterator implements Iterable<Instance> {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextDatasetIterator.class);
 
     private final String name;
     private final List<String> fileLines;
@@ -70,11 +75,18 @@ public class TextDatasetIterator implements Iterable<Instance> {
                 if (isFirstFieldLink) {
                     learningText = FileHelper.tryReadFileToString(datasetRootPath + parts[0]);
                 } else {
-                    learningText = new String(parts[0]);
+                    learningText = parts[0];
                 }
-                String instanceCategory = new String(parts[1]);
+                String instanceCategory = parts[1];
                 progressMonitor.increment();
-                return new InstanceBuilder().setText(learningText).create(instanceCategory);
+                Instance instance;
+                try {
+                    instance = new InstanceBuilder().setText(learningText).create(instanceCategory);
+                } catch(Exception e) {
+                    LOGGER.error("problem with line: " + parts[0] + " " + parts[1]);
+                    throw e;
+                }
+                return instance;
             }
 
             @Override

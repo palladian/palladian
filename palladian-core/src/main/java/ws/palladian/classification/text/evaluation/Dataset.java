@@ -27,7 +27,7 @@ public class Dataset {
     private int usePercentTraining = 100;
 
     /** Whether the dataset is a column formatted file for Named Entity Recognition. */
-    private boolean columnNER = false;
+    private boolean columnNer = false;
 
     /**
      * Whether the first field that is separated by the separation string links to a document or is the document itself.
@@ -48,7 +48,7 @@ public class Dataset {
         this.rootPath = dataset.rootPath;
         this.separationString = dataset.separationString;
         this.usePercentTraining = dataset.usePercentTraining;
-        this.columnNER = dataset.columnNER;
+        this.columnNer = dataset.columnNer;
         this.firstFieldLink = dataset.firstFieldLink;
     }
 
@@ -114,12 +114,12 @@ public class Dataset {
         return firstFieldLink;
     }
 
-    public void setColumnNER(boolean columnNER) {
-        this.columnNER = columnNER;
+    public void setColumnNer(boolean columnNer) {
+        this.columnNer = columnNer;
     }
 
-    public boolean isColumnNER() {
-        return columnNER;
+    public boolean isColumnNer() {
+        return columnNer;
     }
 
     @Override
