@@ -49,7 +49,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
      * 
      * @author Philipp Katz
      */
-    public static interface Scorer {
+    public interface Scorer {
         /**
          * Score a term-category-pair in a document which has to be classified.
          * 
@@ -218,7 +218,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             termCounts.add(iterator.next());
         }
         final CategoryEntries termSums = model.getTermCounts();
-        final int numUniqTerms = model.getNumUniqTerms();
+        final int numUniqueTerms = model.getNumUniqTerms();
         final int numDocs = model.getNumDocuments();
         final int numTerms = model.getNumTerms();
         final boolean scoreNonMatches = scorer.scoreNonMatches();
@@ -233,7 +233,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                 String categoryName = category.getName();
                 int categorySum = termSums.getCount(categoryName);
                 int count = category.getCount();
-                double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numUniqTerms,
+                double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numUniqueTerms,
                         numDocs, numTerms);
                 builder.add(categoryName, score);
                 if (scoreNonMatches) {
@@ -249,7 +249,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                     if (!matchedCategories.contains(categoryName)) {
                         int categorySum = category.getCount();
                         double score = scorer.score(term, categoryName, 0, dictCount, docCount, categorySum,
-                                numUniqTerms, numDocs, numTerms);
+                                numUniqueTerms, numDocs, numTerms);
                         builder.add(categoryName, score);
                     }
                 }
