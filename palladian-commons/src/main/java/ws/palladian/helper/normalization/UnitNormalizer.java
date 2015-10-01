@@ -89,6 +89,9 @@ public class UnitNormalizer {
     private static boolean isTorqueUnit(String unit) {
         return UnitType.TORQUE.contains(unit);
     }
+    private static boolean isPressureUnit(String unit) {
+        return UnitType.PRESSURE.contains(unit);
+    }
 
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
@@ -149,6 +152,9 @@ public class UnitNormalizer {
         }
         if (isTemperatureUnit(unit)) {
             return UnitType.TEMPERATURE.getUnitNames();
+        }
+        if (isPressureUnit(unit)) {
+            return UnitType.PRESSURE.getUnitNames();
         }
         if (isVoltageUnit(unit)) {
             return UnitType.VOLTAGE.getUnitNames();
@@ -226,6 +232,11 @@ public class UnitNormalizer {
 
         // area
         if (isAreaUnit(unit1) && isAreaUnit(unit2)) {
+            return true;
+        }
+
+        // pressure
+        if (isPressureUnit(unit1) && isPressureUnit(unit2)) {
             return true;
         }
 
@@ -461,6 +472,9 @@ public class UnitNormalizer {
             }
             if (isTemperatureUnit(word)) {
                 unitType = UnitType.TEMPERATURE;
+            }
+            if (isPressureUnit(word)) {
+                unitType = UnitType.PRESSURE;
             }
             if (unitType != UnitType.NONE) {
                 break; // we found a unit
