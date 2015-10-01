@@ -408,6 +408,12 @@ public enum UnitType {
         UnitType.PRESSURE.units.add(Pair.of(unitList, 1.0));
 
         unitList = new ArrayList<>();
+        unitList.add("N/m²");
+        unitList.add("N/m^2");
+        unitList.add("N/m2");
+        UnitType.PRESSURE.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
         unitList.add("kilobar");
         unitList.add("kilo bar");
         unitList.add("kbar");
@@ -421,6 +427,12 @@ public enum UnitType {
         unitList.add("millibar");
         unitList.add("mbar");
         UnitType.PRESSURE.units.add(Pair.of(unitList, 100.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("kN/m²");
+        unitList.add("kN/m^2");
+        unitList.add("kN/m2");
+        UnitType.PRESSURE.units.add(Pair.of(unitList, 1000.0));
 
         // LENGTH units are normalized to centimeter
         unitList = new ArrayList<>();
