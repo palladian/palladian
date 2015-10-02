@@ -77,7 +77,7 @@ public enum UnitType {
         unitList.add("percent");
         unitList.add("perc");
         unitList.add("%");
-        UnitType.NONE.units.add(Pair.of(unitList, 0.01));
+        UnitType.NONE.units.add(Pair.of(unitList, 1.));
 
         // BANDWIDTH units are normalized to 1 bit/s
         unitList = new ArrayList<>();
