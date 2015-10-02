@@ -106,7 +106,7 @@ public class PalladianSpellChecker {
      *     </pre>
      * </p>
      *
-     * @param mappingFile
+     * @param mappingFile The file with mappings.
      */
     public void setManualMappings(File mappingFile) {
 
@@ -181,9 +181,16 @@ public class PalladianSpellChecker {
 
         // insertions, 26(n+1)
         for (int i = 0; i <= n; ++i) {
+            String substringI = word.substring(i);
+            String substringI2 = zeroToNSubstrings.get(i);
             for (char c = 'a'; c <= 'z'; ++c) {
-                result.add(zeroToNSubstrings.get(i) + c + word.substring(i));
+                result.add(substringI2 + c + substringI);
             }
+
+            // umlauts
+            result.add(substringI2 + 'ä' + substringI);
+            result.add(substringI2 + 'ö' + substringI);
+            result.add(substringI2 + 'ü' + substringI);
         }
 
         return result;
@@ -375,10 +382,7 @@ public class PalladianSpellChecker {
     }
 
     private boolean firstCharacterSame(String a, String b) {
-        if (a.isEmpty() || b.isEmpty()) {
-            return false;
-        }
-        return a.charAt(0) == b.charAt(0);
+        return !(a.isEmpty() || b.isEmpty()) && a.charAt(0) == b.charAt(0);
     }
 
     public Trie<Integer> getWords() {
