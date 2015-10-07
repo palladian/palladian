@@ -113,6 +113,51 @@ public class TokenizerTest {
         String inputText = "";
         List<String> sentences;
 
+        inputText = "Die originale Druckpatrone Nr. 920XL (CD975AE) von HP liefert professionelle Texte und Grafiken in Laserqualität.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Die SFX Power 2 Serie bietet die perfekte Kombination aus Qualität, Funktionalität, Effizienz und dem für be quiet! bekannten zuverlässigen, leisen Betrieb für kompakte Systeme mit überdurchschnittlicher Leistung.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Kräftige Kontraste und das große ----spektrum sorgen für eine natürliche Lebendigkeit v.a. bei Fotos und Videos.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Damit das Bühnenprogramm überhaupt stattfinden kann, müssen drei 1,5V R06/AA Batterien (nicht enthalten) in das Elec. Keyb. w/ voice record. 32 keys eingesetzt werden.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "1. Erweiterung: Mit den Figuren für einen sechsten Spieler, zusätzlichen Landschafts- und Wertungskarten sowie weiteren Figuren bietet diese CARCASSONNE-Erweiterung mehr Möglichkeiten, mehr Chancen und mehr Spannung.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Die integrierte 500-GB- SATA-Festplatte mit 5400 U/Min. sowie 4-GB-DD3L Arbeitsspeicher mit 1600 MHz lassen Anwendungen schnell und effizient arbeiten.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Die integrierte GPU läuft mit 350 Mhz (max. 1100 mit Turbo) und teilt sich den gemeinsamen, 3 MB großen L3-Cache mit der CPU.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Schlüsselfunktionen des E2500 sind u. a. einen passwortgeschützten Gastzugang mit separatem Netzwerk zu erstellen, die Zugangszeit zu begrenzen und Webseiten zu sperren (Kinderschutz durch die Eltern).";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Außerdem bietet die HyperX SSD Hochgeschwindigkeitsübertragung mit SATA Rev. 3.0 (6 Gbit/s) für eine größere Band-----e, die Anwender für leistungshungrige Spiele, Multitasking und schnelle Multimedia-Nutzung benötigen.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
         inputText = "Tintenpatrone T1576 Vivid Light Magenta Ultra Chrome K3 Vivid Magenta - Artikel-Nr.: C13T15764010";
         sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
         // CollectionHelper.print(sentences);
