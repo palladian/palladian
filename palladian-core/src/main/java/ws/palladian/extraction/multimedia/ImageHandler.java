@@ -7,10 +7,7 @@ import java.awt.RenderingHints;
 import java.awt.color.CMMException;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +32,7 @@ import javax.media.jai.RenderedOp;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.lang.Validate;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -892,7 +890,7 @@ public class ImageHandler {
      */
     public static Set<String> clusterImagesAndPickRepresentatives(Collection<String> imageUrls) {
 
-        Set<String> selectedImages = new HashSet<String>();
+        Set<String> selectedImages = new HashSet<>();
 
         // keep the index of the loaded image and tie it to the image URL
         Map<Integer, String> indexUrlMap = new HashMap<Integer, String>();
@@ -917,7 +915,7 @@ public class ImageHandler {
 
             boolean image1ClusteredAlready = !clusteredImageIds.add(i);
             if (!image1ClusteredAlready) {
-                List<Integer> newList = new ArrayList<Integer>();
+                List<Integer> newList = new ArrayList<>();
                 newList.add(i);
                 representatives.put(i, newList);
             } else {
@@ -976,10 +974,84 @@ public class ImageHandler {
         return image.getWidth() * image.getHeight();
     }
 
+    public static Color hexToRgb(String colorStr) {
+        if (colorStr.startsWith("#")) {
+            colorStr = colorStr.substring(1);
+        }
+        return new Color(
+                Integer.valueOf( colorStr.substring( 0, 2 ), 16 ),
+                Integer.valueOf( colorStr.substring( 2, 4 ), 16 ),
+                Integer.valueOf( colorStr.substring( 4, 6 ), 16 ) );
+    }
+
+    public ws.palladian.extraction.multimedia.Color detectColor(BufferedImage bufferedImage) {
+
+        long totalRed = 0L;
+        long totalGreen = 0L;
+        long totalBlue = 0L;
+        long count = 0;
+
+        final int upperBound = 240;
+        final int lowerBound = 15;
+
+        for (int i = 0; i < bufferedImage.getWidth(); i++) {
+            for (int j = 0; j < bufferedImage.getHeight(); j++) {
+
+                Color c1 = new Color(bufferedImage.getRGB(i, j));
+
+                // discard too white and too dark
+                if ((c1.getRed() > upperBound && c1.getGreen() > upperBound && c1.getBlue() > upperBound) ||
+                    (c1.getRed() < lowerBound && c1.getGreen() < lowerBound && c1.getBlue() < lowerBound)) {
+                    continue;
+                }
+
+                totalRed += c1.getRed();
+                totalGreen += c1.getGreen();
+                totalBlue += c1.getBlue();
+
+                count++;
+            }
+        }
+
+        //String hex = String.format("#%02x%02x%02x", (int) ((double) totalRed / count), (int) ((double) totalGreen / count), (int) ((double) totalBlue / count));
+        Color imageColor =new Color((int) ((double) totalRed / count), (int) ((double) totalGreen / count), (int) ((double) totalBlue / count));
+
+        Pair<Double, ws.palladian.extraction.multimedia.Color> bestMatch = null;
+
+        InputStream inputStream = ImageHandler.class.getResourceAsStream("/colos.csv");
+        List<String> strings = FileHelper.readFileToArray(inputStream);
+//        List<String> strings = FileHelper.readFileToArray("colorNames.csv");
+        for (String string : strings) {
+            String[] split = string.split(";");
+            Color color = hexToRgb(split[0]);
+            double distance = distance(imageColor, color);
+            if (bestMatch == null || distance < bestMatch.getValue0()) {
+                bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(split[0],split[1],split[2]));
+            }
+
+        }
+
+        return bestMatch.getValue1();
+    }
+
+    private double distance(Color color1, Color color2) {
+        int rDistance = Math.abs(color1.getRed() - color2.getRed());
+        int gDistance = Math.abs(color1.getGreen() - color2.getGreen());
+        int bDistance = Math.abs(color1.getBlue() - color2.getBlue());
+
+        return Math.sqrt(rDistance*rDistance + gDistance*gDistance + bDistance*bDistance);
+    }
+
     public static void main(String[] args) throws Exception {
 
         // BufferedImage testImg = ImageHandler.load("data/temp/img/testImage.jpg");
-        BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");
+//        BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");
+        BufferedImage testImg = ImageHandler.load("http://www.fotokoch.de/bilddaten/bildklein/samsung-wb50f-rot_60185.jpg");
+        System.out.println(new ImageHandler().detectColor(testImg));
+        testImg = ImageHandler.load("http://image01.bonprix.de/bonprixbilder/460x644/1427714799/15023250-ujoMmNo0.jpg");
+        System.out.println(new ImageHandler().detectColor(testImg));
+        System.exit(0);
+
         StopWatch sw = new StopWatch();
         // BufferedImage testImage = ImageHandler.boxCrop(testImg, 800, 500);
         BufferedImage testImage = ImageHandler.boxCrop(testImg, 500, 100);
