@@ -128,21 +128,6 @@ public class TokenizerTest {
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
-        inputText = "Damit das Bühnenprogramm überhaupt stattfinden kann, müssen drei 1,5V R06/AA Batterien (nicht enthalten) in das Elec. Keyb. w/ voice record. 32 keys eingesetzt werden.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
-        // CollectionHelper.print(sentences);
-        assertEquals(1, sentences.size());
-
-        inputText = "1. Erweiterung: Mit den Figuren für einen sechsten Spieler, zusätzlichen Landschafts- und Wertungskarten sowie weiteren Figuren bietet diese CARCASSONNE-Erweiterung mehr Möglichkeiten, mehr Chancen und mehr Spannung.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
-        // CollectionHelper.print(sentences);
-        assertEquals(1, sentences.size());
-
-        inputText = "Die integrierte 500-GB- SATA-Festplatte mit 5400 U/Min. sowie 4-GB-DD3L Arbeitsspeicher mit 1600 MHz lassen Anwendungen schnell und effizient arbeiten.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
-        // CollectionHelper.print(sentences);
-        assertEquals(1, sentences.size());
-
         inputText = "Die integrierte GPU läuft mit 350 Mhz (max. 1100 mit Turbo) und teilt sich den gemeinsamen, 3 MB großen L3-Cache mit der CPU.";
         sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
         // CollectionHelper.print(sentences);
