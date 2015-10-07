@@ -113,6 +113,11 @@ public class TokenizerTest {
         String inputText = "";
         List<String> sentences;
 
+        inputText = "Tintenpatrone T1576 Vivid Light Magenta Ultra Chrome K3 Vivid Magenta - Artikel-Nr.: C13T15764010";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
         inputText = "A 7.2 magnitude earthquake struck in the central Philippines Tuesday morning, killing at least four people and damaging buildings.";
         sentences = Tokenizer.getSentences(inputText);
         // CollectionHelper.print(sentences);
