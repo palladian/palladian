@@ -124,7 +124,7 @@ public class NormalizationTest {
         assertEquals(UnitNormalizer.getNormalizedNumber(1, "m20s 23sdf sdf a__:"), 80.0, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(1, ":20 23sdf sdf a__:"), 80.0, 0);
         // assertEquals(UnitNormalizer.getNormalizedNumber(3800, "thousand square miles"), 9841954818000.0, 0);
-        assertEquals(UnitNormalizer.getNormalizedNumber(46, "% (2008)"), 0.46, 0);
+        assertEquals(UnitNormalizer.getNormalizedNumber(46, "% (2008)"), 46.0, 0);
 
     }
 
