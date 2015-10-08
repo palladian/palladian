@@ -51,13 +51,13 @@
 #1450AA;Tory Blue;Blue
 #161D10;Hunter Green;Green
 #16322C;Timber Green;Green
-#163531;Gable Green;Green
+#163531;Gray Blue;Blue
 #175579;Chathams Blue;Blue
 #182D09;Deep Forest Green;Green
 #191970;midnight blue;Blue
 #193751;Nile Blue;Blue
 #1959A8;Fun Blue;Blue
-#1C1E13;Rangoon Green;Green
+#1C1E13;Gray;Gray
 #1C39BB;Persian Blue;Blue
 #1D6142;Green Pea;Green
 #1E433C;Te Papa Green;Green
@@ -178,20 +178,20 @@
 #B0C4DE;light steel blue;Blue
 #B0E0E6;powder blue;Blue
 #B22222;firebrick;Red
-#B8860B;dark golden rod;Brown
-#BA55D3;medium orchid;Purple
-#BC8F8F;rosy brown;Brown
-#BDB76B;dark khaki;Green
-#C0C0C0;silver;Gray
-#C71585;medium violet red;Pink
-#CD5C5C;indian red;Red
-#CD853F;peru;Brown
+#B8860B;Dark Golden Rod;Yellow
+#BA55D3;Medium Orchid;Purple
+#BC8F8F;Rosy Brown;Brown
+#BDB76B;Dark Khaki;Green
+#C0C0C0;Silver;Gray
+#C71585;Medium Violet Red;Pink
+#CD5C5C;Indian Red;Red
+#CD853F;Peru;Brown
 #D2691E;chocolate;Brown
 #D2B48C;tan;Brown
-#D3D3D3;light gray / light grey;Gray
+#D3D3D3;Light Gray;Gray
 #D8BFD8;thistle;Pink
 #DA70D6;orchid;Pink
-#DAA520;golden rod;Brown
+#DAA520;Golden Rod;Yellow
 #DB7093;pale violet red;Pink
 #DC143C;crimson;Red
 #DCDCDC;gainsboro;Gray
@@ -216,7 +216,7 @@
 #FA8072;salmon;Red
 #FAEBD7;antique white;Yellow
 #FAF0E6;linen;Brown
-#FAFAD2;light golden rod yellow;Yellow
+#FAFAD2;Light Golden Rod Yellow;Yellow
 #FDF5E6;old lace;Yellow
 #FF0000;red;Red
 #FF00FF;magenta / fuchsia;Pink

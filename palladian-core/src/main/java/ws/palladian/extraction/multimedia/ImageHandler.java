@@ -1008,12 +1008,12 @@ public class ImageHandler {
         return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
-    public static ws.palladian.extraction.multimedia.Color detectColor(BufferedImage bufferedImage) {
+    public static List<ws.palladian.extraction.multimedia.Color> detectColors(BufferedImage bufferedImage) {
 
-        final double maxClusterDistance = 20;
+        final double maxClusterDistance = 50;
 
-        final int upperBound = 250;
-        final int lowerBound = 5;
+        final int upperBound = 245;
+        final int lowerBound = 10;
 
         List<ColorCluster> clusters = new ArrayList<>();
 
@@ -1057,22 +1057,44 @@ public class ImageHandler {
             }
         });
 
-        Color imageColor = clusters.get(0).getCenterColor();
-        String hex = rgbToHex(imageColor);
+//        for (ColorCluster cluster : clusters) {
+//            if (cluster.population > 50) {
+//                System.out.println(rgbToHex(cluster.getCenterColor()) + " : " + cluster.population);
+//            }
+//        }
 
-        Pair<Double, ws.palladian.extraction.multimedia.Color> bestMatch = null;
+        List<ws.palladian.extraction.multimedia.Color> colors = new ArrayList<>();
+        Set<String> seenMainColors = new HashSet<>();
 
-        for (String string : COLORS) {
-            String[] split = string.split(";");
-            Color color = hexToRgb(split[0]);
-            double distance = colorDistance(imageColor, color);
-            if (bestMatch == null || distance < bestMatch.getValue0()) {
-                bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex, split[1], split[2]));
+        // go through clusters and get top 3 main colors
+        for (ColorCluster cluster : clusters) {
+            
+            Color imageColor = cluster.getCenterColor();
+            String hex = rgbToHex(imageColor);
+
+            Pair<Double, ws.palladian.extraction.multimedia.Color> bestMatch = null;
+
+            for (String string : COLORS) {
+                String[] split = string.split(";");
+                Color color = hexToRgb(split[0]);
+                double distance = colorDistance(imageColor, color);
+                if (bestMatch == null || distance < bestMatch.getValue0()) {
+                    bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex, split[1], split[2]));
+                }
+
+            }
+
+            if (seenMainColors.add(bestMatch.getValue1().getMainColorName())){
+                colors.add(bestMatch.getValue1());
+            }
+
+            if (seenMainColors.size() >= 3) {
+                break;
             }
 
         }
 
-        return bestMatch.getValue1();
+        return colors;
     }
 
     private static double colorDistance(Color color1, Color color2) {
@@ -1088,15 +1110,24 @@ public class ImageHandler {
         // BufferedImage testImg = ImageHandler.load("data/temp/img/testImage.jpg");
         // BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");
         BufferedImage testImg = ImageHandler
+                .load("https://res.svh24.de/images2/720/2/257/1012007099_1.jpg");
+        CollectionHelper.print(ImageHandler.detectColors(testImg));
+        testImg = ImageHandler
+                .load("https://res.svh24.de/images2/720/4/119/1000000095_1.jpg");
+        CollectionHelper.print(ImageHandler.detectColors(testImg));
+        testImg = ImageHandler
+                .load("https://res.svh24.de/images2/720/1/271/1011038627_1.jpg");
+        CollectionHelper.print(ImageHandler.detectColors(testImg));
+        testImg = ImageHandler
                 .load("http://cdn1-www.webecoist.momtastic.com/assets/uploads/2008/12/8-green-camera.jpg");
-        System.out.println(ImageHandler.detectColor(testImg));
+        CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler.load("http://www.fotokoch.de/bilddaten/bildklein/samsung-wb50f-rot_60185.jpg");
-        System.out.println(ImageHandler.detectColor(testImg));
+        CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler.load(
                 "http://cdn.itechnews.net/wp-content/uploads/2012/09/HTC-8X-Windows-Phone-8-Smartphone-flaming-red.jpg");
-        System.out.println(ImageHandler.detectColor(testImg));
+        CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler.load("http://image01.bonprix.de/bonprixbilder/460x644/1427714799/15023250-ujoMmNo0.jpg");
-        System.out.println(ImageHandler.detectColor(testImg));
+        CollectionHelper.print(ImageHandler.detectColors(testImg));
         System.exit(0);
 
         StopWatch sw = new StopWatch();
