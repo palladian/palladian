@@ -23,10 +23,19 @@ public class Color {
     public String getHexCode() {
         return this.hexCode;
     }
-    public String getFineColorName() {
+    public String getSpecificColorName() {
         return this.fineColorName;
     }
     public String getMainColorName() {
         return this.mainColorName;
+    }
+
+    @Override
+    public String toString() {
+        return "Color{" +
+                "hexCode='" + hexCode + '\'' +
+                ", mainColorName='" + mainColorName + '\'' +
+                ", fineColorName='" + fineColorName + '\'' +
+                '}';
     }
 }
