@@ -59,6 +59,13 @@ public class ImageHandler {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandler.class);
 
+    private static final List<String> COLORS;
+
+    static {
+        InputStream inputStream = ImageHandler.class.getResourceAsStream("/colors.csv");
+        COLORS = FileHelper.readFileToArray(inputStream);
+    }
+
     /**
      * <p>
      * An extracted image.
@@ -88,6 +95,21 @@ public class ImageHandler {
             return getWidth() / getHeight();
         }
 
+    }
+
+    /**
+     * <p>A color cluster.</p>
+     */
+    private static final class ColorCluster {
+        long totalRed = 0L;
+        long totalGreen = 0L;
+        long totalBlue = 0L;
+        int population;
+
+        public Color getCenterColor() {
+            return new Color((int)((double)totalRed / population), (int)((double)totalGreen / population),
+                    (int)((double)totalBlue / population));
+        }
     }
 
     /** Image similarity mean square error. */
@@ -195,8 +217,8 @@ public class ImageHandler {
                             continue;
                         }
 
-                        if (!MathHelper
-                                .isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
+                        if (!MathHelper.isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(),
+                                0.05)) {
                             continue;
                         }
                         if (isDuplicate(image1.imageContent, image2.imageContent)) {
@@ -978,55 +1000,74 @@ public class ImageHandler {
         if (colorStr.startsWith("#")) {
             colorStr = colorStr.substring(1);
         }
-        return new Color(
-                Integer.valueOf( colorStr.substring( 0, 2 ), 16 ),
-                Integer.valueOf( colorStr.substring( 2, 4 ), 16 ),
-                Integer.valueOf( colorStr.substring( 4, 6 ), 16 ) );
+        return new Color(Integer.valueOf(colorStr.substring(0, 2), 16), Integer.valueOf(colorStr.substring(2, 4), 16),
+                Integer.valueOf(colorStr.substring(4, 6), 16));
     }
 
-    public ws.palladian.extraction.multimedia.Color detectColor(BufferedImage bufferedImage) {
+    public static String rgbToHex(Color color) {
+        return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+    }
 
-        long totalRed = 0L;
-        long totalGreen = 0L;
-        long totalBlue = 0L;
-        long count = 0;
+    public static ws.palladian.extraction.multimedia.Color detectColor(BufferedImage bufferedImage) {
 
-        final int upperBound = 240;
-        final int lowerBound = 15;
+        final double maxClusterDistance = 20;
+
+        final int upperBound = 250;
+        final int lowerBound = 5;
+
+        List<ColorCluster> clusters = new ArrayList<>();
 
         for (int i = 0; i < bufferedImage.getWidth(); i++) {
+            ol:
             for (int j = 0; j < bufferedImage.getHeight(); j++) {
 
                 Color c1 = new Color(bufferedImage.getRGB(i, j));
 
                 // discard too white and too dark
-                if ((c1.getRed() > upperBound && c1.getGreen() > upperBound && c1.getBlue() > upperBound) ||
-                    (c1.getRed() < lowerBound && c1.getGreen() < lowerBound && c1.getBlue() < lowerBound)) {
+                if ((c1.getRed() > upperBound && c1.getGreen() > upperBound && c1.getBlue() > upperBound)
+                        || (c1.getRed() < lowerBound && c1.getGreen() < lowerBound && c1.getBlue() < lowerBound)) {
                     continue;
                 }
 
-                totalRed += c1.getRed();
-                totalGreen += c1.getGreen();
-                totalBlue += c1.getBlue();
+                // check whether we can add the color to an existing cluster or to open a new one
+                for (ColorCluster cluster : clusters) {
+                    double distance = colorDistance(cluster.getCenterColor(), c1);
+                    if (distance < maxClusterDistance) {
+                        cluster.totalRed += c1.getRed();
+                        cluster.totalGreen += c1.getGreen();
+                        cluster.totalBlue += c1.getBlue();
+                        cluster.population++;
+                        continue ol;
+                    }
+                }
 
-                count++;
+                ColorCluster newCluster = new ColorCluster();
+                newCluster.totalRed += c1.getRed();
+                newCluster.totalGreen += c1.getGreen();
+                newCluster.totalBlue += c1.getBlue();
+                newCluster.population++;
+                clusters.add(newCluster);
             }
         }
 
-        //String hex = String.format("#%02x%02x%02x", (int) ((double) totalRed / count), (int) ((double) totalGreen / count), (int) ((double) totalBlue / count));
-        Color imageColor =new Color((int) ((double) totalRed / count), (int) ((double) totalGreen / count), (int) ((double) totalBlue / count));
+        Collections.sort(clusters, new Comparator<ColorCluster>() {
+            @Override
+            public int compare(ColorCluster o1, ColorCluster o2) {
+                return o2.population - o1.population;
+            }
+        });
+
+        Color imageColor = clusters.get(0).getCenterColor();
+        String hex = rgbToHex(imageColor);
 
         Pair<Double, ws.palladian.extraction.multimedia.Color> bestMatch = null;
 
-        InputStream inputStream = ImageHandler.class.getResourceAsStream("/colos.csv");
-        List<String> strings = FileHelper.readFileToArray(inputStream);
-//        List<String> strings = FileHelper.readFileToArray("colorNames.csv");
-        for (String string : strings) {
+        for (String string : COLORS) {
             String[] split = string.split(";");
             Color color = hexToRgb(split[0]);
-            double distance = distance(imageColor, color);
+            double distance = colorDistance(imageColor, color);
             if (bestMatch == null || distance < bestMatch.getValue0()) {
-                bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(split[0],split[1],split[2]));
+                bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex, split[1], split[2]));
             }
 
         }
@@ -1034,22 +1075,28 @@ public class ImageHandler {
         return bestMatch.getValue1();
     }
 
-    private double distance(Color color1, Color color2) {
+    private static double colorDistance(Color color1, Color color2) {
         int rDistance = Math.abs(color1.getRed() - color2.getRed());
         int gDistance = Math.abs(color1.getGreen() - color2.getGreen());
         int bDistance = Math.abs(color1.getBlue() - color2.getBlue());
 
-        return Math.sqrt(rDistance*rDistance + gDistance*gDistance + bDistance*bDistance);
+        return Math.sqrt(rDistance * rDistance + gDistance * gDistance + bDistance * bDistance);
     }
 
     public static void main(String[] args) throws Exception {
 
         // BufferedImage testImg = ImageHandler.load("data/temp/img/testImage.jpg");
-//        BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");
-        BufferedImage testImg = ImageHandler.load("http://www.fotokoch.de/bilddaten/bildklein/samsung-wb50f-rot_60185.jpg");
-        System.out.println(new ImageHandler().detectColor(testImg));
+        // BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");
+        BufferedImage testImg = ImageHandler
+                .load("http://cdn1-www.webecoist.momtastic.com/assets/uploads/2008/12/8-green-camera.jpg");
+        System.out.println(ImageHandler.detectColor(testImg));
+        testImg = ImageHandler.load("http://www.fotokoch.de/bilddaten/bildklein/samsung-wb50f-rot_60185.jpg");
+        System.out.println(ImageHandler.detectColor(testImg));
+        testImg = ImageHandler.load(
+                "http://cdn.itechnews.net/wp-content/uploads/2012/09/HTC-8X-Windows-Phone-8-Smartphone-flaming-red.jpg");
+        System.out.println(ImageHandler.detectColor(testImg));
         testImg = ImageHandler.load("http://image01.bonprix.de/bonprixbilder/460x644/1427714799/15023250-ujoMmNo0.jpg");
-        System.out.println(new ImageHandler().detectColor(testImg));
+        System.out.println(ImageHandler.detectColor(testImg));
         System.exit(0);
 
         StopWatch sw = new StopWatch();
@@ -1065,7 +1112,7 @@ public class ImageHandler {
         // url = "http://www.thehollywoodnews.com/artman2/uploads/1/jim-carrey_1.jpg";
         // URL urlLocation;
 
-        Collection<String> imageUrls = new ArrayList<String>();
+        Collection<String> imageUrls = new ArrayList<>();
         imageUrls.add("imageA1.jpg");
         imageUrls.add("imageA2.jpg");
         imageUrls.add("imageB1.jpg");
