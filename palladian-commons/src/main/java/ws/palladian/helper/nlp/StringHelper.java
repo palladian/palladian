@@ -477,6 +477,43 @@ public final class StringHelper {
 
     /**
      * <p>
+     * Get the index of the word contained in the search string. Return -1 if is not contained.
+     * </p>
+     *
+     * @param word         The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return The index position or -1 if the word is not contained.
+     */
+    public static int indexOfWordCaseSensitive(String word, String searchString) {
+        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))"+word+"(?=([;!?.,: ]|$))").matcher(searchString);
+        boolean found = matcher.find();
+        if (found) {
+            return matcher.start(1);
+        }
+        return -1;
+    }
+
+    /**
+     * <p>
+     * Get the index of the word contained in the search string. Return -1 if is not contained.
+     * </p>
+     *
+     * @param word         The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return The index position or -1 if the word is not contained.
+     */
+    public static int lastIndexOfWordCaseSensitive(String word, String searchString) {
+        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))"+word+"(?=([;!?.,: ]|$))").matcher(searchString);
+        int start = -1;
+        while (matcher.find()) {
+            start = matcher.start(1);
+        }
+        return start;
+    }
+
+
+    /**
+     * <p>
      * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
      * within another word.
      * </p>
