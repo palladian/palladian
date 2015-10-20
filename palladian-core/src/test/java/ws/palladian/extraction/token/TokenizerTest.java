@@ -113,6 +113,21 @@ public class TokenizerTest {
         String inputText = "";
         List<String> sentences;
 
+        inputText = "Inkl. Wettervorhersage (Thermometer, Hygrometer) und Wetterindikator.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Das Leben ist wie eine Schachtel Pralinen - man weiß nie was man kriegt.\" Bei uns ist jedoch der Satz am B abgeschnitten.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals("Bei uns ist jedoch der Satz am B abgeschnitten", sentences.get(1));
+
+        inputText = "Die originale Druckpatrone Nr. 920XL (CD975AE) von HP liefert professionelle Texte und Grafiken in Laserqualität.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
         inputText = "Die originale Druckpatrone Nr. 920XL (CD975AE) von HP liefert professionelle Texte und Grafiken in Laserqualität.";
         sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
         // CollectionHelper.print(sentences);

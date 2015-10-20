@@ -1,6 +1,7 @@
 package ws.palladian.helper.nlp;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -8,7 +9,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 
 /**
  * <p>
@@ -19,6 +22,9 @@ import org.junit.Test;
  * @author Philipp Katz
  */
 public class StringHelperTest {
+
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
 
     @Test
     public void testNumberToWord() {
@@ -46,6 +52,11 @@ public class StringHelperTest {
         assertEquals("samsung s4 a", StringHelper.removeBrackets("samsung{galaxy} s4 (cool!)a {123}"));
         // TODO, nested, would require looping
         // assertEquals("samsung s4", StringHelper.removeBrackets("samsung (galaxy (pretty)) s4"));
+    }
+
+    @Test
+    public void testIndexOfWord() {
+        collector.checkThat(StringHelper.indexOfWordCaseSensitive("rice", "riceland yazmin rice"), is(16));
     }
 
     @Test
