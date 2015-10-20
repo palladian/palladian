@@ -1007,7 +1007,7 @@ public final class StringHelper {
 
         boolean deleteFirst = true;
         boolean deleteLast = true;
-        while ((deleteFirst || deleteLast) && string.length() > 0) {
+        while ((deleteFirst || deleteLast) && !string.isEmpty()) {
             deleteFirst = false;
             deleteLast = false;
             Character first = string.charAt(0);
