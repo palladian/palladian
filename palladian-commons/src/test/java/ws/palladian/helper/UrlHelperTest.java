@@ -44,6 +44,7 @@ public class UrlHelperTest {
         collector.checkThat(UrlHelper.getDomain("http://amazon.co.uk", false, false), is("amazon.co.uk"));
         collector.checkThat(UrlHelper.getDomain("http://test.com", false, false), is("test.com"));
         collector.checkThat(UrlHelper.getDomain("http://sub.domain.with.points.test.ac.uk", false, false), is("test.ac.uk"));
+        collector.checkThat(UrlHelper.getDomain("http://www.companies-reviews.com/review/3168408/Sales-Promotion-Agency-Expression/", false, false), is("companies-reviews.com"));
 
         assertEquals("http://www.flashdevices.net",
                 UrlHelper.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html", true));
