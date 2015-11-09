@@ -162,14 +162,12 @@ public final class PageAnalyzer {
 
         try {
             xpaths = visit(document.getLastChild(), keyword, wordMatch, xpaths);
-        } catch (StackOverflowError e) {
-            LOGGER.error(document.getDocumentURI(), e);
-        } catch (Exception e) {
+        } catch (StackOverflowError | Exception e) {
             LOGGER.error(document.getDocumentURI(), e);
         }
 
         // add namespace if necessary TODO delete, do that only when applying the xpath (XPathHelper.getNodesNS)
-        LinkedHashSet<String> nsxpaths = new LinkedHashSet<String>();
+        LinkedHashSet<String> nsxpaths = new LinkedHashSet<>();
         Iterator<String> xpathIterator = xpaths.iterator();
         while (xpathIterator.hasNext()) {
             String currentXpath = xpathIterator.next();
