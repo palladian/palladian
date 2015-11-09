@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +24,15 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  */
 public class FacebookInsights {
     
+    @SuppressWarnings("serial")
+    public class FacebookInsightsException extends Exception {
+
+        public FacebookInsightsException(String message) {
+            super(message);
+        }
+
+    }
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookInsights.class);
     
@@ -49,48 +57,23 @@ public class FacebookInsights {
         }
     }
     
-    public static abstract class Value {
+    public static class Value {
+        final Object value;
         final Date endTime;
-        public Value(Date endTime) {
-            this.endTime = endTime;
-        }
-    }
-    
-    public static final class SingleValue extends Value {
-        final String value;
-        public SingleValue(String value, Date endTime) {
-            super(endTime);
+        public Value(Object value, Date endTime) {
             this.value = value;
+            this.endTime = endTime;
         }
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("SingleValue [value=");
+            builder.append("Value [value=");
             builder.append(value);
             builder.append(", endTime=");
             builder.append(endTime);
             builder.append("]");
             return builder.toString();
         }
-    }
-    
-    public static final class MultiValue extends Value {
-        final Map<String, Object> values;
-        MultiValue(Map<String, Object> values, Date endTime) {
-            super(endTime);
-            this.values = values;
-        }
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("MultiValue [values=");
-            builder.append(values);
-            builder.append(", endTime=");
-            builder.append(endTime);
-            builder.append("]");
-            return builder.toString();
-        }
-        
     }
     
     // 2015-11-07T08:00:00+0000
@@ -113,8 +96,9 @@ public class FacebookInsights {
      * @throws HttpException
      * @throws JsonException
      * @throws ParseException
+     * @throws FacebookInsightsException 
      */
-    public final Insights getInsights(String id, String metric, Date since, Date until, Period period) throws HttpException, JsonException, ParseException {
+    public final Insights getInsights(String id, String metric, Date since, Date until, Period period) throws HttpException, JsonException, ParseException, FacebookInsightsException {
         // https://graph.facebook.com/v2.5/384144361790908/insights?metric=page_consumptions&period=day&since=1443657600&access_token=CAACEdEose0cBAOIPlRvZCYQtHfLqur68DZCuREVXplhTK4CPDtZCPVlIJlYZCFCyWOmBMVPvXSOSqfy8DwIVoCATYnrtQNnXuOzP4AjWD5HX34uJSSXlZAlHV9Kz6YCcaGgbzSaNlr8G2q59aZApBBvAll4p3F31gAOHB4LOYqEmnmrycCrZBOC16lsa4kCE1cZD
         
         String url = String.format("https://graph.facebook.com/v2.5/%s/insights?metric=%s&period=%s&access_token=%s",
@@ -126,15 +110,22 @@ public class FacebookInsights {
         if (until != null) {
             url += "&until=" + until.getTime() / 1000;
         }
-        LOGGER.debug("Retrieving URL {}", url);
+//        LOGGER.debug("Retrieving URL {}", url);
+        System.out.println(url);
         
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         HttpResult result = retriever.httpGet(url);
-        // TODO check response code
+        if (result.errorStatus()) {
+            JsonObject jsonErrorObject = new JsonObject(result.getStringContent());
+            String message = jsonErrorObject.getJsonObject("error").getString("message");
+            throw new FacebookInsightsException(message);
+        }
+        
+        System.out.println(result.getStringContent());
         
         JsonObject jsonResult = new JsonObject(result.getStringContent());
         JsonArray jsonData = jsonResult.getJsonArray("data");
-        if (jsonData.size() != 1) throw new IllegalStateException("Size of array should be one, but was" + jsonData.size());
+        if (jsonData.size() != 1) throw new IllegalStateException("Size of array should be one, but was " + jsonData.size());
         
         JsonObject firstData = jsonData.getJsonObject(0);
         List<Value> values = new ArrayList<>();
@@ -148,14 +139,7 @@ public class FacebookInsights {
             JsonObject currentJsonValue = jsonValues.getJsonObject(i);
             String endTimeString = currentJsonValue.getString("end_time");
             Object valueObject = currentJsonValue.get("value");
-            if (valueObject instanceof JsonObject) {
-                JsonObject valueJsonObject = (JsonObject)valueObject;
-                values.add(new MultiValue(valueJsonObject, parseTime(endTimeString)));
-            } else {
-                // number or string; assume string for now
-                String stringValue = valueObject.toString();
-                values.add(new SingleValue(stringValue, parseTime(endTimeString)));
-            }
+            values.add(new Value(valueObject, parseTime(endTimeString)));
         }
         return new Insights(name, null, values, title, description, id2);
     }
@@ -167,8 +151,12 @@ public class FacebookInsights {
     public static void main(String[] args) throws Exception, Exception, Exception {
         FacebookInsights insights = new FacebookInsights("xxx");
         Date since = parseTime("2014-01-01T00:00:00+0000");
-        Insights result = insights.getInsights("384144361790908", "page_consumptions", since, null, Period.day);
-        CollectionHelper.print(result.values);
+        // Insights result = insights.getInsights("384144361790908", "page_consumptions", since, null, Period.day);
+        // Insights result = insights.getInsights("384144361790908", "page_consumptions_by_consumption_type", since, null, Period.day);
+        // Insights result = insights.getInsights("384144361790908", "page_impressions_by_country_unique", since, null, Period.day);
+        // Insights result = insights.getInsights("384144361790908", "page_story_adds_by_age_gender_unique", since, null, Period.week);
+        Insights result = insights.getInsights("384144361790908", "page_storytellers_by_country", since, null, Period.days_28);
+        // CollectionHelper.print(result.values);
     }
 
 }
