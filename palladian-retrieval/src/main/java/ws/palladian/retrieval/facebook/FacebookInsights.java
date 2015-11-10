@@ -5,12 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -19,144 +22,129 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
- * Retrieve Facebook Insights.
- * @author pk
+ * <p>
+ * Retrieve <a href="https://www.facebook.com">Facebook</a> Insights.
+ * 
+ * @see <a href="https://developers.facebook.com/tools/explorer">Graph API Explorer to get a "Page Access Token".</a>
+ * @see <a href="https://developers.facebook.com/docs/graph-api/reference/v2.5/insights">Graph API documentation for
+ *      Insights, listing all available metrics.</a>
+ * @see <a href="https://developers.facebook.com/docs/platforminsights/page">General information about Facebook Page
+ *      Insights API</a>
+ * @author Philipp Katz
  */
 public class FacebookInsights {
-    
-    @SuppressWarnings("serial")
-    public class FacebookInsightsException extends Exception {
-
-        public FacebookInsightsException(String message) {
-            super(message);
-        }
-
-    }
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookInsights.class);
-    
+
+    /** The period for an insights result. */
     enum Period {
-        day, week, days_28, month, lifetime
+        DAY, WEEK, DAYS_28, MONTH, LIFETIME
     }
-    
-    public static final class Insights {
-        final String name;
-        final Period period;
-        final List<Value> values;
-        final String title;
-        final String description;
-        final String id;
-        Insights(String name, Period period, List<Value> values, String title, String description, String id) {
-            this.name = name;
-            this.period = period;
-            this.values = values;
-            this.title = title;
-            this.description = description;
-            this.id = id;
-        }
-    }
-    
-    public static class Value {
-        final Object value;
-        final Date endTime;
-        public Value(Object value, Date endTime) {
-            this.value = value;
-            this.endTime = endTime;
-        }
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("Value [value=");
-            builder.append(value);
-            builder.append(", endTime=");
-            builder.append(endTime);
-            builder.append("]");
-            return builder.toString();
-        }
-    }
-    
-    // 2015-11-07T08:00:00+0000
+
+    /** Format for parsing dates sent to and returned by API. */
     static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
-    
-    final String accessToken;
-    
-    public FacebookInsights(String accessToken) {
-        this.accessToken=accessToken;
-    }
-    
+
+    private final String accessToken;
+
     /**
+     * <p>
+     * Create a new {@link FacebookInsights} instance.
+     * 
+     * @param accessToken The access token, not empty or <code>null</code>. Note that this is a "Page Access Token", not
+     *            a "User Access Token"!
+     */
+    public FacebookInsights(String accessToken) {
+        Validate.notEmpty(accessToken, "accessToken must not be empty");
+        this.accessToken = accessToken;
+    }
+
+    /**
+     * <p>
      * Retrieves Facebook insights.
-     * @param id The ID of the page.
+     * 
+     * @param pageOrPostId The ID of the page or the post for which to retrieve insights.
      * @param metric Name of the metric.
      * @param since Lower time interval, or <code>null</code>.
      * @param until Upper time interval, or <code>null</code>.
      * @param period The period resolution.
      * @return The insights.
-     * @throws HttpException
-     * @throws JsonException
-     * @throws ParseException
-     * @throws FacebookInsightsException 
+     * @throws FacebookInsightsException In case anything goes wrong.
+     * @see <a href="https://developers.facebook.com/docs/graph-api/reference/v2.5/insights">Graph API documentation for
+     *      Insights, listing all available metrics.</a>
      */
-    public final Insights getInsights(String id, String metric, Date since, Date until, Period period) throws HttpException, JsonException, ParseException, FacebookInsightsException {
-        // https://graph.facebook.com/v2.5/384144361790908/insights?metric=page_consumptions&period=day&since=1443657600&access_token=CAACEdEose0cBAOIPlRvZCYQtHfLqur68DZCuREVXplhTK4CPDtZCPVlIJlYZCFCyWOmBMVPvXSOSqfy8DwIVoCATYnrtQNnXuOzP4AjWD5HX34uJSSXlZAlHV9Kz6YCcaGgbzSaNlr8G2q59aZApBBvAll4p3F31gAOHB4LOYqEmnmrycCrZBOC16lsa4kCE1cZD
-        
-        String url = String.format("https://graph.facebook.com/v2.5/%s/insights?metric=%s&period=%s&access_token=%s",
-                id, metric, period.toString(), accessToken);
+    public final Insights getInsights(String pageOrPostId, String metric, Date since, Date until, Period period)
+            throws FacebookInsightsException {
+        Validate.notEmpty(pageOrPostId, "pageOrPostId must not be empty");
+        Validate.notEmpty(metric, "metric must not be empty");
+        Validate.notNull(period, "period must not be null");
+        String url = "https://graph.facebook.com/v2.5/" + pageOrPostId + "/insights";
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, url);
+        requestBuilder.addUrlParam("metric", metric);
+        requestBuilder.addUrlParam("period", period.toString().toLowerCase());
+        requestBuilder.addUrlParam("access_token", accessToken);
         if (since != null) {
-            // FIXME need to go back one day, else the specified "since" day is missing!
-            url += "&since=" + since.getTime() / 1000;
+            // need to go back one day, else the specified "since" day is missing!
+            long sinceTime = since.getTime() - TimeUnit.DAYS.toMillis(1);
+            requestBuilder.addUrlParam("since", String.valueOf(sinceTime / 1000));
         }
         if (until != null) {
-            url += "&until=" + until.getTime() / 1000;
+            requestBuilder.addUrlParam("until", String.valueOf(until.getTime() / 1000));
         }
-//        LOGGER.debug("Retrieving URL {}", url);
-        System.out.println(url);
-        
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
-        HttpResult result = retriever.httpGet(url);
-        if (result.errorStatus()) {
-            JsonObject jsonErrorObject = new JsonObject(result.getStringContent());
-            String message = jsonErrorObject.getJsonObject("error").getString("message");
-            throw new FacebookInsightsException(message);
+        HttpResult result;
+        try {
+            result = retriever.execute(requestBuilder.create());
+        } catch (HttpException e) {
+            throw new FacebookInsightsException("Error during HTTP request", e);
         }
-        
-        System.out.println(result.getStringContent());
-        
-        JsonObject jsonResult = new JsonObject(result.getStringContent());
-        JsonArray jsonData = jsonResult.getJsonArray("data");
-        if (jsonData.size() != 1) throw new IllegalStateException("Size of array should be one, but was " + jsonData.size());
-        
-        JsonObject firstData = jsonData.getJsonObject(0);
-        List<Value> values = new ArrayList<>();
-        
-        String name = firstData.getString("name");
-        String title = firstData.getString("title");
-        String description = firstData.getString("description");
-        String id2 = firstData.getString("id");
-        JsonArray jsonValues = firstData.getJsonArray("values");
-        for (int i = 0; i < jsonValues.size(); i++) {
-            JsonObject currentJsonValue = jsonValues.getJsonObject(i);
-            String endTimeString = currentJsonValue.getString("end_time");
-            Object valueObject = currentJsonValue.get("value");
-            values.add(new Value(valueObject, parseTime(endTimeString)));
+        checkError(result);
+        LOGGER.debug("JSON result = {}", result.getStringContent());
+        try {
+            JsonObject jsonResult = new JsonObject(result.getStringContent());
+            JsonArray jsonData = jsonResult.getJsonArray("data");
+            if (jsonData.size() != 1) {
+                throw new IllegalStateException("Size of array should be one, but was " + jsonData.size());
+            }
+            JsonObject firstData = jsonData.getJsonObject(0);
+            String name = firstData.getString("name");
+            String title = firstData.getString("title");
+            String description = firstData.getString("description");
+            String id = firstData.getString("id");
+            List<Value> values = new ArrayList<>();
+            JsonArray jsonValues = firstData.getJsonArray("values");
+            for (int i = 0; i < jsonValues.size(); i++) {
+                JsonObject currentJsonValue = jsonValues.getJsonObject(i);
+                String endTime = currentJsonValue.getString("end_time");
+                Object value = currentJsonValue.get("value");
+                values.add(new Value(value, parseTime(endTime)));
+            }
+            return new Insights(name, period, values, title, description, id);
+        } catch (JsonException e) {
+            throw new FacebookInsightsException("Could not parse JSON result (" + result.getStringContent() + ")", e);
         }
-        return new Insights(name, null, values, title, description, id2);
     }
 
-    private static Date parseTime(String endTimeString) throws ParseException {
-        return new SimpleDateFormat(DATE_FORMAT).parse(endTimeString);
+    private static void checkError(HttpResult result) throws FacebookInsightsException {
+        if (result.errorStatus()) {
+            String message;
+            try {
+                JsonObject jsonErrorObject = new JsonObject(result.getStringContent());
+                message = jsonErrorObject.getJsonObject("error").getString("message");
+                throw new FacebookInsightsException(message);
+            } catch (JsonException e) {
+                throw new FacebookInsightsException("Encountered error result from API, but could not parse as JSON ("
+                        + result.getStringContent() + ")");
+            }
+        }
     }
-    
-    public static void main(String[] args) throws Exception, Exception, Exception {
-        FacebookInsights insights = new FacebookInsights("xxx");
-        Date since = parseTime("2014-01-01T00:00:00+0000");
-        // Insights result = insights.getInsights("384144361790908", "page_consumptions", since, null, Period.day);
-        // Insights result = insights.getInsights("384144361790908", "page_consumptions_by_consumption_type", since, null, Period.day);
-        // Insights result = insights.getInsights("384144361790908", "page_impressions_by_country_unique", since, null, Period.day);
-        // Insights result = insights.getInsights("384144361790908", "page_story_adds_by_age_gender_unique", since, null, Period.week);
-        Insights result = insights.getInsights("384144361790908", "page_storytellers_by_country", since, null, Period.days_28);
-        // CollectionHelper.print(result.values);
+
+    private static Date parseTime(String timeString) throws FacebookInsightsException {
+        try {
+            return new SimpleDateFormat(DATE_FORMAT).parse(timeString);
+        } catch (ParseException e) {
+            throw new FacebookInsightsException("Could not parse tim string " + timeString + " using " + DATE_FORMAT);
+        }
     }
 
 }
