@@ -38,7 +38,7 @@ public class FacebookInsights {
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookInsights.class);
 
     /** The period for an insights result. */
-    enum Period {
+    public enum Period {
         DAY, WEEK, DAYS_28, MONTH, LIFETIME
     }
 
