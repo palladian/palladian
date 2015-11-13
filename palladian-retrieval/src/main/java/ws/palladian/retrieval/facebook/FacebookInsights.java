@@ -48,7 +48,7 @@ public class FacebookInsights {
 
     /** Version of the API which we use. */
     private static final String API_VERSION = "v2.5";
-    
+
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     private final String accessToken;
@@ -114,7 +114,7 @@ public class FacebookInsights {
             JsonArray jsonValues = firstData.getJsonArray("values");
             for (int i = 0; i < jsonValues.size(); i++) {
                 JsonObject currentJsonValue = jsonValues.getJsonObject(i);
-                String endTime = currentJsonValue.getString("end_time");
+                String endTime = currentJsonValue.tryGetString("end_time");
                 Object value = currentJsonValue.get("value");
                 values.add(new Value(value, parseTime(endTime)));
             }
@@ -217,7 +217,17 @@ public class FacebookInsights {
         }
     }
 
+    /**
+     * Parse a time string.
+     * 
+     * @param timeString The time string, or <code>null</code>.
+     * @return The parse time string, or <code>null</code> in case argument was null.
+     * @throws FacebookInsightsException In case the time string could not be parsed.
+     */
     private static Date parseTime(String timeString) throws FacebookInsightsException {
+        if (timeString == null) {
+            return null;
+        }
         try {
             return new SimpleDateFormat(DATE_FORMAT).parse(timeString);
         } catch (ParseException e) {
