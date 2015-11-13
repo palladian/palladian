@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2;
 import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -43,7 +44,12 @@ public class FacebookInsights {
     }
 
     /** Format for parsing dates sent to and returned by API. */
-    static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+
+    /** Version of the API which we use. */
+    private static final String API_VERSION = "v2.5";
+    
+    private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     private final String accessToken;
 
@@ -78,7 +84,8 @@ public class FacebookInsights {
         Validate.notEmpty(pageOrPostId, "pageOrPostId must not be empty");
         Validate.notEmpty(metric, "metric must not be empty");
         Validate.notNull(period, "period must not be null");
-        String url = "https://graph.facebook.com/v2.5/" + pageOrPostId + "/insights";
+        validateTimeInterval(since, until);
+        String url = "https://graph.facebook.com/" + API_VERSION + "/" + pageOrPostId + "/insights";
         HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, url);
         requestBuilder.addUrlParam("metric", metric);
         requestBuilder.addUrlParam("period", period.toString().toLowerCase());
@@ -91,15 +98,7 @@ public class FacebookInsights {
         if (until != null) {
             requestBuilder.addUrlParam("until", String.valueOf(until.getTime() / 1000));
         }
-        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
-        HttpResult result;
-        try {
-            result = retriever.execute(requestBuilder.create());
-        } catch (HttpException e) {
-            throw new FacebookInsightsException("Error during HTTP request", e);
-        }
-        checkError(result);
-        LOGGER.debug("JSON result = {}", result.getStringContent());
+        HttpResult result = performRequest(requestBuilder.create());
         try {
             JsonObject jsonResult = new JsonObject(result.getStringContent());
             JsonArray jsonData = jsonResult.getJsonArray("data");
@@ -122,6 +121,85 @@ public class FacebookInsights {
             return new Insights(name, period, values, title, description, id);
         } catch (JsonException e) {
             throw new FacebookInsightsException("Could not parse JSON result (" + result.getStringContent() + ")", e);
+        }
+    }
+
+    /**
+     * <p>
+     * Retrieves a Facebook page's feed.
+     * 
+     * @param pageId The ID of the page.
+     * @param since Lower time interval, or <code>null</code>.
+     * @param until Upper time interval, or <code>null</code>.
+     * @return The feed.
+     * @throws FacebookInsightsException In case anything goes wrong.
+     */
+    public final List<FeedItem> getFeed(String pageId, Date since, Date until) throws FacebookInsightsException {
+        Validate.notEmpty(pageId, "pageId must not be empty");
+        validateTimeInterval(since, until);
+        String url = "https://graph.facebook.com/" + API_VERSION + "/" + pageId + "/feed";
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, url);
+        if (since != null) {
+            requestBuilder.addUrlParam("since", String.valueOf(since.getTime() / 1000));
+        }
+        if (until != null) {
+            requestBuilder.addUrlParam("until", String.valueOf(until.getTime() / 1000));
+        }
+        requestBuilder.addUrlParam("access_token", accessToken);
+        HttpRequest2 request = requestBuilder.create();
+        List<FeedItem> items = new ArrayList<>();
+        for (;;) { // paging
+            HttpResult result = performRequest(request);
+            try {
+                JsonObject jsonResult = new JsonObject(result.getStringContent());
+                JsonArray jsonData = jsonResult.getJsonArray("data");
+                if (jsonData.size() == 0) {
+                    break;
+                }
+                for (int i = 0; i < jsonData.size(); i++) {
+                    JsonObject currentJson = jsonData.getJsonObject(i);
+                    String id = currentJson.getString("id");
+                    Date createdTime = parseTime(currentJson.getString("created_time"));
+                    String message = currentJson.tryGetString("message");
+                    String story = currentJson.tryGetString("story");
+                    items.add(new FeedItem(id, createdTime, message, story));
+                }
+                // build next request
+                String nextUrl = jsonResult.getJsonObject("paging").getString("next");
+                LOGGER.debug("Paging to URL {}", nextUrl);
+                request = new HttpRequest2Builder(HttpMethod.GET, nextUrl).create();
+            } catch (JsonException e) {
+                throw new FacebookInsightsException("Could not parse JSON result (" + result.getStringContent() + ")",
+                        e);
+            }
+        }
+        return items;
+    }
+
+    private HttpResult performRequest(HttpRequest2 request) throws FacebookInsightsException {
+        HttpResult result;
+        try {
+            result = retriever.execute(request);
+        } catch (HttpException e) {
+            throw new FacebookInsightsException("Error during HTTP request", e);
+        }
+        checkError(result);
+        LOGGER.debug("JSON result = {}", result.getStringContent());
+        return result;
+    }
+
+    /**
+     * Validate a since-until time interval. In case both a given, since must be before until.
+     * 
+     * @param since Since or <code>null</code>.
+     * @param until Until or <code>null</code>.
+     */
+    private static void validateTimeInterval(Date since, Date until) {
+        if (since == null || until == null) {
+            return;
+        }
+        if (until.before(since)) {
+            throw new IllegalArgumentException("until must not be before since");
         }
     }
 
