@@ -15,6 +15,9 @@ public class Value {
         return value;
     }
 
+    /**
+     * @return The end time, or <code>null</code> if not specified.
+     */
     public Date getEndTime() {
         return endTime;
     }
