@@ -118,7 +118,13 @@ public class FacebookInsights {
                 Object value = currentJsonValue.get("value");
                 values.add(new Value(value, parseTime(endTime)));
             }
-            return new Insights(name, period, values, title, description, id);
+            Period actualPeriod;
+            try {
+                actualPeriod = Period.valueOf(firstData.getString("period").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new FacebookInsightsException("Could not parse period to enum: " + firstData.getString("period"));
+            }
+            return new Insights(name, actualPeriod, values, title, description, id);
         } catch (JsonException e) {
             throw new FacebookInsightsException("Could not parse JSON result (" + result.getStringContent() + ")", e);
         }
