@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpMethod;
 import ws.palladian.retrieval.HttpRequest2Builder;
@@ -85,10 +84,10 @@ public final class SharedCount extends AbstractRankingService {
      * Create a new {@link SharedCount}.
      * 
      * @param configuration The configuration which must provide {@value #CONFIG_API_KEY} and
-     *            {@value #CONFIG_SERVICE_URL}, not <code>null</code>.
+     *            {@value #CONFIG_SERVICE_URL} (if <code>null</code>, the free endpoint {@value #FREE_URL} is assumed).
      */
     public SharedCount(Configuration configuration) {
-        this(configuration.getString(CONFIG_SERVICE_URL), configuration.getString(CONFIG_API_KEY));
+        this(configuration.getString(CONFIG_SERVICE_URL, FREE_URL), configuration.getString(CONFIG_API_KEY));
     }
 
     /**
@@ -118,13 +117,10 @@ public final class SharedCount extends AbstractRankingService {
     public Ranking getRanking(String url) throws RankingServiceException {
         Validate.notEmpty(url, "url must not be empty");
         HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, serviceUrl);
-        FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
-        entityBuilder.addData("url", url);
+        requestBuilder.addUrlParam("url", url);
         if (StringUtils.isNotBlank(apiKey)) {
-            entityBuilder.addData("apikey", apiKey);
+            requestBuilder.addUrlParam("apikey", apiKey);
         }
-        requestBuilder.setEntity(entityBuilder.create());
-//        retriever.setUserAgent("test");
         HttpResult httpResult;
         try {
             httpResult = retriever.execute(requestBuilder.create());
