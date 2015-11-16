@@ -20,7 +20,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * </p>
  * 
  * @author David Urbansky
- * 
+ * @deprecated Count API will be discontinued by Twitter soon. See Bitbucket #315
  */
 public final class TwitterTweets extends AbstractRankingService implements RankingService {
 

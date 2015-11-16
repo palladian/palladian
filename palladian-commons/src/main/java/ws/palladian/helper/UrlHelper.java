@@ -239,7 +239,7 @@ public final class UrlHelper {
                             break;
                         }
                     }
-                    result = result.replace(suffix, "");
+                    result = result.substring(0, result.length() - suffix.length());
                     String[] parts = result.split("\\.");
                     result = parts[parts.length - 1] + suffix;
                 }

@@ -2,9 +2,7 @@ package ws.palladian.retrieval.search.web;
 
 import org.apache.commons.configuration.Configuration;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.search.BaseFarooSearcher;
-import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -39,10 +37,6 @@ public final class FarooSearcher extends BaseFarooSearcher {
     @Override
     public String getName() {
         return "Faroo";
-    }
-
-    public static void main(String[] args) throws SearcherException {
-//        CollectionHelper.print(new FarooSearcher("TODO").search("conan", 10));
     }
 
 }
