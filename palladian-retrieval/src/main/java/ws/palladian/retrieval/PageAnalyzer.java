@@ -211,9 +211,9 @@ public final class PageAnalyzer {
      * @return A set of xPaths that all point to one of the specified elements.
      */
     public static Set<String> keepXPathPointingTo(Set<String> xPaths, String[] targetNodes) {
-        Set<String> filteredXPaths = new LinkedHashSet<String>();
+        Set<String> filteredXPaths = new LinkedHashSet<>();
 
-        Set<String> targetNodeSet = new HashSet<String>();
+        Set<String> targetNodeSet = new HashSet<>();
         for (String targetNode : targetNodes) {
             targetNodeSet.add(targetNode.toLowerCase());
         }
@@ -465,7 +465,8 @@ public final class PageAnalyzer {
         xpath = xpath.substring(9, xpath.length());
         // System.out.println("after normalization: "+xpath);
 
-        if (xpath.toLowerCase().indexOf("/script") > -1 || xpath.toLowerCase().indexOf("/html:script") > -1) {
+        String xplc = xpath.toLowerCase();
+        if (xplc.contains("/script") || xplc.contains("/html:script")) {
             return "";
         }
 
@@ -909,7 +910,7 @@ public final class PageAnalyzer {
 
         String t = getParentNode(getTableCellPath(tableTDXPath));
         List<Node> nodeList = XPathHelper.getXhtmlNodes(document, t);
-        Map<Integer, Integer> tdCountMap = new LinkedHashMap<Integer, Integer>();
+        Map<Integer, Integer> tdCountMap = new LinkedHashMap<>();
 
         for (int i = 0; i < nodeList.size(); i++) {
             Node trNode = nodeList.get(i);
@@ -1120,7 +1121,7 @@ public final class PageAnalyzer {
     // @SuppressWarnings("unchecked")
     public static List<String> getTextsByXPath(Document document, String xPath) {
 
-        ArrayList<String> texts = new ArrayList<String>();
+        ArrayList<String> texts = new ArrayList<>();
 
         if (document == null) {
             return texts;
@@ -1214,7 +1215,7 @@ public final class PageAnalyzer {
             int lastPointIndex = url.lastIndexOf(".");
             int fileEndingEndIndex = url.length();
             if (lastPointIndex > domain.length()) {
-                if (url.substring(lastPointIndex + 1).indexOf("?") > -1) {
+                if (url.substring(lastPointIndex + 1).contains("?")) {
                     fileEndingEndIndex = lastPointIndex + 1 + url.substring(lastPointIndex + 1).indexOf("?");
                 }
                 // String fileEndingURL = url.substring(lastPointIndex + 1, fileEndingEndIndex);
@@ -1225,7 +1226,7 @@ public final class PageAnalyzer {
             lastPointIndex = currentLink.lastIndexOf(".");
             if (lastPointIndex > domain.length()) {
                 fileEndingEndIndex = currentLink.length();
-                if (currentLink.substring(lastPointIndex + 1).indexOf("?") > -1) {
+                if (currentLink.substring(lastPointIndex + 1).contains("?")) {
                     fileEndingEndIndex = lastPointIndex + 1 + currentLink.substring(lastPointIndex + 1).indexOf("?");
                 }
                 String fileEndingLink = currentLink.substring(lastPointIndex + 1, fileEndingEndIndex);
@@ -1297,7 +1298,7 @@ public final class PageAnalyzer {
 
     public static List<String> extractDescription(Document webPage) {
 
-        List<String> descriptionWords = new ArrayList<String>();
+        List<String> descriptionWords = new ArrayList<>();
 
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
@@ -1330,7 +1331,7 @@ public final class PageAnalyzer {
      * @return A map of name-content pairs that were found in the meta tags of the given web page.
      */
     public static Map<String, String> extractMetaInformation(Document webPage) {
-        Map<String, String> metaTags = new HashMap<String, String>();
+        Map<String, String> metaTags = new HashMap<>();
 
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
@@ -1349,7 +1350,7 @@ public final class PageAnalyzer {
 
     public static List<String> extractKeywords(Document webPage) {
 
-        List<String> keywords = new ArrayList<String>();
+        List<String> keywords = new ArrayList<>();
 
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
