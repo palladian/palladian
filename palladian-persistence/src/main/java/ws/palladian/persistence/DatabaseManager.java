@@ -44,6 +44,9 @@ public class DatabaseManager {
      */
     private final DataSource dataSource;
 
+    /** Since we catch db errors, this field holds the last thrown error to be retrieved from the outside. */
+    private static StringBuilder lastError;
+
     /**
      * <p>
      * Creates a new {@code DatabaseManager} which connects to the database via the specified {@link DataSource}. The
@@ -969,6 +972,7 @@ public class DatabaseManager {
         }
         LOGGER.error(errorLog.toString());
         LOGGER.debug(errorLog.toString(), exception); // only print stack trace in DEBUG mode
+        lastError = errorLog;
     }
 
     /**
@@ -1116,4 +1120,7 @@ public class DatabaseManager {
         }
     }
 
+    public StringBuilder getLastError() {
+        return lastError;
+    }
 }

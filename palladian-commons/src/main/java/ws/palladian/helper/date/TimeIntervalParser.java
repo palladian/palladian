@@ -29,30 +29,29 @@ public class TimeIntervalParser {
 
         boolean parsed = false;
 
-        string = string.replace("\n", " ").replace("\t", " ");
-        string = StringHelper.removeDoubleWhitespaces(string);
+        string = StringHelper.clean(string);
 
         try {
             days = Integer.parseInt(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([dD]ays?))", string));
             parsed = true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         try {
             hours = Integer.parseInt(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([hH]ours?|hrs?))", string));
             parsed = true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         try {
             minutes = Integer.parseInt(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([mM]inutes?|[Mm]ins?))", string));
             parsed = true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         try {
             seconds = Long.parseLong(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([sS]econds?|secs?))", string));
             parsed = true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         if (parsed) {
