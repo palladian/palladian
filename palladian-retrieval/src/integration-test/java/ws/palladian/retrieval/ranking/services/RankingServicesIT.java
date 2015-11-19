@@ -50,8 +50,6 @@ public class RankingServicesIT {
         rankers.add(new Object[] {new DmozIndexed()});
         rankers.add(new Object[] {new FacebookLinkStats()});
         // rankers.add(new Object[] {new Foursquare(configuration)});
-        rankers.add(new Object[] {new FriendfeedAggregatedStats()});
-        rankers.add(new Object[] {new FriendfeedStats()});
         rankers.add(new Object[] {new GoogleCachedPage()});
         rankers.add(new Object[] {new GooglePageRank()});
         rankers.add(new Object[] {new GooglePlusLikes()});

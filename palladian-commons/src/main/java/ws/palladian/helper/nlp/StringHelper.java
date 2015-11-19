@@ -58,6 +58,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
     private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
+    private static final Pattern PATTERN_MULTIPLE_HYPHENS = Pattern.compile("[-]{2,}");
     private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
     private StringHelper() {
@@ -73,6 +74,7 @@ public final class StringHelper {
      */
     public static String makeSafeName(String name, int maxLength) {
         String safeName = name.replace(" ", "-");
+        safeName = safeName.replace("_", "-");
         safeName = safeName.replace("/", "-");
         safeName = safeName.replace("'", "");
         safeName = safeName.replace("`", "");
@@ -106,6 +108,10 @@ public final class StringHelper {
 
         safeName = removeControlCharacters(safeName);
         safeName = removeNonAsciiCharacters(safeName);
+
+        safeName = PATTERN_MULTIPLE_HYPHENS.matcher(safeName).replaceAll("-");
+
+        safeName = safeName.toLowerCase();
 
         if (maxLength > 0) {
             safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
