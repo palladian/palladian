@@ -43,7 +43,7 @@ public class CaseInsensitiveMap<V> extends AbstractMap<String, V> implements Ser
     }
 
     public CaseInsensitiveMap() {
-        this.map = new HashMap<String, V>();
+        this.map = new HashMap<>();
     }
 
     @Override
@@ -73,11 +73,7 @@ public class CaseInsensitiveMap<V> extends AbstractMap<String, V> implements Ser
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("CaseInsensitiveMap [map=");
-        builder.append(map);
-        builder.append("]");
-        return builder.toString();
+        return "CaseInsensitiveMap [map=" + map + "]";
     }
 
 }

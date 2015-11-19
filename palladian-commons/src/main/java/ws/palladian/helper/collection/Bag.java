@@ -285,7 +285,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public Bag<T> createSorted(Order order) {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
-        return new Bag<T>(sorted);
+        return new Bag<>(sorted);
     }
 
     /**
@@ -296,7 +296,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * @return A map, where values represent the counts.
      */
     public Map<T, Integer> toMap() {
-        return new HashMap<T, Integer>(map);
+        return new HashMap<>(map);
     }
 
     // equals, hashCode
