@@ -64,7 +64,6 @@ public class RankingServicesIT {
         rankers.add(new Object[] {new SharethisStats(configuration)});
         rankers.add(new Object[] {new SistrixVisibilityIndex()});
         rankers.add(new Object[] {new StumbleUponViews()});
-        rankers.add(new Object[] {new TwitterTweets()});
         rankers.add(new Object[] {new WebOfTrust()});
         rankers.add(new Object[] {new Webutation()});
         rankers.add(new Object[] {new YandexCitationIndex()});

@@ -45,6 +45,8 @@ public final class SharedCount extends AbstractRankingService {
             "Facebook like count (SharedCount)");
     public static final RankingType FACEBOOK_SHARE = new RankingType("sharedcount_facebook_share",
             "Facebook share count (SharedCount)");
+    /** @deprecated This is not available any longer. */
+    @Deprecated
     public static final RankingType TWITTER = new RankingType("sharedcount_twitter", "Twitter (SharedCount)");
     public static final RankingType LINKEDIN = new RankingType("sharedcount_linkedin", "LinkedIn (SharedCount)");
     public static final RankingType STUMBLEUPON = new RankingType("sharedcount_stumbleupon",
@@ -61,7 +63,6 @@ public final class SharedCount extends AbstractRankingService {
             FACEBOOK_COMMENT, //
             FACEBOOK_LIKE, //
             FACEBOOK_SHARE,//
-            TWITTER, //
             LINKEDIN, //
             STUMBLEUPON, //
             PINTEREST, //
@@ -129,8 +130,7 @@ public final class SharedCount extends AbstractRankingService {
             throw new RankingServiceException(e);
         }
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        parseResult(httpResult, builder);
-        return builder.create();
+        return parseResult(httpResult, builder);
     }
 
     private static void checkForError(HttpResult httpResult) throws RankingServiceException {
@@ -163,7 +163,7 @@ public final class SharedCount extends AbstractRankingService {
             builder.add(FACEBOOK_LIKE, jsonResult.queryInt("Facebook/like_count"));
             builder.add(FACEBOOK_SHARE, jsonResult.queryInt("Facebook/share_count"));
             builder.add(GOOGLE_PLUS_ONE, jsonResult.getInt("GooglePlusOne"));
-            builder.add(TWITTER, jsonResult.getInt("Twitter"));
+            builder.add(TWITTER, 0);
             builder.add(PINTEREST, jsonResult.getInt("Pinterest"));
             builder.add(LINKEDIN, jsonResult.getInt("LinkedIn"));
             return builder.create();
