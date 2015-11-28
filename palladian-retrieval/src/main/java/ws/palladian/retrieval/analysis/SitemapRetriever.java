@@ -103,7 +103,11 @@ public class SitemapRetriever {
         return pageUrls;
     }
 
-    protected List<String> readSitemap(String sitemapUrl, String goalNodeRegexp) {
+    public List<String> readSitemap(String sitemapUrl) {
+        return readSitemap(sitemapUrl, ".");
+    }
+
+    public List<String> readSitemap(String sitemapUrl, String goalNodeRegexp) {
         Pattern goalRegexp = Pattern.compile(goalNodeRegexp, Pattern.CASE_INSENSITIVE);
         List<String> urls = getUrlsFromSitemap(sitemapUrl);
         List<String> goalUrls = new ArrayList<>();
