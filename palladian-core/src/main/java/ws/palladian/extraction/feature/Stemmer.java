@@ -22,11 +22,13 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Function;
 
 /**
+ * Stemmer using <a href="http://snowball.tartarus.org">Snowball</a>. Important: This class is <b>not</b> Thread-safe!
+ * 
  * @author Philipp Katz
  */
 public final class Stemmer implements Function<String, String> {
 
-    private final ThreadLocal<SnowballStemmer> stemmer;
+    private final SnowballStemmer stemmer;
 
     /**
      * <p>
@@ -37,12 +39,7 @@ public final class Stemmer implements Function<String, String> {
      */
     public Stemmer(final Language language) {
         Validate.notNull(language, "language must not be null");
-        this.stemmer = new ThreadLocal<SnowballStemmer>() {
-            @Override
-            protected SnowballStemmer initialValue() {
-                return createStemmer(language);
-            }
-        };
+        stemmer = createStemmer(language);
     }
 
     /**
@@ -104,10 +101,9 @@ public final class Stemmer implements Function<String, String> {
      * @return The stemmed word.
      */
     public String stem(String word) {
-        SnowballStemmer st = stemmer.get();
-        st.setCurrent(word);
-        st.stem();
-        return st.getCurrent();
+        stemmer.setCurrent(word);
+        stemmer.stem();
+        return stemmer.getCurrent();
     }
 
     @Override
