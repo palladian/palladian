@@ -84,7 +84,7 @@ public class SitemapAnalyzer {
         final StopWatch stopWatch = new StopWatch();
 
         LOGGER.info("getting the page urls");
-        List<String> urls = new SitemapRetriever().getUrls(sitemapUrl);
+        Set<String> urls = new SitemapRetriever().getUrls(sitemapUrl);
 
         final AtomicInteger count = new AtomicInteger(1);
 
