@@ -1,28 +1,31 @@
 package ws.palladian.retrieval.analysis;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * Read the sitemap and visit every page.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class SitemapRetriever {
 
     private final static Pattern LOC_PATTERN = Pattern.compile("(?<=<loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE);
 
-    public List<String> getUrls(String sitemapIndexUrl) {
-        List<String> pageUrls = new ArrayList<>();
+    public Set<String> getUrls(String sitemapIndexUrl) {
+        LinkedHashSet<String> pageUrls = new LinkedHashSet<>();
 
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
@@ -33,11 +36,11 @@ public class SitemapRetriever {
         if (FileHelper.getFileType(sitemapIndexUrl).equalsIgnoreCase("gz")) {
 
             String tempPath = "data/temp/sitemapIndex.xml";
-            httpRetriever.downloadAndSave(sitemapIndexUrl, tempPath+".gzipped");
+            httpRetriever.downloadAndSave(sitemapIndexUrl, tempPath + ".gzipped");
             FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
             sitemapIndex = documentRetriever.getText(tempPath);
             FileHelper.delete(tempPath);
-            FileHelper.delete(tempPath+".gzipped");
+            FileHelper.delete(tempPath + ".gzipped");
 
         } else {
 
@@ -48,6 +51,7 @@ public class SitemapRetriever {
 
         List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapIndex);
 
+        ProgressMonitor sitemapRetriever = new ProgressMonitor(urls.size(), 0.1, "SitemapRetriever");
         int i = 1;
         for (String sitemapUrl : urls) {
 
@@ -86,7 +90,7 @@ public class SitemapRetriever {
             }
 
             // clean
-            List<String> cleanSitemapUrls = new ArrayList<>();
+            LinkedHashSet<String> cleanSitemapUrls = new LinkedHashSet<>();
             for (String url : sitemapUrls) {
                 cleanSitemapUrls.add(normalizeUrl(url));
             }
@@ -98,6 +102,9 @@ public class SitemapRetriever {
             FileHelper.delete(unzippedPath);
 
             i++;
+
+            sitemapRetriever.incrementAndPrintProgress();
+
         }
 
         return pageUrls;
