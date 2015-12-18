@@ -8,10 +8,12 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpEntity;
 
-/** Replaced by {@link HttpRequest2}. Use {@link HttpRequest2Builder} to instantiate. */
+/** @deprecated Replaced by {@link HttpRequest2}. Use {@link HttpRequest2Builder} to instantiate. */
 @Deprecated
 public final class HttpRequest {
 
+    /** @deprecated Replaced by {@link ws.palladian.retrieval.HttpMethod}. */
+    @Deprecated
     public enum HttpMethod {
         GET, POST, HEAD, PUT, DELETE
     }
