@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.helper.ThreadHelper;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,8 +25,8 @@ public class Scheduler {
 
     private Set<Pair<Runnable, Schedule>> tasks;
 
-    public Scheduler() {
-        tasks = new HashSet<>();
+    private Scheduler() {
+        tasks = Collections.synchronizedSet(new HashSet<Pair<Runnable, Schedule>>());
         runPeriodicTimeCheck();
     }
 
