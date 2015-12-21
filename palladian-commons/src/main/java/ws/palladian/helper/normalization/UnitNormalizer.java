@@ -80,17 +80,29 @@ public class UnitNormalizer {
     private static boolean isVoltageUnit(String unit) {
         return UnitType.VOLTAGE.contains(unit);
     }
+
     private static boolean isEnergyUnit(String unit) {
         return UnitType.ENERGY.contains(unit);
     }
+
     private static boolean isPowerUnit(String unit) {
         return UnitType.POWER.contains(unit);
     }
+
     private static boolean isTorqueUnit(String unit) {
         return UnitType.TORQUE.contains(unit);
     }
+
     private static boolean isPressureUnit(String unit) {
         return UnitType.PRESSURE.contains(unit);
+    }
+
+    private static boolean isCurrentUnit(String unit) {
+        return UnitType.CURRENT.contains(unit);
+    }
+
+    private static boolean isElectricCharge(String unit) {
+        return UnitType.ELECTRIC_CHARGE.contains(unit);
     }
 
     public static String detectUnit(String text) {
@@ -475,6 +487,12 @@ public class UnitNormalizer {
             }
             if (isPressureUnit(word)) {
                 unitType = UnitType.PRESSURE;
+            }
+            if (isCurrentUnit(word)) {
+                unitType = UnitType.CURRENT;
+            }
+            if (isElectricCharge(word)) {
+                unitType = UnitType.ELECTRIC_CHARGE;
             }
             if (unitType != UnitType.NONE) {
                 break; // we found a unit

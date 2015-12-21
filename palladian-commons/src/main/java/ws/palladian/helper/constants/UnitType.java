@@ -32,6 +32,8 @@ public enum UnitType {
     POWER("watt"), //
     VOLTAGE("volt"), //
     ENERGY("kilojoule"), //
+    CURRENT("ampere"), //
+    ELECTRIC_CHARGE("ampere-hour"), //
     TORQUE("Nm"), //
     PIXEL("pixel"), //
     CURRENCY(null),
@@ -142,7 +144,6 @@ public enum UnitType {
         unitList.add("milliwatts");
         unitList.add("milliwatt");
         unitList.add("mw");
-        unitList.add("mW");
         UnitType.POWER.units.add(Pair.of(unitList, 0.001));
 
         unitList = new ArrayList<>();
@@ -187,6 +188,31 @@ public enum UnitType {
         unitList.add("kw/h");
         unitList.add("kwh");
         UnitType.ENERGY.units.add(Pair.of(unitList, 3600000.));
+
+        // CURRENT units are normalized to 1 Ampere
+        unitList = new ArrayList<>();
+        unitList.add("ampere");
+        unitList.add("amp");
+        unitList.add("a");
+        UnitType.CURRENT.units.add(Pair.of(unitList, 1.));
+
+        unitList = new ArrayList<>();
+        unitList.add("milli ampere");
+        unitList.add("ma");
+        UnitType.CURRENT.units.add(Pair.of(unitList, 0.001));
+
+        // ELECTRIC_CHARGE units are normalized to 1 Ah
+        unitList = new ArrayList<>();
+        unitList.add("ampere-hour");
+        unitList.add("amp-hour");
+        unitList.add("ah");
+        UnitType.ELECTRIC_CHARGE.units.add(Pair.of(unitList, 1.));
+
+        unitList = new ArrayList<>();
+        unitList.add("milli ampere-hour");
+        unitList.add("milli amp-hour");
+        unitList.add("mah");
+        UnitType.ELECTRIC_CHARGE.units.add(Pair.of(unitList, 0.001));
 
         // TORQUE units are normalized to 1 Volt
         unitList = new ArrayList<>();
