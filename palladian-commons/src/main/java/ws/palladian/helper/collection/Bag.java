@@ -78,7 +78,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * @return The Bag.
      */
     public static <T> Bag<T> create() {
-        return new Bag<T>(new HashMap<T, Integer>());
+        return new Bag<>(new HashMap<T, Integer>());
     }
 
     /**
@@ -108,7 +108,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      */
     public static <T> Bag<T> create(Map<? extends T, ? extends Integer> map) {
         Validate.notNull(map, "map must not be null");
-        return new Bag<T>(new HashMap<T, Integer>(map));
+        return new Bag<>(new HashMap<>(map));
     }
 
     /** Private constructor, instances are created through the static methods. */

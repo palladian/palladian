@@ -16,6 +16,12 @@ public class UnitNormalizerTest {
 
         String input;
 
+        input = "1 mAh";
+        collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.ELECTRIC_CHARGE));
+
+        input = "1 A";
+        collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.CURRENT));
+
         input = "100 kN/m^2";
         collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.PRESSURE));
 

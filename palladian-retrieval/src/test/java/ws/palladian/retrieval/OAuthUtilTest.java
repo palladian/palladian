@@ -57,7 +57,7 @@ public class OAuthUtilTest {
 
     @Test
     public void testCreateSignatureBaseString() {
-        String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_REQUEST, PARAMS);
+        String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_METHOD, BASE_URL, PARAMS);
         assertEquals(EXPECTED_SIGNATURE_BASE_STRING, signatureBaseString);
     }
 
@@ -69,7 +69,7 @@ public class OAuthUtilTest {
 
     @Test
     public void testCreateSignature() {
-        String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_REQUEST, PARAMS);
+        String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_METHOD, BASE_URL, PARAMS);
         String signingKey = OAuthUtil.createSigningKey(CONSUMER_SECRET, TOKEN_SECRET);
         String signature = OAuthUtil.createSignature(signatureBaseString, signingKey);
         assertEquals("tnnArxj06cWHq44gCs1OSKk/jLY=", signature);
@@ -77,7 +77,7 @@ public class OAuthUtilTest {
 
     @Test
     public void testCreateAuthorization() {
-        String authorizationParam = OATH_UTIL_UNDER_TEST.createAuthorization(HTTP_REQUEST, OAUTH_PARAMS);
+        String authorizationParam = OATH_UTIL_UNDER_TEST.createAuthorization(HTTP_METHOD, BASE_URL, null);
         assertEquals(EXPECTED_AUTHORIZATION_PARAM, authorizationParam);
     }
 

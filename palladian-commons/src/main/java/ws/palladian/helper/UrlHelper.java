@@ -473,7 +473,12 @@ public final class UrlHelper {
     public static String parseBaseUrl(String url) {
         Validate.notNull(url, "url must not be null");
         int questionIdx = url.indexOf("?");
-        return questionIdx != -1 ? url.substring(0, questionIdx) : url;
+        int hashIdx = url.indexOf("#");
+        int cutIdx = hashIdx;
+        if (questionIdx != -1) {
+            cutIdx = questionIdx;
+        }
+        return cutIdx != -1 ? url.substring(0, cutIdx) : url;
     }
 
 }
