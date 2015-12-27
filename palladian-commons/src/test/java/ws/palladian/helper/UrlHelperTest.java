@@ -271,6 +271,12 @@ public class UrlHelperTest {
     public void testGetBaseUrl() {
         String url = "https://api.twitter.com/1/statuses/update.json?include_entities=true";
         assertEquals("https://api.twitter.com/1/statuses/update.json", UrlHelper.parseBaseUrl(url));
+        url = "http://www.example.org/foo.html#bar";
+        assertEquals("http://www.example.org/foo.html", UrlHelper.parseBaseUrl(url));
+        url = "http://www.example.org/foo.html?baz=boom#bar";
+        assertEquals("http://www.example.org/foo.html", UrlHelper.parseBaseUrl(url));
+        url = "http://www.example.org/foo.html";
+        assertEquals("http://www.example.org/foo.html", UrlHelper.parseBaseUrl(url));
     }
 
 }

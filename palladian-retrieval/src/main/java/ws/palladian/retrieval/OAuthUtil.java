@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.EntryKeyComparator;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -30,18 +32,24 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class OAuthUtil {
 
-    private final OAuthParams params;
+    /** Key of the HTTP header which contains the OAuth data. */
+    public static final String AUTHORIZATION_HEADER_KEY = "Authorization";
+
+    private static final EntryKeyComparator<String> ENTRY_COMPARATOR = new EntryKeyComparator<String>();
+
+    private final OAuthParams oAuthParams;
 
     public OAuthUtil(OAuthParams params) {
         Validate.notNull(params, "oAuthParams must not be null");
-        this.params = params;
+        this.oAuthParams = params;
     }
 
     /**
      * <p>
      * Sign the given {@link HttpRequest2} using the specified {@link OAuthParams}. The signed request is returned as
      * new instance. After the request has been signed, no changes must be made to the request, or the authentication is
-     * void.
+     * void. <b>Attention:</b> Currently, only query parameters are considered, not the request's body! In case you need
+     * more power, use the more flexible {@link #createAuthorization(HttpMethod, String, List)} instead.
      * </p>
      * 
      * @param httpRequest The HttpRequest2 to sign, not <code>null</code>.
@@ -51,25 +59,48 @@ public class OAuthUtil {
         Validate.notNull(httpRequest, "httpRequest must not be null");
         HttpRequest2Builder builder = new HttpRequest2Builder(httpRequest.getMethod(), httpRequest.getUrl());
         builder.addHeaders(httpRequest.getHeaders());
-        builder.addHeader("Authorization", createAuthorization(httpRequest, params));
+        builder.addHeader(
+                AUTHORIZATION_HEADER_KEY,
+                createAuthorization(httpRequest.getMethod(), 
+                        UrlHelper.parseBaseUrl(httpRequest.getUrl()),
+                        UrlHelper.parseParams(httpRequest.getUrl())));
         builder.setEntity(httpRequest.getEntity());
         return builder.create();
     }
 
-    String createAuthorization(HttpRequest2 httpRequest, OAuthParams oAuthParams) {
+    /**
+     * Create the OAuth authorization data for the specified parameters.
+     * 
+     * @param method The HTTP method, not <code>null</code>.
+     * @param url The base URL (i.e. without query or hash parameters), not <code>null</code> or empty.
+     * @param params The parameters.
+     * @return The authorization value.
+     * @throws IllegalArgumentException in case the given URL was no base URL.
+     */
+    public String createAuthorization(HttpMethod method, String url, List<? extends Entry<String, String>> params) {
+        Validate.notNull(method, "method must not be null");
+        Validate.notEmpty(url, "url must not be empty");
+        String baseUrl = UrlHelper.parseBaseUrl(url);
+        if (!url.equals(baseUrl)) {
+            throw new IllegalArgumentException(url + " is not a base URL (base = " + baseUrl + ")");
+        }
         List<Pair<String, String>> oAuthHeader = new ArrayList<>();
         oAuthHeader.add(Pair.of("oauth_consumer_key", oAuthParams.getConsumerKey()));
         oAuthHeader.add(Pair.of("oauth_nonce", createRandomString()));
         oAuthHeader.add(Pair.of("oauth_signature_method", "HMAC-SHA1"));
         oAuthHeader.add(Pair.of("oauth_timestamp", createTimestamp()));
-        oAuthHeader.add(Pair.of("oauth_token", oAuthParams.getAccessToken()));
+        if (oAuthParams.getAccessToken() != null) {
+            oAuthHeader.add(Pair.of("oauth_token", oAuthParams.getAccessToken()));
+        }
         oAuthHeader.add(Pair.of("oauth_version", "1.0"));
 
-        List<Pair<String, String>> allParams = new ArrayList<>();
-        allParams.addAll(UrlHelper.parseParams(httpRequest.getUrl()));
+        List<Entry<String, String>> allParams = new ArrayList<>();
+        if (params != null) {
+            allParams.addAll(params);
+        }
         allParams.addAll(oAuthHeader);
 
-        String sigBaseString = createSignatureBaseString(httpRequest, allParams);
+        String sigBaseString = createSignatureBaseString(method, url, allParams);
         String sigKey = createSigningKey(oAuthParams.getConsumerSecret(), oAuthParams.getAccessTokenSecret());
         oAuthHeader.add(Pair.of("oauth_signature", createSignature(sigBaseString, sigKey)));
         Collections.sort(oAuthHeader);
@@ -86,13 +117,14 @@ public class OAuthUtil {
             authorization.append(String.format("%s=\"%s\"", urlEncode(pair.getKey()), urlEncode(pair.getValue())));
         }
         return authorization.toString();
+
     }
 
-    static String createParameterString(List<Pair<String, String>> allParameters) {
-        Collections.sort(allParameters);
+    static String createParameterString(List<? extends Entry<String, String>> allParameters) {
+        Collections.sort(allParameters, ENTRY_COMPARATOR);
         StringBuilder parameterString = new StringBuilder();
         boolean first = true;
-        for (Pair<String, String> pair : allParameters) {
+        for (Entry<String, String> pair : allParameters) {
             if (first) {
                 first = false;
             } else {
@@ -103,11 +135,11 @@ public class OAuthUtil {
         return parameterString.toString();
     }
 
-    static String createSignatureBaseString(HttpRequest2 httpRequest, List<Pair<String, String>> allParameters) {
+    static String createSignatureBaseString(HttpMethod method, String baseUrl, List<? extends Entry<String, String>> allParameters) {
         StringBuilder signature = new StringBuilder();
-        String methodName = httpRequest.getMethod().toString().toUpperCase();
+        String methodName = method.toString().toUpperCase();
         signature.append(methodName).append('&');
-        signature.append(urlEncode(UrlHelper.parseBaseUrl(httpRequest.getUrl()))).append('&');
+        signature.append(urlEncode(baseUrl)).append('&');
         signature.append(urlEncode(createParameterString(allParameters)));
         return signature.toString();
     }
