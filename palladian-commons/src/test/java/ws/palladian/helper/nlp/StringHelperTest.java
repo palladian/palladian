@@ -142,6 +142,8 @@ public class StringHelperTest {
 
         assertEquals("Say ‘hello’ to your horses for me",
                 StringHelper.clean("Say &#8216;hello&#8217; to your horses for me"));
+        assertEquals("Preheat oven to 375. Prepare a 8\" square",
+                StringHelper.clean("Preheat oven to 375. Prepare a 8″ square"));
     }
 
     @Test

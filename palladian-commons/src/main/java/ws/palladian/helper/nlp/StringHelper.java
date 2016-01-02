@@ -1157,6 +1157,7 @@ public final class StringHelper {
 
         // trim but keep sentence delimiters
         text = StringHelper.trim(text, ".?!“”\"");
+        text = text.replace("″", "\"");
         if (text.startsWith(")")) {
             text = text.substring(1);
         }
