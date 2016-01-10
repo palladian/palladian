@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import ws.palladian.helper.StopWatch;
 
 /**
  * <p>
@@ -128,11 +129,6 @@ public class StringHelperTest {
         assertEquals("a (test) b", StringHelper.replaceWord("test", "(test)", "a test b"));
         assertEquals("a  b", StringHelper.replaceWord("test", "", "a test b"));
         assertEquals("a test b", StringHelper.replaceWord("", "", "a test b"));
-    }
-
-    @Test
-    public void testRemove4ByteUtf8Symbols() {
-        assertEquals("Test ", StringHelper.remove4ByteUtf8Symbols("Test \uD83D\uDE01"));
     }
 
     @Test
@@ -308,6 +304,14 @@ public class StringHelperTest {
         assertEquals("\u00B6", StringHelper.removeFourByteChars("\u00B6"));
         assertEquals("\u6771", StringHelper.removeFourByteChars("\u6771"));
         assertEquals("", StringHelper.removeFourByteChars("\uD801\uDC00"));
+        assertEquals("Test ", StringHelper.removeFourByteChars("Test \uD83D\uDE01"));
+
+        StopWatch stopWatch = new StopWatch();
+        for (int i = 0; i < 1000000; i++) {
+            StringHelper.removeFourByteChars("Test \uD83D\uDE01 ; \u00B6");
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
+
     }
 
     @Test
