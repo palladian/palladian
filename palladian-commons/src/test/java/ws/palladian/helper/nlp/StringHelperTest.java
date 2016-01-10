@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -127,6 +128,11 @@ public class StringHelperTest {
         assertEquals("a (test) b", StringHelper.replaceWord("test", "(test)", "a test b"));
         assertEquals("a  b", StringHelper.replaceWord("test", "", "a test b"));
         assertEquals("a test b", StringHelper.replaceWord("", "", "a test b"));
+    }
+
+    @Test
+    public void testRemove4ByteUtf8Symbols() {
+        assertEquals("Test ", StringHelper.remove4ByteUtf8Symbols("Test \uD83D\uDE01"));
     }
 
     @Test
