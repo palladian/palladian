@@ -1,32 +1,23 @@
 package ws.palladian.helper.nlp;
 
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;
+
+import java.security.MessageDigest;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * <p>
@@ -61,725 +52,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_MULTIPLE_HYPHENS = Pattern.compile("[-]{2,}");
     private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
-    private static final Set<String> FOUR_BYTE_UTF8_SYMBOLS = new HashSet<>();
-
-    static {
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE01");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE02");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE03");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE04");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE05");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE06");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE09");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE0A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE0B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE0C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE0D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE0F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE12");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE13");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE14");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE16");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE18");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE1A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE1C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE1D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE1E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE20");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE21");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE22");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE23");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE24");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE25");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE28");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE29");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE2A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE2B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE2D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE30");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE31");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE32");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE33");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE35");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE37");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE38");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE39");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE3A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE3B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE3C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE3D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE3E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE3F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE40");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE45");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE46");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE47");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE48");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE49");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE4A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE4B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE4C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE4D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE4E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE4F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE80");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE83");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE84");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE85");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE87");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE89");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE8C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE8F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE91");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE92");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE93");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE95");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE97");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE99");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE9A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEAA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEAB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEAC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEAD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEBA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEBB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEBC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEBD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEBE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEC0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD70");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD71");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD7E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD7F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD8E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD91");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD92");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD93");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD94");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD95");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD96");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD97");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD98");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD99");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDD9A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDE9\uD83C\uDDEA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDEC\uD83C\uDDE7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDE8\uD83C\uDDF3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDEF\uD83C\uDDF5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDF0\uD83C\uDDF7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDEB\uD83C\uDDF7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDEA\uD83C\uDDF8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDEE\uD83C\uDDF9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDFA\uD83C\uDDF8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDDF7\uD83C\uDDFA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE01");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE02");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE1A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE2F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE32");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE33");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE34");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE35");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE36");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE37");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE38");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE39");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE3A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE50");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDE51");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDC04");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDCCF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF00");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF01");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF02");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF03");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF04");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF05");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF06");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF07");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF08");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF09");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF0A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF0B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF0C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF0F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF11");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF13");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF14");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF15");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF19");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF1B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF1F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF20");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF30");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF31");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF34");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF35");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF37");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF38");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF39");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF3A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF3B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF3C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF3D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF3E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF3F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF40");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF41");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF42");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF43");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF44");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF45");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF46");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF47");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF48");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF49");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF4A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF4C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF4D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF4E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF4F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF51");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF52");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF53");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF54");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF55");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF56");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF57");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF58");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF59");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF5A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF5B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF5C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF5D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF5E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF5F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF60");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF61");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF62");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF63");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF64");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF65");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF66");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF67");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF68");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF69");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF6A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF6B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF6C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF6D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF6E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF6F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF70");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF71");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF72");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF73");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF74");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF75");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF76");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF77");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF78");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF79");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF7A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF7B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF80");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF81");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF82");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF83");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF84");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF85");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF86");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF87");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF88");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF89");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF8A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF8B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF8C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF8D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF8E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF8F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF90");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF91");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF92");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF93");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFA9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFAA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFAB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFAC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFAD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFAE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFAF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFB9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFBA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFBB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFBC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFBD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFBE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFBF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFCA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFEA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFEB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFEC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFED");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFEE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFEF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFF0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC0C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC0D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC0E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC11");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC12");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC14");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC17");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC18");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC19");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC1A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC1B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC1C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC1D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC1E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC1F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC20");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC21");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC22");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC23");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC24");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC25");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC26");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC27");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC28");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC29");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC2B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC2C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC2D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC2E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC2F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC30");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC31");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC32");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC33");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC34");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC35");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC36");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC37");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC38");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC39");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC3A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC3B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC3C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC3D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC3E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC40");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC42");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC43");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC44");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC45");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC46");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC47");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC48");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC49");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC4A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC4B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC4C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC4D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC4E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC4F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC50");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC51");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC52");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC53");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC54");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC55");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC56");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC57");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC58");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC59");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC5A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC5B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC5C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC5D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC5E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC5F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC60");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC61");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC62");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC63");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC64");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC66");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC67");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC68");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC69");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC6A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC6B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC6E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC6F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC70");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC71");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC72");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC73");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC74");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC75");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC76");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC77");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC78");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC79");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC7A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC7B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC7C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC7D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC7E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC7F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC80");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC81");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC82");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC83");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC84");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC85");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC86");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC87");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC88");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC89");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC8A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC8B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC8C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC8D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC8E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC8F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC90");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC91");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC92");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC93");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC94");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC95");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC96");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC97");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC98");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC99");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC9A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC9B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC9C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC9D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC9E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC9F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCA9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCAA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCAB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCAC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCAE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCAF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCBA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCBB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCBC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCBD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCBE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCBF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCC9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCCA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCCB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCCC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCCD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCCE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCCF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCD9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCDA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCDB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCDC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCDD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCDE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCDF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCE9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCEA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCEB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCEE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCFA");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCFB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCFC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD03");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD0A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD0B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD0C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD0D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD0E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD0F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD10");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD11");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD12");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD13");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD14");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD16");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD17");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD18");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD19");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD1A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD1B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD1C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD1D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD1E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD1F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD20");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD21");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD22");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD23");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD24");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD25");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD26");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD27");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD28");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD29");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD2A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD2B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD2E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD2F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD30");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD31");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD32");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD33");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD34");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD35");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD36");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD37");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD38");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD39");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD3A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD3B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD3C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD3D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD50");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD51");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD52");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD53");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD54");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD55");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD56");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD57");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD58");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD59");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD5A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD5B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDDFB");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDDFC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDDFD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDDFE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDDFF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE00");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE07");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE08");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE0E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE10");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE11");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE15");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE17");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE19");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE1B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE1F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE26");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE27");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE2C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE2E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE2F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE34");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE36");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE81");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE82");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE86");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE88");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE8A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE8D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE8E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE90");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE94");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE96");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE98");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE9B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE9C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE9D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE9E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDE9F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEA6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEAE");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEAF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB0");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEB8");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEBF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEC1");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEC2");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEC3");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEC4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDEC5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF0D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF0E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF10");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF12");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF16");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF17");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF18");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF1A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF1C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF1D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF1E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF32");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF33");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF4B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF50");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDF7C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFC9");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83C\uDFE4");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC00");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC01");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC02");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC03");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC04");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC05");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC06");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC07");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC08");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC09");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC0A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC0B");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC0F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC10");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC13");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC15");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC16");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC2A");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC65");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC6C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDC6D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCAD");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB6");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCB7");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCEC");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCED");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCEF");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDCF5");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD00");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD01");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD02");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD04");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD05");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD06");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD07");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD09");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD15");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD2C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD2D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD5C");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD5D");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD5E");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD5F");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD60");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD61");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD62");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD63");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD64");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD65");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD66");
-        FOUR_BYTE_UTF8_SYMBOLS.add("\uD83D\uDD67");
-    }
+    private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF]");
 
     private StringHelper() {
         // utility class.
@@ -874,88 +147,6 @@ public final class StringHelper {
             return string;
         }
         return string.substring(0, maxLength).concat(" ...");
-    }
-
-    /**
-     * <p>
-     * In some cases we have unicode characters and have to transform them to Ascii again. We use the following mapping:
-     * http://www.unicodemap.org/range/2/Latin-1_Supplement/.
-     * </p>
-     * <p>
-     * For example, "Florentino P00E9rez" becomes "Florentino Pérez"
-     * </p>
-     *
-     * @param string The string where unicode characters might occur.
-     * @return The transformed string.
-     */
-    public static String fuzzyUnicodeToAscii(String string) {
-
-        string = string.replace("00C0", "À");
-        string = string.replace("00C1", "Á");
-        string = string.replace("00C2", "Â");
-        string = string.replace("00C3", "Ã");
-        string = string.replace("00C4", "Ä");
-        string = string.replace("00C5", "Å");
-        string = string.replace("00C6", "Æ");
-        string = string.replace("00C7", "Ç");
-        string = string.replace("00C8", "È");
-        string = string.replace("00C9", "É");
-        string = string.replace("00CA", "Ê");
-        string = string.replace("00CB", "Ë");
-        string = string.replace("00CC", "Ì");
-        string = string.replace("00CD", "Í");
-        string = string.replace("00CE", "Î");
-        string = string.replace("00CF", "Ï");
-        string = string.replace("00D0", "Ð");
-        string = string.replace("00D1", "Ñ");
-        string = string.replace("00D2", "Ò");
-        string = string.replace("00D3", "Ó");
-        string = string.replace("00D4", "Ô");
-        string = string.replace("00D5", "Õ");
-        string = string.replace("00D6", "Ö");
-        string = string.replace("00D7", "×");
-        string = string.replace("00D8", "Ø");
-        string = string.replace("00D9", "Ù");
-        string = string.replace("00DA", "Ú");
-        string = string.replace("00DB", "Û");
-        string = string.replace("00DC", "Ü");
-        string = string.replace("00DD", "Ý");
-        string = string.replace("00DE", "Þ");
-        string = string.replace("00DF", "ß");
-        string = string.replace("00E0", "à");
-        string = string.replace("00E1", "á");
-        string = string.replace("00E2", "â");
-        string = string.replace("00E3", "ã");
-        string = string.replace("00E4", "ä");
-        string = string.replace("00E5", "å");
-        string = string.replace("00E6", "æ");
-        string = string.replace("00E7", "ç");
-        string = string.replace("00E8", "è");
-        string = string.replace("00E9", "é");
-        string = string.replace("00EA", "ê");
-        string = string.replace("00EB", "ë");
-        string = string.replace("00EC", "ì");
-        string = string.replace("00ED", "í");
-        string = string.replace("00EE", "î");
-        string = string.replace("00EF", "ï");
-        string = string.replace("00F0", "ð");
-        string = string.replace("00F1", "ñ");
-        string = string.replace("00F2", "ò");
-        string = string.replace("00F3", "ó");
-        string = string.replace("00F4", "ô");
-        string = string.replace("00F5", "õ");
-        string = string.replace("00F6", "ö");
-        string = string.replace("00F7", "÷");
-        string = string.replace("00F8", "ø");
-        string = string.replace("00F9", "ù");
-        string = string.replace("00FA", "ú");
-        string = string.replace("00FB", "û");
-        string = string.replace("00FC", "ü");
-        string = string.replace("00FD", "ý");
-        string = string.replace("00FE", "þ");
-        string = string.replace("00FF", "ÿ");
-
-        return string;
     }
 
     /**
@@ -1218,7 +409,7 @@ public final class StringHelper {
      * @return The index position or -1 if the word is not contained.
      */
     public static int indexOfWordCaseSensitive(String word, String searchString) {
-        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))"+word+"(?=([;!?.,: ]|$))").matcher(searchString);
+        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
         boolean found = matcher.find();
         if (found) {
             return matcher.start(1);
@@ -1236,7 +427,7 @@ public final class StringHelper {
      * @return The index position or -1 if the word is not contained.
      */
     public static int lastIndexOfWordCaseSensitive(String word, String searchString) {
-        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))"+word+"(?=([;!?.,: ]|$))").matcher(searchString);
+        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
         int start = -1;
         while (matcher.find()) {
             start = matcher.start(1);
@@ -1541,7 +732,7 @@ public final class StringHelper {
 
         string = StringHelper.trim(string).toLowerCase();
 
-        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven","twelve").contains(string);
+        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve").contains(string);
     }
 
     /**
@@ -1763,7 +954,7 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-        "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™"};
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™"};
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
@@ -1883,18 +1074,6 @@ public final class StringHelper {
         }
 
         return text;
-    }
-
-    /** Some applications such as MySQL cannot handle 4 Byte UTF-8 symbols such as a smiley emoticon \xF0\x9F\x98\x81, @see http://apps.timwhitlock.info/emoji/tables/unicode.
-     * We therefore offer a method to eliminate them. */
-    public static String remove4ByteUtf8Symbols(String string) {
-
-        for (String utf8 : FOUR_BYTE_UTF8_SYMBOLS) {
-            string = string.replace(utf8,"");
-        }
-
-        return string;
-
     }
 
     /**
@@ -2352,7 +1531,7 @@ public final class StringHelper {
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
      * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
      * standard</a>. This method will return an empty String if the input is null or empty.
-     * <p/>
+     * <p>
      * For stream processing purposes see {@link Xml10FilterReader}.
      *
      * @param in The String whose non-valid characters we want to remove.
@@ -2597,7 +1776,7 @@ public final class StringHelper {
      * letters to
      * "a", digits to "0", and special chars to "-".<br>
      * Examples:<br>
-     * <p/>
+     * <p>
      * <pre>
      * "Hello" => "Aa"
      * "this is nice" => "a a a"
@@ -2629,7 +1808,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p/>
+     * <p>
      * Get a char signature for the given character. Uppercase letters are mapped to 'A', lowercase letters to 'a',
      * digits to '0', spaces to ' ', and special characters to '-'.
      *
@@ -2704,7 +1883,8 @@ public final class StringHelper {
         if (string == null) {
             return null;
         }
-        return string.replaceAll("[^\u0000-\uD7FF\uE000-\uFFFF]", "");
+
+        return FOUR_BYTE_UTF8.matcher(string).replaceAll("");
     }
 
     /**
@@ -2835,7 +2015,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p/>
+     * <p>
      * Get all sub-phrases of a string by combining all consecutive words (e.g. "quick brown fox" gives
      * ["quick","quick brown","quick brown fox","brown","brown fox","fox"]).
      *
