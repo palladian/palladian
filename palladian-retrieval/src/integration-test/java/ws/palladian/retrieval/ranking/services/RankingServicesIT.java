@@ -53,6 +53,7 @@ public class RankingServicesIT {
         rankers.add(new Object[] {new GoogleCachedPage()});
         rankers.add(new Object[] {new GooglePageRank()});
         rankers.add(new Object[] {new GooglePlusLikes()});
+        rankers.add(new Object[] {new HackerNewsRankingService()});
         rankers.add(new Object[] {new LinkedInShares()});
         rankers.add(new Object[] {new MajesticSeo(configuration)});
         rankers.add(new Object[] {new OpenLinkProfiler()});

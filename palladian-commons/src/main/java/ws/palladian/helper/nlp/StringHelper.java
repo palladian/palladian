@@ -1,32 +1,23 @@
 package ws.palladian.helper.nlp;
 
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;
+
+import java.security.MessageDigest;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * <p>
@@ -61,6 +52,8 @@ public final class StringHelper {
     private static final Pattern PATTERN_MULTIPLE_HYPHENS = Pattern.compile("[-]{2,}");
     private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
+    private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF]");
+
     private StringHelper() {
         // utility class.
     }
@@ -79,6 +72,7 @@ public final class StringHelper {
         safeName = safeName.replace("'", "");
         safeName = safeName.replace("`", "");
         safeName = safeName.replace("´", "");
+        safeName = safeName.replace("’", "");
         safeName = safeName.replace("%", "");
         safeName = safeName.replace("@", "");
         safeName = safeName.replace("~", "");
@@ -153,88 +147,6 @@ public final class StringHelper {
             return string;
         }
         return string.substring(0, maxLength).concat(" ...");
-    }
-
-    /**
-     * <p>
-     * In some cases we have unicode characters and have to transform them to Ascii again. We use the following mapping:
-     * http://www.unicodemap.org/range/2/Latin-1_Supplement/.
-     * </p>
-     * <p>
-     * For example, "Florentino P00E9rez" becomes "Florentino Pérez"
-     * </p>
-     *
-     * @param string The string where unicode characters might occur.
-     * @return The transformed string.
-     */
-    public static String fuzzyUnicodeToAscii(String string) {
-
-        string = string.replace("00C0", "À");
-        string = string.replace("00C1", "Á");
-        string = string.replace("00C2", "Â");
-        string = string.replace("00C3", "Ã");
-        string = string.replace("00C4", "Ä");
-        string = string.replace("00C5", "Å");
-        string = string.replace("00C6", "Æ");
-        string = string.replace("00C7", "Ç");
-        string = string.replace("00C8", "È");
-        string = string.replace("00C9", "É");
-        string = string.replace("00CA", "Ê");
-        string = string.replace("00CB", "Ë");
-        string = string.replace("00CC", "Ì");
-        string = string.replace("00CD", "Í");
-        string = string.replace("00CE", "Î");
-        string = string.replace("00CF", "Ï");
-        string = string.replace("00D0", "Ð");
-        string = string.replace("00D1", "Ñ");
-        string = string.replace("00D2", "Ò");
-        string = string.replace("00D3", "Ó");
-        string = string.replace("00D4", "Ô");
-        string = string.replace("00D5", "Õ");
-        string = string.replace("00D6", "Ö");
-        string = string.replace("00D7", "×");
-        string = string.replace("00D8", "Ø");
-        string = string.replace("00D9", "Ù");
-        string = string.replace("00DA", "Ú");
-        string = string.replace("00DB", "Û");
-        string = string.replace("00DC", "Ü");
-        string = string.replace("00DD", "Ý");
-        string = string.replace("00DE", "Þ");
-        string = string.replace("00DF", "ß");
-        string = string.replace("00E0", "à");
-        string = string.replace("00E1", "á");
-        string = string.replace("00E2", "â");
-        string = string.replace("00E3", "ã");
-        string = string.replace("00E4", "ä");
-        string = string.replace("00E5", "å");
-        string = string.replace("00E6", "æ");
-        string = string.replace("00E7", "ç");
-        string = string.replace("00E8", "è");
-        string = string.replace("00E9", "é");
-        string = string.replace("00EA", "ê");
-        string = string.replace("00EB", "ë");
-        string = string.replace("00EC", "ì");
-        string = string.replace("00ED", "í");
-        string = string.replace("00EE", "î");
-        string = string.replace("00EF", "ï");
-        string = string.replace("00F0", "ð");
-        string = string.replace("00F1", "ñ");
-        string = string.replace("00F2", "ò");
-        string = string.replace("00F3", "ó");
-        string = string.replace("00F4", "ô");
-        string = string.replace("00F5", "õ");
-        string = string.replace("00F6", "ö");
-        string = string.replace("00F7", "÷");
-        string = string.replace("00F8", "ø");
-        string = string.replace("00F9", "ù");
-        string = string.replace("00FA", "ú");
-        string = string.replace("00FB", "û");
-        string = string.replace("00FC", "ü");
-        string = string.replace("00FD", "ý");
-        string = string.replace("00FE", "þ");
-        string = string.replace("00FF", "ÿ");
-
-        return string;
     }
 
     /**
@@ -497,7 +409,7 @@ public final class StringHelper {
      * @return The index position or -1 if the word is not contained.
      */
     public static int indexOfWordCaseSensitive(String word, String searchString) {
-        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))"+word+"(?=([;!?.,: ]|$))").matcher(searchString);
+        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
         boolean found = matcher.find();
         if (found) {
             return matcher.start(1);
@@ -515,7 +427,7 @@ public final class StringHelper {
      * @return The index position or -1 if the word is not contained.
      */
     public static int lastIndexOfWordCaseSensitive(String word, String searchString) {
-        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))"+word+"(?=([;!?.,: ]|$))").matcher(searchString);
+        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
         int start = -1;
         while (matcher.find()) {
             start = matcher.start(1);
@@ -820,8 +732,7 @@ public final class StringHelper {
 
         string = StringHelper.trim(string).toLowerCase();
 
-        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
-                "twelve").contains(string);
+        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve").contains(string);
     }
 
     /**
@@ -1157,6 +1068,7 @@ public final class StringHelper {
 
         // trim but keep sentence delimiters
         text = StringHelper.trim(text, ".?!“”\"");
+        text = text.replace("″", "\"");
         if (text.startsWith(")")) {
             text = text.substring(1);
         }
@@ -1619,7 +1531,7 @@ public final class StringHelper {
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
      * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
      * standard</a>. This method will return an empty String if the input is null or empty.
-     * <p/>
+     * <p>
      * For stream processing purposes see {@link Xml10FilterReader}.
      *
      * @param in The String whose non-valid characters we want to remove.
@@ -1864,7 +1776,7 @@ public final class StringHelper {
      * letters to
      * "a", digits to "0", and special chars to "-".<br>
      * Examples:<br>
-     * <p/>
+     * <p>
      * <pre>
      * "Hello" => "Aa"
      * "this is nice" => "a a a"
@@ -1896,7 +1808,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p/>
+     * <p>
      * Get a char signature for the given character. Uppercase letters are mapped to 'A', lowercase letters to 'a',
      * digits to '0', spaces to ' ', and special characters to '-'.
      *
@@ -1971,7 +1883,8 @@ public final class StringHelper {
         if (string == null) {
             return null;
         }
-        return string.replaceAll("[^\u0000-\uD7FF\uE000-\uFFFF]", "");
+
+        return FOUR_BYTE_UTF8.matcher(string).replaceAll("");
     }
 
     /**
@@ -2102,7 +2015,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p/>
+     * <p>
      * Get all sub-phrases of a string by combining all consecutive words (e.g. "quick brown fox" gives
      * ["quick","quick brown","quick brown fox","brown","brown fox","fox"]).
      *
@@ -2140,7 +2053,7 @@ public final class StringHelper {
 
         StopWatch sw = new StopWatch();
         Pattern pattern = Pattern.compile("[ ]{2,}");
-        String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjd        flabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                                       ";
+        String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjd        flabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                               FOUR_BYTE_UTF8_SYMBOLS.add(";
         for (int i = 0; i < 5000; i++) {
             // StringHelper.removeDoubleWhitespaces(text);
             // text.replaceAll("[ ]{2,}", "");

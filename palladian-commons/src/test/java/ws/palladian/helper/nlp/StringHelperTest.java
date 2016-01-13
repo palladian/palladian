@@ -6,12 +6,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import ws.palladian.helper.StopWatch;
 
 /**
  * <p>
@@ -142,6 +144,8 @@ public class StringHelperTest {
 
         assertEquals("Say ‘hello’ to your horses for me",
                 StringHelper.clean("Say &#8216;hello&#8217; to your horses for me"));
+        assertEquals("Preheat oven to 375. Prepare a 8\" square",
+                StringHelper.clean("Preheat oven to 375. Prepare a 8″ square"));
     }
 
     @Test
@@ -300,6 +304,14 @@ public class StringHelperTest {
         assertEquals("\u00B6", StringHelper.removeFourByteChars("\u00B6"));
         assertEquals("\u6771", StringHelper.removeFourByteChars("\u6771"));
         assertEquals("", StringHelper.removeFourByteChars("\uD801\uDC00"));
+        assertEquals("Test ", StringHelper.removeFourByteChars("Test \uD83D\uDE01"));
+
+        StopWatch stopWatch = new StopWatch();
+        for (int i = 0; i < 1000000; i++) {
+            StringHelper.removeFourByteChars("Test \uD83D\uDE01 ; \u00B6");
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
+
     }
 
     @Test
