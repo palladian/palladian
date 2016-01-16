@@ -691,6 +691,26 @@ public final class MediaWikiUtil {
             throw new NumberFormatException("The coordinate data from \"" + docDegMarkup + "\" could not be parsed.");
         }
     }
+    
+    /**
+     * Process the given Wikipedia dump.
+     *  
+     * @param wikipediaDump Path to the dump file, in multistream bz2 format.
+     * @param action The action to perform for each parsed page.
+     * @param progress For progress monitoring.
+     * @throws IOException In case the file cannot be read.
+     * @throws SAXException In case parsing fails.
+     */
+    public static void parseDump(File wikipediaDump, Consumer<WikiPage> action, ProgressReporter progress) throws IOException, SAXException {
+    	Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
+    	Validate.isTrue(wikipediaDump.isFile(), "wikipediaDump does not exist or is not a file");
+    	Validate.notNull(action, "action must not be null");
+    	Validate.notNull(progress, "progress msut not be null");
+    	try (InputStream inputStream = new MultiStreamBZip2InputStream(new ProgressReporterInputStream(wikipediaDump,
+    			progress))) {
+    		parseDump(inputStream, action);
+    	}
+    }
 
     /**
      * Process the given Wikipedia dump.
@@ -701,14 +721,7 @@ public final class MediaWikiUtil {
      * @throws SAXException In case parsing fails.
      */
     public static void parseDump(File wikipediaDump, Consumer<WikiPage> action) throws IOException, SAXException {
-        Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
-        Validate.isTrue(wikipediaDump.isFile(), "wikipediaDump does not exist or is not a file");
-        Validate.notNull(action, "action must not be null");
-        ProgressReporter reporter = new ProgressMonitor();
-        try (InputStream inputStream = new MultiStreamBZip2InputStream(new ProgressReporterInputStream(wikipediaDump,
-                reporter))) {
-            parseDump(inputStream, action);
-        }
+    	parseDump(wikipediaDump, action, new ProgressMonitor());
     }
 
     /**
