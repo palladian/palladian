@@ -1098,7 +1098,6 @@ public final class FileHelper {
         File f = new File(filename);
 
         if (!f.exists()) {
-            LOGGER.warn("file can not be deleted because it does not exist");
             return false;
         }
 

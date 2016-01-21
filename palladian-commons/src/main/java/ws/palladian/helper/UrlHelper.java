@@ -365,6 +365,14 @@ public final class UrlHelper {
             throw new IllegalStateException("UTF-8 encoding unsupported. This should not happen.", e);
         }
     }
+    
+    private static String tryDecodeParameter(String string) {
+    	try {
+    		return decodeParameter(string);
+    	} catch (IllegalArgumentException e) {
+    		return string;
+    	}
+    }
 
     /**
      * <p>
@@ -448,15 +456,12 @@ public final class UrlHelper {
         String[] paramSplit = paramSubString.split("&");
         for (String param : paramSplit) {
             String[] keyValue = param.split("=");
-            String key = decodeParameter(keyValue[0]);
+            String key = tryDecodeParameter(keyValue[0]);
             String value;
             if (keyValue.length == 1) {
                 value = StringUtils.EMPTY;
-            } else if (keyValue.length == 2) {
-                value = decodeParameter(keyValue[1]);
             } else {
-                throw new IllegalArgumentException(
-                        "Could not parse parameter part \"" + param + "\" of string \"" + parameterString + "\".");
+            	value = tryDecodeParameter(param.substring(key.length() + 1));
             }
             params.add(Pair.of(key, value));
         }
