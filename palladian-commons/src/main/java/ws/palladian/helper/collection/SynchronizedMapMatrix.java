@@ -44,11 +44,13 @@ public class SynchronizedMapMatrix<K, V> extends AbstractMatrix<K, V> implements
     @Override
     public MatrixVector<K, V> getColumn(K x) {
         Map<K, V> column = new HashMap<>();
-        for (Entry<K, Map<K, V>> row : matrix.entrySet()) {
-            K y = row.getKey();
-            for (Entry<K, V> cell : row.getValue().entrySet()) {
-                if (cell.getKey().equals(x)) {
-                    column.put(y, cell.getValue());
+        synchronized (matrix) {
+            for (Entry<K, Map<K, V>> row : matrix.entrySet()) {
+                K y = row.getKey();
+                for (Entry<K, V> cell : row.getValue().entrySet()) {
+                    if (cell.getKey().equals(x)) {
+                        column.put(y, cell.getValue());
+                    }
                 }
             }
         }
