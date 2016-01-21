@@ -59,7 +59,7 @@ public class SynchronizedMapMatrix<K, V> extends AbstractMatrix<K, V> implements
     public void set(K x, K y, V value) {
         Map<K, V> row = matrix.get(y);
         if (row == null) {
-            row = new HashMap<>();
+            row = Collections.synchronizedMap(new HashMap<K, V>());
             matrix.put(y, row);
         }
         keysX.add(x);
