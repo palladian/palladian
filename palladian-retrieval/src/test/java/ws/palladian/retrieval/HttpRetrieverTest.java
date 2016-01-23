@@ -82,24 +82,24 @@ public class HttpRetrieverTest {
         httpRetriever.httpGet("http://localhost:" + port + "/");
     }
 
-    /** See : https://bitbucket.org/palladian/palladian/issue/133/redirecting-throws-unexpected-error */
-    @Test
-    @Ignore
-    public void testRedirects_issue133() throws Exception {
-        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        String url = "http://feedproxy.google.com/~r/pwcooks/~3/iqsvvvykjpo/";
-        List<String> redirectUrls = httpRetriever.getRedirectUrls(url);
-        CollectionHelper.print(redirectUrls);
-    }
+//    /** See : https://bitbucket.org/palladian/palladian/issue/133/redirecting-throws-unexpected-error */
+//    @Test
+//    @Ignore
+//    public void testRedirects_issue133() throws Exception {
+//        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+//        String url = "http://feedproxy.google.com/~r/pwcooks/~3/iqsvvvykjpo/";
+//        List<String> redirectUrls = httpRetriever.getRedirectUrls(url);
+//        CollectionHelper.print(redirectUrls);
+//    }
 
-    /** See: https://dev.twitter.com/docs/tco-redirection-behavior */
-    @Test
-    @Ignore
-    public void testRedirects_tco() throws Exception {
-        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        List<String> urls = httpRetriever.getRedirectUrls("http://t.co/RGJg5LjK");
-        CollectionHelper.print(urls);
-    }
+//    /** See: https://dev.twitter.com/docs/tco-redirection-behavior */
+//    @Test
+//    @Ignore
+//    public void testRedirects_tco() throws Exception {
+//        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+//        List<String> urls = httpRetriever.getRedirectUrls("http://t.co/RGJg5LjK");
+//        CollectionHelper.print(urls);
+//    }
 
     /** See: https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in */
     @Test

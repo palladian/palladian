@@ -19,8 +19,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.impl.cookie.DateParseException;
-import org.apache.http.impl.cookie.DateUtils;
+import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +65,19 @@ public final class HttpHelper {
      */
     public static final Date getDateFromHeader(HttpResult httpResult, String headerName, boolean strict) {
         String dateString = httpResult.getHeaderString(headerName);
-        Date date = null;
+        Date date = parseHeaderDate(strict, dateString);
+        if (date == null) {
+			LOGGER.error(
+					"Could not parse http header value for " + headerName + ": \"" + dateString + "\". ");
+        }
+		return date;
+    }
+
+	static Date parseHeaderDate(boolean strict, String dateString) {
+		Date date = null;
         if (dateString != null && !dateString.isEmpty()) {
-            try {
-                date = DateUtils.parseDate(dateString);
-            } catch (DateParseException e) {
+            date = DateUtils.parseDate(dateString);
+            if (date == null) {
 
                 // ignore 0 and -1 values as they are commonly used as Expires and not worth mentioning.
                 if (!dateString.equalsIgnoreCase("0") && !dateString.equalsIgnoreCase("-1")) {
@@ -82,16 +89,11 @@ public final class HttpHelper {
                             date = ed.getNormalizedDate();
                         }
                     }
-
-                    if (date == null) {
-                        LOGGER.error("Could not parse http header value for " + headerName + ": \"" + dateString
-                                + "\". " + e.getMessage());
-                    }
                 }
             }
         }
         return date;
-    }
+	}
 
     /**
      * <p>
@@ -268,33 +270,6 @@ public final class HttpHelper {
             }
         }
         return statusCode;
-    }
-
-    @SuppressWarnings("deprecation")
-    public static void main(String[] args) {
-
-        // DateUtils.parseDate fails here since it is not RFC 1123, RFC 1036 or ANSI C asctime()
-        String dateString = "Thu, 22 Jul 2010 15:15:59GMT";
-        // dateString = "Fri 08 Jul 2011 05:08:54 PM GMT GMT";
-        // dateString = "Fri, Jul 08 2011 16:50:05 GMT";
-        // dateString = "GMT";
-
-        Date date = null;
-        try {
-            date = DateUtils.parseDate(dateString);
-        } catch (DateParseException e) {
-            // ignore 0 and -1 values as they are commonly used as Expires and not worth mentioning.
-            if (!dateString.equalsIgnoreCase("0") && !dateString.equalsIgnoreCase("-1")) {
-            }
-
-            ExtractedDate ed = DateParser.findDate(dateString);
-            if (ed != null) {
-                date = ed.getNormalizedDate();
-            }
-        }
-
-        System.out.println(dateString + "\n" + (date == null ? "null" : date.toGMTString()));
-
     }
 
 }

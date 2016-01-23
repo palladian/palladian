@@ -27,8 +27,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -36,23 +36,16 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DecompressingHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,8 +84,8 @@ public class HttpRetriever {
     /** The user agent string that is used by the crawler. */
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5";
 
-    /** The user agent used when resolving redirects. */
-    private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+//    /** The user agent used when resolving redirects. */
+//    private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
     /** The default timeout for a connection to be established, in milliseconds. */
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
@@ -118,10 +111,7 @@ public class HttpRetriever {
     // ///////////// Apache HttpComponents ////////
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
-    private final ClientConnectionManager connectionManager;
-
-    /** Various parameters for the Apache HttpClient. */
-    private final HttpParams httpParams = new SyncBasicHttpParams();
+    private final HttpClientConnectionManager connectionManager;
 
     /** Identifier for Connection Metrics; see comment in constructor. */
     private static final String CONTEXT_METRICS_ID = "CONTEXT_METRICS_ID";
@@ -134,14 +124,20 @@ public class HttpRetriever {
     /** Total number of bytes downloaded by all HttpRetriever instances. */
     private static long sessionDownloadedBytes = 0;
 
-    /** The timeout for connections when checking for redirects. */
-    private int connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
-
-    /** The socket timeout when checking for redirects. */
-    private int socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
+//    /** The timeout for connections when checking for redirects. */
+//    private int connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
+//
+//    /** The socket timeout when checking for redirects. */
+//    private int socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
     /** Number of retries for one request, if error occurs. */
     private int numRetries = DEFAULT_NUM_RETRIES;
+    
+    private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
+
+    private int socketTimeout = DEFAULT_SOCKET_TIMEOUT;
+
+	private String userAgent = USER_AGENT;
 
     // ///////////// Misc. ////////
 
@@ -161,15 +157,9 @@ public class HttpRetriever {
     // constructor
     // ////////////////////////////////////////////////////////////////
     
-    public HttpRetriever(ClientConnectionManager connectionManager) {
+    public HttpRetriever(HttpClientConnectionManager connectionManager) {
         Validate.notNull(connectionManager, "connectionManager must not be null");
         this.connectionManager = connectionManager;
-        setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
-        setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
-        setNumRetries(DEFAULT_NUM_RETRIES);
-        setUserAgent(USER_AGENT);
-        // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -189,71 +179,71 @@ public class HttpRetriever {
         return execute(new HttpRequest2Builder(HttpMethod.GET, url).create());
     }
 
-    /** Replaced by {@link #execute(HttpRequest2)} */
-    @Deprecated
-    public HttpResult execute(HttpRequest request) throws HttpException {
-        Validate.notNull(request, "request must not be null");
-
-        HttpUriRequest httpRequest;
-        String url;
-        switch (request.getMethod()) {
-            case GET:
-                url = createUrl(request);
-                httpRequest = new HttpGet(url);
-                break;
-            case POST:
-                url = request.getUrl();
-                HttpPost httpPost = new HttpPost(url);
-                HttpEntity entity;
-
-                if(request.getHttpEntity() != null){
-                    entity = request.getHttpEntity();
-                }else{
-                    List<NameValuePair> postParams = new ArrayList<>();
-                    for (Entry<String, String> param : request.getParameters().entrySet()) {
-                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
-                    }
-                        entity = new UrlEncodedFormEntity(postParams,request.getCharset());
-                }
-
-                httpPost.setEntity(entity);
-                httpRequest = httpPost;
-                break;
-            case HEAD:
-                url = createUrl(request);
-                httpRequest = new HttpHead(url);
-                break;
-            case DELETE:
-                url = createUrl(request);
-                httpRequest = new HttpDelete(url);
-                break;
-            case PUT:
-                url = request.getUrl();
-                HttpPut httpPut = new HttpPut(url);
-
-                if(request.getHttpEntity() != null){
-                    entity = request.getHttpEntity();
-                }else{
-                    List<NameValuePair> postParams = new ArrayList<>();
-                    for (Entry<String, String> param : request.getParameters().entrySet()) {
-                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
-                    }
-                    entity = new UrlEncodedFormEntity(postParams,request.getCharset());
-                }
-
-                httpPut.setEntity(entity);
-                httpRequest = httpPut;
-                break;
-            default:
-                throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
-        }
-
-        for (Entry<String, String> header : request.getHeaders().entrySet()) {
-            httpRequest.setHeader(header.getKey(), header.getValue());
-        }
-
-        return execute(url, httpRequest);
-    }
+//    /** Replaced by {@link #execute(HttpRequest2)} */
+//    @Deprecated
+//    public HttpResult execute(HttpRequest request) throws HttpException {
+//        Validate.notNull(request, "request must not be null");
+//
+//        HttpUriRequest httpRequest;
+//        String url;
+//        switch (request.getMethod()) {
+//            case GET:
+//                url = createUrl(request);
+//                httpRequest = new HttpGet(url);
+//                break;
+//            case POST:
+//                url = request.getUrl();
+//                HttpPost httpPost = new HttpPost(url);
+//                HttpEntity entity;
+//
+//                if(request.getHttpEntity() != null){
+//                    entity = request.getHttpEntity();
+//                }else{
+//                    List<NameValuePair> postParams = new ArrayList<>();
+//                    for (Entry<String, String> param : request.getParameters().entrySet()) {
+//                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+//                    }
+//                        entity = new UrlEncodedFormEntity(postParams,request.getCharset());
+//                }
+//
+//                httpPost.setEntity(entity);
+//                httpRequest = httpPost;
+//                break;
+//            case HEAD:
+//                url = createUrl(request);
+//                httpRequest = new HttpHead(url);
+//                break;
+//            case DELETE:
+//                url = createUrl(request);
+//                httpRequest = new HttpDelete(url);
+//                break;
+//            case PUT:
+//                url = request.getUrl();
+//                HttpPut httpPut = new HttpPut(url);
+//
+//                if(request.getHttpEntity() != null){
+//                    entity = request.getHttpEntity();
+//                }else{
+//                    List<NameValuePair> postParams = new ArrayList<>();
+//                    for (Entry<String, String> param : request.getParameters().entrySet()) {
+//                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+//                    }
+//                    entity = new UrlEncodedFormEntity(postParams,request.getCharset());
+//                }
+//
+//                httpPut.setEntity(entity);
+//                httpRequest = httpPut;
+//                break;
+//            default:
+//                throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
+//        }
+//
+//        for (Entry<String, String> header : request.getHeaders().entrySet()) {
+//            httpRequest.setHeader(header.getKey(), header.getValue());
+//        }
+//
+//        return execute(url, httpRequest);
+//    }
     
     public HttpResult execute(HttpRequest2 request) throws HttpException {
         Validate.notNull(request, "request must not be null");
@@ -264,14 +254,8 @@ public class HttpRetriever {
     // internal functionality
     // ////////////////////////////////////////////////////////////////
 
-    private AbstractHttpClient createHttpClient() {
-
-        // initialize the HttpClient
-        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
-
-        HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
-        backend.setHttpRequestRetryHandler(retryHandler);
-
+    private CloseableHttpClient createHttpClient() {
+    	
         /*
          * fix #261 to get connection metrics for head requests, see also discussion at
          * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html
@@ -282,17 +266,15 @@ public class HttpRetriever {
         HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnection conn = (HttpConnection)context.getAttribute(HttpCoreContext.HTTP_CONNECTION);
                 HttpConnectionMetrics metrics = conn.getMetrics();
                 context.setAttribute(CONTEXT_METRICS_ID, metrics);
             }
         };
-
-        backend.addResponseInterceptor(metricsSaver);
-        // end edit
-
-        if (cookieStore != null) {
-            backend.setCookieStore(new ApacheCookieStoreAdapter(cookieStore));
+        
+        org.apache.http.client.CookieStore cookieStore;
+        if (this.cookieStore != null) {
+        	cookieStore = new ApacheCookieStoreAdapter(this.cookieStore);
         } else {
             // set the cookie store; this is scoped on *one* request and discarded after that;
             // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
@@ -300,30 +282,42 @@ public class HttpRetriever {
             // where cookies previously set cookies are necessary; this is not a typical case,
             // and if we should encounter any issues by this change, remove this code (and the modification
             // in the constructor) again.
-            backend.setCookieStore(new ApacheCookieStoreAdapter(new DefaultCookieStore()));
+            cookieStore = new ApacheCookieStoreAdapter(new DefaultCookieStore());
         }
 
-        return backend;
+    	RequestConfig requestConfig = RequestConfig.custom()
+    			.setConnectionRequestTimeout(connectionTimeout)
+    			.setSocketTimeout(socketTimeout)
+    			.setCookieSpec(CookieSpecs.DEFAULT)
+    			.build();
+		return HttpClientBuilder.create()
+    			.setConnectionManager(connectionManager)
+    			.setRetryHandler(new DefaultHttpRequestRetryHandler(numRetries, false))
+    			.addInterceptorFirst(metricsSaver)
+    			.setDefaultCookieStore(cookieStore)
+    			.setDefaultRequestConfig(requestConfig)
+    			.setUserAgent(userAgent)
+    			.build();
 
     }
 
-    private String createUrl(HttpRequest httpRequest) {
-        StringBuilder url = new StringBuilder();
-        url.append(httpRequest.getUrl());
-        boolean first = true;
-        for (Entry<String, String> parameter : httpRequest.getParameters().entrySet()) {
-            if (first) {
-                first = false;
-                url.append('?');
-            } else {
-                url.append('&');
-            }
-            url.append(UrlHelper.encodeParameter(parameter.getKey()));
-            url.append("=");
-            url.append(UrlHelper.encodeParameter(parameter.getValue()));
-        }
-        return url.toString();
-    }
+//    private String createUrl(HttpRequest httpRequest) {
+//        StringBuilder url = new StringBuilder();
+//        url.append(httpRequest.getUrl());
+//        boolean first = true;
+//        for (Entry<String, String> parameter : httpRequest.getParameters().entrySet()) {
+//            if (first) {
+//                first = false;
+//                url.append('?');
+//            } else {
+//                url.append('&');
+//            }
+//            url.append(UrlHelper.encodeParameter(parameter.getKey()));
+//            url.append("=");
+//            url.append(UrlHelper.encodeParameter(parameter.getValue()));
+//        }
+//        return url.toString();
+//    }
 
     /**
      * <p>
@@ -361,15 +355,17 @@ public class HttpRetriever {
         HttpResult result;
         InputStream in = null;
 
-        AbstractHttpClient backend = createHttpClient();
+        CloseableHttpClient backend = createHttpClient();
 
-        Proxy proxyUsed = setProxy(url, request, backend);
+//        Proxy proxyUsed = setProxy(url, request, backend);
+        Proxy proxyUsed = null;
 
         try {
 
             HttpContext context = new BasicHttpContext();
-            DecompressingHttpClient client = new DecompressingHttpClient(backend);
-            HttpResponse response = client.execute(request, context);
+//            DecompressingHttpClient client = new DecompressingHttpClient(backend);
+//            HttpResponse response = client.execute(request, context);
+            HttpResponse response = backend.execute(request, context);
             HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
@@ -450,91 +446,91 @@ public class HttpRetriever {
         return proxy;
     }
 
-    /**
-     * <p>
-     * Get the redirect URLs for the specified URL (redirects are indicated by a HTTP response code 3xx, and the
-     * redirected URL supplied in a header field <code>location</code>). If there are multiple redirects, all of them
-     * are collected and returned, and the last element in the list represents the final target URL (e.g.
-     * <code>URL1</code> -> <code>URL2</code> -> <code>URL3</code> would return a list <code>[URL2, URL3]</code>).
-     * </p>
-     * 
-     * @param url The URL for which to retrieve the redirects, not <code>null</code> or empty.
-     * @return A list containing the redirect chain, whereas the last element in the list represents the final target,
-     *         or an empty list if the provided URL is not redirected, never <code>null</code>.
-     * @throws HttpException In case of general HTTP errors, when an invalid URL is supplied, when a redirect loop is
-     *             detected (e.g. <code>URL1</code> -> <code>URL2</code> -> <code>URL1</code>), or when a redirect
-     *             status is returned, but no <code>location</code> field is provided.
-     */
-    public List<String> getRedirectUrls(String url) throws HttpException {
-        Validate.notEmpty(url, "url must not be empty");
-
-        List<String> ret = new ArrayList<>();
-
-        // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
-        // see: https://dev.twitter.com/docs/tco-redirection-behavior
-        HttpParams params = new BasicHttpParams();
-        params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
-        HttpProtocolParams.setUserAgent(httpParams, REDIRECT_USER_AGENT);
-
-        HttpConnectionParams.setSoTimeout(params, socketTimeoutRedirects);
-        HttpConnectionParams.setConnectionTimeout(params, connectionTimeoutRedirects);
-
-        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, params);
-        DecompressingHttpClient client = new DecompressingHttpClient(backend);
-
-        for (;;) {
-            HttpHead headRequest;
-            Proxy proxy = null;
-            try {
-                headRequest = new HttpHead(url);
-                proxy = setProxy(url, headRequest, backend);
-            } catch (IllegalArgumentException e) {
-                throw new HttpException("Invalid URL: \"" + url + "\"");
-            }
-            try {
-                HttpResponse response = client.execute(headRequest);
-                int statusCode = response.getStatusLine().getStatusCode();
-                LOGGER.debug("Result {} for {}", statusCode, url);
-                if (statusCode >= 300 && statusCode < 400) {
-                    Header[] locationHeaders = response.getHeaders("location");
-                    if (locationHeaders.length == 0) {
-                        throw new HttpException("Got HTTP status code " + statusCode
-                                + ", but no \"location\" field was provided.");
-                    } else {
-                        url = locationHeaders[0].getValue();
-                        if (ret.contains(url)) {
-                            throw new HttpException("Detected redirect loop for \"" + url
-                                    + "\". URLs collected so far: " + StringUtils.join(ret, ","));
-                        }
-
-                        if (!url.startsWith("http")) {
-                            break;
-                        }
-
-                        ret.add(url);
-
-                        // avoid endless redirects
-                        if (ret.size() > MAX_REDIRECTS) {
-                            throw new HttpException("probably endless redirects for initial URL: " + url);
-                        }
-                    }
-                } else {
-                    break; // done.
-                }
-                proxyProvider.promoteProxy(proxy);
-            } catch (ClientProtocolException e) {
-                throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
-            } catch (IOException e) {
-                proxyProvider.removeProxy(proxy);
-                throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
-            } finally {
-                headRequest.abort();
-            }
-
-        }
-        // client.getConnectionManager().shutdown();
-        return ret;
-    }
+//    /**
+//     * <p>
+//     * Get the redirect URLs for the specified URL (redirects are indicated by a HTTP response code 3xx, and the
+//     * redirected URL supplied in a header field <code>location</code>). If there are multiple redirects, all of them
+//     * are collected and returned, and the last element in the list represents the final target URL (e.g.
+//     * <code>URL1</code> -> <code>URL2</code> -> <code>URL3</code> would return a list <code>[URL2, URL3]</code>).
+//     * </p>
+//     * 
+//     * @param url The URL for which to retrieve the redirects, not <code>null</code> or empty.
+//     * @return A list containing the redirect chain, whereas the last element in the list represents the final target,
+//     *         or an empty list if the provided URL is not redirected, never <code>null</code>.
+//     * @throws HttpException In case of general HTTP errors, when an invalid URL is supplied, when a redirect loop is
+//     *             detected (e.g. <code>URL1</code> -> <code>URL2</code> -> <code>URL1</code>), or when a redirect
+//     *             status is returned, but no <code>location</code> field is provided.
+//     */
+//    public List<String> getRedirectUrls(String url) throws HttpException {
+//        Validate.notEmpty(url, "url must not be empty");
+//
+//        List<String> ret = new ArrayList<>();
+//
+//        // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
+//        // see: https://dev.twitter.com/docs/tco-redirection-behavior
+//        HttpParams params = new BasicHttpParams();
+//        params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
+//        HttpProtocolParams.setUserAgent(httpParams, REDIRECT_USER_AGENT);
+//
+//        HttpConnectionParams.setSoTimeout(params, socketTimeoutRedirects);
+//        HttpConnectionParams.setConnectionTimeout(params, connectionTimeoutRedirects);
+//
+//        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, params);
+//        DecompressingHttpClient client = new DecompressingHttpClient(backend);
+//
+//        for (;;) {
+//            HttpHead headRequest;
+//            Proxy proxy = null;
+//            try {
+//                headRequest = new HttpHead(url);
+//                proxy = setProxy(url, headRequest, backend);
+//            } catch (IllegalArgumentException e) {
+//                throw new HttpException("Invalid URL: \"" + url + "\"");
+//            }
+//            try {
+//                HttpResponse response = client.execute(headRequest);
+//                int statusCode = response.getStatusLine().getStatusCode();
+//                LOGGER.debug("Result {} for {}", statusCode, url);
+//                if (statusCode >= 300 && statusCode < 400) {
+//                    Header[] locationHeaders = response.getHeaders("location");
+//                    if (locationHeaders.length == 0) {
+//                        throw new HttpException("Got HTTP status code " + statusCode
+//                                + ", but no \"location\" field was provided.");
+//                    } else {
+//                        url = locationHeaders[0].getValue();
+//                        if (ret.contains(url)) {
+//                            throw new HttpException("Detected redirect loop for \"" + url
+//                                    + "\". URLs collected so far: " + StringUtils.join(ret, ","));
+//                        }
+//
+//                        if (!url.startsWith("http")) {
+//                            break;
+//                        }
+//
+//                        ret.add(url);
+//
+//                        // avoid endless redirects
+//                        if (ret.size() > MAX_REDIRECTS) {
+//                            throw new HttpException("probably endless redirects for initial URL: " + url);
+//                        }
+//                    }
+//                } else {
+//                    break; // done.
+//                }
+//                proxyProvider.promoteProxy(proxy);
+//            } catch (ClientProtocolException e) {
+//                throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
+//            } catch (IOException e) {
+//                proxyProvider.removeProxy(proxy);
+//                throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
+//            } finally {
+//                headRequest.abort();
+//            }
+//
+//        }
+//        // client.getConnectionManager().shutdown();
+//        return ret;
+//    }
 
     // ////////////////////////////////////////////////////////////////
     // methods for downloading files
@@ -604,7 +600,7 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
 
     public void setConnectionTimeout(int connectionTimeout) {
-        HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout);
+    	this.connectionTimeout = connectionTimeout;
     }
 
     /**
@@ -616,7 +612,7 @@ public class HttpRetriever {
      * @param socketTimeout timeout The new socket timeout time in milliseconds
      */
     public void setSocketTimeout(int socketTimeout) {
-        HttpConnectionParams.setSoTimeout(httpParams, socketTimeout);
+    	this.socketTimeout = socketTimeout;
     }
 
     public void setNumRetries(int numRetries) {
@@ -624,7 +620,7 @@ public class HttpRetriever {
     }
 
     public void setUserAgent(String userAgent) {
-        HttpProtocolParams.setUserAgent(httpParams, userAgent);
+    	this.userAgent = userAgent;
     }
 
     /**
@@ -673,13 +669,13 @@ public class HttpRetriever {
         return proxyProvider;
     }
 
-    public void setConnectionTimeoutRedirects(int connectionTimeoutRedirects) {
-        this.connectionTimeoutRedirects = connectionTimeoutRedirects;
-    }
-
-    public void setSocketTimeoutRedirects(int socketTimeoutRedirects) {
-        this.socketTimeoutRedirects = socketTimeoutRedirects;
-    }
+//    public void setConnectionTimeoutRedirects(int connectionTimeoutRedirects) {
+//        this.connectionTimeoutRedirects = connectionTimeoutRedirects;
+//    }
+//
+//    public void setSocketTimeoutRedirects(int socketTimeoutRedirects) {
+//        this.socketTimeoutRedirects = socketTimeoutRedirects;
+//    }
 
     public Set<Integer> getProxyRemoveStatusCodes() {
         return proxyRemoveStatusCodes;

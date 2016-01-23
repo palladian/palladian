@@ -2,7 +2,7 @@ package ws.palladian.retrieval;
 
 import java.util.Map;
 
-public class ImmutableHttpRequest2 implements HttpRequest2 {
+class ImmutableHttpRequest2 implements HttpRequest2 {
 
     private final String url;
     private final HttpMethod method;

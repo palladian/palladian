@@ -2,22 +2,23 @@ package ws.palladian.retrieval;
 
 import java.io.Closeable;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.scheme.SchemeSocketFactory;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
 
 import ws.palladian.helper.functional.Factory;
 
@@ -54,7 +55,7 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
     public static final int DEFAULT_NUM_CONNECTIONS_PER_ROUTE = 10;
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
-    private final PoolingClientConnectionManager connectionManager;
+    private final PoolingHttpClientConnectionManager connectionManager;
 
     private static Factory<HttpRetriever> _factory = new HttpRetrieverFactory();
 
@@ -84,26 +85,34 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
      *            have Internetführerschein advanced level before messing around with these functionalities.
      */
     public HttpRetrieverFactory(int numConnections, int numConnectionsPerRoute, boolean acceptAllCerts) {
-        SchemeRegistry registry = new SchemeRegistry();
-        registry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-        SchemeSocketFactory socketFactory;
+    	
+        SSLContext sslContext;
         if (acceptAllCerts) {
-            try {
-                // consider all certificates as trusted; this is generally not a good idea,
-                // however we use the HttpRetriever basically only for web scraping and data extraction,
-                // therefore we may argue that it's okayish. At least do not point your finger at me
-                // for doing so!
-                SSLContext sslContext = SSLContext.getInstance("SSL");
-                sslContext.init(null, new TrustManager[] {new ShadyTrustManager()}, new SecureRandom());
-                socketFactory = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            } catch (NoSuchAlgorithmException | KeyManagementException e) {
-                throw new IllegalStateException("Exception when creating SSLSocketFactory", e);
-            }
+        	try {
+				// consider all certificates as trusted; this is generally not a good idea,
+				// however we use the HttpRetriever basically only for web scraping and data extraction,
+				// therefore we may argue that it's okayish. At least do not point your finger at me
+				// for doing so!
+				KeyStore defaultKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+				sslContext = SSLContexts.custom().loadTrustMaterial(defaultKeyStore, new TrustStrategy() {
+					@Override
+					public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+						return true;
+					}
+				}).build();
+			} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+				throw new IllegalStateException("Exception when creating SSLSocketFactory", e);
+			}
         } else {
-            socketFactory = SSLSocketFactory.getSocketFactory();
+            sslContext = SSLContexts.createSystemDefault();
         }
-        registry.register(new Scheme("https", 443, socketFactory));
-        connectionManager = new PoolingClientConnectionManager(registry);
+    	
+		RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder.<ConnectionSocketFactory> create();
+		registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory());
+		registryBuilder.register("https", new SSLConnectionSocketFactory(sslContext));
+		Registry<ConnectionSocketFactory> registry = registryBuilder.build();
+
+        connectionManager = new PoolingHttpClientConnectionManager(registry);
         connectionManager.setMaxTotal(numConnections);
         connectionManager.setDefaultMaxPerRoute(numConnectionsPerRoute);
     }
@@ -141,24 +150,6 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
     public static void setFactory(Factory<HttpRetriever> factory) {
         Validate.notNull(factory, "factory must not be null");
         _factory = factory;
-    }
-
-    /** A trust manager which is actually not trustful at all, but accepts all kinds of certificates. */
-    private static final class ShadyTrustManager implements X509TrustManager {
-        @Override
-        public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-            // no op.
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-            // no op.
-        }
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return null;
-        }
     }
 
 }
