@@ -3,13 +3,13 @@ package ws.palladian.retrieval;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -21,36 +21,38 @@ import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.NameValuePair;
+import org.apache.http.ProtocolException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.cookie.CookieSpecProvider;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.impl.conn.ConnectionShutdownException;
+import org.apache.http.impl.cookie.ExtendedCookieSpecProvider;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.functional.Functions;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.HttpHelper;
 
@@ -84,8 +86,8 @@ public class HttpRetriever {
     /** The user agent string that is used by the crawler. */
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5";
 
-//    /** The user agent used when resolving redirects. */
-//    private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+    /** The user agent used when resolving redirects. */
+    static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
     /** The default timeout for a connection to be established, in milliseconds. */
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
@@ -115,6 +117,9 @@ public class HttpRetriever {
 
     /** Identifier for Connection Metrics; see comment in constructor. */
     private static final String CONTEXT_METRICS_ID = "CONTEXT_METRICS_ID";
+    
+    /** Identifier for the redirects stored in the context. */
+    private static final String CONTEXT_REDIRECTS_ID = "CONTEXT_REDIRECTS_ID";
 
     // ///////////// Settings ////////
 
@@ -267,9 +272,24 @@ public class HttpRetriever {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
                 HttpConnection conn = (HttpConnection)context.getAttribute(HttpCoreContext.HTTP_CONNECTION);
-                HttpConnectionMetrics metrics = conn.getMetrics();
-                context.setAttribute(CONTEXT_METRICS_ID, metrics);
+                try {
+	                HttpConnectionMetrics metrics = conn.getMetrics();
+	                context.setAttribute(CONTEXT_METRICS_ID, metrics);
+                } catch (ConnectionShutdownException e) {
+                	// don't care
+                }
             }
+        };
+        RedirectStrategy redirectsSaver = new DefaultRedirectStrategy() {
+        	private final List<URI> redirects = new ArrayList<>();
+        	@Override
+        	public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context)
+        			throws ProtocolException {
+        		context.setAttribute(CONTEXT_REDIRECTS_ID, redirects);
+        		HttpUriRequest redirect = super.getRedirect(request, response, context);
+        		redirects.add(redirect.getURI());
+        		return redirect;
+        	}
         };
         
         org.apache.http.client.CookieStore cookieStore;
@@ -284,19 +304,28 @@ public class HttpRetriever {
             // in the constructor) again.
             cookieStore = new ApacheCookieStoreAdapter(new DefaultCookieStore());
         }
+        
+		RegistryBuilder<CookieSpecProvider> cookieRegistryBuilder = RegistryBuilder.<CookieSpecProvider> create();
+		cookieRegistryBuilder.register("cookie", ExtendedCookieSpecProvider.INSTANCE);
+		Registry<CookieSpecProvider> cookieSpecRegistry = cookieRegistryBuilder.build();
 
     	RequestConfig requestConfig = RequestConfig.custom()
     			.setConnectionRequestTimeout(connectionTimeout)
     			.setSocketTimeout(socketTimeout)
     			.setCookieSpec(CookieSpecs.DEFAULT)
+    			.setMaxRedirects(MAX_REDIRECTS)
     			.build();
 		return HttpClientBuilder.create()
     			.setConnectionManager(connectionManager)
     			.setRetryHandler(new DefaultHttpRequestRetryHandler(numRetries, false))
+    			// TODO maybe use a HttpRequestExecutor instead?
+    			// http://stackoverflow.com/questions/26166469/measure-bandwidth-usage-with-apache-httpcomponents-httpclient
     			.addInterceptorFirst(metricsSaver)
     			.setDefaultCookieStore(cookieStore)
     			.setDefaultRequestConfig(requestConfig)
     			.setUserAgent(userAgent)
+    			.setRedirectStrategy(redirectsSaver)
+    			.setDefaultCookieSpecRegistry(cookieSpecRegistry)
     			.build();
 
     }
@@ -398,7 +427,15 @@ public class HttpRetriever {
             long receivedBytes = metrics.getReceivedBytesCount();
             metrics.reset();
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
-            result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
+            
+            @SuppressWarnings("unchecked")
+			List<URI> redicts = (List<URI>) context.getAttribute(CONTEXT_REDIRECTS_ID);
+            if (redicts == null) {
+            	redicts = Collections.emptyList();
+            }
+            List<String> redirectedUrls = CollectionHelper.convertList(redicts, Functions.TO_STRING);
+            
+            result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes, redirectedUrls);
 
             addDownload(receivedBytes);
 

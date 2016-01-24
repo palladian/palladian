@@ -2,6 +2,7 @@ package ws.palladian.retrieval;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,10 @@ import ws.palladian.helper.collection.CaseInsensitiveMap;
  */
 public class HttpResult implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	// FIXME adding additional redirectURLs break serialization;
+	// can we achieve backwards-compatibility somehow? Would be
+	// important for existing KNIME workflows.
+    private static final long serialVersionUID = 2L;
 
     private static final String HEADER_SEPARATOR = "; ";
 
@@ -28,6 +32,7 @@ public class HttpResult implements Serializable {
     private final Map<String, List<String>> headers;
     private final int statusCode;
     private final long transferedBytes;
+    private final List<String> redirectUrls;
 
     /**
      * <p>
@@ -41,8 +46,7 @@ public class HttpResult implements Serializable {
      * @param transferedBytes the number of transfered bytes.
      */
     public HttpResult(String url, byte[] content, Map<String, List<String>> headers, int statusCode,
-            long transferedBytes) {
-        super();
+            long transferedBytes, List<String> redirectUrls) {
         this.url = url;
         this.content = content;
         // this.headers = headers;
@@ -53,6 +57,7 @@ public class HttpResult implements Serializable {
         this.headers = new CaseInsensitiveMap<>(headers);
         this.statusCode = statusCode;
         this.transferedBytes = transferedBytes;
+        this.redirectUrls = redirectUrls;
     }
 
     /**
@@ -135,7 +140,7 @@ public class HttpResult implements Serializable {
         if (foundCharset != null && Charset.isSupported(foundCharset)) {
             charset = Charset.forName(foundCharset);
         } else {
-            charset = Charset.forName("ISO-8859-1");
+            charset = StandardCharsets.ISO_8859_1;
         }
         return new String(getContent(), charset);
     }
@@ -169,6 +174,13 @@ public class HttpResult implements Serializable {
     public boolean errorStatus() {
         return statusCode >= 400;
     }
+    
+    /**
+     * @return The URLs which were redirecting until the final result.
+     */
+    public List<String> getRedirectUrls() {
+		return redirectUrls;
+	}
 
     /*
      * (non-Javadoc)
@@ -188,6 +200,10 @@ public class HttpResult implements Serializable {
         builder.append(statusCode);
         builder.append(", transferedBytes=");
         builder.append(transferedBytes);
+		if (!redirectUrls.isEmpty()) {
+			builder.append(", redirectURLs=");
+			builder.append(redirectUrls);
+		}
         builder.append("]");
         return builder.toString();
     }
