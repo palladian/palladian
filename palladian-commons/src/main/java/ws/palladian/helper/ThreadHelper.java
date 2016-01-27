@@ -51,7 +51,7 @@ public class ThreadHelper {
     }
 
     public static Set<Thread> getAllDaemonThreads() {
-        Set<Thread> daemonThreads = new HashSet<Thread>();
+        Set<Thread> daemonThreads = new HashSet<>();
 
         Set<Thread> threadSet = getAllThreads();
         for (Thread thread : threadSet) {
@@ -64,7 +64,7 @@ public class ThreadHelper {
     }
 
     public static Set<Thread> getAllNonDaemonThreads() {
-        Set<Thread> nonDaemonThreads = new HashSet<Thread>();
+        Set<Thread> nonDaemonThreads = new HashSet<>();
 
         Set<Thread> threadSet = getAllThreads();
         for (Thread thread : threadSet) {
@@ -104,7 +104,7 @@ public class ThreadHelper {
     // }
 
     public static Set<Thread> getAllThreads(Thread.State state) {
-        Set<Thread> stateThreads = new HashSet<Thread>();
+        Set<Thread> stateThreads = new HashSet<>();
 
         Set<Thread> threadSet = getAllThreads();
         for (Thread thread : threadSet) {
