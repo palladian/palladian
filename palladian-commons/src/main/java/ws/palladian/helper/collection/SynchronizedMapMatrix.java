@@ -12,8 +12,6 @@ import java.util.Map.Entry;
  * the latter case, all entries need to be iterated.
  * </p>
  * 
- * @author Philipp Katz
- * 
  * @param <K> Type of the keys.
  * @param <V> Type of the values.
  */
