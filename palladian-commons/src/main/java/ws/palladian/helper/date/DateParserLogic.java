@@ -34,7 +34,6 @@ final class DateParserLogic {
     int second;
     String timeZone;
 
-
     /**
      * <p>
      * Initialize the date parse logic with the provided date string and the given format used for parsing.
@@ -135,7 +134,7 @@ final class DateParserLogic {
             String[] dateParts = dateString.split("\\s");
             setDateValues(dateParts, 2, 1, 0);
         } else if (format.equals(RegExp.DATE_USA_MMMM_D_Y)) {
-            dateString = dateString.replaceAll("\\,\\s|\\,|\\s", " ");
+            dateString = dateString.replaceAll(",\\s|,|\\s", " ");
             // try {
                 String[] parts = dateString.split("\\s");
                 if (parts.length == 2) {
