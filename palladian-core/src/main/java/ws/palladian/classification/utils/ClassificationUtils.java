@@ -1,5 +1,7 @@
 package ws.palladian.classification.utils;
 
+import static ws.palladian.helper.functional.Filters.equal;
+import static ws.palladian.helper.functional.Filters.not;
 import static ws.palladian.helper.math.MathHelper.log2;
 
 import java.io.BufferedWriter;
@@ -259,6 +261,33 @@ public final class ClassificationUtils {
             Filter<? super String> nameFilter) {
         return new DatasetFeatureFilter(dataset, nameFilter);
     }
+    
+	/**
+	 * Set the category of the supplied instance to any of the present features.
+	 * The feature itself will be removed from the feature vector.
+	 * 
+	 * @param dataset
+	 *            The dataset, not <code>null</code>.
+	 * @param featureName
+	 *            The name of the feature which should be used as category.
+	 * @return A new {@link Iterable} which provides the converted instances.
+	 */
+	public static Iterable<Instance> useFeatureAsCategory(Iterable<? extends Instance> dataset,
+			final String featureName) {
+		Validate.notNull(dataset, "dataset must not be null");
+		Validate.notEmpty(featureName, "featureName must not be empty or null");
+		return CollectionHelper.convert(dataset, new Function<Instance, Instance>() {
+			@Override
+			public Instance compute(Instance input) {
+				FeatureVector featureVector = filterFeatures(input.getVector(), not(equal(featureName)));
+				Value category = input.getVector().get(featureName);
+				if (category == null) {
+					throw new IllegalArgumentException("No feature with name \"" + featureName + "\".");
+				}
+				return new InstanceBuilder().add(featureVector).create(category.toString());
+			}
+		});
+	}
 
     /**
      * <p>
@@ -324,6 +353,7 @@ public final class ClassificationUtils {
         });
     }
     
+    // TODO duplicate of ws.palladian.classification.discretization.DatasetStatistics.getCategoryPriors()
     public static CategoryEntries getCategoryCounts(Iterable<? extends Instance> instances) {
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         for (Instance instance : instances) {
