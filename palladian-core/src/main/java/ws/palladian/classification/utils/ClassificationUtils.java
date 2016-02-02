@@ -353,6 +353,7 @@ public final class ClassificationUtils {
         });
     }
     
+    // TODO duplicate of ws.palladian.classification.discretization.DatasetStatistics.getCategoryPriors()
     public static CategoryEntries getCategoryCounts(Iterable<? extends Instance> instances) {
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         for (Instance instance : instances) {
