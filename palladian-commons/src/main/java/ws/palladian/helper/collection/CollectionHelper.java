@@ -338,7 +338,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <E> LinkedList<E> newLinkedList() {
-        return new LinkedList<E>();
+        return new LinkedList<>();
     }
 
     /**
@@ -352,7 +352,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <E> HashSet<E> newHashSet() {
-        return new HashSet<E>();
+        return new HashSet<>();
     }
 
     /**
@@ -366,7 +366,7 @@ public final class CollectionHelper {
     @SafeVarargs
     public static <E> HashSet<E> newHashSet(E... elements) {
         Validate.notNull(elements, "elements must not be null");
-        return new HashSet<E>(Arrays.asList(elements));
+        return new HashSet<>(Arrays.asList(elements));
     }
 
     /**
@@ -410,7 +410,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <E> TreeSet<E> newTreeSet() {
-        return new TreeSet<E>();
+        return new TreeSet<>();
     }
 
     /**
@@ -424,7 +424,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <E> LinkedHashSet<E> newLinkedHashSet() {
-        return new LinkedHashSet<E>();
+        return new LinkedHashSet<>();
     }
 
     /**

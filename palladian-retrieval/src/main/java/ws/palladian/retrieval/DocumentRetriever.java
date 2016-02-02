@@ -441,11 +441,12 @@ public class DocumentRetriever {
 
                 callRetrieverCallback(document);
 
-            } catch (FileNotFoundException | DOMException | ParserException | HttpException e) {
+            } catch (Exception e) {
                 LOGGER.error(url + ", " + e.getMessage());
             } finally {
                 FileHelper.close(inputStream);
             }
+
         }
 
         return document;
