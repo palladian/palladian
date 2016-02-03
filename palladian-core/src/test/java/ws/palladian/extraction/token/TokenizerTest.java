@@ -47,14 +47,14 @@ public class TokenizerTest {
         assertEquals(7, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. <MUSICIAN>John Hiatt</MUSICIAN> is awesome.");
-        assertEquals(9, tokens.size());
+        assertEquals(8, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. '<MUSICIAN>John Hiatt</MUSICIAN>' is awesome.");
-        assertEquals(11, tokens.size());
+        assertEquals(10, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. ^<MUSICIAN>John Hiatt</MUSICIAN>) is awesome!!!");
         // CollectionHelper.print(tokens);
-        assertEquals(11, tokens.size());
+        assertEquals(10, tokens.size());
 
         tokens = Tokenizer.tokenize("asp.net is very web 2.0. isn't it? web2.0, .net");
         // CollectionHelper.print(tokens);
