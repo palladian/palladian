@@ -184,7 +184,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
         Validate.notNull(item, "item must not be null");
         if (increment != 0) {
             int count = count(item);
-            map.put(item, count += increment);
+            map.put(item, count + increment);
             size += increment;
         }
     }

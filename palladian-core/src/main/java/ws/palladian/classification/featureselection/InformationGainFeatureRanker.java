@@ -58,6 +58,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureRanker.class);
 
+    // TODO why does this require a collection? the implementation seems to be streamable?
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");

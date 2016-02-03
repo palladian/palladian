@@ -1,5 +1,6 @@
 package ws.palladian.retrieval;
 
+import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -388,7 +389,7 @@ public class Crawler {
         this.visitedUrls = visitedUrls;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
 
         // ///////////////// simple usage ///////////////////
         // create the crawler object
