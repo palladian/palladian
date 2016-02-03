@@ -38,6 +38,19 @@ public final class InstanceBuilder {
         valueMap.put(name, new ImmutableDoubleValue(value));
         return this;
     }
+    
+    /**
+     * Set a long value (overwrite an existing value with the same name, in case it exists).
+     *
+     * @param name Name of the value to set, not <code>null</code> or empty.
+     * @param value Value to set.
+     * @return The builder instance for method chaining.
+     */
+    public InstanceBuilder set(String name, long value) {
+    	Validate.notEmpty(name, "name must not be empty");
+    	valueMap.put(name, new ImmutableLongValue(value));
+    	return this;
+    }
 
     /**
      * Set a String value (overwrite an existing value with the same name, in case it exists).
