@@ -31,6 +31,7 @@ public class TokenizerTest {
     @Test
     public void testCalculateWordNgrams() {
         assertEquals(1, Tokenizer.calculateAllWordNGrams("a++", 1, 10).size());
+        assertEquals(4, Tokenizer.calculateWordNGrams("Mr. A. Anderson.", 1).size());
         assertEquals(4, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 2).size());
         assertEquals(3, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 3).size());
         assertEquals(2, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 4).size());
