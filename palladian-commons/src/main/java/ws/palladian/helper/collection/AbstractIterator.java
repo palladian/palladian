@@ -52,7 +52,7 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
     public final boolean hasNext() {
         if (next == null) {
             try {
-                next = new Wrap<E>(getNext());
+                next = new Wrap<>(getNext());
             } catch (Finished e) {
                 return false;
             }
@@ -64,7 +64,7 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
     public final E next() {
         if (next == null) {
             try {
-                next = new Wrap<E>(getNext());
+                next = new Wrap<>(getNext());
             } catch (Finished e) {
                 throw new NoSuchElementException("No (more) elements");
             }

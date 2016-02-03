@@ -30,6 +30,8 @@ public class TokenizerTest {
 
     @Test
     public void testCalculateWordNgrams() {
+        assertEquals(1, Tokenizer.calculateAllWordNGrams("a++", 1, 10).size());
+        assertEquals(4, Tokenizer.calculateWordNGrams("Mr. A. Anderson.", 1).size());
         assertEquals(4, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 2).size());
         assertEquals(3, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 3).size());
         assertEquals(2, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 4).size());
@@ -45,14 +47,14 @@ public class TokenizerTest {
         assertEquals(7, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. <MUSICIAN>John Hiatt</MUSICIAN> is awesome.");
-        assertEquals(9, tokens.size());
+        assertEquals(8, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. '<MUSICIAN>John Hiatt</MUSICIAN>' is awesome.");
-        assertEquals(11, tokens.size());
+        assertEquals(10, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. ^<MUSICIAN>John Hiatt</MUSICIAN>) is awesome!!!");
         // CollectionHelper.print(tokens);
-        assertEquals(11, tokens.size());
+        assertEquals(10, tokens.size());
 
         tokens = Tokenizer.tokenize("asp.net is very web 2.0. isn't it? web2.0, .net");
         // CollectionHelper.print(tokens);

@@ -12,8 +12,6 @@ import java.util.Map.Entry;
  * the latter case, all entries need to be iterated.
  * </p>
  * 
- * @author Philipp Katz
- * 
  * @param <K> Type of the keys.
  * @param <V> Type of the values.
  */
@@ -59,14 +57,16 @@ public class SynchronizedMapMatrix<K, V> extends AbstractMatrix<K, V> implements
 
     @Override
     public void set(K x, K y, V value) {
-        Map<K, V> row = matrix.get(y);
-        if (row == null) {
-            row = Collections.synchronizedMap(new HashMap<K, V>());
-            matrix.put(y, row);
+        synchronized (matrix) {
+            Map<K, V> row = matrix.get(y);
+            if (row == null) {
+                row = Collections.synchronizedMap(new HashMap<K, V>());
+                matrix.put(y, row);
+            }
+            keysX.add(x);
+            keysY.add(y);
+            row.put(x, value);
         }
-        keysX.add(x);
-        keysY.add(y);
-        row.put(x, value);
     }
 
     @Override
@@ -88,8 +88,10 @@ public class SynchronizedMapMatrix<K, V> extends AbstractMatrix<K, V> implements
 
     @Override
     public void removeColumn(K x) {
-        for (Map<K, V> row : matrix.values()) {
-            row.remove(x);
+        synchronized (matrix) {
+            for (Map<K, V> row : matrix.values()) {
+                row.remove(x);
+            }
         }
         keysX.remove(x);
     }

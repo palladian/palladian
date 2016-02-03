@@ -11,27 +11,6 @@ package ws.palladian.helper.constants;
  */
 public final class RegExp {
 
-    // TODO: Warning (10/11/2010): changed regexp without further testing, was:
-    // ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*))*
-    // public static final String ENTITY =
-    // "([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10}";
-
-    // dates needed to normalize date found by general date pattern
-    // public static final String DATE0 = "(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}:(\\d){2}"; // YYYY-MM-DD
-    // hh:mm:ss
-    // public static final String DATE1 = "(\\d){4}-(\\d){2}-(\\d){2}"; // YYYY-MM-DD
-    // public static final String DATE2 = "(\\d){1,2}[\\.|/|-](\\d){1,2}[\\.|/|-](\\d){1,4}"; // DD.MM.YYYY and
-    // varieties
-    // public static final String DATE3 =
-    // "(?<!(\\d){2})(\\d){1,2}(th)?(\\.)?(\\s)?([A-Za-z]){3,9}((\\,)|(\\s))+(['])?(\\d){2,4}"; // DD
-    // Monthname
-    // YYYY
-    // and
-    // varieties
-    // public static final String DATE4 = "(\\w){3,9}\\s(\\d){1,2}(th)?((\\,)|(\\s))+(['])?(\\d){2,4}"; // Monthname DD
-    // YYYY and
-    // varieties
-
     public static final String NUMBER = "(?<!(\\w)-)(?<!(\\w))((\\d){1,}((,|\\.|\\s))?){1,}(?!((\\d)+-(\\d)+))(?!-(\\d)+)";
     public static final String BOOLEAN = "(?<!(\\w))(?i)(yes|no)(?!(\\w))";
     // TODO catch special chars differently
@@ -310,10 +289,6 @@ public final class RegExp {
     public static final DateFormat RELATIVE_DATE_YEAR = new DateFormat("\\d* " + YEARUNIT + " ago", "year");
 
     // other patterns
-    // public static final String COLON_FACT_REPRESENTATION =
-    // "[A-Za-z0-9/ ]{1,20}:\\s?[0-9A-Za-z]{1,20}((\\s|,)+([0-9/,]*|[A-Z]*|[a-z]*))*([A-Za-z]{1}[a-z0-9,]*|[0-9]*)";
-    // public static final String COLON_FACT_REPRESENTATION =
-    // "[A-Za-z0-9/ ]{1,20}:\\s?(([0-9]+|[A-Z]+|[a-z]+))+((\\s|,)+([0-9]+|[A-Z]+|[a-z]+))+";
     private static final String COLON_FACT_REPRESENTATION_VALUE = "([A-Z]+|[a-z]+|[0-9.]+[A-Z]{1,2}(\\s|,|$)|[0-9.]+[a-z]{1,4}|[0-9.]+)";
     public static final String COLON_FACT_REPRESENTATION = "[A-Za-z0-9/() ]{1,20}:\\s?("
             + COLON_FACT_REPRESENTATION_VALUE + ")+((\\s|,)+" + COLON_FACT_REPRESENTATION_VALUE + ")*";
