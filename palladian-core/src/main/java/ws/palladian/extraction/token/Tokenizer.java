@@ -23,7 +23,7 @@ import ws.palladian.helper.nlp.StringHelper;
 public final class Tokenizer {
 
     /** The RegExp used for tokenization (terms). */
-    public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
+    public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z][a-z]?\\.)+|[\\p{L}\\w+]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
     /** The RegExp used for sentence splitting. */
     public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Vers|Dr|dr|Prof|Nr|Rev|Mrs|mrs|Jr|jr|vs| eg|e\\.g|ca|max|Min|etc| sq| ft)((\\.|\\?|\\!)(’|”|\")+(?=\\s+[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
