@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -59,12 +60,20 @@ public class ImageHandler {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandler.class);
 
-    private static final List<String> COLORS;
+    public static final List<ws.palladian.extraction.multimedia.Color> COLORS;
 
-    static {
-        InputStream inputStream = ImageHandler.class.getResourceAsStream("/colors.csv");
-        COLORS = FileHelper.readFileToArray(inputStream);
-    }
+	static {
+		InputStream inputStream = ImageHandler.class.getResourceAsStream("/colors.csv");
+		final List<ws.palladian.extraction.multimedia.Color> colors = new ArrayList<>();
+		FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
+			@Override
+			public void performAction(String line, int lineNumber) {
+				String[] split = line.split(";");
+				colors.add(new ws.palladian.extraction.multimedia.Color(split[0], split[1], split[2]));
+			}
+		});
+		COLORS = Collections.unmodifiableList(colors);
+	}
 
     /**
      * <p>
@@ -1074,12 +1083,12 @@ public class ImageHandler {
 
             Pair<Double, ws.palladian.extraction.multimedia.Color> bestMatch = null;
 
-            for (String string : COLORS) {
-                String[] split = string.split(";");
-                Color color = hexToRgb(split[0]);
+            for (ws.palladian.extraction.multimedia.Color currentColor : COLORS) {
+                Color color = hexToRgb(currentColor.getHexCode());
                 double distance = colorDistance(imageColor, color);
                 if (bestMatch == null || distance < bestMatch.getValue0()) {
-                    bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex, split[1], split[2]));
+                    bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex, currentColor
+                    		.getSpecificColorName(), currentColor.getMainColorName()));
                 }
 
             }

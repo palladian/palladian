@@ -6,10 +6,10 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Assume;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class ImageHandlerTest {
      * 
      * Philipp, 2010-06-28.
      */
-    @Before
+    // @Before
     public void checkOperatingSystem() {
         boolean macOsX = System.getProperty("os.name").contains("Mac OS X");
         if (macOsX) {
@@ -46,6 +46,7 @@ public class ImageHandlerTest {
 
     @Test
     public void testClusterImages() throws FileNotFoundException {
+    	checkOperatingSystem();
 
         Collection<String> imageUrls = new ArrayList<String>();
         imageUrls.add(ResourceHelper.getResourcePath("/images/imageA1.jpg"));
@@ -68,6 +69,8 @@ public class ImageHandlerTest {
 
     @Test
     public void testRescaleImage() throws FileNotFoundException {
+    	checkOperatingSystem();
+    	
         BufferedImage bufferedImage = null;
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
@@ -144,6 +147,8 @@ public class ImageHandlerTest {
 
     @Test
     public void testIsDuplicate() throws FileNotFoundException {
+    	checkOperatingSystem();
+    	
         BufferedImage image1;
         BufferedImage image2;
 
@@ -184,5 +189,15 @@ public class ImageHandlerTest {
         // image1 = ImageHandler.load("data/test/images/af4.jpg");
         // image2 = ImageHandler.load("data/test/images/nzf1.jpg");
         // assertEquals(false, ImageHandler.isDuplicate(image1,image2));
+    }
+    
+    @Test
+    public void testDetectColors() throws FileNotFoundException {
+    	BufferedImage image = ImageHandler.load(ResourceHelper.getResourcePath("/images/af1.jpg"));
+    	List<Color> detectedColors = ImageHandler.detectColors(image);
+    	assertEquals(3, detectedColors.size());
+    	assertEquals(new Color("#1d3776", "Catalina Blue", "Blue"), detectedColors.get(0));
+    	assertEquals(new Color("#f2ecf5", "white smoke", "Gray"), detectedColors.get(1));
+    	assertEquals(new Color("#c8112d", "crimson", "Red"), detectedColors.get(2));
     }
 }
