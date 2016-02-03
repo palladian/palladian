@@ -207,7 +207,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
-        List<Instance> instances = new ArrayList<Instance>(dataset);
+        List<Instance> instances = new ArrayList<>(dataset);
         Collections.shuffle(instances);
         List<Instance> trainData = instances.subList(0, instances.size() / 2);
         List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
@@ -248,7 +248,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
             // stepwise elimination
             for (;;) {
-                Set<String> featuresToCheck = new HashSet<String>(allFeatures);
+                Set<String> featuresToCheck = new HashSet<>(allFeatures);
                 featuresToCheck.removeAll(eliminatedFeatures);
                 if (featuresToCheck.isEmpty()) {
                     break;
@@ -256,7 +256,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
                 List<TestRun> runs = new ArrayList<>();
 
                 for (String currentFeature : featuresToCheck) {
-                    List<String> featuresToEliminate = new ArrayList<String>(eliminatedFeatures);
+                    List<String> featuresToEliminate = new ArrayList<>(eliminatedFeatures);
                     featuresToEliminate.add(currentFeature);
                     runs.add(new TestRun(trainSet, validationSet, featuresToEliminate, progress));
                 }
@@ -308,7 +308,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
         // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).
         Function<ConfusionMatrix, Double> scorer = new FMeasureScorer("true");
 
-        BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<QuickDtModel>(
+        BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<>(
                 learnerFactory, predictorFactory, scorer, 1);
         FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet, new ProgressMonitor());
         CollectionHelper.print(featureRanking.getAll());
