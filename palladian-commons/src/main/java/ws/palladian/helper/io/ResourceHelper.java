@@ -48,14 +48,6 @@ public final class ResourceHelper {
             throw new FileNotFoundException(resourceLocation + " could not be found or accessed");
         }
 
-        //        String resourcePath;
-        //        try {
-        //            resourcePath = URLDecoder.decode(url.getFile(), "UTF-8");
-        //        } catch (UnsupportedEncodingException e) {
-        //            throw new IllegalStateException(e);
-        //        }
-        //        return resourcePath;
-
         return url.getFile();
     }
 
