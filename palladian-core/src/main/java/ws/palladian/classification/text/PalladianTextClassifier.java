@@ -274,4 +274,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         return classify(featureVector, model);
     }
 
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "[scorer=" + scorer + ", featureSetting=" + featureSetting + "]";
+	}
+
 }
