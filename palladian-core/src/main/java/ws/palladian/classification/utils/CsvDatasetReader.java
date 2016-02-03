@@ -119,8 +119,13 @@ public class CsvDatasetReader implements Iterable<Instance> {
                     continue;
                 }
                 try { // XXX make better.
-                    double doubleValue = Double.parseDouble(value);
-                    builder.set(name, doubleValue);
+                	if (value.contains(".")) {
+                		double doubleValue = Double.parseDouble(value);
+                		builder.set(name, doubleValue);
+                	} else {
+                		long longValue = Long.parseLong(value);
+                		builder.set(name, longValue);
+                	}
                 } catch (NumberFormatException e) {
                     String stringValue = stringPool.get(value);
                     builder.set(name, stringValue);
