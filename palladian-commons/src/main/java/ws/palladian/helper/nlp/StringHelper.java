@@ -1,23 +1,24 @@
 package ws.palladian.helper.nlp;
 
+import java.security.MessageDigest;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;
-
-import java.security.MessageDigest;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * <p>
@@ -61,7 +62,7 @@ public final class StringHelper {
     /**
      * In ontologies names can not have certain characters so they have to be changed.
      *
-     * @param name      The name.
+     * @param name The name.
      * @param maxLength The maximum length of the string. -1 means no maximum length.
      * @return The safe name.
      */
@@ -134,10 +135,10 @@ public final class StringHelper {
     /**
      * Shorten a string to a given length if necessary and add ellipsis.
      *
-     * @param string    The string to shorten.
+     * @param string The string to shorten.
      * @param maxLength The maximum length.
      * @return The original string if it was shorter than the max. length, or a shortened string with appended "...", or
-     * <code>null</code> in case the given string was null.
+     *         <code>null</code> in case the given string was null.
      */
     public static String shortenEllipsis(String string, int maxLength) {
         if (string == null) {
@@ -155,10 +156,10 @@ public final class StringHelper {
      * indices [4, 7, 9] are returned, giving the positions of the white spaces.
      * </p>
      *
-     * @param text   The text to check.
+     * @param text The text to check.
      * @param search The search string for which to get the indices.
      * @return A {@link List} of positions for the specified search string within the text, or an empty List if the
-     * search string was not found or empty, or an empty text or <code>null</code> was supplied.
+     *         search string was not found or empty, or an empty text or <code>null</code> was supplied.
      */
     public static List<Integer> getOccurrenceIndices(String text, String search) {
         if (text == null || search == null || search.isEmpty()) {
@@ -180,7 +181,7 @@ public final class StringHelper {
      * Make camel case.
      * </p>
      *
-     * @param name           the name
+     * @param name the name
      * @param uppercaseFirst the uppercase first
      * @return the string
      */
@@ -256,11 +257,11 @@ public final class StringHelper {
      * Replace a certain string only within a substring of a text.
      * </p>
      *
-     * @param text         The text in which something should be replaced.
-     * @param start        The start of the substring in which we want to replace something.
-     * @param end          The end of the substring in which we want to replace something.
+     * @param text The text in which something should be replaced.
+     * @param start The start of the substring in which we want to replace something.
+     * @param end The end of the substring in which we want to replace something.
      * @param searchString The string we want to replace.
-     * @param replacement  The replacement.
+     * @param replacement The replacement.
      * @return The string with the replaced search string.
      */
     public static String replaceWithin(String text, int start, int end, String searchString, String replacement) {
@@ -381,7 +382,7 @@ public final class StringHelper {
      * or punctuation but can not be within another word.
      * </p>
      *
-     * @param word         The word to search for.
+     * @param word The word to search for.
      * @param searchString The string in which we try to find the word.
      * @return True, if the word is contained, false if not.
      */
@@ -394,7 +395,7 @@ public final class StringHelper {
             Pattern pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
             return pattern.matcher(searchString).find();
         } catch (PatternSyntaxException e) {
-            LOGGER.error("PatternSyntaxException for {} with regExp {}", new Object[]{searchString, regexp, e});
+            LOGGER.error("PatternSyntaxException for {} with regExp {}", new Object[] {searchString, regexp, e});
             return false;
         }
     }
@@ -404,7 +405,7 @@ public final class StringHelper {
      * Get the index of the word contained in the search string. Return -1 if is not contained.
      * </p>
      *
-     * @param word         The word to search for.
+     * @param word The word to search for.
      * @param searchString The string in which we try to find the word.
      * @return The index position or -1 if the word is not contained.
      */
@@ -422,7 +423,7 @@ public final class StringHelper {
      * Get the index of the word contained in the search string. Return -1 if is not contained.
      * </p>
      *
-     * @param word         The word to search for.
+     * @param word The word to search for.
      * @param searchString The string in which we try to find the word.
      * @return The index position or -1 if the word is not contained.
      */
@@ -435,14 +436,13 @@ public final class StringHelper {
         return start;
     }
 
-
     /**
      * <p>
      * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
      * within another word.
      * </p>
      *
-     * @param word         The word to search for.
+     * @param word The word to search for.
      * @param searchString The string in which we try to find the word.
      * @return True, if the word is contained, false if not.
      */
@@ -492,7 +492,7 @@ public final class StringHelper {
      * case sensitive alternative which is considerably faster.
      * </p>
      *
-     * @param word         The word to search for.
+     * @param word The word to search for.
      * @param searchString The string in which we try to find the word.
      * @return True, if the word is contained, false if not.
      */
@@ -732,7 +732,8 @@ public final class StringHelper {
 
         string = StringHelper.trim(string).toLowerCase();
 
-        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve").contains(string);
+        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+                "twelve").contains(string);
     }
 
     /**
@@ -883,7 +884,7 @@ public final class StringHelper {
         StringTokenizer st = new StringTokenizer(string);
         int capitalizedWordCount = 0;
         while (st.hasMoreTokens()) {
-            String token = (String) st.nextElement();
+            String token = (String)st.nextElement();
             if (StringHelper.isCompletelyUppercase(token)) {
                 capitalizedWordCount++;
             }
@@ -899,7 +900,7 @@ public final class StringHelper {
      * This method is useful for handling stemming and other word transformations.
      * </p>
      *
-     * @param toAlign      The word that needs to get the same casing as the targetCasing.
+     * @param toAlign The word that needs to get the same casing as the targetCasing.
      * @param targetCasing The word which casing should be induced into the toAlign word.
      * @return The toAlign word with the casing of the targetCasing word.
      */
@@ -936,7 +937,7 @@ public final class StringHelper {
     /**
      * Trim.
      *
-     * @param inputString    the input string
+     * @param inputString the input string
      * @param keepCharacters the keep characters
      * @return the string or null if inputString was null.
      */
@@ -1051,14 +1052,22 @@ public final class StringHelper {
      * @return The cleansed text.
      */
     public static String clean(String text) {
+        return clean(text, ".?!“”\"");
+    }
+
+    public static String clean(String text, String keepCharacters) {
 
         text = removeControlCharacters(text);
-        text = cleanKeepFormat(text);
+        text = cleanKeepFormat(text, keepCharacters);
 
         return text;
     }
 
     public static String cleanKeepFormat(String text) {
+        return cleanKeepFormat(text, ".?!“”\"");
+    }
+
+    public static String cleanKeepFormat(String text, String keepCharacters) {
 
         text = HtmlHelper.stripHtmlTags(text);
         text = StringEscapeUtils.unescapeHtml(text);
@@ -1067,7 +1076,7 @@ public final class StringHelper {
         // text = removeNonAsciiCharacters(text);
 
         // trim but keep sentence delimiters
-        text = StringHelper.trim(text, ".?!“”\"");
+        text = StringHelper.trim(text, keepCharacters);
         text = text.replace("″", "\"");
         if (text.startsWith(")")) {
             text = text.substring(1);
@@ -1176,8 +1185,8 @@ public final class StringHelper {
     /**
      * Calculate similarity.
      *
-     * @param string1       the string1
-     * @param string2       the string2
+     * @param string1 the string1
+     * @param string2 the string2
      * @param caseSensitive the case sensitive
      * @return the double
      */
@@ -1193,18 +1202,18 @@ public final class StringHelper {
     /**
      * Get the longest common character chain two strings have in common.
      *
-     * @param string1       The first string.
-     * @param string2       The second string.
+     * @param string1 The first string.
+     * @param string2 The second string.
      * @param caseSensitive True if the check should be case sensitive, false otherwise.
-     * @param shiftString   If true, the shorter string will be shifted and checked against the longer string. The longest
-     *                      common string of two strings is found
-     *                      regardless whether they start with the same characters. If true, ABCD and BBCD have BCD in common, if
-     *                      false the longest common string is
-     *                      empty.
+     * @param shiftString If true, the shorter string will be shifted and checked against the longer string. The longest
+     *            common string of two strings is found
+     *            regardless whether they start with the same characters. If true, ABCD and BBCD have BCD in common, if
+     *            false the longest common string is
+     *            empty.
      * @return The longest common string.
      */
     public static String getLongestCommonString(String string1, String string2, boolean caseSensitive,
-                                                boolean shiftString) {
+            boolean shiftString) {
 
         String string1Compare = string1;
         String string2Compare = string2;
@@ -1334,8 +1343,8 @@ public final class StringHelper {
      * Get the all substrings in the supplied string between the given sequences.
      * </p>
      *
-     * @param string      The string from which to extract the substring, not <code>null</code>.
-     * @param leftBorder  The left border, not empty, if <code>null</code> the start of the string is the left border.
+     * @param string The string from which to extract the substring, not <code>null</code>.
+     * @param leftBorder The left border, not empty, if <code>null</code> the start of the string is the left border.
      * @param rightBorder The right border, not empty, if <code>null</code> the end of the string is the right border..
      * @return {@link List} of substrings between the two given strings, or an empty List if not matches were found.
      */
@@ -1349,7 +1358,7 @@ public final class StringHelper {
             leftBorderLength = leftBorder.length();
         }
         int rightIndex = 0;
-        for (int i = 0; ; i++) {
+        for (int i = 0;; i++) {
             int leftIndex = 0;
             if (leftBorder != null) {
                 leftIndex = string.indexOf(leftBorder, rightIndex);
@@ -1374,8 +1383,8 @@ public final class StringHelper {
      * Get the first substring in the supplied string between the given sequences.
      * </p>
      *
-     * @param string      The string from which to extract the substring, not <code>null</code>.
-     * @param leftBorder  The left border, not <code>null</code> or empty.
+     * @param string The string from which to extract the substring, not <code>null</code>.
+     * @param leftBorder The left border, not <code>null</code> or empty.
      * @param rightBorder The right border, not <code>null</code> or empty.
      * @return The substring between the two given strings or an empty string if no match was found.
      */
@@ -1388,7 +1397,7 @@ public final class StringHelper {
      * Transforms a CamelCased String into a split String.
      *
      * @param camelCasedString The String to split.
-     * @param separator        The separator to insert between the camelCased fragments.
+     * @param separator The separator to insert between the camelCased fragments.
      * @return The separated String.
      */
     public static String camelCaseToWords(String camelCasedString, String separator) {
@@ -1481,10 +1490,10 @@ public final class StringHelper {
      * regular expression, use {@link #countRegexMatches(String, String)} instead).
      * </p>
      *
-     * @param text   The text which to check for patterns.
+     * @param text The text which to check for patterns.
      * @param search The string which to search in the text.
      * @return The number of occurrences of the specified string in the text, or 0 if string was not found, or the
-     * supplied pattern and/or text were empty or <code>null</code>.
+     *         supplied pattern and/or text were empty or <code>null</code>.
      */
     public static int countOccurrences(String text, String search) {
         if (text == null || search == null || text.isEmpty() || search.isEmpty()) {
@@ -1504,10 +1513,10 @@ public final class StringHelper {
      * of an ordinary string, use {@link #countOccurrences(String, String)} instead).
      * </p>
      *
-     * @param text    The text which to check for occurrences.
+     * @param text The text which to check for occurrences.
      * @param pattern The regular expression to search in the text, not <code>null</code>.
      * @return The number of occurrences of the specified pattern in the text, or 0 if pattern was not found, or the
-     * supplied text was empty or <code>null</code>.
+     *         supplied text was empty or <code>null</code>.
      */
     public static int countRegexMatches(String text, String pattern) {
         Validate.notNull(pattern, "pattern must not be null");
@@ -1733,7 +1742,7 @@ public final class StringHelper {
      * </p>
      *
      * @param pattern The regular expression as a compiled pattern.
-     * @param text    The text on which the regular expression should be evaluated.
+     * @param text The text on which the regular expression should be evaluated.
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(Pattern pattern, String text) {
@@ -1760,7 +1769,7 @@ public final class StringHelper {
      * </p>
      *
      * @param regexp The regular expression as a text.
-     * @param text   The text on which the regular expression should be evaluated.
+     * @param text The text on which the regular expression should be evaluated.
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(String regexp, String text) {
@@ -1777,6 +1786,7 @@ public final class StringHelper {
      * "a", digits to "0", and special chars to "-".<br>
      * Examples:<br>
      * <p>
+     * 
      * <pre>
      * "Hello" => "Aa"
      * "this is nice" => "a a a"
@@ -1788,14 +1798,14 @@ public final class StringHelper {
      * @return The case signature.
      */
     public static String getCaseSignature(String string) {
-//        String caseSignature = string;
-//
-//        caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
-//        caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
-//        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
-//        caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
-//
-//        return caseSignature;
+        // String caseSignature = string;
+        //
+        // caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
+        // caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
+        // caseSignature = caseSignature.replaceAll("[0-9]+", "0");
+        // caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
+        //
+        // return caseSignature;
 
         CharStack charStack = new CharStack();
         for (int i = 0; i < string.length(); i++) {
@@ -1836,7 +1846,7 @@ public final class StringHelper {
      *
      * @param strings The strings from which to select the longest.
      * @return The longest string from the supplied strings. If the supplied parameters contained an empty string or
-     * <code>null</code>, this may return empty string or <code>null</code> values.
+     *         <code>null</code>, this may return empty string or <code>null</code> values.
      */
     public static String getLongest(String... strings) {
         String ret = null;
