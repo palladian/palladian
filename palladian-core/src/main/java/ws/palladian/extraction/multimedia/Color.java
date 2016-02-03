@@ -1,5 +1,7 @@
 package ws.palladian.extraction.multimedia;
 
+import java.util.Objects;
+
 /**
  * <p>Created by David Urbansky on 07.10.2015.</p>
  *
@@ -38,4 +40,31 @@ public class Color {
                 ", fineColorName='" + fineColorName + '\'' +
                 '}';
     }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(fineColorName, hexCode, mainColorName);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+		Color other = (Color) obj;
+		if (!Objects.equals(fineColorName, other.fineColorName)) {
+			return false;
+		}
+		if (!Objects.equals(hexCode, other.hexCode)) {
+			return false;
+		}
+		if (!Objects.equals(mainColorName, other.mainColorName)) {
+			return false;
+		}
+		return true;
+	}
+
 }
