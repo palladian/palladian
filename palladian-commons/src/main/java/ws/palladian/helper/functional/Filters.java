@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -149,12 +150,12 @@ public final class Filters {
     /**
      * <p>
      * Combine multiple filters so that they act as <code>AND</code> combination (i.e. each of the given filters needs
-     * to accept and item).
+     * to accept and item). The filters are processed in the given order.
      * 
      * @param filters The filters to combine, not <code>null</code>.
      * @return An <code>AND</code>-combination of the given filters.
      */
-    public static <T> Filter<T> and(Set<? extends Filter<? super T>> filters) {
+    public static <T> Filter<T> and(Collection<? extends Filter<? super T>> filters) {
         Validate.notNull(filters, "filters must not be null");
         return new AndFilter<T>(filters);
     }
@@ -162,7 +163,7 @@ public final class Filters {
     /**
      * <p>
      * Combine multiple filters so that they act as <code>AND</code> combination (i.e. each of the given filters needs
-     * to accept and item).
+     * to accept an item). The filters are processed in the given order.
      * 
      * @param filters The filters to combine, not <code>null</code>.
      * @return An <code>AND</code>-combination of the given filters.
@@ -170,7 +171,7 @@ public final class Filters {
     @SafeVarargs
     public static <T> Filter<T> and(Filter<? super T>... filters) {
         Validate.notNull(filters, "filters must not be null");
-        return new AndFilter<T>(new HashSet<Filter<? super T>>(Arrays.asList(filters)));
+        return new AndFilter<T>(new LinkedHashSet<>(Arrays.asList(filters)));
     }
 
     /**
@@ -182,9 +183,9 @@ public final class Filters {
      */
     private static final class AndFilter<T> implements Filter<T> {
 
-        private final Set<? extends Filter<? super T>> filters;
+        private final Collection<? extends Filter<? super T>> filters;
 
-        AndFilter(Set<? extends Filter<? super T>> filters) {
+        AndFilter(Collection<? extends Filter<? super T>> filters) {
             this.filters = filters;
         }
 
@@ -269,6 +270,20 @@ public final class Filters {
             }
         };
     }
+    
+	/**
+	 * Get a filter which accepts files.
+	 * 
+	 * @return A filter accepting files.
+	 */
+	public static Filter<File> file() {
+		return new Filter<File>() {
+			@Override
+			public boolean accept(File item) {
+				return item.isFile();
+			}
+		};
+	}
 
     /**
      * Get a filter by file names.
