@@ -1,9 +1,9 @@
 package ws.palladian.classification.utils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class ClassDistributionResampler implements Iterable<Instance> {
         Validate.notNull(weights, "weights must not be null");
         ZeroRModel classDistribution = new ZeroRLearner().train(data);
         this.probabilities = classDistribution.getCategoryProbabilities();
-        this.weights = LazyMap.create(weights, Factories.constant(1.));
+        this.weights = LazyMap.create(new HashMap<>(weights), Factories.constant(1.));
         LOGGER.info("Class probabilities : {}", probabilities);
         sampled = reSample(data);
     }
@@ -107,11 +107,6 @@ public class ClassDistributionResampler implements Iterable<Instance> {
         builder.append(weights);
         builder.append("]");
         return builder.toString();
-    }
-
-    public static void main(String[] args) {
-        CsvDatasetReader reader = new CsvDatasetReader(new File("trainingData_1389483158901.csv"));
-        new ClassDistributionResampler(reader);
     }
 
 }
