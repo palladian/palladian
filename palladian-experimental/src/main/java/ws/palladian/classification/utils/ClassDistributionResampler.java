@@ -81,6 +81,8 @@ public class ClassDistributionResampler implements Iterable<Instance> {
         Bag<String> temp = Bag.create();
         for (Instance trainable : data) {
             String targetClass = trainable.getCategory();
+			// XXX use reservoir sampling to obtain exactly same amounts? 
+            // use MathHelper#sample
             double probability = minProbability / probabilities.get(targetClass) * weights.get(targetClass);
             if (RANDOM.nextDouble() <= probability) {
                 result.add(trainable);
