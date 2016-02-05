@@ -30,7 +30,7 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Model;
-import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -160,10 +160,8 @@ public final class ClassificationUtils {
         int featureCount = 0;
         for (VectorEntry<String, Value> feature : instance.getVector()) {
             Value value = feature.value();
-            if (value instanceof NominalValue) {
-                writer.write(((NominalValue)value).getString());
-            } else if (value instanceof NumericValue) {
-                writer.write(String.valueOf(((NumericValue)value).getDouble()));
+            if (!(value instanceof NullValue)) {
+            	writer.write(value.toString());
             }
             writer.write(DEFAULT_SEPARATOR);
             featureCount++;

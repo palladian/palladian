@@ -28,7 +28,7 @@ public class BackwardFeatureEliminationTest {
 
         NaiveBayesLearner learner = new NaiveBayesLearner();
         NaiveBayesClassifier classifier = new NaiveBayesClassifier();
-        BackwardFeatureElimination<NaiveBayesModel> elimination = new BackwardFeatureElimination<NaiveBayesModel>(
+        BackwardFeatureElimination<NaiveBayesModel> elimination = new BackwardFeatureElimination<>(
                 learner, classifier);
         FeatureRanking ranking = elimination.rankFeatures(instances, NoProgress.INSTANCE);
         String bestFeatureValue = ranking.getAll().get(0).getName();
