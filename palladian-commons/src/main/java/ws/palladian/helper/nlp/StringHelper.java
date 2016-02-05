@@ -471,15 +471,14 @@ public final class StringHelper {
             char nextChar = searchString.charAt(index + word.length());
             // rightBorder = isPunctuation(nextChar) || Character.isSpaceChar(nextChar) || nextChar == '-' || nextChar
             // == ')';
-            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || nextChar == '-');
+            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || nextChar == '-' || nextChar == '+');
         }
 
         if (leftBorder && rightBorder) {
             return true;
         }
 
-        return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(Pattern.quote(word), ""), leftBorder
-                && rightBorder);
+        return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(Pattern.quote(word), ""), false);
     }
 
     /**
