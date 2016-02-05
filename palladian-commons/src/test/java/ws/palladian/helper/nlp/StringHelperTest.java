@@ -81,6 +81,7 @@ public class StringHelperTest {
         assertFalse(StringHelper.containsWordCaseSensitive("Test", "test"));
         assertTrue(StringHelper.containsWordCaseSensitive("test", "abtester ist test"));
         assertFalse(StringHelper.containsWordCaseSensitive("tester", "abtester ist test"));
+        assertFalse(StringHelper.containsWordCaseSensitive("a+", "energieklasse a++"));
 
         assertTrue(StringHelper.containsWordRegExp("test", "a test b"));
         assertTrue(StringHelper.containsWordRegExp("test", "test"));
