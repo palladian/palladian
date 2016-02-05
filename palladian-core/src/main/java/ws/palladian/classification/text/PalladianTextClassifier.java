@@ -137,13 +137,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     private final Function<String, Iterator<String>> preprocessor;
 
     /**
-     * In case, this value is set to <code>true</code>, the counts of the terms are extracted during training. In case,
-     * this value is <code>false</code> only <code>1</code> or <code>0</code> is extracted (denoting
-     * occurrence/non-occurrence).
-     */
-    public static boolean learnCounts = false;
-
-    /**
      * <p>
      * Creates a new {@link PalladianTextClassifier} using the given configuration for feature extraction.
      * 
@@ -197,7 +190,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
             Iterator<String> iterator = preprocessor.compute(textValue.getText());
-            Collection<String> terms = learnCounts ? Bag.<String> create() : new HashSet<String>();
+            Collection<String> terms = new HashSet<>();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
@@ -273,5 +266,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         FeatureVector featureVector = new InstanceBuilder().setText(text).create();
         return classify(featureVector, model);
     }
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "[scorer=" + scorer + ", featureSetting=" + featureSetting + "]";
+	}
 
 }
