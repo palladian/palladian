@@ -2,7 +2,7 @@ package ws.palladian.core;
 
 import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
@@ -22,7 +22,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  */
 public final class InstanceBuilder {
 
-    private final Map<String, Value> valueMap = new HashMap<>();
+    private final Map<String, Value> valueMap = new LinkedHashMap<>();
 
     private int weight = 1;
 
