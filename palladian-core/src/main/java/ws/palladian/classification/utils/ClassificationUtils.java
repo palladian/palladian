@@ -209,6 +209,7 @@ public final class ClassificationUtils {
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return The FeatureVector without the features filtered out by the nameFilter.
      */
+    // TODO move to InstanceBuilder
     public static FeatureVector filterFeatures(FeatureVector featureVector, Filter<? super String> nameFilter) {
         Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
@@ -236,6 +237,7 @@ public final class ClassificationUtils {
      * @see #filterFeaturesIterable(Iterable, Filter) which does the same on an iterable, without loading the whole
      *      dataset in memory.
      */
+    // TODO remove and replace by filterFeaturesIterable
     public static List<Instance> filterFeatures(Iterable<? extends Instance> instances,
             Filter<? super String> nameFilter) {
         List<Instance> result = new ArrayList<>();
@@ -360,6 +362,7 @@ public final class ClassificationUtils {
         return builder.create();
     }
 
+    // TODO move to CategoryEntries
     public static double entropy(CategoryEntries categoryEntries) {
         double entropy = 0;
         for (Category category : categoryEntries) {
