@@ -1,6 +1,7 @@
 package ws.palladian.classification.text;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -17,7 +18,6 @@ import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Learner;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Function;
 
 /**
@@ -47,9 +47,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
      * <p>
      * <img src="doc-files/DictionaryExample.png" />
      * 
-     * @author pk
+     * @author Philipp Katz
      */
-    public static interface Scorer {
+    public interface Scorer {
         /**
          * Score a term-category-pair in a document which has to be classified.
          * 
@@ -95,7 +95,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     /**
      * Default scorer implementation which scores a term-category-pair using the squared term-category probability.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static class DefaultScorer implements Scorer {
         @Override
@@ -135,13 +135,6 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     private final Scorer scorer;
 
     private final Function<String, Iterator<String>> preprocessor;
-
-    /**
-     * In case, this value is set to <code>true</code>, the counts of the terms are extracted during training. In case,
-     * this value is <code>false</code> only <code>1</code> or <code>0</code> is extracted (denoting
-     * occurrence/non-occurrence).
-     */
-    public static boolean learnCounts = false;
 
     /**
      * <p>
@@ -197,7 +190,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
             Iterator<String> iterator = preprocessor.compute(textValue.getText());
-            Collection<String> terms = learnCounts ? Bag.<String> create() : CollectionHelper.<String> newHashSet();
+            Collection<String> terms = new HashSet<>();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
             }
@@ -218,11 +211,11 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
             termCounts.add(iterator.next());
         }
         final CategoryEntries termSums = model.getTermCounts();
-        final int numUniqTerms = model.getNumUniqTerms();
+        final int numUniqueTerms = model.getNumUniqTerms();
         final int numDocs = model.getNumDocuments();
         final int numTerms = model.getNumTerms();
         final boolean scoreNonMatches = scorer.scoreNonMatches();
-        final Set<String> matchedCategories = CollectionHelper.newHashSet();
+        final Set<String> matchedCategories = new HashSet<>();
 
         for (Entry<String, Integer> termCount : termCounts.unique()) {
             String term = termCount.getKey();
@@ -233,7 +226,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                 String categoryName = category.getName();
                 int categorySum = termSums.getCount(categoryName);
                 int count = category.getCount();
-                double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numUniqTerms,
+                double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numUniqueTerms,
                         numDocs, numTerms);
                 builder.add(categoryName, score);
                 if (scoreNonMatches) {
@@ -249,7 +242,7 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
                     if (!matchedCategories.contains(categoryName)) {
                         int categorySum = category.getCount();
                         double score = scorer.score(term, categoryName, 0, dictCount, docCount, categorySum,
-                                numUniqTerms, numDocs, numTerms);
+                                numUniqueTerms, numDocs, numTerms);
                         builder.add(categoryName, score);
                     }
                 }
@@ -273,5 +266,10 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
         FeatureVector featureVector = new InstanceBuilder().setText(text).create();
         return classify(featureVector, model);
     }
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "[scorer=" + scorer + ", featureSetting=" + featureSetting + "]";
+	}
 
 }

@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -30,8 +31,13 @@ public class MathHelperTest {
                 return counter++;
             }
         });
-        assertEquals(5, MathHelper.sample(numbers, 5).size());
         assertEquals(1, MathHelper.sample(numbers, 1).size());
+        assertEquals(5, MathHelper.sample(numbers, 5).size());
+        assertEquals(1000, MathHelper.sample(numbers, 10000).size());
+        
+        // the two samples must be different
+        assertNotEquals(MathHelper.sample(numbers, 5), MathHelper.sample(numbers, 5));
+        assertNotEquals(MathHelper.sample(numbers, 1), MathHelper.sample(numbers, 1));
     }
 
     @Test

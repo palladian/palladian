@@ -72,10 +72,17 @@ public class NormalizationTest {
         assertEquals("miles", UnitNormalizer.detectUnit("1.5miles"));
         assertEquals("liters", UnitNormalizer.detectUnit("2 liters of milk"));
         assertEquals("g", UnitNormalizer.detectUnit("2g"));
+        assertEquals("hz", UnitNormalizer.detectUnit("100 hz"));
+        assertEquals("hz", UnitNormalizer.detectUnit("100 hz",UnitType.FREQUENCY));
     }
 
     @Test
     public void testGetNormalizedNumber() {
+
+        assertEquals(2.5, UnitNormalizer.getNormalizedNumber("2500mAh"), 0.1);
+
+        assertEquals(25000, UnitNormalizer.getNormalizedNumber("25kbps"), 0.1);
+        assertEquals(3000000, UnitNormalizer.getNormalizedNumber("3mBit/s"), 0.1);
 
         assertEquals(8.89, UnitNormalizer.getNormalizedNumber("3.5\""), 0.1);
         assertEquals(20.0, UnitNormalizer.getNormalizedNumber("2cl"), 2);
@@ -119,7 +126,7 @@ public class NormalizationTest {
         assertEquals(UnitNormalizer.getNormalizedNumber(1, "m20s 23sdf sdf a__:"), 80.0, 0);
         assertEquals(UnitNormalizer.getNormalizedNumber(1, ":20 23sdf sdf a__:"), 80.0, 0);
         // assertEquals(UnitNormalizer.getNormalizedNumber(3800, "thousand square miles"), 9841954818000.0, 0);
-        assertEquals(UnitNormalizer.getNormalizedNumber(46, "% (2008)"), 0.46, 0);
+        assertEquals(UnitNormalizer.getNormalizedNumber(46, "% (2008)"), 46.0, 0);
 
     }
 

@@ -1,6 +1,7 @@
 package ws.palladian.extraction.content.evaluation;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -25,7 +25,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * Wolfgang Nejdl; 'Boilerplate Detection using Shallow Text Features', WSDM 2010: Third ACM International Conference on
  * Web Search and Data Mining New York City, NY USA.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class BoilerpipeDataset implements ContentExtractionDataset {
 
@@ -72,7 +72,7 @@ public final class BoilerpipeDataset implements ContentExtractionDataset {
         if (!urlMappingFile.isFile()) {
             throw new IllegalStateException(urlMappingFile + " does not exist.");
         }
-        final Map<String, String> mapping = CollectionHelper.newHashMap();
+        final Map<String, String> mapping = new HashMap<>();
         final Pattern split = Pattern.compile("<urn:uuid:([a-z0-9\\-]*?)>\\s(.*?)");
         FileHelper.performActionOnEveryLine(urlMappingFile, new LineAction() {
             @Override

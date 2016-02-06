@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -15,10 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -49,7 +47,7 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     protected final String accountKey;
     
@@ -83,7 +81,7 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
     @Override
     public SearchResults<R> search(MultifacetQuery query) throws SearcherException {
 
-        List<R> webResults = new ArrayList<R>();
+        List<R> webResults = new ArrayList<>();
 
         int necessaryPages = (int)Math.ceil((double)query.getResultCount() / getDefaultFetchSize());
         int offset = 0;
@@ -98,7 +96,7 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
             try {
                 jsonString = getResponseData(requestUrl);
                 JsonObject responseData = new JsonObject(jsonString).getJsonObject("d");
-                TOTAL_REQUEST_COUNT.incrementAndGet();
+//                TOTAL_REQUEST_COUNT.incrementAndGet();
 
                 long currentTotal = responseData.queryLong("results[0]/" + getSourceType() + "Total");
                 if (totalResults == null) {
@@ -169,10 +167,9 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
      * @throws SearcherException In case of an error HTTP status code.
      */
     private String getResponseData(String requestUrl) throws HttpException, SearcherException {
-        String basicAuthentication = "Basic " + StringHelper.encodeBase64(":" + accountKey);
-        HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, requestUrl);
-        httpRequest.addHeader("Authorization", basicAuthentication);
-        HttpResult httpResult = retriever.execute(httpRequest);
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.GET, requestUrl);
+        builder.setBasicAuth(null, accountKey);
+        HttpResult httpResult = retriever.execute(builder.create());
         if (httpResult.errorStatus()) {
             throw new SearcherException("Encountered HTTP status " + httpResult.getStatusCode() + ": "
                     + httpResult.getStringContent());
@@ -253,13 +250,13 @@ public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMul
         return result;
     }
 
-    /**
-     * Gets the number of HTTP requests sent to Bing.
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
-    }
+//    /**
+//     * Gets the number of HTTP requests sent to Bing.
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.get();
+//    }
 
 }

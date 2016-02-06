@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.web;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleScraperSearcher.class);
 
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
+//    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     private final DocumentParser parser;
 
@@ -73,7 +72,7 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
 
             for (int page = 0; page <= numPages; page++) {
 
-                String requestUrl = "http://www.google.com/search?hl=en&safe=off&output=search&start="
+                String requestUrl = "https://www.google.com/search?hl="+language.getIso6391()+"&safe=off&output=search&start="
                         + RESULTS_PER_PAGE * page + "&q=" + UrlHelper.encodeParameter(query);
                 LOGGER.debug("GET " + requestUrl);
                 HttpResult httpResult = httpRetriever.httpGet(requestUrl);
@@ -83,7 +82,7 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
                 }
 
                 Document document = parser.parse(httpResult);
-                TOTAL_REQUEST_COUNT.incrementAndGet();
+//                TOTAL_REQUEST_COUNT.incrementAndGet();
                 
                 List<WebContent> webResults = parseHtml(document);
                 result.addAll(webResults);
@@ -104,21 +103,21 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
     
     static List<WebContent> parseHtml(Document document) throws SearcherException {
         
-        List<WebContent> result = CollectionHelper.newArrayList();
+        List<WebContent> result = new ArrayList<>();
         
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, LINK_XPATH);
         List<Node> infoNodes = XPathHelper.getXhtmlNodes(document, INFORMATION_XPATH);
 
-        if (linkNodes.size() != infoNodes.size()) {
-            throw new SearcherException(
-                    "The returned document structure is not as expected, most likely the scraping implementation needs to be updated. (number of info items ["
-                            + infoNodes.size() + "] should be equal to number of links [" + linkNodes.size() + "])");
-        }
+//        if (linkNodes.size() != infoNodes.size()) {
+//            throw new SearcherException(
+//                    "The returned document structure is not as expected, most likely the scraping implementation needs to be updated. (number of info items ["
+//                            + infoNodes.size() + "] should be equal to number of links [" + linkNodes.size() + "])");
+//        }
 
         Iterator<Node> linkIterator = linkNodes.iterator();
         Iterator<Node> infoIterator = infoNodes.iterator();
 
-        while (linkIterator.hasNext()) {
+        while (linkIterator.hasNext() && infoIterator.hasNext()) {
             Node linkNode = linkIterator.next();
             Node infoNode = infoIterator.next();
 
@@ -167,17 +166,17 @@ public final class GoogleScraperSearcher extends AbstractSearcher<WebContent> {
         return SEARCHER_NAME;
     }
 
-    /**
-     * <p>
-     * Gets the number of HTTP requests sent to Scroogle.
-     * </p>
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
-    }
-    
+//    /**
+//     * <p>
+//     * Gets the number of HTTP requests sent to Scroogle.
+//     * </p>
+//     * 
+//     * @return
+//     */
+//    public static int getRequestCount() {
+//        return TOTAL_REQUEST_COUNT.get();
+//    }
+//    
     @Override
     public boolean isDeprecated() {
         return true;

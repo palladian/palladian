@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.evaluation;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -9,7 +10,6 @@ import org.junit.Test;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.LocationType;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class GeoEvaluationResultTest {
     
@@ -22,8 +22,8 @@ public class GeoEvaluationResultTest {
         
         // String text = "Paris, Texas is a city located 98 miles northeast of Dallas in Lamar County, Texas, in the United States. The Sam Bell Maxey House is a historic house in Paris.";
         
-        List<LocationAnnotation> goldStandard = CollectionHelper.newArrayList();
-        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<LocationAnnotation> goldStandard = new ArrayList<>();
+        List<LocationAnnotation> result = new ArrayList<>();
         
         goldStandard.add(new LocationAnnotation(0, "Paris", new LocationBuilder().setPrimaryName("Paris").setType(LocationType.CITY).setCoordinate(33.6625, -95.5477).create()));
         goldStandard.add(new LocationAnnotation(7, "Texas", new LocationBuilder().setPrimaryName("Texas").setType(LocationType.UNIT).setCoordinate(31, -100).create()));

@@ -3,7 +3,7 @@ package ws.palladian.helper.functional;
 /**
  * A generic action which is performed on a given item.
  * 
- * @author pk
+ * @author Philipp Katz
  * @param <T> Type of the item for which to perform actions.
  */
 public interface Consumer<T> {

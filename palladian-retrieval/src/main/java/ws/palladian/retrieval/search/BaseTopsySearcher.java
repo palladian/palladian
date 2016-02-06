@@ -1,11 +1,11 @@
 package ws.palladian.retrieval.search;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -53,7 +53,7 @@ public abstract class BaseTopsySearcher extends AbstractSearcher<WebContent> {
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebContent> result = CollectionHelper.newArrayList();
+        List<WebContent> result = new ArrayList<>();
         // # of necessary requests, we fetch in chunks of 100
         int numRequests = (int)Math.ceil(resultCount / 100.);
         for (int page = 1; page <= Math.min(numRequests, 10); page++) {

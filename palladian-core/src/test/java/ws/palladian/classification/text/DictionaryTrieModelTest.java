@@ -6,11 +6,12 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
@@ -53,12 +54,12 @@ public class DictionaryTrieModelTest {
          * </pre>
          */
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
-        builder.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_2, WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_3, WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_1, WORD_3), CATEGORY_1);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_4), CATEGORY_2);
-        builder.addDocument(CollectionHelper.newHashSet(WORD_3), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_1, WORD_3)), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_2, WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_3, WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_1, WORD_3)), CATEGORY_1);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_4)), CATEGORY_2);
+        builder.addDocument(new HashSet<>(Arrays.asList(WORD_3)), CATEGORY_1);
         model = builder.create();
     }
 
@@ -70,6 +71,7 @@ public class DictionaryTrieModelTest {
         assertEquals(0, model.getCategoryEntries(WORD_1).getCount(CATEGORY_2));
         assertEquals(0.75, model.getCategoryEntries(WORD_3).getProbability(CATEGORY_1), 0);
         assertEquals(0.25, model.getCategoryEntries(WORD_3).getProbability(CATEGORY_2), 0);
+        assertEquals(4,  model.getCategoryEntries(WORD_3).getTotalCount());
         assertEquals(1., model.getCategoryEntries(WORD_4).getProbability(CATEGORY_2), 0);
         assertEquals(0., model.getCategoryEntries(WORD_5).getProbability(CATEGORY_1), 0);
         assertEquals(0., model.getCategoryEntries(WORD_5).getProbability(CATEGORY_2), 0);
@@ -117,7 +119,7 @@ public class DictionaryTrieModelTest {
     public void testPruning() {
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
         builder.addDictionary(model);
-        builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
+        builder.setPruningStrategy(PruningStrategies.termCount(2));
         model = builder.create();
         assertEquals(4, model.getNumEntries());
         assertEquals(3, model.getNumUniqTerms());

@@ -1,5 +1,6 @@
 package ws.palladian.classification.text;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -10,7 +11,6 @@ import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;
 import ws.palladian.core.ImmutableCategoryEntries;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.math.MathHelper;
 
@@ -19,7 +19,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
     private final Map<String, MutableInt> entryMap;
 
     public CountingCategoryEntriesBuilder() {
-        this.entryMap = CollectionHelper.newHashMap();
+        this.entryMap = new HashMap<>();
     }
 
     /**
@@ -31,7 +31,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
      */
     public CountingCategoryEntriesBuilder(Map<String, ? extends Integer> map) {
         Validate.notNull(map, "map must not be null");
-        entryMap = CollectionHelper.newHashMap();
+        entryMap = new HashMap<>();
         for (Entry<String, ? extends Number> entry : map.entrySet()) {
             int count = entry.getValue().intValue();
             Validate.isTrue(count >= 0, "count must be greater/equal zero");
@@ -91,7 +91,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         if (totalCount == 0) {
             return CategoryEntries.EMPTY;
         }
-        Map<String, Category> entries = CollectionHelper.newHashMap();
+        Map<String, Category> entries = new HashMap<>();
         Category mostLikely = null;
         for (Entry<String, MutableInt> entry : entryMap.entrySet()) {
             int count = entry.getValue().intValue();

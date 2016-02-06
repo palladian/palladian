@@ -1,5 +1,7 @@
 package ws.palladian.helper.collection;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -25,8 +27,12 @@ public class MapBag {
     /** Each item is attached to one bag with a certain id. */
     private Map<String, Integer> map;
 
+    /** We store for each bag what the original key was. */
+    private Map<Integer, String> mapKeys;
+
     public MapBag() {
-        map = CollectionHelper.newHashMap();
+        map = new HashMap<>();
+        mapKeys = new HashMap<>();
     }
 
     public Set<String> getAllBagEntries() {
@@ -34,13 +40,15 @@ public class MapBag {
     }
 
     public void newBag(String bagKey) {
-        map.put(bagKey, map.values().size());
+        int size = map.values().size();
+        map.put(bagKey, size);
+        mapKeys.put(size, bagKey);
     }
 
     public Set<String> getBag(String bagEntry) {
         Integer bagId = map.get(bagEntry);
 
-        Set<String> bagEntries = CollectionHelper.newHashSet();
+        Set<String> bagEntries = new HashSet<>();
         for (Entry<String, Integer> entry : map.entrySet()) {
             if (entry.getValue() == bagId) {
                 bagEntries.add(entry.getKey());
@@ -48,6 +56,11 @@ public class MapBag {
         }
 
         return bagEntries;
+    }
+
+    public String getBagKey(String bagEntry) {
+        Integer bagId = map.get(bagEntry);
+        return mapKeys.get(bagId);
     }
 
     /**
@@ -63,7 +76,7 @@ public class MapBag {
         Set<String> bag = getBag(bagEntry);
 
         int size = bag.size();
-        while (true && size > 1) {
+        while (size > 1) {
             int item = new Random().nextInt(size);
             int i = 0;
             for (String obj : bag) {

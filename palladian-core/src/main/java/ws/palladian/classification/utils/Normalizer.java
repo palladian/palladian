@@ -7,7 +7,7 @@ import ws.palladian.core.FeatureVector;
  * A normalizer produces a normalization information for given feature vectors. This be used to normalize new instances.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface Normalizer {
 

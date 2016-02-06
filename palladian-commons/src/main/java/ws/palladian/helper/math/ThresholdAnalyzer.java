@@ -27,7 +27,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
     /**
      * An entry for a specific threshold supplying precision, recall and f-measure.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class ThresholdEntry {
 

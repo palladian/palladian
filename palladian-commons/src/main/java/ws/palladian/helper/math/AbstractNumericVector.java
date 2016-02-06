@@ -1,5 +1,6 @@
 package ws.palladian.helper.math;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
@@ -8,17 +9,16 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 abstract class AbstractNumericVector<K> implements NumericVector<K> {
 
-    @SuppressWarnings("unchecked")
     @Override
     public NumericVector<K> add(NumericVector<K> other) {
         Validate.notNull(other, "other must not be null");
-        Map<K, Double> addedVector = CollectionHelper.newHashMap();
+        Map<K, Double> addedVector = new HashMap<>();
         for (K key : CollectionHelper.distinct(keys(), other.keys())) {
             double thisValue = get(key);
             double otherValue = other.get(key);
             addedVector.put(key, thisValue + otherValue);
         }
-        return new ImmutableNumericVector<K>(addedVector);
+        return new ImmutableNumericVector<>(addedVector);
     }
 
     @Override
@@ -65,7 +65,6 @@ abstract class AbstractNumericVector<K> implements NumericVector<K> {
         return dotProduct != 0 ? dotProduct / (norm() * other.norm()) : 0;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public double euclidean(NumericVector<K> other) {
         Validate.notNull(other, "other must not be null");

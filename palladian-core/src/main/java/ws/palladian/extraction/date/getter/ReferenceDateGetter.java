@@ -14,7 +14,6 @@ import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.rater.ContentDateRater;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 
 /**
@@ -50,7 +49,7 @@ public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
 
             // keep all with highest rate
             // TODO test this
-            List<ContentDate> highRatedContentDates = CollectionHelper.newArrayList();
+            List<ContentDate> highRatedContentDates = new ArrayList<>();
             double highestRate = 0.0;
             for (RatedDate<ContentDate> ratedDate : ratedContentDates) {
                 if (ratedDate.getRate() > highestRate) {

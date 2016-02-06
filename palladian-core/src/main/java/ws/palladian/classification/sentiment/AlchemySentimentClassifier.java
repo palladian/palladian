@@ -6,9 +6,10 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.json.JsonException;
@@ -32,9 +33,9 @@ public class AlchemySentimentClassifier {
     public CategoryEntries classify(String text) throws HttpException, JsonException {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
-        HttpRequest request = new HttpRequest(HttpMethod.POST, String.format(API_URL, apiKey));
-        request.addParameter("text", text.trim());
-        HttpResult result = HttpRetrieverFactory.getHttpRetriever().execute(request);
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, String.format(API_URL, apiKey));
+        requestBuilder.setEntity(new FormEncodedHttpEntity.Builder().addData("text", text.trim()).create());
+        HttpResult result = HttpRetrieverFactory.getHttpRetriever().execute(requestBuilder.create());
         JsonObject json = new JsonObject(result.getStringContent());
 
         if (json.getString("status").equalsIgnoreCase("ok")) {

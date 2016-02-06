@@ -141,13 +141,13 @@ public final class PageAnalyzer {
      * @param keyword The keyword.
      * @return
      */
-    public static LinkedHashSet<String> constructAllXPaths(Document document, String keyword) {
+    public static Set<String> constructAllXPaths(Document document, String keyword) {
         return constructAllXPaths(document, keyword, false, false);
     }
 
-    public static LinkedHashSet<String> constructAllXPaths(Document document, String keyword, boolean deleteAllIndices,
+    public static Set<String> constructAllXPaths(Document document, String keyword, boolean deleteAllIndices,
             boolean wordMatch) {
-        LinkedHashSet<String> xpaths = new LinkedHashSet<String>();
+        Set<String> xpaths = new LinkedHashSet<String>();
 
         if (document == null) {
             LOGGER.warn("document was null when constructing xpaths");
@@ -162,14 +162,12 @@ public final class PageAnalyzer {
 
         try {
             xpaths = visit(document.getLastChild(), keyword, wordMatch, xpaths);
-        } catch (StackOverflowError e) {
-            LOGGER.error(document.getDocumentURI(), e);
-        } catch (Exception e) {
+        } catch (StackOverflowError | Exception e) {
             LOGGER.error(document.getDocumentURI(), e);
         }
 
         // add namespace if necessary TODO delete, do that only when applying the xpath (XPathHelper.getNodesNS)
-        LinkedHashSet<String> nsxpaths = new LinkedHashSet<String>();
+        LinkedHashSet<String> nsxpaths = new LinkedHashSet<>();
         Iterator<String> xpathIterator = xpaths.iterator();
         while (xpathIterator.hasNext()) {
             String currentXpath = xpathIterator.next();
@@ -189,7 +187,7 @@ public final class PageAnalyzer {
                 longestXPath = string;
             }
         }
-        Set<String> toRemove = CollectionHelper.newHashSet();
+        Set<String> toRemove = new HashSet<>();
         for (String string : nsxpaths) {
             if (longestXPath.length() > string.length() && longestXPath.startsWith(string)) {
                 toRemove.add(string);
@@ -210,10 +208,10 @@ public final class PageAnalyzer {
      * @param targetNodes
      * @return A set of xPaths that all point to one of the specified elements.
      */
-    public static LinkedHashSet<String> keepXPathPointingTo(LinkedHashSet<String> xPaths, String[] targetNodes) {
-        LinkedHashSet<String> filteredXPaths = new LinkedHashSet<String>();
+    public static Set<String> keepXPathPointingTo(Set<String> xPaths, String[] targetNodes) {
+        Set<String> filteredXPaths = new LinkedHashSet<>();
 
-        Set<String> targetNodeSet = new HashSet<String>();
+        Set<String> targetNodeSet = new HashSet<>();
         for (String targetNode : targetNodes) {
             targetNodeSet.add(targetNode.toLowerCase());
         }
@@ -245,22 +243,23 @@ public final class PageAnalyzer {
         }
 
         XPathSet xps = new XPathSet();
-        Iterator<String> xPathIterator = xPathSet.iterator();
-        while (xPathIterator.hasNext()) {
-            xps.add(removeXPathIndices(xPathIterator.next()));
+        for (String xPath : xPathSet) {
+            xps.add(removeXPathIndices(xPath));
         }
         String highestCountXPath = xps.getHighestCountXPath();
         String[] highestCountXPathElements = highestCountXPath.split("/");
 
         // find the xpath with index that belongs to the group of a highest count xpath
+        // ... and which is most *specific* (longer), in case there are different xPaths with the same count
         String mutualXPath = "";
-        xPathIterator = xPathSet.iterator();
         int maxMatches = 0;
-        while (xPathIterator.hasNext()) {
-            String currentXPath = xPathIterator.next();
+        int maxLength = Integer.MIN_VALUE;
+
+        for (String currentXPath : xPathSet) {
             boolean match = true;
             String[] xPathElements = removeXPathIndices(currentXPath).split("/");
             int matches = 0;
+            int length = xPathElements.length;
 
             for (int i = 0; i < Math.min(xPathElements.length, highestCountXPathElements.length); i++) {
                 if (!xPathElements[i].equals(highestCountXPathElements[i])) {
@@ -269,11 +268,17 @@ public final class PageAnalyzer {
                 }
                 matches++;
             }
-            if (match && matches > maxMatches) {
+
+            LOGGER.trace("# matches={}, length={}, xPath={}", matches, length, currentXPath);
+
+            if (match && matches >= maxMatches && length >= maxLength) {
                 maxMatches = matches;
                 mutualXPath = currentXPath;
+                maxLength = length;
             }
         }
+
+        LOGGER.debug("mutual={}, length={}, matches={}", mutualXPath,maxMatches,maxLength);
 
         String[] pathArray = mutualXPath.split("/");
 
@@ -283,9 +288,7 @@ public final class PageAnalyzer {
             indices[i] = 1;
         }
 
-        Iterator<String> xPathIterator2 = xPathSet.iterator();
-        while (xPathIterator2.hasNext()) {
-            String xPath2 = xPathIterator2.next();
+        for (String xPath2 : xPathSet) {
             String[] xPath2Array = xPath2.split("/");
 
             for (int i = 0; i < Math.min(pathArray.length, xPath2Array.length); i++) {
@@ -349,8 +352,8 @@ public final class PageAnalyzer {
      * @param wordMatch If true a whole word has to match the keyword.
      * @param xpaths A set of xPath satisfying the conditions.
      */
-    private static LinkedHashSet<String> visit(Node node, String keyword, boolean wordMatch,
-            LinkedHashSet<String> xpaths) {
+    private static Set<String> visit(Node node, String keyword, boolean wordMatch,
+            Set<String> xpaths) {
         // System.out.println(indent+node.getNodeName());
 
         try {
@@ -460,7 +463,8 @@ public final class PageAnalyzer {
         xpath = xpath.substring(9, xpath.length());
         // System.out.println("after normalization: "+xpath);
 
-        if (xpath.toLowerCase().indexOf("/script") > -1 || xpath.toLowerCase().indexOf("/html:script") > -1) {
+        String xplc = xpath.toLowerCase();
+        if (xplc.contains("/script") || xplc.contains("/html:script")) {
             return "";
         }
 
@@ -904,7 +908,7 @@ public final class PageAnalyzer {
 
         String t = getParentNode(getTableCellPath(tableTDXPath));
         List<Node> nodeList = XPathHelper.getXhtmlNodes(document, t);
-        Map<Integer, Integer> tdCountMap = new LinkedHashMap<Integer, Integer>();
+        Map<Integer, Integer> tdCountMap = new LinkedHashMap<>();
 
         for (int i = 0; i < nodeList.size(); i++) {
             Node trNode = nodeList.get(i);
@@ -1115,7 +1119,7 @@ public final class PageAnalyzer {
     // @SuppressWarnings("unchecked")
     public static List<String> getTextsByXPath(Document document, String xPath) {
 
-        ArrayList<String> texts = new ArrayList<String>();
+        ArrayList<String> texts = new ArrayList<>();
 
         if (document == null) {
             return texts;
@@ -1209,7 +1213,7 @@ public final class PageAnalyzer {
             int lastPointIndex = url.lastIndexOf(".");
             int fileEndingEndIndex = url.length();
             if (lastPointIndex > domain.length()) {
-                if (url.substring(lastPointIndex + 1).indexOf("?") > -1) {
+                if (url.substring(lastPointIndex + 1).contains("?")) {
                     fileEndingEndIndex = lastPointIndex + 1 + url.substring(lastPointIndex + 1).indexOf("?");
                 }
                 // String fileEndingURL = url.substring(lastPointIndex + 1, fileEndingEndIndex);
@@ -1220,7 +1224,7 @@ public final class PageAnalyzer {
             lastPointIndex = currentLink.lastIndexOf(".");
             if (lastPointIndex > domain.length()) {
                 fileEndingEndIndex = currentLink.length();
-                if (currentLink.substring(lastPointIndex + 1).indexOf("?") > -1) {
+                if (currentLink.substring(lastPointIndex + 1).contains("?")) {
                     fileEndingEndIndex = lastPointIndex + 1 + currentLink.substring(lastPointIndex + 1).indexOf("?");
                 }
                 String fileEndingLink = currentLink.substring(lastPointIndex + 1, fileEndingEndIndex);
@@ -1292,7 +1296,7 @@ public final class PageAnalyzer {
 
     public static List<String> extractDescription(Document webPage) {
 
-        List<String> descriptionWords = new ArrayList<String>();
+        List<String> descriptionWords = new ArrayList<>();
 
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
@@ -1325,7 +1329,7 @@ public final class PageAnalyzer {
      * @return A map of name-content pairs that were found in the meta tags of the given web page.
      */
     public static Map<String, String> extractMetaInformation(Document webPage) {
-        Map<String, String> metaTags = new HashMap<String, String>();
+        Map<String, String> metaTags = new HashMap<>();
 
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
@@ -1344,7 +1348,7 @@ public final class PageAnalyzer {
 
     public static List<String> extractKeywords(Document webPage) {
 
-        List<String> keywords = new ArrayList<String>();
+        List<String> keywords = new ArrayList<>();
 
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {

@@ -2,6 +2,7 @@ package ws.palladian.semantics;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -19,7 +20,36 @@ import ws.palladian.helper.constants.Language;
 public class WordTransformerTest {
 
     @Test
+    public void testSplitGermanCompounds() {
+        List<String> words;
+
+        // also separate misspelled words
+        words = WordTransformer.splitGermanCompoundWords("platouschuhe");
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("platou", words.get(0));
+        assertEquals("schuh", words.get(1));
+
+        words = WordTransformer.splitGermanCompoundWords("hadny");
+        CollectionHelper.print(words);
+        assertEquals(1, words.size());
+        assertEquals("hadny", words.get(0));
+
+        words = WordTransformer.splitGermanCompoundWords("Teaktische");
+        assertEquals(2, words.size());
+        assertEquals("teak", words.get(0));
+        assertEquals("tisch", words.get(1));
+
+        words = WordTransformer.splitGermanCompoundWords("Kunststofftische");
+        assertEquals(2, words.size());
+        assertEquals("kunststoff", words.get(0));
+        assertEquals("tisch", words.get(1));
+    }
+
+    @Test
     public void testWordToSingularEnglish() {
+        assertEquals("clove", WordTransformer.wordToSingular("cloves", Language.ENGLISH));
+        assertEquals("slice", WordTransformer.wordToSingular("slices", Language.ENGLISH));
         assertEquals("elephant", WordTransformer.wordToSingular("elephants", Language.ENGLISH));
         assertEquals("city", WordTransformer.wordToSingular("cities", Language.ENGLISH));
         assertEquals("enemy", WordTransformer.wordToSingular("enemies", Language.ENGLISH));
@@ -51,20 +81,21 @@ public class WordTransformerTest {
 
     @Test
     public void testWordToSingularGerman() {
-        assertEquals("Weihnachtsdeko", WordTransformer.wordToSingular("Weihnachtsdeko", Language.GERMAN));
-        assertEquals("Eilsendungadresse", WordTransformer.wordToSingular("Eilsendungadressen", Language.GERMAN));
-        assertEquals("Kette", WordTransformer.wordToSingular("Ketten", Language.GERMAN));
-        assertEquals("Halskette", WordTransformer.wordToSingular("Halsketten", Language.GERMAN));
-        assertEquals("Apfel", WordTransformer.wordToSingular("Äpfel", Language.GERMAN));
-        assertEquals("Apfelkuchen", WordTransformer.wordToSingular("Apfelkuchen", Language.GERMAN));
+        assertEquals("weihnachtsdeko", WordTransformer.wordToSingular("Weihnachtsdeko", Language.GERMAN));
+        assertEquals("eilsendungadresse", WordTransformer.wordToSingular("Eilsendungadressen", Language.GERMAN));
+        assertEquals("kette", WordTransformer.wordToSingular("Ketten", Language.GERMAN));
+        assertEquals("halskette", WordTransformer.wordToSingular("Halsketten", Language.GERMAN));
+        assertEquals("apfel", WordTransformer.wordToSingular("Äpfel", Language.GERMAN));
+        assertEquals("apfelkuchen", WordTransformer.wordToSingular("Apfelkuchen", Language.GERMAN));
+        assertEquals("eßtisch", WordTransformer.wordToSingular("eßtische", Language.GERMAN));
     }
 
     @Test
     public void testWordToPluralGerman() {
         assertEquals("arten", WordTransformer.wordToPlural("arten", Language.GERMAN));
-        assertEquals("Ketten", WordTransformer.wordToPlural("Kette", Language.GERMAN));
-        assertEquals("Apfelkuchen", WordTransformer.wordToPlural("Apfelkuchen", Language.GERMAN));
-        assertEquals("Eilsendungadressen", WordTransformer.wordToPlural("Eilsendungadresse", Language.GERMAN));
+        assertEquals("ketten", WordTransformer.wordToPlural("Kette", Language.GERMAN));
+        assertEquals("apfelkuchen", WordTransformer.wordToPlural("Apfelkuchen", Language.GERMAN));
+        assertEquals("eilsendungadressen", WordTransformer.wordToPlural("Eilsendungadresse", Language.GERMAN));
     }
 
     @Test
@@ -84,6 +115,7 @@ public class WordTransformerTest {
         assertEquals("computer keys", WordTransformer.wordToPlural("computer key", Language.ENGLISH));
 
         // http://www.esldesk.com/vocabulary/irregular-nouns
+        assertEquals("slices", WordTransformer.wordToPlural("slice", Language.ENGLISH));
         assertEquals("addenda", WordTransformer.wordToPlural("addendum", Language.ENGLISH));
         assertEquals("algae", WordTransformer.wordToPlural("alga", Language.ENGLISH));
         assertEquals("alumnae", WordTransformer.wordToPlural("alumna", Language.ENGLISH));
@@ -231,7 +263,7 @@ public class WordTransformerTest {
         //        LingPipePosTagger posTagger = new LingPipePosTagger();
         //        posTagger.loadModel("data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel");
 
-        List<Annotation> tas = CollectionHelper.newArrayList();
+        List<Annotation> tas = new ArrayList<>();
         tas.add(new ImmutableAnnotation(0, "DUMMY", "VB"));
         //        assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",posTagger));
         assertEquals(EnglishTense.SIMPLE_PRESENT, WordTransformer.getTense("Do you like bugs?",tas));

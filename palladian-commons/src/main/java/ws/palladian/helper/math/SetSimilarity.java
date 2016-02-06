@@ -7,7 +7,7 @@ import ws.palladian.helper.functional.Similarity;
 /**
  * A similarity measure between two sets.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface SetSimilarity extends Similarity<Set<? extends Object>> {
 //    /**

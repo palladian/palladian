@@ -1,5 +1,7 @@
 package ws.palladian.retrieval;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,27 +60,27 @@ public class PhotoXpressSearcher extends AbstractSearcher<WebImage> {
 
     @Override
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImage> results = CollectionHelper.newArrayList();
+        List<WebImage> results = new ArrayList<>();
 
-        // FIXME pagination not done yet
+        // TODO pagination not done yet
         // resultCount = Math.min(1000, resultCount);
         // int resultsPerPage = Math.min(100, resultCount);
         // int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);
 
         String request = buildRequest(query);
 
-        Map<String, String> content = CollectionHelper.newHashMap();
+        Map<String, String> content = new HashMap<>();
         System.out.println(request);
         content.put("content", request);
         HttpResult httpPost;
-        try {
-            httpPost = HttpRetrieverFactory.getHttpRetriever().httpPost("http://www.photoxpress.com/Xmlrpc", content);
-            String resultContent = httpPost.getStringContent();
-            System.out.println(resultContent);
-        } catch (HttpException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+//        try {
+//            httpPost = HttpRetrieverFactory.getHttpRetriever().httpPost("http://www.photoxpress.com/Xmlrpc", content);
+//            String resultContent = httpPost.getStringContent();
+//            System.out.println(resultContent);
+//        } catch (HttpException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
 
         // JsonObjectWrapper json = new JsonObjectWrapper(documentRetriever.getText(request));
         // JSONArray jsonArray = json.getJSONArray("hits");
@@ -182,7 +184,7 @@ public class PhotoXpressSearcher extends AbstractSearcher<WebImage> {
      * @throws SearcherException
      */
     public static void main(String[] args) throws SearcherException {
-        PhotoXpressSearcher pixabaySearcher = new PhotoXpressSearcher("qhhsJoCG92Uj9qwbooua2Xyti97mGfbx");
+        PhotoXpressSearcher pixabaySearcher = new PhotoXpressSearcher("GET YOUR OWN");
         List<WebImage> results = pixabaySearcher.search("car", 101);
         CollectionHelper.print(results);
     }

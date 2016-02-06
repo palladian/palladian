@@ -5,7 +5,7 @@ package ws.palladian.persistence;
  * A database query consisting of a statement and bound arguments.
  * </p>
  * 
- * @author katz
+ * @author Philipp Katz
  */
 public interface Query {
 

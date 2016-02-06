@@ -12,7 +12,7 @@ import ws.palladian.helper.geo.GeoCoordinate;
 /**
  * Different {@link Filter}s for {@link Location}s.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class LocationFilters {
     
@@ -156,7 +156,7 @@ public final class LocationFilters {
 //     * Filter {@link Location}s by ID.
 //     * </p>
 //     * 
-//     * @author pk
+//     * @author Philipp Katz
 //     */
 //    public static class LocationIdFilter implements Filter<Location> {
 //        private final int id;
@@ -178,7 +178,7 @@ public final class LocationFilters {
      * given center (e.g. give me all locations in distance 1 kilometers from point x). The logic is optimized for speed
      * to avoid costly distance calculations and uses a bounding box as blocker first.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private static class LocationRadiusFilter implements Filter<Location> {
 

@@ -3,6 +3,8 @@ package ws.palladian.extraction.location;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.EnumSet;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -73,6 +75,16 @@ public class AbstractLocationTest {
     public void testCommonNames() {
         assertFalse(l1.commonName(l2));
         assertTrue(l3.commonName(l4));
+    }
+
+    @Test
+    public void testHasName() {
+        assertFalse(l3.hasName("New York", EnumSet.of(Language.ITALIAN)));
+        assertTrue(l3.hasName("New York", EnumSet.of(Language.ENGLISH)));
+        assertTrue(l3.hasName("new york", EnumSet.of(Language.ENGLISH)));
+        assertTrue(l3.hasName("New York City", EnumSet.of(Language.GERMAN)));
+        assertTrue(l3.hasName("New York City", EnumSet.of(Language.ENGLISH)));
+        assertTrue(l3.hasName("new york city", EnumSet.of(Language.ENGLISH)));
     }
 
 }

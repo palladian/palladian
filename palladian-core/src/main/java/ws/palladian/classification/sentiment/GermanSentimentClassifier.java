@@ -224,9 +224,9 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         
         // build the model
         gsc = new GermanSentimentClassifier();
-        gsc.buildModel("data/temp/SentiWS_v1.8c_", "gsc.gz");
+        gsc.buildModel("data/temp/SentiWS_v1.8c_", "data/temp/gsc.gz");
 
-        gsc = new GermanSentimentClassifier("gsc.gz");
+        gsc = new GermanSentimentClassifier("data/temp/gsc.gz");
         gsc.setConfidenceThreshold(0.6);
         Category result = gsc.getPolarity("Das finde ich nicht so toll aber manchmal ist das unschön.");
         result = gsc.getPolarity("Die DAK hat Versäumt die Krankenkasse zu benachrichtigen und das ist auch gut so.");

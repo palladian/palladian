@@ -50,7 +50,6 @@ CREATE TABLE `locations` (
   `ancestorIds` varchar(100) DEFAULT NULL COMMENT 'All ancestor IDs in the hierarchical relation, separated by slashes, starting with the root ancestor. String must start and end with slash character.',
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
-  KEY `ancestorIds` (`ancestorIds`),
   KEY `latitudeLongitude` (`latitude`,`longitude`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

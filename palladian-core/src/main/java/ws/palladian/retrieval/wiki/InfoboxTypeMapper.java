@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.wiki;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -8,14 +10,13 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
 /**
  * Maps infobox types from the Wikipedia to CoNLL or TUD-Loc-2013 entity types.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class InfoboxTypeMapper {
 
@@ -26,10 +27,8 @@ public final class InfoboxTypeMapper {
     private static final Map<String, String> TUD_LOC = loadMapping(2);
 
     private static final Map<String, String> loadMapping(final int colIdx) {
-        InputStream inputStream = null;
-        try {
-            final Map<String, String> result = CollectionHelper.newHashMap();
-            inputStream = WikipediaLocationImporter.class.getResourceAsStream(MAPPING_FILE);
+        try (InputStream inputStream = WikipediaLocationImporter.class.getResourceAsStream(MAPPING_FILE)) {
+            final Map<String, String> result = new HashMap<>();
             int numLines = FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override
                 public void performAction(String line, int lineNumber) {
@@ -48,8 +47,8 @@ public final class InfoboxTypeMapper {
                 throw new IllegalStateException("Could not read any mappings from '" + MAPPING_FILE + "'.");
             }
             return result;
-        } finally {
-            FileHelper.close(inputStream);
+        } catch (IOException e) {
+            throw new IllegalStateException();
         }
     }
 

@@ -4,6 +4,7 @@ import static java.lang.Math.pow;
 import static ws.palladian.helper.math.MathHelper.log2;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -87,7 +88,7 @@ public final class Binner implements Iterable<Binner.Interval> {
     /**
      * Comparator to sort {@link Instance}s based on a {@link NumericValue}.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     private static final class ValueComparator implements Comparator<Instance> {
         private final String featureName;
@@ -200,7 +201,7 @@ public final class Binner implements Iterable<Binner.Interval> {
         LOGGER.debug("cut point = {} @ {}, gain = {}", currentBoundary, boundaryIdx, maxGain);
 
         // search boundaries recursive; result: find[leftSplit], currentBoundary, find[rightSplit]
-        List<Double> boundaries = CollectionHelper.newArrayList();
+        List<Double> boundaries = new ArrayList<>();
         boundaries.addAll(findBoundaries(dataset.subList(0, boundaryIdx), featureName));
         boundaries.add(currentBoundary);
         boundaries.addAll(findBoundaries(dataset.subList(boundaryIdx, n), featureName));

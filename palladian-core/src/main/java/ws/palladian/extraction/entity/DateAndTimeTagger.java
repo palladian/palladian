@@ -1,5 +1,6 @@
 package ws.palladian.extraction.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -8,7 +9,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
@@ -41,7 +41,7 @@ public class DateAndTimeTagger implements Tagger {
 
     @Override
     public List<Annotation> getAnnotations(String text) {
-        List<Annotation> annotations = CollectionHelper.newArrayList();
+        List<Annotation> annotations = new ArrayList<>();
 
         List<ExtractedDate> allDates = DateParser.findDates(text, dateFormats);
 

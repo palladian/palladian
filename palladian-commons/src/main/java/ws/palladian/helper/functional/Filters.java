@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -15,7 +16,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 /**
  * Default {@link Filter} implementations.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class Filters {
 
@@ -29,6 +30,10 @@ public final class Filters {
         public boolean accept(Object item) {
             return item != null;
         }
+        @Override
+        public String toString() {
+        	return "not_null";
+        };
     };
 
     /** A filter which accepts all elements. */
@@ -37,6 +42,10 @@ public final class Filters {
         public boolean accept(Object item) {
             return true;
         }
+        @Override
+        public String toString() {
+        	return "all";
+        };
     };
 
     /** A filter which rejects all elements. */
@@ -45,6 +54,22 @@ public final class Filters {
         public boolean accept(Object item) {
             return false;
         }
+        @Override
+        public String toString() {
+        	return "none";
+        };
+    };
+
+    /** A filter which rejects empty {@link CharSequence}s. */
+    public static final Filter<CharSequence> EMPTY = new Filter<CharSequence>() {
+        @Override
+        public boolean accept(CharSequence item) {
+            return item != null && item.length() > 0;
+        }
+        @Override
+        public String toString() {
+        	return "empty";
+        };
     };
 
     /**
@@ -60,6 +85,10 @@ public final class Filters {
             @Override
             public boolean accept(T item) {
                 return !filter.accept(item);
+            }
+            @Override
+            public String toString() {
+            	return "not [" + filter + "]";
             }
         };
     }
@@ -141,12 +170,12 @@ public final class Filters {
     /**
      * <p>
      * Combine multiple filters so that they act as <code>AND</code> combination (i.e. each of the given filters needs
-     * to accept and item).
+     * to accept and item). The filters are processed in the given order.
      * 
      * @param filters The filters to combine, not <code>null</code>.
      * @return An <code>AND</code>-combination of the given filters.
      */
-    public static <T> Filter<T> and(Set<? extends Filter<? super T>> filters) {
+    public static <T> Filter<T> and(Collection<? extends Filter<? super T>> filters) {
         Validate.notNull(filters, "filters must not be null");
         return new AndFilter<T>(filters);
     }
@@ -154,7 +183,7 @@ public final class Filters {
     /**
      * <p>
      * Combine multiple filters so that they act as <code>AND</code> combination (i.e. each of the given filters needs
-     * to accept and item).
+     * to accept an item). The filters are processed in the given order.
      * 
      * @param filters The filters to combine, not <code>null</code>.
      * @return An <code>AND</code>-combination of the given filters.
@@ -162,7 +191,7 @@ public final class Filters {
     @SafeVarargs
     public static <T> Filter<T> and(Filter<? super T>... filters) {
         Validate.notNull(filters, "filters must not be null");
-        return new AndFilter<T>(new HashSet<Filter<? super T>>(Arrays.asList(filters)));
+        return new AndFilter<T>(new LinkedHashSet<>(Arrays.asList(filters)));
     }
 
     /**
@@ -170,13 +199,13 @@ public final class Filters {
      * contained filters, to be accepted by the chain.
      * 
      * @param <T> Type of items to be processed.
-     * @author pk
+     * @author Philipp Katz
      */
     private static final class AndFilter<T> implements Filter<T> {
 
-        private final Set<? extends Filter<? super T>> filters;
+        private final Collection<? extends Filter<? super T>> filters;
 
-        AndFilter(Set<? extends Filter<? super T>> filters) {
+        AndFilter(Collection<? extends Filter<? super T>> filters) {
             this.filters = filters;
         }
 
@@ -217,7 +246,7 @@ public final class Filters {
         private final Set<String> extensionsSet;
 
         private FileExtensionFilter(String... extensions) {
-            extensionsSet = CollectionHelper.newHashSet();
+            extensionsSet = new HashSet<>();
             for (String extension : extensions) {
                 if (extension != null && extension.length() > 0) {
                     if (extension.startsWith(".")) {
@@ -260,6 +289,50 @@ public final class Filters {
                 return item.isDirectory();
             }
         };
+    }
+    
+	/**
+	 * Get a filter which accepts files.
+	 * 
+	 * @return A filter accepting files.
+	 */
+	public static Filter<File> file() {
+		return new Filter<File>() {
+			@Override
+			public boolean accept(File item) {
+				return item.isFile();
+			}
+		};
+	}
+
+    /**
+     * Get a filter by file names.
+     * 
+     * @param names The names to accept, not <code>null</code>.
+     * @return A filter accepting files with the specified names.
+     */
+    public static Filter<File> fileName(String... names) {
+        Validate.notNull(names, "names must not be null");
+        return new FileNameFilter(names);
+    }
+
+    private static final class FileNameFilter implements Filter<File> {
+        private final Set<String> nameSet;
+
+        public FileNameFilter(String... names) {
+            nameSet = CollectionHelper.newHashSet(names);
+        }
+
+        @Override
+        public boolean accept(File item) {
+            return nameSet.contains(item.getName());
+        }
+        
+        @Override
+        public String toString() {
+            return "FileNameFilter " + nameSet;
+        }
+
     }
 
 }

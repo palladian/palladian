@@ -1,5 +1,7 @@
 package ws.palladian.classification.universal;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -23,7 +25,6 @@ import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class UniversalClassifier implements Learner<UniversalClassifierModel>, Classifier<UniversalClassifierModel> {
 
@@ -55,7 +56,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
         textClassifier = new PalladianTextClassifier(featureSetting);
         numericClassifier = new KnnClassifier(3);
         nominalClassifier = new NaiveBayesClassifier();
-        this.settings = CollectionHelper.newHashSet(settings);
+        this.settings = new HashSet<>(Arrays.asList(settings));
     }
 
     @Override

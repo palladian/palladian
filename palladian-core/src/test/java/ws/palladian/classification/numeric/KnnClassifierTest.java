@@ -7,6 +7,7 @@ import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -18,9 +19,8 @@ import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
@@ -44,7 +44,7 @@ public class KnnClassifierTest {
     @Test
     public void testKnnClassifier() {
         // create some instances for the vector space
-        List<Instance> trainingInstances = CollectionHelper.newArrayList();
+        List<Instance> trainingInstances = new ArrayList<>();
         trainingInstances.add(new InstanceBuilder().set("f1", 3d).set("f2", 4d).set("f3", 5d).create("A"));
         trainingInstances.add(new InstanceBuilder().set("f1", 3d).set("f2", 6d).set("f3", 6d).create("A"));
         trainingInstances.add(new InstanceBuilder().set("f1", 4d).set("f2", 4d).set("f3", 4d).create("B"));

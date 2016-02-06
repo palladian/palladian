@@ -30,6 +30,8 @@ public class TokenizerTest {
 
     @Test
     public void testCalculateWordNgrams() {
+        assertEquals(1, Tokenizer.calculateAllWordNGrams("a++", 1, 10).size());
+        assertEquals(4, Tokenizer.calculateWordNGrams("Mr. A. Anderson.", 1).size());
         assertEquals(4, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 2).size());
         assertEquals(3, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 3).size());
         assertEquals(2, Tokenizer.calculateWordNGrams("all the lilacs in ohio", 4).size());
@@ -45,14 +47,14 @@ public class TokenizerTest {
         assertEquals(7, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. <MUSICIAN>John Hiatt</MUSICIAN> is awesome.");
-        assertEquals(9, tokens.size());
+        assertEquals(8, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. '<MUSICIAN>John Hiatt</MUSICIAN>' is awesome.");
-        assertEquals(11, tokens.size());
+        assertEquals(10, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. ^<MUSICIAN>John Hiatt</MUSICIAN>) is awesome!!!");
         // CollectionHelper.print(tokens);
-        assertEquals(11, tokens.size());
+        assertEquals(10, tokens.size());
 
         tokens = Tokenizer.tokenize("asp.net is very web 2.0. isn't it? web2.0, .net");
         // CollectionHelper.print(tokens);
@@ -112,6 +114,56 @@ public class TokenizerTest {
         // http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html
         String inputText = "";
         List<String> sentences;
+
+        inputText = "Inkl. Wettervorhersage (Thermometer, Hygrometer) und Wetterindikator.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Das Leben ist wie eine Schachtel Pralinen - man weiß nie was man kriegt. Bei uns ist jedoch der Satz am B abgeschnitten.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals("Bei uns ist jedoch der Satz am B abgeschnitten.", sentences.get(1));
+
+        inputText = "Die originale Druckpatrone Nr. 920XL (CD975AE) von HP liefert professionelle Texte und Grafiken in Laserqualität.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Die originale Druckpatrone Nr. 920XL (CD975AE) von HP liefert professionelle Texte und Grafiken in Laserqualität.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Die SFX Power 2 Serie bietet die perfekte Kombination aus Qualität, Funktionalität, Effizienz und dem für be quiet! bekannten zuverlässigen, leisen Betrieb für kompakte Systeme mit überdurchschnittlicher Leistung.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Kräftige Kontraste und das große ----spektrum sorgen für eine natürliche Lebendigkeit v.a. bei Fotos und Videos.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Die integrierte GPU läuft mit 350 Mhz (max. 1100 mit Turbo) und teilt sich den gemeinsamen, 3 MB großen L3-Cache mit der CPU.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Schlüsselfunktionen des E2500 sind u. a. einen passwortgeschützten Gastzugang mit separatem Netzwerk zu erstellen, die Zugangszeit zu begrenzen und Webseiten zu sperren (Kinderschutz durch die Eltern).";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Außerdem bietet die HyperX SSD Hochgeschwindigkeitsübertragung mit SATA Rev. 3.0 (6 Gbit/s) für eine größere Band-----e, die Anwender für leistungshungrige Spiele, Multitasking und schnelle Multimedia-Nutzung benötigen.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
+
+        inputText = "Tintenpatrone T1576 Vivid Light Magenta Ultra Chrome K3 Vivid Magenta - Artikel-Nr.: C13T15764010";
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        // CollectionHelper.print(sentences);
+        assertEquals(1, sentences.size());
 
         inputText = "A 7.2 magnitude earthquake struck in the central Philippines Tuesday morning, killing at least four people and damaging buildings.";
         sentences = Tokenizer.getSentences(inputText);

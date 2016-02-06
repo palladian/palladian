@@ -43,7 +43,7 @@ public class StringNormalizer {
         int pointIndex = numberString.indexOf(".");
         if (pointIndex > -1) {
             String afterPointPart = numberString.substring(pointIndex + 1);
-            afterPointPart = afterPointPart.replaceAll("(?<=[1-9])0{1,}(?!(,|\\.|(\\d)))", ""); // delete all trailed zeros
+            afterPointPart = afterPointPart.replaceAll("(?<=[1-9])0+(?!(,|\\.|(\\d)))", ""); // delete all trailed zeros
             numberString = numberString.substring(0, pointIndex) + "." + afterPointPart;
         }
 

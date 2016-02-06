@@ -14,7 +14,7 @@ import ws.palladian.core.Model;
  * Model for the {@link LibLinearClassifier}. Use the {@link LibLinearLearner} to train.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class LibLinearModel implements Model {
 

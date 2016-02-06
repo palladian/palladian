@@ -19,7 +19,7 @@ public enum TemperatureUnit {
 
     KELVIN("kelvin", "K");
 
-    private Set<String> names = new HashSet<String>();
+    private Set<String> names = new HashSet<>();
 
     private TemperatureUnit(String... names) {
         this.names.addAll(Arrays.asList(names));

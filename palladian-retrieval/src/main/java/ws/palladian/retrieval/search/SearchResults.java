@@ -14,7 +14,7 @@ import ws.palladian.retrieval.resources.WebContent;
  * using {@link #getResultCount()}.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * @param <R>
  */
 public class SearchResults<R extends WebContent> implements Iterable<R> {
@@ -73,8 +73,10 @@ public class SearchResults<R extends WebContent> implements Iterable<R> {
         StringBuilder builder = new StringBuilder();
         builder.append("SearchResults [#results=");
         builder.append(resultList.size());
-        builder.append(", #totalResults=");
-        builder.append(resultCount);
+        if (resultCount != null) {
+            builder.append(", #totalResults=");
+            builder.append(resultCount);
+        }
         builder.append("]");
         return builder.toString();
     }

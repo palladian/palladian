@@ -2,6 +2,7 @@
 package ws.palladian.extraction.entity.evaluation;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +20,6 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -148,7 +148,7 @@ public class Evaluator {
     }
 
     private Set<String> getValues(List<? extends Annotation> annotations) {
-        Set<String> values = CollectionHelper.newHashSet();
+        Set<String> values = new HashSet<>();
         for (Annotation annotation : annotations) {
             values.add(annotation.getValue());
         }

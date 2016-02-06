@@ -5,11 +5,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -41,23 +44,36 @@ public final class UrlHelper {
             .compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{12,200}(?!\\w)");
 
     /** List of top level domains. */
-    private static final String TOP_LEVEL_DOMAINS = "ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|as|asia|at|au|aw|ax|az|ba|bb|bd|be|" +
-            "bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|" +
-            "cz|dd|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|" +
-            "gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|" +
-            "ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|" +
-            "my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|" +
-            "ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|" +
-            "travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|yu|za|zm|zw";
+    private static final String TOP_LEVEL_DOMAINS = "ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|as|asia|at|au|aw|ax|az|ba|bb|bd|be|"
+            + "bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|"
+            + "cz|dd|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|"
+            + "gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|"
+            + "ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|"
+            + "my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|"
+            + "ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|"
+            + "travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|yu|za|zm|zw";
+
+    /** List of possible domain suffixes. */
+    private static final List<String> DOMAIN_SUFFIXES;
+
+    static {
+        DOMAIN_SUFFIXES = new ArrayList<>(Arrays.asList(".asn.au", ".com.au", ".net.au", ".id.au", ".org.au", ".edu.au", ".gov.au",
+                ".csiro.au", ".act.au", ".nsw.au", ".nt.au", ".qld.au", ".sa.au", ".tas.au", ".vic.au", ".wa.au",
+                ".ac.za", ".gov.za", ".law.za", ".mil.za", ".nom.za", ".school.za", ".net.za", ".co.uk", ".org.uk",
+                ".me.uk", ".ltd.uk", ".plc.uk", ".net.uk", ".sch.uk", ".ac.uk", ".gov.uk", ".mod.uk", ".mil.uk",
+                ".nhs.uk", ".police.uk"));
+        String[] split = TOP_LEVEL_DOMAINS.split("\\|");
+        for (String tld : split) {
+            DOMAIN_SUFFIXES.add("." + tld);
+        }
+    }
 
     // adapted version from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
     // this is able to match URLs, containing (brackets), but does not include trailing brackets
-    public static final Pattern URL_PATTERN = Pattern
-            .compile(
-                    "\\b(?:https?://)?([0-9a-zäöü-]{1,63}?\\.)+(?:"
-                            + TOP_LEVEL_DOMAINS
-                            + ")(?:[?/](?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s()<>\\[\\]\"']{0,255})+(?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s.,;!?:()<>\\[\\]\"'])|/|\\b)",
-                            Pattern.CASE_INSENSITIVE);
+    public static final Pattern URL_PATTERN = Pattern.compile(
+            "\\b(?:https?://)?([0-9a-zäöü-]{1,63}?\\.)+(?:" + TOP_LEVEL_DOMAINS
+                    + ")(?:[?/](?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s()<>\\[\\]\"']{0,255})+(?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s.,;!?:()<>\\[\\]\"'])|/|\\b)",
+            Pattern.CASE_INSENSITIVE);
 
     private UrlHelper() {
         // prevent instantiation.
@@ -113,15 +129,12 @@ public final class UrlHelper {
      * header.
      * </p>
      * 
-     * @param document
+     * @param document The document.
      * @return The base URL, if present, <code>null</code> otherwise.
      */
     public static String getBaseUrl(Document document) {
         Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
-        if (baseNode != null) {
-            return baseNode.getTextContent();
-        }
-        return null;
+        return baseNode != null ? baseNode.getTextContent() : null;
     }
 
     /**
@@ -203,11 +216,11 @@ public final class UrlHelper {
      * <code>http://www.example.com</code>.
      * </p>
      * 
-     * @param url
+     * @param url The url.
      * @param includeProtocol include protocol prefix, e.g. "http://"
      * @return root URL, or empty String if URL cannot be determined, never <code>null</code>
      */
-    public static String getDomain(String url, boolean includeProtocol) {
+    public static String getDomain(String url, boolean includeProtocol, boolean includeSubdomain) {
         String result = "";
         try {
             URL urlObj = new URL(url);
@@ -217,6 +230,20 @@ public final class UrlHelper {
                     result = urlObj.getProtocol() + "://";
                 }
                 result += urlObj.getHost();
+
+                if (!includeSubdomain) {
+                    String suffix = "";
+                    for (String domainSuffix : DOMAIN_SUFFIXES) {
+                        if (result.endsWith(domainSuffix)) {
+                            suffix = domainSuffix;
+                            break;
+                        }
+                    }
+                    result = result.substring(0, result.length() - suffix.length());
+                    String[] parts = result.split("\\.");
+                    result = parts[parts.length - 1] + suffix;
+                }
+
                 LOGGER.trace("root url for {} -> {}", url, result);
             } else {
                 LOGGER.trace("no domain specified {}", url);
@@ -227,17 +254,21 @@ public final class UrlHelper {
         return result;
     }
 
+    public static String getDomain(String url, boolean includeProtocol) {
+        return getDomain(url, includeProtocol, true);
+    }
+
     /**
      * <p>
      * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to
      * <code>http://www.example.com</code>.
      * </p>
      * 
-     * @param url
+     * @param url The URL.
      * @return root URL, or empty String if URL cannot be determined, never <code>null</code>
      */
     public static String getDomain(String url) {
-        return getDomain(url, true);
+        return getDomain(url, true, true);
     }
 
     /**
@@ -246,7 +277,7 @@ public final class UrlHelper {
      * parameters are sorted alphabetically in ascending order, fragments (i.e. "anchor" parts) are removed.
      * </p>
      * 
-     * @param url
+     * @param url The URL.
      * @return canonical URL, or empty String if URL cannot be determined, never <code>null</code>
      * 
      */
@@ -275,7 +306,6 @@ public final class UrlHelper {
                 // sort query parts alphabetically
                 Arrays.sort(query);
             }
-
 
             // correct path to eliminate ".." and recreate path accordingly
             String[] parts = path.split("/");
@@ -325,8 +355,8 @@ public final class UrlHelper {
      * Decode a String which was used as URL parameter.
      * </p>
      * 
-     * @param string
-     * @return
+     * @param string The string to be decoded.
+     * @return The decoded string.
      */
     public static String decodeParameter(String string) {
         try {
@@ -335,14 +365,22 @@ public final class UrlHelper {
             throw new IllegalStateException("UTF-8 encoding unsupported. This should not happen.", e);
         }
     }
+    
+    private static String tryDecodeParameter(String string) {
+    	try {
+    		return decodeParameter(string);
+    	} catch (IllegalArgumentException e) {
+    		return string;
+    	}
+    }
 
     /**
      * <p>
      * Encode a String to be used as URL parameter.
      * </p>
      * 
-     * @param string
-     * @return
+     * @param string The string to be encoded.
+     * @return The encoded string.
      */
     public static String encodeParameter(String string) {
         try {
@@ -357,7 +395,7 @@ public final class UrlHelper {
      * Extracts all recognizable URLs from a given text.
      * </p>
      * 
-     * @param text
+     * @param text The text from which URLs should be extracted.
      * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
      */
     public static List<String> extractUrls(String text) {
@@ -372,4 +410,80 @@ public final class UrlHelper {
 
         return "file".equalsIgnoreCase(protocol) && !hasHost;
     }
+
+    /**
+     * <p>
+     * Creates an encoded key-value parameter string, which can e.g. be appended to a URL.
+     * 
+     * @param parameters Map with key-value params, not <code>null</code>.
+     * @return The key-value string.
+     */
+    public static String createParameterString(List<Pair<String, String>> parameters) {
+        Validate.notNull(parameters, "parameters must not be null");
+        StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        for (Pair<String, String> pair : parameters) {
+            if (first) {
+                first = false;
+            } else {
+                builder.append('&');
+            }
+            builder.append(encodeParameter(pair.getKey()));
+            builder.append('=');
+            String value = pair.getValue();
+            builder.append(encodeParameter(value != null ? value : StringUtils.EMPTY));
+        }
+        return builder.toString();
+    }
+
+    /**
+     * <p>
+     * Parses an encoded key-value string, which can e.g. be present as a query string appended to a URL.
+     * 
+     * @param parameterString The key-value parameter string.
+     * @return A list with parsed params.
+     */
+    public static List<Pair<String, String>> parseParams(String parameterString) {
+        Validate.notNull(parameterString, "parameterString must not be null");
+        List<Pair<String, String>> params = new ArrayList<>();
+
+        int questionIdx = parameterString.indexOf("?");
+        if (questionIdx == -1) { // no parameters in URL
+            return params;
+        }
+
+        String paramSubString = parameterString.substring(questionIdx + 1);
+        String[] paramSplit = paramSubString.split("&");
+        for (String param : paramSplit) {
+            String[] keyValue = param.split("=");
+            String key = tryDecodeParameter(keyValue[0]);
+            String value;
+            if (keyValue.length == 1) {
+                value = StringUtils.EMPTY;
+            } else {
+            	value = tryDecodeParameter(param.substring(key.length() + 1));
+            }
+            params.add(Pair.of(key, value));
+        }
+        return params;
+    }
+
+    /**
+     * <p>
+     * Get the base URL from the given URL (i.e. removing all query and hash params).
+     * 
+     * @param url The URL, not <code>null</code>.
+     * @return The base URL.
+     */
+    public static String parseBaseUrl(String url) {
+        Validate.notNull(url, "url must not be null");
+        int questionIdx = url.indexOf("?");
+        int hashIdx = url.indexOf("#");
+        int cutIdx = hashIdx;
+        if (questionIdx != -1) {
+            cutIdx = questionIdx;
+        }
+        return cutIdx != -1 ? url.substring(0, cutIdx) : url;
+    }
+
 }

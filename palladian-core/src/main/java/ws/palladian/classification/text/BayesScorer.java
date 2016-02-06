@@ -20,7 +20,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * "<a href="http://nlp.stanford.edu/IR-book/">An Introduction to Information Retrieval</a>"; Christopher D. Manning;
  * Prabhakar Raghavan; Hinrich Schütze; 2009, chapter 13 (pp. 253).
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class BayesScorer implements Scorer {
 

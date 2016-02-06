@@ -1,9 +1,7 @@
 package ws.palladian.extraction.token;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import ws.palladian.core.Token;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
@@ -25,11 +23,11 @@ import ws.palladian.helper.nlp.StringHelper;
 public final class Tokenizer {
 
     /** The RegExp used for tokenization (terms). */
-    public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z]\\.)+|[\\p{L}\\w]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
+    public static final String TOKEN_SPLIT_REGEX = "(?:[A-Z][a-z]?\\.)+|[\\p{L}\\w+]+(?:[-\\.,][\\p{L}\\w]+)*|\\.[\\p{L}\\w]+|</?[\\p{L}\\w]+>|\\$\\d+\\.\\d+|[^\\w\\s<]+";
 
     /** The RegExp used for sentence splitting. */
-    public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Dr|dr|Prof|Mrs|mrs|Jr|jr|vs| eg|e\\.g|ca|etc| sq| ft)((\\.|\\?|\\!)(’|”|\")+(?=\\s+[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
-    public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Prof|[mM]s|[jJ]r|vs|ca|engl|evtl|etc| sog| ident|bzw|i\\.d\\.R|o\\.k|zzgl|bspw|bsp|m\\.E|bezügl|bzgl|inkl|exkl|ggf|z\\.\\s?[bB]| max| min|u\\.s\\.w|u\\.a|d\\.h)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)| B\\.|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Vers|Dr|dr|Prof|Nr|Rev|Mrs|mrs|Jr|jr|vs| eg|e\\.g|ca|max|Min|etc| sq| ft)((\\.|\\?|\\!)(’|”|\")+(?=\\s+[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
+    public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Ca|Mio|Mind|u\\.A|Inkl|Vers|Prof|[mM]s|zusätzl|äquiv|komp|quiet|elektr\\.|[jJ]r|vs|ca|engl|evtl|max|mind.|etc|Nr|Rev| sog| ident|bzw|i\\.d\\.R|v\\.a|u\\.v\\.m|o\\.k|zzgl|Min|Keyb|Elec|bspw|bsp|m\\.E|bezügl|bzgl|inkl|exkl|ggf|z\\.\\s?[bB]| max| min|\\s[a-z]|u\\.s\\.w|u\\.\\s?a|d\\.h)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)| B\\.|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
 
     private Tokenizer() {
         // prevent instantiation.
@@ -102,7 +100,9 @@ public final class Tokenizer {
      * Calculate all n-grams for a string for different n on a character level. The size of the set can be calculated
      * as: Size = SUM_n(n1,n2) (stringLength - n + 1)
      * </p>
-     * 
+     *
+     * XXX this method is about 25% slower than previous implementations (see https://bitbucket.org/palladian/palladian/src/c10127a1b4ba1c98a9f51ba866e509bcae379d68/palladian-core/src/main/java/ws/palladian/extraction/token/Tokenizer.java?at=master)
+     *
      * @param string The string the n-grams should be calculated for.
      * @param n1 The smallest n-gram size.
      * @param n2 The greatest n-gram size.
@@ -184,7 +184,7 @@ public final class Tokenizer {
         // TODO Since requirements might differ slightly from application to application, this filtering should be
         // carried out by each calling application itself.
         if (onlyRealSentences) {
-            List<String> realSentences = CollectionHelper.newArrayList();
+            List<String> realSentences = new ArrayList<>();
             for (String sentence : sentences) {
                 String[] parts = sentence.split("\n");
                 sentence = parts[parts.length - 1];

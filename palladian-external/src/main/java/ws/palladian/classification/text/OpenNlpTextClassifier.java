@@ -4,6 +4,7 @@ import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TE
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -24,13 +25,12 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.core.value.TextValue;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 
 /**
  * Text classifier which uses Open NLP's {@link DocumentCategorizerME}.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class OpenNlpTextClassifier implements Learner<OpenNlpTextClassifier.OpenNlpTextClassifierModel>,
         Classifier<OpenNlpTextClassifier.OpenNlpTextClassifierModel> {
@@ -78,7 +78,7 @@ public final class OpenNlpTextClassifier implements Learner<OpenNlpTextClassifie
 
         @Override
         public Set<String> getCategories() {
-            Set<String> categories = CollectionHelper.newHashSet();
+            Set<String> categories = new HashSet<>();
             DocumentCategorizerME categorizer = new DocumentCategorizerME(doccatModel);
             for (int i = 0; i < categorizer.getNumberOfCategories(); i++) {
                 categories.add(categorizer.getCategory(i));

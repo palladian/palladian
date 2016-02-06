@@ -3,24 +3,33 @@ package ws.palladian.extraction.location.sources;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
- * {@link LocationSource} for combining multiple sources. Only retrieval by name is allowed, because ID retrieval makes
- * no sense over multiple sources.
+ * {@link LocationSource} for combining multiple sources. Only retrieval by name and coordinate is allowed, because ID
+ * retrieval makes no sense over multiple sources.
  * </p>
  * 
  * @author Philipp Katz
  */
 public final class CombinedLocationSource extends MultiQueryLocationSource {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(CombinedLocationSource.class);
 
     public static enum QueryMode {
         /** Query all locations sources in the given order, in case of a match, remaining sources are not checked. */
@@ -31,6 +40,7 @@ public final class CombinedLocationSource extends MultiQueryLocationSource {
 
     private final List<LocationSource> locationSources;
     private final QueryMode queryMode;
+    private boolean showWarning = true;
 
     public CombinedLocationSource(QueryMode queryMode, Collection<LocationSource> locationSources) {
         this.queryMode = queryMode;
@@ -59,6 +69,27 @@ public final class CombinedLocationSource extends MultiQueryLocationSource {
     @Override
     public List<Location> getLocations(List<Integer> locationIds) {
         throw new UnsupportedOperationException("Getting by IDs is not supported by " + getClass().getName());
+    }
+
+    @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        List<Location> result = new ArrayList<>();
+        for (LocationSource locationSource : locationSources) {
+            try {
+                List<Location> locations = locationSource.getLocations(coordinate, distance);
+                result.addAll(locations);
+                if (locations.size() > 0 && queryMode == QueryMode.FIRST) {
+                    break;
+                }
+            } catch (UnsupportedOperationException ignore) {
+                if (showWarning) {
+                    LOGGER.warn("LocationSource {} does not support reverse lookup.", locationSource);
+                    showWarning = false;
+                }
+            }
+        }
+        Collections.sort(result, LocationExtractorUtils.distanceComparator(coordinate));
+        return result;
     }
 
     @Override

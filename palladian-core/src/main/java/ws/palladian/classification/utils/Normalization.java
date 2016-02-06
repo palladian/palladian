@@ -9,7 +9,7 @@ import ws.palladian.core.FeatureVector;
  * Normalization for {@link NumericFeature}s. Use a {@link Normalizer} implementation to obtain instances.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface Normalization extends Serializable {
 

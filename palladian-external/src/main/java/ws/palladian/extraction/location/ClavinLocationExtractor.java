@@ -1,19 +1,18 @@
 package ws.palladian.extraction.location;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.lucene.queryparser.classic.ParseException;
 
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator;
 import ws.palladian.extraction.location.sources.importers.GeonamesUtil;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
+import com.bericotech.clavin.ClavinException;
 import com.bericotech.clavin.GeoParser;
 import com.bericotech.clavin.GeoParserFactory;
 import com.bericotech.clavin.extractor.LocationOccurrence;
@@ -61,9 +60,7 @@ public final class ClavinLocationExtractor extends LocationExtractor {
         try {
             this.parser = GeoParserFactory.getDefault(pathToLuceneIndex, 1/* maxHitDepth */, 1/* maxContentWindow */,
                     false);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        } catch (ParseException e) {
+        } catch (ClavinException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -71,7 +68,7 @@ public final class ClavinLocationExtractor extends LocationExtractor {
     @Override
     public List<LocationAnnotation> getAnnotations(String inputText) {
         try {
-            List<LocationAnnotation> result = CollectionHelper.newArrayList();
+            List<LocationAnnotation> result = new ArrayList<>();
             List<ResolvedLocation> resolvedLocations = parser.parse(inputText);
             for (ResolvedLocation resolvedLocation : resolvedLocations) {
                 result.add(makeLocationAnnotation(resolvedLocation));
@@ -83,17 +80,17 @@ public final class ClavinLocationExtractor extends LocationExtractor {
     }
 
     private LocationAnnotation makeLocationAnnotation(ResolvedLocation resolvedLocation) {
-        LocationOccurrence locOccurrence = resolvedLocation.location;
-        int startPosition = locOccurrence.position;
-        String value = locOccurrence.text;
-        GeoName geoname = resolvedLocation.geoname;
-        int id = geoname.geonameID;
-        String primaryName = geoname.name;
-        String featureClass = geoname.featureClass.toString();
-        String featureType = geoname.featureCode.toString();
+        LocationOccurrence locOccurrence = resolvedLocation.getLocation();
+        int startPosition = locOccurrence.getPosition();
+        String value = locOccurrence.getText();
+        GeoName geoname = resolvedLocation.getGeoname();
+        int id = geoname.getGeonameID();
+        String primaryName = geoname.getName();
+        String featureClass = geoname.getFeatureClass().toString();
+        String featureType = geoname.getFeatureCode().toString();
         LocationType type = GeonamesUtil.mapType(featureClass, featureType);
-        GeoCoordinate coordinate = new ImmutableGeoCoordinate(geoname.latitude, geoname.longitude);
-        Long population = geoname.population;
+        GeoCoordinate coordinate = new ImmutableGeoCoordinate(geoname.getLatitude(), geoname.getLongitude());
+        Long population = geoname.getPopulation();
         Annotation annotation = new ImmutableAnnotation(startPosition, value, type.toString());
         Location location = new ImmutableLocation(id, primaryName, type, coordinate, population);
         return new LocationAnnotation(annotation, location);

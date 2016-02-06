@@ -3,19 +3,15 @@ package ws.palladian.retrieval;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.SSLContext;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -42,15 +38,12 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -64,7 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.HttpHelper;
@@ -123,16 +115,10 @@ public class HttpRetriever {
     /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 1;
 
-    /** The default number of connections in the connection pool. */
-    public static final int DEFAULT_NUM_CONNECTIONS = 100;
-
-    /** The default number of connections per route. */
-    public static final int DEFAULT_NUM_CONNECTIONS_PER_ROUTE = 10;
-
     // ///////////// Apache HttpComponents ////////
 
     /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
-    private static final PoolingClientConnectionManager CONNECTION_MANAGER = new PoolingClientConnectionManager();
+    private final ClientConnectionManager connectionManager;
 
     /** Various parameters for the Apache HttpClient. */
     private final HttpParams httpParams = new SyncBasicHttpParams();
@@ -157,89 +143,33 @@ public class HttpRetriever {
     /** Number of retries for one request, if error occurs. */
     private int numRetries = DEFAULT_NUM_RETRIES;
 
-    /** Username for authentication, or <code>null</code> if no authentication necessary. */
-    private String username;
-
-    /** Password for authentication, or <code>null</code> if no authentication necessary. */
-    private String password;
-
-    /** A map for cookie store. **/
-    private Map<String, String> cookieStore = new HashMap<String, String>();
-
     // ///////////// Misc. ////////
 
     /** Hook for http* methods. */
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
+    /** Store for cookies. */
+    private CookieStore cookieStore;
+    
     /** Any of these status codes will cause a removal of the used proxy. */
-    private Set<Integer> proxyRemoveStatusCodes = CollectionHelper.newHashSet();
+    private Set<Integer> proxyRemoveStatusCodes = new HashSet<>();
 
     /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
     private ProxyRemoverCallback proxyRemoveCallback = null;
 
-    private static final Scheme httpsScheme;
-
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
-
-    static {
-        setNumConnections(DEFAULT_NUM_CONNECTIONS);
-        setNumConnectionsPerRoute(DEFAULT_NUM_CONNECTIONS_PER_ROUTE);
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, null, null);
-            SSLSocketFactory sf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            httpsScheme = new Scheme("https", 443, sf);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        } catch (KeyManagementException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    /**
-     * <p>
-     * Creates a new HTTP retriever using default values for the parameters:
-     * </p>
-     * <table>
-     * <tr>
-     * <td>connection timeout</td>
-     * <td>10 seconds</td>
-     * </tr>
-     * <tr>
-     * <td>socket timeout</td>
-     * <td>180 seconds</td>
-     * </tr>
-     * <tr>
-     * <td>retries</td>
-     * <td>0</td>
-     * </tr>
-     * </table>
-     * </p>
-     **/
-    // TODO visibility should be set to protected, as instances are created by the factory
-    public HttpRetriever() {
+    
+    public HttpRetriever(ClientConnectionManager connectionManager) {
+        Validate.notNull(connectionManager, "connectionManager must not be null");
+        this.connectionManager = connectionManager;
         setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
         // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        // httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
-    }
-
-    /**
-     * <p>
-     * Add a cookie to the header.
-     * </p>
-     * 
-     * @param key The name of the cookie.
-     * @param value The value of the cookie.
-     * 
-     */
-    public void addCookie(String key, String value) {
-        cookieStore.put(key, value);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -256,122 +186,11 @@ public class HttpRetriever {
      * @throws HttpException in case the GET fails, or the supplied URL is not valid.
      */
     public HttpResult httpGet(String url) throws HttpException {
-        return httpGet(url, Collections.<String, String> emptyMap());
+        return execute(new HttpRequest2Builder(HttpMethod.GET, url).create());
     }
 
-    /**
-     * <p>
-     * Performs an HTTP GET operation.
-     * </p>
-     * 
-     * @param url the URL for the GET, not <code>null</code> or empty.
-     * @param headers map with key-value pairs of request headers.
-     * @return response for the GET.
-     * @throws HttpException in case the GET fails, or the supplied URL is not valid.
-     * @deprecated Use {@link #execute(HttpRequest)} instead.
-     */
+    /** Replaced by {@link #execute(HttpRequest2)} */
     @Deprecated
-    public HttpResult httpGet(String url, Map<String, String> headers) throws HttpException {
-        Validate.notEmpty(url, "url must not be empty");
-
-        HttpGet get;
-        try {
-            get = new HttpGet(url);
-        } catch (IllegalArgumentException e) {
-            throw new HttpException("invalid URL: " + url, e);
-        }
-
-        if (headers != null) {
-            for (Entry<String, String> header : headers.entrySet()) {
-                get.setHeader(header.getKey(), header.getValue());
-            }
-        }
-
-        return execute(url, get);
-    }
-
-    /**
-     * <p>
-     * Performs an HTTP HEAD operation.
-     * </p>
-     * 
-     * @param url the URL for the HEAD, not <code>null</code> or empty.
-     * @return response for the HEAD.
-     * @throws HttpException in case the HEAD fails, or the supplied URL is not valid.
-     */
-    public HttpResult httpHead(String url) throws HttpException {
-        Validate.notEmpty(url, "url must not be empty");
-
-        HttpHead head;
-        try {
-            head = new HttpHead(url);
-        } catch (Exception e) {
-            throw new HttpException("invalid URL: " + url, e);
-        }
-        return execute(url, head);
-    }
-
-    /**
-     * <p>
-     * Performs an HTTP POST operation with the specified name-value pairs as content.
-     * </p>
-     * 
-     * @param url the URL for the POST, not <code>null</code> or empty.
-     * @param content name-value pairs for the POST.
-     * @return response for the POST.
-     * @throws HttpException in case the POST fails, or the supplied URL is not valid.
-     * @deprecated Use {@link #execute(HttpRequest)} instead.
-     */
-    @Deprecated
-    public HttpResult httpPost(String url, Map<String, String> content) throws HttpException {
-        return httpPost(url, Collections.<String, String> emptyMap(), content);
-    }
-
-    /**
-     * <p>
-     * Performs an HTTP POST operation with the specified name-value pairs as content.
-     * </p>
-     * 
-     * @param url the URL for the POST, not <code>null</code> or empty.
-     * @param headers map with key-value pairs of request headers.
-     * @param content name-value pairs for the POST.
-     * @return response for the POST.
-     * @throws HttpException in case the POST fails, or the supplied URL is not valid.
-     * @deprecated Use {@link #execute(HttpRequest)} instead.
-     */
-    @Deprecated
-    public HttpResult httpPost(String url, Map<String, String> headers, Map<String, String> content)
-            throws HttpException {
-        Validate.notEmpty(url, "url must not be empty");
-
-        HttpPost post;
-        try {
-            post = new HttpPost(url);
-        } catch (Exception e) {
-            throw new HttpException("invalid URL: " + url, e);
-        }
-
-        // HTTP headers
-        if (headers != null) {
-            for (Entry<String, String> header : headers.entrySet()) {
-                post.setHeader(header.getKey(), header.getValue());
-            }
-        }
-
-        // content name-value pairs
-        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        for (Entry<String, String> param : content.entrySet()) {
-            nameValuePairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
-        }
-        try {
-            post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Unexpected UnsupportedEncodingException");
-        }
-
-        return execute(url, post);
-    }
-
     public HttpResult execute(HttpRequest request) throws HttpException {
         Validate.notNull(request, "request must not be null");
 
@@ -390,15 +209,11 @@ public class HttpRetriever {
                 if(request.getHttpEntity() != null){
                     entity = request.getHttpEntity();
                 }else{
-                    List<NameValuePair> postParams = CollectionHelper.newArrayList();
+                    List<NameValuePair> postParams = new ArrayList<>();
                     for (Entry<String, String> param : request.getParameters().entrySet()) {
                         postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                     }
-//                    try {
                         entity = new UrlEncodedFormEntity(postParams,request.getCharset());
-//                    } catch (UnsupportedEncodingException e) {
-//                        throw new IllegalStateException(e);
-//                    }
                 }
 
                 httpPost.setEntity(entity);
@@ -413,8 +228,21 @@ public class HttpRetriever {
                 httpRequest = new HttpDelete(url);
                 break;
             case PUT:
-                url = createUrl(request);
-                httpRequest = new HttpPut(url);
+                url = request.getUrl();
+                HttpPut httpPut = new HttpPut(url);
+
+                if(request.getHttpEntity() != null){
+                    entity = request.getHttpEntity();
+                }else{
+                    List<NameValuePair> postParams = new ArrayList<>();
+                    for (Entry<String, String> param : request.getParameters().entrySet()) {
+                        postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                    }
+                    entity = new UrlEncodedFormEntity(postParams,request.getCharset());
+                }
+
+                httpPut.setEntity(entity);
+                httpRequest = httpPut;
                 break;
             default:
                 throw new IllegalArgumentException("Unimplemented method: " + request.getMethod());
@@ -426,6 +254,11 @@ public class HttpRetriever {
 
         return execute(url, httpRequest);
     }
+    
+    public HttpResult execute(HttpRequest2 request) throws HttpException {
+        Validate.notNull(request, "request must not be null");
+        return execute(request.getUrl(), new ApacheRequestAdapter(request));
+    }
 
     // ////////////////////////////////////////////////////////////////
     // internal functionality
@@ -434,7 +267,7 @@ public class HttpRetriever {
     private AbstractHttpClient createHttpClient() {
 
         // initialize the HttpClient
-        DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, httpParams);
+        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
 
         HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
         backend.setHttpRequestRetryHandler(retryHandler);
@@ -458,21 +291,17 @@ public class HttpRetriever {
         backend.addResponseInterceptor(metricsSaver);
         // end edit
 
-        // set the credentials, if they were provided
-        if (StringUtils.isNotEmpty(username)) {
-            Credentials credentials = new UsernamePasswordCredentials(username, password);
-            backend.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
+        if (cookieStore != null) {
+            backend.setCookieStore(new ApacheCookieStoreAdapter(cookieStore));
+        } else {
+            // set the cookie store; this is scoped on *one* request and discarded after that;
+            // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
+            // "one request" actually means, that we have a e.g. a GET and receive several redirects,
+            // where cookies previously set cookies are necessary; this is not a typical case,
+            // and if we should encounter any issues by this change, remove this code (and the modification
+            // in the constructor) again.
+            backend.setCookieStore(new ApacheCookieStoreAdapter(new DefaultCookieStore()));
         }
-
-        backend.getConnectionManager().getSchemeRegistry().register(httpsScheme);
-
-        // set the cookie store; this is scoped on *one* request and discarded after that;
-        // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        // "one request" actually means, that we have a e.g. a GET and receive several redirects,
-        // where cookies previously set cookies are necessary; this is not a typical case,
-        // and if we should encounter any issues by this change, remove this code (and the modification
-        // in the constructor) again.
-        backend.setCookieStore(new BasicCookieStore());
 
         return backend;
 
@@ -505,11 +334,11 @@ public class HttpRetriever {
      * @return
      */
     private static Map<String, List<String>> convertHeaders(Header[] headers) {
-        Map<String, List<String>> result = new HashMap<String, List<String>>();
+        Map<String, List<String>> result = new HashMap<>();
         for (Header header : headers) {
             List<String> list = result.get(header.getName());
             if (list == null) {
-                list = new ArrayList<String>();
+                list = new ArrayList<>();
                 result.put(header.getName(), list);
             }
             list.add(header.getValue());
@@ -539,14 +368,6 @@ public class HttpRetriever {
         try {
 
             HttpContext context = new BasicHttpContext();
-            StringBuilder cookieText = new StringBuilder();
-            for (Entry<String, String> cookie : cookieStore.entrySet()) {
-                cookieText.append(cookie.getKey()).append("=").append(cookie.getValue()).append(";");
-            }
-            if (!cookieStore.isEmpty()) {
-                request.addHeader("Cookie", cookieText.toString());
-            }
-
             DecompressingHttpClient client = new DecompressingHttpClient(backend);
             HttpResponse response = client.execute(request, context);
             HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
@@ -647,7 +468,7 @@ public class HttpRetriever {
     public List<String> getRedirectUrls(String url) throws HttpException {
         Validate.notEmpty(url, "url must not be empty");
 
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
 
         // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
         // see: https://dev.twitter.com/docs/tco-redirection-behavior
@@ -658,7 +479,7 @@ public class HttpRetriever {
         HttpConnectionParams.setSoTimeout(params, socketTimeoutRedirects);
         HttpConnectionParams.setConnectionTimeout(params, connectionTimeoutRedirects);
 
-        DefaultHttpClient backend = new DefaultHttpClient(CONNECTION_MANAGER, params);
+        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, params);
         DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
         for (;;) {
@@ -728,7 +549,6 @@ public class HttpRetriever {
      * @param filePath the path where the downloaded contents should be saved to.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
-    @Deprecated
     public boolean downloadAndSave(String url, String filePath) {
         return downloadAndSave(url, filePath, Collections.<String, String> emptyMap(), false);
     }
@@ -744,7 +564,6 @@ public class HttpRetriever {
      *            content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
-    @Deprecated
     public boolean downloadAndSave(String url, String filePath, boolean includeHttpResponseHeaders) {
         return downloadAndSave(url, filePath, Collections.<String, String> emptyMap(), includeHttpResponseHeaders);
     }
@@ -762,13 +581,13 @@ public class HttpRetriever {
      *            content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
-    @Deprecated
     public boolean downloadAndSave(String url, String filePath, Map<String, String> requestHeaders,
             boolean includeHttpResponseHeaders) {
 
         boolean result = false;
         try {
-            HttpResult httpResult = httpGet(url, requestHeaders);
+            HttpResult httpResult = execute(new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(requestHeaders)
+                    .create());
             if (httpResult.getStatusCode() != 200) {
                 throw new HttpException("status code != 200 for " + url);
             }
@@ -804,14 +623,6 @@ public class HttpRetriever {
         this.numRetries = numRetries;
     }
 
-    public static void setNumConnections(int numConnections) {
-        CONNECTION_MANAGER.setMaxTotal(numConnections);
-    }
-
-    public static void setNumConnectionsPerRoute(int numConnectionsPerRoute) {
-        CONNECTION_MANAGER.setDefaultMaxPerRoute(numConnectionsPerRoute);
-    }
-
     public void setUserAgent(String userAgent) {
         HttpProtocolParams.setUserAgent(httpParams, userAgent);
     }
@@ -826,21 +637,9 @@ public class HttpRetriever {
     public void setMaxFileSize(long maxFileSize) {
         this.maxFileSize = maxFileSize;
     }
-
-    /**
-     * <p>
-     * Set credentials for all requests performed by this {@link HttpRetriever}. <b>Attention</b>: When requesting from
-     * multiple sources, take care of not to sent credentials to the wrong source. Either set credentials to
-     * <code>null</code> when finished with a specific source, or create multiple instances of {@link HttpRetriever} for
-     * every source.
-     * </p>
-     * 
-     * @param username The username for HTTP authentication, or <code>null</code>.
-     * @param password The password for HTTP authentication, or <code>null</code>.
-     */
-    public void setCredentials(String username, String password) {
-        this.username = username;
-        this.password = password;
+    
+    public void setCookieStore(CookieStore cookieStore) {
+        this.cookieStore = cookieStore;
     }
 
     // ////////////////////////////////////////////////////////////////

@@ -40,12 +40,10 @@ public final class LinkedInShares extends AbstractRankingService implements Rank
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
 
         Integer shares = null;
-        String requestUrl = buildRequestUrl(url);
+        String requestUrl = "http://www.linkedin.com/countserv/count/share?format=json&url="
+                + UrlHelper.encodeParameter(url);
 
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
@@ -62,18 +60,6 @@ public final class LinkedInShares extends AbstractRankingService implements Rank
             throw new RankingServiceException(e);
         }
         return builder.add(SHARES, shares).create();
-    }
-
-    /**
-     * <p>
-     * Build the request URL.
-     * </p>
-     * 
-     * @param url The URL to search for.
-     * @return The request URL.
-     */
-    private String buildRequestUrl(String url) {
-        return "http://www.linkedin.com/countserv/count/share?format=json&url=" + UrlHelper.encodeParameter(url);
     }
 
     @Override

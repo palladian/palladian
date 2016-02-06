@@ -27,7 +27,7 @@ public class SentenceDetectorTest {
     private static Set<String> expectedResult;
 
     static {
-        expectedResult = new HashSet<String>();
+        expectedResult = new HashSet<>();
         expectedResult.add("I require some help from a SAP SD & FI consultant.");
         expectedResult.add("There is a main plant (godown) which services all the offices in the state Maharashtra.");
         expectedResult.add("There are 2 offices in Maharashtra, one in Mumbai & other in Pune.");

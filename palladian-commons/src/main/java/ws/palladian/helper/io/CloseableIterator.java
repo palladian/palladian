@@ -11,7 +11,7 @@ import java.util.Iterator;
  * stopped in between. <b>Important:</b> Closing is a must in order to avoid resources leaking!
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * @param <T>
  */
 public interface CloseableIterator<T> extends Iterator<T>, Closeable {

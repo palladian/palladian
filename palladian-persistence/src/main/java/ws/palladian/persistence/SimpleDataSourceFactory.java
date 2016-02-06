@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Very simple {@link DataSourceFactory}, no pooling.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class SimpleDataSourceFactory implements DataSourceFactory {
 

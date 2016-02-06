@@ -20,7 +20,6 @@ import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URL;
@@ -98,7 +97,7 @@ public final class FileHelper {
     private static volatile File tempDirectory = null;
 
     static {
-        List<String> binaryFileExtensions = new ArrayList<String>();
+        List<String> binaryFileExtensions = new ArrayList<>();
         binaryFileExtensions.add("pdf");
         binaryFileExtensions.add("doc");
         binaryFileExtensions.add("ppt");
@@ -167,7 +166,7 @@ public final class FileHelper {
      * @return The file name part of the path.
      */
     public static String getFileName(String path) {
-        String fileName = path;
+        String fileName;
         int lastDot = path.lastIndexOf(".");
         int lastSeparator = path.lastIndexOf("/") + 1;
         if (lastSeparator == 0) {
@@ -175,6 +174,8 @@ public final class FileHelper {
         }
         if (lastDot > -1) {
             fileName = path.substring(lastSeparator, lastDot);
+        } else {
+            fileName = path.substring(lastSeparator);
         }
         return fileName;
     }
@@ -313,9 +314,10 @@ public final class FileHelper {
 
         StringBuilder contents = new StringBuilder();
         BufferedReader reader = null;
+        InputStream stream = null;
 
         try {
-            InputStream stream = new FileInputStream(file);
+            stream = new FileInputStream(file);
 
             if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
                 stream = new GZIPInputStream(stream);
@@ -329,7 +331,7 @@ public final class FileHelper {
             }
 
         } finally {
-            close(reader);
+            close(stream,reader);
         }
 
         return contents.toString();
@@ -411,21 +413,28 @@ public final class FileHelper {
     /**
      * Create a list with each line of the given file as an element.
      * 
-     * @param contentFile the content file
+     * @param file The file.
      * @param numberOfLines The number of lines to read. Use -1 to read whole file.
      * @return A list with the lines as elements.
      */
-    public static List<String> readFileToArray(File contentFile, long startLine, int numberOfLines) {
-        List<String> list = new ArrayList<String>();
+    public static List<String> readFileToArray(File file, long startLine, int numberOfLines) {
+        List<String> list = new ArrayList<>();
         InputStream inputStream = null;
 
         try {
-            inputStream = new FileInputStream(contentFile);
+
+            inputStream = new FileInputStream(file);
+
+            if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
+                inputStream = new GZIPInputStream(inputStream);
+            }
 
             list = readFileToArray(inputStream, startLine, numberOfLines);
 
         } catch (FileNotFoundException e) {
-            LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
+            LOGGER.error(file.getPath() + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(file.getPath() + ", " + e.getMessage());
         } finally {
             close(inputStream);
         }
@@ -438,7 +447,7 @@ public final class FileHelper {
     }
 
     public static List<String> readFileToArray(InputStream inputStream, long startLine, int numberOfLines) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
         BufferedReader reader = null;
 
@@ -447,7 +456,7 @@ public final class FileHelper {
             reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
 
             long lineNumber = 1;
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null && (numberOfLines == -1 || list.size() < numberOfLines)) {
                 if (lineNumber >= startLine) {
                     list.add(line);
@@ -480,7 +489,7 @@ public final class FileHelper {
         }
 
         // remember all seen hashes
-        final Set<Integer> seenHashes = new HashSet<Integer>();
+        final Set<Integer> seenHashes = new HashSet<>();
 
         final Writer writer;
 
@@ -590,9 +599,9 @@ public final class FileHelper {
         Validate.notNull(lineAction, "lineAction must not be null");
 
         int lineNumber = 0;
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         try {
-            String line = null;
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
+            String line;
             while ((line = bufferedReader.readLine()) != null && lineAction.looping) {
                 lineAction.performAction(line, lineNumber++);
             }
@@ -924,7 +933,7 @@ public final class FileHelper {
             serialize(object, filePath);
             return true;
         } catch (IOException e) {
-            // ignore.
+            // ccl
         }
 
         return false;
@@ -1089,7 +1098,6 @@ public final class FileHelper {
         File f = new File(filename);
 
         if (!f.exists()) {
-            LOGGER.warn("file can not be deleted because it does not exist");
             return false;
         }
 
@@ -1211,7 +1219,7 @@ public final class FileHelper {
         File folder = new File(folderPath);
         if (folder.exists() && folder.isDirectory()) {
             File[] files = folder.listFiles();
-            List<File> matchingFiles = new ArrayList<File>();
+            List<File> matchingFiles = new ArrayList<>();
 
             for (File file : files) {
                 if (file.isDirectory()) {
@@ -1353,24 +1361,26 @@ public final class FileHelper {
      */
     public static boolean gzip(CharSequence text, String filenameOutput) {
 
-        GZIPOutputStream zipout = null;
-        try {
-            zipout = new GZIPOutputStream(new FileOutputStream(filenameOutput));
+        boolean success = true;
 
-            StringReader in = new StringReader(text.toString());
-            int c = 0;
-            while ((c = in.read()) != -1) {
-                zipout.write((byte)c);
-            }
+        OutputStream os = null;
+        GZIPOutputStream stream = null;
+        try {
+
+            os = new FileOutputStream(filenameOutput);
+            stream = new GZIPOutputStream(os);
+            stream.write(text.toString().getBytes(DEFAULT_ENCODING));
+            stream.finish();
+            stream.close();
 
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-            return false;
+            success = false;
         } finally {
-            close(zipout);
+            close(os, stream);
         }
 
-        return true;
+        return success;
     }
 
     /**
@@ -1694,7 +1704,9 @@ public final class FileHelper {
      * </p>
      * 
      * @param closeables All objects which are closeable.
+     * @deprecated With Java 7, make use of the <i>try-with-resources</i> construct.
      */
+    @Deprecated
     public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {
@@ -1944,7 +1956,7 @@ public final class FileHelper {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(fileFilter, "fileFilter must not be null");
         Validate.notNull(directoryFilter, "directoryFilter must not be null");
-        List<File> files = CollectionHelper.newArrayList();
+        List<File> files = new ArrayList<>();
         traverseFiles(path, fileFilter, directoryFilter, new Collector<File>(files));
         return files;
     }

@@ -1,10 +1,9 @@
 package ws.palladian.retrieval.wiki;
 
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * A parser for MediaWiki text, which can interpret bold and italic formatting. Because of the beloved apostrophe junge,
@@ -12,7 +11,7 @@ import ws.palladian.helper.collection.CollectionHelper;
  * href="http://www.mediawiki.org/wiki/Markup_spec/BNF/Inline_text">here</a> for an explanation of the syntax, which
  * also served as foundation for this implementation.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class MediaWikiFormattingParser {
 
@@ -28,7 +27,7 @@ public final class MediaWikiFormattingParser {
     /**
      * Callback, which is triggered during parsing.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static interface ParserCallback {
 
@@ -198,7 +197,7 @@ public final class MediaWikiFormattingParser {
      * @return A map with character index as key, number of following apostrophes as values.
      */
     private static SortedMap<Integer, Integer> createApostropheMap(String text) {
-        SortedMap<Integer, Integer> apostropheMap = CollectionHelper.newTreeMap();
+        SortedMap<Integer, Integer> apostropheMap = new TreeMap<>();
         char[] chars = text.toCharArray();
         int numApostrophes = 0;
         for (int i = 0; i < chars.length; i++) {

@@ -1,5 +1,6 @@
 package ws.palladian.extraction.date.getter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +12,6 @@ import org.w3c.dom.NodeList;
 
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.XPathHelper;
@@ -53,7 +53,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      *         extracted, never <code>null</code>.
      */
     private List<StructureDate> getChildrenDates(Node node, int depth) {
-        List<StructureDate> dates = CollectionHelper.newArrayList();
+        List<StructureDate> dates = new ArrayList<>();
 
         String nodeName = node.getNodeName().toLowerCase();
         if (!Arrays.asList("script", "img").contains(nodeName)) {

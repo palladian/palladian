@@ -1,10 +1,11 @@
 package ws.palladian.helper.nlp;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.SetSimilarities;
 import ws.palladian.helper.math.SetSimilarity;
 
@@ -13,7 +14,7 @@ import ws.palladian.helper.math.SetSimilarity;
  * {@link StringMetric} which measures the similarity between two strings by applying a {@link SetSimilarity}
  * measure (such as Jaccard, Overlap, etc. See {@link SetSimilarities} for available implementations.)
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class TokenSimilarity extends AbstractStringMetric {
 
@@ -39,8 +40,10 @@ public class TokenSimilarity extends AbstractStringMetric {
             return 1;
         }
 
-        Set<String> split1 = CollectionHelper.newHashSet(s1lower.split("\\s"));
-        Set<String> split2 = CollectionHelper.newHashSet(s2lower.split("\\s"));
+        Set<String> split1 = new HashSet<>();
+        split1.addAll(Arrays.asList(s1lower.split("\\s")));
+        Set<String> split2 = new HashSet<>();
+        split2.addAll(Arrays.asList(s2lower.split("\\s")));
         return similarity.getSimilarity(split1, split2);
     }
 

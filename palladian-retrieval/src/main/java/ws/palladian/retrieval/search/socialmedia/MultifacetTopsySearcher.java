@@ -5,6 +5,7 @@ import static ws.palladian.helper.constants.Language.ENGLISH;
 import static ws.palladian.helper.constants.Language.JAPANESE;
 import static ws.palladian.helper.constants.Language.KOREAN;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -22,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -117,7 +117,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
 
     @Override
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
-        List<WebContent> webContent = CollectionHelper.newArrayList();
+        List<WebContent> webContent = new ArrayList<>();
         Long totalResults = null;
         int skippedRetweets = 0;
         out: for (int page = 1;; page++) {
@@ -214,7 +214,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
     static Set<String> extractTags(String content) {
         if (StringUtils.isNotEmpty(content)) {
             Matcher matcher = CONTENT_HASHTAG_PATTERN.matcher(content);
-            LinkedHashSet<String> tags = CollectionHelper.newLinkedHashSet();
+            LinkedHashSet<String> tags = new LinkedHashSet<>();
             while (matcher.find()) {
                 tags.add(matcher.group(1));
             }

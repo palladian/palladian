@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.pos.AbstractPosTagger;
@@ -24,24 +27,49 @@ import ws.palladian.helper.nlp.StringHelper;
  * <p>
  * The WordTransformer transforms an input word. Currently it can transform English singular to plural and vice versa.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
 public class WordTransformer {
 
-    /** The Constant IRREGULAR_NOUNS <singular, plural>. */
-    private static final Map<String, String> IRREGULAR_NOUNS = new HashMap<String, String>();
+    /**
+     * The logger for this class.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WordTransformer.class);
 
-    /** The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>. */
-    private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<String, EnglishVerb>();
+    /**
+     * The Constant IRREGULAR_NOUNS <plural, singular>.
+     */
+    private static final Map<String, String> IRREGULAR_NOUNS = new HashMap<>();
 
-    /** The German singular plural map for nouns. */
-    private static final Map<String, String> GERMAN_SINGULAR_PLURAL = new HashMap<String, String>();
-    private static final List<String> GERMAN_NOUNS = new ArrayList<String>();
+    /**
+     * The Constant IRREGULAR_NOUNS_REVERSE <singular, plural>.
+     */
+    private static final Map<String, String> IRREGULAR_NOUNS_REVERSE = new HashMap<>();
 
-    /** Exceptions for German stemming. */
-    private static final Map<String, String> GERMAN_STEMMING_EXCEPTIONS = CollectionHelper.newHashMap();
+    /**
+     * The Constant IRREGULAR_VERBS <(conjugated)verb, complete verb information>.
+     */
+    private static final Map<String, EnglishVerb> IRREGULAR_VERBS = new HashMap<>();
+
+    /**
+     * The German singular plural map for nouns.
+     */
+    private static final Map<String, String> GERMAN_SINGULAR_PLURAL = new HashMap<>();
+    private static final Map<String, String> GERMAN_PLURAL_SINGULAR = new HashMap<>();
+    private static final List<String> GERMAN_NOUNS = new ArrayList<>();
+    private static final List<String> GERMAN_WORDS = new ArrayList<>();
+
+    /**
+     * Exceptions for German stemming.
+     */
+    private static final Map<String, String> GERMAN_STEMMING_EXCEPTIONS = new HashMap<>();
+
+    /**
+     * Exceptions for English stemming.
+     */
+    private static final Map<String, String> ENGLISH_STEMMING_EXCEPTIONS = new HashMap<>();
 
     static {
 
@@ -52,15 +80,38 @@ public class WordTransformer {
             List<String> list = FileHelper.readFileToArray(inputStream);
             for (String string : list) {
                 String[] parts = string.split("\t");
+                if (parts.length < 4) {
+                    LOGGER.warn("incorrect singular plural in line -------------> " + string);
+                    continue;
+                }
                 if (parts[1].isEmpty()) {
                     continue;
                 }
-                GERMAN_SINGULAR_PLURAL.put(parts[1].toLowerCase(), parts[3].toLowerCase());
+                String singular = parts[1].toLowerCase();
+                String plural = parts[3].toLowerCase();
+                GERMAN_SINGULAR_PLURAL.put(singular, plural);
+                GERMAN_PLURAL_SINGULAR.put(plural,singular);
             }
 
         } finally {
             FileHelper.close(inputStream);
         }
+
+        inputStream = null;
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/germanWords.txt");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                if (string.length() < 2 || string.length() > 15) {
+                    continue;
+                }
+                GERMAN_WORDS.add(string.toLowerCase());
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
+        Collections.sort(GERMAN_WORDS, StringLengthComparator.INSTANCE);
 
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.keySet());
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.values());
@@ -76,6 +127,22 @@ public class WordTransformer {
                     continue;
                 }
                 GERMAN_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
+            }
+
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
+        // English stemming exceptions
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/englishStemmingExceptions.tsv");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split("\t");
+                if (parts[1].isEmpty()) {
+                    continue;
+                }
+                ENGLISH_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
             }
 
         } finally {
@@ -107,6 +174,7 @@ public class WordTransformer {
             for (String string : list) {
                 String[] parts = string.split(" ");
                 IRREGULAR_NOUNS.put(parts[1], parts[0]);
+                IRREGULAR_NOUNS_REVERSE.put(parts[0], parts[1]);
             }
 
         } finally {
@@ -117,7 +185,7 @@ public class WordTransformer {
 
     /**
      * Get a map of irregular nouns.
-     * 
+     *
      * @return The map of irregular nouns.
      */
     private static Map<String, String> getIrregularNouns() {
@@ -129,9 +197,9 @@ public class WordTransformer {
      * <p>
      * Transform an English or German plural word to its singular form.
      * </p>
-     * 
+     *
      * @param pluralForm The plural form of the word.
-     * @param language The language (either "en" for English or "de" for German)
+     * @param language   The language (either "en" for English or "de" for German)
      * @return The singular form of the word.
      */
     public static String wordToSingular(String pluralForm, Language language) {
@@ -149,7 +217,7 @@ public class WordTransformer {
      * Transform an English plural word to its singular form.<br>
      * Rules: http://www.englisch-hilfen.de/en/grammar/plural.htm, http://en.wikipedia.org/wiki/English_plural
      * </p>
-     * 
+     *
      * @param pluralForm The plural form of the word.
      * @return The singular form of the word.
      */
@@ -165,7 +233,7 @@ public class WordTransformer {
 
         // check exceptions where no rules apply to transformation
         if (getIrregularNouns().containsValue(plural)) {
-            singular = CollectionHelper.getKeyByValue(getIrregularNouns(), singular);
+            singular = IRREGULAR_NOUNS_REVERSE.get(singular);
 
             if (StringHelper.startsUppercase(plural)) {
                 singular = StringHelper.upperCaseFirstLetter(singular);
@@ -221,30 +289,79 @@ public class WordTransformer {
      * <p>
      * Transform a German plural word to its singular form using the file.
      * </p>
-     * 
+     *
      * @param pluralForm The plural form of the word.
      * @return The singular form of the word.
      */
     public static String wordToSingularGerman(String pluralForm) {
+        return wordToSingularGermanCaseSensitive(pluralForm.toLowerCase());
+    }
 
-        String singular = CollectionHelper.getKeyByValue(GERMAN_SINGULAR_PLURAL, pluralForm.toLowerCase());
+    public static String wordToSingularGermanCaseSensitive(String lowerCasePluralForm) {
+
+        String singular = GERMAN_PLURAL_SINGULAR.get(lowerCasePluralForm);
         if (singular != null) {
-            return StringHelper.upperCaseFirstLetter(singular);
+            return singular;
         } else {
 
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldketten" ->
             // "Gold" "Ketten" -> "Kette" => "Goldkette"
-            String lowerCasePlural = pluralForm.toLowerCase();
-
             for (String word2 : GERMAN_NOUNS) {
-                if (lowerCasePlural.endsWith(word2) && word2.length() < lowerCasePlural.length()) {
-                    String singular2 = wordToSingularGerman(word2);
-                    return pluralForm.replace(word2, singular2.toLowerCase());
+                if (word2.length() < lowerCasePluralForm.length() && lowerCasePluralForm.endsWith(word2)) {
+                    String singular2 = wordToSingularGermanCaseSensitive(word2);
+                    return lowerCasePluralForm.replace(word2, singular2);
                 }
             }
         }
 
-        return pluralForm;
+        return lowerCasePluralForm;
+    }
+
+
+    /**
+     * <p>
+     * Split german compound words, e.g. "Goldkette" becomes (Gold, Kette).
+     * </p>
+     *
+     * @param word The compound word.
+     * @return All words in its correct order that the compound is made out of.
+     */
+    public static List<String> splitGermanCompoundWords(String word) {
+
+        List<String> words = new ArrayList<>();
+
+        word = word.toLowerCase();
+
+        // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldketten" ->
+        // "Gold" "Ketten" -> "Kette" => "Goldkette"
+        String lcSingular = wordToSingularGermanCaseSensitive(word);
+        int wordLength = lcSingular.length();
+
+        for (int i = 0; i < GERMAN_WORDS.size(); i++) {
+            String word2 = GERMAN_WORDS.get(i);
+            int word2Length = word2.length();
+
+            if ((word2Length > 3 && (word2.length() <= wordLength || !words.isEmpty())) && lcSingular.endsWith(word2)) {
+                words.add(0,word2);
+                lcSingular = lcSingular.replace(word2, "");
+                if (lcSingular.isEmpty()) {
+                    break;
+                }
+                // we reset to the beginning of the queue because the next word could be longer than the current match
+                i = 0;
+            }
+        }
+
+        // if we could not completely split the word we leave it
+//        if (!lcSingular.isEmpty()) {
+//            words.clear();
+//            words.add(word);
+//        }
+        if (!lcSingular.isEmpty()) {
+            words.add(0, lcSingular);
+        }
+
+        return words;
     }
 
     /**
@@ -252,11 +369,11 @@ public class WordTransformer {
      * Transform an English singular word to its plural form. rules:
      * http://owl.english.purdue.edu/handouts/grammar/g_spelnoun.html
      * </p>
-     * 
+     * <p/>
      * <p>
      * Transform a German singular word to its plural form using the wiktionary DB.
      * </p>
-     * 
+     *
      * @param singular The singular.
      * @param language The language (either "en" for English of "de" for German).
      * @return The plural.
@@ -276,7 +393,7 @@ public class WordTransformer {
      * Transform an English singular word to its plural form. rules:
      * http://owl.english.purdue.edu/handouts/grammar/g_spelnoun.html
      * </p>
-     * 
+     *
      * @param singular The singular.
      * @return The plural.
      */
@@ -298,7 +415,7 @@ public class WordTransformer {
             }
         }
 
-        String plural = singular;
+        String plural;
 
         // check exceptions where no rules apply to transformation
         if (getIrregularNouns().containsKey(singular)) {
@@ -361,10 +478,10 @@ public class WordTransformer {
      * Transform a German singular word to its plural form using simple rules. These are only an approximation, German
      * is difficult and doesn't seem to like rules.
      * </p>
-     * 
+     *
      * @param singular The singular form of the word.
-     * @see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
      * @return The plural form of the word.
+     * @see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
      */
     public static String wordToPluralGerman(String singular) {
 
@@ -372,24 +489,30 @@ public class WordTransformer {
             return "";
         }
 
-        String plural = GERMAN_SINGULAR_PLURAL.get(singular.toLowerCase());
+        return wordToPluralGermanCaseSensitive(singular.toLowerCase());
+    }
+
+    public static String wordToPluralGermanCaseSensitive(String lowerCaseWord) {
+        if (lowerCaseWord == null) {
+            return "";
+        }
+
+        String plural = GERMAN_SINGULAR_PLURAL.get(lowerCaseWord);
         if (plural != null) {
-            return StringHelper.upperCaseFirstLetter(plural);
+            return plural;
         } else {
 
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldkette" ->
             // "Gold" "Kette" -> "Ketten" => "Goldketten"
-            String lowerCaseSingular = singular.toLowerCase();
-
             for (String word2 : GERMAN_NOUNS) {
-                if (lowerCaseSingular.endsWith(word2) && word2.length() < lowerCaseSingular.length()) {
-                    String singular2 = wordToPluralGerman(word2);
-                    return singular.replace(word2, singular2.toLowerCase());
+                if (word2.length() < lowerCaseWord.length() && lowerCaseWord.endsWith(word2)) {
+                    String singular2 = wordToPluralGermanCaseSensitive(word2);
+                    return lowerCaseWord.replace(word2, singular2);
                 }
             }
         }
 
-        return singular;
+        return lowerCaseWord;
     }
 
     public static String stemGermanWords(String words) {
@@ -416,6 +539,15 @@ public class WordTransformer {
         return stemmedString.toString().trim();
     }
 
+    public static String stemWord(String word, Language language) {
+            if (language == Language.GERMAN) {
+                return stemGermanWord(word);
+            } else if (language == Language.ENGLISH) {
+                return stemEnglishWord(word);
+            }
+        return word;
+    }
+
     public static String stemGermanWord(String word) {
         // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
         String exception = GERMAN_STEMMING_EXCEPTIONS.get(word.toLowerCase());
@@ -427,6 +559,10 @@ public class WordTransformer {
 
     public static String stemEnglishWord(String word) {
         // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
+        String exception = ENGLISH_STEMMING_EXCEPTIONS.get(word.toLowerCase());
+        if (exception != null) {
+            return StringHelper.alignCasing(exception, word);
+        }
         return new Stemmer(Language.ENGLISH).stem(word);
     }
 
@@ -435,7 +571,7 @@ public class WordTransformer {
      * Get the third person singular of an English verb. Use rules from <a
      * href="http://abacus-es.com/sat/verbs.html">http://abacus-es.com/sat/verbs.html</a>.
      * </p>
-     * 
+     *
      * @param verb The verb to conjugate.
      * @return The third person singular in the tense of the verb.
      */
@@ -456,7 +592,7 @@ public class WordTransformer {
             return "has";
         }
 
-        Set<String> stay = new HashSet<String>(Arrays.asList("can", "could", "will", "would", "may", "might", "shall",
+        Set<String> stay = new HashSet<>(Arrays.asList("can", "could", "will", "would", "may", "might", "shall",
                 "should", "must"));
         if (stay.contains(verb)) {
             return verb;
@@ -567,7 +703,7 @@ public class WordTransformer {
      * <p>
      * Detect the tense of an English sentence.
      * </p>
-     * 
+     *
      * @param string The English sentence.
      * @return The detected English tense.
      */
@@ -592,7 +728,7 @@ public class WordTransformer {
         boolean isAreFound = (StringHelper.containsWord("is", string) || StringHelper.containsWord("are", string));
         boolean wasWereFound = (StringHelper.containsWord("was", string) || StringHelper.containsWord("were", string));
 
-        Set<String> posTags = CollectionHelper.newHashSet();
+        Set<String> posTags = new HashSet<>();
         for (Annotation a : annotations) {
             posTags.add(a.getTag());
         }

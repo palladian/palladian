@@ -1,5 +1,6 @@
 package ws.palladian.classification.zeror;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +14,7 @@ import ws.palladian.helper.collection.CollectionHelper.Order;
  * Model for ZeroR classification. Just keeps class counts from training.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class ZeroRModel implements Model {
 
@@ -22,7 +23,7 @@ public final class ZeroRModel implements Model {
     private final Map<String, Double> categoryProbabilities;
 
     ZeroRModel(Bag<String> categoryCounts) {
-        Map<String, Double> map = CollectionHelper.newHashMap();
+        Map<String, Double> map = new HashMap<>();
         for (String categoryName : categoryCounts.uniqueItems()) {
             map.put(categoryName, (double)categoryCounts.count(categoryName) / categoryCounts.size());
         }

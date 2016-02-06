@@ -2,6 +2,7 @@ package ws.palladian.helper.collection;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -14,7 +15,7 @@ import java.util.Set;
  * the latter case, all entries need to be iterated.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K> Type of the keys.
  * @param <V> Type of the values.
@@ -25,27 +26,27 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     private static final long serialVersionUID = 2L;
 
     /** The maps holding the matrix. */
-    private final Map<K, Map<K, V>> matrix = CollectionHelper.newHashMap();
+    private final Map<K, Map<K, V>> matrix = new HashMap<>();
 
     /** All keys for the x-axis used in the matrix. */
-    private final Set<K> keysX = CollectionHelper.newLinkedHashSet();
+    private final Set<K> keysX = new LinkedHashSet<>();
 
     /** All keys for the y-axis used in the matrix. */
-    private final Set<K> keysY = CollectionHelper.newLinkedHashSet();
+    private final Set<K> keysY = new LinkedHashSet<>();
 
     public static <K, V> MapMatrix<K, V> create() {
-        return new MapMatrix<K, V>();
+        return new MapMatrix<>();
     }
 
     @Override
     public MatrixVector<K, V> getRow(K y) {
         Map<K, V> row = matrix.get(y);
-        return row != null ? new MapMatrixVector<K, V>(y, row) : null;
+        return row != null ? new MapMatrixVector<>(y, row) : null;
     }
 
     @Override
     public MatrixVector<K, V> getColumn(K x) {
-        Map<K, V> column = CollectionHelper.newHashMap();
+        Map<K, V> column = new HashMap<>();
         for (Entry<K, Map<K, V>> row : matrix.entrySet()) {
             K y = row.getKey();
             for (Entry<K, V> cell : row.getValue().entrySet()) {
@@ -54,14 +55,14 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
                 }
             }
         }
-        return column.size() > 0 ? new MapMatrixVector<K, V>(x, column) : null;
+        return column.size() > 0 ? new MapMatrixVector<>(x, column) : null;
     }
 
     @Override
     public void set(K x, K y, V value) {
         Map<K, V> row = matrix.get(y);
         if (row == null) {
-            row = new HashMap<K, V>();
+            row = new HashMap<>();
             matrix.put(y, row);
         }
         keysX.add(x);

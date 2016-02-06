@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
-import ws.palladian.persistence.ResultIterator;
 import ws.palladian.persistence.ResultSetCallback;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.helper.SqlHelper;
@@ -52,10 +51,10 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     // private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
 //    private static final String GET_ITEMS_BY_RAW_ID_2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
 //    private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, newestItemHash = '', checks = 0, lastFeedEntry = NULL";
-    private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
-    private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
-    private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
-    private static final String GET_ITEMS_FOR_FEED = "SELECT * FROM feed_items WHERE feedId = ? ORDER BY published DESC";
+//    private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
+//    private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
+//    private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
+//    private static final String GET_ITEMS_FOR_FEED = "SELECT * FROM feed_items WHERE feedId = ? ORDER BY published DESC";
 //    private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
 
@@ -212,9 +211,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return runSingleQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_URL, feedUrl);
     }
 
-    public FeedItem getFeedItemById(int id) {
-        return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEM_BY_ID, id);
-    }
+//    public FeedItem getFeedItemById(int id) {
+//        return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEM_BY_ID, id);
+//    }
 
 //    @Override
 //    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
@@ -226,43 +225,43 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 //        return runSingleQuery(new FeedItemRowConverter(), GET_ITEMS_BY_RAW_ID, rawId);
 //    }
 
-    public ResultIterator<FeedItem> getFeedItems() {
-        return runQueryWithIterator(FeedItemRowConverter.INSTANCE, GET_ALL_ITEMS);
-    }
+//    public ResultIterator<FeedItem> getFeedItems() {
+//        return runQueryWithIterator(FeedItemRowConverter.INSTANCE, GET_ALL_ITEMS);
+//    }
 
-    /**
-     * Get {@link FeedItem}s for the specified feed id. The result is sorted by publish date descendingly, i. e. newer
-     * items first.
-     * 
-     * @param feedId
-     * @return
-     */
-    public ResultIterator<FeedItem> getFeedItemsForFeedId(int feedId) {
-        return runQueryWithIterator(FeedItemRowConverter.INSTANCE, GET_ITEMS_FOR_FEED, feedId);
-    }
+//    /**
+//     * Get {@link FeedItem}s for the specified feed id. The result is sorted by publish date descendingly, i. e. newer
+//     * items first.
+//     * 
+//     * @param feedId
+//     * @return
+//     */
+//    public ResultIterator<FeedItem> getFeedItemsForFeedId(int feedId) {
+//        return runQueryWithIterator(FeedItemRowConverter.INSTANCE, GET_ITEMS_FOR_FEED, feedId);
+//    }
 
-    /**
-     * Get the specified count of feed items, starting at offset.
-     * 
-     * @param limit
-     * @param offset
-     * @return
-     */
-    public List<FeedItem> getFeedItems(int limit, int offset) {
-        return runQuery(FeedItemRowConverter.INSTANCE, GET_ITEMS, limit, offset);
-    }
+//    /**
+//     * Get the specified count of feed items, starting at offset.
+//     * 
+//     * @param limit
+//     * @param offset
+//     * @return
+//     */
+//    public List<FeedItem> getFeedItems(int limit, int offset) {
+//        return runQuery(FeedItemRowConverter.INSTANCE, GET_ITEMS, limit, offset);
+//    }
 
-    /**
-     * Get FeedItems by using a custom SQL query. The SELECT part must contain all appropriate columns with their
-     * names from the feed_items table.
-     * 
-     * @param sqlQuery
-     * @return
-     */
-    // @Override
-    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
-        return runQuery(FeedItemRowConverter.INSTANCE, sqlQuery);
-    }
+//    /**
+//     * Get FeedItems by using a custom SQL query. The SELECT part must contain all appropriate columns with their
+//     * names from the feed_items table.
+//     * 
+//     * @param sqlQuery
+//     * @return
+//     */
+//    // @Override
+//    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
+//        return runQuery(FeedItemRowConverter.INSTANCE, sqlQuery);
+//    }
 
     public Map<Integer, int[]> getFeedPostDistribution(Feed feed) {
 
@@ -400,8 +399,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         }
     }
 
-    @Override
-    public boolean updateMetaInformation(Feed feed) {
+//    @Override
+    private boolean updateMetaInformation(Feed feed) {
         List<Object> parameters = new ArrayList<Object>();
 
         // truncateToVarchar255(, "feedUrl", feed.getId()+"")

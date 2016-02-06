@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.wiki;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -69,7 +70,7 @@ public class WikiPage extends WikiPageReference {
      *         never <code>null</code> however.
      */
     public List<String> getSections() {
-        List<String> result = CollectionHelper.newArrayList();
+        List<String> result = new ArrayList<>();
         Matcher matcher = MediaWikiUtil.HEADING_PATTERN.matcher(text);
         int start = 0;
         while (matcher.find()) {
@@ -131,7 +132,7 @@ public class WikiPage extends WikiPageReference {
         // like this, it also works for bold text with a ' character:
 //        Pattern pattern = Pattern.compile("'''([^'\n]+('[^'\n]+)?)'''");
 //        Matcher matcher = pattern.matcher(text);
-//        List<String> result = CollectionHelper.newArrayList();
+//        List<String> result = new ArrayList<>();
 //        while (matcher.find()) {
 //            String group = matcher.group(1);
 //            if (StringUtils.isNotBlank(group) && group.length() > 1) {
@@ -140,7 +141,7 @@ public class WikiPage extends WikiPageReference {
 //        }
 //        return result;
         
-        final List<String> result = CollectionHelper.newArrayList();
+        final List<String> result = new ArrayList<>();
         MediaWikiFormattingParser.parse(text, new MediaWikiFormattingParser.ParserAdapter() {
             StringBuilder buffer = new StringBuilder();
             boolean bold = false;
@@ -230,7 +231,7 @@ public class WikiPage extends WikiPageReference {
      */
     public List<WikiTemplate> getTemplates(String... templateNames) {
         Validate.notNull(templateNames, "templateNames must not be null");
-        List<WikiTemplate> infoboxes = CollectionHelper.newArrayList();
+        List<WikiTemplate> infoboxes = new ArrayList<>();
         try {
             List<String> infoboxesMarkup = MediaWikiUtil.getNamedMarkup(text, templateNames);
             for (String infoboxMarkup : infoboxesMarkup) {
@@ -247,7 +248,7 @@ public class WikiPage extends WikiPageReference {
      * @return The categories links assigned to this page, or an empty List if no category links are present.
      */
     public List<String> getCategories() {
-        List<String> categories = CollectionHelper.newArrayList();
+        List<String> categories = new ArrayList<>();
         Pattern pattern = Pattern.compile("\\[\\[(?:Category|Kategorie):([^|\\]]*)(?:\\|[^|\\]]*)?\\]\\]");
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
@@ -272,7 +273,7 @@ public class WikiPage extends WikiPageReference {
      *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
      */
     public List<WikiLink> getLinks() {
-        List<WikiLink> result = CollectionHelper.newArrayList();
+        List<WikiLink> result = new ArrayList<>();
         Matcher matcher = MediaWikiUtil.INTERNAL_LINK_PATTERN.matcher(text);
         while (matcher.find()) {
             String target = matcher.group(1);
@@ -298,7 +299,7 @@ public class WikiPage extends WikiPageReference {
     @Override
     public MarkupCoordinate getCoordinate() {
         // return CollectionHelper.getFirst(WikipediaUtil.extractCoordinateTag(text));
-        List<MarkupCoordinate> coordinates = CollectionHelper.newArrayList();
+        List<MarkupCoordinate> coordinates = new ArrayList<>();
         coordinates.addAll(MediaWikiUtil.extractCoordinateTag(text));
         for (WikiTemplate infobox : getInfoboxes()) {
             coordinates.addAll(infobox.getCoordinates());

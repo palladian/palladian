@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
  * method needs to be implemented. In case, the iterator supports modifications, one must additionally implement the
  * {@link #remove()} metod (which triggers an {@link UnsupportedOperationException} by default).
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <E>
  */
@@ -20,7 +20,7 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
     /**
      * Thrown, when the iteration has no more elements (this exception is only used internally and is not re-thrown).
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     @SuppressWarnings("serial")
     protected static final class Finished extends Exception {
@@ -52,7 +52,7 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
     public final boolean hasNext() {
         if (next == null) {
             try {
-                next = new Wrap<E>(getNext());
+                next = new Wrap<>(getNext());
             } catch (Finished e) {
                 return false;
             }
@@ -64,7 +64,7 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
     public final E next() {
         if (next == null) {
             try {
-                next = new Wrap<E>(getNext());
+                next = new Wrap<>(getNext());
             } catch (Finished e) {
                 throw new NoSuchElementException("No (more) elements");
             }

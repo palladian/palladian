@@ -39,12 +39,12 @@ public class DownloadFilter implements Filter<String> {
     private Set<String> blacklist;
 
     public DownloadFilter() {
-        whitelist = new HashSet<String>();
-        blacklist = new HashSet<String>();
+        whitelist = new HashSet<>();
+        blacklist = new HashSet<>();
     }
 
     public void setIncludeFileTypes(Collection<String> fileTypes) {
-        whitelist = new HashSet<String>(fileTypes);
+        whitelist = new HashSet<>(fileTypes);
     }
 
     public void addIncludeFileTypes(String... fileTypes) {
@@ -56,7 +56,7 @@ public class DownloadFilter implements Filter<String> {
     }
 
     public void setExcludeFileTypes(Collection<String> fileTypes) {
-        blacklist = new HashSet<String>(fileTypes);
+        blacklist = new HashSet<>(fileTypes);
     }
 
     public void addExcludeFileTypes(String... fileTypes) {

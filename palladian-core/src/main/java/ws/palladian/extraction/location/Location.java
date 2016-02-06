@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
@@ -128,5 +129,18 @@ public interface Location {
      * @return The geographical coordinate for this location, or <code>null</code> in case no coordinates exist.
      */
     GeoCoordinate getCoordinate();
+
+    /**
+     * <p>
+     * Determine, whether this location has a specified (primary or alternative) name, either with no explicit language
+     * or with the language specified as parameter.
+     * 
+     * @param name The name for which to check, not <code>null</code>. Match is case insensitive.
+     * @param languages The languages which match (alternative names without language are always considered), not
+     *            <code>null</code>.
+     * @return <code>true</code> in case the location the name in the specified language(s), or in case it has the name
+     *         without explicitly defined language or as primary name.
+     */
+    boolean hasName(String name, Set<Language> languages);
 
 }

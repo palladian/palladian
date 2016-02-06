@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.search.images;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +37,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="https://github.com/500px/api-documentation/blob/master/endpoints/photo/GET_photos_search.md">API: Photo
  *      Resources</a>
  * @see <a href="http://developers.500px.com">500px / Developer</a>
- * @author pk
+ * @author Philipp Katz
  */
 public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebImage> {
 
@@ -60,7 +61,7 @@ public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebI
      * Order parameter for result list.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static enum OrderBy implements Facet {
         /** Default: sort by time of upload, most recent first */
@@ -127,7 +128,7 @@ public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebI
         int numPages = (int)Math.ceil((double)query.getResultCount() / MAX_RESULTS_PER_PAGE);
         LOGGER.debug("# necessary request for {} : {}", query.getResultCount(), numPages);
         Long totalItems = null;
-        List<WebImage> images = CollectionHelper.newArrayList();
+        List<WebImage> images = new ArrayList<>();
         for (int page = 1; page <= numPages; page++) {
             String requestUrl = createRequestUrl(query, page, MAX_RESULTS_PER_PAGE);
             LOGGER.debug("Request URL = {}", requestUrl);

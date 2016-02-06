@@ -4,7 +4,7 @@ package ws.palladian.helper;
  * A progress reporter is used for monitoring the progress of long-running computations. Therefore, an instance of this
  * interface is handed to the computation method.
  * 
- * @author pk
+ * @author Philipp Katz
  * @see ProgressMonitor
  */
 public interface ProgressReporter {

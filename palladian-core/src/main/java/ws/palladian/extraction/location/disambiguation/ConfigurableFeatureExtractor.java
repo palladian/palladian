@@ -13,7 +13,10 @@ import static ws.palladian.helper.collection.CollectionHelper.coalesce;
 import static ws.palladian.helper.functional.Filters.equal;
 import static ws.palladian.helper.functional.Filters.not;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +32,6 @@ import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationSet;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.scope.ScopeDetector;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -67,7 +69,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
 
     @Override
     public Set<ClassifiableLocation> extract(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
-        Set<ClassifiableLocation> instances = CollectionHelper.newHashSet();
+        Set<ClassifiableLocation> instances = new HashSet<>();
         LocationSet allLocations = new LocationSet(locations.allValues());
         LocationSet uniqLocations = new LocationSet(getUniqueLocations(locations.values()));
         LocationSet continents = allLocations.where(type(LocationType.CONTINENT));
@@ -76,7 +78,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
         List<GeoCoordinate> scopes = determineTextScopes(text);
         MultiMap<Location, String> mentions = createMentionMap(locations);
 
-        Set<String> alreadyChecked = CollectionHelper.newHashSet();
+        Set<String> alreadyChecked = new HashSet<>();
 
         for (Entry<ClassifiedAnnotation, Collection<Location>> entry : locations.entrySet()) {
 
@@ -116,29 +118,35 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
 
                 builder.set("locationType", location.getType().toString());
                 builder.set("population", population);
-                builder.set("hierarchyDepth", location.getAncestorIds().size());
+                if (setting.useHierarchyFeatures()) {
+                    builder.set("hierarchyDepth", location.getAncestorIds().size());
+                }
                 builder.set("nameAmbiguity", nameAmbiguity);
 
-                builder.set("leaf", currentLocations.where(childOf(location)).size() == 0);
+                if (setting.useHierarchyFeatures()) {
+                    builder.set("leaf", currentLocations.where(childOf(location)).size() == 0);
+                }
                 builder.set("nameDiversity", 1. / location.collectAlternativeNames().size());
                 builder.set("geoDiversity", geoDiversity);
                 builder.set("unique", unique);
                 builder.set("altMention", mentions.get(location).size() > 1);
 
-                int numAncestors = otherLocations.where(ancestorOf(location)).size();
-                int numChildren = otherLocations.where(childOf(location)).size();
-                int numDescendants = otherLocations.where(descendantOf(location)).size();
-                int numParents = otherLocations.where(parentOf(location)).size();
-                int numSiblings = otherLocations.where(siblingOf(location)).size();
-                builder.set("contains(ancestor)", numAncestors > 0);
-                builder.set("contains(child)", numChildren > 0);
-                builder.set("contains(descendant)", numDescendants > 0);
-                builder.set("contains(parent)", numParents > 0);
-                builder.set("contains(sibling)", numSiblings > 0);
-                builder.set("num(ancestor)", numAncestors);
-                builder.set("num(child)", numChildren);
-                builder.set("num(descendant)", numDescendants);
-                builder.set("num(sibling)", numSiblings);
+                if (setting.useHierarchyFeatures()) {
+                    int numAncestors = otherLocations.where(ancestorOf(location)).size();
+                    int numChildren = otherLocations.where(childOf(location)).size();
+                    int numDescendants = otherLocations.where(descendantOf(location)).size();
+                    int numParents = otherLocations.where(parentOf(location)).size();
+                    int numSiblings = otherLocations.where(siblingOf(location)).size();
+                    builder.set("contains(ancestor)", numAncestors > 0);
+                    builder.set("contains(child)", numChildren > 0);
+                    builder.set("contains(descendant)", numDescendants > 0);
+                    builder.set("contains(parent)", numParents > 0);
+                    builder.set("contains(sibling)", numSiblings > 0);
+                    builder.set("num(ancestor)", numAncestors);
+                    builder.set("num(child)", numChildren);
+                    builder.set("num(descendant)", numDescendants);
+                    builder.set("num(sibling)", numSiblings);
+                }
 
                 for (int d : setting.getDistanceValues()) {
                     LocationSet otherInDist = otherLocations.where(radius(coordinate, d));
@@ -162,9 +170,11 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                     }
                 }
                 builder.set("primaryName", value.equalsIgnoreCase(location.getPrimaryName()));
-                builder.set("inContinent", continents.where(ancestorOf(location)).size() > 0);
-                builder.set("inCountry", countries.where(ancestorOf(location)).size() > 0);
-                builder.set("inUnit", units.where(ancestorOf(location)).size() > 0);
+                if (setting.useHierarchyFeatures()) {
+                    builder.set("inContinent", continents.where(ancestorOf(location)).size() > 0);
+                    builder.set("inCountry", countries.where(ancestorOf(location)).size() > 0);
+                    builder.set("inUnit", units.where(ancestorOf(location)).size() > 0);
+                }
 
                 CategoryEntries typeClassification = annotation.getCategoryEntries();
                 for (String categoryName : setting.getEntityCategories()) {
@@ -208,7 +218,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     }
 
     private List<GeoCoordinate> determineTextScopes(String text) {
-        List<GeoCoordinate> result = CollectionHelper.newArrayList();
+        List<GeoCoordinate> result = new ArrayList<>();
         for (ScopeDetector scopeDetector : setting.getScopeDetectors()) {
             result.add(scopeDetector.getScope(text));
         }
@@ -216,7 +226,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     }
 
     private Map<String, Long> getIndexCounts(String value) {
-        Map<String, Long> counts = CollectionHelper.newHashMap();
+        Map<String, Long> counts = new HashMap<>();
         String query = String.format("\"%s\"", value);
         for (Searcher<?> searcher : setting.getIndexSearchers()) {
             try {
@@ -244,7 +254,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     }
 
     private Set<Location> getUniqueLocations(Collection<Collection<Location>> locationGroups) {
-        Set<Location> uniqueLocations = CollectionHelper.newHashSet();
+        Set<Location> uniqueLocations = new HashSet<>();
         for (Collection<Location> group : locationGroups) {
             if (new LocationSet(group).where(coordinate()).largestDistance() < setting.getEqualDistance()) {
                 uniqueLocations.addAll(group);

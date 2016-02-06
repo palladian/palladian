@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,6 +43,9 @@ public class DatabaseManager {
      * The {@link DataSource} providing Connection to the underlying database.
      */
     private final DataSource dataSource;
+
+    /** Since we catch db errors, this field holds the last thrown error to be retrieved from the outside. */
+    private static StringBuilder lastError;
 
     /**
      * <p>
@@ -596,7 +599,7 @@ public class DatabaseManager {
 
     /**
      * <p>
-     * Run a query operation on the database, return the result as set.
+     * Run a query operation on the database, return the result as set keeping the order determined by the SQL query.
      * </p>
      * 
      * @param <T> Type of the processed objects.
@@ -606,12 +609,12 @@ public class DatabaseManager {
      * @return Set with results.
      */
     public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, String sql, Object... args) {
-        return new HashSet<T>(runQuery(converter, new BasicQuery(sql, args)));
+        return new LinkedHashSet<>(runQuery(converter, new BasicQuery(sql, args)));
     }
 
     /**
      * <p>
-     * Run a query operation on the database, return the result as set.
+     * Run a query operation on the database, return the result as set keeping the order determined by the SQL query.
      * </p>
      * 
      * @param <T> Type of the processed objects.
@@ -620,7 +623,7 @@ public class DatabaseManager {
      * @return Set with results.
      */
     public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, Query query) {
-        return new HashSet<T>(runQuery(converter, query));
+        return new LinkedHashSet<>(runQuery(converter, query));
     }
 
     /**
@@ -696,14 +699,14 @@ public class DatabaseManager {
         ResultIterator<T> result = ResultIterator.NULL_ITERATOR;
         Connection connection = null;
         PreparedStatement ps = null;
-        ResultSet resultSet = null;
+        ResultSet resultSet;
 
         try {
 
             connection = getConnection();
 
             // do not buffer the whole ResultSet in memory, but use streaming to save memory; see:
-            // http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-implementation-notes.html
+            // http://dev.mysql.com/doc/connector-j/en/connector-j-reference-implementation-notes.html
             ps = connection.prepareStatement(query.getSql(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             try {
                 ps.setFetchSize(Integer.MIN_VALUE);
@@ -714,11 +717,11 @@ public class DatabaseManager {
             fillPreparedStatement(ps, query.getArgs());
 
             resultSet = ps.executeQuery();
-            result = new ResultIterator<T>(connection, ps, resultSet, converter);
+            result = new ResultIterator<>(connection, ps, resultSet, converter);
 
         } catch (SQLException e) {
             logError(e, query.getSql(), query.getArgs());
-            close(connection, ps, resultSet);
+            close(connection, ps);
         }
 
         return result;
@@ -961,14 +964,15 @@ public class DatabaseManager {
      * @param sql The executed SQL statement, not <code>null</code>.
      * @param args The arguments for the SQL statement, may be <code>null</code>.
      */
-    protected static final void logError(SQLException exception, String sql, Object... args) {
+    protected static void logError(SQLException exception, String sql, Object... args) {
         StringBuilder errorLog = new StringBuilder();
-        errorLog.append("Exception " + exception.getMessage() + " when performing SQL \"" + sql + "\"");
+        errorLog.append("Exception ").append(exception.getMessage()).append(" when performing SQL \"").append(sql).append("\"");
         if (args != null && args.length > 0) {
             errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
         }
         LOGGER.error(errorLog.toString());
         LOGGER.debug(errorLog.toString(), exception); // only print stack trace in DEBUG mode
+        lastError = errorLog;
     }
 
     /**
@@ -979,7 +983,7 @@ public class DatabaseManager {
      * 
      * @param connection The {@link Connection}, or <code>null</code>.
      */
-    protected static final void close(Connection connection) {
+    protected static void close(Connection connection) {
         close(connection, null, null);
     }
 
@@ -991,7 +995,7 @@ public class DatabaseManager {
      * 
      * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
-    protected static final void close(ResultSet resultSet) {
+    protected static void close(ResultSet resultSet) {
         close(null, null, resultSet);
     }
 
@@ -1003,7 +1007,7 @@ public class DatabaseManager {
      * 
      * @param statement The {@link Statement}, or <code>null</code>.
      */
-    protected static final void close(Statement statement) {
+    protected static void close(Statement statement) {
         close(null, statement, null);
     }
 
@@ -1016,7 +1020,7 @@ public class DatabaseManager {
      * @param connection The {@link Connection}, or <code>null</code>.
      * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
-    protected static final void close(Connection connection, ResultSet resultSet) {
+    protected static void close(Connection connection, ResultSet resultSet) {
         close(connection, null, resultSet);
     }
 
@@ -1029,7 +1033,7 @@ public class DatabaseManager {
      * @param connection The {@link Connection}, or <code>null</code>.
      * @param statement The {@link Statement}, or <code>null</code>.
      */
-    protected static final void close(Connection connection, Statement statement) {
+    protected static void close(Connection connection, Statement statement) {
         close(connection, statement, null);
     }
 
@@ -1043,7 +1047,7 @@ public class DatabaseManager {
      * @param statement The {@link Statement}, or <code>null</code>.
      * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
-    protected static final void close(Connection connection, Statement statement, ResultSet resultSet) {
+    protected static void close(Connection connection, Statement statement, ResultSet resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();
@@ -1076,7 +1080,7 @@ public class DatabaseManager {
      * @param args {@link List} of parameters to set.
      * @throws SQLException In case setting the parameters failed.
      */
-    protected static final void fillPreparedStatement(PreparedStatement ps, List<? extends Object> args)
+    protected static void fillPreparedStatement(PreparedStatement ps, List<? extends Object> args)
             throws SQLException {
         fillPreparedStatement(ps, args.toArray());
     }
@@ -1090,7 +1094,7 @@ public class DatabaseManager {
      * @param args The parameters to set.
      * @throws SQLException In case setting the parameters failed.
      */
-    protected static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
+    protected static void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
         // do we need a special treatment for NULL values here?
         // if you should stumble across this comment while debugging,
         // the answer is likely: yes, we do!
@@ -1106,7 +1110,7 @@ public class DatabaseManager {
      * 
      * @param connection The connection, or <code>null</code>.
      */
-    protected static final void rollback(Connection connection) {
+    protected static void rollback(Connection connection) {
         if (connection != null) {
             try {
                 connection.rollback();
@@ -1116,4 +1120,7 @@ public class DatabaseManager {
         }
     }
 
+    public StringBuilder getLastError() {
+        return lastError;
+    }
 }

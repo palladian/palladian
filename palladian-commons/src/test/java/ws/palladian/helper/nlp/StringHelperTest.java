@@ -1,14 +1,19 @@
 package ws.palladian.helper.nlp;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
+import ws.palladian.helper.StopWatch;
 
 /**
  * <p>
@@ -19,6 +24,9 @@ import org.junit.Test;
  * @author Philipp Katz
  */
 public class StringHelperTest {
+
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
 
     @Test
     public void testNumberToWord() {
@@ -49,6 +57,11 @@ public class StringHelperTest {
     }
 
     @Test
+    public void testIndexOfWord() {
+        collector.checkThat(StringHelper.indexOfWordCaseSensitive("rice", "riceland yazmin rice"), is(16));
+    }
+
+    @Test
     public void testContainsWord() {
 
         assertTrue(StringHelper.containsWord("ich", "das finde ich persönlich nicht weiter tragisch"));
@@ -68,6 +81,7 @@ public class StringHelperTest {
         assertFalse(StringHelper.containsWordCaseSensitive("Test", "test"));
         assertTrue(StringHelper.containsWordCaseSensitive("test", "abtester ist test"));
         assertFalse(StringHelper.containsWordCaseSensitive("tester", "abtester ist test"));
+        assertFalse(StringHelper.containsWordCaseSensitive("a+", "energieklasse a++"));
 
         assertTrue(StringHelper.containsWordRegExp("test", "a test b"));
         assertTrue(StringHelper.containsWordRegExp("test", "test"));
@@ -120,6 +134,7 @@ public class StringHelperTest {
 
     @Test
     public void testClean() {
+        assertEquals("Länge", StringHelper.clean("L\u00e4nge"));
         assertEquals("", StringHelper.clean(""));
         assertEquals("There is nothing to clean here", StringHelper.clean("There is nothing to clean here"));
         assertEquals("This is crözy text", StringHelper.clean("' This is crözy    text"));
@@ -130,6 +145,8 @@ public class StringHelperTest {
 
         assertEquals("Say ‘hello’ to your horses for me",
                 StringHelper.clean("Say &#8216;hello&#8217; to your horses for me"));
+        assertEquals("Preheat oven to 375. Prepare a 8\" square",
+                StringHelper.clean("Preheat oven to 375. Prepare a 8″ square"));
     }
 
     @Test
@@ -208,6 +225,7 @@ public class StringHelperTest {
 
     @Test
     public void testGetSubstringBetween() {
+        assertEquals("2", StringHelper.getSubstringBetween("A: 1\nB: 2%", "B: ", "%"));
         assertEquals("all the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", null, " in ohio"));
         assertEquals("the lilacs in ohio", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", null));
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
@@ -287,6 +305,14 @@ public class StringHelperTest {
         assertEquals("\u00B6", StringHelper.removeFourByteChars("\u00B6"));
         assertEquals("\u6771", StringHelper.removeFourByteChars("\u6771"));
         assertEquals("", StringHelper.removeFourByteChars("\uD801\uDC00"));
+        assertEquals("Test ", StringHelper.removeFourByteChars("Test \uD83D\uDE01"));
+
+        StopWatch stopWatch = new StopWatch();
+        for (int i = 0; i < 1000000; i++) {
+            StringHelper.removeFourByteChars("Test \uD83D\uDE01 ; \u00B6");
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
+
     }
 
     @Test

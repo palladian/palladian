@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -78,7 +79,8 @@ public class ExtractedDateTest {
 
     @Test
     public void testGetNormalizedDate() throws Exception {
-    	Calendar c = new GregorianCalendar();
+        Calendar c = new GregorianCalendar();
+
     	c.set(2010, 5 ,12, 0, 0, 0);
         assertEquals(date1.getDateString(), c.getTime().toString(), date1.getNormalizedDate().toString());
         
@@ -101,9 +103,13 @@ public class ExtractedDateTest {
         assertEquals(date15.getDateString(), c.getTime().toString(), date15.getNormalizedDate().toString());
         
         c.set(2010, 5 ,7, 7, 6, 5);
+        assertEquals(date18.getDateString(), c.getTime().toString(), date18.getNormalizedDate().toString());
+
+        // XXX we should think about setting default timezone globally to UTC
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.set(2010, 5 ,7, 7, 6, 5);
         assertEquals(date16.getDateString(), c.getTime().toString(), date16.getNormalizedDate().toString());
         assertEquals(date17.getDateString(), c.getTime().toString(), date17.getNormalizedDate().toString());
-        assertEquals(date18.getDateString(), c.getTime().toString(), date18.getNormalizedDate().toString());
     }
 
     

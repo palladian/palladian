@@ -14,9 +14,8 @@ public final class StringLengthComparator implements Comparator<String> {
 
     public static final StringLengthComparator INSTANCE = new StringLengthComparator();
 
-    /** @deprecated Use the singleton {@link #INSTANCE} instead. */
-    @Deprecated
-    public StringLengthComparator() {
+    /** Use the singleton {@link #INSTANCE} instead. */
+    private StringLengthComparator() {
         // no op.
     }
 

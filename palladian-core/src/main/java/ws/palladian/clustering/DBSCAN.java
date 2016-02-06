@@ -1,6 +1,7 @@
 package ws.palladian.clustering;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -16,7 +17,7 @@ import ws.palladian.helper.functional.Distance;
  * "A density-based algorithm for discovering clusters in large spatial databases with noise", Martin Ester, Hans-Peter
  * Kriegel, Jörg Sander, Xiaowei Xu, 1996.
  * 
- * @author pk
+ * @author Philipp Katz
  * @param <T> Type of the objects to cluster.
  * @see <a href="http://en.wikipedia.org/wiki/DBSCAN">Wikipedia: DBSCAN</a>
  */
@@ -54,9 +55,9 @@ public class DBSCAN<T> {
      */
     public Set<Set<T>> cluster(Iterable<? extends T> data) {
         Validate.notNull(data, "data must not be null");
-        Set<Set<T>> clusters = CollectionHelper.newHashSet();
-        Set<T> visited = CollectionHelper.newHashSet();
-        Set<T> clustered = CollectionHelper.newHashSet();
+        Set<Set<T>> clusters = new HashSet<>();
+        Set<T> visited = new HashSet<>();
+        Set<T> clustered = new HashSet<>();
         for (T d : data) {
             if (visited.contains(d)) {
                 continue;
@@ -76,7 +77,6 @@ public class DBSCAN<T> {
     }
 
     private Set<T> expandCluster(T d, Set<T> neighbors, Iterable<? extends T> data, Set<T> visited, Set<T> clustered) {
-        @SuppressWarnings("unchecked")
         Set<T> cluster = CollectionHelper.newHashSet(d);
         Queue<T> neighborQueue = new LinkedList<T>(neighbors);
         while (!neighborQueue.isEmpty()) {
@@ -96,7 +96,7 @@ public class DBSCAN<T> {
     }
 
     private Set<T> regionQuery(T d, Iterable<? extends T> data) {
-        Set<T> neighbors = CollectionHelper.newHashSet();
+        Set<T> neighbors = new HashSet<>();
         for (T n : data) {
             if (distance.getDistance(d, n) < eps) {
                 neighbors.add(n);

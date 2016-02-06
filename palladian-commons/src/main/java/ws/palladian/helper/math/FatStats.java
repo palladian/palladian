@@ -1,5 +1,6 @@
 package ws.palladian.helper.math;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +36,9 @@ public class FatStats implements Stats {
         }
     };
 
-    private final List<Number> values;
+    private final List<Double> values;
+    
+    private boolean sorted = false;
 
     /**
      * <p>
@@ -43,7 +46,7 @@ public class FatStats implements Stats {
      * </p>
      */
     public FatStats() {
-        this.values = CollectionHelper.newArrayList();
+        this.values = new ArrayList<>();
     }
 
     /**
@@ -56,7 +59,7 @@ public class FatStats implements Stats {
     public FatStats(Collection<? extends Number> values) {
         this();
         Validate.notNull(values, "values must not be null");
-        this.values.addAll(values);
+        this.values.addAll(getDoubleValues(values));
     }
 
     /**
@@ -85,6 +88,7 @@ public class FatStats implements Stats {
         // http://stats.stackexchange.com/questions/25848/how-to-sum-a-standard-deviation
         Validate.notNull(stats, "stats must not be null");
         values.addAll(stats.values);
+        sorted = false;
         return this;
     }
 
@@ -95,6 +99,7 @@ public class FatStats implements Stats {
     public Stats add(Number value) {
         Validate.notNull(value, "value must not be null");
         values.add(value.doubleValue());
+        sorted = false;
         return this;
     }
 
@@ -104,7 +109,8 @@ public class FatStats implements Stats {
     @Override
     public Stats add(Number... values) {
         Validate.notNull(values, "values must not be null");
-        this.values.addAll(Arrays.asList(values));
+        this.values.addAll(getDoubleValues(Arrays.asList(values)));
+        sorted = false;
         return this;
     }
 
@@ -124,7 +130,7 @@ public class FatStats implements Stats {
         
         double mean = 0;
         int t = 1;
-        for (double value : getDoubleValues()) {
+        for (double value : values) {
             mean += (value - mean) / t;
             t++;
         }
@@ -157,7 +163,7 @@ public class FatStats implements Stats {
         double m = 0;
         double s = 0;
         int k = 1;
-        for (double value : getDoubleValues()) {
+        for (double value : values) {
             double tmpM = m;
             m += (value - tmpM) / k;
             s += (value - tmpM) * (value - m);
@@ -192,17 +198,23 @@ public class FatStats implements Stats {
         if (values.isEmpty()) {
             return Double.NaN;
         }
-        List<Double> temp = getDoubleValues();
-        Collections.sort(temp);
-        double n = (double)(p / 100.) * temp.size();
+        conditionalSort();
+        double n = p / 100. * values.size();
         if (n == (int)n) {
-            return 0.5 * temp.get((int)n - 1) + 0.5 * temp.get((int)n);
+            return 0.5 * values.get((int)n - 1) + 0.5 * values.get((int)n);
         } else {
-            return temp.get((int)Math.ceil(n) - 1);
+            return values.get((int)Math.ceil(n) - 1);
         }
     }
 
-    private List<Double> getDoubleValues() {
+	private void conditionalSort() {
+		if (!sorted) {
+        	Collections.sort(values);
+        	sorted = true;
+        }
+	}
+
+    private static List<Double> getDoubleValues(Collection<? extends Number> values) {
         return CollectionHelper.convertList(values, new Function<Number, Double>() {
             @Override
             public Double compute(Number input) {
@@ -227,7 +239,7 @@ public class FatStats implements Stats {
         if (values.isEmpty()) {
             return Double.NaN;
         }
-        return Collections.min(getDoubleValues());
+        return Collections.min(values);
     }
 
     /* (non-Javadoc)
@@ -238,7 +250,7 @@ public class FatStats implements Stats {
         if (values.isEmpty()) {
             return Double.NaN;
         }
-        return Collections.max(getDoubleValues());
+        return Collections.max(values);
     }
 
     /* (non-Javadoc)
@@ -258,8 +270,8 @@ public class FatStats implements Stats {
     @Override
     public double getSum() {
         double sum = 0;
-        for (Number value : values) {
-            sum += value.doubleValue();
+        for (Double value : values) {
+            sum += value;
         }
         return sum;
     }
@@ -273,8 +285,8 @@ public class FatStats implements Stats {
             return Double.NaN;
         }
         double mse = 0;
-        for (Number value : values) {
-            mse += Math.pow(value.doubleValue(), 2);
+        for (Double value : values) {
+            mse += Math.pow(value, 2);
         }
         return mse / values.size();
     }
@@ -290,19 +302,21 @@ public class FatStats implements Stats {
     /* (non-Javadoc)
      * @see ws.palladian.helper.math.Stats#getCumulativeProbability(double)
      */
-    @Override
-    public double getCumulativeProbability(double t) {
-        if (values.isEmpty()) {
-            return Double.NaN;
-        }
-        int count = 0;
-        for (Number value : values) {
-            if (value.doubleValue() <= t) {
-                count++;
-            }
-        }
-        return (double)count / getCount();
-    }
+	@Override
+	public double getCumulativeProbability(double t) {
+		if (values.isEmpty()) {
+			return Double.NaN;
+		}
+		conditionalSort();
+		int count = 0;
+		for (Double value : values) {
+			if (value > t) {
+				break;
+			}
+			count++;
+		}
+		return (double) count / getCount();
+	}
 
     @Override
     public String toString() {

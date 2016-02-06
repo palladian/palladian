@@ -1,5 +1,6 @@
 package ws.palladian.classification.numeric;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,7 +14,6 @@ import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.helper.math.NumericVector;
@@ -74,7 +74,7 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         NumericVector<String> numericVector = ClassificationUtils.getNumericVector(normalizedFeatureVector);
 
         // find k nearest neighbors, compare instance to every known instance
-        List<Pair<String, Double>> neighbors = CollectionHelper.newArrayList();
+        List<Pair<String, Double>> neighbors = new ArrayList<>();
         for (TrainingExample example : model.getTrainingExamples()) {
             double distance = example.getVector().euclidean(numericVector);
             neighbors.add(Pair.of(example.category, distance));

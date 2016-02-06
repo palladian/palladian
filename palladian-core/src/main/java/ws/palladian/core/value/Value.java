@@ -14,7 +14,7 @@ package ws.palladian.core.value;
  * treatment.
  * 
  * <p>
- * All implementors should inherit from {@link AbstractValue}, which provides some common functionality concerning
+ * All implementors should inherit from {@link AbstractValue}, which provides some common functionality
  * concerning {@link #equals(Object)} and {@link #hashCode()}, and requires explicit implementation of the
  * {@link #toString()} method. A working example for implementing a hypothetical color value would look like this:
  * 
@@ -60,7 +60,7 @@ package ws.palladian.core.value;
  * @see BooleanValue
  * @see TextValue
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public interface Value {

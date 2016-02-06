@@ -1,11 +1,12 @@
 package ws.palladian.helper.collection;
 
+import java.util.Collection;
 import java.util.Set;
 
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K>
  * @param <V>
@@ -16,7 +17,7 @@ public interface Vector<K, V> extends Iterable<VectorEntry<K, V>> {
      * An entry within a {@link Vector}. Behaves similar to an entry in a Map, but is realized as dedicated class so
      * that it can be distinguished and it does not provide a setter for the value.
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <K>
      * @param <V>
@@ -51,4 +52,8 @@ public interface Vector<K, V> extends Iterable<VectorEntry<K, V>> {
      */
     Set<K> keys();
 
+    /**
+     * @return The values in this vector.
+     */
+    Collection<V> values();
 }

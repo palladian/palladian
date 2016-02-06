@@ -3,13 +3,14 @@ package ws.palladian.retrieval.ranking.services;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -44,17 +45,15 @@ public final class SharedCount extends AbstractRankingService {
             "Facebook like count (SharedCount)");
     public static final RankingType FACEBOOK_SHARE = new RankingType("sharedcount_facebook_share",
             "Facebook share count (SharedCount)");
+    /** @deprecated This is not available any longer. */
+    @Deprecated
     public static final RankingType TWITTER = new RankingType("sharedcount_twitter", "Twitter (SharedCount)");
-    public static final RankingType REDDIT = new RankingType("sharedcount_reddit", "Reddit (SharedCount)");
     public static final RankingType LINKEDIN = new RankingType("sharedcount_linkedin", "LinkedIn (SharedCount)");
-    public static final RankingType DIGG = new RankingType("sharedcount_digg", "Digg (SharedCount)");
-    public static final RankingType DELICIOUS = new RankingType("sharedcount_delicious", "Delicious (SharedCount)");
     public static final RankingType STUMBLEUPON = new RankingType("sharedcount_stumbleupon",
             "StumbleUpon (SharedCount)");
     public static final RankingType PINTEREST = new RankingType("sharedcount_pinterest", "Pinterest (SharedCount)");
     public static final RankingType GOOGLE_PLUS_ONE = new RankingType("sharedcount_googleplusone",
             "Google +1 (SharedCount)");
-    public static final RankingType BUZZ = new RankingType("sharedcount_buzz", "Buzz (SharedCount)");
 
     /** All available ranking types by AlexaRank. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList( //
@@ -64,64 +63,74 @@ public final class SharedCount extends AbstractRankingService {
             FACEBOOK_COMMENT, //
             FACEBOOK_LIKE, //
             FACEBOOK_SHARE,//
-            TWITTER, //
-            REDDIT, //
             LINKEDIN, //
-            DIGG, //
-            DELICIOUS, //
             STUMBLEUPON, //
             PINTEREST, //
-            GOOGLE_PLUS_ONE, //
-            BUZZ);
+            GOOGLE_PLUS_ONE);
 
     /** The endpoint to use without API key. */
-    private static final String UNAUTHENTICATED_URL = "http://api.sharedcount.com/";
+    public static final String FREE_URL = "https://free.sharedcount.com/";
 
-    /** The endpoint to use with free API key. */
-    private static final String FREE_URL = "http://free.sharedcount.com/";
+    /** {@link Configuration} key for the service URL. */
+    public static final String CONFIG_SERVICE_URL = "api.sharedcount.serviceUrl";
+
+    /** {@link Configuration} key for the API key. */
+    public static final String CONFIG_API_KEY = "api.sharedcount.apiKey";
 
     private final String serviceUrl;
 
     private final String apiKey;
 
     /**
-     * Create a new {@link SharedCount} which is accessing the unauthenticated endpoint.
+     * Create a new {@link SharedCount}.
+     * 
+     * @param configuration The configuration which must provide {@value #CONFIG_API_KEY} and
+     *            {@value #CONFIG_SERVICE_URL} (if <code>null</code>, the free endpoint {@value #FREE_URL} is assumed).
      */
-    public SharedCount() {
-        this.apiKey = null;
-        this.serviceUrl = UNAUTHENTICATED_URL;
+    public SharedCount(Configuration configuration) {
+        this(configuration.getString(CONFIG_SERVICE_URL, FREE_URL), configuration.getString(CONFIG_API_KEY));
     }
 
     /**
-     * Create a new {@link SharedCount} which is accessing the authorized endpoint.
+     * Create a new {@link SharedCount} which is accessing the free plan.
      * 
-     * @param apiKey The API key, not <code>null</code> or empty (use #{@link SharedCount} for access without API key).
+     * @param The API key, not <code>null</code> or empty.
      */
     public SharedCount(String apiKey) {
-        Validate.notEmpty(apiKey, "apiKey must not be empty (use zero-arg constructor for usage without API key.)");
         this.apiKey = apiKey;
         this.serviceUrl = FREE_URL;
+    }
+
+    /**
+     * Create a new {@link SharedCount} which is accessing the specified service URL.
+     * 
+     * @param serviceUrl The service URL to use, corresponding to the free/plus/business plan.
+     * @param apiKey The API key, not <code>null</code> or empty.
+     */
+    public SharedCount(String serviceUrl, String apiKey) {
+        Validate.notEmpty(serviceUrl, "serviceUrl must not be empty");
+        Validate.notEmpty(apiKey, "apiKey must not be empty");
+        this.serviceUrl = serviceUrl;
+        this.apiKey = apiKey;
     }
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Validate.notEmpty(url, "url must not be empty");
-        HttpRequest httpRequest = new HttpRequest(HttpMethod.GET, serviceUrl);
-        httpRequest.addParameter("url", url);
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, serviceUrl);
+        requestBuilder.addUrlParam("url", url);
         if (StringUtils.isNotBlank(apiKey)) {
-            httpRequest.addParameter("apikey", apiKey);
+            requestBuilder.addUrlParam("apikey", apiKey);
         }
-        retriever.setUserAgent("test");
         HttpResult httpResult;
         try {
-            httpResult = retriever.execute(httpRequest);
+            httpResult = retriever.execute(requestBuilder.create());
             checkForError(httpResult);
         } catch (HttpException e) {
             throw new RankingServiceException(e);
         }
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        parseResult(httpResult, builder);
-        return builder.create();
+        return parseResult(httpResult, builder);
     }
 
     private static void checkForError(HttpResult httpResult) throws RankingServiceException {
@@ -147,18 +156,14 @@ public final class SharedCount extends AbstractRankingService {
         try {
             JsonObject jsonResult = new JsonObject(stringContent);
             builder.add(STUMBLEUPON, jsonResult.getInt("StumbleUpon"));
-            builder.add(REDDIT, jsonResult.getInt("Reddit"));
             builder.add(FACEBOOK_COMMENTSBOX, jsonResult.queryInt("Facebook/commentsbox_count"));
             builder.add(FACEBOOK_CLICK, jsonResult.queryInt("Facebook/click_count"));
             builder.add(FACEBOOK_TOTAL, jsonResult.queryInt("Facebook/total_count"));
             builder.add(FACEBOOK_COMMENT, jsonResult.queryInt("Facebook/comment_count"));
             builder.add(FACEBOOK_LIKE, jsonResult.queryInt("Facebook/like_count"));
             builder.add(FACEBOOK_SHARE, jsonResult.queryInt("Facebook/share_count"));
-            builder.add(DELICIOUS, jsonResult.getInt("Delicious"));
             builder.add(GOOGLE_PLUS_ONE, jsonResult.getInt("GooglePlusOne"));
-            builder.add(BUZZ, jsonResult.getInt("Buzz"));
-            builder.add(TWITTER, jsonResult.getInt("Twitter"));
-            builder.add(DIGG, jsonResult.getInt("Diggs"));
+            builder.add(TWITTER, 0);
             builder.add(PINTEREST, jsonResult.getInt("Pinterest"));
             builder.add(LINKEDIN, jsonResult.getInt("LinkedIn"));
             return builder.create();
@@ -179,8 +184,7 @@ public final class SharedCount extends AbstractRankingService {
 
     public static void main(String[] args) throws RankingServiceException {
         String url = "http://arstechnica.com/information-technology/2014/04/taking-e-mail-back-part-4-the-finale-with-webmail-everything-after/";
-        Ranking ranking = new SharedCount().getRanking(url);
-        // Ranking ranking = new SharedCount("...").getRanking(url);
+        Ranking ranking = new SharedCount("...").getRanking(url);
         CollectionHelper.print(ranking.getValues());
     }
 

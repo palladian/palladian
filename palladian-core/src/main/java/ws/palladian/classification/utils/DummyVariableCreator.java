@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ import ws.palladian.helper.nlp.StringPool;
  * regression e.g.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * @see <a href="http://de.slideshare.net/jtneill/multiple-linear-regression/15">Dummy variables</a>
  * @see <a href="http://en.wikiversity.org/wiki/Dummy_variable_(statistics)">Dummy variable (statistics)</a>
  */
@@ -91,7 +92,7 @@ public class DummyVariableCreator implements Serializable {
     }
 
     private static Set<String> getNominalFeatureNames(FeatureVector featureVector) {
-        Set<String> nominalFeatureNames = CollectionHelper.newHashSet();
+        Set<String> nominalFeatureNames = new HashSet<>();
         for (VectorEntry<String, Value> entry : featureVector) {
             if (entry.value() instanceof NominalValue) {
                 nominalFeatureNames.add(entry.key());

@@ -1,5 +1,6 @@
 package ws.palladian.extraction.date.rater;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -10,7 +11,6 @@ import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateImpl;
 
@@ -59,7 +59,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
      * @return {@link Map} with dates and ratings.
      */
     protected List<RatedDate<MetaDate>> evaluateMetaDates(List<MetaDate> metaDates) {
-        List<RatedDate<MetaDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<MetaDate>> result = new ArrayList<>();
         for (int i = 0; i < metaDates.size(); i++) {
             double rate;
             MetaDate date = metaDates.get(i);

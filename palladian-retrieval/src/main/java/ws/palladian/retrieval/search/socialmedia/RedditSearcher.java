@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.socialmedia;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +73,7 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
     @Override
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
 
-        List<WebContent> result = CollectionHelper.newArrayList();
+        List<WebContent> result = new ArrayList<>();
         String pagingAfter = null;
         int limit = Math.min(100, query.getResultCount());
 

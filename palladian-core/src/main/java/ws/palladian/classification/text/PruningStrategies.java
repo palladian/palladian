@@ -13,15 +13,27 @@ import ws.palladian.helper.functional.Filter;
  * Different strategies for pruning a {@link DictionaryModel}.
  * 
  * @see DictionaryBuilder#addPruningStrategy(Filter)
- * @author pk
+ * @author Philipp Katz
  */
 public final class PruningStrategies {
+    
+    // XXX make static methods
+    
+    public static Filter<CategoryEntries> none() {
+        return new TermCountPruningStrategy(0);
+    }
+    
+    public static Filter<CategoryEntries> termCount(int minCount) {
+        return new TermCountPruningStrategy(minCount);
+    }
 
     /**
      * Prune terms, which occur less than the given count.
      * 
-     * @author pk
+     * @author Philipp Katz
+     * @deprecated Use {@link PruningStrategies#termCount(int)} instead.
      */
+    @Deprecated
     public static final class TermCountPruningStrategy implements Filter<CategoryEntries> {
 
         private final int minCount;
@@ -46,7 +58,7 @@ public final class PruningStrategies {
     /**
      * Prunes such terms, where the most likely probability is below a given threshold.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class MinProbabilityPruningStrategy implements Filter<CategoryEntries> {
 
@@ -67,7 +79,7 @@ public final class PruningStrategies {
     /**
      * Prunes {@link CategoryEntries} by Information Gain.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class InformationGainPruningStrategy implements Filter<CategoryEntries> {
 

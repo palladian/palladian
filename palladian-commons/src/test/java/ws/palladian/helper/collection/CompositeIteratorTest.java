@@ -11,15 +11,12 @@ import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
-import ws.palladian.helper.collection.CompositeIterator;
-
 public class CompositeIteratorTest {
 
     @Test
     public void testCompositeIterator() {
         List<Integer> list1 = Arrays.asList(1, 2);
         List<Integer> list2 = Arrays.asList(3, 4);
-        @SuppressWarnings("unchecked")
         CompositeIterator<Integer> iterator = new CompositeIterator<Integer>(list1.iterator(), list2.iterator());
         assertTrue(iterator.hasNext());
         assertEquals((Integer)1, iterator.next());

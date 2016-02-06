@@ -2,6 +2,7 @@ package ws.palladian.classification;
 
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,7 +10,6 @@ import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Instances;
 import ws.palladian.core.Model;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -60,11 +60,12 @@ public final class WekaModel implements Model {
     @Override
     public Set<String> getCategories() {
         Enumeration<?> values = dataset.classAttribute().enumerateValues();
-        Set<String> categories = CollectionHelper.newHashSet();
+        Set<String> categories = new HashSet<>();
         while (values.hasMoreElements()) {
             String category = (String)values.nextElement();
             if (category.equals(WekaLearner.DUMMY_CLASS)) {
-                continue; // ignore this dummy class, see comment at constant.
+                // ignore this dummy class, see comment at constant.
+                continue;
             }
             categories.add(category);
         }

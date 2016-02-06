@@ -1,6 +1,7 @@
 package ws.palladian.extraction.entity.tagger;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,7 +11,6 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public final class PalladianNerModel implements Serializable {
 
@@ -62,7 +62,7 @@ public final class PalladianNerModel implements Serializable {
      */
     public boolean entityDictionaryContains(String value) {
         if (entityValuesCaseInsensitive == null) {
-            Set<String> values = CollectionHelper.newHashSet();
+            Set<String> values = new HashSet<>();
             for (DictionaryEntry entry : entityDictionary) {
                 values.add(entry.getTerm().toLowerCase());
             }
