@@ -1,38 +1,39 @@
 package ws.palladian.extraction.content;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.WebPageDateEvaluator;
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.ImageSizeComparator;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.search.License;
+import ws.palladian.retrieval.search.images.ImageType;
+
+import java.awt.image.BufferedImage;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -40,25 +41,30 @@ import ws.palladian.retrieval.resources.WebImage;
  * in the output. Consider the {@link ReadabilityContentExtractor} for general content. The main difference is that this
  * class also finds sentences in comment sections of web pages.
  * </p>
- * 
+ * <p/>
  * <p>
  * Score on boilerplate dataset: 0.76088387 (r1505);
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class PalladianContentExtractor extends WebPageContentExtractor {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianContentExtractor.class);
 
-    private static final List<String> MAIN_NODE_HINTS = new ArrayList<String>();
+    private static final List<String> MAIN_NODE_HINTS = new ArrayList<>();
 
-    /** The entire document. */
+    /**
+     * The entire document.
+     */
     private Document document;
 
-    /** The detected main content node. */
+    /**
+     * The detected main content node.
+     */
     private Node resultNode;
 
     /**
@@ -67,19 +73,29 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     private Node outerResultNode;
 
-    /** All sentences in the main content. */
-    private List<String> sentences = new ArrayList<String>();
+    /**
+     * All sentences in the main content.
+     */
+    private List<String> sentences = new ArrayList<>();
 
-    /** Detected comments on the page. */
-    private List<String> comments = new ArrayList<String>();
+    /**
+     * Detected comments on the page.
+     */
+    private List<String> comments = new ArrayList<>();
 
-    /** The html text of the main content node. */
+    /**
+     * The html text of the main content node.
+     */
     private String mainContentHtml = "";
 
-    /** The readable text of the main content node. */
+    /**
+     * The readable text of the main content node.
+     */
     private String mainContentText = "";
 
-    /** The cleansed entire text content of the page. */
+    /**
+     * The cleansed entire text content of the page.
+     */
     private String fullTextContent = "";
 
     /**
@@ -122,18 +138,23 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public PalladianContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        setDocumentOnly(document);
+        parseDocument();
+        return this;
+    }
+
+    public PalladianContentExtractor setDocumentOnly(Document document) throws PageContentExtractorException {
         this.document = document;
         imageUrls = null;
 
         resultNode = null;
         outerResultNode = null;
-        sentences = new ArrayList<String>();
-        comments = new ArrayList<String>();
+        sentences = new ArrayList<>();
+        comments = new ArrayList<>();
         mainContentHtml = "";
         mainContentText = "";
         fullTextContent = "";
 
-        parseDocument();
         return this;
     }
 
@@ -179,7 +200,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * <p>
      * This does not only contain the main content but also comments etc.
      * </p>
-     * 
+     *
      * @return
      */
     public String getEntireTextContent() {
@@ -193,7 +214,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     private void parseDocument() throws PageContentExtractorException {
 
-        String content = "";
+        String content;
 
         // if true, we didn't find valid elements within the main content block and take the whole node text
         boolean useMainNodeText = false;
@@ -223,7 +244,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         // build xpaths to the sentences in the text, the more sentences we find in one area, the more likely it is the
         // main content
-        Set<String> uniqueSentences = new HashSet<String>(sentences);
+        Set<String> uniqueSentences = new HashSet<>(sentences);
         for (String sentence : uniqueSentences) {
             Set<String> xPaths = PageAnalyzer.constructAllXPaths(getDocument(), sentence);
             for (String xPath : xPaths) {
@@ -240,7 +261,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         int highestCount = xpathset.getCountOfXPath(highestCountXPath);
 
         // if we know the main content block, remove all xPath which are not in that block
-        Set<String> outOfMainContent = CollectionHelper.newHashSet();
+        Set<String> outOfMainContent = new HashSet<>();
         if (!resultNodeXPath.isEmpty()) {
             for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
                 if (!mapEntry.getKey().startsWith(resultNodeXPath)) {
@@ -292,7 +313,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
         if (resultNode == null) {
-            parentXpath = parentXpath.replaceAll("\\/[^x].*?\\:.*?\\/", "//");
+            parentXpath = parentXpath.replaceAll("/[^x].*?:.*?/", "//");
             resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
 
             if (resultNode == null) {
@@ -432,7 +453,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * <p>
      * Several elements are allowed to be siblings to the main text nodes (such as lists etc.)
      * </p>
-     * 
+     *
      * @param xPath The xPath that points to the main content nodes.
      * @return An xpath that also targets the siblings of the main text nodes.
      */
@@ -457,7 +478,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     public List<WebImage> getImages(String fileType) {
 
-        List<WebImage> filteredImages = new ArrayList<WebImage>();
+        List<WebImage> filteredImages = new ArrayList<>();
         String ftSmall = fileType.toLowerCase();
         for (WebImage webImage : getImages()) {
             if (webImage.getFileType().toLowerCase().equalsIgnoreCase(ftSmall)) {
@@ -468,20 +489,38 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return filteredImages;
     }
 
+    public void filter(List<WebImage> images, String... imageFormats) {
+        List<WebImage> filteredImages = new ArrayList<>();
+
+        for (WebImage webImage : getImages()) {
+            for (String imageFormat : imageFormats) {
+                if (webImage.getFileType().equalsIgnoreCase(imageFormat)) {
+                    filteredImages.add(webImage);
+                }
+            }
+        }
+
+        images.clear();
+        images.addAll(filteredImages);
+    }
+
     public List<WebImage> getImages() {
         if (outerResultNode != null) {
-            return getImages(outerResultNode);
+            return getImages(outerResultNode,getDocument());
         }
-        return getImages(resultNode);
+        return getImages(resultNode,getDocument());
     }
 
     public List<WebImage> getImages(Node imageParentNode) {
+        return getImages(imageParentNode, document);
+    }
+    public List<WebImage> getImages(Node imageParentNode, Document webDocument) {
 
         if (imageUrls != null) {
             return imageUrls;
         }
 
-        imageUrls = new ArrayList<WebImage>();
+        imageUrls = new ArrayList<>();
 
         if (imageParentNode == null) {
             return imageUrls;
@@ -491,7 +530,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // document
         String imgXPath = ".//xhtml:img";
 
-        List<Node> imageNodes = CollectionHelper.newArrayList();
+        List<Node> imageNodes = new ArrayList<>();
 
         while (imageNodes.isEmpty() && imageParentNode != null) {
             imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
@@ -506,7 +545,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 String imageUrl = nnm.getNamedItem("src").getTextContent();
 
                 if (!imageUrl.startsWith("http")) {
-                    imageUrl = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, imageUrl);
+                    imageUrl = UrlHelper.makeFullUrl(webDocument.getDocumentURI(), null, imageUrl);
                 }
                 builder.setImageUrl(imageUrl);
                 builder.setFileType(FileHelper.getFileType(imageUrl));
@@ -525,7 +564,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     String h = nnm.getNamedItem("height").getTextContent();
                     builder.setHeight(getImageSize(h));
                 }
-                
+
                 imageUrls.add(builder.create());
 
             } catch (NumberFormatException e) {
@@ -543,10 +582,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         int size = -1;
         attributeText = attributeText.replace(",*", "");
 
-        if (attributeText.indexOf("%") > -1) {
+        if (attributeText.contains("%")) {
             attributeText = attributeText.replace("%", "");
             attributeText = StringHelper.trim(attributeText);
-            size = (int)(0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
+            size = (int) (0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
         } else {
             attributeText = attributeText.replace("px", "");
             attributeText = StringHelper.trim(attributeText);
@@ -583,8 +622,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getResultTitle() {
-        // try to get it from the biggest headline
-        Node h1Node = XPathHelper.getXhtmlNode(getDocument(), "//h1");
+        // try to get it from the biggest headline, take last one as we assume this to be the most specific
+        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1");
+        Node h1Node = CollectionHelper.getLast(xhtmlNodes);
 
         String resultTitle = "";
         if (h1Node != null) {
@@ -620,7 +660,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public void analyzeImages() {
 
-        List<WebImage> temp = CollectionHelper.newArrayList();
+        List<WebImage> temp = new ArrayList<>();
 
         for (WebImage webImage : getImages()) {
             if (webImage.getWidth() == 0 || webImage.getHeight() == 0) {
@@ -647,7 +687,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * <p>
      * Get the author of the article using the WebKnox API.
      * </p>
-     * 
+     *
      * @param apiKey The WebKnox API key.
      * @return The detected author name.
      */
@@ -671,7 +711,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * <p>
      * Get the publish date of the Web page.
      * </p>
-     * 
+     *
      * @return The extracted date.
      */
     public ExtractedDate getPublishDate() {
@@ -679,10 +719,119 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     /**
+     * <p>Use several indicators in the site's HTML to detect its language.</p>
+     * @return
+     */
+    public Language detectLanguage() {
+
+        // use TLDs first
+        String uri = getDocument().getDocumentURI();
+
+        String domain = UrlHelper.getDomain(uri);
+        if (domain.endsWith(".de")) {
+            return Language.GERMAN;
+        } else if (domain.endsWith(".fr")) {
+            return Language.FRENCH;
+        } else if (domain.endsWith(".es")) {
+            return Language.SPANISH;
+        } else if (domain.endsWith(".it")) {
+            return Language.ITALIAN;
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ie")) {
+            return Language.ENGLISH;
+        } else if (domain.endsWith(".pt")) {
+            return Language.PORTUGUESE;
+        }
+
+        // look in HTML lang attribute <html lang="de">
+        String innerXml = HtmlHelper.getInnerXml(getDocument());
+        innerXml = innerXml.toLowerCase();
+        String substringBetween = StringHelper.getSubstringBetween(innerXml, " lang=\"", "\"");
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, " xml:lang=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, " xmlu00003alang=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"content-language\" content=\"", "\"");
+        }
+        if (substringBetween.isEmpty()) {
+            substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"language\" content=\"", "\"");
+        }
+        if (substringBetween != null && !substringBetween.isEmpty() && substringBetween.length() < 6) {
+            // remove country, e.g. en-US
+            String[] parts = substringBetween.split("[-:]");
+            return Language.getByIso6391(parts[0]);
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>Try to find the dominant image of the site.</p>
+     * @param contentIncludeXPath An xPath that hints to where the image must be found.
+     * @return The dominant image.
+     */
+    public WebImage getDominantImage(String contentIncludeXPath) {
+
+        // check meta property first
+        Node xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//meta[@property=\"og:image\"]//@content");
+        if (xhtmlNode != null) {
+            return new BasicWebImage.Builder().setImageUrl(xhtmlNode.getTextContent().trim()).create();
+        }
+
+        // look for itemprop image
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//*[@itemprop='image' or @itemprop='photo']//@src");
+        if (xhtmlNode != null) {
+            String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
+            return new BasicWebImage.Builder().setImageUrl(url).create();
+        }
+
+        // look for "main image"
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//img[contains(@class,'main-photo') or contains(@class,'main-image')]//@src");
+        if (xhtmlNode != null) {
+            String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
+            return new BasicWebImage.Builder().setImageUrl(url).create();
+        }
+
+        // try something else
+        Node mainContentNode = getDocument();
+        if (contentIncludeXPath != null && !contentIncludeXPath.isEmpty()) {
+            mainContentNode = XPathHelper.getXhtmlNode(getDocument(), contentIncludeXPath);
+        }
+
+        WebImage image = null;
+        List<WebImage> images = getImages(mainContentNode, getDocument());
+        filter(images, "jpeg", "png", "jpg");
+        if (!images.isEmpty()) {
+            // only sort by size if the first one is below a certain size
+            image = CollectionHelper.getFirst(images);
+            if (image != null && image.getSize() < 10000) {
+                Collections.sort(images, new ImageSizeComparator());
+                image = CollectionHelper.getFirst(images);
+            }
+        }
+
+        return image;
+    }
+
+    public WebImage getDominantImage() {
+        return getDominantImage(null);
+    }
+
+    /**
      * @param args
      * @throws PageContentExtractorException
      */
     public static void main(String[] args) throws PageContentExtractorException {
+
+        PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        Language language = palladianContentExtractor.detectLanguage();
+
+
+        System.out.println(language);
+        System.exit(0);
 
         // ////////////////////////////////////
         // Document webDocument = new DocumentRetriever().getWebDocument("C:\\Workspace\\data\\GoldStandard\\98.html");
@@ -779,4 +928,5 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         System.out.println("Full Text: " + pe.getEntireTextContent());
         // CollectionHelper.print(pe.getSentences());
     }
+
 }

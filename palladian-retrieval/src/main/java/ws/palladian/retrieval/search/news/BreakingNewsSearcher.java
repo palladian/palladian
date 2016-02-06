@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search.news;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * reverse-engineered JSON API and is therefore not intended to be used publicly, e.g. in the KNIME nodes distribution.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public final class BreakingNewsSearcher extends AbstractMultifacetSearcher<WebContent> {
@@ -67,7 +68,7 @@ public final class BreakingNewsSearcher extends AbstractMultifacetSearcher<WebCo
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         String jsonString = null;
         try {
-            List<WebContent> resultList = CollectionHelper.newArrayList();
+            List<WebContent> resultList = new ArrayList<>();
             outer: for (;;) {
                 HttpResult httpResult = httpRetriever.httpGet(queryUrl);
                 jsonString = httpResult.getStringContent();

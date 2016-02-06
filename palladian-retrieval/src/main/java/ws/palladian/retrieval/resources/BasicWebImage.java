@@ -1,8 +1,8 @@
 package ws.palladian.retrieval.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.images.ImageType;
 
@@ -22,7 +22,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
      * Builder for creating new instances of {@link WebImage}.
      * </p>
      * 
-     * @author katz
+     * @author Philipp Katz
      */
     public static class Builder extends BasicWebContent.Builder {
 
@@ -183,7 +183,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
     
     @Override
     protected List<String> getToStringParts() {
-        List<String> toStringParts = CollectionHelper.newArrayList(super.getToStringParts());
+        List<String> toStringParts = new ArrayList<>(super.getToStringParts());
         if (imageUrl != null) {
             toStringParts.add(String.format("imageUrl=%s", imageUrl));
         }

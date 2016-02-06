@@ -1,14 +1,20 @@
 package ws.palladian.helper;
 
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -17,6 +23,9 @@ import ws.palladian.helper.io.ResourceHelper;
 
 /** @formatter:off */
 public class UrlHelperTest {
+
+     @Rule
+     public ErrorCollector collector = new ErrorCollector();
 
     @Test
     public void testGetCleanUrl() {
@@ -30,6 +39,13 @@ public class UrlHelperTest {
 
     @Test
     public void testGetDomain() {
+
+        collector.checkThat(UrlHelper.getDomain("http://www.amazon.co.uk", false, false), is("amazon.co.uk"));
+        collector.checkThat(UrlHelper.getDomain("http://amazon.co.uk", false, false), is("amazon.co.uk"));
+        collector.checkThat(UrlHelper.getDomain("http://test.com", false, false), is("test.com"));
+        collector.checkThat(UrlHelper.getDomain("http://sub.domain.with.points.test.ac.uk", false, false), is("test.ac.uk"));
+        collector.checkThat(UrlHelper.getDomain("http://www.companies-reviews.com/review/3168408/Sales-Promotion-Agency-Expression/", false, false), is("companies-reviews.com"));
+
         assertEquals("http://www.flashdevices.net",
                 UrlHelper.getDomain("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html", true));
         assertEquals("www.flashdevices.net",
@@ -209,6 +225,65 @@ public class UrlHelperTest {
         NodeList aNodes = document.getElementsByTagName("a");
         Node aNode = aNodes.item(8);
         assertEquals("http://www.w3.org/TR/xhtml1/xhtml1-diff.html", aNode.getAttributes().getNamedItem("href").getTextContent());
+    }
+    
+    @Test
+    public void testParseParams() {
+        String url = "http://de.wikipedia.org/wiki/Spezial:Search?search=San%20Francisco&go=Artikel";
+        List<Pair<String, String>> params = UrlHelper.parseParams(url);
+        assertEquals(2, params.size());
+        assertEquals(Pair.of("search","San Francisco"), params.get(0));
+        assertEquals(Pair.of("go", "Artikel"), params.get(1));
+        // CollectionHelper.print(params);
+        
+        url = "https://xxxxxxxx.de/gp/associates/network/reports/report.html?__mk_de_DE=xxxxxxtag=&reportType=earningsReport&program=all&deviceType=all&periodTyp";
+        params = UrlHelper.parseParams(url);
+        // CollectionHelper.print(params);
+        assertEquals(5, params.size());
+        assertEquals(Pair.of("__mk_de_DE", "xxxxxxtag="), params.get(0));
+        assertEquals(Pair.of("reportType", "earningsReport"), params.get(1));
+        assertEquals(Pair.of("program", "all"), params.get(2));
+        assertEquals(Pair.of("deviceType", "all"), params.get(3));
+        assertEquals(Pair.of("periodTyp", StringUtils.EMPTY), params.get(4));
+        
+        // https://tech.knime.org/forum/palladian/http-retriever-problem-with-some-urls
+		url = "https://idw-online.de/de/pressreleasesrss?country_ids=35&country_ids=36&country_ids=46&country_ids=188&country_ids=65&country_ids=66&country_ids=68&country_ids=95&country_ids=97&country_ids=121&country_ids=126&country_ids=146&country_ids=147&country_ids=180&category_ids=10&category_ids=7&field_ids=100&field_ids=101&field_ids=401&field_ids=603&field_ids=600&field_ids=400&field_ids=606&field_ids=204&field_ids=102&field_ids=306&langs=de_DE&langs=en_US";
+		params = UrlHelper.parseParams(url);
+		assertEquals(28, params.size());
+
+		// https://tech.knime.org/forum/palladian/problems-with-url-parameters
+		url = "http://www.apvigo.com/control.php?sph=o_lsteventos_fca=13/11/2015%%a_iap=1351%%a_lsteventos_vrp=0";
+		// url = "http://www.apvigo.com/control.php?sph=o_lsteventos_fca%3D13/11/2015%25%25a_iap%3D1351%25%25a_lsteventos_vrp%3D0";
+		params = UrlHelper.parseParams(url);
+		assertEquals(1, params.size());
+		assertEquals(Pair.of("sph", "o_lsteventos_fca=13/11/2015%%a_iap=1351%%a_lsteventos_vrp=0"), params.get(0));
+	}
+    
+    @Test
+    public void testCreateParameterString() {
+        List<Pair<String, String>> params = new ArrayList<>();
+        params.add(Pair.of("search", "San Francisco"));
+        params.add(Pair.of("go", "Artikel"));
+        String parameterString = UrlHelper.createParameterString(params);
+        assertEquals("search=San+Francisco&go=Artikel", parameterString);
+        
+        params = new ArrayList<>();
+        params.add(Pair.of("param", "value"));
+        params.add(Pair.of("emptyParam", StringUtils.EMPTY));
+        parameterString = UrlHelper.createParameterString(params);
+        assertEquals("param=value&emptyParam=", parameterString);
+    }
+    
+    @Test
+    public void testGetBaseUrl() {
+        String url = "https://api.twitter.com/1/statuses/update.json?include_entities=true";
+        assertEquals("https://api.twitter.com/1/statuses/update.json", UrlHelper.parseBaseUrl(url));
+        url = "http://www.example.org/foo.html#bar";
+        assertEquals("http://www.example.org/foo.html", UrlHelper.parseBaseUrl(url));
+        url = "http://www.example.org/foo.html?baz=boom#bar";
+        assertEquals("http://www.example.org/foo.html", UrlHelper.parseBaseUrl(url));
+        url = "http://www.example.org/foo.html";
+        assertEquals("http://www.example.org/foo.html", UrlHelper.parseBaseUrl(url));
     }
 
 }

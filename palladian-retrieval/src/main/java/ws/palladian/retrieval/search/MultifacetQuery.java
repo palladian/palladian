@@ -3,13 +3,13 @@ package ws.palladian.retrieval.search;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -53,7 +53,7 @@ public interface MultifacetQuery {
 
         // additional facets, in the future, we might want to make this super-generic and also replace the dedicated
         // fields given above by facets
-        final Map<String, Facet> facets = CollectionHelper.newHashMap();
+        final Map<String, Facet> facets = new HashMap<>();
 
         /**
          * <p>

@@ -9,7 +9,7 @@ package ws.palladian.core;
  * <p>
  * Instances are usually created using the {@link InstanceBuilder}.
  * 
- * @author pk
+ * @author Philipp Katz
  *
  */
 public interface Instance {

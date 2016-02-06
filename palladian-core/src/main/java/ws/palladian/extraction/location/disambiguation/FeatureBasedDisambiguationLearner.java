@@ -2,6 +2,8 @@ package ws.palladian.extraction.location.disambiguation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +26,6 @@ import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CompositeIterator;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -79,11 +80,11 @@ public class FeatureBasedDisambiguationLearner {
      */
     public QuickDtModel learn(File... datasetDirectories) {
         Validate.notNull(datasetDirectories, "datasetDirectories must not be null");
-        List<Iterator<LocationDocument>> datasetIterators = CollectionHelper.newArrayList();
+        List<Iterator<LocationDocument>> datasetIterators = new ArrayList<>();
         for (File datasetDirectory : datasetDirectories) {
             datasetIterators.add(new TudLoc2013DatasetIterable(datasetDirectory).iterator());
         }
-        return learn(new CompositeIterator<LocationDocument>(datasetIterators));
+        return learn(new CompositeIterator<>(datasetIterators));
     }
 
     public QuickDtModel learn(Iterator<LocationDocument> trainDocuments) {
@@ -92,7 +93,7 @@ public class FeatureBasedDisambiguationLearner {
     }
 
     public Set<Instance> createTrainingData(Iterator<LocationDocument> trainDocuments) {
-        Set<Instance> trainingData = CollectionHelper.newHashSet();
+        Set<Instance> trainingData = new HashSet<>();
         while (trainDocuments.hasNext()) {
             LocationDocument trainDocument = trainDocuments.next();
             String text = trainDocument.getText();
@@ -110,7 +111,7 @@ public class FeatureBasedDisambiguationLearner {
 
     private Set<Instance> createTrainData(Set<ClassifiableLocation> classifiableLocations,
             List<LocationAnnotation> positiveLocations) {
-        Set<Instance> result = CollectionHelper.newHashSet();
+        Set<Instance> result = new HashSet<>();
         int numPositive = 0;
         for (ClassifiableLocation classifiableLocation : classifiableLocations) {
             boolean positiveClass = false;

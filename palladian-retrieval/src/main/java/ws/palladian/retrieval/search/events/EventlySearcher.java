@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.search.events;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +35,17 @@ public class EventlySearcher extends EventSearcher {
 
     private final String apiKey;
 
-    private Map<EventType, Integer> eventTypeMapping;
+    private static final Map<EventType, Integer> EVENT_TYPE_MAPPING = createMapping();
+
+    private static final Map<EventType, Integer> createMapping() {
+        Map<EventType, Integer> mapping = new HashMap<>();
+        mapping.put(EventType.CONCERT, 1);
+        mapping.put(EventType.COMEDY, 2);
+        mapping.put(EventType.THEATRE, 4);
+        mapping.put(EventType.EXHIBITION, 5);
+        mapping.put(EventType.FESTIVAL, 7);
+        return mapping;
+    }
 
     /**
      * <p>
@@ -45,12 +57,11 @@ public class EventlySearcher extends EventSearcher {
     public EventlySearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
-        setup();
     }
 
     /**
      * <p>
-     * FIXME Creates a new evently searcher.
+     * Creates a new evently searcher.
      * </p>
      * 
      * @param configuration The configuration which must provide an API key for accessing evently, which must be
@@ -59,22 +70,12 @@ public class EventlySearcher extends EventSearcher {
      */
     public EventlySearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
-        setup();
-    }
-
-    private void setup() {
-        eventTypeMapping = CollectionHelper.newHashMap();
-        eventTypeMapping.put(EventType.CONCERT, 1);
-        eventTypeMapping.put(EventType.COMEDY, 2);
-        eventTypeMapping.put(EventType.THEATRE, 4);
-        eventTypeMapping.put(EventType.EXHIBITION, 5);
-        eventTypeMapping.put(EventType.FESTIVAL, 7);
     }
 
     @Override
     public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
             EventType eventType, int maxResults) throws SearcherException {
-        List<Event> events = CollectionHelper.newArrayList();
+        List<Event> events = new ArrayList<>();
 
         String requestUrl = buildRequest(keywords, location, eventType);
 
@@ -126,7 +127,7 @@ public class EventlySearcher extends EventSearcher {
 
         String url = "http://api.event.ly/v3/";
 
-        Integer genreId = eventTypeMapping.get(eventType);
+        Integer genreId = EVENT_TYPE_MAPPING.get(eventType);
         if (genreId != null) {
             url += "genres/" + genreId + "/";
         }

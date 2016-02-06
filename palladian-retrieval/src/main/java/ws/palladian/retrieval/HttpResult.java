@@ -46,10 +46,11 @@ public class HttpResult implements Serializable {
         this.url = url;
         this.content = content;
         // this.headers = headers;
-        
+
         // field names of the header are case-insensitive: http://www.ietf.org/rfc/rfc2616.txt
-        // Each header field consists of a name followed by a colon (":") and the field value. Field names are case-insensitive.
-        this.headers = new CaseInsensitiveMap<List<String>>(headers);
+        // Each header field consists of a name followed by a colon (":") and the field value. Field names are
+        // case-insensitive.
+        this.headers = new CaseInsensitiveMap<>(headers);
         this.statusCode = statusCode;
         this.transferedBytes = transferedBytes;
     }
@@ -161,7 +162,7 @@ public class HttpResult implements Serializable {
         }
         return ret;
     }
-    
+
     /**
      * @return <code>true</code> in case the HTTP status code was of type error (i.e. >= 400).
      */

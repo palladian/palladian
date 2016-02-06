@@ -5,7 +5,7 @@ package ws.palladian.helper.geo;
  * Implementations of this interface represent geographic coordinates represented by latitude and longitude values.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface GeoCoordinate {
 

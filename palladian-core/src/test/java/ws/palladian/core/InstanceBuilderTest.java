@@ -4,13 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class InstanceBuilderTest {
 
@@ -32,7 +34,7 @@ public class InstanceBuilderTest {
 
     @Test
     public void testKeys() {
-        assertEquals(CollectionHelper.newHashSet("testFeature1", "testFeature2", "testFeature3"), featureVector.keys());
+        assertEquals(new HashSet<>(Arrays.asList("testFeature1", "testFeature2", "testFeature3")), featureVector.keys());
     }
 
     @Test

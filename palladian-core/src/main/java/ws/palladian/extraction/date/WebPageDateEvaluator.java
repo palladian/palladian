@@ -1,5 +1,6 @@
 package ws.palladian.extraction.date;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,7 +15,6 @@ import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.ContentDateRater;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
@@ -182,7 +182,7 @@ public final class WebPageDateEvaluator {
         Validate.notNull(extractedDates, "extractedDates must not be null");
         Validate.notNull(type, "type must not be null");
         
-        List<RatedDate<? extends ExtractedDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<? extends ExtractedDate>> result = new ArrayList<>();
 
         ContentDateRater contentDateRater = new ContentDateRater(type);
 

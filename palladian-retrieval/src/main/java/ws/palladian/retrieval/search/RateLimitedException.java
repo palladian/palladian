@@ -5,7 +5,7 @@ package ws.palladian.retrieval.search;
  * Exception, when the usage quota for a Web-based {@link Searcher} is exhausted.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public class RateLimitedException extends SearcherException {

@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.socialmedia;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +31,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * <p>
  * Searcher for <a href="http://socialmention.com">Social Mention</a>. The API free access allows max. 100 queries/day.
  * 
- * @author pk
+ * @author Philipp Katz
  * @see <a href="https://code.google.com/p/socialmention-api/wiki/APIDocumentation">API Documentation</a>
  */
 public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebContent> {
@@ -108,7 +109,7 @@ public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebC
         try {
             JsonObject jsonResult = new JsonObject(httpResult.getStringContent());
             long count = jsonResult.getLong("count");
-            List<WebContent> results = CollectionHelper.newArrayList();
+            List<WebContent> results = new ArrayList<>();
             JsonArray jsonItems = jsonResult.getJsonArray("items");
             for (int i = 0; i < Math.min(jsonItems.size(), query.getResultCount()); i++) {
                 BasicWebContent.Builder builder = new BasicWebContent.Builder();

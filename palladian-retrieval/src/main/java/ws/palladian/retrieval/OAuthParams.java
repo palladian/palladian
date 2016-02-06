@@ -9,11 +9,17 @@ public final class OAuthParams {
     private final String accessToken;
     private final String accessTokenSecret;
 
+    /**
+     * Create a {@link OAuthParams} instance.
+     * 
+     * @param consumerKey The consumer key, not <code>null</code>.
+     * @param consumerSecret The consumer secret, not <code>null</code>.
+     * @param accessToken Optional access token.
+     * @param accessTokenSecret Optional access token secret.
+     */
     public OAuthParams(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
         Validate.notEmpty(consumerKey, "consumerKey must not be empty");
         Validate.notEmpty(consumerSecret, "consumerSecret must not be empty");
-        Validate.notEmpty(accessToken, "accessToken must not be empty");
-        Validate.notEmpty(accessTokenSecret, "accessTokenSecret must not be empty");
 
         this.consumerKey = consumerKey;
         this.consumerSecret = consumerSecret;
@@ -44,10 +50,14 @@ public final class OAuthParams {
         builder.append(getConsumerKey());
         builder.append(", consumerSecret=");
         builder.append(getConsumerSecret());
-        builder.append(", accessToken=");
-        builder.append(getAccessToken());
-        builder.append(", accessTokenSecret=");
-        builder.append(getAccessTokenSecret());
+        if (getAccessToken() != null) {
+            builder.append(", accessToken=");
+            builder.append(getAccessToken());
+        }
+        if (getAccessTokenSecret() != null) {
+            builder.append(", accessTokenSecret=");
+            builder.append(getAccessTokenSecret());
+        }
         builder.append("]");
         return builder.toString();
     }

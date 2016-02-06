@@ -6,21 +6,21 @@ import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
 import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
-import de.bwaldvogel.liblinear.Parameter;
-import de.bwaldvogel.liblinear.SolverType;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.math.ConfusionMatrix;
+import de.bwaldvogel.liblinear.Parameter;
+import de.bwaldvogel.liblinear.SolverType;
 
 public class LibLinearTest {
 
@@ -51,7 +51,7 @@ public class LibLinearTest {
     }
 
     private List<Instance> createSampleData() {
-        List<Instance> data = CollectionHelper.newArrayList();
+        List<Instance> data = new ArrayList<>();
         data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0.2).set("d", 0).set("e", 0).create("1"));
         data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0.3).set("d", -1.2).set("e", 0).create("2"));
         data.add(new InstanceBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("d", 0).set("e", 0).create("1"));

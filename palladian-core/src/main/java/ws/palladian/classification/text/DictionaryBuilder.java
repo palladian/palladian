@@ -9,7 +9,7 @@ import ws.palladian.helper.functional.Filter;
 /**
  * Builder for a {@link DictionaryModel}.
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public interface DictionaryBuilder extends Factory<DictionaryModel> {

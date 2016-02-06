@@ -12,8 +12,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
@@ -27,13 +27,12 @@ import ws.palladian.helper.nlp.StringPool;
  * {@link CloseableIterator#close()} the iterator!
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public class CsvDatasetReader implements Iterable<Instance> {
 
     private static final class CsvDatasetIterator implements CloseableIterator<Instance> {
-        final String fieldSeparator;
-        final boolean readHeader;
+    	private final CsvDatasetReaderConfig config;
         String line;
         String[] headNames;
         int expectedColumns;
@@ -43,16 +42,15 @@ public class CsvDatasetReader implements Iterable<Instance> {
         /** Save some memory when reading datasets with nominal values. */
         final StringPool stringPool;
 
-        public CsvDatasetIterator(File filePath, boolean readHeader, String fieldSeparator) {
+        public CsvDatasetIterator(CsvDatasetReaderConfig config) {
             FileInputStream inputStream = null;
             try {
-                inputStream = new FileInputStream(filePath);
+                inputStream = new FileInputStream(config.filePath());
                 reader = new BufferedReader(new InputStreamReader(inputStream));
             } catch (FileNotFoundException e) {
-                throw new IllegalStateException(filePath + " not found.");
+                throw new IllegalStateException(config.filePath() + " not found.");
             }
-            this.fieldSeparator = fieldSeparator;
-            this.readHeader = readHeader;
+            this.config = config;
             this.closed = false;
             this.stringPool = new StringPool();
         }
@@ -73,17 +71,17 @@ public class CsvDatasetReader implements Iterable<Instance> {
                 line = reader.readLine();
                 if (line == null) {
                     close();
-                    LOGGER.debug("Finished reading {} lines", readHeader ? lineNumber - 1 : lineNumber);
+                    LOGGER.debug("Finished reading {} lines", config.readHeader() ? lineNumber - 1 : lineNumber);
                     return false;
                 }
-                String[] parts = line.split(fieldSeparator);
+                String[] parts = line.split(config.fieldSeparator());
                 if (parts.length < 2) {
-                    throw new IllegalStateException("Separator '" + fieldSeparator
+                    throw new IllegalStateException("Separator '" + config.fieldSeparator()
                             + "' was not found, lines cannot be split ('" + line + "').");
                 }
                 if (lineNumber == 0) {
                     expectedColumns = parts.length;
-                    if (readHeader) {
+                    if (config.readHeader()) {
                         headNames = parts;
                         lineNumber++;
                         line = null;
@@ -110,10 +108,10 @@ public class CsvDatasetReader implements Iterable<Instance> {
             if (line == null) {
                 read();
             }
-            String[] parts = line.split(fieldSeparator);
+            String[] parts = line.split(config.fieldSeparator());
             line = null;
             InstanceBuilder builder = new InstanceBuilder();
-            for (int f = 0; f < parts.length - 1; f++) {
+            for (int f = 0; f < parts.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
                 String name = headNames == null ? String.valueOf(f) : headNames[f];
                 String value = parts[f];
                 if (value.equals("?")) {
@@ -121,14 +119,19 @@ public class CsvDatasetReader implements Iterable<Instance> {
                     continue;
                 }
                 try { // XXX make better.
-                    double doubleValue = Double.parseDouble(value);
-                    builder.set(name, doubleValue);
+                	if (value.contains(".")) {
+                		double doubleValue = Double.parseDouble(value);
+                		builder.set(name, doubleValue);
+                	} else {
+                		long longValue = Long.parseLong(value);
+                		builder.set(name, longValue);
+                	}
                 } catch (NumberFormatException e) {
                     String stringValue = stringPool.get(value);
                     builder.set(name, stringValue);
                 }
             }
-            String targetClass = stringPool.get(parts[parts.length - 1]);
+            String targetClass = config.readClassFromLastColumn() ? stringPool.get(parts[parts.length - 1]) : "dummy";
             if (lineNumber % 100000 == 0) {
                 LOGGER.debug("Read {} lines", lineNumber);
             }
@@ -150,9 +153,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvDatasetReader.class);
 
-    private final File filePath;
-    private final boolean readHeader;
-    private final String fieldSeparator;
+	private final CsvDatasetReaderConfig config;
 
     /**
      * <p>
@@ -161,6 +162,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
      * </p>
      * 
      * @param filePath Path to the CSV file, not <code>null</code>.
+     * @deprecated Use {@link #CsvDatasetReader(CsvDatasetReaderConfig)} instead.
      */
     public CsvDatasetReader(File filePath) {
         this(filePath, true);
@@ -175,7 +177,9 @@ public class CsvDatasetReader implements Iterable<Instance> {
      * @param filePath Path to the CSV file, not <code>null</code>.
      * @param readHeader <code>true</code> to read the feature's names from a header line at the beginning,
      *            <code>false</code> otherwise.
+     * @deprecated Use {@link #CsvDatasetReader(CsvDatasetReaderConfig)} instead.            
      */
+    @Deprecated
     public CsvDatasetReader(File filePath, boolean readHeader) {
         this(filePath, readHeader, ClassificationUtils.DEFAULT_SEPARATOR);
     }
@@ -189,22 +193,31 @@ public class CsvDatasetReader implements Iterable<Instance> {
      * @param readHeader <code>true</code> to read the feature's names from a header line at the beginning,
      *            <code>false</code> otherwise.
      * @param fieldSeparator Separator between entries, not <code>null</code>.
+     * @deprecated Use {@link #CsvDatasetReader(CsvDatasetReaderConfig)} instead.            
      */
+    @Deprecated
     public CsvDatasetReader(File filePath, boolean readHeader, String fieldSeparator) {
-        Validate.notNull(filePath, "filePath must not be null");
-        if (!filePath.canRead()) {
-            throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
-        }
-        Validate.notEmpty(fieldSeparator, "fieldSeparator must not be empty");
-
-        this.filePath = filePath;
-        this.readHeader = readHeader;
-        this.fieldSeparator = fieldSeparator;
+    	CsvDatasetReaderConfig.Builder configBuilder = CsvDatasetReaderConfig.filePath(filePath);
+    	configBuilder.readHeader(readHeader);
+    	configBuilder.fieldSeparator(fieldSeparator);
+    	config = configBuilder.create();
     }
+    
+    /**
+     * <p>
+     * Create a {@link CsvDatasetReader} for a CSV file.
+     * </p>
+     * 
+     * @param config The config, not <code>null</code>.
+     */
+    public CsvDatasetReader(CsvDatasetReaderConfig config) {
+    	Validate.notNull(config, "config must not be null");
+    	this.config = config;
+	}
 
     @Override
     public CloseableIterator<Instance> iterator() {
-        return new CsvDatasetIterator(filePath, readHeader, fieldSeparator);
+        return new CsvDatasetIterator(config);
     }
 
     /**

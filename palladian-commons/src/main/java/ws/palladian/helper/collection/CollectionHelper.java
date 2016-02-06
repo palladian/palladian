@@ -55,7 +55,7 @@ public final class CollectionHelper {
      * Iterator, which stops after the specified limit.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <T>
      */
@@ -113,10 +113,10 @@ public final class CollectionHelper {
     public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map, Order order) {
         Validate.notNull(map, "map must not be null");
         Validate.notNull(order, "order must not be null");
-        List<Entry<K, V>> list = new LinkedList<Entry<K, V>>(map.entrySet());
+        List<Entry<K, V>> list = new LinkedList<>(map.entrySet());
         Collections.sort(list, new EntryValueComparator<V>(order));
 
-        Map<K, V> result = new LinkedHashMap<K, V>();
+        Map<K, V> result = new LinkedHashMap<>();
         for (Entry<K, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
@@ -174,23 +174,6 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Get a key given for a value (1 to 1 {@link Map}s).
-     * </p>
-     * 
-     * @param value The value.
-     * @return The key that matches the given value, or <code>null</code> if no such value.
-     */
-    public static <K, V> K getKeyByValue(Map<K, V> map, V value) {
-        for (Entry<K, V> mapEntry : map.entrySet()) {
-            if (mapEntry.getValue().equals(value)) {
-                return mapEntry.getKey();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * <p>
      * Print a human readable, line separated output of an Array.
      * </p>
      * 
@@ -198,7 +181,7 @@ public final class CollectionHelper {
      */
     public static void print(Object[] array) {
         Validate.notNull(array, "array must not be null");
-        print(new ArrayIterator<Object>(array));
+        print(new ArrayIterator<>(array));
     }
 
     /**
@@ -242,26 +225,10 @@ public final class CollectionHelper {
         print(iterable.iterator());
     }
 
-//    /**
-//     * <p>
-//     * Concatenate two String arrays.
-//     * </p>
-//     * 
-//     * @param array1
-//     * @param array2
-//     * @return The concatenated String array consisting of the first, then the second array's items.
-//     */
-//    public static String[] concat(String[] array1, String[] array2) {
-//        String[] helpArray = new String[array1.length + array2.length];
-//        System.arraycopy(array1, 0, helpArray, 0, array1.length);
-//        System.arraycopy(array2, 0, helpArray, array1.length, array2.length);
-//        return helpArray;
-//    }
-
     /**
      * <p>
      * Create a new {@link HashMap}. This method allows omitting the type parameter when creating the HashMap:
-     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newHashMap();</code>.
+     * <code>Map&lt;String, Integer&gt; map = new HashMap<>();</code>.
      * </p>
      * 
      * @return A new {@link HashMap}.
@@ -269,7 +236,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <K, V> HashMap<K, V> newHashMap() {
-        return new HashMap<K, V>();
+        return new HashMap<>();
     }
 
     /**
@@ -280,11 +247,10 @@ public final class CollectionHelper {
      * 
      * @return A new {@link TreeMap}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <K, V> TreeMap<K, V> newTreeMap() {
-        return new TreeMap<K, V>();
+        return new TreeMap<>();
     }
 
     /**
@@ -295,26 +261,24 @@ public final class CollectionHelper {
      * 
      * @return A new {@link LinkedHashMap}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
-        return new LinkedHashMap<K, V>();
+        return new LinkedHashMap<>();
     }
 
     /**
      * <p>
      * Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the ArrayList:
-     * <code>List&lt;String&gt; list = CollectionHelper.newArrayList();</code>.
+     * <code>List&lt;String&gt; list = new ArrayList<>();</code>.
      * </p>
      * 
      * @return A new {@link ArrayList}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <E> ArrayList<E> newArrayList() {
-        return new ArrayList<E>();
+        return new ArrayList<>();
     }
 
     /**
@@ -340,7 +304,7 @@ public final class CollectionHelper {
      */
     public static <E> ArrayList<E> newArrayList(Iterator<? extends E> iterator) {
         Validate.notNull(iterator, "iterator must not be null");
-        ArrayList<E> list = new ArrayList<E>();
+        ArrayList<E> list = new ArrayList<>();
         while (iterator.hasNext()) {
             list.add(iterator.next());
         }
@@ -368,18 +332,19 @@ public final class CollectionHelper {
      * Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the LinkedList:
      * <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
      * </p>
+     * 
      * @return A new {@link LinkedList}.
      * @deprecated since Java 7
      */
     @Deprecated
     public static <E> LinkedList<E> newLinkedList() {
-        return new LinkedList<E>();
+        return new LinkedList<>();
     }
 
     /**
      * <p>
      * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
-     * <code>Set&lt;String&gt; set = CollectionHelper.newHashSet();</code>.
+     * <code>Set&lt;String&gt; set = new HashSet<>();</code>.
      * </p>
      * 
      * @return A new {@link HashSet}.
@@ -387,7 +352,7 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <E> HashSet<E> newHashSet() {
-        return new HashSet<E>();
+        return new HashSet<>();
     }
 
     /**
@@ -401,7 +366,7 @@ public final class CollectionHelper {
     @SafeVarargs
     public static <E> HashSet<E> newHashSet(E... elements) {
         Validate.notNull(elements, "elements must not be null");
-        return new HashSet<E>(Arrays.asList(elements));
+        return new HashSet<>(Arrays.asList(elements));
     }
 
     /**
@@ -427,7 +392,7 @@ public final class CollectionHelper {
      */
     public static <E> HashSet<E> newHashSet(Iterator<? extends E> elements) {
         Validate.notNull(elements, "elements must not be null");
-        HashSet<E> set = newHashSet();
+        HashSet<E> set = new HashSet<>();
         while (elements.hasNext()) {
             set.add(elements.next());
         }
@@ -442,26 +407,24 @@ public final class CollectionHelper {
      * 
      * @return A new {@link TreeSet}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <E> TreeSet<E> newTreeSet() {
-        return new TreeSet<E>();
+        return new TreeSet<>();
     }
 
     /**
      * <p>
      * Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
-     * LinkedHashSet: <code>Set&lt;String&gt; set = CollectionHelper.newLinkedHashSet();</code>.
+     * LinkedHashSet: <code>Set&lt;String&gt; set = new LinkedHashSet<>();</code>.
      * </p>
      * 
      * @return A new {@link LinkedHashSet}.
      * @deprecated Since Java 7, make use of the diamond operator.
-
      */
     @Deprecated
     public static <E> LinkedHashSet<E> newLinkedHashSet() {
-        return new LinkedHashSet<E>();
+        return new LinkedHashSet<>();
     }
 
     /**
@@ -538,7 +501,7 @@ public final class CollectionHelper {
      * @see #filter(Iterable, Filter, Collection)
      */
     public static <T> List<T> filterList(Iterable<T> iterable, Filter<? super T> filter) {
-        return filter(iterable, filter, CollectionHelper.<T> newArrayList());
+        return filter(iterable, filter, new ArrayList<T>());
     }
 
     /**
@@ -552,7 +515,7 @@ public final class CollectionHelper {
      * @see #filter(Iterable, Filter, Collection)
      */
     public static <T> Set<T> filterSet(Iterable<T> iterable, Filter<? super T> filter) {
-        return filter(iterable, filter, CollectionHelper.<T> newHashSet());
+        return filter(iterable, filter, new HashSet<T>());
     }
 
     /**
@@ -644,14 +607,6 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
-//        List<T> result = CollectionHelper.newArrayList();
-//        for (T t : iterable) {
-//            result.add(t);
-//            if (result.size() == num) {
-//                break;
-//            }
-//        }
-//        return result;
         return newArrayList(limit(iterable, num));
     }
 
@@ -672,6 +627,41 @@ public final class CollectionHelper {
         int o = Math.min(list.size(), offset);
         int n = Math.min(num, list.size() - o);
         return list.subList(o, o + n);
+    }
+
+    /**
+     * <p>
+     * Get a sub set of elements of an ordered {@link LinkedHashSet}.
+     * </p>
+     *
+     * @param set The set from which to get the element, not <code>null</code>.
+     * @param offset The number of elements to skip.
+     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @return The sub set.
+     */
+    public static <T> LinkedHashSet<T> getSubset(LinkedHashSet<T> set, int offset, int num) {
+        Validate.notNull(set, "set must not be null");
+        Validate.isTrue(offset >= 0, "offset must be greater/equal zero");
+        Validate.isTrue(num >= 0, "num must be greater/equal zero");
+
+        LinkedHashSet<T> subSet = new LinkedHashSet<T>();
+        if (offset > set.size()) {
+            return subSet;
+        }
+
+        Iterator<T> iterator = set.iterator();
+        for (int i = 0; i < set.size(); i++) {
+            T next = iterator.next();
+            if (i < offset) {
+                continue;
+            }
+            subSet.add(next);
+            if (subSet.size() == num) {
+                break;
+            }
+        }
+
+        return subSet;
     }
 
     /**
@@ -937,7 +927,7 @@ public final class CollectionHelper {
     public static <T> Iterator<T> limit(Iterator<T> iterator, int limit) {
         Validate.notNull(iterator, "iterator must not be null");
         Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
-        return new LimitIterator<T>(iterator, limit);
+        return new LimitIterator<>(iterator, limit);
     }
 
     /**
@@ -951,7 +941,7 @@ public final class CollectionHelper {
     @SafeVarargs
     public static <T> Set<T> distinct(Collection<T>... collections) {
         Validate.notNull(collections, "collections must not be null");
-        Set<T> distinct = newHashSet();
+        Set<T> distinct = new HashSet<>();
         for (Collection<T> collection : collections) {
             distinct.addAll(collection);
         }
@@ -982,7 +972,7 @@ public final class CollectionHelper {
             smallerSet = setB;
             largerSet = setA;
         }
-        Set<T> intersection = new HashSet<T>();
+        Set<T> intersection = new HashSet<>();
         for (T element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
@@ -1047,7 +1037,24 @@ public final class CollectionHelper {
         }
         return count;
     }
-    
+
+
+    /**
+     * <p>Check whether a list contains a specific item.</p>
+     * @param items The list of items.
+     * @param item The item.
+     * @param <T> The item type.
+     * @return True if the list contains the item already.
+     */
+    public static  <T> boolean contains(T[] items, T item) {
+        for (T i : items) {
+            if (i.equals(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * <p>
      * Make a given {@link Iterator} read-only. Invoking {@link Iterator#remove()} will trigger an

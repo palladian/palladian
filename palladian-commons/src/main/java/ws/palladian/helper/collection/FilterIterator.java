@@ -10,7 +10,7 @@ import ws.palladian.helper.functional.Filter;
  * A {@link FilterIterator} wraps another iterator and applies a given {@link Filter}, which eliminates items from the
  * iteration, which do not pass the filter (i.e. they are simply skipped during iteration).
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <E> Type of the elements.
  * @see CollectionHelper#filter(Iterable, Filter)

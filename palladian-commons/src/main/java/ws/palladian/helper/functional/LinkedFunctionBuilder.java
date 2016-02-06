@@ -21,7 +21,7 @@ import org.apache.commons.lang3.Validate;
  * Long result = function.compute(&quot;two&quot;);
  * </pre>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class LinkedFunctionBuilder {
 
@@ -74,7 +74,7 @@ public final class LinkedFunctionBuilder {
      * <p>
      * A function connecting two functions.
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <I> Input type into first function.
      * @param <E> Exchange type between first and second function.

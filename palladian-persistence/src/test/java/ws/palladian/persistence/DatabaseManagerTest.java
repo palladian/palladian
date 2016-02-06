@@ -138,7 +138,7 @@ public class DatabaseManagerTest {
                 test) {
             @Override
             public List<? extends Object> getData(SampleClazz nextItem) {
-                List<Object> data = new ArrayList<Object>();
+                List<Object> data = new ArrayList<>();
                 data.add(nextItem.getName());
                 data.add(nextItem.getAge());
                 data.add(nextItem.getWeight());
@@ -161,7 +161,7 @@ public class DatabaseManagerTest {
                 test) {
             @Override
             public List<? extends Object> getData(SampleClazz nextItem) {
-                List<Object> data = new ArrayList<Object>();
+                List<Object> data = new ArrayList<>();
                 data.add(nextItem.getName());
                 data.add(nextItem.getAge());
                 data.add(nextItem.getWeight());

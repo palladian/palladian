@@ -1,11 +1,11 @@
 package ws.palladian.extraction.date.rater;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -21,7 +21,7 @@ public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
 
     @Override
     public List<RatedDate<ReferenceDate>> rate(List<ReferenceDate> list) {
-        List<RatedDate<ReferenceDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<ReferenceDate>> result = new ArrayList<>();
         ReferenceDate youngestDate = dateComparator.getYoungestDate(list);
         if (youngestDate != null) {
             result.add(RatedDate.create(youngestDate, 0));

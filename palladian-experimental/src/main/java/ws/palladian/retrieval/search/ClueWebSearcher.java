@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.resources.WebContent;
@@ -153,7 +153,7 @@ public final class ClueWebSearcher extends AbstractSearcher<ClueWebResult> imple
     @Override
     public List<ClueWebResult> search(String query, int resultCount, Language language) throws SearcherException {
         StopWatch stopWatch = new StopWatch();
-        List<ClueWebResult> rankedDocuments = CollectionHelper.newArrayList();
+        List<ClueWebResult> rankedDocuments = new ArrayList<>();
         try {
             Query luceneQuery = createQuery(query);
             TopScoreDocCollector collector = TopScoreDocCollector.create(resultCount, false);

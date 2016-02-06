@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -20,8 +19,9 @@ import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -88,8 +88,6 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
     private static final String DATE_PATTERN = "E MMM dd HH:mm:ss Z yyyy";
 
     private static final String REQUEST_DATE_PATTERN = "yyyy-MM-dd";
-
-    private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
     /**
      * Identifier for the raw JSON representation of a Tweet, which can be retrieved via
@@ -172,9 +170,8 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         return date;
     }
 
-    private HttpResult performHttpRequest(HttpRequest request) throws HttpException, SearcherException {
+    private HttpResult performHttpRequest(HttpRequest2 request) throws HttpException, SearcherException {
         HttpResult httpResult = retriever.execute(request);
-        TOTAL_REQUEST_COUNT.incrementAndGet();
 
         int statusCode = httpResult.getStatusCode();
         String resetHeader = httpResult.getHeaderString("X-Rate-Limit-Reset");
@@ -209,45 +206,45 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      * @param query The actual query.
      * @return The authenticated {@link HttpRequest} for accessing the API.
      */
-    private HttpRequest buildRequest(MultifacetQuery query, String maxId) {
-        HttpRequest request;
+    private HttpRequest2 buildRequest(MultifacetQuery query, String maxId) {
+        HttpRequest2Builder builder;
         if (query.getId() != null && query.getId().length() > 0) {
             // query for ID
-            request = new HttpRequest(HttpMethod.GET, "https://api.twitter.com/1.1/statuses/show.json");
-            request.addParameter("id", query.getId());
+            builder = new HttpRequest2Builder(HttpMethod.GET, "https://api.twitter.com/1.1/statuses/show.json");
+            builder.addUrlParam("id", query.getId());
         } else {
             // query by criteria
-            request = new HttpRequest(HttpMethod.GET, "https://api.twitter.com/1.1/search/tweets.json");
+            builder = new HttpRequest2Builder(HttpMethod.GET, "https://api.twitter.com/1.1/search/tweets.json");
             if (query.getText() != null) {
-                request.addParameter("q", query.getText());
+                builder.addUrlParam("q", query.getText());
             }
-            request.addParameter("count", Math.min(100, query.getResultCount()));
+            builder.addUrlParam("count", String.valueOf(Math.min(100, query.getResultCount())));
             if (query.getLanguage() != null) {
-                request.addParameter("lang", query.getLanguage().getIso6391());
+                builder.addUrlParam("lang", query.getLanguage().getIso6391());
             }
             Facet facet = query.getFacet(ResultType.TWITTER_RESULT_TYPE_ID);
             if (facet != null) {
                 ResultType resultType = (ResultType)facet;
-                request.addParameter("result_type", resultType.getValue());
+                builder.addUrlParam("result_type", resultType.getValue());
             }
             GeoCoordinate coordinate = query.getCoordinate();
             if (coordinate != null) {
                 double radius = query.getRadius() != null ? query.getRadius() : 10;
                 String geocode = String.format("%s,%s,%skm", coordinate.getLatitude(), coordinate.getLongitude(),
                         radius);
-                request.addParameter("geocode", geocode);
+                builder.addUrlParam("geocode", geocode);
 
             }
             if (query.getEndDate() != null) {
                 String untilString = new SimpleDateFormat(REQUEST_DATE_PATTERN).format(query.getEndDate());
-                request.addParameter("until", untilString);
+                builder.addUrlParam("until", untilString);
             }
             if (StringUtils.isNotBlank(maxId)) {
-                request.addParameter("max_id", maxId);
+                builder.addUrlParam("max_id", maxId);
             }
         }
-        HttpRequest signedRequest = OAuthUtil.createSignedRequest(request, oAuthParams);
-        LOGGER.debug("Request: {}", request);
+        HttpRequest2 signedRequest = new OAuthUtil(oAuthParams).createSignedRequest(builder.create());
+        LOGGER.debug("Request: {}", signedRequest);
         return signedRequest;
     }
 
@@ -266,7 +263,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         try {
 
             for (; webResults.size() < query.getResultCount();) {
-                HttpRequest request = buildRequest(query, maxId);
+                HttpRequest2 request = buildRequest(query, maxId);
                 HttpResult httpResult = performHttpRequest(request);
 
                 responseString = httpResult.getStringContent();
@@ -306,7 +303,6 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
                     + getName() + ": " + e.getMessage() + " (JSON: '" + responseString + "')", e);
         }
 
-        LOGGER.debug("twitter requests: {}", TOTAL_REQUEST_COUNT.get());
         return new SearchResults<WebContent>(webResults);
     }
 
@@ -341,15 +337,6 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
 
         WebContent result = builder.create();
         return result;
-    }
-
-    /**
-     * Gets the number of HTTP requests sent to Twitter.
-     * 
-     * @return
-     */
-    public static int getRequestCount() {
-        return TOTAL_REQUEST_COUNT.get();
     }
 
 }

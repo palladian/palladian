@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -7,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 
 /**
  * <p>
@@ -45,7 +48,7 @@ public abstract class AbstractLocation implements Location {
 
     @Override
     public final Set<String> collectAlternativeNames() {
-        Set<String> names = CollectionHelper.newHashSet();
+        Set<String> names = new HashSet<>();
         names.add(LocationExtractorUtils.normalizeName(this.getPrimaryName()));
         for (AlternativeName alternativeName : this.getAlternativeNames()) {
             names.add(LocationExtractorUtils.normalizeName(alternativeName.getName()));
@@ -71,7 +74,7 @@ public abstract class AbstractLocation implements Location {
 
     @Override
     public String toString() {
-        List<String> toStringParts = CollectionHelper.newArrayList();
+        List<String> toStringParts = new ArrayList<>();
         if (getId() != -1) {
             toStringParts.add(String.format("id=%s", getId()));
         }
@@ -86,6 +89,29 @@ public abstract class AbstractLocation implements Location {
             toStringParts.add(String.format("population=%s", getPopulation()));
         }
         return String.format("%s [%s]", getClass().getSimpleName(), StringUtils.join(toStringParts, ','));
+    }
+
+    @Override
+    public boolean hasName(String name, Set<Language> languages) {
+        Validate.notNull(name, "name must not be null");
+        Validate.notNull(languages, "languages must not be null");
+        if (equalName(getPrimaryName(), name)) {
+            return true;
+        }
+        for (AlternativeName alternativeName : getAlternativeNames()) {
+            String currentName = alternativeName.getName();
+            Language currentLang = alternativeName.getLanguage();
+            if (equalName(currentName, name) && (currentLang == null || languages.contains(currentLang))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean equalName(String name1, String name2) {
+        String normalized1 = StringUtils.stripAccents(name1).toLowerCase();
+        String normalized2 = StringUtils.stripAccents(name2).toLowerCase();
+        return normalized1.equals(normalized2);
     }
 
     // hashCode and equals

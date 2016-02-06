@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * A scorer using F1 measure for the specified class name.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static final class FMeasureScorer implements Function<ConfusionMatrix, Double> {
 
@@ -206,7 +207,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
-        List<Instance> instances = new ArrayList<Instance>(dataset);
+        List<Instance> instances = new ArrayList<>(dataset);
         Collections.shuffle(instances);
         List<Instance> trainData = instances.subList(0, instances.size() / 2);
         List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
@@ -225,11 +226,11 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      */
     public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet,
             Iterable<? extends Instance> validationSet, ProgressReporter progress) {
-        Map<String, Integer> ranks = CollectionHelper.newHashMap();
+        Map<String, Integer> ranks = new HashMap<>();
 
         Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
         final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
-        final List<String> eliminatedFeatures = CollectionHelper.newArrayList();
+        final List<String> eliminatedFeatures = new ArrayList<>();
         final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
         progress.startTask("Backwards feature elimination", iterations);
         int featureIndex = 0;
@@ -247,15 +248,15 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
             // stepwise elimination
             for (;;) {
-                Set<String> featuresToCheck = new HashSet<String>(allFeatures);
+                Set<String> featuresToCheck = new HashSet<>(allFeatures);
                 featuresToCheck.removeAll(eliminatedFeatures);
                 if (featuresToCheck.isEmpty()) {
                     break;
                 }
-                List<TestRun> runs = CollectionHelper.newArrayList();
+                List<TestRun> runs = new ArrayList<>();
 
                 for (String currentFeature : featuresToCheck) {
-                    List<String> featuresToEliminate = new ArrayList<String>(eliminatedFeatures);
+                    List<String> featuresToEliminate = new ArrayList<>(eliminatedFeatures);
                     featuresToEliminate.add(currentFeature);
                     runs.add(new TestRun(trainSet, validationSet, featuresToEliminate, progress));
                 }
@@ -307,7 +308,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
         // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).
         Function<ConfusionMatrix, Double> scorer = new FMeasureScorer("true");
 
-        BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<QuickDtModel>(
+        BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<>(
                 learnerFactory, predictorFactory, scorer, 1);
         FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet, new ProgressMonitor());
         CollectionHelper.print(featureRanking.getAll());

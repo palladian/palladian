@@ -1,6 +1,7 @@
 package ws.palladian.extraction.content.evaluation;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -15,7 +16,6 @@ import ws.palladian.extraction.content.evaluation.ContentExtractionDataset.Conte
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.CharacterNGramSimilarity;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
@@ -30,16 +30,16 @@ public final class ContentExtractorEvaluation {
     private static final List<StringMetric> SIMILARITIES = createSimilarities();
 
     private static List<StringMetric> createSimilarities() {
-        List<StringMetric> similarities = CollectionHelper.newArrayList();
+        List<StringMetric> similarities = new ArrayList<>();
         similarities.add(new LevenshteinSimilarity());
         similarities.add(new CharacterNGramSimilarity(5));
         similarities.add(new JaroWinklerSimilarity());
         return similarities;
     }
 
-    private final List<WebPageContentExtractor> extractors = CollectionHelper.newArrayList();
+    private final List<WebPageContentExtractor> extractors = new ArrayList<>();
 
-    private final List<ContentExtractionDataset> datasets = CollectionHelper.newArrayList();
+    private final List<ContentExtractionDataset> datasets = new ArrayList<>();
 
     public void addExtractor(WebPageContentExtractor extractor) {
         Validate.notNull(extractor, "extractor must not be null");

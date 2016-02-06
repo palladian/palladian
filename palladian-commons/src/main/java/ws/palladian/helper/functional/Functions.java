@@ -1,8 +1,11 @@
 package ws.palladian.helper.functional;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
+
+import ws.palladian.helper.collection.CollectionHelper;
 
 public final class Functions {
 
@@ -42,7 +45,7 @@ public final class Functions {
     /**
      * {@link Function} which maps values as determined by a {@link Map}.
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <I> Input type.
      * @param <O> Output type.

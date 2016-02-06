@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -12,13 +13,12 @@ import org.junit.Test;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.value.NumericValue;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class MinMaxNormalizerTest {
 
     @Test
     public void testMinMaxNormalization() {
-        List<FeatureVector> vectors = CollectionHelper.newArrayList();
+        List<FeatureVector> vectors = new ArrayList<>();
         FeatureVector fv1 = new InstanceBuilder().set("v1", 50.).set("v2", 1000.).create();
         FeatureVector fv2 = new InstanceBuilder().set("v1", 10.).set("v2", 10000.).create();
         FeatureVector fv3 = new InstanceBuilder().set("v1", 5.).set("v2", 10.).create();
@@ -43,7 +43,7 @@ public class MinMaxNormalizerTest {
 
     @Test
     public void testNormalizationWithEqualMinMax() throws Exception {
-        Collection<FeatureVector> instances = CollectionHelper.newArrayList();
+        Collection<FeatureVector> instances = new ArrayList<>();
         instances.add(new InstanceBuilder().set("test", 0.9d).create());
         instances.add(new InstanceBuilder().set("test", 0.9d).create());
         Normalization normalization = new MinMaxNormalizer().calculate(instances);

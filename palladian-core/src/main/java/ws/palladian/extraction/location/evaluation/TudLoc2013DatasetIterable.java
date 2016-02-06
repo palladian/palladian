@@ -1,10 +1,12 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +21,6 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -31,7 +32,7 @@ import ws.palladian.helper.io.LineAction;
 /**
  * {@link Iterable} TUD-Loc-2013 dataset (and datasets which have been converted to this format).
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class TudLoc2013DatasetIterable implements Iterable<LocationDocument> {
 
@@ -127,7 +128,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
                 .create(new Factory<Map<Integer, GeoCoordinate>>() {
                     @Override
                     public Map<Integer, GeoCoordinate> create() {
-                        return CollectionHelper.newTreeMap();
+                        return new TreeMap<>();
                     }
                 });
         int lines = FileHelper.performActionOnEveryLine(coordinateFile, new LineAction() {
@@ -155,7 +156,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
     }
 
     private static List<LocationAnnotation> getAnnotations(String rawText, Map<Integer, GeoCoordinate> coordinates) {
-        List<LocationAnnotation> annotations = CollectionHelper.newArrayList();
+        List<LocationAnnotation> annotations = new ArrayList<>();
         Annotations<Annotation> xmlAnnotations = FileFormatParser.getAnnotationsFromXmlText(rawText);
         for (Annotation xmlAnnotation : xmlAnnotations) {
             int dummyId = xmlAnnotation.getValue().hashCode();

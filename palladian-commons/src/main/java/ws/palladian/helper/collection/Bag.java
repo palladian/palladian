@@ -53,7 +53,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * A factory for creating {@link Bag}s.
      * </p>
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <T>
      */
@@ -78,7 +78,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * @return The Bag.
      */
     public static <T> Bag<T> create() {
-        return new Bag<T>(new HashMap<T, Integer>());
+        return new Bag<>(new HashMap<T, Integer>());
     }
 
     /**
@@ -108,7 +108,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      */
     public static <T> Bag<T> create(Map<? extends T, ? extends Integer> map) {
         Validate.notNull(map, "map must not be null");
-        return new Bag<T>(new HashMap<T, Integer>(map));
+        return new Bag<>(new HashMap<>(map));
     }
 
     /** Private constructor, instances are created through the static methods. */
@@ -184,7 +184,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
         Validate.notNull(item, "item must not be null");
         if (increment != 0) {
             int count = count(item);
-            map.put(item, count += increment);
+            map.put(item, count + increment);
             size += increment;
         }
     }
@@ -285,7 +285,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public Bag<T> createSorted(Order order) {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
-        return new Bag<T>(sorted);
+        return new Bag<>(sorted);
     }
 
     /**
@@ -296,7 +296,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * @return A map, where values represent the counts.
      */
     public Map<T, Integer> toMap() {
-        return new HashMap<T, Integer>(map);
+        return new HashMap<>(map);
     }
 
     // equals, hashCode
@@ -339,7 +339,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        map = new HashMap<T, Integer>();
+        map = new HashMap<>();
         int numEntries = in.readInt();
         for (int i = 0; i < numEntries; i++) {
             @SuppressWarnings("unchecked")

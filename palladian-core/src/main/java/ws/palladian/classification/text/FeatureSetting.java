@@ -1,11 +1,12 @@
 package ws.palladian.classification.text;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 
 /**
  * <p>
@@ -44,6 +45,15 @@ public class FeatureSetting implements Serializable {
     /** Name of the key for characterPadding switch when creating a map. */
     public static final String PROPERTY_CHARACTER_PADDING = "characterPadding";
 
+    /** Name of the key for stemming setting. */
+    public static final String PROPERTY_STEM = "stem";
+
+    /** Name of the key for stopword removal setting. */
+    public static final String PROPERTY_REMOVE_STOPWORDS = "removeStopwords";
+
+    /** Name of the key for langauge setting. */
+    public static final String PROPERTY_LANGUAGE = "language";
+
     /** The default maximum term length. */
     static final int DEFAULT_MIN_TERM_LENGTH = 3;
 
@@ -64,6 +74,12 @@ public class FeatureSetting implements Serializable {
 
     /** The default value for character padding. */
     static final boolean DEFAULT_CHARACTER_PADDING = false;
+
+    static final boolean DEFAULT_STEM = false;
+
+    static final boolean DEFAULT_REMOVE_STOPWORDS = false;
+
+    public static final Language DEFAULT_LANGUAGE = Language.ENGLISH;
 
     public static enum TextFeatureType {
         /** Use n-Grams on a character level. */
@@ -98,9 +114,18 @@ public class FeatureSetting implements Serializable {
 
     /** Indicate, whether the text should be treated case insensitively or not. */
     private boolean caseSensitive = DEFAULT_CASE_SENSITIVE;
-    
+
     /** Indicate, whether to add character padding when using character n-gram features. */
     private boolean characterPadding = DEFAULT_CHARACTER_PADDING;
+
+    /** Indicate, whether to stem the tokens (only in word n-gram mode). */
+    private boolean stem = DEFAULT_STEM;
+
+    /** Indicate, whether to remove stop words (only in word n-gram mode). */
+    private boolean removeStopwords = DEFAULT_REMOVE_STOPWORDS;
+
+    /** The language used for stemming and stop word removal. */
+    private Language language = DEFAULT_LANGUAGE;
 
     /**
      * @deprecated Consider using the {@link FeatureSettingBuilder} for better readability.
@@ -143,6 +168,9 @@ public class FeatureSetting implements Serializable {
         this.maximumTermLength = builder.maxTermLength;
         this.caseSensitive = builder.caseSensitive;
         this.characterPadding = builder.characterPadding;
+        this.stem = builder.stem;
+        this.removeStopwords = builder.removeStopwords;
+        this.language = builder.language;
     }
 
     /**
@@ -163,6 +191,12 @@ public class FeatureSetting implements Serializable {
         this.caseSensitive = csValue != null ? Boolean.parseBoolean(csValue) : DEFAULT_CASE_SENSITIVE;
         String cpValue = properties.get(PROPERTY_CHARACTER_PADDING);
         this.characterPadding = cpValue != null ? Boolean.parseBoolean(cpValue) : DEFAULT_CHARACTER_PADDING;
+        String stValue = properties.get(PROPERTY_STEM);
+        this.stem = stValue != null ? Boolean.parseBoolean(stValue) : DEFAULT_STEM;
+        String swValue = properties.get(PROPERTY_REMOVE_STOPWORDS);
+        this.removeStopwords = swValue != null ? Boolean.parseBoolean(swValue) : DEFAULT_REMOVE_STOPWORDS;
+        String langValue = properties.get(PROPERTY_LANGUAGE);
+        this.language = langValue != null ? Language.valueOf(langValue) : DEFAULT_LANGUAGE;
     }
 
     public TextFeatureType getTextFeatureType() {
@@ -199,9 +233,21 @@ public class FeatureSetting implements Serializable {
     public boolean isCaseSensitive() {
         return caseSensitive;
     }
-    
+
     public boolean isCharacterPadding() {
         return characterPadding;
+    }
+
+    public boolean isStem() {
+        return stem;
+    }
+
+    public boolean isRemoveStopwords() {
+        return removeStopwords;
+    }
+
+    public Language getLanguage() {
+        return language;
     }
 
     @Override
@@ -228,6 +274,15 @@ public class FeatureSetting implements Serializable {
         if (isCharacterPadding()) {
             builder.append(", characterPadding");
         }
+        if (isStem()) {
+            builder.append(", stem");
+        }
+        if (isRemoveStopwords()) {
+            builder.append(", removeStopwords");
+        }
+        if (getLanguage() != null) {
+            builder.append(", language=").append(language);
+        }
         builder.append("]");
         return builder.toString();
     }
@@ -236,7 +291,7 @@ public class FeatureSetting implements Serializable {
      * @return The settings as key-value properties (useful e.g. for persistence).
      */
     public Map<String, String> toMap() {
-        Map<String, String> map = CollectionHelper.newHashMap();
+        Map<String, String> map = new HashMap<>();
         map.put(PROPERTY_TEXT_FEATURE_TYPE, textFeatureType.name());
         map.put(PROPERTY_MAX_TERMS, String.valueOf(maxTerms));
         map.put(PROPERTY_MIN_N_GRAM_LENGTH, String.valueOf(minNGramLength));
@@ -245,7 +300,55 @@ public class FeatureSetting implements Serializable {
         map.put(PROPERTY_MAX_TERM_LENGTH, String.valueOf(maximumTermLength));
         map.put(PROPERTY_CASE_SENSITIVE, String.valueOf(caseSensitive));
         map.put(PROPERTY_CHARACTER_PADDING, String.valueOf(characterPadding));
+        map.put(PROPERTY_STEM, String.valueOf(stem));
+        map.put(PROPERTY_REMOVE_STOPWORDS, String.valueOf(removeStopwords));
+        map.put(PROPERTY_LANGUAGE, String.valueOf(language));
         return map;
+    }
+    
+    // hashCode + equals
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (caseSensitive ? 1231 : 1237);
+        result = prime * result + (characterPadding ? 1231 : 1237);
+        result = prime * result + maxNGramLength;
+        result = prime * result + maxTerms;
+        result = prime * result + maximumTermLength;
+        result = prime * result + minNGramLength;
+        result = prime * result + minimumTermLength;
+        result = prime * result + ((textFeatureType == null) ? 0 : textFeatureType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FeatureSetting other = (FeatureSetting)obj;
+        if (caseSensitive != other.caseSensitive)
+            return false;
+        if (characterPadding != other.characterPadding)
+            return false;
+        if (maxNGramLength != other.maxNGramLength)
+            return false;
+        if (maxTerms != other.maxTerms)
+            return false;
+        if (maximumTermLength != other.maximumTermLength)
+            return false;
+        if (minNGramLength != other.minNGramLength)
+            return false;
+        if (minimumTermLength != other.minimumTermLength)
+            return false;
+        if (textFeatureType != other.textFeatureType)
+            return false;
+        return true;
     }
 
 }

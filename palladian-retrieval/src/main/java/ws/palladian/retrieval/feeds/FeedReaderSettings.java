@@ -6,6 +6,8 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Factory;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
@@ -14,7 +16,7 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 /**
  * Settings for the {@link FeedReader}. Use the {@link Builder} to instantiate.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public interface FeedReaderSettings {
 
@@ -61,6 +63,13 @@ public interface FeedReaderSettings {
 
     /** Warn if processing of a feed takes longer than this. */
     long DEFAULT_EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
+    
+    Factory<FeedParser> DEFAULT_PARSER_FACTORY = new Factory<FeedParser>() {
+        @Override
+        public FeedParser create() {
+            return new RomeFeedParser();
+        }
+    };
 
     /**
      * @return The store which provides persistence for the feed data, not <code>null</code>.
@@ -99,12 +108,14 @@ public interface FeedReaderSettings {
     long getMaximumFeedSize();
 
     long getExecutionWarnTime();
+    
+    Factory<? extends FeedParser> getParserFactory();
 
     /**
      * <p>
      * A builder for {@link FeedReaderSettings} instances.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     static class Builder implements Factory<FeedReaderSettings> {
         FeedStore store;
@@ -118,6 +129,7 @@ public interface FeedReaderSettings {
         long maximumAvgProcessingTime = DEFAULT_MAXIMUM_AVERAGE_PROCESSING_TIME_MS;
         long maximumFeedSize = DEFAULT_MAXIMUM_FEED_SIZE;
         long executionWarnTime = DEFAULT_EXECUTION_WARN_TIME;
+        Factory<? extends FeedParser> parserFactory = DEFAULT_PARSER_FACTORY;
 
         public Builder setStore(FeedStore store) {
             this.store = store;
@@ -173,6 +185,11 @@ public interface FeedReaderSettings {
             this.executionWarnTime = executionWarnTime;
             return this;
         }
+        
+        public Builder setParserFactory(Factory<? extends FeedParser> factory) {
+            this.parserFactory = factory;
+            return this;
+        }
 
         @Override
         public FeedReaderSettings create() {
@@ -187,6 +204,7 @@ public interface FeedReaderSettings {
             Validate.isTrue(maximumAvgProcessingTime >= 1000, "maximumAvgProcessingTime must be greater/equal 1,000");
             Validate.isTrue(maximumFeedSize >= 1, "maximumFeedSize must be greater/equal one");
             Validate.isTrue(executionWarnTime >= 1, "executionWarnTime must be greater/equal one");
+            Validate.notNull(parserFactory, "parserFactory must not be null");
             return new ImmutableFeedReaderSettings(this);
         }
 

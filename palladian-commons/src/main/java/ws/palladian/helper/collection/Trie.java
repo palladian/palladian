@@ -2,6 +2,7 @@ package ws.palladian.helper.collection;
 
 import java.io.Serializable;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +66,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
             }
         }
         if (create) {
-            Trie<V> newNode = new Trie<V>(head, this);
+            Trie<V> newNode = new Trie<>(head, this);
             if (children == EMPTY_ARRAY) {
                 children = new Trie[] {newNode};
             } else {
@@ -74,7 +75,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
                 newArray[children.length] = newNode;
                 children = newArray;
             }
-            return newNode.getNode(tail, create);
+            return newNode.getNode(tail, true);
         } else {
             return null;
         }
@@ -151,7 +152,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
      */
     public boolean clean() {
         boolean clean = true;
-        List<Trie<V>> temp = CollectionHelper.newArrayList();
+        List<Trie<V>> temp = new ArrayList<>();
         for (Trie<V> child : children) {
             boolean childClean = child.clean();
             if (!childClean) {
@@ -167,7 +168,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
 
     @Override
     public Iterator<Map.Entry<String, V>> iterator() {
-        return new TrieEntryIterator<V>(this);
+        return new TrieEntryIterator<>(this);
     }
 
     public int size() {
@@ -186,7 +187,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
         private Trie<V> currentNode;
 
         private TrieEntryIterator(Trie<V> root) {
-            stack = new ArrayDeque<Iterator<Trie<V>>>();
+            stack = new ArrayDeque<>();
             stack.push(root.children());
         }
 

@@ -11,7 +11,6 @@ import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 
 /**
@@ -35,10 +34,10 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      * @return
      */
     public List<RatedDate<ArchiveDate>> rate(List<ArchiveDate> dates, List<? extends RatedDate<?>> allDates) {
-        List<RatedDate<ArchiveDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<ArchiveDate>> result = new ArrayList<>();
         
         
-        Map<ExtractedDate, Double> datesWeights = CollectionHelper.newHashMap();
+        Map<ExtractedDate, Double> datesWeights = new HashMap<>();
         for (RatedDate<?> ratedDate : allDates) {
             datesWeights.put(ratedDate.getDate(), ratedDate.getRate());
         }

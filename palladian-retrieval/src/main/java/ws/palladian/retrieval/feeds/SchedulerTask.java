@@ -3,6 +3,7 @@ package ws.palladian.retrieval.feeds;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
@@ -13,8 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -49,7 +48,7 @@ class SchedulerTask extends TimerTask {
      */
     SchedulerTask(FeedReaderSettings settings) {
         this.threadPool = Executors.newFixedThreadPool(settings.getNumThreads());
-        this.scheduledTasks = CollectionHelper.newHashMap();
+        this.scheduledTasks = new HashMap<>();
         this.settings = settings;
     }
 

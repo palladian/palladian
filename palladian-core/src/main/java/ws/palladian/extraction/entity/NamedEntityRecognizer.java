@@ -2,6 +2,7 @@ package ws.palladian.extraction.entity;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,7 +16,6 @@ import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -100,7 +100,7 @@ public abstract class NamedEntityRecognizer implements Tagger {
             Set<String> ignore) {
 
         EvaluationResult evaluationResult = new EvaluationResult(goldStandard);
-        Set<Annotation> taggedAnnotations = CollectionHelper.newHashSet();
+        Set<Annotation> taggedAnnotations = new HashSet<>();
 
         // check each NER annotation against the gold standard and add it to the assignment map depending on its error
         // type, we allow only one overlap for each gold standard annotation => real(<Person>Homer J. Simpson</Person>),

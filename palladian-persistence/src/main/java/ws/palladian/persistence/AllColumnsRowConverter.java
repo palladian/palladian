@@ -10,11 +10,11 @@ import java.util.Map;
  * <p>
  * Convert all columns of a given result set to strings and return them in a key-value map.
  * </p>
- * 
+ *
+ * FIXME merge with RowConvters.MAP (different mapping of datatypes)
+ *
  * @author David Urbansky
- * @deprecated Use {@link MapRowConverter}.
  */
-@Deprecated
 public final class AllColumnsRowConverter {
 
     private AllColumnsRowConverter() {
@@ -30,7 +30,7 @@ public final class AllColumnsRowConverter {
         @Override
         public Map<String, Object> convert(ResultSet resultSet) throws SQLException {
 
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
 
             int numColumns = resultSet.getMetaData().getColumnCount();
             for (int i = 1; i <= numColumns; i++) {

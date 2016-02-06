@@ -4,14 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
 import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.core.InstanceBuilder;
 
 public class PalladianTextClassifierTest {
 
@@ -24,7 +24,7 @@ public class PalladianTextClassifierTest {
     private static List<Instance> createDocs() {
         // sample data taken from "An Introduction to Information Retrieval";
         // Christopher D. Manning; Prabhakar Raghavan; Hinrich Schütze; 2009, chapter 13 (pp. 253).
-        List<Instance> docs = CollectionHelper.newArrayList();
+        List<Instance> docs = new ArrayList<>();
         docs.add(new InstanceBuilder().setText("Chinese Beijing Chinese").create("yes"));
         docs.add(new InstanceBuilder().setText("Chinese Chinese Shanghai").create("yes"));
         docs.add(new InstanceBuilder().setText("Chinese Macao").create("yes"));

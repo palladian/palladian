@@ -1,15 +1,7 @@
 package ws.palladian.helper.nlp;
 
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -22,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
@@ -33,7 +24,7 @@ import ws.palladian.helper.normalization.UnitNormalizer;
  * <p>
  * The StringHelper provides functionality for typical String manipulation operations.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Martin Werner
  * @author Philipp Katz
@@ -41,7 +32,9 @@ import ws.palladian.helper.normalization.UnitNormalizer;
  */
 public final class StringHelper {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(StringHelper.class);
 
     private static final Pattern PATTERN_FIRST_WORD = Pattern.compile("^(\\w+)(?:\\s|$)");
@@ -57,6 +50,10 @@ public final class StringHelper {
     private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
     private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
+    private static final Pattern PATTERN_MULTIPLE_HYPHENS = Pattern.compile("[-]{2,}");
+    private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
+
+    private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF]");
 
     private StringHelper() {
         // utility class.
@@ -64,17 +61,19 @@ public final class StringHelper {
 
     /**
      * In ontologies names can not have certain characters so they have to be changed.
-     * 
+     *
      * @param name The name.
      * @param maxLength The maximum length of the string. -1 means no maximum length.
      * @return The safe name.
      */
     public static String makeSafeName(String name, int maxLength) {
         String safeName = name.replace(" ", "-");
+        safeName = safeName.replace("_", "-");
         safeName = safeName.replace("/", "-");
         safeName = safeName.replace("'", "");
         safeName = safeName.replace("`", "");
         safeName = safeName.replace("´", "");
+        safeName = safeName.replace("’", "");
         safeName = safeName.replace("%", "");
         safeName = safeName.replace("@", "");
         safeName = safeName.replace("~", "");
@@ -94,6 +93,12 @@ public final class StringHelper {
         safeName = safeName.replace(">", "");
         safeName = safeName.replace("<", "");
         safeName = safeName.replace("^", "");
+        safeName = safeName.replace("\\(", "");
+        safeName = safeName.replace("\\)", "");
+        safeName = safeName.replace("\\[", "");
+        safeName = safeName.replace("\\]", "");
+        safeName = safeName.replace("\\{", "");
+        safeName = safeName.replace("\\}", "");
         safeName = safeName.replace("ä", "ae");
         safeName = safeName.replace("Ä", "Ae");
         safeName = safeName.replace("ö", "oe");
@@ -104,6 +109,10 @@ public final class StringHelper {
 
         safeName = removeControlCharacters(safeName);
         safeName = removeNonAsciiCharacters(safeName);
+
+        safeName = PATTERN_MULTIPLE_HYPHENS.matcher(safeName).replaceAll("-");
+
+        safeName = safeName.toLowerCase();
 
         if (maxLength > 0) {
             safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
@@ -125,7 +134,7 @@ public final class StringHelper {
 
     /**
      * Shorten a string to a given length if necessary and add ellipsis.
-     * 
+     *
      * @param string The string to shorten.
      * @param maxLength The maximum length.
      * @return The original string if it was shorter than the max. length, or a shortened string with appended "...", or
@@ -143,92 +152,10 @@ public final class StringHelper {
 
     /**
      * <p>
-     * In some cases we have unicode characters and have to transform them to Ascii again. We use the following mapping:
-     * http://www.unicodemap.org/range/2/Latin-1_Supplement/.
-     * </p>
-     * <p>
-     * For example, "Florentino P00E9rez" becomes "Florentino Pérez"
-     * </p>
-     * 
-     * @param string The string where unicode characters might occur.
-     * @return The transformed string.
-     */
-    public static String fuzzyUnicodeToAscii(String string) {
-
-        string = string.replace("00C0", "À");
-        string = string.replace("00C1", "Á");
-        string = string.replace("00C2", "Â");
-        string = string.replace("00C3", "Ã");
-        string = string.replace("00C4", "Ä");
-        string = string.replace("00C5", "Å");
-        string = string.replace("00C6", "Æ");
-        string = string.replace("00C7", "Ç");
-        string = string.replace("00C8", "È");
-        string = string.replace("00C9", "É");
-        string = string.replace("00CA", "Ê");
-        string = string.replace("00CB", "Ë");
-        string = string.replace("00CC", "Ì");
-        string = string.replace("00CD", "Í");
-        string = string.replace("00CE", "Î");
-        string = string.replace("00CF", "Ï");
-        string = string.replace("00D0", "Ð");
-        string = string.replace("00D1", "Ñ");
-        string = string.replace("00D2", "Ò");
-        string = string.replace("00D3", "Ó");
-        string = string.replace("00D4", "Ô");
-        string = string.replace("00D5", "Õ");
-        string = string.replace("00D6", "Ö");
-        string = string.replace("00D7", "×");
-        string = string.replace("00D8", "Ø");
-        string = string.replace("00D9", "Ù");
-        string = string.replace("00DA", "Ú");
-        string = string.replace("00DB", "Û");
-        string = string.replace("00DC", "Ü");
-        string = string.replace("00DD", "Ý");
-        string = string.replace("00DE", "Þ");
-        string = string.replace("00DF", "ß");
-        string = string.replace("00E0", "à");
-        string = string.replace("00E1", "á");
-        string = string.replace("00E2", "â");
-        string = string.replace("00E3", "ã");
-        string = string.replace("00E4", "ä");
-        string = string.replace("00E5", "å");
-        string = string.replace("00E6", "æ");
-        string = string.replace("00E7", "ç");
-        string = string.replace("00E8", "è");
-        string = string.replace("00E9", "é");
-        string = string.replace("00EA", "ê");
-        string = string.replace("00EB", "ë");
-        string = string.replace("00EC", "ì");
-        string = string.replace("00ED", "í");
-        string = string.replace("00EE", "î");
-        string = string.replace("00EF", "ï");
-        string = string.replace("00F0", "ð");
-        string = string.replace("00F1", "ñ");
-        string = string.replace("00F2", "ò");
-        string = string.replace("00F3", "ó");
-        string = string.replace("00F4", "ô");
-        string = string.replace("00F5", "õ");
-        string = string.replace("00F6", "ö");
-        string = string.replace("00F7", "÷");
-        string = string.replace("00F8", "ø");
-        string = string.replace("00F9", "ù");
-        string = string.replace("00FA", "ú");
-        string = string.replace("00FB", "û");
-        string = string.replace("00FC", "ü");
-        string = string.replace("00FD", "ý");
-        string = string.replace("00FE", "þ");
-        string = string.replace("00FF", "ÿ");
-
-        return string;
-    }
-
-    /**
-     * <p>
      * Get indices of a string within a text. For example, for the text "This is a text" and the search string " ", the
      * indices [4, 7, 9] are returned, giving the positions of the white spaces.
      * </p>
-     * 
+     *
      * @param text The text to check.
      * @param search The search string for which to get the indices.
      * @return A {@link List} of positions for the specified search string within the text, or an empty List if the
@@ -239,7 +166,7 @@ public final class StringHelper {
             return Collections.emptyList();
         }
 
-        List<Integer> indices = new ArrayList<Integer>();
+        List<Integer> indices = new ArrayList<>();
         int lastPosition = 0;
         int position;
         while ((position = text.indexOf(search, lastPosition)) > -1) {
@@ -253,7 +180,7 @@ public final class StringHelper {
      * <p>
      * Make camel case.
      * </p>
-     * 
+     *
      * @param name the name
      * @param uppercaseFirst the uppercase first
      * @return the string
@@ -279,7 +206,7 @@ public final class StringHelper {
      * <p>
      * Make first letter of word upper case.
      * </p>
-     * 
+     *
      * @param string The term.
      * @return The term with an upper case first letter.
      */
@@ -295,7 +222,7 @@ public final class StringHelper {
      * <p>
      * Make first letters of all words upper case.
      * </p>
-     * 
+     *
      * @param string The term.
      * @return The term with an upper case first letters.
      */
@@ -314,7 +241,7 @@ public final class StringHelper {
 
     /**
      * Make first letter of word lower case.
-     * 
+     *
      * @param string The term.
      * @return The term with an lower case first letter.
      */
@@ -329,7 +256,7 @@ public final class StringHelper {
      * <p>
      * Replace a certain string only within a substring of a text.
      * </p>
-     * 
+     *
      * @param text The text in which something should be replaced.
      * @param start The start of the substring in which we want to replace something.
      * @param end The end of the substring in which we want to replace something.
@@ -355,7 +282,7 @@ public final class StringHelper {
      * <p>
      * <em>Note: This works for English only!</em>
      * </p>
-     * 
+     *
      * @param name The entity name.
      * @return The normalized entity name.
      */
@@ -379,7 +306,7 @@ public final class StringHelper {
 
     /**
      * Replace number before a text. 1.1 Text => Text
-     * 
+     *
      * @param numberedText The text that possibly has numbers before it starts.
      * @return The text without the numbers.
      */
@@ -393,7 +320,7 @@ public final class StringHelper {
      * <p>
      * Check whether a given string contains a proper noun.
      * </p>
-     * 
+     *
      * @param searchString The search string.
      * @return True if the string contains a proper noun, else false.
      */
@@ -438,7 +365,7 @@ public final class StringHelper {
     }
 
     public static Set<String> containsWhichWords(Collection<String> words, String searchString) {
-        Set<String> containedWords = new HashSet<String>();
+        Set<String> containedWords = new HashSet<>();
 
         for (String word : words) {
             if (containsWord(word, searchString)) {
@@ -454,7 +381,7 @@ public final class StringHelper {
      * Check whether a string contains a word given as a regular expression. The word can be surrounded by whitespaces
      * or punctuation but can not be within another word.
      * </p>
-     * 
+     *
      * @param word The word to search for.
      * @param searchString The string in which we try to find the word.
      * @return True, if the word is contained, false if not.
@@ -463,8 +390,6 @@ public final class StringHelper {
         String allowedNeighbors = "[\\s,.;-?!()\\[\\]]";
         String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
                 + allowedNeighbors + word + "$)|(^" + word + "$)";
-
-        word = Pattern.quote(word);
 
         try {
             Pattern pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
@@ -477,10 +402,46 @@ public final class StringHelper {
 
     /**
      * <p>
+     * Get the index of the word contained in the search string. Return -1 if is not contained.
+     * </p>
+     *
+     * @param word The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return The index position or -1 if the word is not contained.
+     */
+    public static int indexOfWordCaseSensitive(String word, String searchString) {
+        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
+        boolean found = matcher.find();
+        if (found) {
+            return matcher.start(1);
+        }
+        return -1;
+    }
+
+    /**
+     * <p>
+     * Get the index of the word contained in the search string. Return -1 if is not contained.
+     * </p>
+     *
+     * @param word The word to search for.
+     * @param searchString The string in which we try to find the word.
+     * @return The index position or -1 if the word is not contained.
+     */
+    public static int lastIndexOfWordCaseSensitive(String word, String searchString) {
+        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
+        int start = -1;
+        while (matcher.find()) {
+            start = matcher.start(1);
+        }
+        return start;
+    }
+
+    /**
+     * <p>
      * Check whether a string contains a word. The word can be surrounded by whitespaces or punctuation but can not be
      * within another word.
      * </p>
-     * 
+     *
      * @param word The word to search for.
      * @param searchString The string in which we try to find the word.
      * @return True, if the word is contained, false if not.
@@ -510,15 +471,14 @@ public final class StringHelper {
             char nextChar = searchString.charAt(index + word.length());
             // rightBorder = isPunctuation(nextChar) || Character.isSpaceChar(nextChar) || nextChar == '-' || nextChar
             // == ')';
-            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || nextChar == '-');
+            rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || nextChar == '-' || nextChar == '+');
         }
 
         if (leftBorder && rightBorder) {
             return true;
         }
 
-        return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(Pattern.quote(word), ""), leftBorder
-                && rightBorder);
+        return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(Pattern.quote(word), ""), false);
     }
 
     /**
@@ -530,7 +490,7 @@ public final class StringHelper {
      * NOTE: <b>This method is case INsensitive</b>. {@link StringHelper#containsWordCaseSensitive(String, String)} is a
      * case sensitive alternative which is considerably faster.
      * </p>
-     * 
+     *
      * @param word The word to search for.
      * @param searchString The string in which we try to find the word.
      * @return True, if the word is contained, false if not.
@@ -543,7 +503,7 @@ public final class StringHelper {
      * <p>
      * Determine, whether the supplied char is a punctuation character (i.e. one of [.,:;?!]).
      * </p>
-     * 
+     *
      * @param character The character to check.
      * @return <code>true</code> if punctuation character, <code>false</code> otherwise.
      */
@@ -606,7 +566,7 @@ public final class StringHelper {
         String searchStringLc = searchString.toLowerCase();
 
         int oldIndex = 0;
-        int index = 0;
+        int index;
         do {
             index = searchStringLc.indexOf(word, oldIndex);
             if (index == -1) {
@@ -646,7 +606,7 @@ public final class StringHelper {
 
     /**
      * Check whether a given string contains a numeric value.
-     * 
+     *
      * @param searchString The search string.
      * @return True if the string contains a numeric value, else false.
      */
@@ -658,7 +618,7 @@ public final class StringHelper {
      * <p>
      * Replace "non-breaking" aka. protected whitespace (unicode 0x00A0) with normal whitespace.
      * </p>
-     * 
+     *
      * @param string the string
      * @return the string
      */
@@ -670,10 +630,10 @@ public final class StringHelper {
      * <p>
      * Strips all non-ASCII characters from the supplied string. Useful to remove Asian characters, for example.
      * </p>
-     * 
+     *
      * @param string The input string.
-     * @see http://forums.sun.com/thread.jspa?threadID=5370865
      * @return The input string removed from non-ascii characters.
+     * @see http://forums.sun.com/thread.jspa?threadID=5370865
      */
     public static String removeNonAsciiCharacters(String string) {
         return PATTERN_NON_ASCII.matcher(string).replaceAll("");
@@ -684,53 +644,20 @@ public final class StringHelper {
      * Remove brackets and everything in between the brackets. "()[]{}" will be removed. For example
      * "This is a text (just a sample)." becomes "This is a text ."
      * </p>
-     * 
+     *
      * @param bracketString The bracket string
      * @return The string without brackets.
      */
     public static String removeBrackets(String bracketString) {
-        String string = bracketString;
+        String string;
         string = PATTERN_BRACKETS.matcher(bracketString).replaceAll("");
         string = removeDoubleWhitespaces(string);
         return string.trim();
     }
 
-    //    /**
-    //     * Escape for regular expression.
-    //     *
-    //     * @param inputString the input string
-    //     * @return the string
-    //     * @deprecated Use {@link Pattern#quote(String)} instead.
-    //     */
-    //    @Deprecated
-    //    public static String escapeForRegularExpression(String inputString) {
-    //        String string = inputString;
-    //        try {
-    //            string = string.replace("\\", "\\\\");
-    //            string = string.replace("(", "\\(");
-    //            string = string.replace(")", "\\)");
-    //            string = string.replace("[", "\\[");
-    //            string = string.replace("]", "\\]");
-    //            string = string.replace("{", "\\{");
-    //            string = string.replace("}", "\\}");
-    //            string = string.replace("|", "\\|");
-    //            string = string.replace("+", "\\+");
-    //            string = string.replace("*", "\\*");
-    //            string = string.replace("$", "\\$");
-    //            string = string.replace("^", "\\^");
-    //            string = string.replace(".", "\\.");
-    //            string = string.replace("?", "\\?");
-    //            string = string.replace("-", "\\-");
-    //            string = string.replaceAll("\\n", "\\\\n");
-    //        } catch (Exception e) {
-    //            LOGGER.error("{}, {}", string, e.getMessage());
-    //        }
-    //        return string;
-    //    }
-
     /**
      * Checks whether character is a bracket.
-     * 
+     *
      * @param character The character.
      * @return True if character is a bracket, else false.
      */
@@ -740,7 +667,7 @@ public final class StringHelper {
 
     /**
      * Check if the string is a number.
-     * 
+     *
      * @param ch the ch
      * @return True if string is number, else false.
      */
@@ -752,13 +679,13 @@ public final class StringHelper {
      * <p>
      * Checks if the input string is a number.
      * </p>
-     * 
+     *
      * @param string The string to check.
      * @return true, if is number
      */
     public static boolean isNumber(String string) {
 
-        if (string.length() == 0) {
+        if (string == null || string.isEmpty()) {
             return false;
         }
 
@@ -812,7 +739,7 @@ public final class StringHelper {
      * <p>
      * Checks if is numeric expression.
      * </p>
-     * 
+     *
      * @param string the string
      * @return <code>true</code>, if is numeric expression, <code>false</code> otherwise.
      */
@@ -858,7 +785,7 @@ public final class StringHelper {
 
     /**
      * Checks if is time expression.
-     * 
+     *
      * @param string the string
      * @return true, if is time expression
      */
@@ -868,7 +795,7 @@ public final class StringHelper {
 
     /**
      * Checks if is completely uppercase.
-     * 
+     *
      * @param testString the test string
      * @return true, if is completely uppercase
      */
@@ -892,23 +819,20 @@ public final class StringHelper {
 
     /**
      * Starts uppercase.
-     * 
+     *
      * @param testString the test string
      * @return true, if successful
      */
     public static boolean startsUppercase(String testString) {
         String string = StringHelper.trim(testString);
-        if (string.length() == 0) {
-            return false;
-        }
-        return Character.isUpperCase(string.charAt(0));
+        return string.length() != 0 && Character.isUpperCase(string.charAt(0));
     }
 
     /**
      * <p>
      * Count letters and digits in the supplied string.
      * </p>
-     * 
+     *
      * @param string The string in which to count.
      * @return The number of letters and digits, 0 in case the string was empty or <code>null</code>.
      */
@@ -923,7 +847,7 @@ public final class StringHelper {
      * <p>
      * Count digits (0, 1, 2, … 9) in the supplied string.
      * </p>
-     * 
+     *
      * @param string The string in which to count.
      * @return The number of digits, 0 in case the string was empty or <code>null</code>.
      */
@@ -938,20 +862,20 @@ public final class StringHelper {
      * <p>
      * Count upper case letters in the supplied string.
      * </p>
-     * 
+     *
      * @param string The string in which to count.
      * @return The number of uppercase letters, 0 in case the string was empty or <code>null</code>.
      */
     public static int countUppercaseLetters(String string) {
-        if (string == null) {
+        if (string == null || string.isEmpty()) {
             return 0;
         }
-        return string.replaceAll("[^A-Z]", "").length();
+        return PATTERN_UPPERCASE.matcher(string).replaceAll("").length();
     }
 
     /**
      * Capitalized word count.
-     * 
+     *
      * @param string the string
      * @return the int
      */
@@ -974,7 +898,7 @@ public final class StringHelper {
      * <p>
      * This method is useful for handling stemming and other word transformations.
      * </p>
-     * 
+     *
      * @param toAlign The word that needs to get the same casing as the targetCasing.
      * @param targetCasing The word which casing should be induced into the toAlign word.
      * @return The toAlign word with the casing of the targetCasing word.
@@ -991,7 +915,7 @@ public final class StringHelper {
      * <p>
      * Check, if a character is a vowel.
      * </p>
-     * 
+     *
      * @param character The character to check.
      * @return <code>true</code> if character is a vowel, <code>false</code> otherwise.
      */
@@ -1001,7 +925,7 @@ public final class StringHelper {
 
     /**
      * Remove unwanted characters from beginning and end of string.
-     * 
+     *
      * @param string The string.
      * @return The trimmed string.
      */
@@ -1011,7 +935,7 @@ public final class StringHelper {
 
     /**
      * Trim.
-     * 
+     *
      * @param inputString the input string
      * @param keepCharacters the keep characters
      * @return the string or null if inputString was null.
@@ -1030,7 +954,7 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~"};
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™"};
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
@@ -1043,14 +967,14 @@ public final class StringHelper {
 
         boolean deleteFirst = true;
         boolean deleteLast = true;
-        while ((deleteFirst || deleteLast) && string.length() > 0) {
+        while ((deleteFirst || deleteLast) && !string.isEmpty()) {
             deleteFirst = false;
             deleteLast = false;
             Character first = string.charAt(0);
             Character last = string.charAt(string.length() - 1);
             // System.out.println(Character.getType(last));
             for (String element : unwanted) {
-                if (keepCharacters.indexOf(element) > -1) {
+                if (keepCharacters.contains(element)) {
                     continue;
                 }
 
@@ -1083,17 +1007,6 @@ public final class StringHelper {
             string = string.trim();
         }
 
-        // remove all control characters from string
-        // string = removeControlCharacters(string);
-
-        // string = replaceProtectedSpace(string);
-
-        // close spaces gap that might have arisen
-        // string = removeDoubleWhitespaces(string);
-
-        // string = string.replaceAll("'\\)\\)","").replaceAll("'\\)",""); //
-        // values are in javascript text sometimes e.g. ...('80GB')
-
         return string.trim();
     }
 
@@ -1101,8 +1014,8 @@ public final class StringHelper {
      * <p>
      * Removes unwanted control characters from the specified string.
      * </p>
-     * 
-     * @param string
+     *
+     * @param string The string with control characters.
      * @return
      */
     public static String removeControlCharacters(String string) {
@@ -1133,19 +1046,27 @@ public final class StringHelper {
      * <li>Remove double white spaces.</li>
      * <li>Remove HTML tags (<b>stop</b> becomes stop).</li>
      * </ul>
-     * 
+     *
      * @param text The text that should be cleansed.
      * @return The cleansed text.
      */
     public static String clean(String text) {
+        return clean(text, ".?!“”\"");
+    }
+
+    public static String clean(String text, String keepCharacters) {
 
         text = removeControlCharacters(text);
-        text = cleanKeepFormat(text);
+        text = cleanKeepFormat(text, keepCharacters);
 
         return text;
     }
 
     public static String cleanKeepFormat(String text) {
+        return cleanKeepFormat(text, ".?!“”\"");
+    }
+
+    public static String cleanKeepFormat(String text, String keepCharacters) {
 
         text = HtmlHelper.stripHtmlTags(text);
         text = StringEscapeUtils.unescapeHtml(text);
@@ -1154,7 +1075,8 @@ public final class StringHelper {
         // text = removeNonAsciiCharacters(text);
 
         // trim but keep sentence delimiters
-        text = StringHelper.trim(text, ".?!“”\"");
+        text = StringHelper.trim(text, keepCharacters);
+        text = text.replace("″", "\"");
         if (text.startsWith(")")) {
             text = text.substring(1);
         }
@@ -1164,7 +1086,7 @@ public final class StringHelper {
 
     /**
      * Put article in front.
-     * 
+     *
      * @param inputString the input string
      * @return the string
      */
@@ -1240,7 +1162,7 @@ public final class StringHelper {
      * <p>
      * Count number of words, words are separated by a blank " ".
      * </p>
-     * 
+     *
      * @param string The string.
      * @return The number of words in the string.
      */
@@ -1250,7 +1172,7 @@ public final class StringHelper {
 
     /**
      * Calculate similarity.
-     * 
+     *
      * @param string1 the string1
      * @param string2 the string2
      * @return the double
@@ -1261,7 +1183,7 @@ public final class StringHelper {
 
     /**
      * Calculate similarity.
-     * 
+     *
      * @param string1 the string1
      * @param string2 the string2
      * @param caseSensitive the case sensitive
@@ -1273,19 +1195,12 @@ public final class StringHelper {
             return 0.0;
         }
 
-        double similarity = longestCommonStringLength / Math.min(string1.length(), string2.length()); // TODO
-        // changed
-        // without
-        // test
-        // 26/06/2009
-        // return similarity / Math.max(string1.length(), string2.length());
-        // return similarity / string2.length();
-        return similarity;
+        return longestCommonStringLength / Math.min(string1.length(), string2.length());
     }
 
     /**
      * Get the longest common character chain two strings have in common.
-     * 
+     *
      * @param string1 The first string.
      * @param string2 The second string.
      * @param caseSensitive True if the check should be case sensitive, false otherwise.
@@ -1307,7 +1222,7 @@ public final class StringHelper {
         }
 
         // string length, string
-        TreeMap<Integer, String> commonStrings = new TreeMap<Integer, String>();
+        TreeMap<Integer, String> commonStrings = new TreeMap<>();
 
         // string s1 is shortened and shifts over string s2, s1 should be the
         // shorter string
@@ -1325,7 +1240,7 @@ public final class StringHelper {
             for (int startPosition = 0; startPosition < s2.length(); startPosition++) {
 
                 // check how many characters are in common for both strings
-                int index = 0;
+                int index;
                 for (index = startPosition; index < Math.min(s1.length() + startPosition, s2.length()); index++) {
                     if (s1.charAt(index - startPosition) != s2.charAt(index)) {
                         break;
@@ -1354,7 +1269,7 @@ public final class StringHelper {
 
     /**
      * Reverse a string. ABC => CBA.
-     * 
+     *
      * @param string The string to be reversed.
      * @return The reversed string.
      */
@@ -1364,7 +1279,7 @@ public final class StringHelper {
 
     /**
      * Transform a given text into a 20 byte sha-1 encoded string.
-     * 
+     *
      * @param text The text to be encoded.
      * @return The 20 byte (40 hexadecimal characters) string.
      */
@@ -1404,7 +1319,7 @@ public final class StringHelper {
 
     /**
      * Encode base64.
-     * 
+     *
      * @param string the string
      * @return the string
      */
@@ -1414,7 +1329,7 @@ public final class StringHelper {
 
     /**
      * Decode base64.
-     * 
+     *
      * @param string the string
      * @return the string
      */
@@ -1426,7 +1341,7 @@ public final class StringHelper {
      * <p>
      * Get the all substrings in the supplied string between the given sequences.
      * </p>
-     * 
+     *
      * @param string The string from which to extract the substring, not <code>null</code>.
      * @param leftBorder The left border, not empty, if <code>null</code> the start of the string is the left border.
      * @param rightBorder The right border, not empty, if <code>null</code> the end of the string is the right border..
@@ -1435,7 +1350,7 @@ public final class StringHelper {
     public static List<String> getSubstringsBetween(String string, String leftBorder, String rightBorder) {
         Validate.notNull(string, "string must not be null");
 
-        List<String> substrings = new ArrayList<String>();
+        List<String> substrings = new ArrayList<>();
 
         int leftBorderLength = 0;
         if (leftBorder != null) {
@@ -1466,7 +1381,7 @@ public final class StringHelper {
      * <p>
      * Get the first substring in the supplied string between the given sequences.
      * </p>
-     * 
+     *
      * @param string The string from which to extract the substring, not <code>null</code>.
      * @param leftBorder The left border, not <code>null</code> or empty.
      * @param rightBorder The right border, not <code>null</code> or empty.
@@ -1479,7 +1394,7 @@ public final class StringHelper {
 
     /**
      * Transforms a CamelCased String into a split String.
-     * 
+     *
      * @param camelCasedString The String to split.
      * @param separator The separator to insert between the camelCased fragments.
      * @return The separated String.
@@ -1514,7 +1429,7 @@ public final class StringHelper {
     /**
      * Transforms a CamelCased String into a space separated String. For example: <code>camelCaseString</code> is
      * converted to <code>camel Case String</code>.
-     * 
+     *
      * @param camelCasedString The String to split.
      * @return The separated String.
      */
@@ -1526,7 +1441,7 @@ public final class StringHelper {
      * <p>
      * Replaces two or more white spaces (includes tabs, line breaks) by one.
      * </p>
-     * 
+     *
      * @param text The text to remove multiple white spaces from.
      * @return The cleansed text.
      */
@@ -1538,7 +1453,7 @@ public final class StringHelper {
      * <p>
      * Counts whitespace in a text.
      * </p>
-     * 
+     *
      * @param text The text to count white spaces in.
      * @return The number of white spaces in the text.
      */
@@ -1548,7 +1463,7 @@ public final class StringHelper {
 
     /**
      * Shorten a String; returns the first num words.
-     * 
+     *
      * @param string
      * @param num
      * @return
@@ -1573,7 +1488,7 @@ public final class StringHelper {
      * Count number of occurrences of a specific string within a text (hint: to count the number of matches for a
      * regular expression, use {@link #countRegexMatches(String, String)} instead).
      * </p>
-     * 
+     *
      * @param text The text which to check for patterns.
      * @param search The string which to search in the text.
      * @return The number of occurrences of the specified string in the text, or 0 if string was not found, or the
@@ -1596,7 +1511,7 @@ public final class StringHelper {
      * Count number of occurrences of a specific regular expression within a text (hint: to count the number of matches
      * of an ordinary string, use {@link #countOccurrences(String, String)} instead).
      * </p>
-     * 
+     *
      * @param text The text which to check for occurrences.
      * @param pattern The regular expression to search in the text, not <code>null</code>.
      * @return The number of occurrences of the specified pattern in the text, or 0 if pattern was not found, or the
@@ -1620,32 +1535,20 @@ public final class StringHelper {
         return matches;
     }
 
-    // /**
-    // * Calculates Levenshtein similarity between the strings.
-    // *
-    // * @param s1
-    // * @param s2
-    // * @return similarity between 0 and 1 (inclusive).
-    // */
-    // public static float getLevenshteinSim(String s1, String s2) {
-    // int distance = StringUtils.getLevenshteinDistance(s1, s2);
-    // return 1 - (float)distance / Math.max(s1.length(), s2.length());
-    // }
-
     /**
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
      * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
      * standard</a>. This method will return an empty String if the input is null or empty.
-     * 
+     * <p>
      * For stream processing purposes see {@link Xml10FilterReader}.
-     * 
+     *
      * @param in The String whose non-valid characters we want to remove.
      * @return The in String, stripped of non-valid characters.
      * @see http://cse-mjmcl.cse.bris.ac.uk/blog/2007/02/14/1171465494443.html
      */
     // TODO move this method to HtmlHelper
     public static String stripNonValidXMLCharacters(String in) {
-        StringBuffer out = new StringBuffer(); // Used to hold the output.
+        StringBuilder out = new StringBuilder(); // Used to hold the output.
         char current; // Used to reference the current character.
 
         if (in == null || "".equals(in)) {
@@ -1665,7 +1568,7 @@ public final class StringHelper {
      * <p>
      * Transform numbers between 0 and 12 to words, e.g. 1 becomes "one" and 12 becomes "twelve".
      * </p>
-     * 
+     *
      * @param number The number.
      * @return The word or null if nothing was transformed.
      */
@@ -1720,7 +1623,7 @@ public final class StringHelper {
      * <p>
      * Transform "one" to 1, "two" to 2, etc. if no number was transformed, return null
      * </p>
-     * 
+     *
      * @param numberWord The string with a number word.
      * @return The number or null if nothing was transformed.
      */
@@ -1836,7 +1739,7 @@ public final class StringHelper {
      * <p>
      * Find matches of the given regular expression in the given text.
      * </p>
-     * 
+     *
      * @param pattern The regular expression as a compiled pattern.
      * @param text The text on which the regular expression should be evaluated.
      * @return A list of string matches.
@@ -1846,7 +1749,7 @@ public final class StringHelper {
             return Collections.emptyList();
         }
 
-        List<String> matches = new ArrayList<String>();
+        List<String> matches = new ArrayList<>();
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
             matches.add(matcher.group());
@@ -1863,7 +1766,7 @@ public final class StringHelper {
      * <b>NOTE: you might want to use the method with a pre-compiled regular expression pattern to speed up the process
      * since pattern compilation is costly.</b>
      * </p>
-     * 
+     *
      * @param regexp The regular expression as a text.
      * @param text The text on which the regular expression should be evaluated.
      * @return A list of string matches.
@@ -1881,6 +1784,7 @@ public final class StringHelper {
      * letters to
      * "a", digits to "0", and special chars to "-".<br>
      * Examples:<br>
+     * <p>
      * 
      * <pre>
      * "Hello" => "Aa"
@@ -1888,20 +1792,20 @@ public final class StringHelper {
      * "SUPER 8" => "A 0"
      * "Super!? 8 Zorro" => "Aa- 0 Aa"
      * </pre>
-     * 
+     *
      * @param string The input string for which the case signature should be returned.
      * @return The case signature.
      */
     public static String getCaseSignature(String string) {
-//        String caseSignature = string;
-//
-//        caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
-//        caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
-//        caseSignature = caseSignature.replaceAll("[0-9]+", "0");
-//        caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
-//
-//        return caseSignature;
-        
+        // String caseSignature = string;
+        //
+        // caseSignature = caseSignature.replaceAll("[A-Z\\p{Lu}]+", "A");
+        // caseSignature = caseSignature.replaceAll("[a-z\\p{Ll}]+", "a");
+        // caseSignature = caseSignature.replaceAll("[0-9]+", "0");
+        // caseSignature = caseSignature.replaceAll("[-,;:?!()\\[\\]{}\"'\\&§$%/=]+", "-");
+        //
+        // return caseSignature;
+
         CharStack charStack = new CharStack();
         for (int i = 0; i < string.length(); i++) {
             char signature = getCharSignature(string.charAt(i));
@@ -1916,11 +1820,11 @@ public final class StringHelper {
      * <p>
      * Get a char signature for the given character. Uppercase letters are mapped to 'A', lowercase letters to 'a',
      * digits to '0', spaces to ' ', and special characters to '-'.
-     * 
+     *
      * @param ch The char.
      * @return The case signature [Aa0 -] representing the given char.
      */
-    private static final char getCharSignature(char ch) {
+    private static char getCharSignature(char ch) {
         if (Character.isUpperCase(ch)) {
             return 'A';
         } else if (Character.isLowerCase(ch)) {
@@ -1938,7 +1842,7 @@ public final class StringHelper {
      * <p>
      * Get the longest of the supplied strings.
      * </p>
-     * 
+     *
      * @param strings The strings from which to select the longest.
      * @return The longest string from the supplied strings. If the supplied parameters contained an empty string or
      *         <code>null</code>, this may return empty string or <code>null</code> values.
@@ -1946,9 +1850,7 @@ public final class StringHelper {
     public static String getLongest(String... strings) {
         String ret = null;
         for (String string : strings) {
-            if (string == null) {
-                continue;
-            } else if (ret == null || string.length() > ret.length()) {
+            if (ret == null || (string != null && string.length() > ret.length())) {
                 ret = string;
             }
         }
@@ -1960,7 +1862,7 @@ public final class StringHelper {
      * Remove line breaks from the supplied string and replace them by spaces. The method considers UNIX (
      * <code>LF</code>), Windows (<code>CR+LF</code>) and Classical Mac OS (<code>CR</code>) line breaks.
      * </p>
-     * 
+     *
      * @param string The string from which to remove line breaks.
      * @return The string without line breaks, or <code>null</code> if input was <code>null</code>.
      * @see <a href="http://en.wikipedia.org/wiki/Newline">Wikipedia: Newline</a>
@@ -1980,7 +1882,7 @@ public final class StringHelper {
      * Remove those characters from the supplied string which are encoded as four bytes in UTF-8. Useful when data needs
      * to be inserted in (older) MySQL databases, as four byte characters cause trouble.
      * </p>
-     * 
+     *
      * @param string The string from which to remove four byte characters.
      * @return The string with four byte characters removed, or <code>null</code> if input was <code>null</code>.
      * @see <a href="http://mzsanford.com/blog/mysql-and-unicode">MySQL and Unicode</a>
@@ -1990,14 +1892,15 @@ public final class StringHelper {
         if (string == null) {
             return null;
         }
-        return string.replaceAll("[^\u0000-\uD7FF\uE000-\uFFFF]", "");
+
+        return FOUR_BYTE_UTF8.matcher(string).replaceAll("");
     }
 
     /**
      * <p>
      * Trims whitespace characters from the left side of a {@code String}.
      * </p>
-     * 
+     *
      * @param s The {@code String} to trim.
      * @return The trimmed {@code String}.
      */
@@ -2013,7 +1916,7 @@ public final class StringHelper {
      * <p>
      * Trims whitespace characters from the right side of a {@code String}.
      * </p>
-     * 
+     *
      * @param s The {@code String} to trim.
      * @return The trimmed {@code String}.
      */
@@ -2029,7 +1932,7 @@ public final class StringHelper {
      * <p>
      * Check if the given String contains any (i.e. at least one) of the given {@link CharSequence}s.
      * </p>
-     * 
+     *
      * @param string The string to check, not <code>null</code>
      * @param values The values to check whether they appear within the given string, not <code>null</code>.
      * @return <code>true</code> if at least on of the given values appears in the string.
@@ -2050,7 +1953,7 @@ public final class StringHelper {
      * <p>
      * Check if the given String contains any (i.e. at least one) of the given {@link CharSequence}s.
      * </p>
-     * 
+     *
      * @param string The string to check, not <code>null</code>
      * @param values The values to check whether they appear within the given string, not <code>null</code>.
      * @return <code>true</code> if at least on of the given values appears in the string.
@@ -2065,7 +1968,7 @@ public final class StringHelper {
      * <p>
      * Remove empty lines from a String.
      * </p>
-     * 
+     *
      * @param string The string from where to remove empty lines.
      * @return The string without empty lines, <code>null</code> in case the supplied String was <code>null</code>.
      */
@@ -2080,7 +1983,7 @@ public final class StringHelper {
      * <p>
      * Trim each line in a String, i.e. remove whitespace from beginning/end of each line in the String.
      * </p>
-     * 
+     *
      * @param text The string for which to trim lines.
      * @return The string with each line trimmed, <code>null</code> in case the supplied String was <code>null</code>.
      */
@@ -2095,7 +1998,7 @@ public final class StringHelper {
      * <p>
      * Replace typographic ("curly") quotation marks and apostrophes by their "dumb" equivalents.
      * </p>
-     * 
+     *
      * @param text The string in which to replace quotation marks and apostrohpes.
      * @return The normalized string, <code>null</code> in case the supplied String was <code>null</code>.
      */
@@ -2110,10 +2013,10 @@ public final class StringHelper {
      * <p>
      * Print all groups in a {@link Matcher}; useful for debugging. Note: Invoke {@link Matcher#find()} in advance.
      * </p>
-     * 
+     *
      * @param matcher The matcher, not <code>null</code>.
      */
-    public static final void printGroups(Matcher matcher) {
+    public static void printGroups(Matcher matcher) {
         Validate.notNull(matcher, "matcher must not be null");
         for (int i = 0; i <= matcher.groupCount(); i++) {
             System.out.println(i + ":" + matcher.group(i));
@@ -2124,13 +2027,13 @@ public final class StringHelper {
      * <p>
      * Get all sub-phrases of a string by combining all consecutive words (e.g. "quick brown fox" gives
      * ["quick","quick brown","quick brown fox","brown","brown fox","fox"]).
-     * 
+     *
      * @param string The string, not <code>null</code>.
      * @return A list of sub-phrases (including the supplied phrase itself).
      */
-    public static final List<String> getSubPhrases(String string) {
+    public static List<String> getSubPhrases(String string) {
         Validate.notNull(string, "string must not be null");
-        List<String> phrases = CollectionHelper.newArrayList();
+        List<String> phrases = new ArrayList<>();
         String[] split = string.split("\\s");
         for (int i = 0; i < split.length; i++) {
             for (int j = i; j < split.length; j++) {
@@ -2152,14 +2055,14 @@ public final class StringHelper {
 
     /**
      * The main method.
-     * 
+     *
      * @param args the arguments
      */
     public static void main(String[] args) {
 
         StopWatch sw = new StopWatch();
         Pattern pattern = Pattern.compile("[ ]{2,}");
-        String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjd        flabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                                       ";
+        String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjd        flabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                               FOUR_BYTE_UTF8_SYMBOLS.add(";
         for (int i = 0; i < 5000; i++) {
             // StringHelper.removeDoubleWhitespaces(text);
             // text.replaceAll("[ ]{2,}", "");

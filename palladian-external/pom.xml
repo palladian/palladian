@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.2.2-SNAPSHOT</version>
+		<version>0.6.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>palladian-external</artifactId>
 	<name>Palladian: External Tools</name>
@@ -18,6 +18,12 @@
 			<groupId>edu.cmu.cs</groupId>
 			<artifactId>ark-tweet-nlp</artifactId>
 			<version>0.3.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>lucene-core</artifactId>
+					<groupId>org.apache.lucene</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>ws.palladian</groupId>
@@ -63,12 +69,12 @@
 		<dependency>
 			<groupId>com.bericotech</groupId>
 			<artifactId>clavin</artifactId>
-			<version>1.0.0</version>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.illinois.cs.cogcomp</groupId>
-			<artifactId>IllinoisNerExtended</artifactId>
-			<version>2.7</version>
+			<artifactId>illinois-ner</artifactId>
+			<version>2.8.2</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>

@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +67,11 @@ public interface FeatureExtractorSetting {
      *         <code>[PER, LOC, ORG, MISC]</code> here.
      */
     Set<String> getEntityCategories();
+    
+    /**
+     * @return <code>true</code> to extract hierarchy features.
+     */
+    boolean useHierarchyFeatures();
 
     class Builder implements Factory<FeatureExtractorSetting> {
 
@@ -74,11 +80,12 @@ public interface FeatureExtractorSetting {
         int equalDistance = DEFAULT_EQUAL_DISTANCE;
         int[] distanceValues;
         int[] populationValues;
-        List<ScopeDetector> scopeDetectors = CollectionHelper.newArrayList();
-        List<Searcher<? extends WebContent>> indexSearchers = CollectionHelper.newArrayList();
+        List<ScopeDetector> scopeDetectors = new ArrayList<>();
+        List<Searcher<? extends WebContent>> indexSearchers = new ArrayList<>();
         String[] locationMarkers = new String[0];
         boolean debug = false;
-        HashSet<String> entityCategories = CollectionHelper.newHashSet();
+        HashSet<String> entityCategories = new HashSet<>();
+        boolean hierarchyFeatures = true;
 
         public Builder setEqualDistance(int equalDistance) {
             this.equalDistance = equalDistance;
@@ -119,17 +126,22 @@ public interface FeatureExtractorSetting {
             this.entityCategories = CollectionHelper.newHashSet(entityCategories);
             return this;
         }
+        
+        public Builder setHierarchyFeatures(boolean enable) {
+            this.hierarchyFeatures = enable;
+            return this;
+        }
 
         public Builder setFeatureExtractorSetting(FeatureExtractorSetting setting) {
             Validate.notNull(setting, "setting must not be null");
             this.equalDistance = setting.getEqualDistance();
             this.distanceValues = Arrays.copyOf(setting.getDistanceValues(), setting.getDistanceValues().length);
             this.populationValues = Arrays.copyOf(setting.getPopulationValues(), setting.getPopulationValues().length);
-            this.scopeDetectors = CollectionHelper.newArrayList(setting.getScopeDetectors());
-            this.indexSearchers = CollectionHelper.newArrayList(setting.getIndexSearchers());
+            this.scopeDetectors = setting.getScopeDetectors();
+            this.indexSearchers = setting.getIndexSearchers();
             this.locationMarkers = Arrays.copyOf(setting.getLocationMarkers(), setting.getLocationMarkers().length);
             this.debug = setting.isDebug();
-            this.entityCategories = CollectionHelper.newHashSet(setting.getEntityCategories());
+            this.entityCategories = new HashSet<>(setting.getEntityCategories());
             return this;
         }
 

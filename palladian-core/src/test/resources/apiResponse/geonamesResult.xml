@@ -13,6 +13,36 @@
 <fclName>parks,area, ...</fclName>
 <fcodeName>area</fcodeName>
 <population>6814400000</population>
+<asciiName>Earth</asciiName>
+<alternateNames>Aarde,Earth,Er shary,Erde,Foeld,Föld,Ge,Globe,Globo,Jorden,Lurra,Maa,Monde,Mondo,Mundo,Mundua,Orbs,Pamant,Pamânt,Pianeta Terra,Planeta Tierra,Tero,Terra,Terre,Tierra,Welt,World,Ydrogeios,Yeryuezue,Yeryüzü,Zeme,Zemlja,Ziemia,el mon,el món,el planeta,nuestro planeta,prthvi,Γη,Υδρόγειος,Ер шары,Земля,Җir shary,Җир шары,पृथ्वी</alternateNames>
+<elevation/>
+<adminCode1/>
+<adminName1/>
+<adminCode2/>
+<adminName2/>
+<alternateName lang="ba">Ер шары</alternateName>
+<alternateName lang="ca">Terra</alternateName>
+<alternateName lang="de">Welt</alternateName>
+<alternateName lang="el">Γη</alternateName>
+<alternateName lang="en">Earth</alternateName>
+<alternateName lang="eo">Tero</alternateName>
+<alternateName lang="es">Tierra</alternateName>
+<alternateName lang="eu">Mundua</alternateName>
+<alternateName lang="fi">Maa</alternateName>
+<alternateName lang="fr">Monde</alternateName>
+<alternateName lang="hi">पृथ्वी</alternateName>
+<alternateName lang="hu">Föld</alternateName>
+<alternateName lang="it">Terra</alternateName>
+<alternateName lang="la">Orbs</alternateName>
+<alternateName lang="link">http://en.wikipedia.org/wiki/Earth</alternateName>
+<alternateName lang="lv">Zeme</alternateName>
+<alternateName lang="nl">Aarde</alternateName>
+<alternateName lang="no">Jorden</alternateName>
+<alternateName lang="pl">Ziemia</alternateName>
+<alternateName lang="ro">Pamânt</alternateName>
+<alternateName lang="ru">Земля</alternateName>
+<alternateName lang="tr">Yeryüzü</alternateName>
+<alternateName lang="tt">Җир шары</alternateName>
 </geoname>
 <geoname>
 <toponymName>Europe</toponymName>
@@ -27,6 +57,64 @@
 <fclName>parks,area, ...</fclName>
 <fcodeName>continent</fcodeName>
 <population/>
+<asciiName>Europe</asciiName>
+<alternateNames>Avrupa,Chau Au,Châu Âu,Eiropa,El viejo continente,Eropa,Eurohpa,Eurohpá,Eurooppa,Europa,Europe,Europo,Európa,Evropa,Evrópa,Ewrop,Eŭropo,an Eoraip,awrwba,ou zhou,yoroppa,yuleob,yurop,yuropa,Ευρώπη,Європа,Европа,Еўропа,אירופה,أوروبا,यूरोप,ยุโรป,ヨーロッパ,欧洲,유럽</alternateNames>
+<elevation/>
+<continentCode>EU</continentCode>
+<adminCode1/>
+<adminName1/>
+<adminCode2/>
+<adminName2/>
+<alternateName lang="ar">أوروبا</alternateName>
+<alternateName lang="be">Еўропа</alternateName>
+<alternateName lang="bg">Европа</alternateName>
+<alternateName lang="bs">Evropa</alternateName>
+<alternateName lang="ca">Europa</alternateName>
+<alternateName lang="cs">Evropa</alternateName>
+<alternateName lang="cy">Ewrop</alternateName>
+<alternateName lang="da">Europa</alternateName>
+<alternateName lang="de">Europa</alternateName>
+<alternateName lang="el">Ευρώπη</alternateName>
+<alternateName lang="en">Europe</alternateName>
+<alternateName lang="eo">Eŭropo</alternateName>
+<alternateName lang="es">Europa</alternateName>
+<alternateName lang="eu">Europa</alternateName>
+<alternateName lang="fi">Eurooppa</alternateName>
+<alternateName lang="fr">Europe</alternateName>
+<alternateName lang="ga">an Eoraip</alternateName>
+<alternateName lang="he">אירופה</alternateName>
+<alternateName lang="hi">यूरोप</alternateName>
+<alternateName lang="hu">Európa</alternateName>
+<alternateName lang="id">Eropa</alternateName>
+<alternateName lang="is">Evrópa</alternateName>
+<alternateName lang="it">Europa</alternateName>
+<alternateName lang="ja">ヨーロッパ</alternateName>
+<alternateName lang="ko">유럽</alternateName>
+<alternateName lang="la">Europa</alternateName>
+<alternateName lang="link">http://en.wikipedia.org/wiki/Europe</alternateName>
+<alternateName lang="lt">Europa</alternateName>
+<alternateName lang="lv">Eiropa</alternateName>
+<alternateName lang="nb">Europa</alternateName>
+<alternateName lang="nl">Europa</alternateName>
+<alternateName lang="no">Europa</alternateName>
+<alternateName lang="pl">Europa</alternateName>
+<alternateName lang="pt">Europa</alternateName>
+<alternateName lang="ro">Europa</alternateName>
+<alternateName lang="ru">Европа</alternateName>
+<alternateName lang="se">Eurohpá</alternateName>
+<alternateName lang="sv">Europa</alternateName>
+<alternateName lang="th">ยุโรป</alternateName>
+<alternateName lang="tr">Avrupa</alternateName>
+<alternateName lang="uk">Європа</alternateName>
+<alternateName lang="vi">Châu Âu</alternateName>
+<alternateName lang="zh">欧洲</alternateName>
+<timezone dstOffset="2.0" gmtOffset="1.0">Europe/Vaduz</timezone>
+<bbox>
+<west>-24.54222</west>
+<north>80.76416</north>
+<east>41.73304</east>
+<south>27.63779</south>
+</bbox>
 </geoname>
 <geoname>
 <toponymName>Federal Republic of Germany</toponymName>
@@ -41,9 +129,187 @@
 <fclName>country, state, region,...</fclName>
 <fcodeName>independent political entity</fcodeName>
 <population>81802257</population>
+<asciiName>Federal Republic of Germany</asciiName>
+<alternateNames>A' Ghearmailt,Alamagn,Alemagne,Alemaina,Alemana,Alemanha,Alemani,Alemania,Alemanu,Alemanya,Alemaña,Alimaniya,Alimanya,Alimaɲi,Allemagne,Allemangne,Almaan,Almaañ,Almanija,Almaniya,Almanya,Almayn,Alémani,An Ghearmain,An Ghearmáin,Budaaki,Bundesrepublik Deutschland,Daeitschland,Deitschland,Deitschlånd,Deutaen,Deutschland,Deutän,Discuessiun sura la fundazziun,Discüssiun sura la fundazziun,Dueuetschland,Duiska,Duiskka,Duitschland,Duitsland,Dutslan,Duutsjlandj,Duutsland,Däitschland,Dútslân,Düütschland,Federal Republic of Germany,GJuc,German,Germani,Germania,Germania nutome,Germanija,Germanio,Germanja,Germanujo,Germany,Germània,Girimane,Girmania,Gjermani,Gjermania,Gjermanie,Gyaaman,Heremani,IJalimani,Jamani,Jamus,Jarmal,Jarmalka,Jerman,Jermaniya,Jámánì,Jėrman,Miemiecko,Miemieckô,Nemachka,Nemacka,Nemačka,Nemcija,Nemecko,Nemetorszag,Nemska,Nemčija,Niemcy,Nimeccina,Njamechchyna,Njemacka,Njemačka,Njeremani,Németország,Německo,Němska,Olmon,Olmonija,Olmoniya,Orileede Gemani,Orílẹ́ède Gemani,Saksa,Saksamaa,Siaman,Siamane,THeodiscland,THyskaland,Teutotitlan,Teutōtitlan,Tiamana,Toitshi,Tyskland,Tysklandi,Tôitšhi,Týskland,Ubudage,Udachi,Ujerumani,Vacija,Vokietija,Vācija,West Germany,Yn Ghermaan,Yr Almaen,Zamani,Zermania,Zâmani,alman,almanya,de guo,dog-il,doitsu,doitsu lian bang gong he guo,dotygu'e,germania,grmn,grmnyh,i-Germany,jamina,jarmani,jerman,jermani,jrmny,jrmny/alman,narmani,prathes yexrmni,shphanth satharnrath yexrmni,yexrman,yexrmni,Þýskaland,Þēodiscland,Đức,Ġermanja,Γερμανία,Алмания,Герман,Германи,Германия,Германија,Германія,Немачка,Нямеччына,Німеччина,Олмон,Олмония,Ӂермания,Գերմանիա,גרמניה,דייטשלאנד,آلمان,ألمانيا,ئەڵمانیا,المان,المانيا,جرمني/آلمان,جرمنی,گېرمانىيە,ܓܪܡܢ,जमिन,जर्मनी,জার্মানি,জাৰ্মানি,જર્મની,ଜର୍ମାନୀ,ஜெர்மனி,ஜெர்மன்,ఙర్మని,ಜರ್ಮನಿ,ജര്‍മനി,ജര്‍മ്മനി,ජර්මනිය,ประเทศเยอรมนี,สหพันธ์สาธารณรัฐเยอรมนี,เยอรมนี,เยอรมัน,ເຢຍລະມັນ,ཇཱར་མ་ནི,འཇར་མན་,ဂျာမဏီ,გერმანია,ጀርመን,អាល្លឺម៉ង់,ドイツ,ドイツ連邦共和国,德国,ꄓꇩ,독일</alternateNames>
+<elevation/>
+<continentCode>EU</continentCode>
+<adminCode1>00</adminCode1>
+<adminName1/>
+<adminCode2/>
+<adminName2/>
+<alternateName lang="aa">Germany</alternateName>
+<alternateName lang="af">Duitsland</alternateName>
+<alternateName lang="ak">Gyaaman</alternateName>
+<alternateName lang="am">ጀርመን</alternateName>
+<alternateName lang="an">Alemaña</alternateName>
+<alternateName lang="ang">Þēodiscland</alternateName>
+<alternateName lang="ar">المانيا</alternateName>
+<alternateName lang="arc">ܓܪܡܢ</alternateName>
+<alternateName lang="as">জাৰ্মানি</alternateName>
+<alternateName lang="ast">Alemaña</alternateName>
+<alternateName lang="az">Almaniya</alternateName>
+<alternateName lang="bar">Deitschland</alternateName>
+<alternateName lang="be">Нямеччына</alternateName>
+<alternateName lang="bg">Германия</alternateName>
+<alternateName lang="bm">Alimaɲi</alternateName>
+<alternateName lang="bn">জার্মানি</alternateName>
+<alternateName lang="bo">འཇར་མན་</alternateName>
+<alternateName lang="br">Alamagn</alternateName>
+<alternateName lang="bs">Nemačka</alternateName>
+<alternateName lang="ca">Alemanya</alternateName>
+<alternateName lang="cs">Německo</alternateName>
+<alternateName lang="csb">Miemieckô</alternateName>
+<alternateName lang="cv">Германи</alternateName>
+<alternateName lang="cy">Yr Almaen</alternateName>
+<alternateName lang="da">Tyskland</alternateName>
+<alternateName lang="de">Deutschland</alternateName>
+<alternateName lang="dz">ཇཱར་མ་ནི</alternateName>
+<alternateName lang="ee">Germania nutome</alternateName>
+<alternateName lang="el">Γερμανία</alternateName>
+<alternateName lang="en">Germany</alternateName>
+<alternateName lang="eo">Germanujo</alternateName>
+<alternateName lang="es">Alemania</alternateName>
+<alternateName lang="et">Saksamaa</alternateName>
+<alternateName lang="eu">Alemania</alternateName>
+<alternateName lang="fa">آلمان</alternateName>
+<alternateName lang="ff">Almaañ</alternateName>
+<alternateName lang="fi">Saksa</alternateName>
+<alternateName lang="fo">Týskland</alternateName>
+<alternateName lang="fr">Allemagne</alternateName>
+<alternateName lang="frp">Alemagne</alternateName>
+<alternateName lang="fur">Gjermanie</alternateName>
+<alternateName lang="fy">Dútslân</alternateName>
+<alternateName lang="ga">An Ghearmáin</alternateName>
+<alternateName lang="gd">A' Ghearmailt</alternateName>
+<alternateName lang="gl">Alemaña</alternateName>
+<alternateName lang="gn">Alemaña</alternateName>
+<alternateName lang="gu">જર્મની</alternateName>
+<alternateName lang="gv">Yn Ghermaan</alternateName>
+<alternateName lang="ha">Jamus</alternateName>
+<alternateName lang="hbs">Nemačka</alternateName>
+<alternateName lang="he">גרמניה</alternateName>
+<alternateName lang="hi">जर्मनी</alternateName>
+<alternateName lang="hr">Njemačka</alternateName>
+<alternateName lang="hsb">Němska</alternateName>
+<alternateName lang="hu">Németország</alternateName>
+<alternateName lang="hy">Գերմանիա</alternateName>
+<alternateName lang="ia">Germania</alternateName>
+<alternateName lang="id">Jerman</alternateName>
+<alternateName lang="ig">Germany</alternateName>
+<alternateName lang="ii">ꄓꇩ</alternateName>
+<alternateName lang="ilo">Alemania</alternateName>
+<alternateName lang="io">Germania</alternateName>
+<alternateName lang="is">Þýskaland</alternateName>
+<alternateName lang="it">Germania</alternateName>
+<alternateName lang="ja">ドイツ連邦共和国</alternateName>
+<alternateName lang="jbo">dotygu'e</alternateName>
+<alternateName lang="jv">Jerman</alternateName>
+<alternateName lang="ka">გერმანია</alternateName>
+<alternateName lang="ki">Njeremani</alternateName>
+<alternateName lang="kk">Алмания</alternateName>
+<alternateName lang="kl">Tysklandi</alternateName>
+<alternateName lang="km">អាល្លឺម៉ង់</alternateName>
+<alternateName lang="kn">ಜರ್ಮನಿ</alternateName>
+<alternateName lang="ko">독일</alternateName>
+<alternateName lang="ku">ئەڵمانیا</alternateName>
+<alternateName lang="kw">Almayn</alternateName>
+<alternateName lang="la">Germania</alternateName>
+<alternateName lang="lad">Alemania</alternateName>
+<alternateName lang="lb">Däitschland</alternateName>
+<alternateName lang="lg">Budaaki</alternateName>
+<alternateName lang="li">Duutsjlandj</alternateName>
+<alternateName lang="link">http://en.wikipedia.org/wiki/Germany</alternateName>
+<alternateName lang="lmo">Discüssiun sura la fundazziun</alternateName>
+<alternateName lang="ln">Alemani</alternateName>
+<alternateName lang="lo">ເຢຍລະມັນ</alternateName>
+<alternateName lang="lt">Vokietija</alternateName>
+<alternateName lang="lu">Alemanu</alternateName>
+<alternateName lang="lv">Vācija</alternateName>
+<alternateName lang="mg">Alemaina</alternateName>
+<alternateName lang="mi">Tiamana</alternateName>
+<alternateName lang="mk">Германија</alternateName>
+<alternateName lang="ml">ജര്‍മനി</alternateName>
+<alternateName lang="mn">Герман</alternateName>
+<alternateName lang="mr">जमिन</alternateName>
+<alternateName lang="ms">Jerman</alternateName>
+<alternateName lang="mt">Ġermanja</alternateName>
+<alternateName lang="my">ဂျာမဏီ</alternateName>
+<alternateName lang="na">Germany</alternateName>
+<alternateName lang="nah">Teutōtitlan</alternateName>
+<alternateName lang="nb">Tyskland</alternateName>
+<alternateName lang="nd">Germany</alternateName>
+<alternateName lang="nds">Düütschland</alternateName>
+<alternateName lang="ne">जर्मनी</alternateName>
+<alternateName lang="nl">Duitsland</alternateName>
+<alternateName lang="nn">Tyskland</alternateName>
+<alternateName lang="no">Tyskland</alternateName>
+<alternateName lang="nrm">Allemangne</alternateName>
+<alternateName lang="oc">Alemanha</alternateName>
+<alternateName lang="om">Germany</alternateName>
+<alternateName lang="or">ଜର୍ମାନୀ</alternateName>
+<alternateName lang="os">Герман</alternateName>
+<alternateName lang="pam">Germany</alternateName>
+<alternateName lang="pdc">Deitschland</alternateName>
+<alternateName lang="pl">Niemcy</alternateName>
+<alternateName lang="pms">Germania</alternateName>
+<alternateName lang="ps">جرمني/آلمان</alternateName>
+<alternateName lang="pt">Alemanha</alternateName>
+<alternateName lang="qu">Alimanya</alternateName>
+<alternateName lang="rm">Germania</alternateName>
+<alternateName lang="rmy">Jermaniya</alternateName>
+<alternateName lang="rn">Ubudage</alternateName>
+<alternateName lang="ro">Ӂермания</alternateName>
+<alternateName lang="ru">Германия</alternateName>
+<alternateName lang="sc">Germània</alternateName>
+<alternateName lang="scn">Girmania</alternateName>
+<alternateName lang="sco">Germany</alternateName>
+<alternateName lang="se">Duiskka</alternateName>
+<alternateName lang="sg">Zâmani</alternateName>
+<alternateName lang="si">ජර්මනිය</alternateName>
+<alternateName lang="sk">Nemecko</alternateName>
+<alternateName lang="sl">Nemčija</alternateName>
+<alternateName lang="sn">Germany</alternateName>
+<alternateName lang="so">Jarmal</alternateName>
+<alternateName lang="sq">Gjermani</alternateName>
+<alternateName lang="sr">Немачка</alternateName>
+<alternateName lang="st">Tôitšhi</alternateName>
+<alternateName lang="su">Jėrman</alternateName>
+<alternateName lang="sv">Tyskland</alternateName>
+<alternateName lang="sw">Ujerumani</alternateName>
+<alternateName lang="ta">ஜெர்மனி</alternateName>
+<alternateName lang="te">ఙర్మని</alternateName>
+<alternateName lang="tet">Alemaña</alternateName>
+<alternateName lang="tg">Олмон</alternateName>
+<alternateName lang="th">เยอรมัน</alternateName>
+<alternateName lang="ti">ጀርመን</alternateName>
+<alternateName lang="tl">Alemanya</alternateName>
+<alternateName lang="to">Siamane</alternateName>
+<alternateName lang="tpi">Siaman</alternateName>
+<alternateName lang="tr">Almanya</alternateName>
+<alternateName lang="ty">Heremani</alternateName>
+<alternateName lang="udm">Германия</alternateName>
+<alternateName lang="ug">گېرمانىيە</alternateName>
+<alternateName lang="uk">Німеччина</alternateName>
+<alternateName lang="ur">جرمنی</alternateName>
+<alternateName lang="uz">Олмония</alternateName>
+<alternateName lang="vec">Germania</alternateName>
+<alternateName lang="vi">Đức</alternateName>
+<alternateName lang="vls">Duutsland</alternateName>
+<alternateName lang="vo">Deutän</alternateName>
+<alternateName lang="war">Alemanya</alternateName>
+<alternateName lang="yi">דייטשלאנד</alternateName>
+<alternateName lang="yo">Orílẹ́ède Gemani</alternateName>
+<alternateName lang="zh">德国</alternateName>
+<alternateName lang="zu">i-Germany</alternateName>
+<bbox>
+<west>5.86564</west>
+<north>55.05564</north>
+<east>15.03989</east>
+<south>47.27578</south>
+</bbox>
 </geoname>
 <geoname>
-<toponymName>Baden-Württemberg</toponymName>
+<toponymName>Baden-Württemberg Region</toponymName>
 <name>Baden-Württemberg</name>
 <lat>48.5</lat>
 <lng>9</lng>
@@ -55,6 +321,71 @@
 <fclName>country, state, region,...</fclName>
 <fcodeName>first-order administrative division</fcodeName>
 <population>10744921</population>
+<asciiName>Baden-Wuerttemberg Region</asciiName>
+<alternateNames>Badaen-Vuertaen,Bade-Wirddebaersch,Bade-Wirddebärsch,Bade-Woeoetebersch,Bade-Wurtemberg,Bade-Wöötebersch,Badehn-Vjurtehmberg,Baden-Virtemberg,Baden-Virtembergo,Baden-Vjurtemberg,Baden-Vuertemberq,Baden-Vyrtemberg,Baden-Vürtemberq,Baden-Wuerrtenberg,Baden-Wuertembaerj,Baden-Wuertembergska,Baden-Wuertembierich,Baden-Wuerttemberg,Baden-Wuerttemberg Region,Baden-Wurtemberch,Baden-Wurtemberg,Baden-Wúrtemberch,Baden-Würrtenberg,Baden-Würtembergska,Baden-Würtembierich,Baden-Würtembärj,Baden-Württemberg,Baden-Württemberg Region,Badenas-Viurtembergas,Badene-Virtemberga,Badenia-Virtembergia,Badenia-Wirtembergia,Badenia-Wurtemberg,Badensko-Wuerttembergska,Badensko-Wuerttembersko,Badensko-Württembergska,Badn-Wuerttmberg,Badän-Vürtän,Bádensko-Württembersko,Bådn-Württmberg,Bādene-Virtemberga,Pays de Bade,Vadi-Vyrtemvergi,ba deng-fu teng bao,baden=vu~yurutenberuku zhou,badena-vyurtembarga,badenbwileutembeleukeu ju,badenvirtemberg,badn fwrtmbyrgh,badn-wwrtmbrg,badnwrtmbrg,Βάδη-Βυρτεμβέργη,Баден-Виртемберг,Баден-Вюртемберг,Бадэн-Вюртэмберг,באדין-בורטינבירג,באדן-וירטמברג,بادن فورتمبيرغ,بادن-وورتمبرگ,بادنورتمبرگ,بادێن-ڤوورتمبێرگ,باډن ورټم بېرګ,बाडेन-व्युर्टेंबर्ग,รัฐบาเดิน-เวือร์ทเทมแบร์ก,ბადენ-ვიურტემბერგი,バーデン＝ヴュルテンベルク州,巴登-符腾堡,바덴뷔르템베르크 주</alternateNames>
+<elevation/>
+<continentCode>EU</continentCode>
+<adminCode1 ISO3166-2="BW">01</adminCode1>
+<adminName1>Baden-Württemberg</adminName1>
+<adminCode2/>
+<adminName2/>
+<alternateName lang="an">Baden-Wurtemberg</alternateName>
+<alternateName lang="ar">بادن فورتمبيرغ</alternateName>
+<alternateName lang="az">Baden-Vürtemberq</alternateName>
+<alternateName lang="bar">Bådn-Württmberg</alternateName>
+<alternateName lang="be">Бадэн-Вюртэмберг</alternateName>
+<alternateName lang="bg">Баден-Вюртемберг</alternateName>
+<alternateName lang="ca">Baden-Wurtemberg</alternateName>
+<alternateName lang="ckb">بادێن-ڤوورتمبێرگ</alternateName>
+<alternateName lang="cs">Bádensko-Württembersko</alternateName>
+<alternateName lang="cv">Баден-Вюртемберг</alternateName>
+<alternateName lang="de">Baden-Württemberg</alternateName>
+<alternateName lang="dsb">Baden-Würtembergska</alternateName>
+<alternateName lang="el">Βάδη-Βυρτεμβέργη</alternateName>
+<alternateName lang="en">Baden-Württemberg</alternateName>
+<alternateName lang="eo">Baden-Virtembergo</alternateName>
+<alternateName lang="es">Baden-Württemberg</alternateName>
+<alternateName lang="fa">بادن-وورتمبرگ</alternateName>
+<alternateName lang="fr">Bade-Wurtemberg</alternateName>
+<alternateName lang="frr">Baden-Würtembärj</alternateName>
+<alternateName lang="fy">Baden-Wúrtemberch</alternateName>
+<alternateName lang="he">באדן-וירטמברג</alternateName>
+<alternateName lang="hsb">Badensko-Württembergska</alternateName>
+<alternateName lang="io">Badenia-Wurtemberg</alternateName>
+<alternateName lang="ja">バーデン＝ヴュルテンベルク州</alternateName>
+<alternateName lang="jbo">badenvirtemberg</alternateName>
+<alternateName lang="ka">ბადენ-ვიურტემბერგი</alternateName>
+<alternateName lang="ko">바덴뷔르템베르크 주</alternateName>
+<alternateName lang="ksh">Bade-Wöötebersch</alternateName>
+<alternateName lang="la">Badenia-Virtembergia</alternateName>
+<alternateName lang="lad">באדין-בורטינבירג</alternateName>
+<alternateName lang="lij">Baden-Würrtenberg</alternateName>
+<alternateName lang="link">http://en.wikipedia.org/wiki/Baden-W%C3%BCrttemberg</alternateName>
+<alternateName lang="lt">Badenas-Viurtembergas</alternateName>
+<alternateName lang="lv">Bādene-Virtemberga</alternateName>
+<alternateName lang="mk">Баден-Виртемберг</alternateName>
+<alternateName lang="mr">बाडेन-व्युर्टेंबर्ग</alternateName>
+<alternateName lang="os">Баден-Вюртемберг</alternateName>
+<alternateName lang="pfl">Bade-Wirddebärsch</alternateName>
+<alternateName lang="pl">Badenia-Wirtembergia</alternateName>
+<alternateName lang="pnb">بادنورتمبرگ</alternateName>
+<alternateName lang="ps">باډن ورټم بېرګ</alternateName>
+<alternateName lang="ru">Баден-Вюртемберг</alternateName>
+<alternateName lang="sk">Bádensko-Württembersko</alternateName>
+<alternateName lang="sq">Baden-Vyrtemberg</alternateName>
+<alternateName lang="sr">Баден-Виртемберг</alternateName>
+<alternateName lang="stq">Baden-Würtembierich</alternateName>
+<alternateName lang="th">รัฐบาเดิน-เวือร์ทเทมแบร์ก</alternateName>
+<alternateName lang="uk">Баден-Вюртемберг</alternateName>
+<alternateName lang="vo">Badän-Vürtän</alternateName>
+<alternateName lang="zh">巴登-符腾堡</alternateName>
+<timezone dstOffset="2.0" gmtOffset="1.0">Europe/Berlin</timezone>
+<bbox>
+<west>7.51083</west>
+<north>49.78583</north>
+<east>10.47222</east>
+<south>47.53742</south>
+</bbox>
 </geoname>
 <geoname>
 <toponymName>Regierungsbezirk Stuttgart</toponymName>
@@ -68,7 +399,42 @@
 <fcode>ADM2</fcode>
 <fclName>country, state, region,...</fclName>
 <fcodeName>second-order administrative division</fcodeName>
-<population>4000848</population>
+<population>3947568</population>
+<asciiName>Regierungsbezirk Stuttgart</asciiName>
+<alternateNames>Administrativnyj okrug Shtutgart,Distretto governativo di Stoccarda,District de Stuttgart,Distriktaro Stuttgart,Estugarda,Regierungsbezierk Stuttgart,Regierungsbezirk Stuttgart,Region Administrativa de Stuttgart,Regionen Stuttgart,Región Administrativa de Stuttgart,Rejencja Stuttgart,Rexion de Stuttgart,Rexión de Stuttgart,Shtutgart,Stocarda,Stuttgardi ringkond,Stuttgart,Stuttgartin hallintopiiri,Vladni obvod Stuttgart,Vládní obvod Stuttgart,shuto~uttogaruto xing zheng guan qu,si tu jia te xing zheng qu,syututeugaleuteu hyeon,Административный округ Штутгарт,Штутгарт,シュトゥットガルト行政管区,斯图加特行政区,슈투트가르트 현</alternateNames>
+<elevation/>
+<continentCode>EU</continentCode>
+<adminCode1 ISO3166-2="BW">01</adminCode1>
+<adminName1>Baden-Württemberg</adminName1>
+<adminCode2>081</adminCode2>
+<adminName2>Regierungsbezirk Stuttgart</adminName2>
+<alternateName lang="cs">Vládní obvod Stuttgart</alternateName>
+<alternateName lang="eo">Distriktaro Stuttgart</alternateName>
+<alternateName lang="es">Región Administrativa de Stuttgart</alternateName>
+<alternateName lang="et">Stuttgardi ringkond</alternateName>
+<alternateName lang="fi">Stuttgartin hallintopiiri</alternateName>
+<alternateName lang="fr">District de Stuttgart</alternateName>
+<alternateName lang="gl">Rexión de Stuttgart</alternateName>
+<alternateName lang="it">Distretto governativo di Stoccarda</alternateName>
+<alternateName lang="ja">シュトゥットガルト行政管区</alternateName>
+<alternateName lang="ko">슈투트가르트 현</alternateName>
+<alternateName lang="lb">Regierungsbezierk Stuttgart</alternateName>
+<alternateName lang="link">http://en.wikipedia.org/wiki/Stuttgart_%28region%29</alternateName>
+<alternateName lang="lmo">Stocarda</alternateName>
+<alternateName lang="mk">Штутгарт</alternateName>
+<alternateName lang="nn">Regionen Stuttgart</alternateName>
+<alternateName lang="pl">Rejencja Stuttgart</alternateName>
+<alternateName lang="pt">Estugarda</alternateName>
+<alternateName lang="ru">Административный округ Штутгарт</alternateName>
+<alternateName lang="uk">Штутгарт</alternateName>
+<alternateName lang="zh">斯图加特行政区</alternateName>
+<timezone dstOffset="2.0" gmtOffset="1.0">Europe/Berlin</timezone>
+<bbox>
+<west>8.74646</west>
+<north>49.79148</north>
+<east>10.49575</east>
+<south>48.49901</south>
+</bbox>
 </geoname>
 <geoname>
 <toponymName>Stadtkreis Stuttgart</toponymName>
@@ -82,7 +448,62 @@
 <fcode>ADM3</fcode>
 <fclName>country, state, region,...</fclName>
 <fcodeName>third-order administrative division</fcodeName>
-<population>601646</population>
+<population>597939</population>
+<asciiName>Stadtkreis Stuttgart</asciiName>
+<alternateNames>Schduagert,Stadtkreis Stuttgart,Stuttgart</alternateNames>
+<elevation/>
+<continentCode>EU</continentCode>
+<adminCode1 ISO3166-2="BW">01</adminCode1>
+<adminName1>Baden-Württemberg</adminName1>
+<adminCode2>081</adminCode2>
+<adminName2>Regierungsbezirk Stuttgart</adminName2>
+<adminCode3>08111</adminCode3>
+<adminName3>Stadtkreis Stuttgart</adminName3>
+<alternateName lang="gsw">Schduagert</alternateName>
+<alternateName lang="link">http://en.wikipedia.org/wiki/Stuttgart</alternateName>
+<timezone dstOffset="2.0" gmtOffset="1.0">Europe/Berlin</timezone>
+<bbox>
+<west>9.03899</west>
+<north>48.86725</north>
+<east>9.31539</east>
+<south>48.68996</south>
+</bbox>
+</geoname>
+<geoname>
+<toponymName>Stuttgart</toponymName>
+<name>Stuttgart</name>
+<lat>48.77667</lat>
+<lng>9.1775</lng>
+<geonameId>6690189</geonameId>
+<countryCode>DE</countryCode>
+<countryName>Germany</countryName>
+<fcl>A</fcl>
+<fcode>ADM4</fcode>
+<fclName>country, state, region,...</fclName>
+<fcodeName>fourth-order administrative division</fcodeName>
+<population>597939</population>
+<asciiName>Stuttgart</asciiName>
+<alternateNames>Stadt Stuttgart,Stuttgart</alternateNames>
+<elevation>245</elevation>
+<continentCode>EU</continentCode>
+<adminCode1 ISO3166-2="BW">01</adminCode1>
+<adminName1>Baden-Württemberg</adminName1>
+<adminCode2>081</adminCode2>
+<adminName2>Regierungsbezirk Stuttgart</adminName2>
+<adminCode3>08111</adminCode3>
+<adminName3>Stadtkreis Stuttgart</adminName3>
+<adminCode4>08111000</adminCode4>
+<adminName4>Stuttgart</adminName4>
+<alternateName lang="de">Stuttgart</alternateName>
+<alternateName lang="en">Stuttgart</alternateName>
+<alternateName lang="fr">Stuttgart</alternateName>
+<timezone dstOffset="2.0" gmtOffset="1.0">Europe/Berlin</timezone>
+<bbox>
+<west>9.03865</west>
+<north>48.86638</north>
+<east>9.31587</east>
+<south>48.692</south>
+</bbox>
 </geoname>
 <geoname>
 <toponymName>Stuttgart</toponymName>
@@ -97,5 +518,102 @@
 <fclName>city, village,...</fclName>
 <fcodeName>seat of a first-order administrative division</fcodeName>
 <population>589793</population>
+<asciiName>Stuttgart</asciiName>
+<alternateNames>Estugarda,Gorad Shtutgart,STR,Shhutgart,Shtutgart,Shtutgarti,Shtuttgart,Stocarda,Stoccarda,Stoutnkarde,Stucarda,Stuggart,Stutgardia,Stutgartas,Stutgarte,Stutgarto,Stutqart,Stuttgart,ashtwtgart,ch tuthth kar th,icututkart,shtwtgart,shtwtghart,shuto~uttogaruto,si tu jia te,stutagarta,stwtgrt,syututeugaleuteu,Ştutqart,Štutgartas,Štutgarte,Στουτγκάρδη,Горад Штутгарт,Штутгарт,Штуттгарт,Щутгарт,שטוטגארט,שטוטגרט,اشتوتگارت,سٹٹگارٹ,شتوتغارت,شتوتگارت,شٹوٹگارٹ,श्टुटगार्ट,স্টুটগার্ট,સ્ટુટગાર્ટ,இசுடுட்கார்ட்,സ്റ്റുട്ട്ഗാർട്ട്,ชตุทท์การ์ท,შტუტგარტი,シュトゥットガルト,斯图加特,슈투트가르트</alternateNames>
+<elevation/>
+<continentCode>EU</continentCode>
+<adminCode1 ISO3166-2="BW">01</adminCode1>
+<adminName1>Baden-Württemberg</adminName1>
+<adminCode2>081</adminCode2>
+<adminName2>Regierungsbezirk Stuttgart</adminName2>
+<adminCode3>08111</adminCode3>
+<adminName3>Stadtkreis Stuttgart</adminName3>
+<adminCode4>08111000</adminCode4>
+<adminName4>Stuttgart</adminName4>
+<alternateName lang="af">Stuttgart</alternateName>
+<alternateName lang="als">Stuttgart</alternateName>
+<alternateName lang="ar">شتوتغارت</alternateName>
+<alternateName lang="az">Ştutqart</alternateName>
+<alternateName lang="bar">Stuggart</alternateName>
+<alternateName lang="be">Горад Штутгарт</alternateName>
+<alternateName lang="bg">Щутгарт</alternateName>
+<alternateName lang="bn">স্টুটগার্ট</alternateName>
+<alternateName lang="bs">Stuttgart</alternateName>
+<alternateName lang="ca">Stuttgart</alternateName>
+<alternateName lang="ckb">شتوتگارت</alternateName>
+<alternateName lang="cs">Stuttgart</alternateName>
+<alternateName lang="da">Stuttgart</alternateName>
+<alternateName lang="de">Stuttgart</alternateName>
+<alternateName lang="el">Στουτγκάρδη</alternateName>
+<alternateName lang="en">Stuttgart</alternateName>
+<alternateName lang="eo">Stutgarto</alternateName>
+<alternateName lang="es">Stuttgart</alternateName>
+<alternateName lang="et">Stuttgart</alternateName>
+<alternateName lang="eu">Stuttgart</alternateName>
+<alternateName lang="fa">اشتوتگارت</alternateName>
+<alternateName lang="fi">Stuttgart</alternateName>
+<alternateName lang="fr">Stuttgart</alternateName>
+<alternateName lang="gu">સ્ટુટગાર્ટ</alternateName>
+<alternateName lang="hbs">Stuttgart</alternateName>
+<alternateName lang="he">שטוטגרט</alternateName>
+<alternateName lang="hi">श्टुटगार्ट</alternateName>
+<alternateName lang="hr">Stuttgart</alternateName>
+<alternateName lang="hu">Stuttgart</alternateName>
+<alternateName lang="iata">STR</alternateName>
+<alternateName lang="id">Stuttgart</alternateName>
+<alternateName lang="io">Stuttgart</alternateName>
+<alternateName lang="is">Stuttgart</alternateName>
+<alternateName lang="it">Stoccarda</alternateName>
+<alternateName lang="ja">シュトゥットガルト</alternateName>
+<alternateName lang="ka">შტუტგარტი</alternateName>
+<alternateName lang="kk">Штутгарт</alternateName>
+<alternateName lang="ko">슈투트가르트</alternateName>
+<alternateName lang="ku">Stuttgart</alternateName>
+<alternateName lang="la">Stutgardia</alternateName>
+<alternateName lang="link">http://en.wikipedia.org/wiki/Stuttgart</alternateName>
+<alternateName lang="lmo">Stucarda</alternateName>
+<alternateName lang="lt">Štutgartas</alternateName>
+<alternateName lang="lv">Štutgarte</alternateName>
+<alternateName lang="mk">Штутгарт</alternateName>
+<alternateName lang="ml">സ്റ്റുട്ട്ഗാർട്ട്</alternateName>
+<alternateName lang="mn">Штуттгарт</alternateName>
+<alternateName lang="mr">श्टुटगार्ट</alternateName>
+<alternateName lang="mrj">Штутгарт</alternateName>
+<alternateName lang="nds">Stuttgart</alternateName>
+<alternateName lang="nl">Stuttgart</alternateName>
+<alternateName lang="nn">Stuttgart</alternateName>
+<alternateName lang="no">Stuttgart</alternateName>
+<alternateName lang="oc">Stuttgart</alternateName>
+<alternateName lang="os">Штутгарт</alternateName>
+<alternateName lang="pl">Stuttgart</alternateName>
+<alternateName lang="pnb">سٹٹگارٹ</alternateName>
+<alternateName lang="pt">Estugarda</alternateName>
+<alternateName lang="ro">Stuttgart</alternateName>
+<alternateName lang="ru">Штутгарт</alternateName>
+<alternateName lang="scn">Stoccarda</alternateName>
+<alternateName lang="sk">Stuttgart</alternateName>
+<alternateName lang="sl">Stuttgart</alternateName>
+<alternateName lang="sq">Shtutgarti</alternateName>
+<alternateName lang="sr">Штутгарт</alternateName>
+<alternateName lang="sv">Stuttgart</alternateName>
+<alternateName lang="ta">இசுடுட்கார்ட்</alternateName>
+<alternateName lang="th">ชตุทท์การ์ท</alternateName>
+<alternateName lang="tr">Stuttgart</alternateName>
+<alternateName lang="ug">Shtutgart</alternateName>
+<alternateName lang="uk">Штутгарт</alternateName>
+<alternateName lang="unlc">STR</alternateName>
+<alternateName lang="ur">شٹوٹگارٹ</alternateName>
+<alternateName lang="vec">Stocarda</alternateName>
+<alternateName lang="vi">Stuttgart</alternateName>
+<alternateName lang="yi">שטוטגארט</alternateName>
+<alternateName lang="zh">斯图加特</alternateName>
+<alternateName lang="zh-CN">斯图加特</alternateName>
+<timezone dstOffset="2.0" gmtOffset="1.0">Europe/Berlin</timezone>
+<bbox>
+<west>9.02549</west>
+<north>48.88197</north>
+<east>9.32854</east>
+<south>48.68268</south>
+</bbox>
 </geoname>
 </geonames>

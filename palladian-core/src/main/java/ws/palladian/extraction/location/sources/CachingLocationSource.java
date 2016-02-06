@@ -3,6 +3,8 @@ package ws.palladian.extraction.location.sources;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,11 +14,11 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.LruMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
@@ -33,6 +35,8 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     private final LruMap<String, Collection<Location>> nameCache;
 
     private final LruMap<Integer, Location> idCache;
+    
+    private final LruMap<String, List<Location>> coordinateCache;
 
     private final LocationSource wrapped;
 
@@ -64,6 +68,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
         this.wrapped = wrapped;
         this.nameCache = LruMap.insertionOrder(size);
         this.idCache = LruMap.insertionOrder(size);
+        this.coordinateCache = LruMap.insertionOrder(size);
         this.size = size;
     }
 
@@ -81,7 +86,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     @Override
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
-        Set<String> needsLookup = CollectionHelper.newHashSet();
+        Set<String> needsLookup = new HashSet<>();
         requests++;
 
         for (String locationName : locationNames) {
@@ -126,8 +131,8 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
 
     @Override
     public List<Location> getLocations(List<Integer> locationIds) {
-        Map<Integer, Location> tempResult = CollectionHelper.newHashMap();
-        Set<Integer> needsLookup = CollectionHelper.newHashSet();
+        Map<Integer, Location> tempResult = new HashMap<>();
+        Set<Integer> needsLookup = new HashSet<>();
         requests++;
 
         for (Integer locationId : locationIds) {
@@ -150,11 +155,24 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
             }
         }
 
-        List<Location> result = CollectionHelper.newArrayList();
+        List<Location> result = new ArrayList<>();
         for (Integer locationId : locationIds) {
             result.add(tempResult.get(locationId));
         }
         return result;
+    }
+
+    @Override
+    public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
+        String identifier = coordinate.getLatitude() + "#" + coordinate.getLongitude() + "#" + distance;
+        List<Location> locations = coordinateCache.get(identifier);
+        requests++;
+        if (locations == null) {
+            locations = wrapped.getLocations(coordinate, distance);
+            coordinateCache.put(identifier, locations);
+            passedRequests++;
+        }
+        return locations;
     }
 
     @Override
@@ -170,6 +188,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
         stringBuilder.append(", PassedRequests=").append(passedRequests);
         stringBuilder.append(", NameCacheSize=").append(nameCache.size());
         stringBuilder.append(", IdCacheSize=").append(idCache.size());
+        stringBuilder.append(", CoordinateCacheSize=").append(coordinateCache.size());
         stringBuilder.append(")");
         return stringBuilder.toString();
     }

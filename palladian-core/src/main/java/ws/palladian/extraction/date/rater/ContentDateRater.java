@@ -3,6 +3,7 @@ package ws.palladian.extraction.date.rater;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -22,7 +23,6 @@ import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.ContentDate;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.Cache;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -81,7 +81,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
     @Override
     public List<RatedDate<ContentDate>> rate(List<ContentDate> list) {
-        List<RatedDate<ContentDate>> result = CollectionHelper.newArrayList();
+        List<RatedDate<ContentDate>> result = new ArrayList<>();
 
         for (ContentDate date : list) {
             if (dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {

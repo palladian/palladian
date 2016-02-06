@@ -1,11 +1,11 @@
 package ws.palladian.extraction.date.rater;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.RegExp;
 
 /**
@@ -30,7 +30,7 @@ public class UrlDateRater extends TechniqueDateRater<UrlDate> {
      * @return
      */
     private List<RatedDate<UrlDate>> evaluateURLDate(List<UrlDate> dates) {
-        List<RatedDate<UrlDate>> evaluate = CollectionHelper.newArrayList();
+        List<RatedDate<UrlDate>> evaluate = new ArrayList<>();
         for (UrlDate date : dates) {
             double rate = 0;
             if (date != null && DateExtractionHelper.isDateInRange(date)) {

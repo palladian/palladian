@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.web;
 import org.apache.commons.configuration.Configuration;
 
 import ws.palladian.retrieval.search.BaseFarooSearcher;
-import ws.palladian.retrieval.search.SearcherException;
 
 /**
  * <p>
@@ -30,26 +29,6 @@ public final class FarooSearcher extends BaseFarooSearcher {
         super(configuration);
     }
 
-//    @Override
-//    protected String getRequestUrl(String query, int resultCount, Language language) {
-//        StringBuilder urlBuilder = new StringBuilder();
-//        urlBuilder.append("http://www.faroo.com/instant.json");
-//        urlBuilder.append("?q=").append(UrlHelper.encodeParameter(query));
-//        urlBuilder.append("&start=1");
-//        urlBuilder.append("&key=").append(key);
-//        urlBuilder.append("&length=").append(resultCount);
-//        if (language.equals(Language.GERMAN)) {
-//            urlBuilder.append("&l=").append("de");
-//        } else if (language.equals(Language.CHINESE)) {
-//            urlBuilder.append("&l=").append("zh");
-//        } else {
-//            urlBuilder.append("&l=").append("en");
-//        }
-//        urlBuilder.append("&src=web");
-//
-//        return urlBuilder.toString();
-//    }
-    
     @Override
     protected String getSrcType() {
         return "web";
@@ -58,10 +37,6 @@ public final class FarooSearcher extends BaseFarooSearcher {
     @Override
     public String getName() {
         return "Faroo";
-    }
-
-    public static void main(String[] args) throws SearcherException {
-        // CollectionHelper.print(new FarooSearcher(TODO).search("conan", 10));
     }
 
 }

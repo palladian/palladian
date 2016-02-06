@@ -1,5 +1,7 @@
 package ws.palladian.classification.utils;
 
+import static ws.palladian.helper.functional.Filters.equal;
+import static ws.palladian.helper.functional.Filters.not;
 import static ws.palladian.helper.math.MathHelper.log2;
 
 import java.io.BufferedWriter;
@@ -8,9 +10,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -25,7 +30,7 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Model;
-import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -155,10 +160,8 @@ public final class ClassificationUtils {
         int featureCount = 0;
         for (VectorEntry<String, Value> feature : instance.getVector()) {
             Value value = feature.value();
-            if (value instanceof NominalValue) {
-                writer.write(((NominalValue)value).getString());
-            } else if (value instanceof NumericValue) {
-                writer.write(String.valueOf(((NumericValue)value).getDouble()));
+            if (!(value instanceof NullValue)) {
+            	writer.write(value.toString());
             }
             writer.write(DEFAULT_SEPARATOR);
             featureCount++;
@@ -206,6 +209,7 @@ public final class ClassificationUtils {
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return The FeatureVector without the features filtered out by the nameFilter.
      */
+    // TODO move to InstanceBuilder
     public static FeatureVector filterFeatures(FeatureVector featureVector, Filter<? super String> nameFilter) {
         Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
@@ -233,9 +237,10 @@ public final class ClassificationUtils {
      * @see #filterFeaturesIterable(Iterable, Filter) which does the same on an iterable, without loading the whole
      *      dataset in memory.
      */
+    // TODO remove and replace by filterFeaturesIterable
     public static List<Instance> filterFeatures(Iterable<? extends Instance> instances,
             Filter<? super String> nameFilter) {
-        List<Instance> result = CollectionHelper.newArrayList();
+        List<Instance> result = new ArrayList<>();
         for (Instance instance : instances) {
             FeatureVector featureVector = ClassificationUtils.filterFeatures(instance.getVector(), nameFilter);
             result.add(new InstanceBuilder().add(featureVector).create(instance.getCategory()));
@@ -256,6 +261,33 @@ public final class ClassificationUtils {
             Filter<? super String> nameFilter) {
         return new DatasetFeatureFilter(dataset, nameFilter);
     }
+    
+	/**
+	 * Set the category of the supplied instance to any of the present features.
+	 * The feature itself will be removed from the feature vector.
+	 * 
+	 * @param dataset
+	 *            The dataset, not <code>null</code>.
+	 * @param featureName
+	 *            The name of the feature which should be used as category.
+	 * @return A new {@link Iterable} which provides the converted instances.
+	 */
+	public static Iterable<Instance> useFeatureAsCategory(Iterable<? extends Instance> dataset,
+			final String featureName) {
+		Validate.notNull(dataset, "dataset must not be null");
+		Validate.notEmpty(featureName, "featureName must not be empty or null");
+		return CollectionHelper.convert(dataset, new Function<Instance, Instance>() {
+			@Override
+			public Instance compute(Instance input) {
+				FeatureVector featureVector = filterFeatures(input.getVector(), not(equal(featureName)));
+				Value category = input.getVector().get(featureName);
+				if (category == null) {
+					throw new IllegalArgumentException("No feature with name \"" + featureName + "\".");
+				}
+				return new InstanceBuilder().add(featureVector).create(category.toString());
+			}
+		});
+	}
 
     /**
      * <p>
@@ -268,7 +300,7 @@ public final class ClassificationUtils {
     // XXX currently, only get from first item in the dataset
     public static Set<String> getFeatureNames(Iterable<? extends FeatureVector> dataset) {
         Validate.notNull(dataset, "dataset must not be null");
-        Set<String> featureNames = CollectionHelper.newTreeSet();
+        Set<String> featureNames = new TreeSet<>();
         FeatureVector featureVector = CollectionHelper.getFirst(dataset);
         for (VectorEntry<String, Value> entry : featureVector) {
             featureNames.add(entry.key());
@@ -301,7 +333,7 @@ public final class ClassificationUtils {
      */
     public static NumericVector<String> getNumericVector(FeatureVector featureVector) {
         Validate.notNull(featureVector, "featureVector must not be null");
-        Map<String, Double> values = CollectionHelper.newHashMap();
+        Map<String, Double> values = new HashMap<>();
         for (VectorEntry<String, Value> entry : featureVector) {
             Value value = entry.value();
             if (value instanceof NumericValue) {
@@ -321,6 +353,7 @@ public final class ClassificationUtils {
         });
     }
     
+    // TODO duplicate of ws.palladian.classification.discretization.DatasetStatistics.getCategoryPriors()
     public static CategoryEntries getCategoryCounts(Iterable<? extends Instance> instances) {
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         for (Instance instance : instances) {
@@ -329,6 +362,7 @@ public final class ClassificationUtils {
         return builder.create();
     }
 
+    // TODO move to CategoryEntries
     public static double entropy(CategoryEntries categoryEntries) {
         double entropy = 0;
         for (Category category : categoryEntries) {

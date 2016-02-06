@@ -33,7 +33,7 @@ public class CascadingSearcher extends AbstractSearcher<WebContent> {
     public CascadingSearcher(List<Searcher<WebContent>> searchers) {
         this.searchers = searchers;
         if (searchers == null) {
-            searchers = new ArrayList<Searcher<WebContent>>();
+            searchers = new ArrayList<>();
         }
     }
 

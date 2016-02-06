@@ -1,5 +1,6 @@
 package ws.palladian.extraction.location;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -17,7 +17,7 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 /**
  * Builder for {@link Location}s. The created instances are immutable.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class LocationBuilder implements Factory<Location> {
 
@@ -28,6 +28,18 @@ public final class LocationBuilder implements Factory<Location> {
     private Long population;
     private List<Integer> ancestorIds;
     private GeoCoordinate coordinate;
+    
+//    public LocationBuilder setLocation(Location location) {
+//        Validate.notNull(location, "location must not be null");
+//        setId(location.getId());
+//        setPrimaryName(location.getPrimaryName());
+//        setAlternativeNames(location.getAlternativeNames());
+//        setType(location.getType());
+//        setPopulation(location.getPopulation());
+//        setAncestorIds(location.getAncestorIds());
+//        setCoordinate(location.getCoordinate());
+//        return this;
+//    }
 
     public LocationBuilder setId(int id) {
         this.id = id;
@@ -40,7 +52,7 @@ public final class LocationBuilder implements Factory<Location> {
     }
 
     public LocationBuilder setAlternativeNames(Collection<? extends AlternativeName> alternativeNames) {
-        this.alternativeNames = alternativeNames != null ? new HashSet<AlternativeName>(alternativeNames) : null;
+        this.alternativeNames = alternativeNames != null ? new HashSet<>(alternativeNames) : null;
         return this;
     }
 
@@ -76,12 +88,20 @@ public final class LocationBuilder implements Factory<Location> {
 
     public LocationBuilder setAncestorIds(int... ancestorIds) {
         if (ancestorIds != null) {
-            this.ancestorIds = CollectionHelper.newArrayList();
+            this.ancestorIds = new ArrayList<>();
             for (int ancestorId : ancestorIds) {
                 this.ancestorIds.add(ancestorId);
             }
 
         }
+        return this;
+    }
+    
+    public LocationBuilder addAncestorId(int ancestorId) {
+        if (ancestorIds == null) {
+            ancestorIds = new ArrayList<>();
+        }
+        ancestorIds.add(ancestorId);
         return this;
     }
 
@@ -98,7 +118,7 @@ public final class LocationBuilder implements Factory<Location> {
      */
     public LocationBuilder setAncestorIds(String hierarchyPath) {
         if (hierarchyPath != null) {
-            ancestorIds = CollectionHelper.newArrayList();
+            ancestorIds = new ArrayList<>();
             String[] splitPath = hierarchyPath.split("/");
             for (int i = splitPath.length - 1; i >= 0; i--) {
                 String ancestorId = splitPath[i];

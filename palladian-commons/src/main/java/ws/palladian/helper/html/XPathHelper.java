@@ -58,7 +58,7 @@ public final class XPathHelper {
     private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
 
     private static class MyNamespaceContext implements NamespaceContext {
-        private final Map<String, String> namespaces = new HashMap<String, String>();
+        private final Map<String, String> namespaces = new HashMap<>();
 
         @Override
         public String getNamespaceURI(String prefix) {
@@ -102,7 +102,7 @@ public final class XPathHelper {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
-        List<Node> ret = new ArrayList<Node>();
+        List<Node> ret = new ArrayList<>();
 
         XPathFactory factory = XPathFactory.newInstance();
         XPath xPathObject = factory.newXPath();
@@ -244,6 +244,29 @@ public final class XPathHelper {
 
     /**
      * <p>
+     * Get the text content of a child node with the given XPath expression.
+     * </p>
+     *
+     * @param node The node whose children are considered, not <code>null</code>.
+     * @param xPath The XPath expression addressing the node with the sought text content, not <code>null</code> or
+     *            empty.
+     * @return The Node's text content, or an empty {@link String} if node does not exist.
+     */
+    public static String getXhtmlNodeTextContent(Node node, String xPath) {
+        Validate.notNull(node, "node must not be null.");
+        Validate.notEmpty(xPath, "xPath must not be empty.");
+
+        String textContent = "";
+        Node textNode = getXhtmlNode(node, xPath);
+        if (textNode != null) {
+            textContent = textNode.getTextContent();
+        }
+
+        return textContent;
+    }
+
+    /**
+     * <p>
      * Get the XPath that points to the parent element of the given XPath. For example: <code>/DIV/P/A</code> =>
      * <code>/DIV/P</code>.
      * </p>
@@ -275,7 +298,7 @@ public final class XPathHelper {
     public static List<Node> getPreviousSiblings(Node node) {
         Validate.notNull(node, "node must not be null");
         Node parentNode = node.getParentNode();
-        List<Node> previousSiblings = new ArrayList<Node>();
+        List<Node> previousSiblings = new ArrayList<>();
         NodeList childNodes = parentNode.getChildNodes();
 
         for (int i = 0; i < childNodes.getLength(); i++) {
@@ -362,7 +385,7 @@ public final class XPathHelper {
             node = document.getLastChild().getAttributes().getNamedItem("xmlns");
         }
 
-        if (node != null && node.getTextContent().toLowerCase().indexOf("xhtml") > -1) {
+        if (node != null && node.getTextContent().toLowerCase().contains("xhtml")) {
             result = true;
         }
         return result;
@@ -399,7 +422,7 @@ public final class XPathHelper {
     public static String addXhtmlNsToXPath(String xPath) {
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
-        if (xPath.toLowerCase(Locale.ENGLISH).indexOf("xhtml:") > -1) {
+        if (xPath.toLowerCase(Locale.ENGLISH).contains("xhtml:")) {
             return xPath;
         }
         // return xPath.replaceAll("/(?=\\w)","/xhtml:");
@@ -416,7 +439,7 @@ public final class XPathHelper {
         // for tests achieved a more accurate transformation. If you discover any inaccuracies, please try to fix the
         // existing code below and add tests. Philipp, 2012-08-08
 
-        List<String> xPathParts = new ArrayList<String>();
+        List<String> xPathParts = new ArrayList<>();
         StringBuilder buf = new StringBuilder();
         List<Character> split = Arrays.asList('/', ' ', '[', ']', '|', ')');
 

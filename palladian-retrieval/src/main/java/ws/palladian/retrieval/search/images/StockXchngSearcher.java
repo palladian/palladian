@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.images;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class StockXchngSearcher extends AbstractSearcher<WebImage> {
 
     @Override
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebImage> results = CollectionHelper.newArrayList();
+        List<WebImage> results = new ArrayList<>();
 
         resultCount = Math.min(1000, resultCount);
 
@@ -93,7 +94,7 @@ public class StockXchngSearcher extends AbstractSearcher<WebImage> {
 
     private String buildRequest(String searchTerms, int page) {
         String[] terms = searchTerms.split("\\s");
-        String q1 = "";
+        String q1;
         String q2 = "";
         String q3 = "";
         q1 = UrlHelper.encodeParameter(terms[0]);
@@ -117,7 +118,7 @@ public class StockXchngSearcher extends AbstractSearcher<WebImage> {
     }
 
     /**
-     * @param args
+     * @param args arguments
      * @throws SearcherException
      */
     public static void main(String[] args) throws SearcherException {

@@ -1,10 +1,12 @@
 package ws.palladian.extraction.location;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
-import ws.palladian.helper.collection.CollectionHelper;
+import org.apache.commons.lang3.Validate;
+
 import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.geo.GeoCoordinate;
 
@@ -52,7 +54,7 @@ public final class LocationExtractorUtils {
      *         least one name.
      */
     public static boolean differentNames(Collection<Location> locations) {
-        Set<String> allNames = CollectionHelper.newHashSet();
+        Set<String> allNames = new HashSet<>();
         for (Location location : locations) {
             Set<String> currentNames = location.collectAlternativeNames();
             if (allNames.size() > 0) {
@@ -70,6 +72,37 @@ public final class LocationExtractorUtils {
     public static boolean sameNames(Collection<Location> locations) {
         return !differentNames(locations);
     }
+    
+    public static Comparator<Location> distanceComparator(final GeoCoordinate coordinate) {
+        Validate.notNull(coordinate, "coordinate must not be null");
+        return new Comparator<Location>() {
+            @Override
+            public int compare(Location o1, Location o2) {
+                double d1 = o1.getCoordinate().distance(coordinate);
+                double d2 = o2.getCoordinate().distance(coordinate);
+                return Double.compare(d1, d2);
+            }
+        };
+    }
+
+//    /**
+//     * <p>
+//     * Create a filter matching locations by name and language.
+//     * 
+//     * @param name The name to match.
+//     * @param languages The languages to match (primary name and alternative name without specified language always
+//     *            match).
+//     * @return <code>true</code> in case the location matched for the name and language(s).
+//     * @see Location#hasName(String, Set)
+//     */
+//    public static Filter<Location> nameFilter(final String name, final Set<Language> languages) {
+//        return new Filter<Location>() {
+//            @Override
+//            public boolean accept(Location item) {
+//                return item.hasName(name, languages);
+//            }
+//        };
+//    }
 
     private LocationExtractorUtils() {
         // thou shalt not instantiate

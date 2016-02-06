@@ -1,6 +1,8 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +18,6 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 
 /**
@@ -65,14 +66,14 @@ public class FeatureBasedDisambiguation implements LocationDisambiguation {
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
 
         Set<ClassifiableLocation> classifiableLocations = featureExtractor.extract(text, locations);
-        Map<Integer, Double> scoredLocations = CollectionHelper.newHashMap();
+        Map<Integer, Double> scoredLocations = new HashMap<>();
 
         for (ClassifiableLocation classifiableLocation : classifiableLocations) {
             CategoryEntries classification = classifier.classify(classifiableLocation.getFeatureVector(), model);
             scoredLocations.put(classifiableLocation.getLocation().getId(), classification.getProbability("true"));
         }
 
-        List<LocationAnnotation> result = CollectionHelper.newArrayList();
+        List<LocationAnnotation> result = new ArrayList<>();
         for (Annotation annotation : locations.keySet()) {
             Collection<Location> candidates = locations.get(annotation);
 

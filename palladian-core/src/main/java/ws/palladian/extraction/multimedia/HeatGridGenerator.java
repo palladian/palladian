@@ -4,12 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.NumericMatrix;
 import ws.palladian.helper.math.NumericMatrix.NumericMatrixVector;
 
@@ -24,7 +24,7 @@ public final class HeatGridGenerator {
     /**
      * A ColorCoder maps a given intensity to a Color.
      * 
-     * @author pk
+     * @author Philipp Katz
      */
     public static interface ColorCoder {
         /**
@@ -43,12 +43,12 @@ public final class HeatGridGenerator {
 
         public PaletteColorCoder(List<Color> palette) {
             Validate.notNull(palette, "palette must not be null");
-            this.palette = CollectionHelper.newArrayList(palette);
+            this.palette = new ArrayList<>(palette);
         }
 
         public PaletteColorCoder() {
             // colors from: http://cdn3.sbnation.com/fan_shot_images/26552/090104_knicks.png
-            this.palette = CollectionHelper.newArrayList();
+            this.palette = new ArrayList<>();
             final int colorAlpha = 255;
             this.palette.add(new Color(0, 4, 114, colorAlpha));
             this.palette.add(new Color(46, 49, 146, colorAlpha));

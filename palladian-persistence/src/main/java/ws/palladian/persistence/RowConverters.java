@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Various predefined {@link RowConverter}s.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class RowConverters {
 
@@ -61,7 +61,7 @@ public final class RowConverters {
         }
     };
 
-    /** {@link RowConverter} for converting all columns to a map. */
+    /** {@link RowConverter} for converting all columns to a map. FIXME this does not replace {@link AllColumnsRowConverter.MAP} properly as it does not handle datatypes correctly */
     public final static RowConverter<Map<String, Object>> MAP = new RowConverter<Map<String, Object>>() {
         @Override
         public Map<String, Object> convert(ResultSet resultSet) throws SQLException {

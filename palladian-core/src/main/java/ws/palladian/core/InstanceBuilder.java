@@ -2,6 +2,7 @@ package ws.palladian.core;
 
 import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
@@ -12,17 +13,16 @@ import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.ImmutableTextValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * A builder for conveniently creating {@link Instance}s and {@link FeatureVector}s.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class InstanceBuilder {
 
-    private final Map<String, Value> valueMap = CollectionHelper.newHashMap();
+    private final Map<String, Value> valueMap = new LinkedHashMap<>();
 
     private int weight = 1;
 
@@ -37,6 +37,19 @@ public final class InstanceBuilder {
         Validate.notEmpty(name, "name must not be empty");
         valueMap.put(name, new ImmutableDoubleValue(value));
         return this;
+    }
+    
+    /**
+     * Set a long value (overwrite an existing value with the same name, in case it exists).
+     *
+     * @param name Name of the value to set, not <code>null</code> or empty.
+     * @param value Value to set.
+     * @return The builder instance for method chaining.
+     */
+    public InstanceBuilder set(String name, long value) {
+    	Validate.notEmpty(name, "name must not be empty");
+    	valueMap.put(name, new ImmutableLongValue(value));
+    	return this;
     }
 
     /**

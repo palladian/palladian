@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>0.2.2-SNAPSHOT</version>
+		<version>0.6.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>palladian-core</artifactId>
 	<name>Palladian: Core</name>
@@ -110,7 +110,7 @@
 			<groupId>quickdt</groupId>
 			<artifactId>quickdt</artifactId>
 			<version>0.0.8.10</version>
-			<!-- both dependencies are only used for testing in quickdt, so we do 
+			<!-- both dependencies are only used for testing in quickdt, so we do
 				not need them -->
 			<exclusions>
 				<exclusion>

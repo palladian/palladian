@@ -21,7 +21,7 @@ import ws.palladian.persistence.helper.SqlHelper;
  * statement as defined in the database schema). {@link #SIMPLE} on the other hand only converts the locations table,
  * omitting the alternative names.
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public final class LocationRowConverter implements RowConverter<Location> {
 
@@ -66,7 +66,7 @@ public final class LocationRowConverter implements RowConverter<Location> {
                 LOGGER.warn("Illegal lat/lng range: (" + latitude + "," + longitude + ")");
             }
         }
-        builder.setPopulation(resultSet.getLong("population"));
+        builder.setPopulation(SqlHelper.getLong(resultSet, "population"));
         builder.setAncestorIds(resultSet.getString("ancestorIds"));
         return builder.create();
     }

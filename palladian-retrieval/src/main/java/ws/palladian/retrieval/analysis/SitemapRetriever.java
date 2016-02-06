@@ -1,65 +1,146 @@
 package ws.palladian.retrieval.analysis;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * Read the sitemap and visit every page.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class SitemapRetriever {
 
-    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=loc\\>).*?(?=\\</loc)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=<loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE);
 
-    public List<String> getUrls(String sitemapIndexUrl) {
-        List<String> pageUrls = CollectionHelper.newArrayList();
+    public Set<String> getUrls(String sitemapIndexUrl) {
+        LinkedHashSet<String> pageUrls = new LinkedHashSet<>();
 
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
 
-        // get sitemap index page
-        String sitemapIndex = documentRetriever.getText(sitemapIndexUrl);
+        String sitemapIndex;
+
+        // is the sitemap gzipped?
+        if (FileHelper.getFileType(sitemapIndexUrl).equalsIgnoreCase("gz")) {
+
+            String tempPath = "data/temp/sitemapIndex.xml";
+            httpRetriever.downloadAndSave(sitemapIndexUrl, tempPath + ".gzipped");
+            FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
+            sitemapIndex = documentRetriever.getText(tempPath);
+            FileHelper.delete(tempPath);
+            FileHelper.delete(tempPath + ".gzipped");
+
+        } else {
+
+            // get sitemap index page
+            sitemapIndex = documentRetriever.getText(sitemapIndexUrl);
+
+        }
 
         List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapIndex);
 
+        ProgressMonitor sitemapRetriever = new ProgressMonitor(urls.size(), 0.1, "SitemapRetriever");
         int i = 1;
         for (String sitemapUrl : urls) {
 
             // clean url
             sitemapUrl = normalizeUrl(sitemapUrl);
 
+            // is it gzipped?
+            boolean gzipped = false;
+            if (FileHelper.getFileType(sitemapUrl).equalsIgnoreCase("gz")) {
+                gzipped = true;
+            }
+
             // download
-            String downloadPath = "data/temp/sitemap" + i + ".xml.compressed";
-            String unzippedPath = downloadPath.replace(".compressed", "");
+            String downloadPath = "data/temp/sitemap" + i + ".xml.gzipped";
+            String unzippedPath = downloadPath.replace(".gzipped", "");
             httpRetriever.downloadAndSave(sitemapUrl, downloadPath);
 
             // unzip
-            FileHelper.ungzipFile(downloadPath, unzippedPath);
+            if (gzipped) {
+                FileHelper.ungzipFile(downloadPath, unzippedPath);
+            } else {
+                FileHelper.copyFile(downloadPath, unzippedPath);
+            }
 
             // read
             String sitemapText = FileHelper.tryReadFileToString(unzippedPath);
-            List<String> sitemapUrls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapText);
+            if (sitemapText == null) {
+                continue;
+            }
+
+            String[] lines = sitemapText.split("\n");
+            List<String> sitemapUrls = new ArrayList<>();
+            for (String line : lines) {
+                List<String> regexpMatches = StringHelper.getRegexpMatches(LOC_PATTERN, line);
+                sitemapUrls.addAll(regexpMatches);
+            }
 
             // clean
-            List<String> cleanSitemapUrls = CollectionHelper.newArrayList();
+            LinkedHashSet<String> cleanSitemapUrls = new LinkedHashSet<>();
             for (String url : sitemapUrls) {
                 cleanSitemapUrls.add(normalizeUrl(url));
             }
 
             pageUrls.addAll(cleanSitemapUrls);
 
+            // clean up files
+            FileHelper.delete(downloadPath);
+            FileHelper.delete(unzippedPath);
+
             i++;
+
+            sitemapRetriever.incrementAndPrintProgress();
+
         }
+
+        return pageUrls;
+    }
+
+    public List<String> readSitemap(String sitemapUrl) {
+        return readSitemap(sitemapUrl, ".");
+    }
+
+    public List<String> readSitemap(String sitemapUrl, String goalNodeRegexp) {
+        Pattern goalRegexp = Pattern.compile(goalNodeRegexp, Pattern.CASE_INSENSITIVE);
+        List<String> urls = getUrlsFromSitemap(sitemapUrl);
+        List<String> goalUrls = new ArrayList<>();
+        for (String url : urls) {
+            if (goalRegexp.matcher(url).find()) {
+                goalUrls.add(url);
+            }
+        }
+
+        return goalUrls;
+    }
+
+    private List<String> getUrlsFromSitemap(String sitemapUrl) {
+        List<String> pageUrls = new ArrayList<>();
+
+        // read
+        String sitemapText = new DocumentRetriever().getText(sitemapUrl);
+        List<String> sitemapUrls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapText);
+
+        // clean
+        List<String> cleanSitemapUrls = new ArrayList<>();
+        for (String url : sitemapUrls) {
+            cleanSitemapUrls.add(normalizeUrl(url));
+        }
+
+        pageUrls.addAll(cleanSitemapUrls);
 
         return pageUrls;
     }
@@ -67,4 +148,5 @@ public class SitemapRetriever {
     protected String normalizeUrl(String url) {
         return url.replace("<![CDATA[", "").replace("]]>", "").trim();
     }
+
 }

@@ -29,4 +29,9 @@ public final class ImmutableDoubleValue extends AbstractValue implements Numeric
         return Double.doubleToLongBits(doubleValue) == Double.doubleToLongBits(other.doubleValue);
     }
 
+	@Override
+	public long getLong() {
+		return (long) doubleValue;
+	}
+
 }

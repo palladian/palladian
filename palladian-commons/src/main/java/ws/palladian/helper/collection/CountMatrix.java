@@ -1,6 +1,7 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
     /**
      * A {@link MatrixVector} decorator, which returns {@link IntegerVector}s.
      * 
-     * @author pk
+     * @author Philipp Katz
      * 
      * @param <K>
      */
@@ -72,6 +73,11 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
         @Override
         public Set<K> keys() {
             return vector.keys();
+        }
+
+        @Override
+        public Collection<Integer> values() {
+            return vector.values();
         }
 
         @Override

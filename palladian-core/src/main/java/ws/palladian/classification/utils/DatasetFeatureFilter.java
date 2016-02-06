@@ -14,7 +14,7 @@ import ws.palladian.helper.functional.Filter;
  * Filter features from a dataset, represented by an {@link Iterable} of {@link Instance}s.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 final class DatasetFeatureFilter implements Iterable<Instance> {
 

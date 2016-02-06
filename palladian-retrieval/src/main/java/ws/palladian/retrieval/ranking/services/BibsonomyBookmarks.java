@@ -2,7 +2,6 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
@@ -10,11 +9,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -63,11 +59,6 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     /** All available ranking tpyes by {@link BibsonomyBookmarks}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(BOOKMARKS);
 
-    /** Fields to check the service availability. */
-    private static boolean blocked = false;
-    private static long lastCheckBlocked;
-    private final static int checkBlockedIntervall = 1000 * 60 * 1;
-
     /**
      * <p>
      * Create a new {@link BibsonomyBookmarks} ranking service.
@@ -98,22 +89,16 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Builder builder = new Ranking.Builder(this, url);
-        if (isBlocked()) {
-            return builder.create();
-        }
 
         try {
 
-            String encUrl = UrlHelper.encodeParameter(url);
             // authenticate via HTTP Auth and send GET request
-            String pass = getLogin() + ":" + getApiKey();
+            HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET,
+                    "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=1000");
+            requestBuilder.setBasicAuth(login, apiKey);
+            requestBuilder.addUrlParam("search", url);
 
-            HttpRequest getRequest = new HttpRequest(HttpMethod.GET,
-                    "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=999999&search="
-                            + encUrl);
-            getRequest.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(pass));
-
-            HttpResult getResult = retriever.execute(getRequest);
+            HttpResult getResult = retriever.execute(requestBuilder.create());
             String response = getResult.getStringContent();
 
             // create JSON-Object from response
@@ -128,59 +113,12 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
             }
 
         } catch (JsonException e) {
-            checkBlocked();
             throw new RankingServiceException(e);
         } catch (IOException e) {
-            checkBlocked();
             throw new RankingServiceException(e);
         }
 
         return builder.create();
-    }
-
-    @Override
-    public boolean checkBlocked() {
-        int status = -1;
-        try {
-            // authenticate via HTTP Auth and send GET request
-            if (getLogin() == null || getApiKey() == null) {
-                throw new IllegalStateException("login or api key is missing.");
-            }
-            String pass = getLogin() + ":" + getApiKey();
-
-            HttpRequest getRequest = new HttpRequest(HttpMethod.GET,
-                    "http://www.bibsonomy.org/api/posts?format=json&resourcetype=bookmark&start=0&end=999999&search=http://www.google.com/");
-            getRequest.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(pass));
-
-            HttpResult getResult = retriever.execute(getRequest);
-            status = getResult.getStatusCode();
-        } catch (HttpException e) {
-            LOGGER.error("HttpException " + e.getMessage());
-        }
-        if (status == 200) {
-            blocked = false;
-            lastCheckBlocked = new Date().getTime();
-            return false;
-        }
-        blocked = true;
-        lastCheckBlocked = new Date().getTime();
-        LOGGER.error("Bibsonomy Ranking Service is momentarily blocked. Will check again in 1min.");
-        return true;
-    }
-
-    @Override
-    public boolean isBlocked() {
-        if (new Date().getTime() - lastCheckBlocked < checkBlockedIntervall) {
-            return blocked;
-        } else {
-            return checkBlocked();
-        }
-    }
-
-    @Override
-    public void resetBlocked() {
-        blocked = false;
-        lastCheckBlocked = new Date().getTime();
     }
 
     @Override
@@ -191,14 +129,6 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     @Override
     public List<RankingType> getRankingTypes() {
         return RANKING_TYPES;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public String getApiKey() {
-        return apiKey;
     }
     
     public static void main(String[] args) throws RankingServiceException {

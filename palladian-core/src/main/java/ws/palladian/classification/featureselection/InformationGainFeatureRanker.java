@@ -1,6 +1,7 @@
 package ws.palladian.classification.featureselection;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,7 +17,6 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.ProgressReporter;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * <p>
@@ -58,10 +58,11 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureRanker.class);
 
+    // TODO why does this require a collection? the implementation seems to be streamable?
     @Override
     public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
-        Map<String, Double> informationGainValues = CollectionHelper.newHashMap();
+        Map<String, Double> informationGainValues = new HashMap<>();
 
         progress.startTask("Information Gain", -1);
         LOGGER.debug("Calculating discretization");

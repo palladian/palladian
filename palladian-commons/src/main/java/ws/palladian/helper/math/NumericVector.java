@@ -7,7 +7,7 @@ import ws.palladian.helper.collection.Vector;
  * A numeric vector with arbitrary keys and algebraic operations, like dot product, norm etc.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  * @param <K>
  */

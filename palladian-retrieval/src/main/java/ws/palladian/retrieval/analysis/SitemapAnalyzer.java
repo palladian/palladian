@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,10 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import ws.palladian.helper.ProgressHelper;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
@@ -62,7 +62,7 @@ public class SitemapAnalyzer {
     private int numThreads = 10;
 
     public SitemapAnalyzer() {
-        resultTable = new ConcurrentHashMap<String, Map<String, Object>>();
+        resultTable = new ConcurrentHashMap<>();
         internalInboundLinkMap = Bag.create();
     }
 
@@ -84,16 +84,16 @@ public class SitemapAnalyzer {
         final StopWatch stopWatch = new StopWatch();
 
         LOGGER.info("getting the page urls");
-        List<String> urls = new SitemapRetriever().getUrls(sitemapUrl);
-        final int totalCount = urls.size();
+        Set<String> urls = new SitemapRetriever().getUrls(sitemapUrl);
 
         final AtomicInteger count = new AtomicInteger(1);
 
+        final ProgressMonitor progressMonitor = new ProgressMonitor(urls.size());
         Consumer<Document> retrieverCallback = new Consumer<Document>() {
 
             @Override
             public void process(Document document) {
-                Map<String, Object> map = CollectionHelper.newHashMap();
+                Map<String, Object> map = new HashMap<>();
 
                 Set<String> outInt = HtmlHelper.getLinks(document, true, false);
                 Set<String> outExt = HtmlHelper.getLinks(document, false, true);
@@ -117,7 +117,7 @@ public class SitemapAnalyzer {
                 int wordCount = StringHelper.countWords(noHtml);
 
                 // int indexed = 0;
-                // List<WebResult> searchResults = CollectionHelper.newArrayList();
+                // List<WebResult> searchResults = new ArrayList<>();
                 // try {
                 // searchResults = googleSearcher.search("\"" + document.getDocumentURI().replace("http://", "")
                 // + "\"", 1);
@@ -151,7 +151,7 @@ public class SitemapAnalyzer {
 
                 resultTable.put(document.getDocumentURI(), map);
 
-                ProgressHelper.printProgress(count.intValue(), totalCount, .2, stopWatch);
+                progressMonitor.incrementAndPrintProgress();
                 count.incrementAndGet();
             }
         };

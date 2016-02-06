@@ -11,16 +11,16 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.wiki.MediaWikiDescriptor;
+import ws.palladian.retrieval.wiki.MediaWikiUtil;
 import ws.palladian.retrieval.wiki.WikiPage;
 import ws.palladian.retrieval.wiki.WikiPageReference;
-import ws.palladian.retrieval.wiki.MediaWikiUtil;
 
 /**
  * <p>
  * Create a scope detection dataset from random Wikipedia articles.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  * 
  */
 public class WikipediaScopeDatasetCreator {

@@ -2,13 +2,13 @@ package ws.palladian.classification.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.Stats;
 
 /**
@@ -18,7 +18,7 @@ import ws.palladian.helper.math.Stats;
  * </p>
  * 
  * @see <a href="http://www.utdallas.edu/~herve/abdi-Normalizing2010-pretty.pdf">Normalizing Data; Hervé Abdi</a>
- * @author pk
+ * @author Philipp Katz
  */
 public final class ZScoreNormalizer extends AbstractStatsNormalizer {
 
@@ -29,9 +29,9 @@ public final class ZScoreNormalizer extends AbstractStatsNormalizer {
 
         private static final long serialVersionUID = 1L;
 
-        private final Map<String, Double> standardDeviations = CollectionHelper.newHashMap();
+        private final Map<String, Double> standardDeviations = new HashMap<>();
 
-        private final Map<String, Double> means = CollectionHelper.newHashMap();
+        private final Map<String, Double> means = new HashMap<>();
 
         ZScoreNormalization(Map<String, Stats> statsMap) {
             for (String featureName : statsMap.keySet()) {

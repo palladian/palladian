@@ -1,9 +1,11 @@
 package ws.palladian.retrieval.ranking.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -14,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
@@ -34,7 +36,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * </p>
  * 
  * @author Julien Schmehl
- * @author pk
+ * @author Philipp Katz
  */
 public final class FacebookLinkStats extends AbstractRankingService {
 
@@ -76,9 +78,9 @@ public final class FacebookLinkStats extends AbstractRankingService {
 
     @Override
     public Map<String, Ranking> getRanking(Collection<String> urls) throws RankingServiceException {
-        Map<String, Ranking> results = CollectionHelper.newHashMap();
-        List<String> urlBatch = CollectionHelper.newArrayList();
-        for (String url : CollectionHelper.newHashSet(urls)) {
+        Map<String, Ranking> results = new HashMap<>();
+        List<String> urlBatch = new ArrayList<>();
+        for (String url : new HashSet<>(urls)) {
             urlBatch.add(url);
             if (urlBatch.size() >= BATCH_SIZE) {
                 Map<String, Ranking> batchRanking = getRanking2(urlBatch);
@@ -101,10 +103,12 @@ public final class FacebookLinkStats extends AbstractRankingService {
         LOGGER.debug("FQL = {}", fqlQuery);
         HttpResult response;
         try {
-            HttpRequest postRequest = new HttpRequest(HttpMethod.POST, "https://api.facebook.com/method/fql.query");
-            postRequest.addParameter("format", "json");
-            postRequest.addParameter("query", fqlQuery);
-            response = retriever.execute(postRequest);
+            HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, "https://api.facebook.com/method/fql.query");
+            FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+            entityBuilder.addData("format", "json");
+            entityBuilder.addData("query", fqlQuery);
+            requestBuilder.setEntity(entityBuilder.create());
+            response = retriever.execute(requestBuilder.create());
         } catch (HttpException e) {
             throw new RankingServiceException("HttpException " + e.getMessage(), e);
         }

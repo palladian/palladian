@@ -12,7 +12,7 @@ import ws.palladian.retrieval.resources.WebContent;
  * the facets you support in your searcher. The old API methods delegate to this one.
  * </p>
  * 
- * @author katz
+ * @author Philipp Katz
  * 
  * @param <R>
  */

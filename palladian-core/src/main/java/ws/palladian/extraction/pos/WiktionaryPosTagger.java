@@ -1,6 +1,7 @@
 package ws.palladian.extraction.pos;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.semantics.Word;
 import ws.palladian.semantics.WordDB;
@@ -49,7 +49,7 @@ public class WiktionaryPosTagger extends AbstractPosTagger {
         
         
         // int lastIndex = -1;
-        List<String> tags = CollectionHelper.newArrayList();
+        List<String> tags = new ArrayList<>();
 
         for (String token : tokens) {
 

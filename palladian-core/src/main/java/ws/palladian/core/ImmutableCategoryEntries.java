@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
 /**
- * @author pk
+ * @author Philipp Katz
  */
 public final class ImmutableCategoryEntries extends AbstractCategoryEntries {
 

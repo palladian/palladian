@@ -16,7 +16,6 @@ import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -26,8 +25,8 @@ public class InformativenessAssigner {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InformativenessAssigner.class);
 
-    private HashMap<String, Double> tokenFrequencies = CollectionHelper.newHashMap();
-    private Map<String, Double> normalizedTokenFrequencies = CollectionHelper.newHashMap();
+    private HashMap<String, Double> tokenFrequencies = new HashMap<>();
+    private Map<String, Double> normalizedTokenFrequencies = new HashMap<>();
 
     private InformativenessAssigner() {
         // loadFrequencyMap();

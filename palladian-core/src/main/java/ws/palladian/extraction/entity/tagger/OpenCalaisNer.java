@@ -13,9 +13,10 @@ import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
+import ws.palladian.retrieval.FormEncodedHttpEntity;
 import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
-import ws.palladian.retrieval.HttpRequest.HttpMethod;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -185,15 +186,17 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
-        HttpRequest request = new HttpRequest(HttpMethod.POST, "http://api.opencalais.com/tag/rs/enrich");
-        request.addHeader("x-calais-licenseID", apiKey);
-        request.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        request.addHeader("Accept", "application/json");
-        request.addParameter("content", inputText);
-        request.addParameter(
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, "http://api.opencalais.com/tag/rs/enrich");
+        requestBuilder.addHeader("x-calais-licenseID", apiKey);
+        requestBuilder.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        requestBuilder.addHeader("Accept", "application/json");
+        FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+        entityBuilder.addData("content", inputText);
+        entityBuilder.addData(
                 "paramsXML",
                 "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
-        return httpRetriever.execute(request);
+        requestBuilder.setEntity(entityBuilder.create());
+        return httpRetriever.execute(requestBuilder.create());
     }
 
     @Override

@@ -20,7 +20,7 @@ import org.apache.commons.lang3.Validate;
  * Default implementation for {@link GeoCoordinate} with implemented utility functionality.
  * </p>
  * 
- * @author pk
+ * @author Philipp Katz
  */
 public abstract class AbstractGeoCoordinate implements GeoCoordinate {
 

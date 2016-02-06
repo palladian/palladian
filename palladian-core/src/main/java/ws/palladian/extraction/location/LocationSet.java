@@ -10,6 +10,7 @@ import static ws.palladian.helper.functional.Filters.not;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ import ws.palladian.helper.math.Stats;
 /**
  * Provides various statistics for sets of {@link Location}s.
  *
- * @author pk
+ * @author Philipp Katz
  */
 public class LocationSet extends AbstractSet<Location> {
 
@@ -33,7 +34,7 @@ public class LocationSet extends AbstractSet<Location> {
 
     public LocationSet(Collection<? extends Location> locations) {
         Validate.notNull(locations, "locations must not be null");
-        this.locations = Collections.unmodifiableSet(CollectionHelper.newHashSet(locations));
+        this.locations = Collections.unmodifiableSet(new HashSet<>(locations));
     }
 
     // query methods
@@ -235,6 +236,20 @@ public class LocationSet extends AbstractSet<Location> {
     @Override
     public Iterator<Location> iterator() {
         return locations.iterator();
+    }
+    
+    /**
+     * @return The first location in this set (determined by {@link Location#getId()}, or <code>null</code> in case this
+     *         set was empty.
+     */
+    public Location first() {
+        Location first = null;
+        for (Location location : locations) {
+            if (first == null || first.getId() > location.getId()) {
+                first = location;
+            }
+        }
+        return first;
     }
 
 }

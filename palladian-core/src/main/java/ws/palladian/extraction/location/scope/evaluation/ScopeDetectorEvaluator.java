@@ -2,6 +2,7 @@ package ws.palladian.extraction.location.scope.evaluation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,7 +29,6 @@ import ws.palladian.extraction.location.scope.MidpointScopeDetector;
 import ws.palladian.extraction.location.scope.RankingScopeDetector;
 import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.io.FileHelper;
@@ -48,9 +48,9 @@ public class ScopeDetectorEvaluator {
 
     private static final String RESULT_DETAILS_FILE = "data/scopeDetectionDetailedResults_%s.csv";
 
-    private final List<Iterable<LocationDocument>> datasets = CollectionHelper.newArrayList();
+    private final List<Iterable<LocationDocument>> datasets = new ArrayList<>();
 
-    private final List<ScopeDetector> detectors = CollectionHelper.newArrayList();
+    private final List<ScopeDetector> detectors = new ArrayList<>();
 
     public void addDataset(Iterable<LocationDocument> dataset) {
         datasets.add(dataset);
@@ -71,6 +71,21 @@ public class ScopeDetectorEvaluator {
             FileHelper.appendFile(RESULT_CSV_FILE.getPath(), "\n\n");
             FileHelper.appendFile(RESULT_CSV_FILE.getPath(), "\n\n");
         }
+    }
+
+    /**
+     * Prints out relevant prediction/error statistics.
+     * 
+     * @param stats The statistics, not <code>null</code>.
+     */
+    public static void printStats(Stats stats) {
+        Validate.notNull(stats, "stats must not be null");
+        System.out.println("Mean:" + stats.getMean());
+        System.out.println("Median:" + stats.getMedian());
+        System.out.println("below1km" + stats.getCumulativeProbability(1));
+        System.out.println("below10km" + stats.getCumulativeProbability(10));
+        System.out.println("below100km" + stats.getCumulativeProbability(100));
+        System.out.println("below1000km" + stats.getCumulativeProbability(1000));
     }
 
     /**

@@ -1,5 +1,7 @@
 package ws.palladian.classification;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,9 +69,9 @@ public final class WekaLearner implements Learner<WekaModel> {
         Instances data = new Instances("dataset", schema, numInstances);
 
         // Create schema for weka dataset.
-        List<Map<Integer, Double>> wekaFeatureSets = CollectionHelper.newArrayList();
-        Set<String> classes = CollectionHelper.newHashSet();
-        List<String> instanceClasses = CollectionHelper.newArrayList();
+        List<Map<Integer, Double>> wekaFeatureSets = new ArrayList<>();
+        Set<String> classes = new HashSet<>();
+        List<String> instanceClasses = new ArrayList<>();
         for (Instance instance : instances) {
             Map<Integer,Double>wekaFeatureSet=createWekaFeatureSet(instance.getVector(),data,instances);
             wekaFeatureSets.add(wekaFeatureSet);
@@ -119,7 +121,7 @@ public final class WekaLearner implements Learner<WekaModel> {
 
     private Map<Integer, Double> createWekaFeatureSet(FeatureVector vector, Instances data,
             Iterable<? extends Instance> instances) {
-        Map<Integer, Double> ret = CollectionHelper.newHashMap();
+        Map<Integer, Double> ret = new HashMap<>();
         for (VectorEntry<String, Value> entry : vector) {
             String effectiveFeatureName = entry.key();
             Value value = entry.value();

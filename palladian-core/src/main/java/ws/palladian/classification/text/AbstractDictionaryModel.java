@@ -1,6 +1,7 @@
 package ws.palladian.classification.text;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +33,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
     public void toCsv(PrintStream printStream) {
         Validate.notNull(printStream, "printStream must not be null");
         printStream.print("Term");
-        List<String> categories = CollectionHelper.newArrayList(getCategories());
+        List<String> categories = new ArrayList<>(getCategories());
         Collections.sort(categories); // sort category names alphabetically
         for (String category : categories) {
             printStream.print(CSV_SEPARATOR);
