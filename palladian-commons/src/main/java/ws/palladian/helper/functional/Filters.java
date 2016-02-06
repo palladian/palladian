@@ -30,6 +30,10 @@ public final class Filters {
         public boolean accept(Object item) {
             return item != null;
         }
+        @Override
+        public String toString() {
+        	return "not_null";
+        };
     };
 
     /** A filter which accepts all elements. */
@@ -38,6 +42,10 @@ public final class Filters {
         public boolean accept(Object item) {
             return true;
         }
+        @Override
+        public String toString() {
+        	return "all";
+        };
     };
 
     /** A filter which rejects all elements. */
@@ -46,6 +54,10 @@ public final class Filters {
         public boolean accept(Object item) {
             return false;
         }
+        @Override
+        public String toString() {
+        	return "none";
+        };
     };
 
     /** A filter which rejects empty {@link CharSequence}s. */
@@ -54,6 +66,10 @@ public final class Filters {
         public boolean accept(CharSequence item) {
             return item != null && item.length() > 0;
         }
+        @Override
+        public String toString() {
+        	return "empty";
+        };
     };
 
     /**
@@ -69,6 +85,10 @@ public final class Filters {
             @Override
             public boolean accept(T item) {
                 return !filter.accept(item);
+            }
+            @Override
+            public String toString() {
+            	return "not [" + filter + "]";
             }
         };
     }
