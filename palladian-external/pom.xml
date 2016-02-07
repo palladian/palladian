@@ -94,9 +94,9 @@
 		<!--<dependency><groupId>tud.iir.external</groupId><artifactId>juliener</artifactId></dependency>-->
 		<!--<dependency><groupId>edu.smu.tspell</groupId><artifactId>jaws-bin</artifactId><version>1.2</version></dependency>-->
 		<dependency>
-			<groupId>quickml</groupId>
+			<groupId>com.github.sanity</groupId>
 			<artifactId>quickml</artifactId>
-			<version>0.4.6.5</version>
+			<version>0.10.9</version>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -120,9 +120,8 @@
 		</repository>
 		<repository>
 			<!-- QuickMl -->
-			<id>sanity-maven-repo</id>
-			<name>Sanity's Maven repository on GitHub</name>
-			<url>http://sanity.github.com/maven-repo/repository/</url>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
 </project>

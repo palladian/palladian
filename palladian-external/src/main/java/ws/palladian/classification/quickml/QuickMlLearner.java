@@ -1,6 +1,8 @@
 package ws.palladian.classification.quickml;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,18 +11,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import quickml.data.AttributesMap;
-import quickml.data.InstanceImpl;
+import quickml.data.instances.ClassifierInstance;
 import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
-import quickml.supervised.classifier.decisionTree.TreeBuilder;
-import quickml.supervised.classifier.randomForest.RandomForestBuilder;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
+import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
@@ -36,7 +37,7 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuickMlLearner.class);
 
     /** The builder used for creating the predictive mode. */
-    private final PredictiveModelBuilder<AttributesMap, ? extends Classifier> builder;
+    private final PredictiveModelBuilder<? extends Classifier, ClassifierInstance> builder;
 
     /**
      * @return A new QuickMlLearner creating a random forest with ten trees.
@@ -54,15 +55,16 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
         // "random subspace" method; 0.7 denotes the probability, that an attribute at a node will be ignored
         // see: Tin K. Ho; The random subspace method for constructing decision forests; 1998
         // and mail Ian, 2013-12-29 -- Philipp
-        TreeBuilder treeBuilder = new TreeBuilder().ignoreAttributeAtNodeProbability(0.7);
-        return new QuickMlLearner(new RandomForestBuilder(treeBuilder).numTrees(numTrees));
+        DecisionTreeBuilder<ClassifierInstance> treeBuilder = new DecisionTreeBuilder<>().ignoreAttributeProbability(0.7);
+        RandomDecisionForestBuilder<ClassifierInstance> randomForestBuilder = new RandomDecisionForestBuilder<>(treeBuilder).numTrees(numTrees);
+        return new QuickMlLearner(randomForestBuilder);
     }
 
     /**
      * @return A new QuickMlLearner creating a single tree.
      */
     public static QuickMlLearner tree() {
-        return new QuickMlLearner(new TreeBuilder());
+        return new QuickMlLearner(new DecisionTreeBuilder<>());
     }
 
     /**
@@ -75,7 +77,7 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
      * @deprecated Use {@link #tree()} or {@link #randomForest()} to create instances.
      */
     @Deprecated
-    public QuickMlLearner(PredictiveModelBuilder<AttributesMap, ? extends Classifier> builder) {
+    public QuickMlLearner(PredictiveModelBuilder<? extends Classifier, ClassifierInstance> builder) {
         Validate.notNull(builder, "builder must not be null");
         this.builder = builder;
     }
@@ -83,11 +85,11 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
     @Override
     public QuickMlModel train(Iterable<? extends Instance> instances) {
         Validate.notNull(instances, "instances must not be null");
-        Set<quickml.data.Instance<AttributesMap>> trainingInstances = CollectionHelper.newHashSet();
-        Set<String> classes = CollectionHelper.newHashSet();
-        for (ws.palladian.core.Instance instance : instances) {
+        Set<ClassifierInstance> trainingInstances = new HashSet<>();
+        Set<String> classes = new HashSet<>();
+        for (Instance instance : instances) {
             AttributesMap input = getInput(instance.getVector());
-            trainingInstances.add(new InstanceImpl<AttributesMap>(input, instance.getCategory()));
+            trainingInstances.add(new ClassifierInstance(input, instance.getCategory()));
             classes.add(instance.getCategory());
         }
         Classifier classifier = builder.buildPredictiveModel(trainingInstances);
@@ -95,7 +97,7 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
     }
 
     static AttributesMap getInput(FeatureVector featureVector) {
-        Map<String, Serializable> inputs = CollectionHelper.newHashMap();
+        Map<String, Serializable> inputs = new HashMap<>();
         for (VectorEntry<String, Value> feature : featureVector) {
             Value value = feature.value();
             if (value instanceof NominalValue) {
